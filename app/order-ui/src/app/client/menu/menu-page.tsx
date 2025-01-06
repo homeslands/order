@@ -9,8 +9,10 @@ import { CurrentDateInput } from '@/components/app/input'
 import { PriceRangeFilter } from '@/components/app/popover'
 import { useBranchStore } from '@/stores/branch.store'
 import { formatCurrency } from '@/utils'
+import { useTranslation } from 'react-i18next'
 
 export default function MenuPage() {
+  const { t } = useTranslation('menu')
   const { minPrice, maxPrice, clearPriceRange } = usePriceRangeStore()
   const { branch } = useBranchStore()
   const [filters, setFilters] = useState({
@@ -38,19 +40,19 @@ export default function MenuPage() {
         <div className="w-full lg:sticky lg:top-20 lg:z-10 lg:w-1/4">
           <div className="flex flex-col gap-4">
             {/* Title */}
-            <div className="flex w-full items-center gap-1">
+            <div className="flex items-center w-full gap-1">
               <CurrentDateInput menu={specificMenu?.result} />
             </div>
             <div className="flex items-end gap-1 text-xs text-primary">
-              <MapPinIcon className="h-5 w-5" />
-              {branch?.name} ({branch?.address})
+              <MapPinIcon className="w-5 h-5" />
+              {branch ? `${branch.name} (${branch.address})` : t('menu.noData')}
             </div>
             {/* Price filter */}
-            <div className="w-full flex-shrink-0 sm:w-auto">
+            <div className="flex-shrink-0 w-full sm:w-auto">
               <PriceRangeFilter />
             </div>
             {minPrice !== 0 && maxPrice !== 0 && (
-              <div className="flex flex-shrink-0 items-center gap-1 rounded-full border border-primary bg-primary/10 px-2 text-primary">
+              <div className="flex items-center flex-shrink-0 gap-1 px-2 border rounded-full border-primary bg-primary/10 text-primary">
                 <span className="text-xs">{formatCurrency(minPrice)}</span>
                 <span className="text-xs">đến</span>
                 <span className="text-xs">{formatCurrency(maxPrice)}</span>

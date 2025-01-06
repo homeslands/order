@@ -56,46 +56,59 @@ export default function BranchSelect({
       value={selectedBranch} // Hiển thị giá trị mặc định đã chọn
       options={allBranches} // Danh sách options
       onChange={handleChange}
-      menuPortalTarget={document.body}
-      styles={{
-        menuPortal: (base) => ({
-          ...base,
-          zIndex: 9999,
-        }),
-        menu: (base) => ({
-          ...base,
-          zIndex: 9999,
-          borderRadius: "8px",
-          overflow: "hidden",
-          border: "1px solid #e5e7eb",
-          // height: "10px",
-        }),
-        menuList: (base) => ({
-          ...base,
-          padding: 0,
-        }),
-        control: (base) => ({
-          ...base,
-          borderRadius: "8px", // Thêm border radius cho control (full rounded)
-          paddingLeft: "0.5rem",
-          paddingRight: "0.5rem",
-          borderColor: "#e5e7eb", // Màu border
-          minHeight: "32px", // Thay đổi height thành minHeight để control chiều cao
-          height: "40px"     // Thêm height cố định
-        }),
-        option: (base, state) => ({
-          ...base,
-          cursor: "pointer",
-          backgroundColor: state.isSelected ? "#f79e22" : "white", // orange-500 when selected
-          color: state.isSelected ? "white" : base.color,
-          "&:hover": {
-            backgroundColor: state.isSelected ? "#f79e22" : "#f3f4f6",
-          },
-          "&:active": {
-            backgroundColor: "#f79e22"
-          }
-        })
-      }}
+      defaultValue={selectedBranch} // Giá trị mặc định
+    // menuPortalTarget={document.body}
+    // styles={{
+    //   menuPortal: (base) => ({
+    //     ...base,
+    //     zIndex: 9999,
+    //   }),
+    //   menu: (base) => ({
+    //     ...base,
+    //     zIndex: 9999,
+    //     borderRadius: "8px",
+    //     overflow: "hidden",
+    //     border: "1px solid #e5e7eb",
+    //   }),
+    //   menuList: (base) => ({
+    //     ...base,
+    //     padding: 0,
+    //     maxHeight: "300px", // Đặt chiều cao tối đa
+    //     overflowY: "auto", // Cuộn dọc khi danh sách quá dài
+    //     scrollbarWidth: "thin", // Tinh chỉnh thanh cuộn trên Firefox
+    //     '&::-webkit-scrollbar': {
+    //       width: '6px', // Độ rộng của thanh cuộn trên Chrome, Edge
+    //     },
+    //     '&::-webkit-scrollbar-thumb': {
+    //       backgroundColor: '#d1d5db', // Màu thanh cuộn
+    //       borderRadius: '4px',
+    //     },
+    //     '&::-webkit-scrollbar-thumb:hover': {
+    //       backgroundColor: '#9ca3af', // Màu thanh cuộn khi hover
+    //     },
+    //   }),
+    //   control: (base) => ({
+    //     ...base,
+    //     borderRadius: "8px", // Thêm border radius cho control (full rounded)
+    //     paddingLeft: "0.5rem",
+    //     paddingRight: "0.5rem",
+    //     borderColor: "#e5e7eb", // Màu border
+    //     minHeight: "32px", // Thay đổi height thành minHeight để control chiều cao
+    //     height: "40px", // Thêm height cố định
+    //   }),
+    //   option: (base, state) => ({
+    //     ...base,
+    //     cursor: "pointer",
+    //     backgroundColor: state.isSelected ? "#f79e22" : "white", // orange-500 when selected
+    //     color: state.isSelected ? "white" : base.color,
+    //     "&:hover": {
+    //       backgroundColor: state.isSelected ? "#f79e22" : "#f3f4f6",
+    //     },
+    //     "&:active": {
+    //       backgroundColor: "#f79e22",
+    //     },
+    //   }),
+    // }}
     />
   )
 }

@@ -47,7 +47,7 @@ const axiosInstance: AxiosInstance = axios.create({
 
 // Public routes configuration
 const publicRoutes = [
-  { path: '/auth/login', methods: ['post'] },
+  { path: /^\/auth\/login$/, methods: ['post'] },
   { path: /^\/auth\/register$/, methods: ['post'] },
   { path: /^\/auth\/refresh$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password$/, methods: ['post'] },
@@ -56,30 +56,13 @@ const publicRoutes = [
   { path: /^\/products\/[^/]+$/, methods: ['get'] },
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
+  { path: /^\/static-pages\/[^/]+$/, methods: ['get'] }, // Add this line for static pages with slug
 ]
 
-// const publicRoutes = [
-//   /^\/auth\/login$/,
-//   /^\/auth\/register$/,
-//   /^\/auth\/refresh$/,
-//   /^\/auth\/forgot-password$/,
-//   /^\/auth\/forgot-password\/token$/,
-//   /^\/menu\/specific$/,
-//   /^\/products\/[^/]+$/, // Matches /product/:slug where :slug is any non-empty string
-//   /^\/branch$/, // Matches /branch
-//   /^\/menu-item\/[^/]+$/, // Matches /menu-item/:slug where :slug is any non-empty string
-// ]
-
-// const isPublicRoute = (url: string, method: string): boolean => {
-//   return publicRoutes.some((route) => route.test(url))
-// }
-
 const isPublicRoute = (url: string, method: string): boolean => {
-  const publicRoute = publicRoutes.find(
-    (route) => route.path === url && route.methods.includes(method),
+  return publicRoutes.some(
+    (route) => route.path.test(url) && route.methods.includes(method),
   )
-  if (publicRoute) return true
-  return false
 }
 
 axiosInstance.interceptors.request.use(

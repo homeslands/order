@@ -19,14 +19,7 @@ export default function CatalogSelect({
     value: string
     label: string
   } | null>(null)
-  //   const { pagination, handlePageChange } = usePagination({ isSearchParams: false })
   const { data } = useCatalogs()
-
-  //   const handleScrollToBottom = () => {
-  //     if (data?.result?.page && data.result.totalPages) {
-  //       if (data.result.page < data.result.totalPages) handlePageChange(pagination.pageIndex + 1)
-  //     }
-  //   }
 
   // Effect to append new users to the local state when users are fetched
   useEffect(() => {
@@ -64,7 +57,7 @@ export default function CatalogSelect({
   return (
     <ReactSelect
       value={selectedCatalog}
-      onMenuScrollToBottom={() => {}}
+      onMenuScrollToBottom={() => { }}
       options={allCatalogs}
       onChange={handleChange}
       defaultValue={selectedCatalog}

@@ -1,6 +1,11 @@
 {
   "staticPage": {
     "title": "Trang tĩnh",
-    "content": "Nội dung trang tĩnh"
+    "content": "Nội dung trang tĩnh",
+    "slugs": {
+      "about-us": "Về chúng tôi",
+      "terms": "Điều khoản sử dụng",
+      "privacy": "Chính sách bảo mật"
+    }
   }
 }

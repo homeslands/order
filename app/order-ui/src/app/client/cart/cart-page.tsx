@@ -22,7 +22,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className={`container w-full py-5`}>
+    <div className={`container w-full py-4`}>
       {/* Order type selection */}
       {cartItems && (
         <div className="grid w-full max-w-xs grid-cols-2 gap-2">
@@ -47,7 +47,7 @@ export default function CartPage() {
         </div>
       )}
       {/* Table list order items */}
-      <div className="mb-4">
+      <div className="my-4">
         <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted/60">
           <span className="col-span-2">{t('order.product')}</span>
           <span className="col-span-2 text-center">{t('order.quantity')}</span>

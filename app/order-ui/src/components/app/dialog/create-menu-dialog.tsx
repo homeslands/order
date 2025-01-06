@@ -13,12 +13,10 @@ import {
 } from '@/components/ui'
 
 import { CreateMenuForm } from '@/components/app/form'
-// import { useAllMenus } from '@/hooks'
 
 export default function CreateMenuDialog() {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
-  // const { data } = useAllMenus()
   const handleSubmit = (isOpen: boolean) => {
     setIsOpen(isOpen)
   }
