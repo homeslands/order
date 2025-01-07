@@ -5,14 +5,17 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
 import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, ROUTE } from '@/constants'
+import { PaymentMethod, Role, ROUTE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
+import { useUserStore } from '@/stores'
+import { SquareMenu } from 'lucide-react'
 
 export default function PaymentPage() {
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
+  const { userInfo } = useUserStore()
   const { slug } = useParams()
   const navigate = useNavigate()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
@@ -92,9 +95,16 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="container py-6">
       <div className={`transition-all duration-300 ease-in-out`}>
         <div className="sticky top-0 z-10 flex flex-col items-center gap-2 pb-4">
+          <span className="flex items-center justify-start w-full gap-1 text-lg">
+            <SquareMenu />
+            {t('menu.payment')}
+            <span className='text-muted-foreground'>
+              #{slug}
+            </span>
+          </span>
           <div className="flex flex-col w-full gap-3">
             {order && (
               <div className="w-full space-y-2">
@@ -178,7 +188,7 @@ export default function PaymentPage() {
                                 className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
                               /> */}
                             <div className="flex flex-col">
-                              <span className="text-sm font-bold truncate">
+                              <span className="text-sm font-bold truncate sm:text-lg">
                                 {item.variant.product.name}
                               </span>
                             </div>
@@ -240,15 +250,17 @@ export default function PaymentPage() {
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
                   <div className="flex gap-2">
-                    <Button
-                      disabled={isDisabled || isPendingInitiatePayment}
-                      className="w-fit"
-                      onClick={handleConfirmPayment}
-                    >
-                      {isPendingInitiatePayment && <ButtonLoading />}
-                      {t('paymentMethod.confirmPayment')}
-                    </Button>
-                    {paymentSlug && (
+                    {!paymentSlug && (
+                      <Button
+                        disabled={isDisabled || isPendingInitiatePayment}
+                        className="w-fit"
+                        onClick={handleConfirmPayment}
+                      >
+                        {isPendingInitiatePayment && <ButtonLoading />}
+                        {t('paymentMethod.confirmPayment')}
+                      </Button>
+                    )}
+                    {paymentSlug && userInfo?.role.name !== Role.CUSTOMER && (
                       <Button
                         disabled={isDisabled || isPendingExportPayment}
                         className="w-fit"

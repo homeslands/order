@@ -43,4 +43,3 @@ jobs:
           docker compose -f .deploy/dev/docker-compose.yml down
           docker compose -f .deploy/dev/docker-compose.yml up -d
           docker image prune -f  # clean up none image after built
-          docker volume prune -f # clean up none volumn after built

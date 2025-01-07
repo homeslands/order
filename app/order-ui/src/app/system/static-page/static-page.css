@@ -23,12 +23,33 @@
 }
 
 .ck-editor__editable .image {
+  position: relative;
   margin: 1em 0;
 }
 
-.ck-editor__editable .image img {
-  display: block;
-  margin: 0 auto;
+.ck-editor__editable .image.image_resized {
   max-width: 100%;
-  min-width: 50px;
+  display: block;
+  box-sizing: border-box;
+}
+
+.ck-editor__editable .image.image_resized img {
+  width: 100%;
+  height: auto;
+}
+
+.ck-editor__editable .image > figcaption {
+  display: table-caption;
+  caption-side: bottom;
+  word-break: break-word;
+  color: #333;
+  background-color: #f7f7f7;
+  padding: .6em;
+  font-size: .75em;
+  outline-offset: -1px;
+}
+
+/* Hiển thị resize handle */
+.ck-editor__editable .image.ck-widget_selected > .ck-widget__resizer {
+  display: block;
 }

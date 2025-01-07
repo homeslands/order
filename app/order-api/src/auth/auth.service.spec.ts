@@ -12,7 +12,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import {
+  AuthJwtPayload,
+  ForgotPasswordRequestDto,
   LoginAuthRequestDto,
+  LoginAuthResponseDto,
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
 } from './auth.dto';
@@ -39,9 +42,11 @@ import { MailProducer } from 'src/mail/mail.producer';
 describe('AuthService', () => {
   let service: AuthService;
   let userRepositoryMock: MockType<Repository<User>>;
+  let forgotPasswordRepositoryMock: MockType<Repository<ForgotPasswordToken>>;
   let config: ConfigService;
   let jwtService: MockType<JwtService>;
   let mapperMock: MockType<Mapper>;
+  let systemConfigService: SystemConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -114,8 +119,12 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     userRepositoryMock = module.get(getRepositoryToken(User));
+    forgotPasswordRepositoryMock = module.get(
+      getRepositoryToken(ForgotPasswordToken),
+    );
     jwtService = module.get(JwtService);
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
+    systemConfigService = module.get(SystemConfigService);
   });
 
   it('should be defined', () => {
@@ -203,34 +212,36 @@ describe('AuthService', () => {
       expect(service.login(mockReq)).rejects.toThrow(UnauthorizedException);
     });
 
-    //   it('should return an access token if login succeeds', async () => {
-    //     // Mock input
-    //     const mockReq = {
-    //       phonenumber: 'phonenumber',
-    //       password: 'password',
-    //     } as LoginAuthRequestDto;
+    it('should return an access token if login succeeds', async () => {
+      // Mock input
+      const mockReq = {
+        phonenumber: 'phonenumber',
+        password: 'password',
+      } as LoginAuthRequestDto;
 
-    //     const mockUser = {
-    //       id: 'uuid',
-    //       phonenumber: 'phonenumber',
-    //       password: 'password',
-    //     } as User;
+      const mockUser = {
+        id: 'uuid',
+        phonenumber: 'phonenumber',
+        password: 'password',
+      } as User;
 
-    //     // Mock output
-    //     const mockResult = {
-    //       accessToken: 'mocked-token',
-    //       expireTime: '',
-    //       refreshToken: 'mocked-token',
-    //       expireTimeRefreshToken: '',
-    //     };
+      // Mock output
+      const mockResult: LoginAuthResponseDto = {
+        accessToken: 'mocked-token',
+        expireTime: '',
+        refreshToken: 'mocked-token',
+        expireTimeRefreshToken: '',
+      };
 
-    //     // Mock implementation
-    //     jest.spyOn(service, 'validateUser').mockResolvedValue(mockUser);
-    //     jwtService.sign.mockReturnValue(mockResult.accessToken);
+      // Mock implementation
+      jest.spyOn(service, 'validateUser').mockResolvedValue(mockUser);
+      jest.spyOn(service, 'generateToken').mockResolvedValue(mockResult);
+      jwtService.sign.mockReturnValue(mockResult.accessToken);
+      jwtService.sign.mockReturnValue(mockResult.refreshToken);
 
-    //     // Assertions
-    //     expect(await service.login(mockReq)).toEqual(mockResult);
-    //   });
+      // Assertions
+      expect(await service.login(mockReq)).toEqual(mockResult);
+    });
   });
 
   describe('Register', () => {
@@ -257,6 +268,7 @@ describe('AuthService', () => {
       // Assertions
       expect(service.register(mockInput)).rejects.toThrow(AuthException);
     });
+
     it('should return user if register succeeds', async () => {
       // mock input
       const mockInput = {
@@ -303,6 +315,106 @@ describe('AuthService', () => {
 
       // Assertions
       expect(await service.register(mockInput)).toEqual(mockUserOutput);
+    });
+  });
+
+  describe('Get frontend url', () => {
+    it('Should return an empty value if the frontend url is not found', async () => {
+      const frontendUrl = '';
+      jest.spyOn(systemConfigService, 'get').mockResolvedValue(frontendUrl);
+      expect(await service.getFrontendUrl()).toEqual(frontendUrl);
+    });
+
+    it('Should return an value if the frontend url is found', async () => {
+      const frontendUrl = 'mock-frontend-url';
+      jest.spyOn(systemConfigService, 'get').mockResolvedValue(frontendUrl);
+      expect(await service.getFrontendUrl()).toEqual(frontendUrl);
+    });
+  });
+
+  describe('Testing forgot password func', () => {
+    const mockRequestData: ForgotPasswordRequestDto = {
+      token: 'test-token',
+      newPassword: '',
+    };
+
+    const mockUser: User = {
+      id: 'user-id',
+      slug: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      phonenumber: '',
+      role: null,
+      branch: null,
+      isActive: true,
+      approvalOrders: [],
+      ownerOrders: [],
+      forgotPasswordTokens: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockExistToken: ForgotPasswordToken = {
+      id: '',
+      slug: '',
+      user: mockUser,
+      token: '',
+      expiresAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockAuthJwtPayload: AuthJwtPayload = {
+      jti: '',
+      scope: '',
+      sub: 'user-id',
+    };
+
+    const mockHashedPassword = 'hashed-password';
+
+    it('Should throw `AuthException` if the forgot token is not exsited', () => {
+      const mockRequestData: ForgotPasswordRequestDto = {
+        token: 'test-token',
+        newPassword: '',
+      };
+
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(null);
+      expect(service.forgotPassword(mockRequestData)).rejects.toThrow(
+        AuthException,
+      );
+    });
+
+    it('Should throw `AuthException` if the forgot token is expired', () => {
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(mockExistToken);
+      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+        throw new Error('');
+      });
+      expect(service.forgotPassword(mockRequestData)).rejects.toThrow(
+        AuthException,
+      );
+    });
+
+    it('Should throw `AuthException` if user is not found', () => {
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(mockExistToken);
+      jest.spyOn(jwtService, 'verify').mockReturnValue('');
+      jest.spyOn(jwtService, 'decode').mockReturnValue(mockAuthJwtPayload);
+      userRepositoryMock.findOne.mockReturnValue(null);
+      expect(service.forgotPassword(mockRequestData)).rejects.toThrow(
+        AuthException,
+      );
+    });
+
+    it('Should return `0` when user forgot password successfully', async () => {
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(mockExistToken);
+      jest.spyOn(jwtService, 'verify').mockReturnValue('');
+      jest.spyOn(jwtService, 'decode').mockReturnValue(mockAuthJwtPayload);
+      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockImplementation((pass, saltOfRounds) => mockHashedPassword);
+
+      expect(await service.forgotPassword(mockRequestData)).toBe(0);
     });
   });
 

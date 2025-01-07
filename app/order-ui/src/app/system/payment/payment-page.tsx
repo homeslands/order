@@ -94,7 +94,7 @@ export default function PaymentPage() {
 
   return (
     <div className="flex flex-row h-full gap-2">
-      <div className={`transition-all duration-300 ease-in-out`}>
+      <div className={`transition-all duration-300 w-full ease-in-out`}>
         <div className="sticky top-0 z-10 flex flex-col items-center gap-2">
           <div className="flex flex-col w-full gap-3">
             {order && (

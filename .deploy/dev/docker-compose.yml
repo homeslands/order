@@ -77,7 +77,7 @@ services:
       - "8080:8080"
 
   mysql_db:
-    image: ghcr.io/homeslands/order-db:dev
+    image: mysql:8.2.0
     volumes:
       - mysql:/var/lib/mysql
     environment:
@@ -102,7 +102,7 @@ services:
       - "5173:5173"
 
   postgres:
-    image: ghcr.io/homeslands/robot-db:dev
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

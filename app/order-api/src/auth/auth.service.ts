@@ -23,7 +23,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import {
   DataSource,
-  FindOneOptions,
   FindOptionsWhere,
   Like,
   MoreThan,
@@ -64,7 +63,6 @@ export class AuthService {
   private saltOfRounds: number;
   private duration: number;
   private refeshableDuration: number;
-  private frontedUrl: string;
 
   constructor(
     private readonly jwtService: JwtService,
@@ -92,11 +90,29 @@ export class AuthService {
     );
   }
 
-  async getFrontendUrl() {
+  /**
+   *  Retrieves the frontend URL configuration
+   *
+   * This method fetches the frontend URL from the system configuration
+   * service using the predefined `SystemConfigKey.FRONTEND_URL` key.
+   * @returns {Promise<string>} The frontend URL as a string
+   */
+  async getFrontendUrl(): Promise<string> {
     return await this.systemConfigService.get(SystemConfigKey.FRONTEND_URL);
   }
 
-  async forgotPassword(requestData: ForgotPasswordRequestDto) {
+  /**
+   * Handles the forgot password
+   *
+   * This method verifies the provided forgot password token and updates the user's password
+   * if the token is valid and has not expired. After successfully updating the password,
+   * the token is marked as expired.
+   *
+   * @param {ForgotPasswordRequestDto} requestData - The data required for processing the forgot password request.
+   * @returns {Promise<number>} A promise that resolves to `0` if the forgot password process executes successfully.
+   * @throws {AuthException} Throws exception if the token is expired, invalid, or the user does not exist.
+   */
+  async forgotPassword(requestData: ForgotPasswordRequestDto): Promise<number> {
     const context = `${AuthService.name}.${this.forgotPassword.name}`;
     const existToken = await this.forgotPasswordRepository.findOne({
       where: {
@@ -156,7 +172,19 @@ export class AuthService {
     return 0;
   }
 
-  async createForgotPasswordToken(requestData: ForgotPasswordTokenRequestDto) {
+  /**
+   * Handles the creation of a forgot password token
+   *
+   * This method create forgot password token base on user id. After the token created successfully,
+   * It's assigned with the frontend URL and returned to the client using email service
+   *
+   * @param {ForgotPasswordTokenRequestDto} requestData The data required for processing the creation password token
+   * @returns {Promise<string>} Return URL to help client forgot password
+   * @throws {AuthException} throws exception if user not found, token is invalid
+   */
+  async createForgotPasswordToken(
+    requestData: ForgotPasswordTokenRequestDto,
+  ): Promise<string> {
     const context = `${AuthService.name}.${this.createForgotPasswordToken.name}`;
     const user = await this.userRepository.findOne({
       where: {
@@ -215,7 +243,20 @@ export class AuthService {
     }
   }
 
-  async uploadAvatar(user: CurrentUserDto, file: Express.Multer.File) {
+  /**
+   * Handles the avatar upload.
+   *
+   * This method removes the user's old avatar, uploads a new avatar,
+   * updates the user's avatar information in the database, and returns the updated user profile.
+   *
+   * @param {CurrentUserDto} user - The currently authenticated user's details.
+   * @param {Express.Multer.File} file - The new avatar file to be uploaded.
+   * @returns {Promise<AuthProfileResponseDto>} The updated user profile mapped to the `AuthProfileResponseDto`.
+   */
+  async uploadAvatar(
+    user: CurrentUserDto,
+    file: Express.Multer.File,
+  ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.uploadAvatar.name}`;
     const userEntity = await this.userRepository.findOne({
       where: { id: user.userId },
@@ -314,7 +355,7 @@ export class AuthService {
   }
 
   /**
-   *
+   * Validate user
    * @param {string} phonenumber
    * @param {string} pass
    * @returns {Promise<User|null>} User if found, null otherwise
@@ -337,9 +378,12 @@ export class AuthService {
     return user;
   }
 
-  private async generateToken(
-    payload: AuthJwtPayload,
-  ): Promise<LoginAuthResponseDto> {
+  /**
+   * Generate token base on Auth jwt payload
+   * @param {AuthJwtPayload} payload
+   * @returns {Promise<LoginAuthResponseDto>} Access token, refresh token, expire time, refresh expire time
+   */
+  async generateToken(payload: AuthJwtPayload): Promise<LoginAuthResponseDto> {
     return {
       accessToken: this.jwtService.sign(payload),
       expireTime: moment().add(this.duration, 'seconds').toString(),
