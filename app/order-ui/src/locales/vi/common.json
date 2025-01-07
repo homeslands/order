@@ -26,6 +26,8 @@
     "rows": "hàng",
     "noData": "Không có dữ liệu",
     "page": "Trang",
+    "previous": "Trước",
+    "next": "Sau",
 
     "filter": "Lọc",
     "all": "Tất cả",

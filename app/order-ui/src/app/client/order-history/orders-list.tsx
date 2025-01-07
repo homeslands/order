@@ -21,6 +21,7 @@ import { formatCurrency } from '@/utils';
 
 export default function OrderList({ filter }: { filter: OrderStatus }) {
     const { t } = useTranslation(['menu']);
+    const { t: tCommon } = useTranslation(['common']);
     const navigate = useNavigate();
     const { userInfo } = useUserStore();
     const { pagination, handlePageChange } = usePagination();
@@ -133,7 +134,7 @@ export default function OrderList({ filter }: { filter: OrderStatus }) {
                             {/* Show total pages info */}
                             <PaginationItem>
                                 <PaginationLink>
-                                    of {order?.result.totalPages}
+                                    {tCommon('dataTable.of')} {order?.result.totalPages}
                                 </PaginationLink>
                             </PaginationItem>
 

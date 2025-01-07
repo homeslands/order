@@ -90,6 +90,7 @@
     "description": "Mô tả",
     "rating": "Đánh giá",
     "variant": "Phân loại",
+    "chooseSizeToViewPrice": "Chọn kích thước để xem giá",
 
     "upload": "Tải lên",
     "deleteImage": "Xóa hình ảnh",

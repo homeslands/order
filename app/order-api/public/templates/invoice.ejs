@@ -26,6 +26,9 @@
       <p class="text-center text-sm">
         <%= branchAddress %>
       </p>
+      <div class="flex items-center justify-center">
+        <img src="<%= qrcode %>" alt="qrcode" class="w-44 block mt-0 pt-0" />
+      </div>
     </div>
 
     <!-- Invoive info -->
@@ -98,13 +101,10 @@
     </table>
 
     <!-- Invoice footer -->
-    <div class="flex items-start">
-      <p class="w-2/3 text-2s mt-2">
-        Giá sản phẩm đã bao gồm VAT 10%. Vui lòng giữ lại hóa đơn, để
-        xác thực đó là đơn hàng của bạn.
-      </p>
-      <img src="<%= qrcode %>" alt="qrcode" class="w-1/3 block mt-0 pt-0" />
-    </div>
+    <p class="text-xs mt-2">
+      Giá sản phẩm đã bao gồm VAT 10%. Vui lòng giữ lại hóa đơn, để
+      xác thực đó là đơn hàng của bạn.
+    </p>
   </div>
 </body>
 

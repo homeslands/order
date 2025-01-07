@@ -41,23 +41,22 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex flex-col w-full">
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <motion.div
           className="relative grid min-h-[60vh] w-full grid-cols-1 justify-center bg-cover bg-center px-4 sm:grid-cols-6 sm:items-center sm:px-0"
           style={{
-            backgroundImage: `url(${
-              isMobile ? LandingPageBackgroundMobile : LandingPageBackground
-            })`,
+            backgroundImage: `url(${isMobile ? LandingPageBackgroundMobile : LandingPageBackground
+              })`,
           }}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInVariants}
         >
-          <div className="col-span-1 hidden sm:block" />
-          <div className="col-span-2 mt-12 w-full text-center text-white sm:mt-0">
+          <div className="hidden col-span-1 sm:block" />
+          <div className="w-full col-span-2 mt-12 text-center text-white sm:mt-0">
             <div className="flex flex-col gap-2">
               <div className="text-4xl font-extrabold uppercase sm:text-5xl">
                 TREND COFFEE
@@ -66,39 +65,39 @@ export default function HomePage() {
             <p className="mt-4 text-sm sm:text-base">
               Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.
             </p>
-            <div className="mt-6 flex justify-center gap-4 sm:flex-row">
+            <div className="flex justify-center gap-4 mt-6 sm:flex-row">
               <NavLink to={ROUTE.CLIENT_MENU}>
                 <Button className="w-full">Thực đơn</Button>
               </NavLink>
-              <Button variant="outline" className="bg-transparent text-white">
+              <Button variant="outline" className="text-white bg-transparent">
                 Tìm hiểu thêm
               </Button>
             </div>
           </div>
-          <div className="col-span-1 hidden sm:block" />
+          <div className="hidden col-span-1 sm:block" />
         </motion.div>
 
         {/* Section 2: Sản phẩm bán chạy */}
         <div className="container">
           <motion.div
-            className="flex h-fit w-full flex-col items-start gap-4"
+            className="flex flex-col items-start w-full gap-4 h-fit"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             variants={fadeInVariants}
           >
-            <div className="flex w-full justify-between">
+            <div className="flex justify-between w-full">
               <div className="flex gap-2">
-                <div className="rounded-full border border-primary bg-primary px-3 py-1 text-xs text-muted-foreground text-white sm:text-sm">
+                <div className="px-3 py-1 text-xs text-white border rounded-full border-primary bg-primary text-muted-foreground sm:text-sm">
                   Sản phẩm bán chạy
                 </div>
-                <div className="rounded-full border px-3 py-1 text-xs text-muted-foreground sm:text-sm">
+                <div className="px-3 py-1 text-xs border rounded-full text-muted-foreground sm:text-sm">
                   Sản phẩm mới
                 </div>
               </div>
               <NavLink
                 to={ROUTE.CLIENT_MENU}
-                className="flex items-center justify-center rounded-md px-2 text-xs transition-all duration-200 hover:scale-105 hover:bg-primary/20 hover:text-primary sm:text-sm"
+                className="flex items-center justify-center px-2 text-xs transition-all duration-200 rounded-md hover:scale-105 hover:bg-primary/20 hover:text-primary sm:text-sm"
               >
                 Xem thêm
               </NavLink>
@@ -113,7 +112,7 @@ export default function HomePage() {
         {/* Section 3: Thông tin quán */}
         <div className="container">
           <motion.div
-            className="grid w-full grid-cols-1 items-start gap-4 p-4 sm:grid-cols-5"
+            className="grid items-start w-full grid-cols-1 gap-4 p-4 sm:grid-cols-5"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
@@ -124,13 +123,12 @@ export default function HomePage() {
                 <div className="flex flex-col gap-2">
                   <span className="text-3xl font-extrabold">TREND Coffee</span>
                   <span className="text-muted-foreground">
-                    Nơi cuộc hẹn tròn đầy với Cà phê đặc sản, Món ăn đa bản sắc
-                    và Không gian cảm hứng.
+                    Không gian hiện đại, ấm cúng – nơi gắn kết những câu chuyện và tạo nên kỷ niệm khó quên.
                   </span>
                 </div>
                 <NavLink
                   to={ROUTE.CLIENT_MENU}
-                  className="flex rounded-md text-sm transition-all duration-200 hover:scale-105 hover:bg-primary/20"
+                  className="flex text-sm transition-all duration-200 rounded-md hover:scale-105 hover:bg-primary/20"
                 >
                   <Button>Tìm hiểu thêm</Button>
                 </NavLink>
@@ -146,7 +144,7 @@ export default function HomePage() {
 
         {/* Section 4: Thông tin thêm */}
         <motion.div
-          className="flex h-96 items-center bg-gray-900 px-4 text-white sm:justify-center"
+          className="flex items-center px-4 text-white bg-gray-900 h-96 sm:justify-center"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}

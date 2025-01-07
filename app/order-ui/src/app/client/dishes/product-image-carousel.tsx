@@ -6,8 +6,6 @@ import {
     CarouselApi,
     CarouselContent,
     CarouselItem,
-    // CarouselNext,
-    // CarouselPrevious,
 } from "@/components/ui";
 import { publicFileURL } from "@/constants";
 
@@ -21,10 +19,13 @@ export default function ProductImageCarousel({
     const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [autoScroll, setAutoScroll] = useState(true);
 
     const handleImageClick = (image: string, index: number) => {
+        setAutoScroll(false);  // Disable auto-scroll when manually clicking
         setSelectedIndex(index);
         setCurrent(index);
+        api?.scrollTo(index);
         onImageClick(image);
     };
 
@@ -34,11 +35,11 @@ export default function ProductImageCarousel({
     }, [api]);
 
     useEffect(() => {
-        if (!api) return;
+        if (!api || !autoScroll) return;
 
         const intervalId = setInterval(() => {
             api.scrollNext();
-        }); // Trượt mỗi 6 giây
+        }, 3000);  // Added interval duration
 
         api.on("select", onSelect);
 
@@ -46,13 +47,25 @@ export default function ProductImageCarousel({
             clearInterval(intervalId);
             api.off("select", onSelect);
         };
-    }, [api, onSelect]);
+    }, [api, onSelect, autoScroll]);
+
+    // Re-enable auto-scroll after 5 seconds of inactivity
+    useEffect(() => {
+        if (autoScroll) return;
+
+        const timeoutId = setTimeout(() => {
+            setAutoScroll(true);
+        }, 5000);
+
+        return () => clearTimeout(timeoutId);
+    }, [autoScroll]);
 
     return (
         <div className="flex flex-col items-center w-full gap-2">
             <Carousel
                 opts={{
                     align: "start",
+                    loop: true,  // Enable loop
                 }}
                 setApi={setApi}
                 className="w-full"
@@ -60,7 +73,7 @@ export default function ProductImageCarousel({
                 <CarouselContent>
                     {images.map((image, index) => (
                         <CarouselItem key={index} className="w-full basis-1/2 md:basis-1/3">
-                            <div className="flex w-full p-1">
+                            <div className="flex w-full py-1">
                                 <Card
                                     className={`relative w-full cursor-pointer group transition-all duration-300 ease-in-out hover:ring-2 hover:ring-primary ${selectedIndex === index ? 'ring-2 ring-primary' : ''
                                         }`}
@@ -82,8 +95,9 @@ export default function ProductImageCarousel({
                     {images?.map((_, index) => (
                         <button
                             key={index}
-                            className={`w-2 h-2 rounded-full transition-all ${current === index ? "bg-primary w-4" : "bg-gray-300"}`}
-                            onClick={() => api?.scrollTo(index)}
+                            className={`w-2 h-2 rounded-full transition-all ${current === index ? "bg-primary w-4" : "bg-gray-300"
+                                }`}
+                            onClick={() => handleImageClick(images[index], index)}
                         />
                     ))}
                 </div>

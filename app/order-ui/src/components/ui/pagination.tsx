@@ -1,5 +1,6 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 import { ButtonProps, buttonVariants } from "@/components/ui/button"
@@ -62,34 +63,40 @@ PaginationLink.displayName = "PaginationLink"
 const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
-    {...props}
-  >
-    <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
-  </PaginationLink>
-)
-PaginationPrevious.displayName = "PaginationPrevious"
+}: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation('common');
+
+  return (
+    <PaginationLink
+      aria-label={t('dataTable.previous')}
+      size="default"
+      className={cn("gap-1 pl-2.5", className)}
+      {...props}
+    >
+      <ChevronLeft className="w-4 h-4" />
+      <span>{t('dataTable.previous')}</span>
+    </PaginationLink>
+  );
+}
 
 const PaginationNext = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
-    aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
-    {...props}
-  >
-    <span>Next</span>
-    <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
-)
-PaginationNext.displayName = "PaginationNext"
+}: React.ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation('common');
+
+  return (
+    <PaginationLink
+      aria-label={t('dataTable.next')}
+      size="default"
+      className={cn("gap-1 pr-2.5", className)}
+      {...props}
+    >
+      <span>{t('dataTable.next')}</span>
+      <ChevronRight className="w-4 h-4" />
+    </PaginationLink>
+  );
+}
 
 const PaginationEllipsis = ({
   className,
@@ -100,7 +107,7 @@ const PaginationEllipsis = ({
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}
   >
-    <MoreHorizontal className="h-4 w-4" />
+    <MoreHorizontal className="w-4 h-4" />
     <span className="sr-only">More pages</span>
   </span>
 )

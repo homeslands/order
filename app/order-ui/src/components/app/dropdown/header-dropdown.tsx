@@ -14,12 +14,13 @@ import {
 } from '@/components/ui'
 import { ProfileAvatar } from '@/components/app/avatar'
 import { LogoutDialog } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
-import { useAuthStore } from '@/stores'
+import { Role, ROUTE } from '@/constants'
+import { useAuthStore, useUserStore } from '@/stores'
 
 export default function HeaderDropdown() {
   const { t } = useTranslation(['sidebar'])
   const { isAuthenticated } = useAuthStore()
+  const { userInfo } = useUserStore()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,20 +48,22 @@ export default function HeaderDropdown() {
               </Button>
             </NavLink>
           </DropdownMenuItem>
-          <DropdownMenuItem className="px-0 h-9">
-            <NavLink
-              to={`${ROUTE.CLIENT_ORDER_HISTORY}`}
-              className="flex justify-start w-full h-9"
-            >
-              <Button
-                variant="ghost"
-                className="flex justify-start w-full gap-1 text-sm"
+          {userInfo?.role.name === Role.CUSTOMER && (
+            <DropdownMenuItem className="px-0 h-9">
+              <NavLink
+                to={`${ROUTE.CLIENT_ORDER_HISTORY}`}
+                className="flex justify-start w-full h-9"
               >
-                <ShoppingBag className="icon" />
-                {t('header.myOrders')}
-              </Button>
-            </NavLink>
-          </DropdownMenuItem>
+                <Button
+                  variant="ghost"
+                  className="flex justify-start w-full gap-1 text-sm"
+                >
+                  <ShoppingBag className="icon" />
+                  {t('header.myOrders')}
+                </Button>
+              </NavLink>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {/* <DropdownMenuItem>

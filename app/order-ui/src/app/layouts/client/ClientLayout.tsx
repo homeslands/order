@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router-dom'
-
-import { ClientHeader } from '@/components/app'
+import { ClientHeader, BackToTop } from '@/components/app'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib'
 import { DownloadProgress } from '@/components/app/progress'
 import { useDownloadStore } from '@/stores'
 import { ClientFooter } from './client-footer'
+import { AdPopup } from '@/components/app/AdPopup'
 
 export default function ClientLayout() {
   const isMobile = useIsMobile()
@@ -29,6 +29,8 @@ export default function ClientLayout() {
           {isDownloading && (
             <DownloadProgress progress={progress} fileName={fileName} />
           )}
+          <BackToTop />
+          <AdPopup />
         </main>
 
         {/* Footer */}

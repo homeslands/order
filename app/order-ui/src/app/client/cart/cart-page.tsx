@@ -25,10 +25,10 @@ export default function CartPage() {
     <div className={`container w-full py-4`}>
       {/* Order type selection */}
       {cartItems && (
-        <div className="grid w-full max-w-xs grid-cols-2 gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 sm:max-w-xs">
           <div
             onClick={() => handleAddDeliveryMethod(IOrderType.AT_TABLE)}
-            className={`flex cursor-pointer items-center justify-center py-1 text-sm transition-colors duration-200 ${getCartItems()?.type === IOrderType.AT_TABLE
+            className={`flex cursor-pointer items-center justify-center py-2 text-sm transition-colors duration-200 ${getCartItems()?.type === IOrderType.AT_TABLE
               ? 'border-primary bg-primary text-white'
               : 'border'
               } rounded-full border-muted-foreground/40 text-muted-foreground hover:border-primary hover:bg-primary hover:text-white`}
