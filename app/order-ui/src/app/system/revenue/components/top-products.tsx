@@ -4,22 +4,22 @@ import { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
-import { DateSelect } from '@/components/app/select'
-
-const topProducts = [
-    { name: 'Espresso', sales: 1234, revenue: 3702 },
-    { name: 'Latte', sales: 1000, revenue: 3500 },
-    { name: 'Cappuccino', sales: 856, revenue: 2996 },
-    { name: 'Americano', sales: 821, revenue: 2463 },
-    { name: 'Mocha', sales: 658, revenue: 2303 },
-]
+// import { DateSelect } from '@/components/app/select'
+import { usePagination, useTopProducts } from '@/hooks'
 
 export default function TopProducts() {
     const chartRef = useRef<HTMLDivElement>(null)
+    const { pagination } = usePagination()
+    const { data: revenueData } = useTopProducts({
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+        hasPaging: true
+    })
 
     useEffect(() => {
-        if (chartRef.current) {
+        if (chartRef.current && revenueData?.result?.items) {
             const chart = echarts.init(chartRef.current)
+            const items = revenueData.result.items
 
             const option = {
                 tooltip: {
@@ -29,30 +29,27 @@ export default function TopProducts() {
                     }
                 },
                 legend: {
-                    data: ['Sales', 'Revenue']
+                    data: ['Số lượng bán']
                 },
                 xAxis: {
                     type: 'category',
-                    data: topProducts.map(product => product.name)
+                    data: items.map(item => item.product.name),
+                    axisLabel: {
+                        rotate: 45
+                    }
                 },
                 yAxis: {
-                    type: 'value'
+                    type: 'value',
+                    name: 'Số lượng'
                 },
                 series: [
                     {
-                        name: 'Sales',
+                        name: 'Số lượng bán',
                         type: 'bar',
-                        data: topProducts.map(product => product.sales),
+                        data: items.map(item => item.totalQuantity),
                         itemStyle: {
-                            borderRadius: [5, 5, 0, 0]
-                        }
-                    },
-                    {
-                        name: 'Revenue',
-                        type: 'bar',
-                        data: topProducts.map(product => product.revenue),
-                        itemStyle: {
-                            borderRadius: [5, 5, 0, 0]
+                            borderRadius: [5, 5, 0, 0],
+                            color: '#f89209'
                         }
                     }
                 ]
@@ -71,17 +68,17 @@ export default function TopProducts() {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [])
+    }, [revenueData])
 
-    const handleSelectTimeRange = (timeRange: string) => {
-        console.log(timeRange)
-    }
+    // const handleSelectTimeRange = (timeRange: string) => {
+    //     console.log(timeRange)
+    // }
 
     return (
         <Card className='shadow-none'>
             <CardHeader >
                 <CardTitle className='flex items-center justify-between'>Top Products
-                    <DateSelect onChange={handleSelectTimeRange} />
+                    {/* <DateSelect onChange={handleSelectTimeRange} /> */}
                 </CardTitle>
             </CardHeader>
             <CardContent className='p-0'>

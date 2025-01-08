@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -25,15 +25,16 @@ import { useOrderStore, useOrderTrackingStore } from '@/stores'
 import { Label } from '@radix-ui/react-dropdown-menu'
 
 interface IFormDeliverByRobotProps {
+  onPending: (pending: boolean) => void
   onSubmit: (shouldRefetch: boolean) => void
 }
 
 export const CreateOrderTrackingByRobotForm: React.FC<
   IFormDeliverByRobotProps
-> = ({ onSubmit }) => {
+> = ({ onSubmit, onPending }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['menu'])
-  const { mutate: createOrderTracking } = useCreateOrderTracking()
+  const { mutate: createOrderTracking, isPending } = useCreateOrderTracking()
   const { getSelectedItems, clearSelectedItems } = useOrderTrackingStore()
   const { getOrder, addOrder } = useOrderStore()
   // const { refetch } = useOrderBySlug(getOrder()?.slug as string)
@@ -51,6 +52,11 @@ export const CreateOrderTrackingByRobotForm: React.FC<
       productQuantity: getSelectedItems().map((item) => item.quantity),
     },
   })
+
+  // Đồng bộ onPending với isPending
+  useEffect(() => {
+    onPending(isPending)
+  }, [isPending, onPending])
 
   const handleSubmit = (data: ICreateOrderTrackingRequest) => {
     createOrderTracking(data, {

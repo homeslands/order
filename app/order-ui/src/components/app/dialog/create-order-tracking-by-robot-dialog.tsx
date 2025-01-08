@@ -11,6 +11,7 @@ import {
   Button,
 } from '@/components/ui'
 import { CreateOrderTrackingByRobotForm } from '@/components/app/form'
+import { ButtonLoading } from '../loading'
 
 interface ICreateOrderTrackingByRobotDialogProps {
   onSuccess?: () => void
@@ -21,6 +22,7 @@ export default function CreateOrderTrackingByRobotDialog({
 }: ICreateOrderTrackingByRobotDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
+  const [isPending, setIsPending] = useState(false) // Quản lý trạng thái pending
 
   const handleClose = (shouldRefetch: boolean) => {
     setIsOpen(false)
@@ -32,8 +34,14 @@ export default function CreateOrderTrackingByRobotDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex justify-start" asChild>
-        <Button className="gap-1" onClick={() => setIsOpen(true)}>
-          {t('order.createOrderTrackingByRobot')}
+        <Button
+          className="gap-1"
+          onClick={() => setIsOpen(true)}
+          disabled={isPending} // Disable button khi pending
+        >
+          {isPending
+            ? <ButtonLoading />
+            : t('order.createOrderTrackingByRobot')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] overflow-hidden rounded-lg transition-all duration-300 hover:overflow-y-auto sm:max-h-[32rem] sm:max-w-[28rem]">
@@ -41,11 +49,14 @@ export default function CreateOrderTrackingByRobotDialog({
           <DialogTitle className="text-md sm:text-lg">
             {t('order.confirmOrderTrackingByRobot')}
           </DialogTitle>
-          <DialogDescription className="sm:text-md text-xs">
+          <DialogDescription className="text-xs sm:text-md">
             {t('order.createOrderTrackingByRobotDescription')}
           </DialogDescription>
         </DialogHeader>
-        <CreateOrderTrackingByRobotForm onSubmit={handleClose} />
+        <CreateOrderTrackingByRobotForm
+          onPending={setIsPending} // Truyền hàm để cập nhật trạng thái pending
+          onSubmit={handleClose}
+        />
       </DialogContent>
     </Dialog>
   )

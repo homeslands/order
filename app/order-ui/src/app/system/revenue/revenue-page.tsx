@@ -14,7 +14,7 @@ export default function RevenuePage() {
         moment().startOf('month').toISOString()
     )
     const [endDate, setEndDate] = useState<string>(
-        moment().endOf('month').toISOString()
+        moment().endOf('day').toISOString()
     )
 
     const handleSelectBranch = (branch: string) => {

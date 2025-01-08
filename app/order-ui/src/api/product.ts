@@ -8,6 +8,8 @@ import {
   IUpdateProductVariantRequest,
   ITopProductQuery,
   ITopBranchProductQuery,
+  IPaginationResponse,
+  ITopProduct,
 } from '@/types'
 
 export async function getAllProducts(): Promise<IApiResponse<IProduct[]>> {
@@ -121,13 +123,12 @@ export async function deleteProductVariant(
 
 export async function getTopProducts(
   params: ITopProductQuery,
-): Promise<IApiResponse<IProduct[]>> {
-  const response = await http.get<IApiResponse<IProduct[]>>(
-    '/product-analysis/top-sell',
-    {
-      params,
-    },
-  )
+): Promise<IApiResponse<IPaginationResponse<ITopProduct>>> {
+  const response = await http.get<
+    IApiResponse<IPaginationResponse<ITopProduct>>
+  >('/product-analysis/top-sell', {
+    params,
+  })
   return response.data
 }
 

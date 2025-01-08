@@ -19,6 +19,7 @@ import { useCreateOrder } from '@/hooks'
 import { showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore } from '@/stores'
+import { useBranchStore } from '@/stores/branch.store'
 
 interface IPlaceOrderDialogProps {
   disabled?: boolean
@@ -33,16 +34,26 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
   const { mutate: createOrder } = useCreateOrder()
   const [isOpen, setIsOpen] = useState(false)
   const { getUserInfo, userInfo } = useUserStore()
+  const { branch } = useBranchStore()
 
   const order = getCartItems()
 
   const handleSubmit = (order: ICartItem) => {
     if (!order) return
 
+    const selectedBranch = userInfo?.role.name === Role.CUSTOMER
+      ? branch?.slug
+      : userInfo?.branch.slug;
+
+    if (!selectedBranch) {
+      showToast(t('error.branchRequired'));
+      return;
+    }
+
     const createOrderRequest: ICreateOrderRequest = {
       type: order.type,
       table: order.table || '',
-      branch: userInfo?.branch.slug || '',
+      branch: selectedBranch,
       owner: order.owner || '',
       approvalBy: getUserInfo()?.slug || '',
       orderItems: order.orderItems.map((orderItem) => ({

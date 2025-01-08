@@ -16,6 +16,13 @@ export interface IProduct {
   createdAt: string
 }
 
+export interface ITopProduct {
+  slug: string
+  orderDate: string
+  product: IProduct
+  totalQuantity: number
+}
+
 // export interface ICartItem {
 //   name: string
 //   description: string

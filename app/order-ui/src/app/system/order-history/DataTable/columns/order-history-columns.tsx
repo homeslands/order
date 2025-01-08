@@ -37,13 +37,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         // Load data to print
         loadDataToPrinter(data)
       },
-      // onError: (error) => {
-      //   if (isAxiosError(error)) {
-      //     const axiosError = error as AxiosError<IApiResponse<void>>
-      //     if (axiosError.response?.data.code)
-      //       showErrorToast(axiosError.response.data.code)
-      //   }
-      // },
     })
   }
 
@@ -54,13 +47,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         // Load data to print
         loadDataToPrinter(data)
       },
-      // onError: (error) => {
-      //   if (isAxiosError(error)) {
-      //     const axiosError = error as AxiosError<IApiResponse<void>>
-      //     if (axiosError.response?.data.code)
-      //       showErrorToast(axiosError.response.data.code)
-      //   }
-      // },
     })
   }
   return [

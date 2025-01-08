@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CircleAlert } from 'lucide-react'
+import { CircleAlert, DownloadIcon } from 'lucide-react'
 
 import {
   CustomerInformation,
   OrderItemList,
 } from '@/app/system/order-management'
-import { useOrderBySlug, useOrders, usePagination } from '@/hooks'
+import { useExportOrderInvoice, useOrderBySlug, useOrders, usePagination } from '@/hooks'
 import { useOrderTrackingStore, useUserStore } from '@/stores'
 import { IOrder, IOrderType, OrderStatus } from '@/types'
 import {
@@ -20,6 +20,9 @@ import {
   CreateOrderTrackingByStaffDialog,
   CreateOrderTrackingByRobotDialog,
 } from '@/components/app/dialog'
+import { paymentStatus } from '@/constants'
+import { loadDataToPrinter, showToast } from '@/utils'
+import { ButtonLoading } from '../loading'
 
 interface IOrderItemDetailSheetProps {
   order: string
@@ -33,6 +36,7 @@ export default function OrderItemDetailSheet({
   onClose,
 }: IOrderItemDetailSheetProps) {
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation(['toast'])
   const { t } = useTranslation(['menu'])
   const { userInfo } = useUserStore()
   const { pagination } = usePagination()
@@ -41,6 +45,7 @@ export default function OrderItemDetailSheet({
   const [orderDetails, setOrderDetails] = useState<IOrder[]>([])
   const [currentFetchIndex, setCurrentFetchIndex] = useState(0)
   const { getSelectedItems, clearSelectedItems } = useOrderTrackingStore()
+  const { mutate: exportOrderInvoice, isPending } = useExportOrderInvoice()
 
   // Polling: Order chính
   const { data: selectedOrder, refetch: refetchSelectedOrder } = useOrderBySlug(
@@ -149,6 +154,16 @@ export default function OrderItemDetailSheet({
     await allOrderRefetch()
   }
 
+  const handleExportOrderInvoice = (slug: string) => {
+    exportOrderInvoice(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportInvoiceSuccess'))
+        // Load data to print
+        loadDataToPrinter(data)
+      },
+    })
+  }
+
   useEffect(() => {
     if (!shouldFetchOrders) return
 
@@ -167,7 +182,7 @@ export default function OrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
         <SheetHeader>
-          <SheetTitle className="mt-8 flex items-center justify-between sm:mt-6">
+          <SheetTitle className="flex items-center justify-between mt-8 sm:mt-6">
             {t('order.orderDetail')}
           </SheetTitle>
           {getSelectedItems().length > 0 && (
@@ -186,9 +201,20 @@ export default function OrderItemDetailSheet({
         <div className="mt-4">
           {order ? (
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 rounded-lg border-2 border-primary bg-primary/5 p-2 sm:p-4">
-                <div className="font-medium text-primary">
-                  {t('order.currentOrder')}
+              <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
+                <div className="flex justify-between font-medium text-primary">
+                  {t('order.currentOrder')} #{selectedOrder?.result?.slug}
+                  {selectedOrder && selectedOrder.result.payment?.statusCode === paymentStatus.COMPLETED && (
+                    <Button
+                      onClick={() => handleExportOrderInvoice(selectedOrder.result.slug)}
+                      disabled={isPending}
+                      className="flex items-center justify-start px-2 shadow-none"
+                    >
+                      {isPending && <ButtonLoading />}
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  )}
                 </div>
                 <CustomerInformation orderDetailData={selectedOrder?.result} />
                 <OrderItemList orderDetailData={selectedOrder?.result} />
@@ -219,7 +245,7 @@ export default function OrderItemDetailSheet({
                     .map((orderDetail) => (
                       <div
                         key={orderDetail.slug}
-                        className="flex flex-col gap-2 rounded-lg border p-4"
+                        className="flex flex-col gap-2 p-4 border rounded-lg"
                       >
                         <CustomerInformation orderDetailData={orderDetail} />
                         <OrderItemList orderDetailData={orderDetail} />
