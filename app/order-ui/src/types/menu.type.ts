@@ -24,6 +24,8 @@ export interface IAllMenuRequest {
 export interface ISpecificMenuRequest {
   slug?: string // This is the slug of the menu
   date?: string
+  catalog?: string
+  productName?: string
   branch?: string
   minPrice?: number
   maxPrice?: number

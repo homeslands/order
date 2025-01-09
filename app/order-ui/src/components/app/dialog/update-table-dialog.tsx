@@ -28,7 +28,7 @@ export default function UpdateTableDialog({ table }: UpdateTableDialogProps) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="gap-1 px-2 text-sm"
+          className="flex justify-start w-full gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <PenSquareIcon className="icon" />

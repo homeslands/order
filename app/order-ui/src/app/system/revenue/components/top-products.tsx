@@ -82,7 +82,7 @@ export default function TopProducts() {
                 </CardTitle>
             </CardHeader>
             <CardContent className='p-0'>
-                <div ref={chartRef} style={{ width: '100%', height: '300px' }} />
+                <div ref={chartRef} className='w-full h-[26rem]' />
             </CardContent>
         </Card>
     )

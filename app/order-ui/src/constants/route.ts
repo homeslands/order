@@ -9,7 +9,7 @@ export const ROUTE = {
   ORDER_SUCCESS: '/order-success',
 
   // Staff Routes
-  DASHBOARD: '/dashboard',
+  OVERVIEW: '/overview',
   STAFF_BRANCH: '/branch',
   STAFF_PROFILE: '/staff/profile',
   STAFF_MENU: '/staff/menu',

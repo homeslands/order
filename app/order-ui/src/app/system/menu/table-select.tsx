@@ -49,6 +49,7 @@ export default function TableSelect() {
     <div className="flex flex-col w-full mt-6 border rounded-md">
       <div className="flex flex-col items-start justify-between gap-2 p-4 sm:flex-row bg-muted/60">
         <span className="font-medium text-md">{t('table.title')}</span>
+        {/* Table status */}
         <div className="flex gap-2 text-xs sm:gap-4 sm:px-4 sm:flex-row">
           <div className="flex flex-row items-center gap-2">
             <div className="w-4 h-4 border rounded-sm bg-muted-foreground/10" />
@@ -64,13 +65,13 @@ export default function TableSelect() {
           </div>
         </div>
       </div>
-      <div className="relative flex min-h-[27rem] flex-col overflow-x-auto">
+      <div className="flex flex-row flex-wrap w-full h-full gap-4 p-4">
         {tables?.result.map((table) => (
           <NonResizableTableItem
             key={table.slug}
             table={table}
             isSelected={selectedTableId === table.slug}
-            onContextMenu={(e) => e.preventDefault()}
+            // onContextMenu={(e) => e.preventDefault()}
             onClick={() => handleTableClick(table)}
           />
         ))}

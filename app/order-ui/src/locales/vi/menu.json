@@ -49,6 +49,7 @@
     "noTemplate": "Không phải mẫu thực đơn",
     "amount": "Số lượng: ",
     "noDescription": "Không có mô tả",
+    "totalSold": "Tổng số đã bán: ",
 
     "create": "Tạo thực đơn",
     "createMenuDescription": "Điền đầy đủ thông tin để tạo thực đơn mới",
@@ -76,7 +77,8 @@
 
     "deleteMenuItem": "Xóa món",
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
-    "deleteMenuItemConfirmation": " khỏi thực đơn không?"
+    "deleteMenuItemConfirmation": " khỏi thực đơn không?",
+    "searchProduct": "Tìm kiếm sản phẩm"
   },
 
   "order": {

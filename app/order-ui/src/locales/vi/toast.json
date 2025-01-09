@@ -1,5 +1,7 @@
 {
   "toast": {
+    "unauthorized": "Không có quyền truy cập. Vui lòng đăng nhập lại!",
+    "invalidCredentials": "Đăng nhập thất bại. Thông tin đăng nhập không hợp lệ",
     "addSuccess": "Thêm sản phẩm vào giỏ hàng thành công",
     "itemAlreadyExists": "Sản phẩm đã tồn tại trong giỏ hàng",
     "removeSuccess": "Xóa sản phẩm khỏi giỏ hàng thành công",
@@ -71,7 +73,7 @@
 
     "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
 
-    "accessDenied": "Truy cập bị từ chối",
+    "forbidden": "Không có quyền truy cập",
     "sessionExpired": "Phiên làm việc đã hết hạn",
 
     "createSystemConfigSuccess": "Tạo cấu hình hệ thống thành công",

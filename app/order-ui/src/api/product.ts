@@ -10,6 +10,7 @@ import {
   ITopBranchProductQuery,
   IPaginationResponse,
   ITopProduct,
+  IBranchTopProduct,
 } from '@/types'
 
 export async function getAllProducts(): Promise<IApiResponse<IProduct[]>> {
@@ -134,12 +135,11 @@ export async function getTopProducts(
 
 export async function getTopBranchProducts(
   params: ITopBranchProductQuery,
-): Promise<IApiResponse<IProduct[]>> {
-  const response = await http.get<IApiResponse<IProduct[]>>(
-    `/product-analysis/top-sell/branch${params.branch}`,
-    {
-      params,
-    },
-  )
+): Promise<IApiResponse<IPaginationResponse<IBranchTopProduct>>> {
+  const response = await http.get<
+    IApiResponse<IPaginationResponse<IBranchTopProduct>>
+  >(`/product-analysis/top-sell/branch/${params.branch}`, {
+    params,
+  })
   return response.data
 }

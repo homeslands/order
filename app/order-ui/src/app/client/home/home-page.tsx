@@ -1,4 +1,3 @@
-import moment from 'moment'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
@@ -7,28 +6,13 @@ import {
   LandingPageBackground,
   LandingPageBackgroundMobile,
 } from '@/assets/images'
-import { useIsMobile, useSpecificMenu } from '@/hooks'
+import { useIsMobile } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { BestSellerCarousel, StoreCarousel } from '.'
-import { LandingPageSkeleton } from '@/components/app/skeleton'
-import { useBranchStore } from '@/stores/branch.store'
+import { AdPopup } from '@/components/app/AdPopup'
 
 export default function HomePage() {
   const isMobile = useIsMobile()
-  const { branch } = useBranchStore()
-
-  function getCurrentDate() {
-    return moment().format('YYYY-MM-DD')
-  }
-
-  const { data: specificMenu, isLoading } = useSpecificMenu({
-    date: getCurrentDate(),
-    branch: branch?.slug,
-  })
-
-  if (isLoading) {
-    return <LandingPageSkeleton />
-  }
 
   // Animation Variants
   const fadeInVariants = {
@@ -42,6 +26,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col w-full">
+      <AdPopup />
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <motion.div
@@ -103,8 +88,8 @@ export default function HomePage() {
               </NavLink>
             </div>
             <BestSellerCarousel
-              menu={specificMenu?.result}
-              isLoading={isLoading}
+            // menu={specificMenu?.result}
+            // isLoading={isLoading}
             />
           </motion.div>
         </div>

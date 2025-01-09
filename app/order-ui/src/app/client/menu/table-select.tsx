@@ -70,7 +70,6 @@ export default function TableSelect() {
             key={table.slug}
             table={table}
             isSelected={selectedTableId === table.slug}
-            onContextMenu={(e) => e.preventDefault()}
             onClick={() => handleTableClick(table)}
           />
         ))}

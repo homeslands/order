@@ -107,7 +107,10 @@ export class UserService {
     if (query.branch) whereOptions.branch = { slug: query.branch };
     if (query.phonenumber)
       whereOptions.phonenumber = Like(`%${query.phonenumber}%`);
-    if (!_.isEmpty(query.role)) whereOptions.role = { slug: In(query.role) };
+    if (!_.isEmpty(query.role))
+      whereOptions.role = {
+        name: In(query.role),
+      };
 
     // Construct find many options
     const findManyOptions: FindManyOptions = {

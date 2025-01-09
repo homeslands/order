@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Like, Repository } from 'typeorm';
 import {
   CreateMenuDto,
   GetAllMenuQueryRequestDto,
@@ -54,6 +54,9 @@ export class MenuService {
   }
 
   /**
+   * Handles retrieve specific menu
+   *
+   * This method retrieves a specific menu based on the query
    *
    * @param {GetMenuRequestDto} query
    * @returns {Promise<MenuResponseDto>} The specific menu was retrieved
@@ -67,13 +70,45 @@ export class MenuService {
       throw new MenuException(MenuValidation.MENU_NOT_FOUND);
     }
 
+    const findOptionsWhere: FindOptionsWhere<Menu> = {
+      slug: query.slug,
+      date: query.date,
+      branch: { slug: query.branch },
+    };
+
+    if (query.productName)
+      findOptionsWhere.menuItems = {
+        product: {
+          name: Like(`%${query.productName}%`),
+        },
+      };
+
+    if (query.catalog) {
+      findOptionsWhere.menuItems = {
+        product: {
+          catalog: {
+            slug: query.catalog,
+          },
+        },
+      };
+    }
+
+    if (query.minPrice && query.maxPrice) {
+      findOptionsWhere.menuItems = {
+        product: {
+          variants: {
+            price: Between(query.minPrice, query.maxPrice),
+          },
+        },
+      };
+    }
+
     const menu = await this.menuRepository.findOne({
-      where: {
-        slug: query.slug,
-        date: query.date,
-        branch: { slug: query.branch },
-      },
-      relations: ['menuItems.product.variants.size'],
+      where: findOptionsWhere,
+      relations: [
+        'menuItems.product.variants.size',
+        'menuItems.product.catalog',
+      ],
       order: {
         menuItems: {
           product: {

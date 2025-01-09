@@ -14,12 +14,12 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import {
   AuthJwtPayload,
   ForgotPasswordRequestDto,
+  ForgotPasswordTokenRequestDto,
   LoginAuthRequestDto,
   LoginAuthResponseDto,
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
 } from './auth.dto';
-import { UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { jwtServiceMockFactory } from 'src/test-utils/jwt-mock.factory';
 import { Mapper } from '@automapper/core';
@@ -38,12 +38,12 @@ import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { MailProducer } from 'src/mail/mail.producer';
+import { CurrentUserDto } from 'src/user/user.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
   let userRepositoryMock: MockType<Repository<User>>;
   let forgotPasswordRepositoryMock: MockType<Repository<ForgotPasswordToken>>;
-  let config: ConfigService;
   let jwtService: MockType<JwtService>;
   let mapperMock: MockType<Mapper>;
   let systemConfigService: SystemConfigService;
@@ -58,7 +58,9 @@ describe('AuthService', () => {
         MailProducer,
         {
           provide: 'BullQueue_mail',
-          useValue: {},
+          useValue: {
+            add: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(File),
@@ -131,7 +133,7 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('Validate user', () => {
+  describe('Testing user validation func', () => {
     it('should return null if the user not found', async () => {
       // Mock input
       const mockInput = {
@@ -197,8 +199,8 @@ describe('AuthService', () => {
     });
   });
 
-  describe('login', () => {
-    it('should throw an unauthorized exception if login fails', async () => {
+  describe('Testing login func', () => {
+    it('should throw an `AuthException` if login fails', async () => {
       // mock input
       const mockReq = {
         phonenumber: 'phonenumber',
@@ -209,7 +211,7 @@ describe('AuthService', () => {
       jest.spyOn(service, 'validateUser').mockResolvedValue(null);
 
       // Assertions
-      expect(service.login(mockReq)).rejects.toThrow(UnauthorizedException);
+      expect(service.login(mockReq)).rejects.toThrow(AuthException);
     });
 
     it('should return an access token if login succeeds', async () => {
@@ -244,7 +246,7 @@ describe('AuthService', () => {
     });
   });
 
-  describe('Register', () => {
+  describe('Testing register func', () => {
     it('should be thrown auth exception if the user is found', async () => {
       // mock input
       const mockInput = {
@@ -318,7 +320,7 @@ describe('AuthService', () => {
     });
   });
 
-  describe('Get frontend url', () => {
+  describe('Testing retrieve frontend url func', () => {
     it('Should return an empty value if the frontend url is not found', async () => {
       const frontendUrl = '';
       jest.spyOn(systemConfigService, 'get').mockResolvedValue(frontendUrl);
@@ -415,6 +417,122 @@ describe('AuthService', () => {
         .mockImplementation((pass, saltOfRounds) => mockHashedPassword);
 
       expect(await service.forgotPassword(mockRequestData)).toBe(0);
+    });
+  });
+
+  describe('Testing creation forgot password token func', () => {
+    const mockRequestData: ForgotPasswordTokenRequestDto = {
+      email: 'mock-email',
+    };
+    const mockUser: User = {
+      id: 'user-id',
+      slug: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      phonenumber: '',
+      role: null,
+      branch: null,
+      isActive: true,
+      approvalOrders: [],
+      ownerOrders: [],
+      forgotPasswordTokens: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockForgotToken: ForgotPasswordToken = {
+      createdAt: new Date(),
+      expiresAt: new Date(),
+      updatedAt: new Date(),
+      id: '',
+      slug: '',
+      token: '',
+      user: mockUser,
+    };
+
+    const mockFrontendUrl = 'mock-frontend-url';
+
+    const mockToken = 'mock-token';
+
+    const mockUrl = `${mockFrontendUrl}/reset-password?token=${mockToken}`;
+
+    it('Should throw `AuthException` if user is not found', () => {
+      userRepositoryMock.findOne.mockReturnValue(null);
+      expect(
+        service.createForgotPasswordToken(mockRequestData),
+      ).rejects.toThrow(AuthException);
+    });
+
+    it('Should throw `AuthException` if forgot token exists', () => {
+      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(mockForgotToken);
+      expect(
+        service.createForgotPasswordToken(mockRequestData),
+      ).rejects.toThrow(AuthException);
+    });
+
+    it('Should return `url` when user is found and token does not exist', async () => {
+      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      forgotPasswordRepositoryMock.findOne.mockReturnValue(null);
+
+      jwtService.sign.mockReturnValue(mockToken);
+      jest.spyOn(service, 'getFrontendUrl').mockResolvedValue(mockFrontendUrl);
+
+      expect(await service.createForgotPasswordToken(mockRequestData)).toBe(
+        mockUrl,
+      );
+    });
+  });
+
+  describe('Testing avatar uploading func', () => {
+    const mockUserRequest: CurrentUserDto = {
+      userId: 'user-id',
+      scope: '[]',
+    };
+    const mockFileRequest: Express.Multer.File = {
+      fieldname: 'file',
+      originalname: 'test-file.txt',
+      encoding: '7bit',
+      mimetype: 'text/plain',
+      size: 1024, // size in bytes
+      destination: '/tmp/uploads',
+      filename: 'test-file.txt',
+      path: '/tmp/uploads/test-file.txt',
+      buffer: Buffer.from('Mock file content'),
+      stream: null,
+    };
+
+    const mockUser: User = {
+      id: 'user-id',
+      slug: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      phonenumber: '',
+      role: null,
+      branch: null,
+      isActive: true,
+      approvalOrders: [],
+      ownerOrders: [],
+      forgotPasswordTokens: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('Should throw `AuthException` if user is not found', async () => {
+      userRepositoryMock.findOne.mockReturnValue(null);
+      expect(
+        service.uploadAvatar(mockUserRequest, mockFileRequest),
+      ).rejects.toThrow(AuthException);
+    });
+
+    it('Should upload avatar success if user is found', async () => {
+      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      mapperMock.map.mockReturnValue(mockUser);
+      expect(
+        service.uploadAvatar(mockUserRequest, mockFileRequest),
+      ).resolves.toBe(mockUser);
     });
   });
 

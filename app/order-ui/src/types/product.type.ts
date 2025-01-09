@@ -1,4 +1,5 @@
 import { IBase } from './base.type'
+import { IBranch } from './branch.type'
 import { ICatalog } from './catalog.type'
 
 export interface IProduct {
@@ -17,6 +18,14 @@ export interface IProduct {
 }
 
 export interface ITopProduct {
+  slug: string
+  orderDate: string
+  product: IProduct
+  totalQuantity: number
+}
+
+export interface IBranchTopProduct {
+  branch: IBranch
   slug: string
   orderDate: string
   product: IProduct
@@ -91,8 +100,8 @@ export interface ITopProductQuery {
 }
 
 export interface ITopBranchProductQuery {
-  branch: string
+  branch?: string //Slug of the branch
   page: number
   size: number
-  hasPaging: boolean
+  hasPaging?: boolean
 }

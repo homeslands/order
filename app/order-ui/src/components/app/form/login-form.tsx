@@ -1,5 +1,4 @@
 import React from 'react'
-import { isAxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -22,7 +21,7 @@ import { ButtonLoading } from '@/components/app/loading'
 import { useLogin, useProfile } from '@/hooks'
 import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role, ROUTE } from '@/constants'
-import { showErrorToast, showToast } from '@/utils'
+import { showToast } from '@/utils'
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
@@ -48,46 +47,36 @@ export const LoginForm: React.FC = () => {
 
   const navigateBasedOnRole = (roleName: string) => {
     switch (roleName) {
-      case Role.CUSTOMER:
-        navigate(currentUrl || ROUTE.HOME);
-        clearUrl();
-        break;
-      case Role.ADMIN:
-      case Role.MANAGER:
-        navigate(ROUTE.STAFF_MENU);
-        break;
       case Role.STAFF:
-        navigate(ROUTE.STAFF_MENU);
-        break;
+      case Role.MANAGER:
+      case Role.ADMIN:
+      case Role.SUPER_ADMIN:
+        navigate(ROUTE.OVERVIEW)
+        break
+      default:
+        navigate(currentUrl || ROUTE.HOME)
+        clearUrl()
+        break
     }
-  };
-
+  }
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
-    try {
-      login(data, {
-        onSuccess: async (response) => {
-          setToken(response.result.accessToken)
-          setRefreshToken(response.result.refreshToken)
-          setExpireTime(response.result.expireTime)
-          setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+    login(data, {
+      onSuccess: async (response) => {
+        setToken(response.result.accessToken)
+        setRefreshToken(response.result.refreshToken)
+        setExpireTime(response.result.expireTime)
+        setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
 
-          const profile = await refetchProfile()
-          if (profile.data) {
-            setUserInfo(profile.data.result)
-            const roleName = profile.data.result.role.name;
-            navigateBasedOnRole(roleName); // Điều hướng dựa trên role
-          }
-          showToast(t('toast.loginSuccess'))
-        },
-      })
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
-          showErrorToast(error.response?.data?.errorCode)
+        const profile = await refetchProfile()
+        if (profile.data) {
+          setUserInfo(profile.data.result)
+          const roleName = profile.data.result.role.name
+          navigateBasedOnRole(roleName) // Điều hướng dựa trên role
         }
-      }
-    }
+        showToast(t('toast.loginSuccess'))
+      },
+    })
   }
 
   const formFields = {
@@ -137,12 +126,8 @@ export const LoginForm: React.FC = () => {
               </React.Fragment>
             ))}
           </div>
-          <div className="flex items-center justify-between w-full">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isPending}
-            >
+          <div className="flex w-full items-center justify-between">
+            <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? <ButtonLoading /> : t('login.title')}
             </Button>
           </div>

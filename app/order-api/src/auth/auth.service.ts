@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -91,7 +90,7 @@ export class AuthService {
   }
 
   /**
-   *  Retrieves the frontend URL configuration
+   *  Retrieves the frontend URL configuration.
    *
    * This method fetches the frontend URL from the system configuration
    * service using the predefined `SystemConfigKey.FRONTEND_URL` key.
@@ -176,7 +175,7 @@ export class AuthService {
    * Handles the creation of a forgot password token
    *
    * This method create forgot password token base on user id. After the token created successfully,
-   * It's assigned with the frontend URL and returned to the client using email service
+   * It's assigned with the frontend URL and returned to the client through email
    *
    * @param {ForgotPasswordTokenRequestDto} requestData The data required for processing the creation password token
    * @returns {Promise<string>} Return URL to help client forgot password
@@ -207,7 +206,7 @@ export class AuthService {
 
     if (existingToken) {
       this.logger.warn(`User ${user.id} already has a valid token`, context);
-      throw new BadRequestException('A valid token already exists.');
+      throw new AuthException(AuthValidation.FORGOT_TOKEN_EXISTS);
     }
 
     const payload = { sub: user.id, jti: uuidv4() };
@@ -261,6 +260,7 @@ export class AuthService {
     const userEntity = await this.userRepository.findOne({
       where: { id: user.userId },
     });
+    if (!userEntity) throw new AuthException(AuthValidation.USER_NOT_FOUND);
 
     // Delete old avatar
     await this.fileService.removeFile(userEntity.image);
@@ -274,10 +274,20 @@ export class AuthService {
     return this.mapper.map(userEntity, User, AuthProfileResponseDto);
   }
 
+  /**
+   * Processes a password change request.
+   *
+   * This method validates the current user's password against the password provided by the client.
+   * If the passwords match, it hashes the new password, updates the user's password in the system, and returns an `AuthProfileResponseDto`
+   *
+   * @param {CurrentUserDto} user The currently authenticated user's details.
+   * @param {AuthChangePasswordRequestDto} requestData the new data to be updated
+   * @returns {Promise<AuthProfileResponseDto>}
+   */
   async changePassword(
     user: CurrentUserDto,
     requestData: AuthChangePasswordRequestDto,
-  ) {
+  ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.changePassword.name}`;
     const userEntity = await this.userRepository.findOne({
       where: { id: user.userId },
@@ -315,12 +325,15 @@ export class AuthService {
   }
 
   /**
-   * Update user profile
-   * @param {CurrentUserDto} currentUserDto
+   * Handles user profile updates.
+   *
+   * This method allows user can update their profile
+   *
+   * @param {CurrentUserDto} currentUserDto The currently authenticated user's details.
    * @param {UpdateAuthProfileRequestDto} requestData
    * @returns {Promise<AuthProfileResponseDto>} Updated user profile
-   * @throws {BranchException} Branch not found
-   * @throws {AuthException} User not found
+   * @throws {BranchException} Throw if branch is not found
+   * @throws {AuthException} Throw if user is not found
    */
   async updateProfile(
     currentUserDto: CurrentUserDto,
@@ -397,6 +410,9 @@ export class AuthService {
   }
 
   /**
+   * Handles user authentication
+   *
+   * This method creates new access token for user that can access any resource in system.
    *
    * @param {LoginAuthRequestDto} loginAuthDto
    * @returns {Promise<LoginAuthResponseDto>} Access token
@@ -410,7 +426,7 @@ export class AuthService {
       loginAuthDto.password,
     );
     if (!user) {
-      throw new UnauthorizedException();
+      throw new AuthException(AuthValidation.INVALID_CREDENTIALS);
     }
 
     const payload: AuthJwtPayload = {
@@ -426,8 +442,11 @@ export class AuthService {
   }
 
   /**
+   * Handles user registration
    *
-   * @param {RegisterAuthRequestDto} requestData
+   * This method creates new user if user does not exsit in systems
+   *
+   * @param {RegisterAuthRequestDto} requestData Required data
    * @returns {Promise<RegisterAuthResponseDto>} User registered successfully
    * @throws {AuthException} User already exists
    */
@@ -492,10 +511,13 @@ export class AuthService {
   }
 
   /**
+   * Handle retrieve user profile
+   *
+   * This method retrieves detailed user information.
    *
    * @param {string} userId
    * @returns {Promise<AuthProfileResponseDto>} User profile
-   * @throws {AuthException} User not found
+   * @throws {AuthException} Throw if user not found
    */
   async getProfile({
     userId,
@@ -514,11 +536,19 @@ export class AuthService {
     return this.mapper.map(user, User, AuthProfileResponseDto);
   }
 
+  /**
+   * Handles the refresh access token
+   *
+   * This method generates new access token if access token is expired.
+   *
+   * @param {AuthRefreshRequestDto} requestData Required data
+   * @returns {Promise<LoginAuthResponseDto>}
+   */
   async refresh(
     requestData: AuthRefreshRequestDto,
   ): Promise<LoginAuthResponseDto> {
     const context = `${AuthService.name}.${this.refresh.name}`;
-    // TODO: Validate access token
+    // Validate access token
     let isExpiredAccessToken = false;
     try {
       this.jwtService.verify(requestData.accessToken);
@@ -530,7 +560,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    // TODO: Validate refresh token
+    // Validate refresh token
     let isExpiredRefreshToken = false;
     try {
       this.jwtService.verify(requestData.refreshToken);

@@ -13,21 +13,33 @@ import {
 } from '@/components/ui'
 import { LoginBackground } from '@/assets/images'
 import { LoginForm } from '@/components/app/form'
-import { useAuthStore } from '@/stores'
-import { ROUTE } from '@/constants'
+import { useAuthStore, useUserStore } from '@/stores'
+import { Role, ROUTE } from '@/constants'
 
 export default function Login() {
   const { t } = useTranslation(['auth'])
   const { isAuthenticated } = useAuthStore()
+  const { userInfo } = useUserStore()
 
   const navigate = useNavigate()
 
   // Redirect if the user is already authenticated
   useEffect(() => {
-    if (isAuthenticated()) {
-      navigate(ROUTE.STAFF_MENU, { replace: true })
+    if (isAuthenticated() && !_.isEmpty(userInfo)) {
+      switch (userInfo.role.name) {
+        case Role.STAFF:
+        case Role.CHEF:
+        case Role.MANAGER:
+        case Role.ADMIN:
+        case Role.SUPER_ADMIN:
+          navigate(ROUTE.OVERVIEW, { replace: true })
+          break
+        default:
+          navigate(ROUTE.HOME, { replace: true })
+          break
+      }
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, userInfo])
 
   return (
     <div className="relative flex min-h-screen items-center justify-center">

@@ -7,6 +7,7 @@ import { useCallback, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Role } from '@/constants/role'
 import { showToast } from '@/utils'
+import toast from 'react-hot-toast'
 
 interface ProtectedElementProps {
   element: ReactNode
@@ -31,9 +32,6 @@ export default function ProtectedElement({
   const hasRequiredPermissions = useCallback(() => {
     if (!userInfo?.role?.name || !allowedRoles) return false
 
-    // Kiểm tra SUPER_ADMIN có quyền truy cập tất cả
-    if (userInfo.role.name === Role.SUPER_ADMIN) return true
-
     return allowedRoles.includes(userInfo.role.name)
   }, [userInfo, allowedRoles])
 
@@ -42,10 +40,29 @@ export default function ProtectedElement({
       handleLogout()
       showToast(t('toast.sessionExpired'))
     } else if (!hasRequiredPermissions()) {
-      showToast(t('toast.accessDenied'))
-      // navigate(ROUTE.LOGIN)
+      toast.error(t('toast.forbidden'))
+
+      switch (userInfo?.role.name) {
+        case Role.STAFF:
+        case Role.CHEF:
+        case Role.MANAGER:
+        case Role.ADMIN:
+        case Role.SUPER_ADMIN:
+          navigate(ROUTE.OVERVIEW, { replace: true })
+          break
+        default:
+          navigate(ROUTE.HOME, { replace: true })
+          break
+      }
     }
-  }, [isAuthenticated, navigate, handleLogout, hasRequiredPermissions, t])
+  }, [
+    isAuthenticated,
+    navigate,
+    handleLogout,
+    hasRequiredPermissions,
+    t,
+    userInfo?.role.name,
+  ])
 
   return hasRequiredPermissions() ? <>{element}</> : null
 }

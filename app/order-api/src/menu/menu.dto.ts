@@ -84,6 +84,24 @@ export class GetMenuRequestDto {
   @AutoMap()
   @ApiProperty({ required: false })
   branch?: string;
+
+  @AutoMap()
+  @ApiProperty({ required: false })
+  productName?: string;
+
+  @AutoMap()
+  @ApiProperty({ required: false })
+  catalog?: string;
+
+  @AutoMap()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => parseInt(value))
+  minPrice: number;
+
+  @AutoMap()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => parseInt(value))
+  maxPrice: number;
 }
 
 export class MenuResponseDto {

@@ -9,6 +9,7 @@ export const USER_EXISTS = 'USER_EXISTS';
 export const USER_NOT_FOUND = 'USER_NOT_FOUND';
 export const INVALID_OLD_PASSWORD = 'INVALID_OLD_PASSWORD';
 export const FORGOT_TOKEN_EXPIRED = 'FORGOT_TOKEN_EXPIRED';
+export const FORGOT_TOKEN_EXISTS = 'FORGOT_TOKEN_EXISTS';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -19,6 +20,7 @@ export type TAuthErrorCodeKey =
   | typeof USER_NOT_FOUND
   | typeof INVALID_OLD_PASSWORD
   | typeof FORGOT_TOKEN_EXPIRED
+  | typeof FORGOT_TOKEN_EXISTS
   | typeof INVALID_FIRSTNAME;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
@@ -34,6 +36,7 @@ const AuthValidation: TAuthErrorCode = {
   USER_NOT_FOUND: createErrorCode(119006, 'User not found'),
   INVALID_OLD_PASSWORD: createErrorCode(119007, 'Invalid old password'),
   FORGOT_TOKEN_EXPIRED: createErrorCode(119008, 'Forgot token is expired'),
+  FORGOT_TOKEN_EXISTS: createErrorCode(119009, 'Forgot token exists'),
 };
 
 export default AuthValidation;

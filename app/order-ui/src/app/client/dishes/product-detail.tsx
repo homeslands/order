@@ -22,7 +22,7 @@ export default function ProductManagementPage() {
   const { setCurrentUrl } = useCurrentUrlStore()
   const navigate = useNavigate()
 
-  const { data: product, isLoading } = useSpecificMenuItem(slug as string)
+  const { data: product, isLoading } = useSpecificMenuItem({ slug })
   const { addCartItem } = useCartItemStore()
 
   const productDetail = product?.result.product

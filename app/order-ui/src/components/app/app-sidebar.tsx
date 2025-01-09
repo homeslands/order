@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useSidebar } from '@/components/ui'
 import { useMemo } from 'react'
 import { useUserStore } from '@/stores'
-import { Role } from '@/constants/role'
 
 import {
   Collapsible,
@@ -34,6 +33,7 @@ import { sidebarRoutes } from '@/router/routes'
 import { ISidebarRoute } from '@/types'
 import { Logo } from '@/assets/images'
 import { cn } from '@/lib'
+import { ROUTE } from '@/constants'
 
 export default function AppSidebar() {
   const { t } = useTranslation('sidebar')
@@ -59,9 +59,6 @@ export default function AppSidebar() {
     if (!userInfo?.role?.name) return []
 
     return translatedRoutes.filter((route) => {
-      // SUPER_ADMIN có thể thấy tất cả menu
-      if (userInfo.role.name === Role.SUPER_ADMIN) return true
-
       // Kiểm tra role cho phép
       return !route.roles || route.roles.includes(userInfo.role.name)
     })
@@ -76,7 +73,10 @@ export default function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="w-full">
-            <NavLink to="/" className="flex items-center justify-center p-2">
+            <NavLink
+              to={ROUTE.OVERVIEW}
+              className="flex items-center justify-center p-2"
+            >
               {state === 'collapsed' ? (
                 <div className="transition-colors duration-200 hover:text-primary">
                   <House size={20} />

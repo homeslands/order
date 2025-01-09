@@ -29,6 +29,7 @@ export interface IUserQuery {
   pageSize: number | 10
   order: 'ASC' | 'DESC'
   hasPaging?: boolean
+  role?: string
 }
 
 export interface IUpdateProfileRequest {

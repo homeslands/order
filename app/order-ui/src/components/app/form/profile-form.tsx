@@ -12,14 +12,9 @@ export default function ProfileForm() {
           <TabsTrigger value="general-info">
             {t('profile.generalInfo')}
           </TabsTrigger>
-          <TabsTrigger value="password-and-authentication">
-            {t('profile.passwordAndAuthentication')}
-          </TabsTrigger>
         </TabsList>
         <TabsContent value="general-info" className="w-full p-0">
           <UserProfileCard />
-        </TabsContent>
-        <TabsContent value="password-and-authentication">
         </TabsContent>
       </Tabs>
     </div>

@@ -10,6 +10,7 @@
     "dishManagement": "Dish Management",
     "revenueManagement": "Revenue Management",
     "staticPageManagement": "Static Management",
-    "logManagement": "Log Management"
+    "logManagement": "Log Management",
+    "overview": "Overview"
   }
 }

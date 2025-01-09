@@ -53,7 +53,7 @@ export default function DeleteTableDialog({ table, onContextOpen }: DeleteTableD
         <DialogTrigger asChild >
           <Button
             variant="ghost"
-            className="gap-1 px-2 text-sm"
+            className="flex justify-start w-full gap-1 px-2 text-sm"
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />

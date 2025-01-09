@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { isAxiosError } from 'axios'
 import { useNavigate, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import _ from 'lodash'
@@ -16,7 +15,7 @@ import {
 import { LoginBackground } from '@/assets/images'
 import { RegisterForm } from '@/components/app/form'
 import { ROUTE } from '@/constants'
-import { showErrorToast, showToast } from '@/utils'
+import { showToast } from '@/utils'
 import { cn } from '@/lib/utils'
 import { useRegister } from '@/hooks'
 
@@ -27,38 +26,12 @@ export default function Register() {
   const { mutate: register, isPending } = useRegister()
 
   const handleSubmit = async (data: z.infer<typeof registerSchema>) => {
-    try {
-      register(data, {
-        onSuccess: () => {
-          navigate(ROUTE.LOGIN, { replace: true })
-          showToast(t('toast.registerSuccess'))
-        },
-        onError: (error) => {
-          if (isAxiosError(error)) {
-            if (error.code === 'ECONNABORTED') {
-              showToast(error.response?.data?.errorCode)
-              return
-            }
-            if (error.code === 'ERR_NETWORK') {
-              showErrorToast(error.response?.data?.errorCode)
-              return
-            }
-            showErrorToast(error.response?.data?.statusCode)
-          }
-        },
-      })
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.code === 'ECONNABORTED') {
-          showToast(error.response?.data?.errorCode)
-          return
-        }
-        if (error.code === 'ERR_NETWORK') {
-          showErrorToast(error.response?.data?.errorCode)
-          return
-        }
-      }
-    }
+    register(data, {
+      onSuccess: () => {
+        navigate(ROUTE.LOGIN, { replace: true })
+        showToast(t('toast.registerSuccess'))
+      },
+    })
   }
 
   return (

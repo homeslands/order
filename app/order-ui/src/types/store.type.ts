@@ -1,4 +1,5 @@
 import { IBranch } from './branch.type'
+import { ICatalog } from './catalog.type'
 import { IUserInfo } from './user.type'
 
 export interface IAuthStore {
@@ -21,6 +22,18 @@ export interface IBranchStore {
   branch?: IBranch
   setBranch: (branch?: IBranch) => void
   removeBranch: () => void
+}
+
+export interface ICatalogStore {
+  catalog?: ICatalog
+  setCatalog: (catalog?: ICatalog) => void
+  removeCatalog: () => void
+}
+
+export interface IProductNameStore {
+  productName?: string
+  setProductName: (productName?: string) => void
+  removeProductName: () => void
 }
 
 export interface IRequestDishStore {

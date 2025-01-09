@@ -99,7 +99,8 @@ export class OrderService {
   }
 
   /**
-   *
+   * Handles create new order
+   * This method creates new order and order items
    * @param {CreateOrderRequestDto} requestData The data to create a new order
    * @returns {Promise<OrderResponseDto>} The created order
    * @throws {BranchException} If branch is not found
@@ -203,7 +204,6 @@ export class OrderService {
     });
     if (!approvalBy) {
       this.logger.warn(`Approval ${data.approvalBy} is not found`, context);
-      // throw new OrderException(OrderValidation.INVALID_ORDER_APPROVAL_BY);
     }
 
     // Get order items
