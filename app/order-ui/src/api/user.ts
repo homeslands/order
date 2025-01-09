@@ -4,6 +4,7 @@ import {
   IUserInfo,
   IPaginationResponse,
   IUserQuery,
+  ICreateUserRequest,
 } from '@/types'
 
 export async function getUsers(
@@ -32,5 +33,12 @@ export async function updateUserRole(
   const response = await http.post<IApiResponse<null>>(`/user/${slug}/role`, {
     role,
   })
+  return response.data
+}
+
+export async function createUser(
+  data: ICreateUserRequest,
+): Promise<IApiResponse<IUserInfo>> {
+  const response = await http.post<IApiResponse<IUserInfo>>('/user', data)
   return response.data
 }

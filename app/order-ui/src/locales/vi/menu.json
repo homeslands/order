@@ -138,7 +138,9 @@
     "updatePayment": "Cập nhật thanh toán",
     "exportPayment": "Xuất QR code thanh toán",
     "exportInvoice": "Xuất hóa đơn",
-    "backToMenu": "Quay lại menu",
+
+    "noOrders": "Không có đơn hàng nào!",
+    "backToMenu": "Quay lại thực đơn",
 
     "title": "Quản lý đơn hàng",
     "totalOrders": "Tổng đơn hàng",
@@ -181,9 +183,9 @@
   },
   "paymentMethod": {
     "title": "Phương thức thanh toán",
-    "cash": "Tiền mặt",
+    "cash": "Thanh toán bằng tiền mặt",
     "status": "Trạng thái",
-    "bankTransfer": "Chuyển khoản ngân hàng",
+    "bankTransfer": "Thanh toán bằng chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
     "bankTransferProcessing": "Phương thức chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",
     "confirmPayment": "Thanh toán",
@@ -193,6 +195,7 @@
     "orderDate": "Ngày đặt hàng",
     "phoneNumber": "Số điện thoại",
     "exportPayment": "Xuất QR code thanh toán",
+    "cashMethodNote": "Đối với phương thức thanh toán bằng tiền mặt, vui lòng đến quầy thanh toán tại cửa hàng để thanh toán",
 
     "total": "Số tiền thanh toán: ",
     "paymentNote": "Quý khách vui lòng kiển tra thông tin thanh toán toán trước khi thực hiện giao dịch",

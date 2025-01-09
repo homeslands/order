@@ -12,6 +12,7 @@ import { MailService } from 'src/mail/mail.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/role/role.entity';
 import { MailProducer } from 'src/mail/mail.producer';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -28,6 +29,10 @@ describe('UserController', () => {
           useValue: {},
         },
         { provide: MailerService, useValue: {} },
+        {
+          provide: getRepositoryToken(Branch),
+          useValue: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(User),
           useValue: repositoryMockFactory,

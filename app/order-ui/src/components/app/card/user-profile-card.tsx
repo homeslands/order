@@ -127,10 +127,6 @@ export default function UserProfileCard() {
           </div>
           <div className="grid grid-cols-1 gap-3 border rounded-md">
             <div
-              //   className={cn(
-              //     'flex w-full items-center justify-between px-6 py-4',
-              //     getTheme() === 'light' ? 'bg-gray-50' : '',
-              //   )}
               className={
                 'flex w-full items-center justify-between bg-muted-foreground/5 px-6 py-6'
               }

@@ -25,6 +25,7 @@ export const ROUTE = {
   STAFF_WALLET_MANAGEMENT: '/wallet-management',
   STAFF_LOG_MANAGEMENT: '/log',
   STAFF_USER_MANAGEMENT: '/user-management',
+  STAFF_CUSTOMER_MANAGEMENT: '/customers',
   STAFF_BANK_CONFIG: '/bank-config',
   STAFF_REVENUE: '/revenue',
   STAFF_STATIC_PAGE: '/static-page',

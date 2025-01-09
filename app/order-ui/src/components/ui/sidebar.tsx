@@ -505,7 +505,7 @@ const SidebarMenu = React.forwardRef<
     ref={ref}
     data-sidebar="menu"
     className={cn(
-      'flex w-full min-w-0 flex-col justify-center gap-3',
+      'flex w-full min-w-0 flex-col justify-center gap-2',
       'group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center', // Add this line
       className,
     )}

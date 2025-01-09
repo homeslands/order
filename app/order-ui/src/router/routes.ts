@@ -61,6 +61,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     icon: CookingPot,
   },
   {
+    title: 'sidebar.customerManagement',
+    path: ROUTE.STAFF_CUSTOMER_MANAGEMENT,
+    roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    icon: Users,
+  },
+  {
     title: 'sidebar.userManagement',
     path: ROUTE.STAFF_USER_MANAGEMENT,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],

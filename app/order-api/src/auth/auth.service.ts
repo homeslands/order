@@ -341,13 +341,15 @@ export class AuthService {
   ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.updateProfile.name}`;
     // Validation branch
+    console.log({ requestData });
     const branch = await this.branchRepository.findOne({
-      where: { slug: requestData.branchSlug },
+      where: { slug: requestData.branch },
     });
     if (!branch) {
-      this.logger.warn(`Branch ${requestData.branchSlug} not found`, context);
+      this.logger.warn(`Branch ${requestData.branch} not found`, context);
       throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
     }
+    console.log({ branch });
 
     const user = await this.userRepository.findOne({
       where: { id: currentUserDto.userId },

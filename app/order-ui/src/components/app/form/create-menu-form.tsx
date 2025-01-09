@@ -41,13 +41,11 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
   const { userInfo } = useUserStore()
   const { mutate: createMenu } = useCreateMenu()
   const { pagination } = usePagination()
-  const { data: menuData } = useAllMenus(
-    {
-      order: 'DESC',
-      page: pagination.pageIndex,
-      pageSize: pagination.pageSize,
-    }
-  )
+  const { data: menuData } = useAllMenus({
+    order: 'DESC',
+    page: pagination.pageIndex,
+    pageSize: pagination.pageSize,
+  })
   const [date, setDate] = useState<Date | undefined>(undefined)
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),
@@ -60,7 +58,9 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
 
   // Get existing menu dates
   const existingMenuDates =
-    menuData?.result.items.map((menu) => moment(menu.date).format('YYYY-MM-DD')) || []
+    menuData?.result.items.map((menu) =>
+      moment(menu.date).format('YYYY-MM-DD'),
+    ) || []
 
   // Function to disable dates
   const disabledDays = [
@@ -77,7 +77,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
     createMenu(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['menus', userInfo?.branch.slug],
+          queryKey: ['menus'],
         })
         onSubmit(false)
         form.reset()
@@ -105,7 +105,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
                         !field.value && 'text-muted-foreground',
                       )}
                     >
-                      <CalendarIcon className="w-4 h-4 mr-2" />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {field.value ? (
                         field.value
                       ) : (

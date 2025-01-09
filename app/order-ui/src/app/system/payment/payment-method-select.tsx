@@ -28,11 +28,15 @@ export default function PaymentMethodSelect({
     <div className="flex flex-col w-full gap-2 mt-6 border rounded-md bg-background">
       <div className="p-4 bg-muted">
         <Label className="text-md">{t('paymentMethod.title')}</Label>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          ({t('paymentMethod.cashMethodNote')})
+        </div>
       </div>
       <div
         className={`grid ${qrCode ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}
       >
         <div className="flex flex-col col-span-1">
+
           <div className="p-4">
             <PaymentMethodRadioGroup onSubmit={handlePaymentMethodSubmit} />
           </div>

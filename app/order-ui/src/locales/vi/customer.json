@@ -1,0 +1,16 @@
+{
+  "customer": {
+    "create": "Tạo mới khách hàng",
+    "createDescription": "Tạo mới khách hàng",
+    "phoneNumber": "Số điện thoại",
+    "enterPhoneNumber": "Nhập số điện thoại",
+    "firstName": "Tên",
+    "enterFirstName": "Nhập tên",
+    "lastName": "Họ",
+    "enterLastName": "Nhập họ",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "enterConfirmPassword": "Nhập xác nhận mật khẩu",
+    "password": "Mật khẩu",
+    "enterPassword": "Nhập mật khẩu"
+  }
+}

@@ -1,3 +1,4 @@
+import { PHONE_NUMBER_REGEX } from '@/constants'
 import { z } from 'zod'
 
 export const userInfoSchema = z.object({
@@ -18,5 +19,24 @@ export const userRoleSchema = z.object({
   role: z.string(),
 })
 
+export const createUserSchema = z
+  .object({
+    phonenumber: z
+      .string()
+      .min(10)
+      .max(10)
+      .regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+    password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
+    confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    role: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu không khớp',
+    path: ['confirmPassword'],
+  })
+
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>
+export type TCreateUserSchema = z.infer<typeof createUserSchema>

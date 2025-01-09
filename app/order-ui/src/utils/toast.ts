@@ -7,6 +7,7 @@ const errorCodes: { [key: number]: string } = {
   401: 'toast.unauthorized',
   403: 'toast.forbidden',
   119010: 'toast.invalidCredentials',
+  11000: 'toast.branchRequired',
   1031: 'toast.orderItemNotFound',
   1041: 'toast.createTrackingFailed',
   1042: 'toast.unloggedIn',

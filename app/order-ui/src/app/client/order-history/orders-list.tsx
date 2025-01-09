@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import {
@@ -70,12 +70,14 @@ export default function OrderList({ filter }: { filter: OrderStatus }) {
                                     className="grid items-center grid-cols-12 gap-2 p-4"
                                 >
                                     <div className="relative col-span-4">
-                                        <div className="relative w-full h-16 sm:w-1/2 sm:h-full">
-                                            <img
-                                                src={`${publicFileURL}/${product.variant.product.image}`}
-                                                alt={product.variant.product.name}
-                                                className="object-cover w-full h-full rounded-md"
-                                            />
+                                        <div className="relative w-full h-16 cursor-pointer sm:w-1/2 sm:h-full">
+                                            <NavLink to={`${ROUTE.CLIENT_MENU}/${orderItem.slug}`}>
+                                                <img
+                                                    src={`${publicFileURL}/${product.variant.product.image}`}
+                                                    alt={product.variant.product.name}
+                                                    className="object-cover w-full h-full rounded-md"
+                                                />
+                                            </NavLink>
                                             <div className="absolute flex items-center justify-center text-xs text-white rounded-full -right-3 -bottom-2 w-7 h-7 sm:w-10 sm:h-10 bg-primary">
                                                 x{product.quantity}
                                             </div>

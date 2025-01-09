@@ -135,7 +135,7 @@ export class AuthController {
   ): Promise<AppResponseDto<AuthProfileResponseDto>> {
     const result = await this.authService.updateProfile(user, requestData);
     return {
-      message: 'Profile retrieved successfully',
+      message: 'Profile updated successfully',
       status: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
@@ -256,11 +256,13 @@ export class AuthController {
     description: 'Avatar have been uploaded successfully',
   })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @UseInterceptors(new CustomFileInterceptor('file', {
-    limits: {
-      fileSize: 5 * 1024 * 1024,
-    }
-  }))
+  @UseInterceptors(
+    new CustomFileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
   async uploadAvatar(
     @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
     user: CurrentUserDto,

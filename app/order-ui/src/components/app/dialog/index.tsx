@@ -59,3 +59,5 @@ export { default as ResetPasswordDialog } from './reset-user-password-dialog'
 
 export { default as UpdateSystemConfigDialog } from './update-system-config-dialog'
 export { default as DeleteSystemConfigDialog } from './delete-system-config-dialog'
+
+export { default as CreateCustomerDialog } from './create-customer-dialog'

@@ -34,10 +34,10 @@ export const useSpecificMenu = (query: ISpecificMenuRequest) => {
   })
 }
 
-export const useSpecificMenuItem = (query: ISpecificMenuRequest) => {
+export const useSpecificMenuItem = (slug: string) => {
   return useQuery({
-    queryKey: ['specific-menu-item', query],
-    queryFn: async () => getSpecificMenuItem(query),
+    queryKey: ['specific-menu-item', slug],
+    queryFn: async () => getSpecificMenuItem(slug),
   })
 }
 

@@ -12,6 +12,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {
+  CreateUserRequestDto,
   GetAllUserQueryRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
@@ -26,6 +27,11 @@ import { UserValidation } from './user.validation';
 import { RoleValidation } from 'src/role/role.validation';
 import { RoleException } from 'src/role/role.exception';
 import * as _ from 'lodash';
+import { BranchValidation } from 'src/branch/branch.validation';
+import { BranchException } from 'src/branch/branch.exception';
+import { Branch } from 'src/branch/branch.entity';
+import { AuthException } from 'src/auth/auth.exception';
+import AuthValidation from 'src/auth/auth.validation1';
 
 @Injectable()
 export class UserService {
@@ -36,6 +42,8 @@ export class UserService {
     private readonly mailService: MailService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Branch)
+    private readonly branchRepository: Repository<Branch>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     @InjectMapper()
@@ -44,6 +52,63 @@ export class UserService {
     private readonly logger: Logger,
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
+  }
+
+  async createUser(requestData: CreateUserRequestDto) {
+    const context = `${UserService.name}.${this.createUser.name}`;
+
+    // Check if role exists
+    const role = await this.roleRepository.findOne({
+      where: {
+        name: requestData.role,
+      },
+    });
+    if (!role) throw new RoleException(RoleValidation.ROLE_NOT_FOUND);
+
+    // Check phone number uniqueness
+    const userExists = await this.userRepository.findOne({
+      where: {
+        phonenumber: requestData.phonenumber,
+      },
+    });
+    if (userExists) throw new AuthException(AuthValidation.USER_EXISTS);
+
+    const user = this.mapper.map(requestData, CreateUserRequestDto, User);
+
+    const hashedPass = await bcrypt.hash(
+      requestData.password,
+      this.saltOfRounds,
+    );
+    Object.assign(user, {
+      password: hashedPass,
+      role,
+    });
+
+    if (requestData.branch) {
+      const branch = await this.branchRepository.findOne({
+        where: {
+          slug: requestData.branch,
+        },
+      });
+      if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+      Object.assign(user, {
+        branch,
+      });
+    }
+
+    try {
+      await this.userRepository.save(user);
+      this.logger.log(`User has been created successfully`, context);
+    } catch (error) {
+      this.logger.error(
+        `Error when creating user: ${error.message}`,
+        error.stack,
+        context,
+      );
+      throw new UserException(UserValidation.ERROR_CREATE_USER);
+    }
+
+    return this.mapper.map(user, User, UserResponseDto);
   }
 
   async updateUserRole(slug: string, requestData: UpdateUserRoleRequestDto) {

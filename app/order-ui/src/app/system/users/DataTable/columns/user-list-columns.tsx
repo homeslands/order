@@ -14,13 +14,10 @@ import {
 import { IUserInfo } from '@/types'
 import { ResetPasswordDialog, UserInfoDialog } from '@/components/app/dialog'
 import UpdateUserRoleDialog from '@/components/app/dialog/update-user-role-dialog'
-import { useUserStore } from '@/stores'
-import { Role } from '@/constants'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['user', 'common'])
   const { t: tCommon } = useTranslation(['common'])
-  const { userInfo } = useUserStore()
   return [
     {
       accessorKey: 'createdAt',
@@ -30,7 +27,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       cell: ({ row }) => {
         const createdAt = row.getValue('createdAt')
         return (
-          <div className='text-sm'>
+          <div className="text-sm">
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
           </div>
         )
@@ -43,11 +40,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       ),
       cell: ({ row }) => {
         const user = row.original
-        return (
-          <div className='text-sm'>
-            {user?.slug}
-          </div>
-        )
+        return <div className="text-sm">{user?.slug}</div>
       },
     },
     {
@@ -58,7 +51,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       cell: ({ row }) => {
         const user = row.original
         return (
-          <div className='text-sm'>
+          <div className="text-sm">
             {user?.firstName} {user?.lastName}
           </div>
         )
@@ -71,11 +64,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       ),
       cell: ({ row }) => {
         const user = row.original
-        return (
-          <div className='text-sm'>
-            {user?.phonenumber}
-          </div>
-        )
+        return <div className="text-sm">{user?.phonenumber}</div>
       },
     },
     {
@@ -85,11 +74,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       ),
       cell: ({ row }) => {
         const user = row.original
-        return (
-          <div className='text-sm'>
-            {user?.email}
-          </div>
-        )
+        return <div className="text-sm">{user?.email}</div>
       },
     },
     {
@@ -99,11 +84,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       ),
       cell: ({ row }) => {
         const user = row.original
-        return (
-          <div className='text-sm'>
-            {user?.role?.name}
-          </div>
-        )
+        return <div className="text-sm">{user?.role?.name}</div>
       },
     },
     {
@@ -115,9 +96,9 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="h-8 w-8 p-0">
                   <span className="sr-only">{tCommon('common.action')}</span>
-                  <MoreHorizontal className="w-4 h-4" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -125,12 +106,10 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <UserInfoDialog user={user} />
-                {userInfo?.role.name === Role.SUPER_ADMIN && (
-                  <div>
-                    <ResetPasswordDialog user={user} />
-                    <UpdateUserRoleDialog user={user} />
-                  </div>
-                )}
+                <>
+                  <ResetPasswordDialog user={user} />
+                  <UpdateUserRoleDialog user={user} />
+                </>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

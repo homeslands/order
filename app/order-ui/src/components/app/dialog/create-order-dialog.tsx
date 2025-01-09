@@ -16,7 +16,7 @@ import {
 import { ICartItem, ICreateOrderRequest } from '@/types'
 
 import { useCreateOrder } from '@/hooks'
-import { showToast } from '@/utils'
+import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { useBranchStore } from '@/stores/branch.store'
@@ -46,7 +46,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       : userInfo?.branch.slug;
 
     if (!selectedBranch) {
-      showToast(t('error.branchRequired'));
+      showErrorToast(11000);
       return;
     }
 

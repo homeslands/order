@@ -1,6 +1,6 @@
 import { useState } from 'react'
+import { PencilLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
 
 import {
   Button,
@@ -33,11 +33,13 @@ export default function UpdateProfileDialog({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="h-10 gap-1 text-sm"
+          className="h-10 gap-1 text-sm w-fit"
           onClick={() => setIsOpen(true)}
         >
-          <PlusCircledIcon className="icon" />
-          {t('profile.updateProfile')}
+          <PencilLine className="icon" />
+          <span className='hidden sm:block'>
+            {t('profile.updateProfile')}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[20rem] px-0 rounded-md sm:max-w-[56rem]">

@@ -36,9 +36,9 @@ export const ForgotPasswordAndResetPasswordPage = React.lazy(() =>
 //----------------------------------------------//
 //Admin
 //Home page
-export const HomePage = React.lazy(() =>
+export const OverviewPage = React.lazy(() =>
   import('@/app/system/home').then((module) => ({
-    default: module.HomePage,
+    default: module.OverviewPage,
   })),
 )
 
@@ -127,6 +127,12 @@ export const UserListPage = React.lazy(() =>
   })),
 )
 
+export const CustomerPage = React.lazy(() =>
+  import('@/app/system/customers').then((module) => ({
+    default: module.CustomerPage,
+  })),
+)
+
 //Branch page
 export const BranchPage = React.lazy(() =>
   import('@/app/system/branch').then((module) => ({
@@ -182,8 +188,6 @@ export const ConfigPage = React.lazy(() =>
     default: module.ConfigPage,
   })),
 )
-
-
 
 //----------------------------------------------//
 //Client

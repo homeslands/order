@@ -16,8 +16,7 @@ export default function AddMenuItem() {
   const menuItems = getMenuItems()
 
   return (
-    <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
-      {/* Header */}
+    <div className="bg-transparent backdrop-blur-md">
       <div className="flex items-center justify-between px-4 pt-2">
         <h1 className="text-lg font-medium">{t('menu.addMenuItem')}</h1>
 
@@ -30,28 +29,26 @@ export default function AddMenuItem() {
       </div>
 
       {/* Product List */}
-      <div className="flex flex-1 flex-col gap-4 px-4 pb-8">
-        <div className="grid h-full grid-cols-1 gap-2">
-          <DataTable
-            columns={useProductColumns()}
-            data={productsData || []}
-            isLoading={isLoading}
-            pages={1}
-            onPageChange={() => {}}
-            onPageSizeChange={() => {}}
-          />
-        </div>
-
-        {/* Hiển thị nút thêm khi có items được chọn */}
-        {menuItems.length > 0 && (
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => clearMenuItems()}>
-              {tCommon('common.cancel')}
-            </Button>
-            <AddMultipleItemsDialog products={menuItems} />
-          </div>
-        )}
+      <div className="grid h-96 grid-cols-1 gap-2 overflow-y-auto">
+        <DataTable
+          columns={useProductColumns()}
+          data={productsData || []}
+          isLoading={isLoading}
+          pages={1}
+          onPageChange={() => {}}
+          onPageSizeChange={() => {}}
+        />
       </div>
+
+      {/* Hiển thị nút thêm khi có items được chọn */}
+      {menuItems.length > 0 && (
+        <div className="mt-4 flex justify-end gap-2">
+          <Button variant="outline" onClick={() => clearMenuItems()}>
+            {tCommon('common.cancel')}
+          </Button>
+          <AddMultipleItemsDialog products={menuItems} />
+        </div>
+      )}
     </div>
   )
 }

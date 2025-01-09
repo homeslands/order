@@ -5,12 +5,12 @@ import {
   ICreateMenuRequest,
   IMenu,
   ISpecificMenu,
-  ISpecificMenuRequest,
   IUpdateMenuRequest,
   IMenuItem,
   IUpdateMenuItemRequest,
   IAllMenuRequest,
   IPaginationResponse,
+  ISpecificMenuRequest,
 } from '@/types'
 
 export async function getAllMenus(
@@ -38,11 +38,9 @@ export async function getSpecificMenu(
 }
 
 export async function getSpecificMenuItem(
-  query: ISpecificMenuRequest,
+  slug: string,
 ): Promise<IApiResponse<IMenuItem>> {
-  const response = await http.get<IApiResponse<IMenuItem>>(`/menu-item`, {
-    params: query,
-  })
+  const response = await http.get<IApiResponse<IMenuItem>>(`/menu-item/${slug}`)
   return response.data
 }
 

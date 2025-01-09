@@ -2,7 +2,7 @@ import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { createMap, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
-import { UserResponseDto } from './user.dto';
+import { CreateUserRequestDto, UserResponseDto } from './user.dto';
 
 @Injectable()
 export class UserProfile extends AutomapperProfile {
@@ -13,6 +13,7 @@ export class UserProfile extends AutomapperProfile {
   override get profile() {
     return (mapper: Mapper) => {
       createMap(mapper, User, UserResponseDto);
+      createMap(mapper, CreateUserRequestDto, User);
     };
   }
 }

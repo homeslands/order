@@ -1,5 +1,6 @@
 export { default as BranchSelect } from './branch-select'
 export { default as CatalogSelect } from './catalog-select'
+export { default as ClientCatalogSelect } from './client-catalog-select'
 export { default as DateSelect } from './date-select'
 export { default as MenuCategorySelect } from './menu-category-select'
 export { default as RoleSelect } from './role-select'

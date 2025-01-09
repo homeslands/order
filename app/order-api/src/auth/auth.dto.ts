@@ -123,7 +123,7 @@ export class UpdateAuthProfileRequestDto {
 
   @ApiProperty({ example: 'XOT7hr58Q' })
   @AutoMap()
-  readonly branchSlug: string;
+  readonly branch: string;
 }
 
 export class AuthProfileResponseDto {

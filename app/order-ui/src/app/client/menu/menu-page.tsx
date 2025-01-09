@@ -3,13 +3,13 @@ import moment from 'moment'
 import { CircleX, MapPinIcon, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useCatalogStore, usePriceRangeStore, useProductNameStore } from '@/stores'
-import { useSpecificMenuItem } from '@/hooks'
-// import { MenuList } from '../menu'
-// import { CurrentDateInput } from '@/components/app/input'
+import { useCatalogStore, usePriceRangeStore, useBranchStore } from '@/stores'
+import { useDebouncedInput, useSpecificMenu } from '@/hooks'
 import { PriceRangeFilter } from '@/components/app/popover'
-import { useBranchStore } from '@/stores/branch.store'
 import { formatCurrency } from '@/utils'
+import MenuList from './menu-list'
+import { Input } from '@/components/ui'
+import { ClientCatalogSelect } from '@/components/app/select'
 
 interface FilterState {
   menu?: string
@@ -26,31 +26,36 @@ export default function MenuPage() {
   const { minPrice, maxPrice, clearPriceRange } = usePriceRangeStore()
   const { branch } = useBranchStore()
   const { catalog } = useCatalogStore()
-  const { productName, setProductName } = useProductNameStore()
+  const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput() // debounce 500ms
 
   const [filters, setFilters] = useState<FilterState>({
-    menu: undefined,
     date: moment().format('YYYY-MM-DD'),
     branch: branch?.slug,
     catalog: catalog?.slug,
-    productName: productName,
+    productName: '',
     minPrice: minPrice,
     maxPrice: maxPrice,
   })
 
-  const { data: specificMenu } = useSpecificMenuItem(filters)
+  const { data: specificMenu, isPending } = useSpecificMenu(filters)
 
   useEffect(() => {
     setFilters((prev: FilterState) => ({
       ...prev,
-      menu: specificMenu?.result?.slug,
       branch: branch?.slug,
       catalog: catalog?.slug,
-      productName: productName,
+      productName: debouncedInputValue, // sử dụng giá trị debounce
       minPrice: minPrice,
       maxPrice: maxPrice,
     }))
-  }, [minPrice, maxPrice, branch?.slug, catalog?.slug, productName, specificMenu?.result?.slug])
+  }, [minPrice, maxPrice, branch?.slug, catalog?.slug, debouncedInputValue])
+
+  const handleSelectCatalog = (catalog: string) => {
+    setFilters((prev: FilterState) => ({
+      ...prev,
+      catalog: catalog,
+    }))
+  }
 
   return (
     <div className="container my-10">
@@ -66,44 +71,47 @@ export default function MenuPage() {
               <MapPinIcon className="w-5 h-5" />
               {branch ? `${branch.name} (${branch.address})` : t('menu.noData')}
             </div>
-
             {/* Product name search */}
-            <div className="flex items-center w-full gap-2 px-3 py-2 border rounded-lg">
-              <Search className="w-4 h-4 text-muted-foreground" />
-              <input
+            <div className="relative w-full">
+              <Search className="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-muted-foreground" />
+              <Input
                 type="text"
                 placeholder={t('menu.searchProduct')}
-                className="w-full bg-transparent outline-none"
-                value={productName || ''}
-                onChange={(e) => setProductName(e.target.value)}
+                className="w-full pl-10 pr-10 bg-transparent"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
               />
-              {productName && (
+              {inputValue && (
                 <CircleX
-                  className="w-4 h-4 cursor-pointer text-muted-foreground"
-                  onClick={() => setProductName('')}
+                  className="absolute w-4 h-4 -translate-y-1/2 cursor-pointer right-3 top-1/2 text-muted-foreground hover:text-primary"
+                  onClick={() => setInputValue('')}
                 />
               )}
             </div>
+            <div>
+              <ClientCatalogSelect onChange={handleSelectCatalog} />
+            </div>
 
             {/* Price filter */}
-            <div className="flex-shrink-0 w-full sm:w-auto">
+            <div className="flex-shrink-0 w-fit">
               <PriceRangeFilter />
             </div>
             {minPrice !== 0 && maxPrice !== 0 && (
-              <div className="flex items-center flex-shrink-0 gap-1 px-2 border rounded-full border-primary bg-primary/10 text-primary">
+              <div className="flex items-center flex-shrink-0 gap-1 px-2 py-1 border rounded-full w-fit border-primary bg-primary/10 text-primary">
                 <span className="text-xs">{formatCurrency(minPrice)}</span>
                 <span className="text-xs">đến</span>
                 <span className="text-xs">{formatCurrency(maxPrice)}</span>
-                <CircleX onClick={() => clearPriceRange()} />
+                <CircleX className='cursor-pointer' onClick={() => clearPriceRange()} />
               </div>
             )}
           </div>
         </div>
 
         <div className="w-full lg:w-3/4">
-          {/* <MenuList menu={specificMenu?.result} isLoading={isLoading} /> */}
+          <MenuList menu={specificMenu?.result} isLoading={isPending} />
         </div>
       </div>
     </div>
   )
 }
+

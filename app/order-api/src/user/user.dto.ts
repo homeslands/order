@@ -3,9 +3,44 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
-import { INVALID_USERID } from 'src/auth/auth.validation';
+import {
+  INVALID_FIRSTNAME,
+  INVALID_LASTNAME,
+  INVALID_PASSWORD,
+  INVALID_PHONENUMBER,
+  INVALID_USERID,
+} from 'src/auth/auth.validation';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+
+export class CreateUserRequestDto {
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_PHONENUMBER })
+  @AutoMap()
+  phonenumber: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_PASSWORD })
+  password: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  @AutoMap()
+  firstName: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_LASTNAME })
+  @AutoMap()
+  lastName: string;
+
+  @ApiProperty()
+  @IsOptional()
+  branch?: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: 'Invalid role' })
+  role: string;
+}
 
 export class CurrentUserDto {
   @IsNotEmpty({ message: INVALID_USERID })

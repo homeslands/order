@@ -26,11 +26,13 @@ export default function UpdatePasswordDialog() {
             <DialogTrigger asChild>
                 <Button
                     variant="outline"
-                    className="h-10 gap-1 text-sm"
+                    className="h-10 gap-1 text-sm w-fit"
                     onClick={() => setIsOpen(true)}
                 >
                     <KeyRound className="icon" />
-                    {t('profile.updatePassword')}
+                    <span className='hidden sm:block'>
+                        {t('profile.updatePassword')}
+                    </span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">

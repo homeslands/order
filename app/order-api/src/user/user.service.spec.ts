@@ -17,6 +17,7 @@ import { MailProducer } from 'src/mail/mail.producer';
 import { BullModule } from '@nestjs/bullmq';
 import { MailModule } from 'src/mail/mail.module';
 import { Queue } from 'bullmq';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('UserService', () => {
   let service: UserService;
@@ -39,6 +40,10 @@ describe('UserService', () => {
         },
         {
           provide: getRepositoryToken(Role),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
           useValue: repositoryMockFactory,
         },
         {

@@ -4,6 +4,7 @@ import { SquareMenu } from 'lucide-react'
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
+import { Role } from '@/constants'
 
 export default function UserListPage() {
   const { t } = useTranslation(['user'])
@@ -13,12 +14,13 @@ export default function UserListPage() {
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
     order: 'DESC',
+    role: [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
   })
 
   return (
     <div className="flex flex-col">
       <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-transparent">
-        <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <span className="flex w-full items-center justify-start gap-1 text-lg">
           <SquareMenu />
           {t('users.title')}
         </span>

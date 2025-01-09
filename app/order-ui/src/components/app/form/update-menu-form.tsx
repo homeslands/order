@@ -38,7 +38,6 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
   const { t } = useTranslation(['menu'])
   const { userInfo } = useUserStore()
   const { mutate: updateMenu } = useUpdateMenu()
-  // const { data } = useAllMenus()
   const form = useForm<TUpdateMenuSchema>({
     resolver: zodResolver(updateMenuSchema),
     defaultValues: {
@@ -53,9 +52,7 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
     updateMenu(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          // queryKey: ['menus', { branchSlug: userInfo?.branch.slug }],
-          queryKey: ['menus', userInfo?.branch.slug],
-
+          queryKey: ['menus'],
         })
         onSubmit(false)
         form.reset()
@@ -75,7 +72,7 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
             <FormControl>
               <Input
                 {...field}
-                value={moment(field.value).format("DD/MM/YYYY") || ''}
+                value={moment(field.value).format('DD/MM/YYYY') || ''}
                 className={cn(
                   'w-full justify-start text-left font-normal',
                   !field.value && 'text-muted-foreground',

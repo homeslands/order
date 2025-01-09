@@ -22,6 +22,15 @@ export interface IUserInfo {
   }
 }
 
+export interface ICreateUserRequest {
+  phonenumber: string
+  password: string
+  confirmPassword: string
+  firstName: string
+  lastName: string
+  role: string
+}
+
 export interface IUserQuery {
   branch?: string
   phonenumber?: string

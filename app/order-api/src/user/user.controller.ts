@@ -13,6 +13,7 @@ import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import {
+  CreateUserRequestDto,
   GetAllUserQueryRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
@@ -53,6 +54,28 @@ export class UserController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<AppPaginatedResponseDto<UserResponseDto>>;
+  }
+
+  @Post()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create user' })
+  @ApiResponseWithType({
+    status: HttpStatus.CREATED,
+    description: 'User has been created successfully',
+    type: UserResponseDto,
+  })
+  async createUser(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: CreateUserRequestDto,
+  ): Promise<AppResponseDto<UserResponseDto>> {
+    const result = await this.userService.createUser(requestData);
+    return {
+      message: 'User has been created successfully',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<UserResponseDto>;
   }
 
   @Post(':slug/reset-password')

@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom'
+
 import { SidebarProvider, ScrollArea } from '@/components/ui'
 import { AppSidebar, AppHeader } from '@/components/app'
 import { BreadcrumbComponent } from '@/components/app/breadcrumb'
