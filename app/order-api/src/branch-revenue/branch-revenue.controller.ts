@@ -1,21 +1,25 @@
 import {
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BranchRevenueService } from './branch-revenue.service';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
+  AggregateBranchRevenueResponseDto,
   BranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
 } from './branch-revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('revenue/branch')
 @ApiTags('Branch Revenue')
@@ -33,7 +37,7 @@ export class BranchRevenueController {
   )
   @ApiOperation({ summary: 'Get all branch revenues' })
   @ApiResponseWithType({
-    type: BranchRevenueResponseDto,
+    type: AggregateBranchRevenueResponseDto,
     isArray: true,
     status: HttpStatus.OK,
     description: 'The branch revenues retrieved successfully',
@@ -49,6 +53,33 @@ export class BranchRevenueController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<BranchRevenueResponseDto[]>;
+    } as AppResponseDto<AggregateBranchRevenueResponseDto[]>;
+  }
+
+  @Patch('latest')
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update latest branch revenue successfully',
+    type: String,
+  })
+  @ApiOperation({ summary: 'Update latest branch revenue' })
+  @ApiResponse({ status: 200, description: 'Update latest branch revenue successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async updateLatestBranchRevenue() {
+    const result = await this.branchRevenueService.updateLatestBranchRevenueInCurrentDate();
+    return {
+      message: 'Update latest branch revenue successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Update latest branch revenue successfully',
+    } as AppResponseDto<string>;
   }
 }

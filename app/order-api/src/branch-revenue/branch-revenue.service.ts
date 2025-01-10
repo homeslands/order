@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BranchRevenue } from './branch-revenue.entity';
-import { Between, FindOptionsWhere, Repository } from 'typeorm';
+import { Between, DataSource, FindOptionsWhere, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import {
+  AggregateBranchRevenueResponseDto,
+  BranchRevenueQueryResponseDto,
   BranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
 } from './branch-revenue.dto';
@@ -18,6 +20,11 @@ import { Branch } from 'src/branch/branch.entity';
 import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import * as _ from 'lodash';
+import { getCurrentBranchRevenueClause } from './branch-revenue.clause';
+import { plainToInstance } from 'class-transformer';
+import { BranchRevenueException } from './branch-revenue.exception';
+import { BranchRevenueValidation } from './branch-revenue.validation';
+import moment from 'moment';
 
 @Injectable()
 export class BranchRevenueService {
@@ -26,13 +33,17 @@ export class BranchRevenueService {
     private readonly branchRevenueRepository: Repository<BranchRevenue>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
+    private readonly dataSource: DataSource,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
     private readonly mapper: Mapper,
   ) {}
 
-  async findAll(branchSlug: string, query: GetBranchRevenueQueryDto) {
+  async findAll(
+    branchSlug: string, 
+    query: GetBranchRevenueQueryDto
+  ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
     const findOptionsWhere: FindOptionsWhere<BranchRevenue> = {};
 
@@ -46,31 +57,278 @@ export class BranchRevenueService {
       findOptionsWhere.branchId = branch.id;
     }
 
-    // Query from start date to current date
-    if (query.startDate && !query.endDate) {
-      const currentDate = new Date();
-      findOptionsWhere.date = Between(query.startDate, currentDate);
+    let startDate: Date;
+    let endDate: Date;
+
+    if (!query.startDate && !query.endDate) {
+      findOptionsWhere.date = null;
+    } else {
+      // Query from start date to current date
+      if (query.startDate && !query.endDate) {
+        const currentDate = new Date();
+        startDate = query.startDate;
+        endDate = currentDate;
+        // findOptionsWhere.date = Between(query.startDate, currentDate);
+      }
+
+      // Query from start date to end date
+      if (query.startDate && query.endDate) {
+        startDate = query.startDate;
+        endDate = query.endDate;
+        // findOptionsWhere.date = Between(query.startDate, query.endDate);
+      }
+
+      // Throw exception if start date is not provided
+      if (!query.startDate && query.endDate) {
+        this.logger.error(`Start date is not provided`, null, context);
+        throw new BadRequestException(`Start date must be provided`);
+      }
+      
+      switch (query.type) {
+        case 'day':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('days').add(7, 'hours').toDate(), 
+            moment(endDate).endOf('days').add(7, 'hours').toDate()
+          );
+          break;
+        case 'month':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('months').add(7, 'hours').toDate(), 
+            moment(endDate).endOf('months').add(7, 'hours').toDate()
+          );
+          break;
+        case 'year':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('years').add(7, 'hours').toDate(), 
+            moment(endDate).endOf('years').add(7, 'hours').toDate()
+          );
+          break;
+        default:
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('days').add(7, 'hours').toDate(), 
+            moment(endDate).endOf('days').add(7, 'hours').toDate()
+          );
+          break;
+      }
     }
 
-    // Query from start date to end date
-    if (query.startDate && query.endDate) {
-      findOptionsWhere.date = Between(query.startDate, query.endDate);
-    }
-
-    // Throw exception if start date is not provided
-    if (!query.startDate && query.endDate) {
-      this.logger.error(`Start date is not provided`, null, context);
-      throw new BadRequestException(`Start date must be provided`);
-    }
-
+    console.log({findOptionsWhere})
+    console.log({findOptionsWhere: findOptionsWhere.date})
     const revenues = await this.branchRevenueRepository.find({
       where: findOptionsWhere,
+      order: { date: 'ASC' },
     });
 
+    // return this.mapper.mapArray(
+    //   revenues,
+    //   BranchRevenue,
+    //   BranchRevenueResponseDto,
+    // );
+    return this.queryBranchRevenueCases(query.type ,revenues);
+  }
+
+  queryBranchRevenueCases(type: string, branchRevenues: BranchRevenue[]) {
+    switch (type) {
+      case 'day':
+        return this.aggregateByDay(branchRevenues);
+      case 'month':
+        return this.aggregateByMonth(branchRevenues);
+      case 'year':
+        return this.aggregateByYear(branchRevenues);
+      default:
+        return [];
+    }
+  }
+
+  private aggregateByDay(branchRevenues: BranchRevenue[]): AggregateBranchRevenueResponseDto[] {
+    return this.mapper.mapArray(branchRevenues, BranchRevenue, AggregateBranchRevenueResponseDto);
+  }
+
+  private aggregateByMonth(branchRevenues: BranchRevenue[]): AggregateBranchRevenueResponseDto[] {
+    const result = branchRevenues.reduce((acc, item) => {
+      const date = moment(item.date).startOf('months').add(7, 'hours');
+      let index = date.toISOString();
+      if (!acc[index]) {
+        acc[index] = { 
+          date: date.toDate(), 
+          totalAmount: 0, 
+          totalOrder: 0, 
+        };
+      }
+      acc[index].totalAmount += item.totalAmount;
+      acc[index].totalOrder += item.totalOrder;
+      return acc;
+    }, {} as Record<string, AggregateBranchRevenueResponseDto>);
+
+    const data = Object.values(result)
     return this.mapper.mapArray(
-      revenues,
-      BranchRevenue,
-      BranchRevenueResponseDto,
+      data, 
+      AggregateBranchRevenueResponseDto, 
+      AggregateBranchRevenueResponseDto
     );
+  }
+
+  private aggregateByYear(branchRevenues: BranchRevenue[]) {
+    const result = branchRevenues.reduce((acc, item) => {
+      const date = moment(item.date).startOf('years').add(7, 'hours');
+      let index = date.toISOString();
+      if (!acc[index]) {
+        acc[index] = { 
+          date: date.toDate(), 
+          totalAmount: 0, 
+          totalOrder: 0,
+        };
+      }
+      acc[index].totalAmount += item.totalAmount;
+      acc[index].totalOrder += item.totalOrder;
+      return acc;
+    }, {} as Record<string, AggregateBranchRevenueResponseDto>);
+
+    const data = Object.values(result);
+    return this.mapper.mapArray(
+      data, 
+      AggregateBranchRevenueResponseDto, 
+      AggregateBranchRevenueResponseDto
+    );
+  }
+
+  async updateLatestBranchRevenueInCurrentDate() {
+    const context = `${BranchRevenue.name}.${this.updateLatestBranchRevenueInCurrentDate.name}`;
+
+    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+
+    const currentDate = new Date();
+    currentDate.setHours(7,0,0,0);
+
+    const hasBranchRevenues = await this.branchRevenueRepository.find({
+      where: { 
+        date: currentDate
+      }
+    });
+    console.log({hasBranchRevenues});
+    const results: BranchRevenueQueryResponseDto[] = 
+      await this.branchRevenueRepository.query(
+        getCurrentBranchRevenueClause
+      );
+  
+    const branchRevenueQueryResponseDtos = plainToInstance(
+      BranchRevenueQueryResponseDto,
+      results,
+    );
+
+    const revenues = branchRevenueQueryResponseDtos.map((item) => {
+      return this.mapper.map(
+        item,
+        BranchRevenueQueryResponseDto,
+        BranchRevenue,
+      );
+    });
+    console.log({revenues})
+    
+    const newBranchRevenues: BranchRevenue[] = 
+      await this.getBranchRevenueDataToCreateAndUpdate(
+        hasBranchRevenues,
+        revenues,
+        currentDate
+      );
+
+    console.log({newBranchRevenues})
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(newBranchRevenues);
+      await queryRunner.commitTransaction();
+      this.logger.log(
+        `Branch revenue ${new Date().toISOString()} refreshed successfully`,
+        context,
+      );
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        `Error when refresh branch revenues: ${JSON.stringify(error)}`,
+        error.stack,
+        context,
+      );
+      throw new BranchRevenueException(
+        BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
+        error.message,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getBranchRevenueDataToCreateAndUpdate(
+    hasBranchRevenues: BranchRevenue[], // existed 
+    revenues: BranchRevenue[], // new
+    date: Date
+  ): Promise<BranchRevenue[]> {
+    const newBranchRevenues: BranchRevenue[] = [];
+    const branches = await this.branchRepository.find();
+    console.log({branches})
+    branches.forEach(branch => {
+      const existedBranchRevenue = 
+        hasBranchRevenues.find(item => item.branchId === branch.id);
+
+      if(existedBranchRevenue) {
+        // already exist in db in this current date
+
+        // exist in
+        const existedInNewData = revenues.find(revenue => 
+          revenue.branchId === branch.id);
+        
+        if(existedInNewData) {
+          if(
+            existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
+            existedInNewData.totalOrder !== existedBranchRevenue.totalOrder
+          ) {
+            Object.assign(existedBranchRevenue, existedInNewData);
+            newBranchRevenues.push(existedBranchRevenue);
+          }
+        }  
+      } else {
+        // do not exist in db
+
+        // find in new data
+        const existedInNewData = revenues.find(revenue => 
+          revenue.branchId === branch.id);
+        
+        if(existedInNewData) {
+          newBranchRevenues.push(existedInNewData);
+        } else {
+          // do not find in new data
+          const newRevenue = new BranchRevenue();
+          Object.assign(newRevenue, {
+            totalAmount: 0,
+            totalOrder: 0,
+            date,
+            branchId: branch.id
+          });
+          newBranchRevenues.push(newRevenue);
+        }
+      }
+    });
+
+    return newBranchRevenues;
+  }
+
+  denyRefreshBranchRevenueManuallyInTimeAutoRefresh() {
+    const context = `${BranchRevenueService.name}.${this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh.name}`;
+    const currentMoment = moment();
+    const currentHour = currentMoment.hour();
+
+    if(currentHour >= 0 && currentHour <= 2) {
+      this.logger.error(
+        BranchRevenueValidation.CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H.message,
+        null,
+        context
+      );
+      throw new BranchRevenueException(
+        BranchRevenueValidation.CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H      
+      )
+    }
   }
 }

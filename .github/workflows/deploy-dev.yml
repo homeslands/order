@@ -36,9 +36,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
           export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
-          export DOCKER_BUILDKIT=1
 
-          docker ps -a
           docker compose -f .deploy/dev/docker-compose.yml pull
           docker compose -f .deploy/dev/docker-compose.yml down
           docker compose -f .deploy/dev/docker-compose.yml up -d

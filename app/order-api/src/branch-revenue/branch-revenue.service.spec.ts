@@ -6,6 +6,8 @@ import { BranchRevenue } from './branch-revenue.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { Branch } from 'src/branch/branch.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('BranchRevenueService', () => {
   let service: BranchRevenueService;
@@ -14,6 +16,7 @@ describe('BranchRevenueService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BranchRevenueService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},

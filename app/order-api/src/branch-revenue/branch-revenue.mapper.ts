@@ -10,6 +10,7 @@ import { Injectable } from '@nestjs/common';
 import { baseMapper } from 'src/app/base.mapper';
 import moment from 'moment';
 import {
+  AggregateBranchRevenueResponseDto,
   BranchRevenueQueryResponseDto,
   BranchRevenueResponseDto,
 } from './branch-revenue.dto';
@@ -51,6 +52,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
         BranchRevenue,
         BranchRevenueResponseDto,
         extend(baseMapper(mapper)),
+      );
+
+      createMap(
+        mapper,
+        BranchRevenue,
+        AggregateBranchRevenueResponseDto,
+      );
+
+      createMap(
+        mapper,
+        AggregateBranchRevenueResponseDto,
+        AggregateBranchRevenueResponseDto,
       );
     };
   }

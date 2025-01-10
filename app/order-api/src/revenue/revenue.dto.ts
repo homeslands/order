@@ -1,7 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
+import { RevenueTypeQuery } from './revenue.constant';
 
 export class RevenueQueryResponseDto {
   @AutoMap()
@@ -27,6 +29,13 @@ export class GetRevenueQueryDto {
   @ApiProperty({ required: false, example: '2024-12-27' })
   @Type(() => Date)
   endDate: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: 'day' })
+  // @IsNotEmpty({ message: 'Invalid type of revenue query' })
+  @IsOptional()
+  @IsEnum(RevenueTypeQuery, { message: 'Invalid type of revenue query' })
+  type: string = 'day';
 }
 
 export class RevenueResponseDto extends BaseResponseDto {
@@ -34,6 +43,20 @@ export class RevenueResponseDto extends BaseResponseDto {
   @AutoMap()
   branchId: string;
 
+  @AutoMap()
+  @ApiProperty()
+  date: Date;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalOrder: number;
+}
+
+export class AggregateRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   date: Date;

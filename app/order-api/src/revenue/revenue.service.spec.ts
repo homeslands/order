@@ -5,6 +5,9 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Revenue } from './revenue.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('RevenueService', () => {
   let service: RevenueService;
@@ -13,6 +16,8 @@ describe('RevenueService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RevenueService,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},

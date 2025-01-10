@@ -1,22 +1,25 @@
 import {
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
-  Param,
+  Patch,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { RevenueService } from './revenue.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
+  AggregateRevenueResponseDto,
   GetRevenueQueryDto,
   RevenueQueryResponseDto,
   RevenueResponseDto,
 } from './revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('revenue')
 @ApiTags('Revenue')
@@ -34,7 +37,7 @@ export class RevenueController {
   )
   @ApiOperation({ summary: 'Get all revenues' })
   @ApiResponseWithType({
-    type: RevenueQueryResponseDto,
+    type: AggregateRevenueResponseDto,
     isArray: true,
     status: HttpStatus.OK,
     description: 'The revenues retrieved successfully',
@@ -48,6 +51,33 @@ export class RevenueController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<RevenueResponseDto[]>;
+    } as AppResponseDto<AggregateRevenueResponseDto[]>;
+  }
+
+  @Patch('latest')
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update latest revenue successfully',
+    type: String,
+  })
+  @ApiOperation({ summary: 'Update latest revenue' })
+  @ApiResponse({ status: 200, description: 'Update latest revenue successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async updateLatestRevenue() {
+    const result = await this.revenueService.updateLatestRevenueInCurrentDate();
+    return {
+      message: 'Update latest revenue successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Update latest revenue successfully',
+    } as AppResponseDto<string>;
   }
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Revenue } from './revenue.entity';
 import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { getAllRevenueClause, getCurrentRevenueClause } from './revenue.clause';
+import { getAllRevenueClause, getCurrentRevenueClause, getYesterdayRevenueClause } from './revenue.clause';
 import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { RevenueQueryResponseDto } from './revenue.dto';
 import { InjectMapper } from '@automapper/nestjs';
@@ -12,7 +12,7 @@ import { RevenueException } from './revenue.exception';
 import { RevenueValidation } from './revenue.validation';
 import * as _ from 'lodash';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import moment from 'moment';
+import { RevenueService } from './revenue.service';
 
 @Injectable()
 export class RevenueScheduler {
@@ -23,6 +23,7 @@ export class RevenueScheduler {
     private readonly logger: Logger,
     @InjectMapper()
     private readonly mapper: Mapper,
+    private readonly revenueService: RevenueService,
     private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
@@ -30,25 +31,27 @@ export class RevenueScheduler {
   async initRevenue() {
     const context = `${RevenueScheduler.name}.${this.initRevenue.name}`;
     const hasRevenue = await this.revenueRepository.find();
-    if (!_.isEmpty(hasRevenue)) {
-      this.logger.error(`Revenue already exists`, null, context);
-      return;
-    }
 
+    // handle the date have not payment
     const results: RevenueQueryResponseDto[] =
       await this.revenueRepository.query(getAllRevenueClause);
 
     const revenues = results.map((item) => {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
-
+    
+    const revenuesFillZero: Revenue[] = this.fillZeroForEmptyDate(revenues);
+    if (!_.isEmpty(hasRevenue)) {
+      this.logger.error(`Revenue already exists`, null, context);
+      return;
+    }
     this.transactionManagerService.execute(
       async (manager) => {
-        await manager.save(revenues);
+        await manager.save(revenuesFillZero);
       },
       () =>
         this.logger.log(
-          `${revenues.length} revenues initialized successfully`,
+          `${revenuesFillZero.length} revenues initialized successfully`,
           context,
         ),
       (error) => {
@@ -65,26 +68,88 @@ export class RevenueScheduler {
     );
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_11PM)
-  async refreshRevenue() {
-    const context = `${RevenueScheduler.name}.${this.refreshRevenue.name}`;
+  fillZeroForEmptyDate(revenues: Revenue[]): Revenue[] {
+    if(_.isEmpty(revenues)) return;
 
-    const currentDate = new Date(moment().format('YYYY-MM-DD'));
-    const hasRevenue = this.revenueRepository.find({
-      where: {
-        date: currentDate,
-      },
-    });
-    if (hasRevenue) {
-      this.logger.log(`Revenue for ${currentDate} already exists`, context);
-      return;
+    // if only have data in current date
+    if(revenues.length === 1 
+      && _.last(revenues).date.getTime() === (new Date()).setHours(7, 0, 0, 0)) return;
+
+    const firstRevenue = _.first(revenues);
+    const firstDate = new Date(firstRevenue.date);
+    const lastDate = new Date();
+    lastDate.setDate(lastDate.getDate() - 1);
+    lastDate.setHours(30, 59, 59, 999);
+
+    const datesInRange: Date[] = [];
+    let currentDate = new Date(firstDate);
+
+    while (currentDate <= lastDate) {
+      datesInRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    const results: Revenue[] = [];
+
+    datesInRange.forEach(dateFull => {
+      const matchingElement = revenues.find(item => item.date.getTime() === dateFull.getTime());
+
+      if (matchingElement) {
+        results.push(matchingElement);
+      } else {
+        const revenue = new Revenue();
+        Object.assign(revenue, {
+          totalAmount: 0,
+          totalOrder: 0,
+          date: dateFull
+        });
+        results.push(revenue);
+      }
+    });
+
+    return results;
+  }
+
+  // @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  // @Timeout(5000)
+  async refreshRevenueWhenEmpty() {
+    const context = `${RevenueScheduler.name}.${this.refreshRevenueWhenEmpty.name}`;
+
+    // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    yesterdayDate.setHours(7,0,0,0);
+    // console.log({yesterdayDate})
+    const hasRevenue = await this.revenueRepository.find({
+      where: {
+        date: yesterdayDate,
+      },
+    });
+
+    if (!_.isEmpty(hasRevenue)) {
+      this.logger.log(`Revenue for ${yesterdayDate} already exists`, context);
+      return;
+    }
+    
     const results: RevenueQueryResponseDto[] =
-      await this.revenueRepository.query(getCurrentRevenueClause);
+      await this.revenueRepository.query(getYesterdayRevenueClause);
+    // console.log({results})
     const revenues = results.map((item) => {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
+    // console.log({revenues})
+
+    if(_.isEmpty(revenues)) {
+      const revenue = new Revenue();
+      Object.assign(revenue, {
+        totalAmount: 0,
+        totalOrder: 0,
+        date: yesterdayDate
+      });
+
+      revenues.push(revenue);
+    }
+    // console.log({revenuesNew: revenues})
 
     this.transactionManagerService.execute(
       async (manager) => {
@@ -93,6 +158,73 @@ export class RevenueScheduler {
       () =>
         this.logger.log(
           `${revenues.length} revenues created successfully`,
+          context,
+        ),
+      (error) => {
+        this.logger.error(
+          `Error when creating revenues: ${JSON.stringify(error)}`,
+          error.stack,
+          context,
+        );
+        throw new RevenueException(
+          RevenueValidation.CREATE_REVENUE_ERROR,
+          error.message,
+        );
+      },
+    );
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  // @Timeout(5000)
+  async refreshRevenueAnyWhen() {
+    const context = `${RevenueScheduler.name}.${this.refreshRevenueAnyWhen.name}`;
+
+    // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    yesterdayDate.setHours(7,0,0,0);
+    // console.log({yesterdayDate})
+    const hasRevenues = await this.revenueRepository.find({
+      where: {
+        date: yesterdayDate,
+      },
+    });
+
+    if(_.size(hasRevenues) > 1) {
+      this.logger.error(
+        RevenueValidation.DUPLICATE_RECORD_REVENUE_ONE_DAY_IN_DATABASE.message,
+        null,
+        context
+      );
+      throw new RevenueException(
+        RevenueValidation.DUPLICATE_RECORD_REVENUE_ONE_DAY_IN_DATABASE
+      );
+    }
+    
+    const results: RevenueQueryResponseDto[] =
+      await this.revenueRepository.query(getYesterdayRevenueClause);
+    // console.log({results})
+
+    // revenues has only one element
+    const revenues = results.map((item) => {
+      return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
+    });
+    // console.log({revenues})
+    const createAndUpdateRevenues: Revenue[] = 
+      this.revenueService.getCreateAndUpdateRevenues(
+        hasRevenues,
+        revenues,
+        yesterdayDate
+      );
+    // console.log({revenuesNew: createAndUpdateRevenues})
+
+    this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(createAndUpdateRevenues);
+      },
+      () =>
+        this.logger.log(
+          `${createAndUpdateRevenues.length} revenues created successfully`,
           context,
         ),
       (error) => {
