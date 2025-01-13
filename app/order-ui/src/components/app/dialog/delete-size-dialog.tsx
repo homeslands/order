@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from '@/components/ui'
 
 import { ISize } from '@/types'
@@ -31,7 +31,7 @@ export default function DeleteSizeDialog({ size }: { size: ISize }) {
     deleteSize(catalogSlug, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['size']
+          queryKey: ['size'],
         })
         setIsOpen(false)
         showToast(tToast('toast.deleteSizeSuccess'))
@@ -41,29 +41,34 @@ export default function DeleteSizeDialog({ size }: { size: ISize }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="flex justify-start w-full" asChild>
+      <DialogTrigger className="flex w-full justify-start" asChild>
         <DialogTrigger asChild>
-          <Button variant="ghost" className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
+          <Button
+            variant="ghost"
+            className="gap-1 px-2 text-sm"
+            onClick={() => setIsOpen(true)}
+          >
             <Trash2 className="icon" />
             {t('size.delete')}
           </Button>
         </DialogTrigger>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem] font-beVietNam">
+      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="pb-4 border-b border-destructive text-destructive">
+          <DialogTitle className="border-b border-destructive pb-4 text-destructive">
             <div className="flex items-center gap-2">
-              <TriangleAlert className="w-6 h-6" />
+              <TriangleAlert className="h-6 w-6" />
               {t('size.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+          <DialogDescription className="rounded-md bg-red-100 p-2 text-destructive">
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
           <div className="py-4 text-sm text-muted-foreground">
-            {t('size.deleteSizeWarning1')} <span className="font-bold">{size?.name}</span> <br />
+            {t('size.deleteSizeWarning1')}{' '}
+            <span className="font-bold">{size?.name}</span> <br />
             <br />
             {t('size.deleteSizeConfirmation')}
           </div>
@@ -72,7 +77,10 @@ export default function DeleteSizeDialog({ size }: { size: ISize }) {
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
-          <Button variant="destructive" onClick={() => size && handleSubmit(size.slug || '')}>
+          <Button
+            variant="destructive"
+            onClick={() => size && handleSubmit(size.slug || '')}
+          >
             {tCommon('common.confirmDelete')}
           </Button>
         </DialogFooter>

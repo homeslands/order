@@ -61,3 +61,7 @@ export { default as UpdateSystemConfigDialog } from './update-system-config-dial
 export { default as DeleteSystemConfigDialog } from './delete-system-config-dialog'
 
 export { default as CreateCustomerDialog } from './create-customer-dialog'
+export { default as UpdateCustomerDialog } from './update-customer-dialog'
+
+export { default as CreateEmployeeDialog } from './create-employee-dialog'
+export { default as UpdateEmployeeDialog } from './update-employee-dialog'

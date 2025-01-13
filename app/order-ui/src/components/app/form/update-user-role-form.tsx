@@ -49,7 +49,7 @@ export const UpdateUserRoleForm: React.FC<
             onSuccess: () => {
                 // Invalidate queries with proper type
                 queryClient.invalidateQueries({
-                    queryKey: ['users']
+                    queryKey: ['customers']
                 })
                 queryClient.invalidateQueries({
                     queryKey: ['user', user.slug]

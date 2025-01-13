@@ -67,9 +67,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['BeVietnam', 'Roboto', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
         beVietNam: ['BeVietnam', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        sans: ['sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
     },
   },

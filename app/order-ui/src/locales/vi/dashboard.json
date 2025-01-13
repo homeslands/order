@@ -1,5 +1,6 @@
 {
   "dashboard": {
-    "title": "Tổng quan"
+    "title": "Tổng quan",
+    "titleDetail": "Tổng quan các chi nhánh"
   }
 }

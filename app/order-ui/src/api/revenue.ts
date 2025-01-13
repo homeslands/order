@@ -18,8 +18,8 @@ export async function getRevenue(
 
 export async function getBranchRevenue(
   params: IBranchRevenueQuery,
-): Promise<IApiResponse<IBranchRevenue>> {
-  const response = await http.get<IApiResponse<IBranchRevenue>>(
+): Promise<IApiResponse<IBranchRevenue[]>> {
+  const response = await http.get<IApiResponse<IBranchRevenue[]>>(
     `/revenue/branch/${params.branch}`,
     {
       params,

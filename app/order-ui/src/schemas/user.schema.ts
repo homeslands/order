@@ -30,6 +30,7 @@ export const createUserSchema = z
     confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     firstName: z.string().min(1),
     lastName: z.string().min(1),
+    branch: z.optional(z.string()),
     role: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -37,6 +38,19 @@ export const createUserSchema = z
     path: ['confirmPassword'],
   })
 
+export const updateUserSchema = z.object({
+  phonenumber: z
+    .string()
+    .min(10)
+    .max(10)
+    .regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  branch: z.optional(z.string()),
+  role: z.optional(z.string()),
+})
+
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>
 export type TCreateUserSchema = z.infer<typeof createUserSchema>
+export type TUpdateUserSchema = z.infer<typeof updateUserSchema>

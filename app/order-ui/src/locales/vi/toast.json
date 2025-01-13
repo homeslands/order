@@ -86,6 +86,7 @@
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",
     "dayInvalid": "Ngày không hợp lệ",
     "menuNotFound": "Không tìm thấy thực đơn",
+    "roleNotFound": "Không tìm thấy chức danh",
     "phoneNumberRequired": "Số điện thoại là bắt buộc",
     "passwordRequired": "Mật khẩu là bắt buộc",
     "firstNameRequired": "Họ tên là bắt buộc",

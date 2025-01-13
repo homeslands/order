@@ -1,1 +1,1 @@
-export { default as StaffLayout } from './StaffLayout'
+export { default as SystemLayout } from './SystemLayout'

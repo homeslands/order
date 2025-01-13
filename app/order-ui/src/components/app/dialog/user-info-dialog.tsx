@@ -28,7 +28,7 @@ export default function UserInfoDialog({ user }: IUserInfoDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className="flex w-full justify-start">
+      <DialogTrigger asChild className="flex justify-start w-full">
         <Button
           variant="ghost"
           className="h-10 gap-1 px-2 text-sm"

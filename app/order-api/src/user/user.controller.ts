@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   ValidationPipe,
@@ -15,6 +16,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import {
   CreateUserRequestDto,
   GetAllUserQueryRequestDto,
+  UpdateUserRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
 } from './user.dto';
@@ -99,7 +101,7 @@ export class UserController {
   }
 
   @Post(':slug/role')
-  @HasRoles(RoleEnum.SuperAdmin)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update user role' })
   @ApiResponseWithType({
@@ -119,5 +121,28 @@ export class UserController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<UserResponseDto>;
+  }
+
+  @Patch(':slug')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update user' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'User info have been updated successfully',
+    type: UserResponseDto,
+  })
+  async updateUser(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: UpdateUserRequestDto,
+  ) {
+    const result = await this.userService.updateUser(slug, requestData);
+    // return {
+    //   message: 'User has been updated successfully',
+    //   statusCode: HttpStatus.OK,
+    //   timestamp: new Date().toISOString(),
+    //   result,
+    // } as AppResponseDto<UserResponseDto>;
   }
 }

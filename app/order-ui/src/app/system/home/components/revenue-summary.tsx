@@ -1,45 +1,58 @@
-import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react'
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
-import { useRevenue } from "@/hooks"
+import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { useRevenue } from "@/hooks";
 
 interface RevenueData {
-    startDate: string
-    endDate: string
+    startDate: string;
+    endDate: string;
 }
 
 export default function RevenueSummary({ startDate, endDate }: RevenueData) {
     const { data: revenueData } = useRevenue({
         startDate,
         endDate,
-    })
+    });
 
-    const { data: CurrentRevenueData } = useRevenue({
-        startDate,
-        endDate,
-    })
+    // Lấy ngày hôm nay
+    const today = new Date();
 
-    //Tính tổng doanh thu ngày hiện tại
-    const totalRevenueToday = CurrentRevenueData?.result?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
+    // Lọc doanh thu hôm nay
+    const todayRevenue = revenueData?.result?.find((item) =>
+        item.date && new Date(item.date).toDateString() === today.toDateString()
+    );
 
-    //Định dạng revenue thành VND
-    const formattedRevenueToday = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenueToday);
+    // Tính tổng doanh thu hôm nay
+    const totalRevenueToday = todayRevenue?.totalAmount || 0;
 
-    // Tính tổng revenue
+    // Định dạng doanh thu hôm nay thành VND
+    const formattedRevenueToday = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(totalRevenueToday);
+
+    // Tính tổng doanh thu
     const totalRevenue = revenueData?.result?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
 
-    // Định dạng revenue thành VND
-    const formattedRevenue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
+    // Định dạng tổng doanh thu thành VND
+    const formattedRevenue = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(totalRevenue);
 
-    //Tính tổng đơn hàng
+    // Tính tổng số đơn hàng
     const totalOrders = revenueData?.result?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
 
+    // Tính giá trị trung bình mỗi đơn hàng
     const averageOrderValue = totalRevenue / totalOrders || 0;
 
-    const formattedAverageOrderValue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(averageOrderValue);
+    // Định dạng giá trị trung bình mỗi đơn hàng thành VND
+    const formattedAverageOrderValue = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(averageOrderValue);
 
     return (
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <Card className="text-white shadow-none bg-primary">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">Tổng doanh thu</CardTitle>
@@ -81,6 +94,5 @@ export default function RevenueSummary({ startDate, endDate }: RevenueData) {
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }
-

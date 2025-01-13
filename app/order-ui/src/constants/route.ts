@@ -10,6 +10,7 @@ export const ROUTE = {
 
   // Staff Routes
   OVERVIEW: '/overview',
+  OVERVIEW_DETAIL: '/overview/detail',
   STAFF_BRANCH: '/branch',
   STAFF_PROFILE: '/staff/profile',
   STAFF_MENU: '/staff/menu',

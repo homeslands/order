@@ -90,6 +90,24 @@ export class UpdateUserRoleRequestDto {
   role: string;
 }
 
+export class UpdateUserRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  phonenumber: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  firstName: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiProperty()
+  @IsOptional()
+  dob?: string;
+}
+
 export class GetAllUserQueryRequestDto {
   @AutoMap()
   @ApiProperty({

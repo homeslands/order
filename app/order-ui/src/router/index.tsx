@@ -6,7 +6,7 @@ import { SuspenseElement } from '@/components/app/elements'
 import { Role, ROUTE, RoutePermissions } from '@/constants'
 import {
   MenuPage,
-  StaffLayout,
+  SystemLayout,
   LoginPage,
   ConfirmOrderPage,
   TablePage,
@@ -39,6 +39,7 @@ import {
   StaticPageManagementPage,
   CustomerPage,
   OverviewPage,
+  OverviewDetailPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout } from '@/app/layouts/client'
@@ -62,7 +63,7 @@ export const router = createBrowserRouter([
     path: ROUTE.OVERVIEW,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -83,10 +84,34 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: ROUTE.OVERVIEW_DETAIL,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <SuspenseElement component={SystemLayout} />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedElement
+            allowedRoles={[
+              Role.ADMIN,
+              Role.STAFF,
+              Role.MANAGER,
+              Role.SUPER_ADMIN,
+            ]}
+            element={<SuspenseElement component={OverviewDetailPage} />}
+          />
+        ),
+      },
+    ],
+  },
+  {
     path: ROUTE.STAFF_MENU,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -105,7 +130,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_CHECKOUT_ORDER,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -124,7 +149,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.STAFF_ORDER_PAYMENT}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -143,7 +168,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.ORDER_SUCCESS}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -162,7 +187,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_ORDER_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -181,7 +206,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_ORDER_HISTORY,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -200,7 +225,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.STAFF_ORDER_HISTORY}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -219,7 +244,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_TABLE_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -238,7 +263,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_PRODUCT_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -257,7 +282,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.STAFF_PRODUCT_MANAGEMENT}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -276,7 +301,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_MENU_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -295,7 +320,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.STAFF_MENU_MANAGEMENT}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -314,7 +339,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_CUSTOMER_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -333,7 +358,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_USER_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -352,7 +377,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_BRANCH,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -371,7 +396,7 @@ export const router = createBrowserRouter([
     path: ROUTE.OVERVIEW,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -396,7 +421,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_STATIC_PAGE,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -415,7 +440,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_LOG_MANAGEMENT,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -434,7 +459,7 @@ export const router = createBrowserRouter([
     path: ROUTE.STAFF_PROFILE,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -459,7 +484,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.STAFF_BANK_CONFIG}`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [
@@ -478,7 +503,7 @@ export const router = createBrowserRouter([
     path: `${ROUTE.ADMIN_CONFIG}`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={StaffLayout} />
+        <SuspenseElement component={SystemLayout} />
       </Suspense>
     ),
     children: [

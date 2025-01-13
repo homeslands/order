@@ -31,6 +31,8 @@
     "newPassword": "Mật khẩu mới",
     "enterNewPassword": "Nhập mật khẩu mới",
     "confirmPassword": "Xác nhận mật khẩu mới",
-    "enterConfirmPassword": "Nhập lại mật khẩu mới"
+    "enterConfirmPassword": "Nhập lại mật khẩu mới",
+    "notification": "Thông báo",
+    "history": "Lịch sử"
   }
 }

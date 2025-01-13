@@ -14,6 +14,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {
   CreateUserRequestDto,
   GetAllUserQueryRequestDto,
+  UpdateUserRequestDto,
   UpdateUserRoleRequestDto,
   UserResponseDto,
 } from './user.dto';
@@ -32,6 +33,7 @@ import { BranchException } from 'src/branch/branch.exception';
 import { Branch } from 'src/branch/branch.entity';
 import { AuthException } from 'src/auth/auth.exception';
 import AuthValidation from 'src/auth/auth.validation1';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class UserService {
@@ -54,6 +56,10 @@ export class UserService {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
   }
 
+  async updateUser(slug: string, requestData: UpdateUserRequestDto) {
+    throw new Error('Method not implemented.');
+  }
+
   async createUser(requestData: CreateUserRequestDto) {
     const context = `${UserService.name}.${this.createUser.name}`;
 
@@ -63,7 +69,10 @@ export class UserService {
         name: requestData.role,
       },
     });
-    if (!role) throw new RoleException(RoleValidation.ROLE_NOT_FOUND);
+    if (!role) {
+      this.logger.error(`Role is not found`, null, context);
+      throw new RoleException(RoleValidation.ROLE_NOT_FOUND);
+    }
 
     // Check phone number uniqueness
     const userExists = await this.userRepository.findOne({
@@ -71,7 +80,10 @@ export class UserService {
         phonenumber: requestData.phonenumber,
       },
     });
-    if (userExists) throw new AuthException(AuthValidation.USER_EXISTS);
+    if (userExists) {
+      this.logger.error(`User already exists`, null, context);
+      throw new AuthException(AuthValidation.USER_EXISTS);
+    }
 
     const user = this.mapper.map(requestData, CreateUserRequestDto, User);
 
@@ -91,9 +103,7 @@ export class UserService {
         },
       });
       if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-      Object.assign(user, {
-        branch,
-      });
+      user.branch = branch;
     }
 
     try {
@@ -124,14 +134,18 @@ export class UserService {
       where: { slug },
       relations: ['role'],
     });
-    if (!user) {
-      throw new UserException(UserValidation.USER_NOT_FOUND);
+    if (!user) throw new UserException(UserValidation.USER_NOT_FOUND);
+
+    if (user.role.name === RoleEnum.Customer) {
+      this.logger.warn(
+        `Can not update customer role to ${role.name} role`,
+        context,
+      );
+      throw new UserException(UserValidation.CANNOT_UPDATE_CUSTOMER_ROLE);
     }
 
-    Object.assign(user, {
-      role,
-    });
     try {
+      user.role = role;
       await this.userRepository.save(user);
       this.logger.log(`User role has been updated successfully`, context);
     } catch (error) {
@@ -150,9 +164,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { slug },
     });
-    if (!user) {
-      throw new UserException(UserValidation.USER_NOT_FOUND);
-    }
+    if (!user) throw new UserException(UserValidation.USER_NOT_FOUND);
 
     const newPassword = Math.random().toString(36).slice(-8);
     const hashedPass = await bcrypt.hash(newPassword, this.saltOfRounds);

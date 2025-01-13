@@ -1,3 +1,4 @@
+import { RevenueTypeQuery } from '@/constants'
 import { IBase } from './base.type'
 
 export interface IRevenue extends IBase {
@@ -9,6 +10,7 @@ export interface IRevenue extends IBase {
 export interface IRevenueQuery {
   startDate?: string
   endDate?: string
+  type?: RevenueTypeQuery
 }
 
 export interface IBranchRevenue {
@@ -23,4 +25,5 @@ export interface IBranchRevenueQuery {
   branch: string
   startDate?: string
   endDate?: string
+  type: RevenueTypeQuery
 }

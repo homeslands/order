@@ -11,7 +11,7 @@ export default function NavigationSheet() {
       </SheetTrigger>
       <SheetContent className="w-[60%] py-5" side={'left'}>
         <div>
-          <div className="flex flex-col items-start px-6 pb-4 justify-center gap-6">
+          <div className="flex flex-col items-start justify-center gap-6 px-6 pb-4">
             <NavLink
               to={ROUTE.HOME}
               className={({ isActive }) =>

@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useTables } from '@/hooks'
-import { useCartItemStore } from '@/stores'
+import { useCartItemStore, useBranchStore } from '@/stores'
 import { ITable } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
 import { NonResizableTableItem } from '../table'
-import { useBranchStore } from '@/stores/branch.store'
 
 export default function ClientTableSelect() {
   const { t } = useTranslation(['table'])

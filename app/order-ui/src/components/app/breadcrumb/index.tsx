@@ -1,1 +1,1 @@
-export { default as BreadcrumbComponent } from './breadcrumb'
+export { default as SystemBreadcrumb } from './system-breadcrumb'

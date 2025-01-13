@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   ValidationPipe,
@@ -34,12 +35,11 @@ export class OrderController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     description: 'Create a new order successfully',
     type: CreateOrderRequestDto,
   })
   @ApiOperation({ summary: 'Create new order' })
-  @ApiResponse({ status: 200, description: 'Create new order successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async createOrder(
     @Body(
@@ -62,7 +62,6 @@ export class OrderController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all orders' })
-  @ApiResponse({ status: 200, description: 'Get all orders successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -86,7 +85,6 @@ export class OrderController {
   @Get(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve order by slug' })
-  @ApiResponse({ status: 200, description: 'Get order by slug successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @ApiResponseWithType({
     status: HttpStatus.OK,

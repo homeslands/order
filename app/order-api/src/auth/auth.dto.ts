@@ -34,11 +34,6 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @IsNotEmpty({ message: INVALID_LASTNAME })
   @AutoMap()
   lastName: string;
-
-  @ApiProperty({ example: '' })
-  @AutoMap()
-  @IsOptional()
-  branchSlug?: string;
 }
 
 export class LoginAuthResponseDto {

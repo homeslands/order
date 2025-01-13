@@ -42,7 +42,7 @@ export default function ProtectedElement({
     } else if (!hasRequiredPermissions()) {
       toast.error(t('toast.forbidden'))
 
-      switch (userInfo?.role.name) {
+      switch (userInfo?.role?.name) {
         case Role.STAFF:
         case Role.CHEF:
         case Role.MANAGER:
@@ -61,7 +61,7 @@ export default function ProtectedElement({
     handleLogout,
     hasRequiredPermissions,
     t,
-    userInfo?.role.name,
+    userInfo?.role?.name,
   ])
 
   return hasRequiredPermissions() ? <>{element}</> : null

@@ -21,6 +21,7 @@ import enRevenue from '@/locales/en/revenue.json'
 import enBranch from '@/locales/en/branch.json'
 import enStaticPage from '@/locales/en/static-page.json'
 import enDashboard from '@/locales/en/dashboard.json'
+import enEmployee from '@/locales/en/employee.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -42,6 +43,7 @@ import viBranch from '@/locales/vi/branch.json'
 import viStaticPage from '@/locales/vi/static-page.json'
 import viCustomer from '@/locales/vi/customer.json'
 import viDashboard from '@/locales/vi/dashboard.json'
+import viEmployee from '@/locales/vi/employee.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -68,6 +70,7 @@ i18n
         branch: enBranch,
         staticPage: enStaticPage,
         dashboard: enDashboard,
+        employee: enEmployee,
       },
       vi: {
         toast: viToast,
@@ -90,6 +93,7 @@ i18n
         staticPage: viStaticPage,
         customer: viCustomer,
         dashboard: viDashboard,
+        employee: viEmployee,
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',
@@ -118,6 +122,7 @@ i18n
       'branch',
       'staticPage',
       'dashboard',
+      'employee',
     ], //Dùng để phân biệt các phần khác nhau của app
     defaultNS: 'auth', //Ngôn ngữ mặc định
   })

@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import moment from 'moment'
+// import moment from 'moment'
 import { MoreHorizontal } from 'lucide-react'
 
 import {
@@ -12,47 +12,61 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
-import { ResetPasswordDialog, UserInfoDialog } from '@/components/app/dialog'
+import { ResetPasswordDialog, UpdateEmployeeDialog, UserInfoDialog } from '@/components/app/dialog'
 import UpdateUserRoleDialog from '@/components/app/dialog/update-user-role-dialog'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
-  const { t } = useTranslation(['user', 'common'])
+  const { t } = useTranslation(['employee', 'common'])
   const { t: tCommon } = useTranslation(['common'])
   return [
-    {
-      accessorKey: 'createdAt',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.createdAt')} />
-      ),
-      cell: ({ row }) => {
-        const createdAt = row.getValue('createdAt')
-        return (
-          <div className="text-sm">
-            {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
-          </div>
-        )
-      },
-    },
+    // {
+    //   accessorKey: 'createdAt',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('employee.createdAt')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const createdAt = row.getValue('createdAt')
+    //     return (
+    //       <div className="text-xs sm:text-sm">
+    //         {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
+    //       </div>
+    //     )
+    //   },
+    // },
     {
       accessorKey: 'slug',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.slug')} />
+        <DataTableColumnHeader column={column} title={t('employee.slug')} />
       ),
       cell: ({ row }) => {
         const user = row.original
-        return <div className="text-sm">{user?.slug}</div>
+        return <div className="text-xs sm:text-sm">{user?.slug}</div>
       },
     },
     {
       accessorKey: 'fullname',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.name')} />
+        <DataTableColumnHeader column={column} title={t('employee.name')} />
       ),
       cell: ({ row }) => {
         const user = row.original
         return (
-          <div className="text-sm">
+          <div className="text-xs sm:text-sm">
             {user?.firstName} {user?.lastName}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'branch',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('employee.branch')} />
+      ),
+      cell: ({ row }) => {
+        const user = row.original
+        return (
+          <div className="text-xs sm:text-sm">
+            {user?.branch?.name}
           </div>
         )
       },
@@ -60,31 +74,31 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
     {
       accessorKey: 'phoneNumber',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.phoneNumber')} />
+        <DataTableColumnHeader column={column} title={t('employee.phoneNumber')} />
       ),
       cell: ({ row }) => {
         const user = row.original
-        return <div className="text-sm">{user?.phonenumber}</div>
+        return <div className="text-xs sm:text-sm">{user?.phonenumber}</div>
       },
     },
     {
       accessorKey: 'email',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.email')} />
+        <DataTableColumnHeader column={column} title={t('employee.email')} />
       ),
       cell: ({ row }) => {
         const user = row.original
-        return <div className="text-sm">{user?.email}</div>
+        return <div className="text-xs sm:text-sm">{user?.email}</div>
       },
     },
     {
       accessorKey: 'role',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('users.role')} />
+        <DataTableColumnHeader column={column} title={t('employee.role')} />
       ),
       cell: ({ row }) => {
         const user = row.original
-        return <div className="text-sm">{user?.role?.name}</div>
+        return <div className="text-xs sm:text-sm">{user?.role?.name}</div>
       },
     },
     {
@@ -96,9 +110,9 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="w-8 h-8 p-0">
                   <span className="sr-only">{tCommon('common.action')}</span>
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -106,10 +120,9 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <UserInfoDialog user={user} />
-                <>
-                  <ResetPasswordDialog user={user} />
-                  <UpdateUserRoleDialog user={user} />
-                </>
+                <ResetPasswordDialog user={user} />
+                <UpdateUserRoleDialog user={user} />
+                <UpdateEmployeeDialog employee={user} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

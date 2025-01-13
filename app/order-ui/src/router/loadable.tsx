@@ -1,9 +1,9 @@
 import React from 'react'
 
 // Layout
-export const StaffLayout = React.lazy(() =>
+export const SystemLayout = React.lazy(() =>
   import('@/app/layouts/system').then((module) => ({
-    default: module.StaffLayout,
+    default: module.SystemLayout,
   })),
 )
 
@@ -39,6 +39,12 @@ export const ForgotPasswordAndResetPasswordPage = React.lazy(() =>
 export const OverviewPage = React.lazy(() =>
   import('@/app/system/home').then((module) => ({
     default: module.OverviewPage,
+  })),
+)
+
+export const OverviewDetailPage = React.lazy(() =>
+  import('@/app/system/home').then((module) => ({
+    default: module.OverviewDetailPage,
   })),
 )
 
@@ -207,7 +213,7 @@ export const ClientMenuPage = React.lazy(() =>
 
 //Product detail page
 export const ClientProductDetailPage = React.lazy(() =>
-  import('@/app/client/dishes').then((module) => ({
+  import('@/app/client/product-detail').then((module) => ({
     default: module.ProductDetail,
   })),
 )
@@ -215,14 +221,14 @@ export const ClientProductDetailPage = React.lazy(() =>
 //Cart page
 export const ClientCartPage = React.lazy(() =>
   import('@/app/client/cart').then((module) => ({
-    default: module.CartPage,
+    default: module.ClientCartPage,
   })),
 )
 
 //Payment page
 export const ClientPaymentPage = React.lazy(() =>
   import('@/app/client/payment').then((module) => ({
-    default: module.PaymentPage,
+    default: module.ClientPaymentPage,
   })),
 )
 

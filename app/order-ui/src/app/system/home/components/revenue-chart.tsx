@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react' // Thêm useState
 import * as echarts from 'echarts'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { useRevenue } from '@/hooks'
 import { formatCurrency, formatShortCurrency } from '@/utils'
+import { RevenueTypeQuery } from '@/constants'
+import { DateSelect } from '@/components/app/select'
 
 interface RevenueData {
     startDate: string
@@ -19,11 +21,37 @@ interface TooltipParams {
 
 export default function RevenueChart({ startDate, endDate }: RevenueData) {
     const chartRef = useRef<HTMLDivElement>(null)
+    const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
 
     const { data: revenueData } = useRevenue({
         startDate,
         endDate,
+        type: revenueType // Sử dụng state thay vì hardcode
     })
+
+    const handleSelectTimeRange = (timeRange: string) => {
+        // Cập nhật type dựa vào timeRange
+        if (timeRange === RevenueTypeQuery.DAILY) {
+            setRevenueType(RevenueTypeQuery.DAILY)
+        } else if (timeRange === RevenueTypeQuery.MONTHLY) {
+            setRevenueType(RevenueTypeQuery.MONTHLY)
+        } else if (timeRange === RevenueTypeQuery.YEARLY) {
+            setRevenueType(RevenueTypeQuery.YEARLY)
+        }
+    }
+
+    const formatDate = (date: string) => {
+        switch (revenueType) {
+            case RevenueTypeQuery.DAILY:
+                return moment(date).format('DD/MM')
+            case RevenueTypeQuery.MONTHLY:
+                return moment(date).format('MM/YYYY')
+            case RevenueTypeQuery.YEARLY:
+                return moment(date).format('YYYY')
+            default:
+                return moment(date).format('DD/MM')
+        }
+    }
 
     useEffect(() => {
         if (chartRef.current && revenueData?.result) {
@@ -51,7 +79,7 @@ export default function RevenueChart({ startDate, endDate }: RevenueData) {
                 },
                 xAxis: {
                     type: 'category',
-                    data: sortedData.map(item => moment(item.date).format('DD/MM')),
+                    data: sortedData.map(item => formatDate(item.date)),
                     axisLabel: {
                         rotate: 45
                     }
@@ -116,6 +144,7 @@ export default function RevenueChart({ startDate, endDate }: RevenueData) {
                         name: 'Đơn hàng',
                         type: 'bar',
                         yAxisIndex: 1,
+                        barWidth: sortedData.length === 1 ? 40 : '50%', // Add this line
                         data: sortedData.map(item => item.totalOrder),
                         itemStyle: {
                             color: '#f89209',
@@ -139,15 +168,15 @@ export default function RevenueChart({ startDate, endDate }: RevenueData) {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [revenueData])
+    }, [revenueData, revenueType]) // Add revenueType to dependencies
 
     return (
         <Card className='shadow-none'>
             <CardHeader>
                 <CardTitle className='flex items-center justify-between'>
-                    Doanh thu
+                    Doanh thu toàn hệ thống
                     {/* <TimeRangeRevenueFilter onApply={handleSelectTimeRange} /> */}
-                    {/* <DateSelect onChange={handleSelectTimeRange} /> */}
+                    <DateSelect onChange={handleSelectTimeRange} />
                 </CardTitle>
             </CardHeader>
             <CardContent className='flex items-center justify-center p-2'>

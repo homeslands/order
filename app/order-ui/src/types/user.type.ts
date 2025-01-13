@@ -28,7 +28,16 @@ export interface ICreateUserRequest {
   confirmPassword: string
   firstName: string
   lastName: string
+  branch?: string
   role: string
+}
+
+export interface IUpdateUserRequest {
+  phonenumber: string
+  firstName: string
+  lastName: string
+  branch?: string
+  role?: string
 }
 
 export interface IUserQuery {

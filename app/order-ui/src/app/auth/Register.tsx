@@ -57,7 +57,7 @@ export default function Register() {
             <span>{t('register.haveAccount')}</span>
             <NavLink
               to={ROUTE.LOGIN}
-              className="text-center text-xs text-primary"
+              className="text-center text-sm text-primary"
             >
               {t('register.login')}
             </NavLink>

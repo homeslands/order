@@ -56,7 +56,8 @@ const publicRoutes = [
   { path: /^\/products\/[^/]+$/, methods: ['get'] },
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
-  { path: /^\/static-pages\/[^/]+$/, methods: ['get'] }, // Add this line for static pages with slug
+  { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },
+  { path: /^\/static-pages\/[^/]+$/, methods: ['get'] },
 ]
 
 const isPublicRoute = (url: string, method: string): boolean => {
@@ -65,6 +66,7 @@ const isPublicRoute = (url: string, method: string): boolean => {
   )
 }
 
+// Consolidated request interceptor
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore.getState()
@@ -128,7 +130,8 @@ axiosInstance.interceptors.request.use(
 
     if (currentToken) {
       config.headers['Authorization'] = `Bearer ${currentToken}`
-      if (!config?.doNotShowLoading) {
+      if (!(config as CustomAxiosRequestConfig).doNotShowLoading) {
+        useLoadingStore.getState().setIsLoading(true)
         const requestStore = useRequestStore.getState()
         if (requestStore.requestQueueSize === 0) {
           NProgress.start()
@@ -139,15 +142,21 @@ axiosInstance.interceptors.request.use(
 
     return config
   },
-  (error) => Promise.reject(error),
+  (error) => {
+    useLoadingStore.getState().setIsLoading(false)
+    return Promise.reject(error)
+  },
 )
 
+// Consolidated response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
+    useLoadingStore.getState().setIsLoading(false)
     if (!response.config?.doNotShowLoading) setProgressBarDone()
     return response
   },
   async (error) => {
+    useLoadingStore.getState().setIsLoading(false)
     if (!error.config?.doNotShowLoading) setProgressBarDone()
     return Promise.reject(error)
   },
@@ -167,29 +176,5 @@ async function setProgressBarDone() {
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   doNotShowLoading?: boolean
 }
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    if (!(config as CustomAxiosRequestConfig).doNotShowLoading) {
-      useLoadingStore.getState().setIsLoading(true)
-    }
-    return config
-  },
-  (error) => {
-    useLoadingStore.getState().setIsLoading(false)
-    return Promise.reject(error)
-  },
-)
-
-axiosInstance.interceptors.response.use(
-  (response) => {
-    useLoadingStore.getState().setIsLoading(false)
-    return response
-  },
-  (error) => {
-    useLoadingStore.getState().setIsLoading(false)
-    return Promise.reject(error)
-  },
-)
 
 export default axiosInstance

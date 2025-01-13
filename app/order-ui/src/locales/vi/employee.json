@@ -1,0 +1,34 @@
+{
+  "employee": {
+    "title": "Quản lý nhân viên",
+    "viewDetail": "Xem chi tiết",
+    "detailInfo": "Thông tin chi tiết",
+    "detailInfoDescription": "Xem thông tin chi tiết của người dùng",
+    "createdAt": "Ngày tạo",
+    "slug": "Mã người dùng",
+    "firstName": "Tên",
+    "lastName": "Họ",
+    "dob": "Ngày sinh",
+    "name": "Tên",
+    "email": "Email",
+    "phoneNumber": "Số điện thoại",
+    "role": "Chức danh",
+    "address": "Địa chỉ",
+
+    "updateRole": "Cập nhật chức danh",
+    "updateRoleDescription": "Cập nhật chức danh cho nhân viên",
+    "update": "Cập nhật",
+    "updateDescription": "Cập nhật thông tin nhân viên",
+
+    "create": "Tạo mới nhân viên",
+    "createDescription": "Tạo mới nhân viên",
+    "enterPhoneNumber": "Nhập số điện thoại",
+    "enterFirstName": "Nhập tên",
+    "enterLastName": "Nhập họ",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "enterConfirmPassword": "Nhập xác nhận mật khẩu",
+    "password": "Mật khẩu",
+    "enterPassword": "Nhập mật khẩu",
+    "branch": "Chi nhánh"
+  }
+}

@@ -39,6 +39,11 @@
     "noTemplate": "Không phải mẫu thực đơn"
   },
   "dayOfWeek": {
+    "selectTimeRange": "Chọn thời gian",
+    "day": "Ngày",
+    "month": "Tháng",
+    "year": "Năm",
+
     "0": "Thứ hai",
     "1": "Thứ ba",
     "2": "Thứ tư",

@@ -259,6 +259,7 @@ export class AuthService {
     const context = `${AuthService.name}.${this.uploadAvatar.name}`;
     const userEntity = await this.userRepository.findOne({
       where: { id: user.userId },
+      relations: ['branch', 'role'],
     });
     if (!userEntity) throw new AuthException(AuthValidation.USER_NOT_FOUND);
 
@@ -340,16 +341,6 @@ export class AuthService {
     requestData: UpdateAuthProfileRequestDto,
   ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.updateProfile.name}`;
-    // Validation branch
-    console.log({ requestData });
-    const branch = await this.branchRepository.findOne({
-      where: { slug: requestData.branch },
-    });
-    if (!branch) {
-      this.logger.warn(`Branch ${requestData.branch} not found`, context);
-      throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-    }
-    console.log({ branch });
 
     const user = await this.userRepository.findOne({
       where: { id: currentUserDto.userId },
@@ -361,12 +352,31 @@ export class AuthService {
 
     Object.assign(user, {
       ...requestData,
-      branch,
     });
-    const updatedUser = await this.userRepository.save(user);
-    this.logger.log(`User ${user.id} updated profile`, context);
 
-    return this.mapper.map(updatedUser, User, AuthProfileResponseDto);
+    if (requestData.branch) {
+      const branch = await this.branchRepository.findOne({
+        where: { slug: requestData.branch },
+      });
+      if (!branch) {
+        this.logger.warn(`Branch ${requestData.branch} not found`, context);
+        throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+      }
+      user.branch = branch;
+    }
+
+    try {
+      const updatedUser = await this.userRepository.save(user);
+      this.logger.log(`User ${user.id} updated profile`, context);
+      return this.mapper.map(updatedUser, User, AuthProfileResponseDto);
+    } catch (error) {
+      this.logger.error(
+        `Error when updating user: ${error.message}`,
+        error.stack,
+        context,
+      );
+      throw new AuthException(AuthValidation.ERROR_UPDATE_USER);
+    }
   }
 
   /**
@@ -379,7 +389,7 @@ export class AuthService {
     const context = `${AuthService.name}.${this.validateUser.name}`;
     const user = await this.userRepository.findOne({ where: { phonenumber } });
     if (!user) {
-      this.logger.warn(`User ${phonenumber} not found`, `${context}`);
+      this.logger.warn(`User ${phonenumber} is not found`, `${context}`);
       return null;
     }
     const isMatch = await bcrypt.compare(pass, user.password);
@@ -456,23 +466,6 @@ export class AuthService {
     requestData: RegisterAuthRequestDto,
   ): Promise<RegisterAuthResponseDto> {
     const context = `${AuthService.name}.${this.register.name}`;
-    // construct options where
-    const branchFindOptionsWhere: FindOptionsWhere<Branch> = {};
-    if (requestData.branchSlug) {
-      branchFindOptionsWhere.slug = requestData.branchSlug;
-    } else {
-      branchFindOptionsWhere.name = Like(`%${DefaultBranchName}%`);
-    }
-
-    // Find branch
-    const branch = await this.branchRepository.findOne({
-      where: branchFindOptionsWhere,
-    });
-    if (!branch) {
-      this.logger.warn(`Branch not found`, context);
-      throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-    }
-
     const userExists = await this.userRepository.findOne({
       where: {
         phonenumber: requestData.phonenumber,
@@ -505,7 +498,7 @@ export class AuthService {
       this.saltOfRounds,
     );
 
-    Object.assign(user, { branch, password: hashedPass, role });
+    Object.assign(user, { password: hashedPass, role });
     this.userRepository.create(user);
     const createdUser = await this.userRepository.save(user);
     this.logger.warn(`User ${requestData.phonenumber} registered`, context);

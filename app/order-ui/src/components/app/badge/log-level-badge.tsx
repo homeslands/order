@@ -38,7 +38,7 @@ export default function LogLevelBadge({ level }: ILogLevelBadgeProps) {
   // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block min-w-[4.5rem] px-1.5 py-1 text-center font-beVietNam text-xs ${getBadgeColor(
+      className={`inline-block min-w-[4.5rem] px-1.5 py-1 text-center text-xs ${getBadgeColor(
         level,
       )} rounded-full`}
     >

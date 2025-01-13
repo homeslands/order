@@ -8,7 +8,7 @@ import { Role } from '@/constants'
 import { CustomerAction } from './DataTable/actions'
 
 export default function CustomerPage() {
-  const { t } = useTranslation(['user'])
+  const { t } = useTranslation(['customer'])
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
 
   const { data, isLoading } = useUsers({
@@ -21,9 +21,9 @@ export default function CustomerPage() {
   return (
     <div className="flex flex-col">
       <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-transparent">
-        <span className="flex w-full items-center justify-start gap-1 text-lg">
+        <span className="flex items-center justify-start w-full gap-1 text-lg">
           <SquareMenu />
-          {t('users.title')}
+          {t('customer.title')}
         </span>
       </div>
       <div className="grid h-full grid-cols-1 gap-2">

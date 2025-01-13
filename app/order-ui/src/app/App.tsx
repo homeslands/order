@@ -9,7 +9,6 @@ import {
 } from '@tanstack/react-query'
 import { has } from 'lodash'
 
-import '@/assets/index.css'
 import { router } from '@/router'
 import '@/i18n'
 import { IApiErrorResponse, IApiResponse } from '@/types'

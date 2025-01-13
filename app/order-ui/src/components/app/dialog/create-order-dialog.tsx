@@ -41,13 +41,14 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
   const handleSubmit = (order: ICartItem) => {
     if (!order) return
 
-    const selectedBranch = userInfo?.role.name === Role.CUSTOMER
-      ? branch?.slug
-      : userInfo?.branch.slug;
+    const selectedBranch =
+      userInfo?.role.name === Role.CUSTOMER
+        ? branch?.slug
+        : userInfo?.branch.slug
 
     if (!selectedBranch) {
-      showErrorToast(11000);
-      return;
+      showErrorToast(11000)
+      return
     }
 
     const createOrderRequest: ICreateOrderRequest = {
@@ -83,18 +84,18 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       <DialogTrigger asChild>
         <Button
           disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full"
+          className="flex w-full items-center rounded-full text-sm"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[22rem] rounded-md px-6 font-beVietNam sm:max-w-[32rem]">
+      <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="pb-4 border-b">
+          <DialogTitle className="border-b pb-4">
             <div className="flex items-center gap-2 text-primary">
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="h-6 w-6" />
               {t('order.create')}
             </div>
           </DialogTitle>
@@ -108,7 +109,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}
-            className="border border-gray-300 min-w-24"
+            className="min-w-24 border border-gray-300"
           >
             {tCommon('common.cancel')}
           </Button>

@@ -1,1 +1,1 @@
-export { default as MenusActionOptions } from './menu-action-options'
+export { default as EmployeesAction } from './customer-action'

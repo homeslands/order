@@ -21,7 +21,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
   {
     title: 'sidebar.overview',
     path: ROUTE.OVERVIEW,
-    roles: [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    roles: [Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: ChartColumn,
   },
   {

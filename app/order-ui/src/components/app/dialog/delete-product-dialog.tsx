@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from '@/components/ui'
 
 import { IProduct } from '@/types'
@@ -19,7 +19,11 @@ import { useDeleteProduct } from '@/hooks'
 import { showToast } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
 
-export default function DeleteProductDialog({ product }: { product: IProduct }) {
+export default function DeleteProductDialog({
+  product,
+}: {
+  product: IProduct
+}) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['product'])
   const { t: tCommon } = useTranslation('common')
@@ -31,7 +35,7 @@ export default function DeleteProductDialog({ product }: { product: IProduct }) 
     deleteProduct(catalogSlug, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['products']
+          queryKey: ['products'],
         })
         setIsOpen(false)
         showToast(tToast('toast.deleteProductSuccess'))
@@ -41,30 +45,34 @@ export default function DeleteProductDialog({ product }: { product: IProduct }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="flex justify-start w-full" asChild>
+      <DialogTrigger className="flex w-full justify-start" asChild>
         <DialogTrigger asChild>
-          <Button variant="ghost" className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
+          <Button
+            variant="ghost"
+            className="gap-1 px-2 text-sm"
+            onClick={() => setIsOpen(true)}
+          >
             <Trash2 className="icon" />
             {t('product.delete')}
           </Button>
         </DialogTrigger>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem] font-beVietNam">
+      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="pb-4 border-b border-destructive text-destructive">
+          <DialogTitle className="border-b border-destructive pb-4 text-destructive">
             <div className="flex items-center gap-2">
-              <TriangleAlert className="w-6 h-6" />
+              <TriangleAlert className="h-6 w-6" />
               {t('product.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+          <DialogDescription className="rounded-md bg-red-100 p-2 text-destructive">
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
           <div className="py-4 text-sm text-gray-500">
-            {t('product.deleteProductWarning1')} <span className="font-bold">{product?.name}</span>{' '}
-            <br />
+            {t('product.deleteProductWarning1')}{' '}
+            <span className="font-bold">{product?.name}</span> <br />
             <br />
             {t('product.deleteProductConfirmation')}
           </div>
@@ -73,7 +81,10 @@ export default function DeleteProductDialog({ product }: { product: IProduct }) 
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
-          <Button variant="destructive" onClick={() => product && handleSubmit(product.slug || '')}>
+          <Button
+            variant="destructive"
+            onClick={() => product && handleSubmit(product.slug || '')}
+          >
             {tCommon('common.confirmDelete')}
           </Button>
         </DialogFooter>

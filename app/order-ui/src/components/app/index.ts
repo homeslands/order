@@ -1,6 +1,0 @@
-export { default as AppSidebar } from './app-sidebar'
-export { default as AppHeader } from './app-header'
-export { default as ClientSidebar } from './client-sidebar'
-export { default as ClientHeader } from './client-header'
-export { default as ClientLandingHeader } from './client-landing-header'
-export * from './back-to-top'

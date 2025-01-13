@@ -11,6 +11,7 @@ export const INVALID_OLD_PASSWORD = 'INVALID_OLD_PASSWORD';
 export const FORGOT_TOKEN_EXPIRED = 'FORGOT_TOKEN_EXPIRED';
 export const FORGOT_TOKEN_EXISTS = 'FORGOT_TOKEN_EXISTS';
 export const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
+export const ERROR_UPDATE_USER = 'ERROR_UPDATE_USER';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -23,6 +24,7 @@ export type TAuthErrorCodeKey =
   | typeof FORGOT_TOKEN_EXPIRED
   | typeof INVALID_CREDENTIALS
   | typeof FORGOT_TOKEN_EXISTS
+  | typeof ERROR_UPDATE_USER
   | typeof INVALID_FIRSTNAME;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
@@ -40,4 +42,5 @@ export const AuthValidation: TAuthErrorCode = {
   FORGOT_TOKEN_EXPIRED: createErrorCode(119008, 'Forgot token is expired'),
   FORGOT_TOKEN_EXISTS: createErrorCode(119009, 'Forgot token exists'),
   INVALID_CREDENTIALS: createErrorCode(119010, 'Invalid credentials'),
+  ERROR_UPDATE_USER: createErrorCode(119011, 'Error when updating user'),
 };

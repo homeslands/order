@@ -4,7 +4,10 @@ import { Input, Card, CardContent } from '@/components/ui'
 import { ProfilePicture } from '@/components/app/avatar'
 import { useProfile, useUploadProfilePicture } from '@/hooks'
 import { publicFileURL } from '@/constants'
-import { UpdatePasswordDialog, UpdateProfileDialog } from '@/components/app/dialog'
+import {
+  UpdatePasswordDialog,
+  UpdateProfileDialog,
+} from '@/components/app/dialog'
 import { showToast } from '@/utils'
 import { useUserStore } from '@/stores'
 
@@ -27,84 +30,50 @@ export default function UserProfileCard() {
   const formFields = {
     firstName: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.firstName')}
-        </span>
-        <Input
-          className="font-beVietNam"
-          value={userProfile?.firstName}
-          readOnly
-        />
+        <span className="text-normal text-sm">{t('profile.firstName')}</span>
+        <Input className="" value={userProfile?.firstName} readOnly />
       </div>
     ),
     lastName: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.lastName')}
-        </span>
-        <Input
-          className="font-beVietNam"
-          value={userProfile?.lastName}
-          readOnly
-        />
+        <span className="text-normal text-sm">{t('profile.lastName')}</span>
+        <Input className="" value={userProfile?.lastName} readOnly />
       </div>
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.email')}
-        </span>
-        <Input className="font-beVietNam" value={userProfile?.email} readOnly />
+        <span className="text-normal text-sm">{t('profile.email')}</span>
+        <Input className="" value={userProfile?.email} readOnly />
       </div>
     ),
     phonenumber: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.phoneNumber')}
-        </span>
-        <Input
-          className="font-beVietNam"
-          value={userProfile?.phonenumber}
-          readOnly
-        />
+        <span className="text-normal text-sm">{t('profile.phoneNumber')}</span>
+        <Input className="" value={userProfile?.phonenumber} readOnly />
       </div>
     ),
     dob: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.dob')}
-        </span>
-        <Input className="font-beVietNam" value={userProfile?.dob} readOnly />
+        <span className="text-normal text-sm">{t('profile.dob')}</span>
+        <Input className="" value={userProfile?.dob} readOnly />
       </div>
     ),
     address: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.address')}
-        </span>
-        <Input
-          className="font-beVietNam"
-          value={userProfile?.address}
-          readOnly
-        />
+        <span className="text-normal text-sm">{t('profile.address')}</span>
+        <Input className="" value={userProfile?.address} readOnly />
       </div>
     ),
     branch: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal font-beVietNam">
-          {t('profile.branch')}
-        </span>
-        <Input
-          className="font-beVietNam"
-          value={userProfile?.branch?.name}
-          readOnly
-        />
+        <span className="text-normal text-sm">{t('profile.branch')}</span>
+        <Input className="" value={userProfile?.branch?.name} readOnly />
       </div>
     ),
   }
   return (
     <div>
-      <Card className="bg-transparent border-none shadow-none">
+      <Card className="border-none bg-transparent shadow-none">
         <CardContent className="flex flex-col gap-6 p-0">
           <div className="flex flex-row p-2">
             <ProfilePicture
@@ -117,21 +86,20 @@ export default function UserProfileCard() {
               }
               onUpload={handleUploadProfilePicture}
             />
-            <div className="flex flex-col justify-center ml-4">
-              <span className="font-bold text-md">
+            <div className="ml-4 flex flex-col justify-center">
+              <span className="text-md font-bold">
                 {userProfile?.lastName} {userProfile?.firstName}
               </span>
-              <div className="flex items-center text-description">
-              </div>
+              <div className="text-description flex items-center"></div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 border rounded-md">
+          <div className="grid grid-cols-1 gap-3 rounded-md border">
             <div
               className={
                 'flex w-full items-center justify-between bg-muted-foreground/5 px-6 py-6'
               }
             >
-              <span className="font-semibold text-md">
+              <span className="text-md font-semibold">
                 {t('profile.profile')}
               </span>
               <div className="flex gap-2">

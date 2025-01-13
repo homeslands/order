@@ -1,6 +1,7 @@
 {
   "route": {
-    "dashboard": "Tổng quan",
+    "overview": "Tổng quan",
+    "detail": "Tổng quan các chi nhánh",
     "bank-config": "Cấu hình ngân hàng",
     "checkout-order": "Xác nhận đơn hàng",
     "config": "Cấu hình",
