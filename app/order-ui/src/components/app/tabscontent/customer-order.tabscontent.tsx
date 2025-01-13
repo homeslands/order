@@ -35,7 +35,7 @@ export default function CustomerOrderTabsContent({
     ownerSlug: userInfo?.slug,
     order: 'DESC',
     hasPaging: true,
-    status: status,
+    status: status === OrderStatus.ALL ? undefined : status,
   })
 
   const orderData = order?.result.items

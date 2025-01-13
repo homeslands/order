@@ -32,7 +32,7 @@ import { BranchValidation } from 'src/branch/branch.validation';
 import { BranchException } from 'src/branch/branch.exception';
 import { Branch } from 'src/branch/branch.entity';
 import { AuthException } from 'src/auth/auth.exception';
-import AuthValidation from 'src/auth/auth.validation1';
+import { AuthValidation } from 'src/auth/auth.validation';
 import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
@@ -56,8 +56,58 @@ export class UserService {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
   }
 
+  async getUserBySlug(slug: string) {
+    const context = `${UserService.name}.${this.getUserBySlug.name}`;
+    const user = await this.userRepository.findOne({
+      where: {
+        slug,
+      },
+      relations: ['branch', 'role'],
+    });
+
+    if (!user) {
+      this.logger.error(`User not found`, context);
+      throw new UserException(UserValidation.USER_NOT_FOUND);
+    }
+
+    return this.mapper.map(user, User, UserResponseDto);
+  }
+
   async updateUser(slug: string, requestData: UpdateUserRequestDto) {
-    throw new Error('Method not implemented.');
+    const context = `${UserService.name}.${this.updateUser.name}`;
+    const user = await this.userRepository.findOne({
+      where: { slug },
+      relations: ['branch', 'role'],
+    });
+    if (!user) throw new UserException(UserValidation.USER_NOT_FOUND);
+
+    Object.assign(user, {
+      ...requestData,
+    });
+
+    if (requestData.branch) {
+      const branch = await this.branchRepository.findOne({
+        where: { slug: requestData.branch },
+      });
+      if (!branch) {
+        this.logger.warn(`Branch ${requestData.branch} not found`, context);
+        throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+      }
+      user.branch = branch;
+    }
+
+    try {
+      const updatedUser = await this.userRepository.save(user);
+      this.logger.log(`User ${user.id} updated profile`, context);
+      return this.mapper.map(updatedUser, User, UserResponseDto);
+    } catch (error) {
+      this.logger.error(
+        `Error when updating user: ${error.message}`,
+        error.stack,
+        context,
+      );
+      throw new AuthException(AuthValidation.ERROR_UPDATE_USER);
+    }
   }
 
   async createUser(requestData: CreateUserRequestDto) {

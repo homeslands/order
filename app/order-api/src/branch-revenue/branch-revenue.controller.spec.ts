@@ -9,6 +9,7 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { Branch } from 'src/branch/branch.entity';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
@@ -18,6 +19,7 @@ describe('BranchRevenueController', () => {
       controllers: [BranchRevenueController],
       providers: [
         BranchRevenueService,
+        TransactionManagerService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: MAPPER_MODULE_PROVIDER,

@@ -46,7 +46,7 @@ import { BranchException } from 'src/branch/branch.exception';
 import { FileService } from 'src/file/file.service';
 import { MailService } from 'src/mail/mail.service';
 import { ForgotPasswordToken } from './forgot-password-token.entity';
-import { USER_NOT_FOUND } from './auth.validation1';
+import { USER_NOT_FOUND } from './auth.validation';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { Role } from 'src/role/role.entity';
 import { RoleEnum } from 'src/role/role.enum';
@@ -55,7 +55,6 @@ import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import * as _ from 'lodash';
 import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
-import { DefaultBranchName } from 'src/branch/branch.constants';
 
 @Injectable()
 export class AuthService {

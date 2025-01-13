@@ -118,7 +118,7 @@
     "orderStatus": "Trạng thái",
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
-    "pending": "Chưa được giao",
+    "pending": "Chờ thanh toán",
     "paid": "Đã thanh toán",
     "completed": "Đã hoàn tất",
     "shipping": "Đang giao hàng",
@@ -199,7 +199,7 @@
 
     "total": "Số tiền thanh toán: ",
     "paymentNote": "Quý khách vui lòng kiển tra thông tin thanh toán toán trước khi thực hiện giao dịch",
-    "pending": "Chờ xác nhận",
+    "pending": "Chờ thanh toán",
     "shipping": "Đang giao hàng",
     "completed": "Đã hoàn tất",
     "paid": "Đã thanh toán",

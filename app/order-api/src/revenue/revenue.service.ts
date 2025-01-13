@@ -10,9 +10,9 @@ import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { AggregateRevenueResponseDto, GetRevenueQueryDto, RevenueQueryResponseDto, RevenueResponseDto } from './revenue.dto';
+import { AggregateRevenueResponseDto, GetRevenueQueryDto, RefreshSpecificRangeRevenueQueryDto, RevenueQueryResponseDto, RevenueResponseDto } from './revenue.dto';
 import * as _ from 'lodash';
-import { getCurrentRevenueClause } from './revenue.clause';
+import { getCurrentRevenueClause, getSpecificRangeRevenueClause } from './revenue.clause';
 import { RevenueValidation } from './revenue.validation';
 import { RevenueException } from './revenue.exception';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
@@ -279,5 +279,144 @@ export class RevenueService {
         RevenueValidation.CAN_NOT_REFRESH_REVENUE_MANUALLY_FROM_0H_TO_2H
       )
     }
+  }
+
+  async refreshRevenueForSpecificDay(
+    query: RefreshSpecificRangeRevenueQueryDto
+  ) {
+    const context = `${RevenueService.name}.${this.refreshRevenueForSpecificDay.name}`;
+    this.denyRefreshRevenueManuallyInTimeAutoRefresh();
+
+    if(query.startDate.getTime() > query.endDate.getTime()) {
+      this.logger.warn(
+        RevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE.message,
+        context
+      );
+      throw new RevenueException(
+        RevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
+      );
+    }
+
+    const startQuery = moment(query.startDate).format("YYYY-MM-DD");
+    const endQuery = moment(query.endDate).add(1, 'days').format("YYYY-MM-DD");
+    
+    const startDate = new Date(query.startDate);
+    startDate.setHours(7,0,0,0);
+    const endDate = new Date(query.endDate);
+    endDate.setHours(30,59,59,99);
+
+    const hasRevenues = await this.revenueRepository.find({
+      where: {
+        date: Between(startDate, endDate)
+      },
+    });
+    
+    const params = [startQuery, endQuery];
+    const results: RevenueQueryResponseDto[] =
+      await this.revenueRepository.query(getSpecificRangeRevenueClause, params);
+
+    const revenues = results.map((item) => {
+      return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
+    });
+
+    const revenuesFilledEmptyDate = this.fillZeroForEmptyDate(
+      revenues,
+      startDate,
+      endDate
+    );
+
+    const createAndUpdateRevenues: Revenue[] = 
+      this.getCreateAndUpdateRevenuesInRangeDays(
+        hasRevenues,
+        revenuesFilledEmptyDate
+      );
+
+    // console.log({createAndUpdateRevenues})
+
+    this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(createAndUpdateRevenues);
+      },
+      () =>
+        this.logger.log(
+          `${createAndUpdateRevenues.length} revenues from ${moment(query.startDate).format("YYYY-MM-DD")} 
+            to ${moment(query.endDate).format("YYYY-MM-DD")} updated successfully`,
+          context,
+        ),
+      (error) => {
+        this.logger.error(
+          `Error when update revenues: ${JSON.stringify(error)}`,
+          error.stack,
+          context,
+        );
+        throw new RevenueException(
+          RevenueValidation.UPDATE_REVENUE_ERROR,
+          error.message,
+        );
+      },
+    );
+  }
+
+  fillZeroForEmptyDate(
+    revenues: Revenue[],
+    firstDate: Date,
+    lastDate: Date
+  ): Revenue[] {
+    const datesInRange: Date[] = [];
+    let currentDate = new Date(firstDate);
+
+    while (currentDate <= lastDate) {
+      datesInRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const results: Revenue[] = [];
+
+    datesInRange.forEach(dateFull => {
+      const matchingElement = revenues.find(
+        item => item.date.getTime() === dateFull.getTime()
+      );
+
+      if (matchingElement) {
+        results.push(matchingElement);
+      } else {
+        const revenue = new Revenue();
+        Object.assign(revenue, {
+          totalAmount: 0,
+          totalOrder: 0,
+          date: dateFull
+        });
+        results.push(revenue);
+      }
+    });
+
+    return results;
+  }
+
+  getCreateAndUpdateRevenuesInRangeDays(
+    hasRevenues: Revenue[], // existed
+    revenues: Revenue[], // new, have all revenues in range time
+  ): Revenue[] {
+    if(_.isEmpty(hasRevenues)) return revenues;
+
+    const createAndUpdateRevenues: Revenue[] = [];
+
+    revenues.forEach(newRevenue => {
+      const existedRevenue = 
+        hasRevenues.find(item => item.date.getTime() === newRevenue.date.getTime());
+
+      if(existedRevenue) {
+        if(
+          existedRevenue.totalAmount !== newRevenue.totalAmount ||
+          existedRevenue.totalOrder !== newRevenue.totalOrder
+        ) {
+          Object.assign(existedRevenue, newRevenue);
+          createAndUpdateRevenues.push(existedRevenue);
+        }
+      } else {
+        createAndUpdateRevenues.push(newRevenue);
+      }
+    });
+    return createAndUpdateRevenues;
   }
 }

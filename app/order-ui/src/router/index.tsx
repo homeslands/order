@@ -32,7 +32,6 @@ import {
   ClientHomePage,
   ClientCartPage,
   ClientOrderHistoryPage,
-  ClientOrderDetailPage,
   ClientProfilePage,
   ClientPaymentPage,
   RevenuePage,
@@ -642,7 +641,7 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedElement
             allowedRoles={[Role.CUSTOMER]}
-            element={<SuspenseElement component={ClientOrderDetailPage} />}
+            element={<SuspenseElement component={ClientOrderHistoryPage} />}
           />
         ),
       },
@@ -682,19 +681,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: ROUTE.PERSONAL_ACCOUNT,
-  //   element: <SuspenseElement component={DashboardLayout} />,
-  //   children: [
-  //     {
-  //       index: true,
-  //       element: (
-  //         <ProtectedElement
-  //           allowedAuthorities={[Authority.READ_USER]}
-  //           element={<SuspenseElement component={PersonalAccountPage} />}
-  //         />
-  //       )
-  //     }
-  //   ]
-  // },
 ])

@@ -3,18 +3,20 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { RevenueService } from './revenue.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   AggregateRevenueResponseDto,
   GetRevenueQueryDto,
+  RefreshSpecificRangeRevenueQueryDto,
   RevenueQueryResponseDto,
   RevenueResponseDto,
 } from './revenue.dto';
@@ -78,6 +80,35 @@ export class RevenueController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result: 'Update latest revenue successfully',
+    } as AppResponseDto<string>;
+  }
+
+  @Patch('date')
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update latest revenue for a range time successfully',
+    type: String,
+  })
+  @ApiOperation({ summary: 'Update latest revenue for a range time' })
+  @ApiResponse({ status: 200, description: 'Update latest revenue for a range time successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })  
+  async refreshRevenueForSpecificDay(
+    @Query(new ValidationPipe({ transform: true })) query: RefreshSpecificRangeRevenueQueryDto
+  ) {
+    const result = await this.revenueService.refreshRevenueForSpecificDay(query);
+    return {
+      message: 'Update latest revenue for a range time successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Update latest revenue for a range time successfully',
     } as AppResponseDto<string>;
   }
 }

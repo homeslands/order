@@ -30,7 +30,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 @Controller('orders')
 @ApiBearerAuth()
 export class OrderController {
-  constructor(private orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

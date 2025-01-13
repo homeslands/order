@@ -4,6 +4,9 @@ import { Transform, Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import {
+  INVALID_ADDRESS,
+  INVALID_DOB,
+  INVALID_EMAIL,
   INVALID_FIRSTNAME,
   INVALID_LASTNAME,
   INVALID_PASSWORD,
@@ -92,20 +95,28 @@ export class UpdateUserRoleRequestDto {
 
 export class UpdateUserRequestDto {
   @ApiProperty()
-  @IsNotEmpty()
-  phonenumber: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: INVALID_FIRSTNAME })
   firstName: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: INVALID_LASTNAME })
   lastName: string;
+
+  @ApiProperty({ example: '1990-01-01' })
+  @IsNotEmpty({ message: INVALID_DOB })
+  dob: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_EMAIL })
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_ADDRESS })
+  address: string;
 
   @ApiProperty()
   @IsOptional()
-  dob?: string;
+  branch?: string;
 }
 
 export class GetAllUserQueryRequestDto {

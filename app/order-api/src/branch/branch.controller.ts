@@ -29,7 +29,8 @@ export class BranchController {
   constructor(private branchService: BranchService) {}
 
   @Post()
-  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @Public()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create new branch' })
   @ApiResponseWithType({

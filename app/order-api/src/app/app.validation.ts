@@ -1,5 +1,5 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
-import AuthValidation from 'src/auth/auth.validation1';
+import { AuthValidation } from 'src/auth/auth.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
 import { DbValidation } from 'src/db/db.validation';

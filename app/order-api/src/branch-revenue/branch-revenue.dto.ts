@@ -1,9 +1,10 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { RevenueTypeQuery } from 'src/revenue/revenue.constant';
+import { BranchRevenueValidation } from './branch-revenue.validation';
 
 export class BranchRevenueQueryResponseDto {
   @AutoMap()
@@ -68,4 +69,18 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalOrder: number;
+}
+
+export class RefreshSpecificRangeBranchRevenueQueryDto {
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-26' })
+  @IsNotEmpty({ message: BranchRevenueValidation.START_DATE_IS_NOT_EMPTY.message })
+  @Type(() => Date)
+  startDate: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-27' })
+  @IsNotEmpty({ message: BranchRevenueValidation.END_DATE_IS_NOT_EMPTY.message })
+  @Type(() => Date)
+  endDate: Date;
 }

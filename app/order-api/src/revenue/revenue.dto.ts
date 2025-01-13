@@ -4,6 +4,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { RevenueTypeQuery } from './revenue.constant';
+import { RevenueValidation } from './revenue.validation';
 
 export class RevenueQueryResponseDto {
   @AutoMap()
@@ -68,4 +69,18 @@ export class AggregateRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalOrder: number;
+}
+
+export class RefreshSpecificRangeRevenueQueryDto {
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-26' })
+  @IsNotEmpty({ message: RevenueValidation.START_DATE_IS_NOT_EMPTY.message })
+  @Type(() => Date)
+  startDate: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-27' })
+  @IsNotEmpty({ message: RevenueValidation.END_DATE_IS_NOT_EMPTY.message })
+  @Type(() => Date)
+  endDate: Date;
 }

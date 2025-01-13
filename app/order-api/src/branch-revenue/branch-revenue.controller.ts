@@ -17,6 +17,7 @@ import {
   AggregateBranchRevenueResponseDto,
   BranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
+  RefreshSpecificRangeBranchRevenueQueryDto,
 } from './branch-revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/public.decorator';
@@ -80,6 +81,36 @@ export class BranchRevenueController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result: 'Update latest branch revenue successfully',
+    } as AppResponseDto<string>;
+  }
+
+  @Patch('date')
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update latest branch revenue for a range time successfully',
+    type: String,
+  })
+  @ApiOperation({ summary: 'Update latest branch revenue for a range time' })
+  @ApiResponse({ status: 200, description: 'Update latest branch revenue for a range time successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async refreshBranchRevenueForSpecificDay(
+    @Query(new ValidationPipe({ transform: true })) 
+    query: RefreshSpecificRangeBranchRevenueQueryDto
+  ) {
+    const result = await this.branchRevenueService.refreshBranchRevenueForSpecificDay(query);
+    return {
+      message: 'Update latest branch revenue for a range time successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Update latest branch revenue for a range time successfully',
     } as AppResponseDto<string>;
   }
 }

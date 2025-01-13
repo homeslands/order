@@ -138,11 +138,32 @@ export class UserController {
     requestData: UpdateUserRequestDto,
   ) {
     const result = await this.userService.updateUser(slug, requestData);
-    // return {
-    //   message: 'User has been updated successfully',
-    //   statusCode: HttpStatus.OK,
-    //   timestamp: new Date().toISOString(),
-    //   result,
-    // } as AppResponseDto<UserResponseDto>;
+    return {
+      message: 'User has been updated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<UserResponseDto>;
+  }
+
+  @Get(':slug')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve user by slug' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'User has been retrieved successfully',
+    type: UserResponseDto,
+  })
+  async getUserBySlug(
+    @Param('slug') slug: string,
+  ): Promise<AppResponseDto<UserResponseDto>> {
+    const result = await this.userService.getUserBySlug(slug);
+    return {
+      message: 'User has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<UserResponseDto>;
   }
 }
