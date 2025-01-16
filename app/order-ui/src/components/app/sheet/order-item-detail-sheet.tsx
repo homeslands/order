@@ -6,9 +6,14 @@ import {
   CustomerInformation,
   OrderItemList,
 } from '@/app/system/order-management'
-import { useExportOrderInvoice, useOrderBySlug, useOrders, usePagination } from '@/hooks'
+import {
+  useExportOrderInvoice,
+  useOrderBySlug,
+  useOrders,
+  usePagination,
+} from '@/hooks'
 import { useOrderTrackingStore, useUserStore } from '@/stores'
-import { IOrder, IOrderType, OrderStatus } from '@/types'
+import { IOrder, OrderTypeEnum, OrderStatus } from '@/types'
 import {
   Sheet,
   SheetContent,
@@ -134,11 +139,11 @@ export default function OrderItemDetailSheet({
 
   useEffect(() => {
     // Khi order thay đổi, xóa dữ liệu cũ
-    setOrderDetails([]);
-    setShouldFetchOrders(false);
-    setCurrentFetchIndex(0);
-    clearSelectedItems();
-  }, [order]);
+    setOrderDetails([])
+    setShouldFetchOrders(false)
+    setCurrentFetchIndex(0)
+    clearSelectedItems()
+  }, [order])
 
   const handleFetchOrders = () => {
     setShouldFetchOrders(true)
@@ -182,12 +187,12 @@ export default function OrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-between mt-8 sm:mt-6">
+          <SheetTitle className="mt-8 flex items-center justify-between sm:mt-6">
             {t('order.orderDetail')}
           </SheetTitle>
           {getSelectedItems().length > 0 && (
             <div className="flex gap-2">
-              {selectedOrder?.result?.type === IOrderType.TAKE_OUT ? (
+              {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
                 <CreateOrderTrackingByStaffDialog />
               ) : (
                 <div className="flex gap-2">
@@ -201,20 +206,24 @@ export default function OrderItemDetailSheet({
         <div className="mt-4">
           {order ? (
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
+              <div className="flex flex-col gap-2 rounded-lg border-2 border-primary bg-primary/5 p-2 sm:p-4">
                 <div className="flex justify-between font-medium text-primary">
                   {t('order.currentOrder')} #{selectedOrder?.result?.slug}
-                  {selectedOrder && selectedOrder.result.payment?.statusCode === paymentStatus.COMPLETED && (
-                    <Button
-                      onClick={() => handleExportOrderInvoice(selectedOrder.result.slug)}
-                      disabled={isPending}
-                      className="flex items-center justify-start px-2 shadow-none"
-                    >
-                      {isPending && <ButtonLoading />}
-                      <DownloadIcon />
-                      {t('order.exportInvoice')}
-                    </Button>
-                  )}
+                  {selectedOrder &&
+                    selectedOrder.result.payment?.statusCode ===
+                      paymentStatus.COMPLETED && (
+                      <Button
+                        onClick={() =>
+                          handleExportOrderInvoice(selectedOrder.result.slug)
+                        }
+                        disabled={isPending}
+                        className="flex items-center justify-start px-2 shadow-none"
+                      >
+                        {isPending && <ButtonLoading />}
+                        <DownloadIcon />
+                        {t('order.exportInvoice')}
+                      </Button>
+                    )}
                 </div>
                 <CustomerInformation orderDetailData={selectedOrder?.result} />
                 <OrderItemList orderDetailData={selectedOrder?.result} />
@@ -245,7 +254,7 @@ export default function OrderItemDetailSheet({
                     .map((orderDetail) => (
                       <div
                         key={orderDetail.slug}
-                        className="flex flex-col gap-2 p-4 border rounded-lg"
+                        className="flex flex-col gap-2 rounded-lg border p-4"
                       >
                         <CustomerInformation orderDetailData={orderDetail} />
                         <OrderItemList orderDetailData={orderDetail} />

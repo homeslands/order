@@ -9,6 +9,16 @@ export interface IMenu extends IBase {
   menuItems: IMenuItem[]
 }
 
+export interface FilterState {
+  menu?: string
+  date: string
+  branch?: string
+  catalog?: string
+  productName?: string
+  minPrice?: number
+  maxPrice?: number
+}
+
 export interface ICreateMenuRequest {
   date: string
   branchSlug: string

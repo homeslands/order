@@ -12,12 +12,13 @@
     "viewDetail": "Xem chi tiết",
     "confirm": "Xác nhận",
     "confirmDelete": "Tôi đã hiểu, xác nhận xóa",
+    "confirmCancel": "Tôi đã hiểu, xác nhận hủy",
 
     "noData": "Không có dữ liệu",
-
     "action": "Thao tác",
-
-    "createOrder": "Tạo đơn hàng"
+    "createOrder": "Tạo đơn hàng",
+    "understand": "Tôi đã hiểu",
+    "warning": "Cảnh báo"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",
@@ -28,6 +29,7 @@
     "page": "Trang",
     "previous": "Trước",
     "next": "Sau",
+    "search": "Tìm kiếm",
 
     "filter": "Lọc",
     "all": "Tất cả",

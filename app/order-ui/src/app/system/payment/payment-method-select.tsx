@@ -8,12 +8,14 @@ import { formatCurrency } from '@/utils'
 interface PaymentMethodSelectProps {
   qrCode?: string
   total?: number
+  defaultValue?: string
   onSubmit?: (paymentMethod: string) => void
 }
 
 export default function PaymentMethodSelect({
   qrCode,
   total,
+  defaultValue,
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
@@ -38,7 +40,7 @@ export default function PaymentMethodSelect({
         <div className="flex flex-col col-span-1">
 
           <div className="p-4">
-            <PaymentMethodRadioGroup onSubmit={handlePaymentMethodSubmit} />
+            <PaymentMethodRadioGroup defaultValue={defaultValue} onSubmit={handlePaymentMethodSubmit} />
           </div>
           <div className="flex items-center gap-1 px-4 pb-4 text-[0.5rem] text-muted-foreground">
             <CircleAlert size={12} className="text-blue-500" />

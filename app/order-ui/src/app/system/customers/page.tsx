@@ -6,17 +6,24 @@ import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
 import { Role } from '@/constants'
 import { CustomerAction } from './DataTable/actions'
+import { useState } from 'react'
 
 export default function CustomerPage() {
   const { t } = useTranslation(['customer'])
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const [phonenumber, setPhoneNumber] = useState<string>('')
 
   const { data, isLoading } = useUsers({
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
     order: 'DESC',
+    phonenumber,
     role: Role.CUSTOMER,
   })
+
+  const handleSearchChange = (value: string) => {
+    setPhoneNumber(value)
+  }
 
   return (
     <div className="flex flex-col">
@@ -32,6 +39,8 @@ export default function CustomerPage() {
           data={data?.result.items || []}
           isLoading={isLoading}
           pages={data?.result.totalPages || 0}
+          onInputChange={handleSearchChange}
+          hiddenInput={false}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           actionOptions={CustomerAction}

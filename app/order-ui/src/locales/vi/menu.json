@@ -27,6 +27,7 @@
     "confirmSelectTable": "Tôi đã hiểu, xác nhận chọn",
 
     "order": "Đơn hàng",
+    "selectOrderType": "Chọn loại đơn hàng",
     "orderDescription": "Vui lòng kiểm tra thông tin đơn hàng",
     "dineIn": "Tại quán",
     "takeAway": "Mang đi",
@@ -83,6 +84,7 @@
 
   "order": {
     "confirmation": "Xác nhận thanh toán",
+    "openMenu": "Mở thực đơn",
     "product": "Sản phẩm",
     "unitPrice": "Đơn giá",
     "quantity": "Số lượng",
@@ -90,7 +92,7 @@
     "orderInformation": "Thông tin đơn hàng",
     "customerName": "Tên khách hàng",
     "enterCustomerName": "Nhập tên khách hàng",
-    "phoneNumber": "Số điện thoại khách hàng",
+    "phoneNumber": "Số điện thoại",
     "enterPhoneNumber": "Nhập số điện thoại",
     "orderDate": "Ngày đặt hàng",
     "note": "Ghi chú",
@@ -134,7 +136,15 @@
     "create": "Đặt hàng",
     "confirmOrder": "Bạn có chắc muốn đặt hàng?",
 
+    "update": "Chỉnh sửa đơn hàng",
+    "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
+    "confirm": "Xác nhận",
+
     "viewDetail": "Xem chi tiết",
+    "cancelOrder": "Hủy đơn hàng",
+    "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
+    "updateOrder": "Cập nhật đơn hàng",
+
     "updatePayment": "Cập nhật thanh toán",
     "exportPayment": "Xuất QR code thanh toán",
     "exportInvoice": "Xuất hóa đơn",
@@ -182,12 +192,13 @@
     "title": "Danh sách bàn"
   },
   "paymentMethod": {
+    "userInfo": "Thông tin khách hàng",
     "title": "Phương thức thanh toán",
     "cash": "Thanh toán bằng tiền mặt",
     "status": "Trạng thái",
     "bankTransfer": "Thanh toán bằng chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
-    "bankTransferProcessing": "Phương thức chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",
+    "bankTransferProcessing": "Chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",
     "confirmPayment": "Thanh toán",
 
     "cusomterInformation": "Thông tin khách hàng",
@@ -195,7 +206,7 @@
     "orderDate": "Ngày đặt hàng",
     "phoneNumber": "Số điện thoại",
     "exportPayment": "Xuất QR code thanh toán",
-    "cashMethodNote": "Đối với phương thức thanh toán bằng tiền mặt, vui lòng đến quầy thanh toán tại cửa hàng để thanh toán",
+    "cashMethodNote": "Lưu ý: Đối với phương thức thanh toán bằng tiền mặt, vui lòng đến quầy thanh toán tại cửa hàng để thanh toán",
 
     "total": "Số tiền thanh toán: ",
     "paymentNote": "Quý khách vui lòng kiển tra thông tin thanh toán toán trước khi thực hiện giao dịch",

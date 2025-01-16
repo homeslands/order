@@ -1,6 +1,5 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-// import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -172,7 +171,7 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <ScrollArea className="h-[22rem] px-6 flex-1">
+          <ScrollArea className="h-[22rem] flex-1 px-6">
             <div className="grid grid-cols-1 gap-2">
               {Object.keys(formFields).map((key) => (
                 <React.Fragment key={key}>

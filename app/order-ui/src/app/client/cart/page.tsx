@@ -1,13 +1,7 @@
-import {
-  CircleAlert,
-  ShoppingBag,
-  ShoppingCartIcon,
-  Trash2,
-} from 'lucide-react'
+import { CircleAlert, ShoppingCartIcon, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { QuantitySelector } from '@/components/app/button'
-import { ClientTableSelect } from '@/app/system/menu'
 import { useCartItemStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import {
@@ -15,19 +9,16 @@ import {
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
 import { publicFileURL, ROUTE } from '@/constants'
-import { IOrderType } from '@/types'
-import { NavLink } from 'react-router-dom'
 import { Button } from '@/components/ui'
 import _ from 'lodash'
+import { ClientTableSelect } from '@/components/app/select'
+import { NavLink } from 'react-router-dom'
+import { OrderTypeSelect } from './components/order-type-select'
 
 export function ClientCartPage() {
   const { t } = useTranslation('menu')
-  const { getCartItems, addOrderType } = useCartItemStore()
+  const { getCartItems } = useCartItemStore()
   const cartItems = getCartItems()
-
-  const handleAddDeliveryMethod = (orderType: IOrderType) => {
-    addOrderType(orderType)
-  }
 
   if (_.isEmpty(cartItems?.orderItems)) {
     return (
@@ -46,30 +37,26 @@ export function ClientCartPage() {
   return (
     <div className={`container py-10`}>
       {/* Order type selection */}
-      {cartItems ? (
-        <div className="rounded-sm bg-white p-5 shadow-lg">
-          <div className="grid w-full grid-cols-2 gap-2 sm:max-w-xs">
-            <div
-              onClick={() => handleAddDeliveryMethod(IOrderType.AT_TABLE)}
-              className={`flex cursor-pointer items-center justify-center py-2 text-sm transition-colors duration-200 ${
-                getCartItems()?.type === IOrderType.AT_TABLE
-                  ? 'border-primary bg-primary text-white'
-                  : 'border'
-              } rounded-full border-muted-foreground/40 text-muted-foreground hover:border-primary hover:bg-primary hover:text-white`}
-            >
-              {t('menu.dineIn')}
-            </div>
-            <div
-              onClick={() => handleAddDeliveryMethod(IOrderType.TAKE_OUT)}
-              className={`flex cursor-pointer items-center justify-center py-1 text-sm transition-colors duration-200 ${
-                getCartItems()?.type === IOrderType.TAKE_OUT
-                  ? 'border-primary bg-primary text-white'
-                  : 'border'
-              } rounded-full border-muted-foreground/40 text-muted-foreground hover:border-primary hover:bg-primary hover:text-white`}
-            >
-              {t('menu.takeAway')}
+      <div className="grid grid-cols-12 gap-4">
+        {/* Left content */}
+        <div className="col-span-12 lg:col-span-8">
+          {/* Note */}
+          <div className="flex items-end justify-between">
+            <div className="flex items-center gap-1">
+              <CircleAlert size={14} className="text-destructive" />
+              <span className="text-xs italic text-destructive">
+                {t('order.selectTableNote')}
+              </span>
             </div>
           </div>
+
+          {/* Table select */}
+          <ClientTableSelect />
+        </div>
+
+        {/* Right content */}
+        <div className="col-span-12 lg:col-span-4">
+          <OrderTypeSelect />
           {/* Table list order items */}
           <div className="my-4">
             <div className="mb-4 grid grid-cols-7 rounded-md bg-muted/60 px-4 py-3 text-sm font-thin">
@@ -129,39 +116,10 @@ export function ClientCartPage() {
               ))}
             </div>
           </div>
-
-          {/* Note */}
-          <div className="flex items-end justify-between">
-            <div className="flex items-center gap-1">
-              <CircleAlert size={14} className="text-destructive" />
-              <span className="text-xs italic text-destructive">
-                {t('order.selectTableNote')}
-              </span>
-            </div>
-          </div>
-
-          {/* Table select */}
-          <ClientTableSelect />
-          <div className="flex justify-end py-4">
-            <div className="w-full sm:max-w-[10rem]">
-              <CreateOrderDialog disabled={!cartItems.table || !cartItems} />
-            </div>
-          </div>
+          {/* Button */}
+          <CreateOrderDialog disabled={!cartItems} />
         </div>
-      ) : (
-        <div className="flex h-[calc(51vh)] flex-col items-center justify-center gap-4 text-center">
-          {/* Empty Cart Icon */}
-          <ShoppingBag size={64} className="text-muted-foreground" />
-
-          {/* Message */}
-          <p className="text-lg text-muted-foreground">{t('order.noOrders')}</p>
-
-          {/* Navigation Button */}
-          <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button>{t('order.backToMenu')}</Button>
-          </NavLink>
-        </div>
-      )}
+      </div>
     </div>
   )
 }

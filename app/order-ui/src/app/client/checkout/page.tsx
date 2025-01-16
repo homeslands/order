@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { QuantitySelector } from '@/components/app/button'
 import { ScrollArea } from '@/components/ui'
-import { TableSelect } from '@/app/system/menu'
 import { useCartItemStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import { CheckoutCartSheet } from '@/components/app/sheet'
@@ -12,6 +11,7 @@ import { publicFileURL } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { CheckoutCartDrawer } from '@/components/app/drawer'
 import { formatCurrency } from '@/utils'
+import { SystemTableSelect } from '@/components/app/select'
 
 export function ClientCheckoutPage() {
   const { t } = useTranslation('menu')
@@ -100,7 +100,7 @@ export function ClientCheckoutPage() {
         </div>
 
         {/* Table select */}
-        <TableSelect />
+        <SystemTableSelect />
       </ScrollArea>
     </div>
   )

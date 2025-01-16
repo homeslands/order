@@ -12,12 +12,13 @@ import {
 
 import { Button } from '@/components/ui'
 import { useOrders, usePagination } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useUpdateOrderStore, useUserStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
-import { OrderStatus } from '@/types'
+import { IOrder, OrderStatus } from '@/types'
 import { OrderHistorySkeleton } from '@/components/app/skeleton'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showErrorToast } from '@/utils'
+import { CancelOrderDialog } from '../dialog'
 
 export default function CustomerOrderTabsContent({
   status,
@@ -26,8 +27,9 @@ export default function CustomerOrderTabsContent({
 }) {
   const { t } = useTranslation(['menu'])
   const navigate = useNavigate()
-  const { userInfo } = useUserStore()
+  const { userInfo, getUserInfo } = useUserStore()
   const { pagination, handlePageChange } = usePagination()
+  const { setOrderItems } = useUpdateOrderStore()
 
   const { data: order, isLoading } = useOrders({
     page: pagination.pageIndex,
@@ -44,13 +46,23 @@ export default function CustomerOrderTabsContent({
     return <OrderHistorySkeleton />
   }
 
+  const handleUpdateOrder = (order: IOrder) => {
+    console.log('order', order)
+    if (!getUserInfo()?.slug)
+      return (
+        showErrorToast(1042), navigate(ROUTE.LOGIN)
+      )
+    setOrderItems(order)
+    navigate(`${ROUTE.CLIENT_UPDATE_ORDER}/${order.slug}`)
+  }
+
   return (
     <div className="mb-4">
       {orderData?.length ? (
         orderData.map((orderItem) => (
-          <div key={orderItem.slug} className="mb-6 rounded-md border">
+          <div key={orderItem.slug} className="mb-6 border rounded-md">
             {/* Header */}
-            <div className="flex items-center justify-between rounded-t-md border-b px-4 py-4">
+            <div className="flex items-center justify-between px-4 py-4 border-b rounded-t-md">
               <span className="text-xs text-muted-foreground">
                 {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
               </span>
@@ -63,29 +75,29 @@ export default function CustomerOrderTabsContent({
               {orderItem.orderItems.map((product) => (
                 <div
                   key={product.slug}
-                  className="grid grid-cols-12 items-center gap-2 p-4"
+                  className="grid items-center grid-cols-12 gap-2 p-4"
                 >
-                  <div className="relative">
+                  <div className="relative col-span-3">
                     <img
                       src={`${publicFileURL}/${product.variant.product.image}`}
                       alt={product.variant.product.name}
-                      className="h-20 w-20 rounded-md object-cover"
+                      className="object-cover w-20 h-20 rounded-md sm:w-36"
                     />
-                    <div className="absolute -bottom-2 -right-3 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs text-white sm:h-8 sm:w-8">
+                    <div className="absolute flex items-center justify-center text-xs text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:right-4 sm:h-8 sm:w-8">
                       x{product.quantity}
                     </div>
                   </div>
 
-                  <div className="col-span-6 px-4">
-                    <div className="font-semibold">
+                  <div className="flex flex-col col-span-6 gap-1 px-1">
+                    <div className="text-sm font-semibold truncate sm:text-md">
                       {product.variant.product.name}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xs text-muted-foreground sm:text-sm">
                       {product.variant.size.name.toLocaleUpperCase()} -{' '}
                       {`${formatCurrency(product.variant.price)}`}
                     </div>
                   </div>
-                  <div className="col-span-2 text-right">
+                  <div className="col-span-3">
                     <span>
                       {`${formatCurrency(product.variant.price * product.quantity)}`}
                     </span>
@@ -97,14 +109,29 @@ export default function CustomerOrderTabsContent({
               <div className="flex items-center justify-between">
                 <Button
                   onClick={() =>
-                    navigate(`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`)
+                    navigate(
+                      `${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`,
+                    )
                   }
                 >
                   {t('order.viewDetail')}
                 </Button>
+                {orderItem.status === OrderStatus.PENDING && (
+                  <div className='flex gap-2'>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        handleUpdateOrder(orderItem)
+                      }
+                    >
+                      {t('order.updateOrder')}
+                    </Button>
+                    <CancelOrderDialog order={orderItem} />
+                  </div>
+                )}
                 <div>
                   {t('order.subtotal')}:&nbsp;
-                  <span className="text-md font-semibold text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
+                  <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
                 </div>
               </div>
             </div>
@@ -115,7 +142,7 @@ export default function CustomerOrderTabsContent({
       )}
 
       {orderData && orderData?.length > 0 && (
-        <div className="flex items-center justify-center space-x-2 py-4">
+        <div className="flex items-center justify-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

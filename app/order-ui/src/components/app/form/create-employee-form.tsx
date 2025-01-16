@@ -13,6 +13,7 @@ import {
   Button,
   Input,
   PasswordInput,
+  ScrollArea,
 } from '@/components/ui'
 import { useCreateUser } from '@/hooks'
 import { createUserSchema, TCreateUserSchema } from '@/schemas'
@@ -177,13 +178,15 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 gap-2">
-            {Object.keys(formFields).map((key) => (
-              <React.Fragment key={key}>
-                {formFields[key as keyof typeof formFields]}
-              </React.Fragment>
-            ))}
-          </div>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="grid grid-cols-1 gap-4">
+              {Object.keys(formFields).map((key) => (
+                <React.Fragment key={key}>
+                  {formFields[key as keyof typeof formFields]}
+                </React.Fragment>
+              ))}
+            </div>
+          </ScrollArea>
           <div className="flex justify-end">
             <Button className="flex justify-end" type="submit">
               {t('employee.create')}

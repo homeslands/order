@@ -14,7 +14,7 @@ import { ITable } from '@/types'
 
 interface SelectReservedTableDialogProps {
   table: ITable | null
-  setSelectedTableId: React.Dispatch<React.SetStateAction<string | null>>
+  setSelectedTableId: React.Dispatch<React.SetStateAction<string | undefined>>
   onConfirm: (table: ITable) => void
   onCancel: () => void
 }
@@ -33,9 +33,9 @@ export default function SelectReservedTableDialog({
     <Dialog open={!!table} onOpenChange={onCancel}>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="border-b border-destructive pb-4 text-destructive">
+          <DialogTitle className="pb-4 border-b border-destructive text-destructive">
             <div className="flex items-center gap-2">
-              <TriangleAlert className="h-6 w-6" />
+              <TriangleAlert className="w-6 h-6" />
               {t('menu.tableNote')}
             </div>
           </DialogTitle>

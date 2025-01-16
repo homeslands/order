@@ -19,7 +19,9 @@ interface IUpdateCustomerDialogProps {
   customer: IUserInfo
 }
 
-export default function UpdateEmployeeDialog({ customer }: IUpdateCustomerDialogProps) {
+export default function UpdateCustomerDialog({
+  customer,
+}: IUpdateCustomerDialogProps) {
   const { t } = useTranslation(['customer'])
   const [isOpen, setIsOpen] = useState(false)
   const handleSubmit = (isOpen: boolean) => {
@@ -28,7 +30,7 @@ export default function UpdateEmployeeDialog({ customer }: IUpdateCustomerDialog
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className='flex items-center justify-start w-full'>
+      <DialogTrigger asChild className="flex w-full items-center justify-start">
         <Button
           variant="ghost"
           className="h-10 gap-1 px-2 text-sm"

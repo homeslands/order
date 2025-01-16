@@ -21,7 +21,6 @@ export default function BranchSelect({
   } | null>(null)
   const { data } = useBranch()
 
-  // Chỉ set giá trị mặc định một lần khi component mount hoặc khi data thay đổi
   useEffect(() => {
     if (data?.result && !selectedBranch) {
       const newBranches = data.result.map((item) => ({
@@ -30,7 +29,6 @@ export default function BranchSelect({
       }))
       setAllBranches(newBranches)
 
-      // Chỉ set default value nếu chưa có selectedBranch
       const defaultOption = defaultValue
         ? newBranches.find((branch) => branch.value === defaultValue)
         : newBranches[0]
@@ -40,7 +38,7 @@ export default function BranchSelect({
         onChange(defaultOption.value)
       }
     }
-  }, [data, defaultValue]) // Bỏ onChange khỏi dependencies
+  }, [data, defaultValue, onChange, selectedBranch]) // Bỏ onChange khỏi dependencies
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
@@ -53,11 +51,10 @@ export default function BranchSelect({
 
   return (
     <ReactSelect
-      className="w-full text-sm text-muted-foreground border-muted-foreground"
+      className="w-full border-muted-foreground text-sm text-muted-foreground"
       value={selectedBranch}
       options={allBranches}
       onChange={handleChange}
-    // Bỏ defaultValue prop vì chúng ta đã xử lý trong state
     />
   )
 }

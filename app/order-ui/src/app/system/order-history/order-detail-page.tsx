@@ -17,7 +17,7 @@ import {
 import { useOrderBySlug } from '@/hooks'
 import { publicFileURL } from '@/constants'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
-import { IOrderType } from '@/types'
+import { OrderTypeEnum } from '@/types'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
 
@@ -31,8 +31,8 @@ export default function OrderDetailPage() {
     <div className="mb-10">
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="sticky top-0 z-10 flex flex-col items-center gap-2 pb-4 bg-gray-50">
-          <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-gray-50 pb-4">
+          <span className="flex w-full items-center justify-start gap-1 text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
             <span className="text-muted-foreground">
@@ -43,9 +43,9 @@ export default function OrderDetailPage() {
 
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col w-full gap-4 lg:w-3/4">
+          <div className="flex w-full flex-col gap-4 lg:w-3/4">
             {/* Order info */}
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-sm bg-slate-100">
+            <div className="flex items-center justify-between rounded-sm border border-gray-200 bg-slate-100 p-3">
               <div className="">
                 <p className="flex items-center gap-2 pb-2">
                   <span className="font-bold">Đơn hàng:</span>{' '}
@@ -72,8 +72,8 @@ export default function OrderDetailPage() {
             </div>
             {/* Order owner info */}
             <div className="flex gap-2">
-              <div className="w-1/2 border border-gray-200 rounded-sm">
-                <div className="px-3 py-2 font-bold uppercase bg-slate-100">
+              <div className="w-1/2 rounded-sm border border-gray-200">
+                <div className="bg-slate-100 px-3 py-2 font-bold uppercase">
                   Khách hàng
                 </div>
                 <div className="px-3 py-2 text-xs">
@@ -85,13 +85,13 @@ export default function OrderDetailPage() {
                   </p>
                 </div>
               </div>
-              <div className="w-1/2 border border-gray-200 rounded-sm">
-                <div className="px-3 py-2 font-bold uppercase bg-slate-100">
+              <div className="w-1/2 rounded-sm border border-gray-200">
+                <div className="bg-slate-100 px-3 py-2 font-bold uppercase">
                   Loại đơn hàng
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
-                    {orderDetail?.result?.type === IOrderType.AT_TABLE
+                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
                       : t('order.takeAway')}
                   </p>
@@ -106,9 +106,9 @@ export default function OrderDetailPage() {
             </div>
             {/* Order table */}
             <div className="overflow-x-auto">
-              <Table className="min-w-full border border-collapse border-gray-300 table-auto">
+              <Table className="min-w-full table-auto border-collapse border border-gray-300">
                 <TableCaption>A list of orders.</TableCaption>
-                <TableHeader className="bg-gray-200 rounded">
+                <TableHeader className="rounded bg-gray-200">
                   <TableRow>
                     <TableHead className="">{t('order.product')}</TableHead>
                     <TableHead>{t('order.size')}</TableHead>
@@ -128,7 +128,7 @@ export default function OrderDetailPage() {
                         <img
                           src={`${publicFileURL}/${item.variant.product.image}`}
                           alt={item.variant.product.image}
-                          className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
+                          className="h-12 w-20 rounded-lg object-cover sm:h-16 sm:w-24"
                         />
                         {item.variant.product.name}
                       </TableCell>
@@ -148,10 +148,10 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col w-full gap-2 lg:w-1/4">
+          <div className="flex w-full flex-col gap-2 lg:w-1/4">
             {/* Payment method, status */}
-            <div className="border border-gray-200 rounded-sm">
-              <div className="px-3 py-2 font-bold uppercase bg-slate-100">
+            <div className="rounded-sm border border-gray-200">
+              <div className="bg-slate-100 px-3 py-2 font-bold uppercase">
                 Phương thức thanh toán
               </div>
               <div className="px-3 py-2">
@@ -164,8 +164,8 @@ export default function OrderDetailPage() {
                       <>
                         {orderDetail?.result?.payment.paymentMethod ===
                           'bank-transfer' && (
-                            <span>{t('paymentMethod.bankTransfer')}</span>
-                          )}
+                          <span>{t('paymentMethod.bankTransfer')}</span>
+                        )}
                         {orderDetail?.result?.payment.paymentMethod ===
                           'cash' && <span>{t('paymentMethod.cash')}</span>}
                       </>
@@ -187,7 +187,7 @@ export default function OrderDetailPage() {
               </div>
             </div>
             {/* Total */}
-            <div className="flex flex-col gap-2 p-2 border border-gray-200 rounded-sm">
+            <div className="flex flex-col gap-2 rounded-sm border border-gray-200 p-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-500">Tạm tính</p>
                 <p>{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>

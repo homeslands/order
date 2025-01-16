@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+// import { NavLink } from 'react-router-dom'
 import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui'
 
 import { IProduct } from '@/types'
-import { publicFileURL, ROUTE } from '@/constants'
+import { publicFileURL } from '@/constants'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { formatCurrency } from '@/utils'
 import { usePagination, useTopBranchProducts } from '@/hooks'
@@ -82,7 +82,7 @@ export default function BestSellerCarousel() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-2">
+    <div className="flex flex-col items-center w-full gap-2">
       <Carousel
         opts={{
           align: 'start',
@@ -97,77 +97,76 @@ export default function BestSellerCarousel() {
               key={item.product.slug}
               className="basis-1/2 lg:basis-1/4 xl:basis-1/5"
             >
-              <div className="flex w-full justify-center py-2">
-                <NavLink
+              <div className="flex justify-center w-full py-2">
+                {/* <NavLink
                   key={item.product.slug}
                   className="block w-full"
                   to={`${ROUTE.CLIENT_MENU}/${item.product.slug}`}
-                >
-                  <div className="flex min-h-[10rem] w-full flex-col rounded-xl border bg-white backdrop-blur-md transition-all duration-300 hover:scale-105">
-                    <div className="relative">
-                      {item.product.image ? (
-                        <img
-                          src={`${publicFileURL}/${item.product.image}`}
-                          alt={item.product.name}
-                          className="h-36 w-full rounded-t-md object-cover"
-                        />
-                      ) : (
-                        <div className="h-24 w-full rounded-t-md bg-muted/60" />
-                      )}
+                > */}
+                <div className="flex h-[20rem] w-full flex-col rounded-xl border bg-white backdrop-blur-md transition-all duration-300 hover:scale-105">
+                  <div className="relative">
+                    {item.product.image ? (
+                      <img
+                        src={`${publicFileURL}/${item.product.image}`}
+                        alt={item.product.name}
+                        className="object-cover w-full h-36 rounded-t-md"
+                      />
+                    ) : (
+                      <div className="w-full h-24 rounded-t-md bg-muted/60" />
+                    )}
+                  </div>
+
+                  <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
+                    <div>
+                      <h3 className="text-lg font-bold line-clamp-1">
+                        {item.product.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 line-clamp-2">
+                        {item.product.description}
+                      </p>
                     </div>
 
-                    <div className="flex flex-1 flex-col space-y-1.5 p-2">
-                      <div>
-                        <h3 className="line-clamp-1 text-lg font-bold">
-                          {item.product.name}
-                        </h3>
-                        <p className="line-clamp-2 text-xs text-gray-500">
-                          {item.product.description}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-1">
-                        <div className="flex flex-col">
-                          {item.product.variants.length > 0 ? (
-                            <div className="flex flex-col items-start justify-start gap-1">
-                              <span className="text-xs font-bold text-primary sm:text-lg">
-                                {(() => {
-                                  const range = getPriceRange(
-                                    item.product.variants,
-                                  )
-                                  if (!range) return '0đ'
-                                  return range.isSinglePrice
-                                    ? `${formatCurrency(range.min)}`
-                                    : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
-                                })()}
-                              </span>
-                              <span className="text-[0.7rem] text-muted-foreground">
-                                {t('menu.totalSold')}: {item.totalQuantity}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-sm font-bold text-primary">
-                              {t('menu.contactForPrice')}
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex flex-col">
+                        {item.product.variants.length > 0 ? (
+                          <div className="flex flex-col items-start justify-start gap-1">
+                            <span className="text-xs font-bold text-primary sm:text-lg">
+                              {(() => {
+                                const range = getPriceRange(
+                                  item.product.variants,
+                                )
+                                if (!range) return '0đ'
+                                return range.isSinglePrice
+                                  ? `${formatCurrency(range.min)}`
+                                  : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
+                              })()}
                             </span>
-                          )}
-                        </div>
+                            <span className="text-[0.7rem] text-muted-foreground">
+                              {t('menu.totalSold')}: {item.totalQuantity}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-sm font-bold text-primary">
+                            {t('menu.contactForPrice')}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                </NavLink>
+                </div>
+                {/* </NavLink> */}
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
 
-      <div className="mt-4 flex gap-2">
+      <div className="flex gap-2 mt-4">
         {bestSellerProducts.result.items.map((_, index) => (
           <button
             key={index}
-            className={`h-2 w-2 rounded-full transition-all ${
-              current === index ? 'w-4 bg-primary' : 'bg-gray-300'
-            }`}
+            className={`h-2 w-2 rounded-full transition-all ${current === index ? 'w-4 bg-primary' : 'bg-gray-300'
+              }`}
             onClick={() => api?.scrollTo(index)}
           />
         ))}

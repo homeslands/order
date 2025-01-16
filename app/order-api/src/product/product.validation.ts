@@ -33,7 +33,7 @@ const ProductValidation: TProductErrorCode = {
   ),
   PRODUCT_NOT_FOUND_IN_TODAY_MENU: createErrorCode(
     115005,
-    'The product not found in today menu',
+    `The product is not found in today's menu`,
   ),
 };
 

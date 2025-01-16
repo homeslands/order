@@ -23,6 +23,7 @@
 
     "delete": "Xóa bàn",
     "deleteTableWarning1": "Bạn sắp sửa xóa bàn ",
-    "deleteTableConfirmation": "Bạn có chắc chắn muốn xóa bàn này không?"
+    "deleteTableConfirmation": "Bạn có chắc chắn muốn xóa bàn này không?",
+    "takeOutOrderAlert": "Đang chọn đặt hàng mang đi, Vui lòng chuyển sang đặt hàng tại bàn trước khi chọn bàn"
   }
 }

@@ -69,7 +69,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       onSuccess: (data) => {
         const orderPath =
           userInfo?.role.name === Role.CUSTOMER
-            ? `${ROUTE.CLIENT_ORDER_PAYMENT}/${data.result.slug}`
+            ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
             : `${ROUTE.STAFF_ORDER_PAYMENT}/${data.result.slug}`
         navigate(orderPath)
         setIsOpen(false)

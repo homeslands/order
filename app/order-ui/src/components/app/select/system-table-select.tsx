@@ -6,13 +6,15 @@ import { useCartItemStore } from '@/stores'
 import { useUserStore } from '@/stores'
 import { ITable } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
-import { NonResizableTableItem } from '@/app/system/table'
+import { NonResizableTableItem } from '../../../app/system/table'
 
-export default function TableSelect() {
+export default function SystemTableSelect() {
   const { t } = useTranslation(['table'])
   const { getUserInfo } = useUserStore()
   const { data: tables } = useTables(getUserInfo()?.branch.slug)
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
+  const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
+    undefined,
+  )
   const { getCartItems, addTable, removeTable } = useCartItemStore()
   const cartItems = getCartItems()
   const [reservedTable, setReservedTable] = useState<ITable | null>(null)
@@ -22,12 +24,12 @@ export default function TableSelect() {
     if (addedTable) {
       setSelectedTableId(addedTable)
     }
-  }, [cartItems])
+  }, [cartItems?.table])
 
   const handleTableClick = (table: ITable) => {
     if (selectedTableId === table.slug) {
       // Remove table for any status
-      setSelectedTableId(null)
+      setSelectedTableId(undefined)
       removeTable()
     } else {
       if (table.status === 'reserved') {
@@ -47,9 +49,10 @@ export default function TableSelect() {
 
   return (
     <div className="flex flex-col w-full mt-6 border rounded-md">
-      <div className="flex flex-col items-start justify-between gap-2 p-4 sm:flex-row bg-muted/60">
+      <div className="flex flex-col items-start justify-between gap-2 p-4 bg-muted/60 sm:flex-row">
         <span className="font-medium text-md">{t('table.title')}</span>
-        <div className="flex gap-2 text-xs sm:gap-4 sm:px-4 sm:flex-row">
+        {/* Table status */}
+        <div className="flex gap-2 text-xs sm:flex-row sm:gap-4 sm:px-4">
           <div className="flex flex-row items-center gap-2">
             <div className="w-4 h-4 border rounded-sm bg-muted-foreground/10" />
             <span className="sm:text-sm">{t('table.available')}</span>
@@ -64,12 +67,13 @@ export default function TableSelect() {
           </div>
         </div>
       </div>
-      <div className="relative flex min-h-[26rem] flex-col overflow-x-auto">
+      <div className="flex flex-row flex-wrap w-full h-full gap-4 p-4">
         {tables?.result.map((table) => (
           <NonResizableTableItem
             key={table.slug}
             table={table}
             isSelected={selectedTableId === table.slug}
+            // onContextMenu={(e) => e.preventDefault()}
             onClick={() => handleTableClick(table)}
           />
         ))}

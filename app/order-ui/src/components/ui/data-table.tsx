@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -51,6 +51,7 @@ import {
   DropdownMenuCheckboxItem,
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { useDebouncedInput } from '@/hooks'
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
@@ -84,12 +85,13 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pages: number
-  inputValue?: string
+  // inputValue?: string
   hiddenInput?: boolean
   onPageChange: (pageIndex: number) => void
   onPageSizeChange: (pageSize: number) => void
   onRowClick?: (row: TData) => void
-  onInputChange?: Dispatch<SetStateAction<string>>
+  // onInputChange?: Dispatch<SetStateAction<string>>
+  onInputChange?: (value: string) => void;
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
   rowClassName?: (row: TData) => string
@@ -100,7 +102,6 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   pages,
-  inputValue,
   hiddenInput = true,
   onPageChange,
   onPageSizeChange,
@@ -111,6 +112,14 @@ export function DataTable<TData, TValue>({
   rowClassName,
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation('common')
+  const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
+
+  // Add effect to call onInputChange when debounced value changes
+  useEffect(() => {
+    if (onInputChange) {
+      onInputChange(debouncedInputValue)
+    }
+  }, [debouncedInputValue, onInputChange])
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -141,18 +150,16 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="flex justify-end gap-2">
+      <div className={`flex ${hiddenInput ? 'justify-end' : 'justify-between'} gap-2`}>
         {/* Input search */}
         {!hiddenInput && (
-          <div className="relative max-w-sm">
+          <div className="relative w-full">
             <SearchIcon className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-2 top-1/2" />
             <Input
-              placeholder={t('tableData.search')}
+              placeholder={t('dataTable.search')}
               value={inputValue}
-              onChange={(e) => {
-                onInputChange?.(e.target.value)
-              }}
-              className="border placeholder:hidden sm:h-auto sm:w-full sm:pl-8 sm:pr-2 placeholder:sm:inline md:w-auto"
+              onChange={(e) => setInputValue(e.target.value)}
+              className="border placeholder:hidden sm:h-10 sm:w-full sm:pl-8 sm:pr-2 placeholder:sm:inline md:w-full"
             />
           </div>
         )}
@@ -257,7 +264,7 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  const { t } = useTranslation('tableData')
+  const { t } = useTranslation(['common'])
 
   if (!column.getCanSort()) {
     return <div className="text-[0.8rem]">{title}</div>
@@ -268,8 +275,7 @@ export function DataTableColumnHeader<TData, TValue>({
       className={cn(
         'flex min-w-[6rem] items-center space-x-2 text-[0.8rem]',
         className,
-      )}
-    >
+      )}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -312,7 +318,7 @@ export function DataTableColumnAddressHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  const { t } = useTranslation('tableData')
+  const { t } = useTranslation(['common'])
   if (!column.getCanSort()) {
     return <div className="text-[0.8rem]">{title}</div>
   }
@@ -322,8 +328,7 @@ export function DataTableColumnAddressHeader<TData, TValue>({
       className={cn(
         'flex min-w-[12rem] items-center space-x-2 text-[0.8rem]',
         className,
-      )}
-    >
+      )}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -366,7 +371,7 @@ export function DataTableColumnActionHeader<TData, TValue>({
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  const { t } = useTranslation('tableData')
+  const { t } = useTranslation(['common'])
   if (!column.getCanSort()) {
     return <div className="text-[0.8rem]">{title}</div>
   }
@@ -376,8 +381,7 @@ export function DataTableColumnActionHeader<TData, TValue>({
       className={cn(
         'flex items-center justify-center space-x-2 text-[0.8rem]',
         className,
-      )}
-    >
+      )}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

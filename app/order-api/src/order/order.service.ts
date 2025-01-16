@@ -12,6 +12,7 @@ import {
   CreateOrderRequestDto,
   GetOrderRequestDto,
   OrderResponseDto,
+  UpdateOrderRequestDto,
 } from './order.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
@@ -99,6 +100,112 @@ export class OrderService {
   }
 
   /**
+   * Handles order updating
+   * @param {string} slug
+   * @param {UpdateOrderRequestDto} data
+   */
+  async updateOrder(slug: string, data: UpdateOrderRequestDto) {
+    const context = `${OrderService.name}.${this.updateOrder.name}`;
+
+    // Get menu
+    const menu = await this.menuRepository.findOne({
+      where: {
+        branch: {
+          slug: data.branch,
+        },
+        date: new Date(moment().format('YYYY-MM-DD')),
+      },
+    });
+
+    if (!menu) {
+      this.logger.warn(MenuValidation.MENU_NOT_FOUND.message, context);
+      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
+    }
+
+    const order = await this.orderRepository.findOne({
+      where: { slug },
+      relations: ['orderItems.variant'],
+    });
+    if (!order) {
+      this.logger.error(`Order not found`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.error(
+        `Can not update order with status = ${order.status}`,
+        null,
+        context,
+      );
+      throw new OrderException(OrderValidation.UPDATE_ORDER_ERROR);
+    }
+
+    const tempOrder = await this.constructOrder(data);
+    Object.assign(order, {
+      owner: tempOrder.owner,
+      table: tempOrder.table,
+      approvalBy: tempOrder.approvalBy,
+    });
+
+    // Construct order items
+    const orderItems = await Promise.all(
+      data.orderItems.map(async (createdOrderItem) => {
+        const orderItem = order.orderItems.find(
+          (item) => item.variant.slug === createdOrderItem.variant,
+        );
+        if (!orderItem)
+          return await this.constructOrderItem(createdOrderItem, menu);
+
+        Object.assign(orderItem, {
+          quantity: createdOrderItem.quantity,
+          subtotal: createdOrderItem.quantity * orderItem.variant.price,
+        });
+        return orderItem;
+      }),
+    );
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // Delete all order items
+      await queryRunner.manager.remove(order.orderItems);
+
+      // Update order items
+      Object.assign(order, {
+        orderItems,
+        subtotal: await this.getOrderSubtotal(orderItems),
+      });
+      const updatedOrder = await queryRunner.manager.save(order);
+
+      // Update current stock of menu items
+      const currentMenuItems = await this.getCurrentMenuItems(updatedOrder);
+      await queryRunner.manager.save(currentMenuItems);
+
+      await queryRunner.commitTransaction();
+
+      this.logger.log(
+        `New order ${updatedOrder.slug} created successfully`,
+        context,
+      );
+      this.logger.log(
+        `Number of menu items: ${currentMenuItems.length} updated successfully`,
+        context,
+      );
+      await queryRunner.release();
+      return this.mapper.map(updatedOrder, Order, OrderResponseDto);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      this.logger.warn(
+        `Error when creating new order: ${err.message}`,
+        context,
+      );
+      await queryRunner.release();
+      throw new OrderException(OrderValidation.UPDATE_ORDER_ERROR);
+    }
+  }
+
+  /**
    * Handles create new order
    * This method creates new order and order items
    * @param {CreateOrderRequestDto} requestData The data to create a new order
@@ -112,19 +219,30 @@ export class OrderService {
   ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.createOrder.name}`;
 
+    // Construct order
     const order: Order = await this.constructOrder(requestData);
-    let createdOrder: Order;
+
+    // Get order items
+    const orderItems = await this.constructOrderItems(
+      requestData.branch,
+      requestData.orderItems,
+    );
+    this.logger.log(`Number of order items: ${orderItems.length}`, context);
+
+    // Get order subtotal
+    const subtotal = await this.getOrderSubtotal(orderItems);
+    this.logger.log(`Order ${order?.slug} have subtotal: ${subtotal}`, context);
+
+    Object.assign(order, { orderItems, subtotal });
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       // Created order
-      createdOrder = await queryRunner.manager.save(order);
-      // Update current stock of menu items
+      const createdOrder = await queryRunner.manager.save(order);
       const currentMenuItems = await this.getCurrentMenuItems(createdOrder);
       await queryRunner.manager.save(currentMenuItems);
-
       await queryRunner.commitTransaction();
 
       this.logger.log(
@@ -135,18 +253,17 @@ export class OrderService {
         `Number of menu items: ${currentMenuItems.length} updated successfully`,
         context,
       );
+      await queryRunner.release();
+      return this.mapper.map(createdOrder, Order, OrderResponseDto);
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.warn(
         `Error when creating new order: ${err.message}`,
         context,
       );
-      throw new OrderException(OrderValidation.CREATE_ORDER_ERROR);
-    } finally {
       await queryRunner.release();
+      throw new OrderException(OrderValidation.CREATE_ORDER_ERROR);
     }
-
-    return this.mapper.map(createdOrder, Order, OrderResponseDto);
   }
 
   /**
@@ -206,24 +323,12 @@ export class OrderService {
       this.logger.warn(`Approval ${data.approvalBy} is not found`, context);
     }
 
-    // Get order items
-    const orderItems = await this.constructOrderItem(
-      data.branch,
-      data.orderItems,
-    );
-    this.logger.log(`Number of order items: ${orderItems.length}`, context);
-
-    // Get subtotal
-    const subtotal = await this.getOrderSubtotal(orderItems);
-
     const order = this.mapper.map(data, CreateOrderRequestDto, Order);
     Object.assign(order, {
       owner,
       branch,
       table,
       approvalBy,
-      orderItems,
-      subtotal,
     });
     return order;
   }
@@ -315,14 +420,14 @@ export class OrderService {
 
   /**
    *
-   * @param {CreateOrderItemRequestDto} createOrderItemRequestDto The array of data to create order item
+   * @param {CreateOrderItemRequestDto} createOrderItemRequestDtos The array of data to create order item
    * @returns {Promise<ConstructOrderItemResponseDto>} The result of checking
    */
-  async constructOrderItem(
+  async constructOrderItems(
     branch: string,
-    createOrderItemRequestDto: CreateOrderItemRequestDto[],
+    createOrderItemRequestDtos: CreateOrderItemRequestDto[],
   ): Promise<OrderItem[]> {
-    const context = `${OrderService.name}.${this.constructOrderItem.name}`;
+    const context = `${OrderService.name}.${this.constructOrderItems.name}`;
     const today = new Date(moment().format('YYYY-MM-DD'));
     this.logger.log(`Retrieve the menu for today: ${today}`, context);
 
@@ -340,65 +445,72 @@ export class OrderService {
       throw new MenuException(MenuValidation.MENU_NOT_FOUND);
     }
 
-    const orderItems: OrderItem[] = [];
-    for (const item of createOrderItemRequestDto) {
-      // Get variant
-      const variant = await this.variantRepository.findOne({
-        where: {
-          slug: item.variant,
-        },
-        relations: ['product'],
-      });
-      if (!variant) {
-        this.logger.warn(
-          `${VariantValidation.VARIANT_NOT_FOUND.message} ${item.variant}`,
-          context,
-        );
-        throw new VariantException(VariantValidation.VARIANT_NOT_FOUND);
-      }
+    return await Promise.all(
+      createOrderItemRequestDtos.map(
+        async (item) => await this.constructOrderItem(item, menu),
+      ),
+    );
+  }
 
-      // Get menu item
-      const menuItem = await this.menuItemRepository.findOne({
-        where: {
-          menu: { slug: menu.slug },
-          product: {
-            id: variant.product?.id,
-          },
-        },
-      });
-      if (!menuItem) {
-        this.logger.warn(
-          ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU.message,
-          context,
-        );
-        throw new ProductException(
-          ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU,
-        );
-      }
-
-      if (item.quantity > menuItem.currentStock) {
-        this.logger.warn(
-          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-          context,
-        );
-        throw new OrderException(
-          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
-        );
-      }
-
-      const orderItem = this.mapper.map(
-        item,
-        CreateOrderItemRequestDto,
-        OrderItem,
+  async constructOrderItem(
+    item: CreateOrderItemRequestDto,
+    menu: Menu,
+  ): Promise<OrderItem> {
+    const context = `${OrderService.name}.${this.constructOrderItem.name}`;
+    // Get variant
+    const variant = await this.variantRepository.findOne({
+      where: {
+        slug: item.variant,
+      },
+      relations: ['product'],
+    });
+    if (!variant) {
+      this.logger.warn(
+        `${VariantValidation.VARIANT_NOT_FOUND.message} ${item.variant}`,
+        context,
       );
-      Object.assign(orderItem, {
-        variant,
-        subtotal: variant.price * item.quantity,
-      });
-      orderItems.push(orderItem);
+      throw new VariantException(VariantValidation.VARIANT_NOT_FOUND);
     }
 
-    return orderItems;
+    // Get menu item
+    const menuItem = await this.menuItemRepository.findOne({
+      where: {
+        menu: { slug: menu.slug },
+        product: {
+          id: variant.product?.id,
+        },
+      },
+    });
+    if (!menuItem) {
+      this.logger.warn(
+        ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU.message,
+        context,
+      );
+      throw new ProductException(
+        ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU,
+      );
+    }
+
+    if (item.quantity > menuItem.currentStock) {
+      this.logger.warn(
+        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+        context,
+      );
+      throw new OrderException(
+        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+      );
+    }
+
+    const orderItem = this.mapper.map(
+      item,
+      CreateOrderItemRequestDto,
+      OrderItem,
+    );
+    Object.assign(orderItem, {
+      variant,
+      subtotal: variant.price * item.quantity,
+    });
+    return orderItem;
   }
 
   /**

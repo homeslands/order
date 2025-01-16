@@ -15,6 +15,13 @@
     "role": "Chức danh",
     "address": "Địa chỉ",
 
+    "STAFF": "Nhân viên",
+    "MANAGER": "Quản lý",
+    "ADMIN": "Quản trị viên",
+    "CHEF": "Đầu bếp",
+    "SUPER_ADMIN": "Quản trị viên cấp cao",
+    "CUSTOMER": "Khách hàng",
+
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho nhân viên",
     "update": "Cập nhật",

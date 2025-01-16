@@ -2,10 +2,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Input, Textarea } from '@/components/ui'
 import { useProfile } from '@/hooks'
-import {
-  UpdatePasswordDialog,
-  UpdateProfileDialog,
-} from '@/components/app/dialog'
+import { UpdatePasswordDialog } from '@/components/app/dialog'
+import UpdateCustomerProfileDialog from '../dialog/update-customer-profile-dialog'
 
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
@@ -15,7 +13,7 @@ export function CustomerInfoTabsContent() {
   const formFields = {
     firstName: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.firstName')}</span>
+        <span className="text-sm text-normal">{t('profile.firstName')}</span>
         <Input
           className=""
           value={userProfile?.firstName}
@@ -27,7 +25,7 @@ export function CustomerInfoTabsContent() {
     ),
     lastName: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.lastName')}</span>
+        <span className="text-sm text-normal">{t('profile.lastName')}</span>
         <Input
           className=""
           value={userProfile?.lastName}
@@ -39,7 +37,7 @@ export function CustomerInfoTabsContent() {
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.email')}</span>
+        <span className="text-sm text-normal">{t('profile.email')}</span>
         <Input
           className=""
           value={userProfile?.email}
@@ -51,7 +49,7 @@ export function CustomerInfoTabsContent() {
     ),
     phonenumber: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.phoneNumber')}</span>
+        <span className="text-sm text-normal">{t('profile.phoneNumber')}</span>
         <Input
           className=""
           value={userProfile?.phonenumber}
@@ -63,7 +61,7 @@ export function CustomerInfoTabsContent() {
     ),
     dob: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.dob')}</span>
+        <span className="text-sm text-normal">{t('profile.dob')}</span>
         <Input
           className=""
           value={userProfile?.dob}
@@ -75,7 +73,7 @@ export function CustomerInfoTabsContent() {
     ),
     address: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.address')}</span>
+        <span className="text-sm text-normal">{t('profile.address')}</span>
         <Textarea
           className=""
           value={userProfile?.address}
@@ -95,7 +93,7 @@ export function CustomerInfoTabsContent() {
         ))}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
-        <UpdateProfileDialog userProfile={userProfile} />
+        <UpdateCustomerProfileDialog userProfile={userProfile} />
         <UpdatePasswordDialog />
       </div>
     </div>

@@ -6,10 +6,12 @@ import { PaymentMethod, Role } from '@/constants'
 import { useUserStore } from '@/stores'
 
 interface PaymentMethodRadioGroupProps {
+  defaultValue?: string
   onSubmit?: (paymentMethod: PaymentMethod) => void
 }
 
 export default function PaymentMethodRadioGroup({
+  defaultValue,
   onSubmit,
 }: PaymentMethodRadioGroupProps) {
   const { t } = useTranslation('menu')
@@ -22,7 +24,7 @@ export default function PaymentMethodRadioGroup({
   }
   return (
     <RadioGroup
-      defaultValue="internalWallet"
+      defaultValue={defaultValue || PaymentMethod.INTERNAL_WALLET}
       className="min-w-full gap-6"
       onValueChange={handlePaymentMethodChange}
     >
@@ -31,7 +33,7 @@ export default function PaymentMethodRadioGroup({
         <div className="flex items-center gap-1 pl-2 text-muted-foreground">
           <Label htmlFor="r1" className="flex items-center gap-1">
             <WalletMinimal size={20} />
-            {t('paymentMethod.internalWallet')}
+            {t('paymentMethod.internalWallet')} (coming soon)
           </Label>
         </div>
       </div>

@@ -11,17 +11,19 @@ interface TopProductData {
 export default function TopProductsDetail({ branch }: TopProductData) {
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
-    const { data: revenueData } = useTopBranchProducts({
+    const { data: topBranchProducts } = useTopBranchProducts({
         branch,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
     })
 
+    console.log(topBranchProducts?.result.items)
+
     useEffect(() => {
-        if (chartRef.current && revenueData?.result?.items) {
+        if (chartRef.current && topBranchProducts?.result?.items) {
             const chart = echarts.init(chartRef.current)
-            const items = [...revenueData.result.items]
+            const items = [...topBranchProducts.result.items]
                 .sort((a, b) => a.totalQuantity - b.totalQuantity) // Sort items by quantity in descending order
 
             const option = {
@@ -73,7 +75,7 @@ export default function TopProductsDetail({ branch }: TopProductData) {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [revenueData])
+    }, [topBranchProducts, branch])
 
     // const handleSelectTimeRange = (timeRange: string) => {
     //     console.log(timeRange)

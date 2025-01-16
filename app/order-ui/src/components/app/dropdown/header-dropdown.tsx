@@ -34,14 +34,14 @@ export default function HeaderDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="px-0 h-9">
+          <DropdownMenuItem className="h-9 px-0">
             <NavLink
               to={`${ROUTE.STAFF_PROFILE}`}
-              className="flex justify-start w-full h-9"
+              className="flex h-9 w-full justify-start"
             >
               <Button
                 variant="ghost"
-                className="flex justify-start w-full gap-1 text-sm"
+                className="flex w-full justify-start gap-1 text-sm"
               >
                 <User className="icon" />
                 {t('header.profile')}
@@ -49,14 +49,14 @@ export default function HeaderDropdown() {
             </NavLink>
           </DropdownMenuItem>
           {userInfo?.role.name === Role.CUSTOMER && (
-            <DropdownMenuItem className="px-0 h-9">
+            <DropdownMenuItem className="h-9 px-0">
               <NavLink
                 to={`${ROUTE.CLIENT_ORDER_HISTORY}`}
-                className="flex justify-start w-full h-9"
+                className="flex h-9 w-full justify-start"
               >
                 <Button
                   variant="ghost"
-                  className="flex justify-start w-full gap-1 text-sm"
+                  className="flex w-full justify-start gap-1 text-sm"
                 >
                   <ShoppingBag className="icon" />
                   {t('header.myOrders')}
@@ -66,16 +66,14 @@ export default function HeaderDropdown() {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {/* <DropdownMenuItem>
-          <LifeBuoy />
-          <span>Support</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator /> */}
         {isAuthenticated() ? (
           <LogoutDialog />
         ) : (
           <NavLink to={ROUTE.LOGIN}>
-            <Button variant="ghost" className="flex items-center justify-start w-full gap-2">
+            <Button
+              variant="ghost"
+              className="flex w-full items-center justify-start gap-2"
+            >
               <LogIn />
               {t('header.login')}
             </Button>

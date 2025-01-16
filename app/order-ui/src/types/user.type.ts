@@ -55,7 +55,7 @@ export interface IUpdateProfileRequest {
   lastName: string
   dob: string
   address: string
-  branch: string
+  branch?: string
 }
 
 export interface IUpdatePasswordRequest {

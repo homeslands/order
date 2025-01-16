@@ -23,11 +23,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-gray-50">
-      <div className="container mx-auto py-10">
+    <div className="bg-muted-foreground/5">
+      <div className="container py-10 mx-auto">
         <div className="flex flex-col items-start gap-10 lg:flex-row">
           {/* ProfilePicture */}
-          <div className="w-full rounded-sm bg-white shadow-lg lg:w-1/4">
+          <div className="w-full bg-white rounded-sm shadow-lg lg:w-1/4">
             <div className="flex flex-row p-2">
               <ProfilePicture
                 height={70}
@@ -39,7 +39,7 @@ export default function ProfilePage() {
                 }
                 onUpload={handleUploadProfilePicture}
               />
-              <div className="ml-4 flex flex-col justify-center">
+              <div className="flex flex-col justify-center ml-4">
                 <span className="font-bold">{fullname}</span>
                 <div className="text-description flex items-center text-[13px]">
                   {userInfo?.phonenumber}

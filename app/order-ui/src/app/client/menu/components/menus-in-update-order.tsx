@@ -3,21 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IProduct, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
-import { AddToCartDialog } from '@/components/app/dialog'
 import { Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
+import { UpdateOrderItemDialog } from '@/components/app/dialog'
 
 interface IMenuProps {
   menu: ISpecificMenu | undefined
   isLoading: boolean
-  isCartOpen: boolean
 }
 
-export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
+export function MenusInUpdateOrder({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
-
   const menuItems = menu?.menuItems
-
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
 
@@ -34,9 +31,7 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
 
   if (isLoading) {
     return (
-      <div
-        className={`grid grid-cols-1 ${isCartOpen ? 'lg:grid-cols-4' : 'lg:grid-cols-5'} gap-3`}
-      >
+      <div className={`grid grid-cols-2 gap-3 lg:grid-cols-3`}>
         {[...Array(8)].map((_, index) => (
           <SkeletonMenuList key={index} />
         ))}
@@ -49,13 +44,11 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
   }
 
   return (
-    <div
-      className={` grid grid-cols-2 ${isCartOpen ? 'lg:grid-cols-4' : 'lg:grid-cols-5'} gap-4`}
-    >
+    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
       {menuItems.map((item) => (
         <div
           key={item.slug}
-          className="flex flex-col bg-white border rounded-xl backdrop-blur-md"
+          className="flex min-h-[20rem] flex-col rounded-xl border bg-white backdrop-blur-md"
         >
           {/* Image Section with Discount Tag */}
           <div className="relative">
@@ -63,7 +56,7 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full h-28 rounded-t-md"
+                className="object-cover w-full h-32 rounded-t-md"
               />
             ) : (
               <div className="w-full h-24 rounded-t-md bg-muted/60" />
@@ -80,30 +73,33 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
           </div>
 
           {/* Content Section - More compact */}
-          <div className="flex flex-1 flex-col space-y-1.5 p-2">
-            <h3 className="text-sm font-bold line-clamp-1">
-              {item.product.name}
-            </h3>
-            <p className="text-xs text-gray-500 line-clamp-2">
-              {item.product.description}
-            </p>
+          <div className="flex flex-col justify-between flex-1 p-2">
+            <div>
+              <h3 className="text-lg font-bold line-clamp-1">
+                {item.product.name}
+              </h3>
+              <p className="text-xs text-gray-500 line-clamp-2">
+                {item.product.description}
+              </p>
+            </div>
 
             <div className="flex items-center justify-between gap-1">
               <div className="flex flex-col">
                 {item.product.variants.length > 0 ? (
-                  <div className='flex flex-col items-start justify-start gap-1'>
-                    <span className="text-sm font-bold text-primary">
+                  <div className="flex flex-col items-start justify-start gap-1">
+                    <span className="text-lg font-bold text-primary">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
-                        if (!range) return '0đ'
+                        if (!range) return formatCurrency(0)
                         return range.isSinglePrice
                           ? `${formatCurrency(range.min)}`
                           : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
                       })()}
                     </span>
-                    <span className='text-[0.7rem] text-muted-foreground'>
+                    <span className="text-[0.7rem] text-muted-foreground">
                       {t('menu.amount')}
-                      {item.currentStock}/{item.defaultStock}</span>
+                      {item.currentStock}/{item.defaultStock}
+                    </span>
                   </div>
                 ) : (
                   <span className="text-sm font-bold text-primary">
@@ -113,7 +109,9 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
               </div>
             </div>
             {item.currentStock > 0 ? (
-              <AddToCartDialog product={item.product} />
+              <div className="flex items-end justify-center w-full">
+                {/* <AddToCartDialog product={item.product} /> */}
+              </div>
             ) : (
               <Button
                 className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
@@ -122,6 +120,11 @@ export default function MenuList({ menu, isLoading, isCartOpen }: IMenuProps) {
                 {t('menu.outOfStock')}
               </Button>
             )}
+            <UpdateOrderItemDialog product={item.product} />
+            {/* <Button>
+                <ShoppingBag size={18} />
+                Thêm vào giỏ
+              </Button> */}
           </div>
         </div>
       ))}

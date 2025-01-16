@@ -19,7 +19,6 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
 import {
-  INVALID_ORDER_APPROVAL_BY,
   INVALID_ORDER_ITEMS,
   INVALID_ORDER_OWNER,
   ORDER_TYPE_INVALID,
@@ -29,7 +28,7 @@ import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 export class CreateOrderRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The type of order', example: 'take-out' })
-  @IsNotEmpty({ message: 'Invalid type of order' })
+  @IsNotEmpty({ message: ORDER_TYPE_INVALID })
   @IsEnum(OrderType, { message: ORDER_TYPE_INVALID })
   type: string;
 
@@ -73,8 +72,10 @@ export class CreateOrderRequestDto {
   @AutoMap()
   @ApiProperty()
   @IsOptional()
-  approvalBy: string;
+  approvalBy?: string;
 }
+
+export class UpdateOrderRequestDto extends CreateOrderRequestDto {}
 
 export class OwnerResponseDto extends BaseResponseDto {
   @AutoMap()

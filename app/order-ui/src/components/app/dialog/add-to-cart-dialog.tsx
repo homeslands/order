@@ -19,7 +19,7 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, IOrderType, IProduct, IProductVariant } from '@/types'
+import { ICartItem, OrderTypeEnum, IProduct, IProductVariant } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
@@ -53,7 +53,7 @@ export default function AddToCartDialog({
       id: generateCartItemId(),
       slug: product.slug,
       owner: getUserInfo()?.slug,
-      type: IOrderType.AT_TABLE, // default value, can be modified based on requirements
+      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
       // branch: getUserInfo()?.branch.slug, // get branch from user info
       orderItems: [
         {

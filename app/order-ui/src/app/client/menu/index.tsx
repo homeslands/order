@@ -1,7 +1,2 @@
-export { default as CartContent } from './cart-content'
-export { default as CheckoutCart } from './checkout-cart'
 export { default as MenuPage } from './page'
-export { default as OrderSuccessPage } from './order-success'
 export { default as PaymentMethodSelect } from '../../../components/app/select/client-payment-method-select'
-export { default as TableSelect } from './table-select'
-export { default as CarouselItem } from './carousel-item'

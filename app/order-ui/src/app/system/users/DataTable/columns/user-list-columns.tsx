@@ -98,7 +98,10 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       ),
       cell: ({ row }) => {
         const user = row.original
-        return <div className="text-xs sm:text-sm">{user?.role?.name}</div>
+        return <div className="text-xs sm:text-sm">
+          {user?.role?.name}
+          {/* {t(`employee.${user?.role?.name}`)} */}
+        </div>
       },
     },
     {

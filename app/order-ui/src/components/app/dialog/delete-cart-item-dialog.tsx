@@ -46,13 +46,13 @@ export default function DeleteCartItemDialog({
             <TriangleAlert />
             {t('order.deleteItem')}
           </DialogTitle>
-          <DialogDescription className="rounded-md bg-destructive/10 p-2 text-destructive">
+          <DialogDescription className="p-2 rounded-md bg-destructive/10 text-destructive">
             {t('order.deleteNote')}
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="mt-4 flex items-center gap-4">
-            <Label htmlFor="name" className="text-left leading-5">
+          <div className="flex items-center gap-4 mt-4">
+            <Label htmlFor="name" className="leading-5 text-left">
               {t('order.deleteContent')} <strong>{cartItem.name}</strong>
               {t('order.deleteContent2')}
             </Label>

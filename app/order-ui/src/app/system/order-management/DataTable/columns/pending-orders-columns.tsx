@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
 import { DataTableColumnHeader } from '@/components/ui'
-import { IOrder, IOrderType } from '@/types'
+import { IOrder, OrderTypeEnum } from '@/types'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 
 export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
@@ -16,7 +16,7 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
       cell: () => {
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary p-2.5">
-            <BikeIcon className="text-white icon" />
+            <BikeIcon className="icon text-white" />
           </div>
         )
       },
@@ -58,7 +58,7 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
-        return order?.type === IOrderType.AT_TABLE ? (
+        return order?.type === OrderTypeEnum.AT_TABLE ? (
           <div>Bàn số {order?.table?.name}</div>
         ) : (
           <div>{t('order.takeAway')}</div>

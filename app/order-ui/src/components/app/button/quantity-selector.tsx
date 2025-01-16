@@ -3,10 +3,10 @@ import { Minus, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui'
 import { useCartItemStore } from '@/stores'
-import { IOrderItem } from '@/types'
+import { IOrderDetail, IOrderItem } from '@/types'
 
 interface QuantitySelectorProps {
-  cartItem: IOrderItem
+  cartItem: IOrderDetail | IOrderItem
 }
 
 export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
@@ -35,16 +35,16 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
         variant="ghost"
         size="icon"
         onClick={handleDecrement}
-        className="h-fit w-fit rounded-full border p-1 hover:bg-gray-100"
+        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
       >
         <Minus size={12} />
       </Button>
-      <span className="w-4 text-center text-xs">{quantity}</span>
+      <span className="w-4 text-xs text-center">{quantity}</span>
       <Button
         variant="ghost"
         size="icon"
         onClick={handleIncrement}
-        className="h-fit w-fit rounded-full border p-1 hover:bg-gray-100"
+        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
       >
         <Plus size={12} />
       </Button>

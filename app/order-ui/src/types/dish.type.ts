@@ -34,6 +34,22 @@ export interface ICartItem {
   approvalBy?: string
 }
 
+export interface IOrderToUpdate {
+  id: string
+  slug: string
+  owner?: string
+  ownerFullName?: string
+  ownerPhoneNumber?: string
+  paymentMethod?: string
+  type: string
+  // branch?: string
+  orderItems: IOrderItem[]
+  table?: string
+  tableName?: string
+  note?: string
+  approvalBy?: string
+}
+
 export interface IOrderItem {
   id: string
   slug: string
@@ -143,7 +159,7 @@ export enum OrderItemStatus {
   FAILED = 'FAILED',
 }
 
-export enum IOrderType {
+export enum OrderTypeEnum {
   AT_TABLE = 'at-table',
   TAKE_OUT = 'take-out',
 }

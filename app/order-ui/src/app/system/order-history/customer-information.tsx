@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
-import { IOrder, IOrderType } from '@/types'
+import { IOrder, OrderTypeEnum } from '@/types'
 import { PaymentStatusBadge } from '@/components/app/badge/index'
 
 interface ICustomerInfoProps {
@@ -56,7 +56,7 @@ export default function CustomerInformation({
               {t('order.orderType')}
             </span>
             <span className="col-span-1 text-xs">
-              {orderDetailData?.type === IOrderType.AT_TABLE
+              {orderDetailData?.type === OrderTypeEnum.AT_TABLE
                 ? t('order.dineIn')
                 : t('order.takeAway')}
             </span>

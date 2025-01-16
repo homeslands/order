@@ -62,6 +62,7 @@
     "deleteBranchSuccess": "Xóa chi nhánh thành công",
 
     "createOrderSuccess": "Đặt hàng thành công",
+    "orderItemDeleted": "Xóa món thành công",
 
     "createOrderTrackingSuccess": "Phân robot giao hàng thành công",
 

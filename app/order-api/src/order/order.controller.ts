@@ -23,6 +23,7 @@ import {
   CreateOrderRequestDto,
   GetOrderRequestDto,
   OrderResponseDto,
+  UpdateOrderRequestDto,
 } from './order.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 
@@ -101,6 +102,28 @@ export class OrderController {
     const result = await this.orderService.getOrderBySlug(slug);
     return {
       message: 'Get specific order successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<OrderResponseDto>;
+  }
+
+  @Patch(':slug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update order' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update order successfully',
+    type: OrderResponseDto,
+  })
+  async updateOrder(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    data: UpdateOrderRequestDto,
+  ) {
+    const result = await this.orderService.updateOrder(slug, data);
+    return {
+      message: 'Update order status successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,

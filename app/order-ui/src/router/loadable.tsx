@@ -243,3 +243,10 @@ export const ClientProfilePage = React.lazy(() =>
     default: module.ProfilePage,
   })),
 )
+
+//Update order page
+export const ClientUpdateOrderPage = React.lazy(() =>
+  import('@/app/client/update-order').then((module) => ({
+    default: module.ClientUpdateOrderPage,
+  })),
+)

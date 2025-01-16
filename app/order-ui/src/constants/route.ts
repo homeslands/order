@@ -8,12 +8,12 @@ export const ROUTE = {
   RESET_PASSWORD: '/reset-password',
   ORDER_SUCCESS: '/order-success',
 
-  // Staff Routes
-  OVERVIEW: '/overview',
-  OVERVIEW_DETAIL: '/overview/detail',
-  STAFF_BRANCH: '/branch',
-  STAFF_PROFILE: '/staff/profile',
-  STAFF_MENU: '/staff/menu',
+  // System Routes
+  OVERVIEW: '/system/overview',
+  OVERVIEW_DETAIL: '/system/overview/detail',
+  STAFF_BRANCH: '/system/branch',
+  STAFF_PROFILE: '/system/profile',
+  STAFF_MENU: '/system/menu',
   STAFF_CHECKOUT_ORDER: '/checkout-order',
   STAFF_ORDER_PAYMENT: '/staff/order-payment',
   STAFF_ORDER_MANAGEMENT: '/order-management',
@@ -38,17 +38,18 @@ export const ROUTE = {
   ADMIN_ORDER_HISTORY: '/order-history',
   ADMIN_WALLET_APPROVALS: '/wallet-approvals',
   ADMIN_USER_MANAGEMENT: '/user-management',
-  ADMIN_FINANCIAL_REPORT: '/financial-report',
+  ADMIN_FINANCIAL_REPOR: '/financial-report',
   ADMIN_CONFIG: '/config',
 
   //Client Routes
   CLIENT_HOME: '/',
   CLIENT_MENU: '/menu',
-  CLIENT_PRODUCT_DETAIL: '/product',
+  CLIENT_MENU_ITEM: '/menu-item',
   CLIENT_CART: '/cart',
   CLIENT_CHECKOUT_ORDER: '/checkout-order',
-  CLIENT_ORDER_PAYMENT: '/order-payment',
-  CLIENT_ORDER_HISTORY: '/order-history',
+  CLIENT_PAYMENT: '/payment',
+  CLIENT_ORDER_HISTORY: '/history',
+  CLIENT_UPDATE_ORDER: '/update-order',
   CLIENT_PROFILE: '/profile',
 
   // General Routes
@@ -56,7 +57,4 @@ export const ROUTE = {
   CONTACT: '/contact',
   HELP: '/help',
   POLICY: '/policy',
-
-  // Notification
-  NOTIFICATION: '/notification',
 }

@@ -1,1 +1,1 @@
-export * from './menus'
+export * from './client-menus'

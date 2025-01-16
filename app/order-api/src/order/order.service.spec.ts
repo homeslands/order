@@ -351,7 +351,7 @@ describe('OrderService', () => {
     });
   });
 
-  describe('constructOrderItem', () => {
+  describe('constructOrderItems', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
@@ -367,7 +367,7 @@ describe('OrderService', () => {
       (menuRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.constructOrderItem(branch, mockInput),
+        service.constructOrderItems(branch, mockInput),
       ).rejects.toThrow(MenuException);
     });
 
@@ -391,7 +391,7 @@ describe('OrderService', () => {
       (variantRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.constructOrderItem(branch, mockInput),
+        service.constructOrderItems(branch, mockInput),
       ).rejects.toThrow(VariantException);
     });
 
@@ -427,7 +427,7 @@ describe('OrderService', () => {
       (menuItemRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.constructOrderItem(branch, mockInput),
+        service.constructOrderItems(branch, mockInput),
       ).rejects.toThrow(ProductException);
     });
 
@@ -467,7 +467,7 @@ describe('OrderService', () => {
       (menuItemRepositoryMock.findOne as jest.Mock).mockResolvedValue(menuItem);
 
       await expect(
-        service.constructOrderItem(branch, mockInput),
+        service.constructOrderItems(branch, mockInput),
       ).rejects.toThrow(OrderException);
     });
 
@@ -516,7 +516,7 @@ describe('OrderService', () => {
       (menuItemRepositoryMock.findOne as jest.Mock).mockResolvedValue(menuItem);
       (mapperMock.map as jest.Mock).mockReturnValue(orderItem);
 
-      expect(await service.constructOrderItem(branch, mockInput)).toEqual(
+      expect(await service.constructOrderItems(branch, mockInput)).toEqual(
         mockOutput,
       );
     });
@@ -582,13 +582,13 @@ describe('OrderService', () => {
 
       jest.spyOn(service, 'constructOrder').mockResolvedValue(order);
       jest
-        .spyOn(service, 'constructOrderItem')
+        .spyOn(service, 'constructOrderItems')
         .mockRejectedValue(
           new VariantException(VariantValidation.VARIANT_NOT_FOUND),
         );
 
       await expect(service.createOrder(mockInput)).rejects.toThrow(
-        OrderException,
+        VariantException,
       );
     });
 
@@ -637,7 +637,7 @@ describe('OrderService', () => {
       } as Order;
 
       jest.spyOn(service, 'constructOrder').mockResolvedValue(mockOutput);
-      jest.spyOn(service, 'constructOrderItem').mockResolvedValue(orderItems);
+      jest.spyOn(service, 'constructOrderItems').mockResolvedValue(orderItems);
       (orderRepositoryMock.create as jest.Mock).mockResolvedValue(mockOutput);
       (mockQueryRunner.manager.save as jest.Mock).mockResolvedValue(mockOutput);
       (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);

@@ -3,7 +3,6 @@ import { useDebounce } from 'use-debounce'
 
 export interface IDebouncedInputProps {
   defaultValue?: string
-  // delay in ms
   delay?: number
 }
 
@@ -13,6 +12,18 @@ export function useDebouncedInput({
 }: IDebouncedInputProps = {}) {
   const [inputValue, setInputValue] = useState<string>(defaultValue)
   const [debouncedInputValue] = useDebounce(inputValue, delay)
+  const [isLoading, setIsLoading] = useState(false)
 
-  return { inputValue, setInputValue, debouncedInputValue }
+  const handleInputChange = (value: string) => {
+    setInputValue(value)
+    setIsLoading(true)
+    setTimeout(() => setIsLoading(false), delay)
+  }
+
+  return {
+    inputValue,
+    setInputValue: handleInputChange,
+    debouncedInputValue,
+    isLoading,
+  }
 }
