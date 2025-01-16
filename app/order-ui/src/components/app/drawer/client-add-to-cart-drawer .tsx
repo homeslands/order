@@ -7,10 +7,10 @@ import {
   DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
@@ -81,80 +81,81 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
           <Plus />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[85%]">
+      <DrawerContent className="h-[90%]">
         <DrawerHeader>
           <DrawerTitle>{t('menu.confirmProduct')}</DrawerTitle>
           <DrawerDescription>{t('menu.confirmProductDescription')}</DrawerDescription>
         </DrawerHeader>
 
-        <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 sm:grid-cols-4">
-          <div className="sm:col-span-2">
-            {product.image ? (
-              <img
-                src={`${publicFileURL}/${product.image}`}
-                alt={product.name}
-                className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
-              />
-            ) : (
-              <div className="w-full rounded-md bg-muted/50" />
-            )}
-          </div>
-
-          <div className="flex flex-col gap-6 sm:col-span-2">
-            <div>
-              <h3 className="text-lg font-semibold">{product.name}</h3>
-              <p className="text-sm text-muted-foreground">{product.description}</p>
+        <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
+          <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+            <div className="sm:col-span-2">
+              {product.image ? (
+                <img
+                  src={`${publicFileURL}/${product.image}`}
+                  alt={product.name}
+                  className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
+                />
+              ) : (
+                <div className="w-full rounded-md bg-muted/50" />
+              )}
             </div>
 
-            {product.variants.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t('menu.selectSize')}
-                </label>
-                <Select
-                  value={selectedVariant?.slug}
-                  onValueChange={(value) => {
-                    const variant = product.variants.find(
-                      (v) => v.slug === value
-                    );
-                    setSelectedVariant(variant || null);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('menu.selectSize')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.variants
-                      .sort((a, b) => a.price - b.price)
-                      .map((variant) => (
-                        <SelectItem key={variant.slug} value={variant.slug}>
-                          {variant.size.name.toUpperCase()} - {formatCurrency(variant.price)}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-col gap-6 sm:col-span-2">
+              <div>
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <p className="text-sm text-muted-foreground">{product.description}</p>
               </div>
-            )}
 
-            <div className="flex flex-col items-start space-y-2">
-              <span className="text-sm">{t('menu.note')}</span>
-              <Textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder={t('menu.enterNote')}
-              />
+              {product.variants.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t('menu.selectSize')}
+                  </label>
+                  <Select
+                    value={selectedVariant?.slug}
+                    onValueChange={(value) => {
+                      const variant = product.variants.find(
+                        (v) => v.slug === value
+                      );
+                      setSelectedVariant(variant || null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('menu.selectSize')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {product.variants
+                        .sort((a, b) => a.price - b.price)
+                        .map((variant) => (
+                          <SelectItem key={variant.slug} value={variant.slug}>
+                            {variant.size.name.toUpperCase()} - {formatCurrency(variant.price)}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div className="flex flex-col items-start space-y-2">
+                <span className="text-sm">{t('menu.note')}</span>
+                <Textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder={t('menu.enterNote')}
+                />
+              </div>
+              <div className='grid grid-cols-2 gap-2'>
+                <DrawerClose asChild>
+                  <Button variant="outline">{tCommon('common.cancel')}</Button>
+                </DrawerClose>
+                <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+                  {t('menu.addToCart')}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <DrawerFooter className="grid grid-cols-2 gap-3">
-          <DrawerClose asChild>
-            <Button variant="outline">{tCommon('common.cancel')}</Button>
-          </DrawerClose>
-          <Button onClick={handleAddToCart} disabled={!selectedVariant}>
-            {t('menu.addToCart')}
-          </Button>
-        </DrawerFooter>
+        </ScrollArea>
       </DrawerContent>
     </Drawer>
   );

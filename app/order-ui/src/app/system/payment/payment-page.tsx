@@ -150,7 +150,7 @@ export default function PaymentPage() {
                   </div>
                 </div>
                 {/* Thông tin đơn hàng */}
-                <div className="grid w-full grid-cols-4 px-4 py-3 text-sm font-thin rounded-md bg-background">
+                <div className="grid w-full grid-cols-4 px-4 py-3 mb-2 text-sm font-thin rounded-md bg-muted-foreground/10">
                   <span className="col-span-1">{t('order.product')}</span>
                   <span className="col-span-1">{t('order.unitPrice')}</span>
                   <span className="col-span-1 text-center">

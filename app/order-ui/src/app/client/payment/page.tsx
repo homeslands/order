@@ -96,19 +96,19 @@ export function ClientPaymentPage() {
 
   return (
     <div className="container py-10">
-      <span className="flex w-full items-center justify-start gap-1 text-lg">
+      <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('menu.payment')}
         <span className="text-muted-foreground">#{slug}</span>
       </span>
-      <div className="mt-5 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mt-5">
         <div className="flex flex-col gap-5 lg:flex-row">
           {/* Customer info */}
           <div className="w-full lg:w-1/3">
-            <div className="flex flex-col gap-1 bg-muted p-4">
+            <div className="flex flex-col gap-1 p-4 bg-muted">
               <Label className="text-md">{t('paymentMethod.userInfo')}</Label>
             </div>
-            <div className="flex flex-col gap-3 rounded border border-gray-200 p-3">
+            <div className="flex flex-col gap-3 p-3 border border-gray-200 rounded">
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.customerName')}
@@ -154,38 +154,38 @@ export function ClientPaymentPage() {
           </div>
           {/* Thông tin đơn hàng */}
           <div className="w-full lg:w-2/3">
-            <div className="grid w-full grid-cols-5 rounded-md bg-muted-foreground/10 px-4 py-3 text-sm font-thin">
+            <div className="grid w-full grid-cols-5 px-4 py-3 mb-2 text-sm font-thin rounded-md bg-muted-foreground/10">
               <span className="col-span-2 text-xs">{t('order.product')}</span>
               <span className="col-span-1 text-xs">{t('order.unitPrice')}</span>
-              <span className="col-span-1 text-center text-xs">
+              <span className="col-span-1 text-xs text-center">
                 {t('order.quantity')}
               </span>
-              <span className="col-span-1 text-center text-xs">
+              <span className="col-span-1 text-xs text-center">
                 {t('order.grandTotal')}
               </span>
             </div>
-            <div className="flex w-full flex-col rounded-md border bg-background">
+            <div className="flex flex-col w-full border rounded-md bg-background">
               {order?.result.orderItems.map((item) => (
                 <div
                   key={item.slug}
-                  className="grid w-full items-center gap-4 rounded-t-md border-b p-4 pb-4"
+                  className="grid items-center w-full gap-4 p-4 pb-4 border-b rounded-t-md"
                 >
-                  <div className="grid w-full grid-cols-5 flex-row items-center">
-                    <div className="col-span-2 flex w-full gap-2">
+                  <div className="grid flex-row items-center w-full grid-cols-5">
+                    <div className="flex w-full col-span-2 gap-2">
                       <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
                         <div className="flex flex-col">
-                          <span className="truncate text-sm font-bold sm:text-lg">
+                          <span className="text-sm font-bold truncate sm:text-lg">
                             {item.variant.product.name}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="col-span-1 flex items-center">
+                    <div className="flex items-center col-span-1">
                       <span className="text-sm">
                         {`${formatCurrency(item.variant.price || 0)}`}
                       </span>
                     </div>
-                    <div className="col-span-1 flex justify-center">
+                    <div className="flex justify-center col-span-1">
                       <span className="text-sm">{item.quantity || 0}</span>
                     </div>
                     <div className="col-span-1 text-end">
@@ -196,17 +196,17 @@ export function ClientPaymentPage() {
                   </div>
                 </div>
               ))}
-              <div className="flex w-full flex-col items-end gap-2 px-2 py-4">
+              <div className="flex flex-col items-end w-full gap-2 px-2 py-4">
                 <div className="flex w-[20rem] flex-col gap-2">
-                  <div className="flex w-full justify-between border-b pb-4">
+                  <div className="flex justify-between w-full pb-4 border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold">
                       {`${formatCurrency(order.result.subtotal || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
-                    <div className="flex w-full justify-between">
-                      <h3 className="text-md font-semibold">
+                    <div className="flex justify-between w-full">
+                      <h3 className="font-semibold text-md">
                         {t('order.totalPayment')}
                       </h3>
                       <p className="text-lg font-semibold text-primary">
@@ -217,7 +217,7 @@ export function ClientPaymentPage() {
                       {t('order.vat')}
                     </span>
                   </div>
-                  <p className="col-span-2 flex items-center justify-end text-lg font-semibold text-primary">
+                  <p className="flex items-center justify-end col-span-2 text-lg font-semibold text-primary">
                     {`${formatCurrency(order.result.subtotal || 0)}`}
                   </p>
                 </div>
@@ -234,29 +234,29 @@ export function ClientPaymentPage() {
         <div className="flex justify-end py-6">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) && (
-            <div className="flex gap-2">
-              {!paymentSlug && (
-                <Button
-                  disabled={isDisabled || isPendingInitiatePayment}
-                  className="w-fit"
-                  onClick={handleConfirmPayment}
-                >
-                  {isPendingInitiatePayment && <ButtonLoading />}
-                  {t('paymentMethod.confirmPayment')}
-                </Button>
-              )}
-              {paymentSlug && (
-                <Button
-                  disabled={isDisabled || isPendingExportPayment}
-                  className="w-fit"
-                  onClick={handleExportPayment}
-                >
-                  {isPendingExportPayment && <ButtonLoading />}
-                  {t('paymentMethod.exportPayment')}
-                </Button>
-              )}
-            </div>
-          )}
+              <div className="flex gap-2">
+                {!paymentSlug && (
+                  <Button
+                    disabled={isDisabled || isPendingInitiatePayment}
+                    className="w-fit"
+                    onClick={handleConfirmPayment}
+                  >
+                    {isPendingInitiatePayment && <ButtonLoading />}
+                    {t('paymentMethod.confirmPayment')}
+                  </Button>
+                )}
+                {paymentSlug && (
+                  <Button
+                    disabled={isDisabled || isPendingExportPayment}
+                    className="w-fit"
+                    onClick={handleExportPayment}
+                  >
+                    {isPendingExportPayment && <ButtonLoading />}
+                    {t('paymentMethod.exportPayment')}
+                  </Button>
+                )}
+              </div>
+            )}
         </div>
       </div>
     </div>

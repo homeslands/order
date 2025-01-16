@@ -15,6 +15,16 @@ export interface IOrderStore {
   // clearSelectedItems: () => void
 }
 
+export interface ISelectedOrderStore {
+  orderSlug: string
+  selectedRow: string
+  isSheetOpen: boolean
+  setOrderSlug: (slug: string) => void
+  setSelectedRow: (row: string) => void
+  setIsSheetOpen: (isOpen: boolean) => void
+  clearSelectedOrder: () => void
+}
+
 export interface IOrderTrackingStore {
   selectedItems: IOrderDetail[]
   getSelectedItems: () => IOrderDetail[]
