@@ -71,9 +71,9 @@ export class MenuService {
     }
 
     const findOptionsWhere: FindOptionsWhere<Menu> = {
-      slug: query.slug,
       date: query.date,
       branch: { slug: query.branch },
+      slug: query.slug,
     };
 
     if (query.productName)

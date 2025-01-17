@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
-import { INVALID_DAY } from './menu.validation';
+import { INVALID_DATE } from './menu.validation';
 import { Transform, Type } from 'class-transformer';
 import { MenuItemResponseDto } from 'src/menu-item/menu-item.dto';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
@@ -9,7 +9,7 @@ import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 export class CreateMenuDto {
   @AutoMap()
   @ApiProperty({ description: 'The day of menu', example: '2024-12-20' })
-  @IsNotEmpty({ message: INVALID_DAY })
+  @IsNotEmpty({ message: INVALID_DATE })
   @Type(() => Date)
   date: Date;
 
@@ -77,20 +77,24 @@ export class GetMenuRequestDto {
   slug?: string;
 
   @AutoMap()
-  @ApiProperty({ required: false, example: '2024-11-20' })
+  @ApiProperty({ example: '2024-11-20' })
   @Type(() => Date)
+  @IsOptional()
   date?: Date;
 
   @AutoMap()
-  @ApiProperty({ required: false })
+  @ApiProperty()
+  @IsOptional()
   branch?: string;
 
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   productName?: string;
 
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   catalog?: string;
 
   @AutoMap()

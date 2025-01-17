@@ -1,4 +1,3 @@
-export { default as CartContent } from './cart-content'
 export { default as CheckoutCart } from './checkout-cart'
 export { default as ConfirmOrderPage } from './checkout-order-page'
 export { default as MenuPage } from './page'

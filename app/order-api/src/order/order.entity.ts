@@ -52,7 +52,7 @@ export class Order extends Base {
 
   // one to many with order item
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
-    cascade: ['insert', 'update'],
+    cascade: ['insert', 'update', 'remove'],
   })
   orderItems: OrderItem[];
 

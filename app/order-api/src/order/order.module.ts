@@ -14,6 +14,9 @@ import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { OrderSubscriber } from './order.subscriber';
 import { OrderScheduler } from './order.scheduler';
+import { DbModule } from 'src/db/db.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { OrderUtils } from './order.utils';
 
 @Module({
   imports: [
@@ -28,9 +31,16 @@ import { OrderScheduler } from './order.scheduler';
       MenuItem,
     ]),
     RobotConnectorModule,
+    DbModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService, OrderProfile, OrderSubscriber, OrderScheduler],
+  providers: [
+    OrderService,
+    OrderProfile,
+    OrderSubscriber,
+    OrderScheduler,
+    OrderUtils,
+  ],
   exports: [OrderService],
 })
 export class OrderModule {}

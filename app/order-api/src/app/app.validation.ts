@@ -1,6 +1,7 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
+import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
 import { DbValidation } from 'src/db/db.validation';
 import FileValidation from 'src/file/file.validation';
@@ -64,6 +65,7 @@ export const AppValidation: TErrorCode = {
   ...ProductAnalysisValidation,
   ...BranchRevenueValidation,
   ...RevenueValidation,
+  ...BranchValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

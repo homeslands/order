@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
-export function OrderTypeSelect() {
+export default function OrderTypeSelect() {
   const { t } = useTranslation('menu')
   const { addOrderType, removeTable, getCartItems } = useCartItemStore()
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {

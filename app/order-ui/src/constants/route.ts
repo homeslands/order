@@ -15,7 +15,7 @@ export const ROUTE = {
   STAFF_PROFILE: '/system/profile',
   STAFF_MENU: '/system/menu',
   STAFF_CHECKOUT_ORDER: '/checkout-order',
-  STAFF_ORDER_PAYMENT: '/staff/order-payment',
+  STAFF_ORDER_PAYMENT: '/system/payment',
   STAFF_ORDER_MANAGEMENT: '/order-management',
   STAFF_ORDER_HISTORY: '/staff/order-history',
   STAFF_ORDER_PREPARATION: '/order-preparation',

@@ -54,11 +54,6 @@ export const MenuPage = React.lazy(() =>
     default: module.MenuPage,
   })),
 )
-export const CartContent = React.lazy(() =>
-  import('@/app/system/menu').then((module) => ({
-    default: module.CartContent,
-  })),
-)
 
 export const ConfirmOrderPage = React.lazy(() =>
   import('@/app/system/menu').then((module) => ({

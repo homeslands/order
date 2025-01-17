@@ -22,7 +22,7 @@ export function SystemMenuTabscontent() {
       className={`flex w-full flex-col pr-2 transition-all duration-300 ease-in-out`}
     >
       {/* Fixed Header Section */}
-      <div className="sticky top-0 z-10 flex flex-row items-center gap-2 py-3 pr-4 bg-white">
+      <div className="sticky top-0 z-10 flex flex-row items-center gap-2 py-3 pr-4">
         <CurrentDateInput menu={specificMenu?.result} />
         {isMobile && <CartDrawer />}
       </div>
