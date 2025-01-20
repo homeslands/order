@@ -63,6 +63,7 @@ describe('OrderService', () => {
   let mapperMock: MockType<Mapper>;
   let orderUtils: OrderUtils;
   let mockDataSource: MockType<DataSource>;
+  let orderScheduler: OrderScheduler;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -155,6 +156,7 @@ describe('OrderService', () => {
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
     orderUtils = module.get(OrderUtils);
     mockDataSource = module.get(DataSource);
+    orderScheduler = module.get(OrderScheduler);
   });
 
   it('should be defined', () => {
@@ -631,6 +633,9 @@ describe('OrderService', () => {
       jest
         .spyOn(orderUtils, 'getOrderSubtotal')
         .mockResolvedValue(mockOutput.subtotal);
+      jest
+        .spyOn(orderScheduler, 'addCancelOrderJob')
+        .mockImplementation(() => {});
       (orderRepositoryMock.create as jest.Mock).mockResolvedValue(mockOutput);
       jest.spyOn(orderUtils, 'getCurrentMenuItems').mockResolvedValue([]);
       const queryRunner = mockDataSource.createQueryRunner();

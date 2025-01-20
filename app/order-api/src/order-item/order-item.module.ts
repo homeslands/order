@@ -7,11 +7,12 @@ import { OrderItemProfile } from './order-item.mapper';
 import { Order } from 'src/order/order.entity';
 import { Variant } from 'src/variant/variant.entity';
 import { DbModule } from 'src/db/db.module';
+import { OrderItemUtils } from './order-item.utils';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OrderItem, Order, Variant]), DbModule],
   controllers: [OrderItemController],
-  providers: [OrderItemService, OrderItemProfile],
-  exports: [OrderItemService],
+  providers: [OrderItemService, OrderItemProfile, OrderItemUtils],
+  exports: [OrderItemService, OrderItemUtils],
 })
 export class OrderItemModule {}
