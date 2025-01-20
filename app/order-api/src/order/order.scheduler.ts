@@ -72,7 +72,7 @@ export class OrderScheduler {
     );
   }
 
-  addCancelOrderJob(orderSlug: string) {
+  addCancelOrderJob(orderSlug: string, delay: number) {
     const context = `${OrderScheduler.name}.${this.addCancelOrderJob.name}`;
     const jobName = `CANCEL_ORDER_${orderSlug}`;
     this.logger.log(`Add cancel order job ${orderSlug}`, context);
@@ -92,7 +92,7 @@ export class OrderScheduler {
 
     const job = setTimeout(async () => {
       await this.cancelOrder(orderSlug);
-    }, 60000); // 5 minutes
+    }, delay); // 5 minutes
 
     this.schedulerRegistry.addTimeout(jobName, job);
   }

@@ -1,9 +1,19 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, extend, forMember, mapFrom, Mapper, mapWith } from '@automapper/core';
+import {
+  createMap,
+  extend,
+  forMember,
+  mapFrom,
+  Mapper,
+  mapWith,
+} from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';
-import { CreateTrackingOrderItemWithQuantityAndOrderItemEntity, TrackingOrderItemResponseDto } from './tracking-order-item.dto';
+import {
+  CreateTrackingOrderItemWithQuantityAndOrderItemEntity,
+  TrackingOrderItemResponseDto,
+} from './tracking-order-item.dto';
 import { TrackingResponseDto } from 'src/tracking/tracking.dto';
 import { Tracking } from 'src/tracking/tracking.entity';
 import { TrackingOrderItem } from './tracking-order-item.entity';
@@ -19,26 +29,22 @@ export class TrackingOrderItemProfile extends AutomapperProfile {
   override get profile() {
     return (mapper: Mapper) => {
       createMap(
-        mapper, 
-        TrackingOrderItem, 
-        TrackingOrderItemResponseDto, 
+        mapper,
+        TrackingOrderItem,
+        TrackingOrderItemResponseDto,
         forMember(
           (destination) => destination.tracking,
-          mapWith(
-            TrackingResponseDto,
-            Tracking,
-            (source) => source.tracking
-          )
+          mapWith(TrackingResponseDto, Tracking, (source) => source.tracking),
         ),
         forMember(
           (destination) => destination.orderItem,
           mapWith(
             OrderItemResponseDto,
             OrderItem,
-            (source) => source.orderItem
-          )
+            (source) => source.orderItem,
+          ),
         ),
-        extend(baseMapper(mapper))
+        extend(baseMapper(mapper)),
       );
     };
   }

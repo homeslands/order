@@ -15,6 +15,7 @@ export const ORDER_TYPE_INVALID = 'ORDER_TYPE_INVALID';
 export const CREATE_ORDER_ERROR = 'CREATE_ORDER_ERROR';
 export const ORDER_ID_INVALID = 'ORDER_ID_INVALID';
 export const UPDATE_ORDER_ERROR = 'UPDATE_ORDER_ERROR';
+export const INVALID_ORDER_SLUG = 'INVALID_ORDER_SLUG';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -30,6 +31,7 @@ export type TOrderErrorCodeKey =
   | typeof INVALID_ORDER_APPROVAL_BY
   | typeof INVALID_ORDER_ITEMS
   | typeof UPDATE_ORDER_ERROR
+  | typeof INVALID_ORDER_SLUG
   | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
@@ -53,4 +55,5 @@ export const OrderValidation: TOrderErrorCode = {
   INVALID_ORDER_APPROVAL_BY: createErrorCode(1010011, 'Approval invalid'),
   INVALID_ORDER_ITEMS: createErrorCode(1010012, 'Invalid order items'),
   UPDATE_ORDER_ERROR: createErrorCode(1010013, 'Error when updating order'),
+  INVALID_ORDER_SLUG: createErrorCode(1010014, 'Invalid order slug'),
 };

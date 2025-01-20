@@ -629,7 +629,7 @@ describe('OrderService', () => {
       jest.spyOn(service, 'constructOrder').mockResolvedValue(mockOutput);
       jest.spyOn(service, 'constructOrderItems').mockResolvedValue(orderItems);
       jest
-        .spyOn(service, 'getOrderSubtotal')
+        .spyOn(orderUtils, 'getOrderSubtotal')
         .mockResolvedValue(mockOutput.subtotal);
       (orderRepositoryMock.create as jest.Mock).mockResolvedValue(mockOutput);
       jest.spyOn(orderUtils, 'getCurrentMenuItems').mockResolvedValue([]);

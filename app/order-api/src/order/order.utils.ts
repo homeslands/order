@@ -5,17 +5,20 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import moment from 'moment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from 'src/menu/menu.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { MenuValidation } from 'src/menu/menu.validation';
 import { MenuException } from 'src/menu/menu.exception';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 export class OrderUtils {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
   ) {}
 
   /**
@@ -96,5 +99,28 @@ export class OrderUtils {
       context,
     );
     return menuItems;
+  }
+
+  async getOrder(where: FindOptionsWhere<Order>) {
+    const order = await this.orderRepository.findOne({
+      where,
+      relations: ['orderItems', 'orderItems.variant'],
+    });
+    if (!order) {
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+    return order;
+  }
+
+  /**
+   * Calculate the subtotal of an order.
+   * @param {OrderItem[]} orderItems Array of order items.
+   * @returns {Promise<number>} The subtotal of order
+   */
+  async getOrderSubtotal(orderItems: OrderItem[]): Promise<number> {
+    return orderItems.reduce(
+      (previous, current) => previous + current.subtotal,
+      0,
+    );
   }
 }

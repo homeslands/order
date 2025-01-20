@@ -1,17 +1,20 @@
-import { MockType, repositoryMockFactory } from "src/test-utils/repository-mock.factory";
-import { TrackingScheduler } from "./tracking.scheduler";
-import { Repository } from "typeorm";
-import { Tracking } from "./tracking.entity";
-import { Order } from "src/order/order.entity";
-import { SchedulerRegistry } from "@nestjs/schedule";
-import { RobotConnectorClient } from "src/robot-connector/robot-connector.client";
-import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { OrderItem } from "src/order-item/order-item.entity";
-import { TrackingOrderItem } from "src/tracking-order-item/tracking-order-item.entity";
-import { WorkflowStatus } from "./tracking.constants";
-import { OrderStatus } from "src/order/order.contants";
+import {
+  MockType,
+  repositoryMockFactory,
+} from 'src/test-utils/repository-mock.factory';
+import { TrackingScheduler } from './tracking.scheduler';
+import { Repository } from 'typeorm';
+import { Tracking } from './tracking.entity';
+import { Order } from 'src/order/order.entity';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { RobotConnectorClient } from 'src/robot-connector/robot-connector.client';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { OrderItem } from 'src/order-item/order-item.entity';
+import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
+import { WorkflowStatus } from './tracking.constants';
+import { OrderStatus } from 'src/order/order.contants';
 
 describe('TrackingScheduler', () => {
   let trackingScheduler: TrackingScheduler;
@@ -25,21 +28,21 @@ describe('TrackingScheduler', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        TrackingScheduler,        
+        TrackingScheduler,
         RobotConnectorClient,
         SchedulerRegistry,
-        { 
-          provide: RobotConnectorClient, 
+        {
+          provide: RobotConnectorClient,
           useValue: {
             getRobotById: jest.fn(),
-            runWorkflow: jest.fn()
-          } 
+            runWorkflow: jest.fn(),
+          },
         },
-        { 
-          provide: SchedulerRegistry, 
+        {
+          provide: SchedulerRegistry,
           useValue: {
             getCronJob: jest.fn(),
-          } 
+          },
         },
         {
           provide: getRepositoryToken(Tracking),
@@ -68,9 +71,12 @@ describe('TrackingScheduler', () => {
     orderRepositoryMock = module.get(getRepositoryToken(Order));
     trackingRepositoryMock = module.get(getRepositoryToken(Tracking));
     orderItemRepositoryMock = module.get(getRepositoryToken(OrderItem));
-    trackingOrderItemRepositoryMock = module.get(getRepositoryToken(TrackingOrderItem));
+    trackingOrderItemRepositoryMock = module.get(
+      getRepositoryToken(TrackingOrderItem),
+    );
     schedulerRegistryMock = module.get<SchedulerRegistry>(SchedulerRegistry);
-    robotConnectorClientMock = module.get<RobotConnectorClient>(RobotConnectorClient);
+    robotConnectorClientMock =
+      module.get<RobotConnectorClient>(RobotConnectorClient);
   });
 
   it('should be defined', () => {
@@ -84,7 +90,7 @@ describe('TrackingScheduler', () => {
 
     it('should return valid result', () => {
       const tracking1 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.COMPLETED,
       } as Tracking;
       const trackingOrderItem1 = {
@@ -92,7 +98,7 @@ describe('TrackingScheduler', () => {
         tracking: tracking1,
       } as TrackingOrderItem;
       const tracking2 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.RUNNING,
       } as Tracking;
       const trackingOrderItem2 = {
@@ -108,7 +114,7 @@ describe('TrackingScheduler', () => {
       const mockOutput = {
         [WorkflowStatus.COMPLETED]: 2,
         [WorkflowStatus.RUNNING]: 4,
-      }
+      };
       const result = trackingScheduler.calculateTotalQuantity(mockInput);
       expect(result).toEqual(mockOutput);
     });
@@ -116,12 +122,12 @@ describe('TrackingScheduler', () => {
 
   describe('updateStatusOrder', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      jest.clearAllMocks();
     });
 
     it('should update status SHIPPING for order', async () => {
       const tracking1 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.COMPLETED,
       } as Tracking;
       const trackingOrderItem1 = {
@@ -129,7 +135,7 @@ describe('TrackingScheduler', () => {
         tracking: tracking1,
       } as TrackingOrderItem;
       const tracking2 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.RUNNING,
       } as Tracking;
       const trackingOrderItem2 = {
@@ -149,8 +155,8 @@ describe('TrackingScheduler', () => {
 
       const order = {
         subtotal: 0,
-        status: "",
-        type: "",
+        status: '',
+        type: '',
         orderItems: [orderItem1, orderItem2],
       } as Order;
 
@@ -158,18 +164,21 @@ describe('TrackingScheduler', () => {
 
       const mockOutput = {
         ...order,
-        status: OrderStatus.SHIPPING
+        status: OrderStatus.SHIPPING,
       } as Order;
 
-      jest.spyOn(trackingScheduler, "getAllOrdersByTrackingId").mockResolvedValue(orders);
-      const result = await trackingScheduler.updateStatusOrder('mock-tracking-id');
+      jest
+        .spyOn(trackingScheduler, 'getAllOrdersByTrackingId')
+        .mockResolvedValue(orders);
+      const result =
+        await trackingScheduler.updateStatusOrder('mock-tracking-id');
 
       expect(orderRepositoryMock.save).toHaveBeenCalledWith(mockOutput);
     });
 
     it('should update status COMPLETED for order', async () => {
       const tracking1 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.COMPLETED,
       } as Tracking;
       const trackingOrderItem1 = {
@@ -182,7 +191,7 @@ describe('TrackingScheduler', () => {
       } as OrderItem;
 
       const tracking2 = {
-        workflowExecution: "",
+        workflowExecution: '',
         status: WorkflowStatus.COMPLETED,
       } as Tracking;
       const trackingOrderItem2 = {
@@ -195,19 +204,22 @@ describe('TrackingScheduler', () => {
       } as OrderItem;
 
       const order = {
-        status: "",
-        type: "",
+        status: '',
+        type: '',
         orderItems: [orderItem1, orderItem2],
       } as Order;
 
       const orders = [order];
       const mockOutput = {
         ...order,
-        status: OrderStatus.COMPLETED
+        status: OrderStatus.COMPLETED,
       } as Order;
 
-      jest.spyOn(trackingScheduler, "getAllOrdersByTrackingId").mockResolvedValue(orders);
-      const result = await trackingScheduler.updateStatusOrder('mock-tracking-id');
+      jest
+        .spyOn(trackingScheduler, 'getAllOrdersByTrackingId')
+        .mockResolvedValue(orders);
+      const result =
+        await trackingScheduler.updateStatusOrder('mock-tracking-id');
 
       expect(orderRepositoryMock.save).toHaveBeenCalledWith(mockOutput);
     });
@@ -218,12 +230,11 @@ describe('TrackingScheduler', () => {
   //     jest.clearAllMocks();
   //   });
 
-
-    // note: chưa mock được job.stop()
-    // it('should call stopUpdateStatusTracking', async () => {
-    //   (trackingRepositoryMock.find as jest.Mock).mockResolvedValue([]);
-    //   const result = await trackingScheduler.UpdateStatusTracking();
-    //   expect(trackingScheduler.stopUpdateStatusTracking).toHaveBeenCalled();
-    // });
+  // note: chưa mock được job.stop()
+  // it('should call stopUpdateStatusTracking', async () => {
+  //   (trackingRepositoryMock.find as jest.Mock).mockResolvedValue([]);
+  //   const result = await trackingScheduler.UpdateStatusTracking();
+  //   expect(trackingScheduler.stopUpdateStatusTracking).toHaveBeenCalled();
+  // });
   // });
 });

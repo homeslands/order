@@ -395,9 +395,9 @@ describe('TrackingService', () => {
       } as Order;
 
       (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
-      await expect(service.getLocationTableByOrder(mockInput.id)).rejects.toThrow(
-        TableException,
-      );
+      await expect(
+        service.getLocationTableByOrder(mockInput.id),
+      ).rejects.toThrow(TableException);
     });
 
     it('should return null when table does not have location', async () => {
@@ -421,9 +421,9 @@ describe('TrackingService', () => {
       } as Table;
 
       (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(table);
-      await expect(service.getLocationTableByOrder(mockInput.id)).rejects.toThrow(
-        TableException,
-      );
+      await expect(
+        service.getLocationTableByOrder(mockInput.id),
+      ).rejects.toThrow(TableException);
     });
 
     it('should throw exception when get QR code', async () => {
@@ -454,9 +454,9 @@ describe('TrackingService', () => {
           RobotConnectorValidation.GET_LOCATION_FROM_ROBOT_API_FAILED,
         ),
       );
-      await expect(service.getLocationTableByOrder(mockInput.id)).rejects.toThrow(
-        RobotConnectorException,
-      );
+      await expect(
+        service.getLocationTableByOrder(mockInput.id),
+      ).rejects.toThrow(RobotConnectorException);
     });
     it('should return location table', async () => {
       const branch = {
@@ -674,329 +674,408 @@ describe('TrackingService', () => {
     it('should throw exception if requestData.trackingOrderItems empty', async () => {
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: []
+        trackingOrderItems: [],
       } as CreateTrackingRequestDto;
 
-      await expect(service.createTracking(mockInput)).rejects.toThrow(TrackingException);
+      await expect(service.createTracking(mockInput)).rejects.toThrow(
+        TrackingException,
+      );
     });
 
     it('should throw exception if service.validateDefinedAndQuantityOrderItem throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem').mockRejectedValue(
-        new OrderItemException(OrderItemValidation.ORDER_ITEM_NOT_FOUND)
-      );
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
+        .mockRejectedValue(
+          new OrderItemException(OrderItemValidation.ORDER_ITEM_NOT_FOUND),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(OrderItemException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        OrderItemException,
+      );
     });
 
     it('should throw exception if service.checkCurrentShipment throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
 
-      jest.spyOn(service, 'checkCurrentShipment').mockRejectedValue(
-        new TrackingException(TrackingValidation.WAIT_FOR_CURRENT_SHIPMENT_COMPLETED)
-      );
+      jest
+        .spyOn(service, 'checkCurrentShipment')
+        .mockRejectedValue(
+          new TrackingException(
+            TrackingValidation.WAIT_FOR_CURRENT_SHIPMENT_COMPLETED,
+          ),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(TrackingException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        TrackingException,
+      );
     });
 
     it('should throw exception if service.checkRobotStatusBeforeCall throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
-      jest.spyOn(service, 'checkRobotStatusBeforeCall').mockRejectedValue(
-        new RobotConnectorException(RobotConnectorValidation.ROBOT_BUSY)
-      );
+      jest
+        .spyOn(service, 'checkRobotStatusBeforeCall')
+        .mockRejectedValue(
+          new RobotConnectorException(RobotConnectorValidation.ROBOT_BUSY),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(RobotConnectorException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        RobotConnectorException,
+      );
     });
 
     it('should throw exception if service.validateOrderItemInOneTable throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockRejectedValue(
-        new TrackingException(TrackingValidation.ORDERS_MUST_BELONG_TO_ONE_TABLE)
-      );
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockRejectedValue(
+          new TrackingException(
+            TrackingValidation.ORDERS_MUST_BELONG_TO_ONE_TABLE,
+          ),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(TrackingException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        TrackingException,
+      );
     });
 
     it('should throw exception if service.getLocationTableByOrder throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
       const order = {
         subtotal: 0,
         status: '',
         type: '',
-        branch: new Branch,
-        table: new Table,
+        branch: new Branch(),
+        table: new Table(),
         id: 'mock-id-order',
         slug: '',
       } as Order;
       const orders = [order];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockResolvedValue(orders);
-      jest.spyOn(service, 'getLocationTableByOrder').mockRejectedValue(
-        new TableException(TableValidation.TABLE_NOT_FOUND)
-      );
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockResolvedValue(orders);
+      jest
+        .spyOn(service, 'getLocationTableByOrder')
+        .mockRejectedValue(new TableException(TableValidation.TABLE_NOT_FOUND));
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(TableException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        TableException,
+      );
     });
 
     it('should throw exception if service.getWorkflowIdByBranchId throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
       const order = {
         subtotal: 0,
         status: '',
         type: '',
-        branch: new Branch,
-        table: new Table,
+        branch: new Branch(),
+        table: new Table(),
         id: 'mock-id-order',
         slug: '',
       } as Order;
       const orders = [order];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockResolvedValue(orders);
-      jest.spyOn(service, 'getLocationTableByOrder').mockResolvedValue('mock-table-location');
-      jest.spyOn(service, 'getWorkflowIdByBranchId').mockRejectedValue(
-        new WorkflowException(WorkflowValidation.MUST_ADD_WORKFLOW_FOR_BRANCH)
-      );
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockResolvedValue(orders);
+      jest
+        .spyOn(service, 'getLocationTableByOrder')
+        .mockResolvedValue('mock-table-location');
+      jest
+        .spyOn(service, 'getWorkflowIdByBranchId')
+        .mockRejectedValue(
+          new WorkflowException(
+            WorkflowValidation.MUST_ADD_WORKFLOW_FOR_BRANCH,
+          ),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(WorkflowException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        WorkflowException,
+      );
     });
     it('should throw exception if robotConnectorClient.runWorkflow throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
       const order = {
         subtotal: 0,
         status: '',
         type: '',
-        branch: new Branch,
-        table: new Table,
+        branch: new Branch(),
+        table: new Table(),
         id: 'mock-id-order',
         slug: '',
       } as Order;
       const orders = [order];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockResolvedValue(orders);
-      jest.spyOn(service, 'getLocationTableByOrder').mockResolvedValue('mock-table-location');
-      jest.spyOn(service, 'getWorkflowIdByBranchId').mockResolvedValue('mock-workflow-id');
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockResolvedValue(orders);
+      jest
+        .spyOn(service, 'getLocationTableByOrder')
+        .mockResolvedValue('mock-table-location');
+      jest
+        .spyOn(service, 'getWorkflowIdByBranchId')
+        .mockResolvedValue('mock-workflow-id');
       (robotConnectorClientMock.runWorkflow as jest.Mock).mockRejectedValue(
-        new RobotConnectorException(RobotConnectorValidation.RUN_WORKFLOW_FROM_ROBOT_API_FAILED)
-      )
+        new RobotConnectorException(
+          RobotConnectorValidation.RUN_WORKFLOW_FROM_ROBOT_API_FAILED,
+        ),
+      );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(RobotConnectorException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        RobotConnectorException,
+      );
     });
     it('should throw exception if service.createTrackingAndTrackingOrderItem throws', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
       const order = {
         subtotal: 0,
         status: '',
         type: '',
-        branch: new Branch,
-        table: new Table,
+        branch: new Branch(),
+        table: new Table(),
         id: 'mock-id-order',
         slug: '',
       } as Order;
       const orders = [order];
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockResolvedValue(orders);
-      jest.spyOn(service, 'getLocationTableByOrder').mockResolvedValue('mock-table-location');
-      jest.spyOn(service, 'getWorkflowIdByBranchId').mockResolvedValue('mock-workflow-id');
-      (robotConnectorClientMock.runWorkflow as jest.Mock).mockResolvedValue(
-        {workflow_execution_id: 'mock-workflow-execution-id'} as WorkflowExecutionResponseDto
-      );
-      jest.spyOn(service, 'createTrackingAndTrackingOrderItem').mockRejectedValue(
-        new TrackingException(TrackingValidation.CREATE_TRACKING_FAILED)
-      );
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockResolvedValue(orders);
+      jest
+        .spyOn(service, 'getLocationTableByOrder')
+        .mockResolvedValue('mock-table-location');
+      jest
+        .spyOn(service, 'getWorkflowIdByBranchId')
+        .mockResolvedValue('mock-workflow-id');
+      (robotConnectorClientMock.runWorkflow as jest.Mock).mockResolvedValue({
+        workflow_execution_id: 'mock-workflow-execution-id',
+      } as WorkflowExecutionResponseDto);
+      jest
+        .spyOn(service, 'createTrackingAndTrackingOrderItem')
+        .mockRejectedValue(
+          new TrackingException(TrackingValidation.CREATE_TRACKING_FAILED),
+        );
 
-      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(TrackingException);
+      await expect(service.createTrackingAllCases(mockInput)).rejects.toThrow(
+        TrackingException,
+      );
     });
 
     it('should return tracking when create tracking for robot success', async () => {
       const createTrackingOrderItem: CreateTrackingOrderItemRequestDto = {
-        orderItem: "mock-order-item-slug",
-        quantity: 1
+        orderItem: 'mock-order-item-slug',
+        quantity: 1,
       };
       const mockInput = {
         type: TrackingType.BY_ROBOT,
-        trackingOrderItems: [createTrackingOrderItem]
+        trackingOrderItems: [createTrackingOrderItem],
       } as CreateTrackingRequestDto;
       const orderItem = {
         quantity: 0,
         subtotal: 0,
         trackingOrderItems: [],
-        id: "",
-        slug: "",
+        id: '',
+        slug: '',
       } as OrderItem;
       const validateDefinedAndQuantityOrderItem = {
         quantity: 0,
-        orderItem
+        orderItem,
       } as CreateTrackingOrderItemWithQuantityAndOrderItemEntity;
-      const validateDefinedAndQuantityOrderItems = [validateDefinedAndQuantityOrderItem];
+      const validateDefinedAndQuantityOrderItems = [
+        validateDefinedAndQuantityOrderItem,
+      ];
       const branch = {
         name: '',
         address: '',
@@ -1008,7 +1087,7 @@ describe('TrackingService', () => {
         status: '',
         type: '',
         branch,
-        table: new Table,
+        table: new Table(),
         id: 'mock-id-order',
         slug: '',
       } as Order;
@@ -1022,23 +1101,40 @@ describe('TrackingService', () => {
         slug: '',
       } as Tracking;
 
-      jest.spyOn(service, 'validateDefinedAndQuantityOrderItem')
+      jest
+        .spyOn(service, 'validateDefinedAndQuantityOrderItem')
         .mockResolvedValue(validateDefinedAndQuantityOrderItems);
       jest.spyOn(service, 'checkCurrentShipment').mockResolvedValue();
       jest.spyOn(service, 'checkRobotStatusBeforeCall').mockResolvedValue();
-      jest.spyOn(service, 'validateOrderItemInOneTable').mockResolvedValue(orders);
-      jest.spyOn(service, 'getLocationTableByOrder').mockResolvedValue('mock-table-location');
-      jest.spyOn(service, 'getWorkflowIdByBranchId').mockResolvedValue('mock-workflow-id');
-      (robotConnectorClientMock.runWorkflow as jest.Mock).mockResolvedValue(
-        {workflow_execution_id: 'mock-workflow-execution-id'} as WorkflowExecutionResponseDto
+      jest
+        .spyOn(service, 'validateOrderItemInOneTable')
+        .mockResolvedValue(orders);
+      jest
+        .spyOn(service, 'getLocationTableByOrder')
+        .mockResolvedValue('mock-table-location');
+      jest
+        .spyOn(service, 'getWorkflowIdByBranchId')
+        .mockResolvedValue('mock-workflow-id');
+      (robotConnectorClientMock.runWorkflow as jest.Mock).mockResolvedValue({
+        workflow_execution_id: 'mock-workflow-execution-id',
+      } as WorkflowExecutionResponseDto);
+      jest
+        .spyOn(service, 'createTrackingAndTrackingOrderItem')
+        .mockResolvedValue('mock-tracking-id');
+      (
+        trackingSchedulerMock.startUpdateStatusTracking as jest.Mock
+      ).mockReturnValue(undefined); // void function
+      jest
+        .spyOn(service, 'softDeleteOldTrackingOrderItemFailed')
+        .mockResolvedValue();
+      (trackingRepositoryMock.findOne as jest.Mock).mockResolvedValue(
+        mockOutput,
       );
-      jest.spyOn(service, 'createTrackingAndTrackingOrderItem').mockResolvedValue('mock-tracking-id');
-      (trackingSchedulerMock.startUpdateStatusTracking as jest.Mock).mockReturnValue(undefined); // void function
-      jest.spyOn(service, 'softDeleteOldTrackingOrderItemFailed').mockResolvedValue();
-      (trackingRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
       (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
 
-      expect(await service.createTrackingAllCases(mockInput)).toEqual(mockOutput);
+      expect(await service.createTrackingAllCases(mockInput)).toEqual(
+        mockOutput,
+      );
     });
 
     // it('should throw exception if service.validateOrderItemInOneTable throws', async () => {

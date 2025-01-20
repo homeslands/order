@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -116,17 +117,27 @@ export class OrderController {
     description: 'Update order successfully',
     type: OrderResponseDto,
   })
-  async updateOrder(
-    @Param('slug') slug: string,
-    @Body(new ValidationPipe({ transform: true, whitelist: true }))
-    data: UpdateOrderRequestDto,
-  ) {
-    const result = await this.orderService.updateOrder(slug, data);
+  async updateOrder(@Param('slug') slug: string, data: UpdateOrderRequestDto) {
+    const result = await this.orderService.updateOrder(slug);
     return {
       message: 'Update order status successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<OrderResponseDto>;
+  }
+
+  @Delete(':slug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete order' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({ status: 200, description: 'Order deleted successully' })
+  async deleteOrder(@Param('slug') slug: string) {
+    await this.orderService.deleteOrder(slug);
+    return {
+      message: 'Order will delete after 10 seconds',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
   }
 }

@@ -349,7 +349,7 @@ export class TrackingService {
       relations: ['order.branch', 'order.orderItems'],
     });
     const order = orderItem.order;
-    console.log('a')
+    console.log('a');
     return order;
   }
 

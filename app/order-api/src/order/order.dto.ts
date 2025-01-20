@@ -21,6 +21,7 @@ import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
 import {
   INVALID_ORDER_ITEMS,
   INVALID_ORDER_OWNER,
+  INVALID_ORDER_SLUG,
   ORDER_TYPE_INVALID,
 } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
@@ -33,7 +34,7 @@ export class CreateOrderRequestDto {
   type: string;
 
   @AutoMap()
-  @ApiProperty({ description: 'The slug of table', example: 'table-' })
+  @ApiProperty({ description: 'The slug of table' })
   @IsOptional()
   table: string;
 
@@ -75,7 +76,12 @@ export class CreateOrderRequestDto {
   approvalBy?: string;
 }
 
-export class UpdateOrderRequestDto extends CreateOrderRequestDto {}
+export class UpdateOrderRequestDto {
+  @AutoMap()
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_ORDER_SLUG })
+  order: string;
+}
 
 export class OwnerResponseDto extends BaseResponseDto {
   @AutoMap()

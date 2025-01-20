@@ -12,7 +12,6 @@ import {
   CreateOrderRequestDto,
   GetOrderRequestDto,
   OrderResponseDto,
-  UpdateOrderRequestDto,
 } from './order.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
@@ -106,112 +105,47 @@ export class OrderService {
   }
 
   /**
+   * Delete order
+   * @param {string} slug
+   * @returns {Promise<void>} The deleted order
+   */
+  async deleteOrder(slug: string): Promise<void> {
+    const context = `${OrderService.name}.${this.deleteOrder.name}`;
+    this.orderScheduler.addCancelOrderJob(slug, 10000);
+  }
+
+  /**
    * Handles order updating
    * @param {string} slug
-   * @param {UpdateOrderRequestDto} data
    */
-  async updateOrder(slug: string, data: UpdateOrderRequestDto) {
+  async updateOrder(slug: string) {
     const context = `${OrderService.name}.${this.updateOrder.name}`;
 
-    // Get menu
-    const menu = await this.menuRepository.findOne({
-      where: {
-        branch: {
-          slug: data.branch,
-        },
-        date: new Date(moment().format('YYYY-MM-DD')),
+    const order = await this.orderUtils.getOrder({ slug });
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order.orderItems);
+
+    // Update order
+    const updatedOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
+        const updatedOrder = await manager.save(order);
+        return updatedOrder;
       },
-    });
-
-    if (!menu) {
-      this.logger.warn(MenuValidation.MENU_NOT_FOUND.message, context);
-      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
-    }
-
-    const order = await this.orderRepository.findOne({
-      where: { slug },
-      relations: ['orderItems.variant'],
-    });
-    if (!order) {
-      this.logger.error(`Order not found`, context);
-      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
-    }
-
-    if (order.status !== OrderStatus.PENDING) {
-      this.logger.error(
-        `Can not update order with status = ${order.status}`,
-        null,
-        context,
-      );
-      throw new OrderException(OrderValidation.UPDATE_ORDER_ERROR);
-    }
-
-    const tempOrder = await this.constructOrder(data);
-    Object.assign(order, {
-      owner: tempOrder.owner,
-      table: tempOrder.table,
-      approvalBy: tempOrder.approvalBy,
-    });
-
-    // Construct order items
-    const orderItems = await Promise.all(
-      data.orderItems.map(async (createdOrderItem) => {
-        const orderItem = order.orderItems.find(
-          (item) => item.variant.slug === createdOrderItem.variant,
+      (result) => {
+        this.logger.log(`Order ${result.slug} updated successfully`, context);
+      },
+      (error) => {
+        this.logger.warn(
+          `Error when updating order: ${error.message}`,
+          context,
         );
-        if (!orderItem)
-          return await this.constructOrderItem(createdOrderItem, menu);
-
-        Object.assign(orderItem, {
-          quantity: createdOrderItem.quantity,
-          subtotal: createdOrderItem.quantity * orderItem.variant.price,
-        });
-        return orderItem;
-      }),
+        throw new OrderException(
+          OrderValidation.UPDATE_ORDER_ERROR,
+          error.message,
+        );
+      },
     );
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      // Delete all order items
-      await queryRunner.manager.remove(order.orderItems);
-
-      // Update order items
-      Object.assign(order, {
-        orderItems,
-        subtotal: await this.getOrderSubtotal(orderItems),
-      });
-      const updatedOrder = await queryRunner.manager.save(order);
-
-      // Update current stock of menu items
-      const currentMenuItems = await this.orderUtils.getCurrentMenuItems(
-        updatedOrder,
-        'decrement',
-      );
-      await queryRunner.manager.save(currentMenuItems);
-
-      await queryRunner.commitTransaction();
-
-      this.logger.log(
-        `New order ${updatedOrder.slug} created successfully`,
-        context,
-      );
-      this.logger.log(
-        `Number of menu items: ${currentMenuItems.length} updated successfully`,
-        context,
-      );
-      await queryRunner.release();
-      return this.mapper.map(updatedOrder, Order, OrderResponseDto);
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      this.logger.warn(
-        `Error when creating new order: ${err.message}`,
-        context,
-      );
-      await queryRunner.release();
-      throw new OrderException(OrderValidation.UPDATE_ORDER_ERROR);
-    }
+    return this.mapper.map(updatedOrder, Order, OrderResponseDto);
   }
 
   /**
@@ -239,7 +173,7 @@ export class OrderService {
     this.logger.log(`Number of order items: ${orderItems.length}`, context);
 
     // Get order subtotal
-    const subtotal = await this.getOrderSubtotal(orderItems);
+    const subtotal = await this.orderUtils.getOrderSubtotal(orderItems);
     this.logger.log(`Order ${order?.slug} have subtotal: ${subtotal}`, context);
 
     Object.assign(order, { orderItems, subtotal });
@@ -252,7 +186,6 @@ export class OrderService {
           createdOrder,
           'decrement',
         );
-        console.log({ currentMenuItems });
         await manager.save(currentMenuItems);
 
         this.logger.log(
@@ -261,7 +194,7 @@ export class OrderService {
         );
 
         // Cancel order after 5 minutes
-        this.orderScheduler.addCancelOrderJob(createdOrder.slug);
+        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 5 * 60 * 1000);
         return createdOrder;
       },
       (result) => {
@@ -356,16 +289,14 @@ export class OrderService {
     createOrderItemRequestDtos: CreateOrderItemRequestDto[],
   ): Promise<OrderItem[]> {
     const context = `${OrderService.name}.${this.constructOrderItems.name}`;
-    const today = new Date(moment().format('YYYY-MM-DD'));
-    this.logger.log(`Retrieve the menu for today: ${today}`, context);
 
-    // Get current menu
+    // Get menu
     const menu = await this.menuRepository.findOne({
       where: {
         branch: {
           slug: branch,
         },
-        date: today,
+        date: new Date(moment().format('YYYY-MM-DD')),
       },
     });
     if (!menu) {
@@ -439,18 +370,6 @@ export class OrderService {
       subtotal: variant.price * item.quantity,
     });
     return orderItem;
-  }
-
-  /**
-   * Calculate the subtotal of an order.
-   * @param {OrderItem[]} orderItems Array of order items.
-   * @returns {Promise<number>} The subtotal of order
-   */
-  async getOrderSubtotal(orderItems: OrderItem[]): Promise<number> {
-    return orderItems.reduce(
-      (previous, current) => previous + current.subtotal,
-      0,
-    );
   }
 
   /**

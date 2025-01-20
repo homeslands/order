@@ -4,7 +4,6 @@ import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
-import { WorkflowStatus } from 'src/tracking/tracking.constants';
 
 export class CreateOrderItemRequestDto {
   @AutoMap()
@@ -21,10 +20,14 @@ export class CreateOrderItemRequestDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of variant',
-    example: 'variant-slug-123',
   })
   @IsNotEmpty({ message: 'Invalid slug of variant' })
   variant: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of order' })
+  @IsOptional()
+  order?: string;
 }
 
 export class UpdateOrderItemRequestDto {
