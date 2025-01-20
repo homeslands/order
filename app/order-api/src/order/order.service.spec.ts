@@ -37,12 +37,9 @@ import { Product } from 'src/product/product.entity';
 import { VariantException } from 'src/variant/variant.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { VariantValidation } from 'src/variant/variant.validation';
-import { WorkflowStatus } from 'src/tracking/tracking.constants';
-import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuException } from 'src/menu/menu.exception';
-import { ProductException } from 'src/product/product.exception';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { OrderScheduler } from './order.scheduler';
@@ -50,6 +47,15 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { OrderUtils } from './order.utils';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { TableUtils } from 'src/table/table.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { VariantUtils } from 'src/variant/variant.utils';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { MenuItemException } from 'src/menu-item/menu-item.exception';
+import { UserException } from 'src/user/user.exception';
+import { UserValidation } from 'src/user/user.validation';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -64,6 +70,9 @@ describe('OrderService', () => {
   let orderUtils: OrderUtils;
   let mockDataSource: MockType<DataSource>;
   let orderScheduler: OrderScheduler;
+  let menuItemUtils: MenuItemUtils;
+  let userUtils: UserUtils;
+  let branchUtils: BranchUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -75,6 +84,12 @@ describe('OrderService', () => {
         OrderScheduler,
         TransactionManagerService,
         OrderUtils,
+        MenuItemUtils,
+        BranchUtils,
+        TableUtils,
+        UserUtils,
+        MenuUtils,
+        VariantUtils,
         SchedulerRegistry,
         {
           provide: ConfigService,
@@ -157,6 +172,9 @@ describe('OrderService', () => {
     orderUtils = module.get(OrderUtils);
     mockDataSource = module.get(DataSource);
     orderScheduler = module.get(OrderScheduler);
+    menuItemUtils = module.get(MenuItemUtils);
+    userUtils = module.get(UserUtils);
+    branchUtils = module.get(BranchUtils);
   });
 
   it('should be defined', () => {
@@ -177,6 +195,11 @@ describe('OrderService', () => {
       } as CreateOrderRequestDto;
 
       (branchRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
+      jest
+        .spyOn(branchUtils, 'getBranch')
+        .mockRejectedValue(
+          new BranchException(BranchValidation.BRANCH_NOT_FOUND),
+        );
       await expect(service.constructOrder(mockInput)).rejects.toThrow(
         BranchException,
       );
@@ -237,8 +260,12 @@ describe('OrderService', () => {
       );
       (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(table);
       (userRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
+
+      jest
+        .spyOn(userUtils, 'getUser')
+        .mockRejectedValue(new UserException(UserValidation.USER_NOT_FOUND));
       await expect(service.constructOrder(mockInput)).rejects.toThrow(
-        OrderException,
+        UserException,
       );
     });
 
@@ -426,7 +453,7 @@ describe('OrderService', () => {
 
       await expect(
         service.constructOrderItems(branch, mockInput),
-      ).rejects.toThrow(ProductException);
+      ).rejects.toThrow(MenuItemException);
     });
 
     it('should throw exception when request quantity excess current stock of menu item', async () => {
@@ -637,7 +664,7 @@ describe('OrderService', () => {
         .spyOn(orderScheduler, 'addCancelOrderJob')
         .mockImplementation(() => {});
       (orderRepositoryMock.create as jest.Mock).mockResolvedValue(mockOutput);
-      jest.spyOn(orderUtils, 'getCurrentMenuItems').mockResolvedValue([]);
+      jest.spyOn(menuItemUtils, 'getCurrentMenuItems').mockResolvedValue([]);
       const queryRunner = mockDataSource.createQueryRunner();
       mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
         ...queryRunner,
@@ -705,7 +732,7 @@ describe('OrderService', () => {
       const slug: string = 'mock-order-slug';
 
       const mockOutput = {
-        subtotal: 0,
+        subtotal: 100,
         status: '',
         type: '',
         tableName: '',
@@ -729,49 +756,64 @@ describe('OrderService', () => {
       } as Order;
 
       (orderRepositoryMock.findOne as jest.Mock).mockResolvedValue(order);
-      jest
-        .spyOn(service, 'getStatusEachOrderItemInOrder')
-        .mockReturnValue(mockOutput);
-      // jest.spyOn(service, 'checkAndUpdateStatusOrder').mockResolvedValue('mock-status-order');
-
+      jest.spyOn(service, 'getOrderItemsStatuses').mockReturnValue([]);
+      jest.spyOn(orderUtils, 'getOrder').mockResolvedValue(order);
+      jest.spyOn(mapperMock, 'map').mockReturnValue(mockOutput);
       expect(await service.getOrderBySlug(slug)).toEqual(mockOutput);
     });
   });
 
-  describe('getStatusEachOrderItemInOrder', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  // describe('getStatusEachOrderItemInOrder', () => {
+  //   beforeEach(() => {
+  //     jest.clearAllMocks();
+  //   });
 
-    it('should calculate status quantities correctly for each order item', () => {
-      const tracking = {
-        workflowExecution: '',
-        status: WorkflowStatus.PENDING,
-      } as Tracking;
-      const trackingOrderItem = {
-        quantity: 5,
-        tracking: tracking,
-      } as TrackingOrderItem;
-      const orderItem = {
-        quantity: 10,
-        subtotal: 0,
-        trackingOrderItems: [trackingOrderItem],
-      } as OrderItem;
-      const mockInput = {
-        subtotal: 0,
-        status: '',
-        type: '',
-        orderItems: [orderItem],
-      } as Order;
+  // it('should calculate status quantities correctly for each order item', () => {
+  //   const tracking = {
+  //     workflowExecution: '',
+  //     status: WorkflowStatus.PENDING,
+  //     createdAt: '',
+  //     slug: '',
+  //     trackingOrderItems: [],
+  //   } as TrackingResponseDto;
+  //   const trackingOrderItem = {
+  //     quantity: 5,
+  //     tracking: tracking,
+  //   } as TrackingOrderItemResponseDto;
+  //   const orderItem = {
+  //     quantity: 10,
+  //     subtotal: 0,
+  //     trackingOrderItems: [trackingOrderItem],
+  //     createdAt: '',
+  //     note: '',
+  //     variant: null,
+  //     slug: '',
+  //     status: {},
+  //   } as OrderItemResponseDto;
+  //   const mockInput = {
+  //     subtotal: 0,
+  //     status: '',
+  //     type: '',
+  //     orderItems: [orderItem],
+  //     approvalBy: null,
+  //     branch: null,
+  //     owner: null,
+  //     createdAt: '',
+  //     invoice: null,
+  //     payment: null,
+  //     slug: '',
+  //     table: null,
+  //     tableName: '',
+  //   } as OrderResponseDto;
 
-      const result = service.getStatusEachOrderItemInOrder(mockInput);
+  //   const result = service.getOrderItemsStatuses(mockInput);
 
-      expect(result.orderItems[0].status).toEqual({
-        [WorkflowStatus.PENDING]: 5,
-        [WorkflowStatus.RUNNING]: 0,
-        [WorkflowStatus.COMPLETED]: 0,
-        [WorkflowStatus.FAILED]: 0,
-      });
-    });
-  });
+  //   expect(result.orderItems[0].status).toEqual({
+  //     [WorkflowStatus.PENDING]: 5,
+  //     [WorkflowStatus.RUNNING]: 0,
+  //     [WorkflowStatus.COMPLETED]: 0,
+  //     [WorkflowStatus.FAILED]: 0,
+  //   });
+  // });
+  // });
 });

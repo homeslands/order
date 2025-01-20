@@ -13,11 +13,11 @@ import {
 
 import { CreateStaticPageForm } from '@/components/app/form'
 
-interface CreateStaticPageDialogProps {
-  content: string
-}
+// interface CreateStaticPageDialogProps {
+//   content: string
+// }
 
-export default function CreateStaticPageDialog({ content }: CreateStaticPageDialogProps) {
+export default function CreateStaticPageDialog() {
   const { t } = useTranslation(['staticPage'])
   const [isOpen, setIsOpen] = useState(false)
   const handleSubmit = (isOpen: boolean) => {
@@ -42,7 +42,7 @@ export default function CreateStaticPageDialog({ content }: CreateStaticPageDial
             {t('staticPage.createDescription')}
           </DialogDescription>
         </DialogHeader>
-        <CreateStaticPageForm content={content} onSubmit={handleSubmit} />
+        <CreateStaticPageForm onSubmit={handleSubmit} />
       </DialogContent>
     </Dialog>
   )

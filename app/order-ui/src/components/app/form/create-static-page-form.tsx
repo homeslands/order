@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-// import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -12,7 +12,6 @@ import {
   Form,
   Button,
   Input,
-  ScrollArea,
 } from '@/components/ui'
 import { useCreateStaticPage } from '@/hooks'
 import { staticPageSchema, TStaticPageSchema } from '@/schemas'
@@ -22,15 +21,14 @@ import { ICreateStaticPage } from '@/types'
 import { showToast } from '@/utils'
 
 interface IFormCreateStaticPageProps {
-  content: string
+  // content: string
   onSubmit: (isOpen: boolean) => void
 }
 
 export const CreateStaticPageForm: React.FC<IFormCreateStaticPageProps> = ({
-  content,
   onSubmit,
 }) => {
-  // const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const { t } = useTranslation(['staticPage'])
   const { mutate: createStaticPage } = useCreateStaticPage()
 
@@ -39,16 +37,16 @@ export const CreateStaticPageForm: React.FC<IFormCreateStaticPageProps> = ({
     defaultValues: {
       key: '',
       title: '',
-      content: content,
+      content: '',
     },
   })
 
   const handleSubmit = (data: ICreateStaticPage) => {
     createStaticPage(data, {
       onSuccess: () => {
-        // queryClient.invalidateQueries({
-        //   queryKey: ['staticPage'],
-        // })
+        queryClient.invalidateQueries({
+          queryKey: ['staticPages'],
+        })
         onSubmit(false)
         form.reset()
         showToast(t('toast.createStaticPageSuccess'))
@@ -96,20 +94,18 @@ export const CreateStaticPageForm: React.FC<IFormCreateStaticPageProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <ScrollArea className="pr-4">
-            <div className='flex flex-col gap-6'>
-              <div className="grid grid-cols-1 gap-4">
-                {Object.keys(formFields).map((key) => (
-                  <React.Fragment key={key}>
-                    {formFields[key as keyof typeof formFields]}
-                  </React.Fragment>
-                ))}
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {t('staticPage.warning')}
-              </span>
+          <div className='flex flex-col gap-6'>
+            <div className="grid grid-cols-1 gap-4">
+              {Object.keys(formFields).map((key) => (
+                <React.Fragment key={key}>
+                  {formFields[key as keyof typeof formFields]}
+                </React.Fragment>
+              ))}
             </div>
-          </ScrollArea>
+            <span className="text-sm text-muted-foreground">
+              {t('staticPage.warning')}
+            </span>
+          </div>
           <div className="flex justify-end">
             <Button className="flex justify-end" type="submit">
               {t('staticPage.create')}

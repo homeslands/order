@@ -78,9 +78,15 @@ export class CreateOrderRequestDto {
 
 export class UpdateOrderRequestDto {
   @AutoMap()
-  @ApiProperty()
-  @IsNotEmpty({ message: INVALID_ORDER_SLUG })
-  order: string;
+  @ApiProperty({ description: 'The type of order', example: 'take-out' })
+  @IsNotEmpty({ message: ORDER_TYPE_INVALID })
+  @IsEnum(OrderType, { message: ORDER_TYPE_INVALID })
+  type: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of table' })
+  @IsOptional()
+  table: string;
 }
 
 export class OwnerResponseDto extends BaseResponseDto {

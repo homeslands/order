@@ -8,6 +8,10 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { FileResponseDto } from './file.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import path from 'path';
+import { Workbook } from 'exceljs';
+import { generateFileName } from './file.util';
+import { Extension } from './file.constant';
 
 @Injectable()
 export class FileService {
@@ -98,5 +102,104 @@ export class FileService {
     });
 
     return renamedFiles;
+  }
+
+  public async generateExcelFile({
+    filename,
+    cellData,
+  }: {
+    filename: string;
+    cellData: { cellPosition: string; value: string; type: string }[];
+  }): Promise<FileResponseDto> {
+    // Read file
+    const templatePath = path.resolve("public/templates/excel", filename);
+    const workbook = new Workbook();
+    await workbook.xlsx.readFile(templatePath);
+
+    // Write file
+    if (workbook.worksheets.length <= 0)
+      throw new FileException(FileValidation.FILE_NOT_FOUND);
+    const worksheet = workbook.worksheets[0];
+
+    for (const item of cellData) {
+      if (item.type === "data") {
+        worksheet.getCell(item.cellPosition).value = item.value;
+      } else if (item.type === "image") {
+        const imageUrl = item.value;
+        const response = await fetch(imageUrl);
+        const buffer = await response.arrayBuffer();
+
+        const image = workbook.addImage({
+          buffer: buffer,
+          extension: "jpeg",
+        });
+
+        const tl = this.extractPosition(item.cellPosition);
+        if (tl) {
+          worksheet.addImage(image, {
+            tl: { col: 0, row: 0 },
+            ext: { width: 120, height: 80 }, // Set desired width and height
+            editAs: "oneCell", // Optional: can be "oneCell" or "absolute"
+          });
+        }
+      }
+    }
+    // Generate buffer of the Excel file in memory
+    const buffer = await workbook.xlsx.writeBuffer();
+    const nodeBuffer: Buffer = Buffer.from(buffer);
+
+    return { 
+      name: generateFileName(Extension.EXCEL),
+      extension: Extension.EXCEL,
+      mimetype: Extension.EXCEL,
+      data: nodeBuffer,
+      size: nodeBuffer.length
+    };
+  }
+
+  private extractPosition(cellPosition: string) {
+    const match = cellPosition.match(/^([A-Z]+)(\d+)$/);
+
+    if (match) {
+      return {
+        col: this.columnToNumber(match[1]), // Extract the letters (column)
+        row: parseInt(match[2], 10), // Extract the digits (row) and convert to a number
+      };
+    }
+
+    // If the cellPosition is not valid, return null or handle the error
+    return null;
+  }
+
+  private columnToNumber(column: string) {
+    let number = 0;
+    for (let i = 0; i < column.length; i++) {
+      number = number * 26 + (column.charCodeAt(i) - "A".charCodeAt(0) + 1);
+    }
+    return number;
+  }
+
+  async getTemplateExcel(
+    filename: string
+  ): Promise<FileResponseDto> {
+    const templatePath = path.resolve("public/templates/excel", filename);
+    const workbook = new Workbook();
+    await workbook.xlsx.readFile(templatePath);
+
+    // Check if the workbook has worksheets
+    if (workbook.worksheets.length <= 0) {
+      throw new FileException(FileValidation.FILE_NOT_FOUND);
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const nodeBuffer: Buffer = Buffer.from(buffer);
+
+    return {
+      name: generateFileName(Extension.EXCEL),
+      extension: Extension.EXCEL,
+      mimetype: Extension.EXCEL,
+      data: nodeBuffer,
+      size: nodeBuffer.length,
+    };
   }
 }

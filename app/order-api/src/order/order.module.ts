@@ -19,6 +19,9 @@ import { OrderUtils } from './order.utils';
 import { BranchModule } from 'src/branch/branch.module';
 import { TableModule } from 'src/table/table.module';
 import { UserModule } from 'src/user/user.module';
+import { MenuItemModule } from 'src/menu-item/menu-item.module';
+import { VariantModule } from 'src/variant/variant.module';
+import { MenuModule } from 'src/menu/menu.module';
 
 @Module({
   imports: [
@@ -37,6 +40,9 @@ import { UserModule } from 'src/user/user.module';
     BranchModule,
     TableModule,
     UserModule,
+    MenuItemModule,
+    VariantModule,
+    MenuModule,
   ],
   controllers: [OrderController],
   providers: [

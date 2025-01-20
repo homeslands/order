@@ -1,7 +1,13 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
-import { createUser, getUsers, resetPassword, updateUserRole } from '@/api'
-import { ICreateUserRequest, IUserQuery } from '@/types'
+import {
+  createUser,
+  getUsers,
+  resetPassword,
+  updateUser,
+  updateUserRole,
+} from '@/api'
+import { ICreateUserRequest, IUpdateUserRequest, IUserQuery } from '@/types'
 
 export const useUsers = (q: IUserQuery | null) => {
   return useQuery({
@@ -16,6 +22,14 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: async (data: ICreateUserRequest) => {
       return createUser(data)
+    },
+  })
+}
+
+export const useUpdateUser = () => {
+  return useMutation({
+    mutationFn: async (data: IUpdateUserRequest) => {
+      return updateUser(data)
     },
   })
 }

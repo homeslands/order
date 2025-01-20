@@ -23,6 +23,8 @@ import * as _ from 'lodash';
 import * as reader from 'xlsx';
 import { Size } from 'src/size/size.entity';
 import { name } from 'ejs';
+import FileValidation from 'src/file/file.validation';
+import { FileException } from 'src/file/file.exception';
 
 @Injectable()
 export class ProductService {
@@ -323,142 +325,145 @@ export class ProductService {
     file?: Express.Multer.File
   ) {
     const context = `${ProductService.name}.${this.createManyProducts.name}`;
-    const workbook = new Workbook();
-    if (!file?.buffer)
-      throw new BadRequestException('File not found');
-
-    await workbook.xlsx.load(file.buffer);
-
-    if (_.isEmpty(workbook.worksheets))
-      throw new BadRequestException('File not any sheets');
-
-    const worksheet = workbook.getWorksheet(1);
-
-    const validationData = this.validateDataFromExcel(worksheet);
-    console.log({validationData});
-    if(!_.isEmpty(validationData.errors)) {
-      const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
-      const ws = reader.utils.json_to_sheet(formattedErrors);
-      const validationWorkbook = reader.utils.book_new();
-      reader.utils.book_append_sheet(validationWorkbook, ws, 'ValidationErrors');
-
-      const excelBuffer = reader.write(validationWorkbook, { type: 'buffer', bookType: 'xlsx' });
-
-      return { errors: true, excelBuffer};
-    }
-
-    const normalizedData = this.dataStandardization(validationData.data);
-    
-    const createdCatalogsAndSizes = await this.getListCreatedCatalogsAndSizes(
-      normalizedData
-    );
-
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      // code
-      const createdCatalogs = await queryRunner.manager.save(
-        createdCatalogsAndSizes.setCreatedCatalogs
-      );
-      
-      const createdSizes = await queryRunner.manager.save(
-        createdCatalogsAndSizes.setCreatedSizes
-      );
+      const workbook = new Workbook();
+      if (!file?.buffer)
+        throw new BadRequestException('File not found');
 
-      for(const productData of normalizedData) {
-        let catalog = await this.catalogRepository.findOneBy({
-          name: productData[2]
-        });
-        if(!catalog) {
-          catalog = createdCatalogs.find((item) => item.name === productData[2]);
-        }
-        const newProduct = new Product();
-        Object.assign(newProduct, {
-          name: productData[1],
-          description: productData[3],
-          catalog
-        });
-        console.log({productData})
-        console.log({newProduct})
+      await workbook.xlsx.load(file.buffer);
 
-        const createdProduct = await queryRunner.manager.save(newProduct);
+      if (_.isEmpty(workbook.worksheets))
+        throw new BadRequestException('File not any sheets');
 
-        const newVariants: Variant[] = [];
-        if(productData[6]) {
-          let size = await this.sizeRepository.findOneBy({
-            name: productData[6]
-          });
-          if(!size) {
-            size = createdSizes.find((item) => item.name === productData[6]);
-          }
-          const newVariant = new Variant();
-          Object.assign(newVariant, {
-            product: createdProduct,
-            size,
-            price: productData[7]
-          });
-          newVariants.push(newVariant);
-        }
+      const worksheet = workbook.getWorksheet(1);
 
-        if(productData[8]) {
-          let size = await this.sizeRepository.findOneBy({
-            name: productData[8]
-          });
-          if(!size) {
-            size = createdSizes.find((item) => item.name === productData[8]);
-          }
-          const newVariant = new Variant();
-          Object.assign(newVariant, {
-            product: createdProduct,
-            size,
-            price: productData[9]
-          });
-          newVariants.push(newVariant);
-        }
-        
-        if(productData[10]) {
-          let size = await this.sizeRepository.findOneBy({
-            name: productData[10]
-          });
-          if(!size) {
-            size = createdSizes.find((item) => item.name === productData[10]);
-          }
-          const newVariant = new Variant();
-          Object.assign(newVariant, {
-            product: createdProduct,
-            size,
-            price: productData[11]
-          });
-          newVariants.push(newVariant);
-        }
+      const validationData = this.validateDataFromExcel(worksheet);
+      console.log({validationData});
+      if(!_.isEmpty(validationData.errors)) {
+        const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
+        const ws = reader.utils.json_to_sheet(formattedErrors);
+        const validationWorkbook = reader.utils.book_new();
+        reader.utils.book_append_sheet(validationWorkbook, ws, 'ValidationErrors');
 
-        await queryRunner.manager.save(newVariants);
+        const excelBuffer = reader.write(validationWorkbook, { type: 'buffer', bookType: 'xlsx' });
+
+        return { errors: true, excelBuffer};
       }
 
-      await queryRunner.commitTransaction();
-      this.logger.log(`Created ${normalizedData.length} successfully`);
-      return { errors: false, countCreated: normalizedData.length };
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.warn(
-        ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
-        context
+      const normalizedData = this.dataStandardization(validationData.data);
+      
+      const createdCatalogsAndSizes = await this.getListCreatedCatalogsAndSizes(
+        normalizedData
       );
-      console.log("lôiixiii", error)
-      throw new ProductException(ProductValidation.CREATE_MANY_PRODUCTS_FAILED);
-    } finally {
-      await queryRunner.release();
-    }
 
-    
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        // code
+        const createdCatalogs = await queryRunner.manager.save(
+          createdCatalogsAndSizes.setCreatedCatalogs
+        );
+        
+        const createdSizes = await queryRunner.manager.save(
+          createdCatalogsAndSizes.setCreatedSizes
+        );
+
+        for(const productData of normalizedData) {
+          let catalog = await this.catalogRepository.findOneBy({
+            name: productData[2]
+          });
+          if(!catalog) {
+            catalog = createdCatalogs.find((item) => item.name === productData[2]);
+          }
+          const newProduct = new Product();
+          Object.assign(newProduct, {
+            name: productData[1],
+            description: productData[3],
+            catalog
+          });
+          console.log({productData})
+          console.log({newProduct})
+
+          const createdProduct = await queryRunner.manager.save(newProduct);
+
+          const newVariants: Variant[] = [];
+          if(productData[6]) {
+            let size = await this.sizeRepository.findOneBy({
+              name: productData[6]
+            });
+            if(!size) {
+              size = createdSizes.find((item) => item.name === productData[6]);
+            }
+            const newVariant = new Variant();
+            Object.assign(newVariant, {
+              product: createdProduct,
+              size,
+              price: productData[7]
+            });
+            newVariants.push(newVariant);
+          }
+
+          if(productData[8]) {
+            let size = await this.sizeRepository.findOneBy({
+              name: productData[8]
+            });
+            if(!size) {
+              size = createdSizes.find((item) => item.name === productData[8]);
+            }
+            const newVariant = new Variant();
+            Object.assign(newVariant, {
+              product: createdProduct,
+              size,
+              price: productData[9]
+            });
+            newVariants.push(newVariant);
+          }
+          
+          if(productData[10]) {
+            let size = await this.sizeRepository.findOneBy({
+              name: productData[10]
+            });
+            if(!size) {
+              size = createdSizes.find((item) => item.name === productData[10]);
+            }
+            const newVariant = new Variant();
+            Object.assign(newVariant, {
+              product: createdProduct,
+              size,
+              price: productData[11]
+            });
+            newVariants.push(newVariant);
+          }
+
+          await queryRunner.manager.save(newVariants);
+        }
+
+        await queryRunner.commitTransaction();
+        this.logger.log(`Created ${normalizedData.length} successfully`);
+        return { errors: false, countCreated: normalizedData.length };
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        this.logger.warn(
+          ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
+          context
+        );
+        throw new ProductException(ProductValidation.CREATE_MANY_PRODUCTS_FAILED);
+      } finally {
+        await queryRunner.release();
+      }
+    } catch (error) {
+      throw new FileException(FileValidation.ERROR_WHEN_UPLOAD_FILE);
+    }
   }
 
   validateDataFromExcel(
     worksheet: Worksheet
   ) {
+    const context = `${ProductService.name}.${this.validateDataFromExcel.name}`;
+
     const validateDataType = {
       2: 'string',
       3: 'string',
@@ -470,6 +475,22 @@ export class ProductService {
       12: 'number',
     };
 
+    const headerRowValidation = [
+      undefined,
+      'Stt',
+      'Tên sản phẩm',
+      'Nhóm hàng',
+      'Mô tả',
+      'Hình ảnh chín (url)',
+      'Hình ảnh thêm (url1, url2, …)',
+      'Kích thước 1',
+      'Giá kích thước 1',
+      'Kích thước 2',
+      'Giá kích thước 2',
+      'Kích thước 3',
+      'Giá kích thước 3'
+    ]
+
     const requiredColumns = [2, 3];
 
     const errors = [];
@@ -477,6 +498,13 @@ export class ProductService {
     const headerRow = worksheet.getRow(1);
 
     const headerRowValues = headerRow.values;
+    console.log({headerRowValues})
+    console.log({headerRowValues: typeof(headerRowValues)})
+
+    if(JSON.stringify(headerRowValidation) !== JSON.stringify(headerRowValues)) {
+      this.logger.warn(FileValidation.EXCEL_FILE_WRONG_HEADER.message, context);
+      throw new FileException(FileValidation.EXCEL_FILE_WRONG_HEADER);
+    }
     worksheet.eachRow((row, rowNumber) => {
       if(rowNumber > 1) {
         if(!(row.values && Array.isArray(row.values))) {
@@ -616,8 +644,78 @@ export class ProductService {
     }));
   }
 
-  exportProducts(){
-    
+  async exportAllProducts(){
+    const products = await this.productRepository.find({
+      relations: [
+        'catalog',
+        'variants.size'
+      ]
+    });
+    const cellData: {
+      cellPosition: string;
+      value: string;
+      type: string;
+    }[] = [];
+
+    let rowIndex = 3; // Starting row for products
+    products.forEach((item, index) => {
+      cellData.push(
+        {
+          cellPosition: `A${rowIndex}`,
+          value: (index + 1).toString(),
+          type: "data",
+        },
+        {
+          cellPosition: `B${rowIndex}`,
+          value: item.name || "N/A",
+          type: "data",
+        },
+        {
+          cellPosition: `C${rowIndex}`,
+          value: item.catalog?.name || "N/A",
+          type: "data",
+        },
+        {
+          cellPosition: `D${rowIndex}`,
+          value: item.isLimit? 'x' : '',
+          type: "data",
+        },
+        {
+          cellPosition: `E${rowIndex}`,
+          value: item.description || "N/A",
+          type: "data",
+        },
+      );
+
+      let uniCodeNameColumn = 70;
+      item.variants?.forEach((variant, index) => {
+        cellData.push(
+          {
+            cellPosition: `${String.fromCharCode(uniCodeNameColumn)}${rowIndex}`,
+            value: variant.size?.name || "N/A",
+            type: "data",
+          },
+          {
+            cellPosition: `${String.fromCharCode(uniCodeNameColumn + 1)}${rowIndex}`,
+            value: variant.price.toString() || "N/A",
+            type: "data",
+          },
+        );
+
+        uniCodeNameColumn += 2;
+      });
+
+      rowIndex++;
+    });
+
+    return this.fileService.generateExcelFile({
+      filename: "export-products.xlsx",
+      cellData
+    });
+  }
+
+  async getTemplateImportProducts(){
+    return this.fileService.getTemplateExcel("import-products.xlsx");
   }
 }
 

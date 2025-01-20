@@ -1,75 +1,59 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './order.entity';
-import {
-  DataSource,
-  FindManyOptions,
-  FindOptionsWhere,
-  In,
-  Repository,
-} from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, In, Repository } from 'typeorm';
 import {
   CreateOrderRequestDto,
   GetOrderRequestDto,
   OrderResponseDto,
+  UpdateOrderRequestDto,
 } from './order.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
-import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
+import {
+  CreateOrderItemRequestDto,
+  OrderItemResponseDto,
+  StatusOrderItemResponseDto,
+} from 'src/order-item/order-item.dto';
 import { Table } from 'src/table/table.entity';
-import { Branch } from 'src/branch/branch.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { User } from 'src/user/user.entity';
-import { Variant } from 'src/variant/variant.entity';
 import { OrderStatus, OrderType } from './order.contants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
 import { OnEvent } from '@nestjs/event-emitter';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
-import { BranchValidation } from 'src/branch/branch.validation';
-import { TableException } from 'src/table/table.exception';
-import { TableValidation } from 'src/table/table.validation';
-import { VariantException } from 'src/variant/variant.exception';
-import { VariantValidation } from 'src/variant/variant.validation';
 import { PaymentAction, PaymentStatus } from 'src/payment/payment.constants';
-import { BranchException } from 'src/branch/branch.exception';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { Menu } from 'src/menu/menu.entity';
-import { MenuValidation } from 'src/menu/menu.validation';
-import { MenuException } from 'src/menu/menu.exception';
-import { MenuItem } from 'src/menu-item/menu-item.entity';
-import ProductValidation from 'src/product/product.validation';
-import { ProductException } from 'src/product/product.exception';
 import moment from 'moment';
 import * as _ from 'lodash';
 import { OrderScheduler } from './order.scheduler';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { OrderUtils } from './order.utils';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { TableUtils } from 'src/table/table.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { VariantUtils } from 'src/variant/variant.utils';
+import { MenuUtils } from 'src/menu/menu.utils';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(Table)
-    private readonly tableRepository: Repository<Table>,
-    @InjectRepository(Branch)
-    private readonly branchRepository: Repository<Branch>,
-    @InjectRepository(Variant)
-    private readonly variantRepository: Repository<Variant>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Menu)
-    private readonly menuRepository: Repository<Menu>,
-    @InjectRepository(MenuItem)
-    private readonly menuItemRepository: Repository<MenuItem>,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-    private readonly dataSource: DataSource,
     private readonly orderScheduler: OrderScheduler,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
+    private readonly branchUtils: BranchUtils,
+    private readonly tableUtils: TableUtils,
+    private readonly userUtils: UserUtils,
+    private readonly menuItemUtils: MenuItemUtils,
+    private readonly variantUtils: VariantUtils,
+    private readonly menuUtils: MenuUtils,
   ) {}
 
   @OnEvent(PaymentAction.PAYMENT_PAID)
@@ -83,15 +67,12 @@ export class OrderService {
     }
 
     this.logger.log(`Request data: ${JSON.stringify(requestData)}`, context);
-    const order = await this.orderRepository.findOne({
-      where: { id: requestData.orderId },
-      relations: ['payment'],
+    const order = await this.orderUtils.getOrder({
+      where: {
+        id: requestData.orderId,
+      },
     });
 
-    if (!order) {
-      this.logger.error(`Order not found`, null, context);
-      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
-    }
     this.logger.log(`Current order: ${JSON.stringify(order)}`, context);
 
     if (
@@ -118,11 +99,20 @@ export class OrderService {
    * Handles order updating
    * @param {string} slug
    */
-  async updateOrder(slug: string) {
+  async updateOrder(slug: string, requestData: UpdateOrderRequestDto) {
     const context = `${OrderService.name}.${this.updateOrder.name}`;
 
-    const order = await this.orderUtils.getOrder({ slug });
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order.orderItems);
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+
+    const table =
+      requestData.type === OrderType.AT_TABLE
+        ? await this.tableUtils.getTable({
+            slug: requestData.table,
+          })
+        : null;
+    order.type = requestData.type;
+    order.table = table;
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
@@ -164,26 +154,21 @@ export class OrderService {
 
     // Construct order
     const order: Order = await this.constructOrder(requestData);
-
     // Get order items
     const orderItems = await this.constructOrderItems(
       requestData.branch,
       requestData.orderItems,
     );
     this.logger.log(`Number of order items: ${orderItems.length}`, context);
-
-    // Get order subtotal
-    const subtotal = await this.orderUtils.getOrderSubtotal(orderItems);
-    this.logger.log(`Order ${order?.slug} have subtotal: ${subtotal}`, context);
-
-    Object.assign(order, { orderItems, subtotal });
+    order.orderItems = orderItems;
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
 
     const createdOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
         const createdOrder = await manager.save(order);
-        console.log({ createdOrder });
-        const currentMenuItems = await this.orderUtils.getCurrentMenuItems(
+        const currentMenuItems = await this.menuItemUtils.getCurrentMenuItems(
           createdOrder,
+          new Date(moment().format('YYYY-MM-DD')),
           'decrement',
         );
         await manager.save(currentMenuItems);
@@ -194,7 +179,7 @@ export class OrderService {
         );
 
         // Cancel order after 5 minutes
-        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 5 * 60 * 1000);
+        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 60 * 1000);
         return createdOrder;
       },
       (result) => {
@@ -218,56 +203,27 @@ export class OrderService {
    * @returns {Promise<Order>} The result of checking
    */
   async constructOrder(data: CreateOrderRequestDto): Promise<Order> {
-    const context = `${OrderService.name}.${this.constructOrder.name}`;
     // Get branch
-    const branch = await this.branchRepository.findOneBy({ slug: data.branch });
-    if (!branch) {
-      this.logger.warn(
-        `${BranchValidation.BRANCH_NOT_FOUND.message} ${data.branch}`,
-        context,
-      );
-      throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-    }
+    const branch = await this.branchUtils.getBranch({ slug: data.branch });
 
     // Get table if order type is at table
     let table: Table = null;
     if (data.type === OrderType.AT_TABLE) {
-      table = await this.tableRepository.findOne({
-        where: {
-          slug: data.table,
-          branch: {
-            slug: data.branch,
-          },
+      table = await this.tableUtils.getTable({
+        slug: data.table,
+        branch: {
+          id: branch.id,
         },
       });
-      if (!table) {
-        this.logger.warn(
-          `${TableValidation.TABLE_NOT_FOUND.message} ${data.table}`,
-          context,
-        );
-        throw new TableException(TableValidation.TABLE_NOT_FOUND);
-      }
     }
 
     // Get owner
-    const owner = await this.userRepository.findOneBy({ slug: data.owner });
-    if (!owner) {
-      this.logger.warn(
-        `${OrderValidation.OWNER_NOT_FOUND.message} ${data.owner}`,
-        context,
-      );
-      throw new OrderException(OrderValidation.OWNER_NOT_FOUND);
-    }
+    const owner = await this.userUtils.getUser({ slug: data.owner });
 
     // Get cashier
-    const approvalBy = await this.userRepository.findOne({
-      where: {
-        slug: data.approvalBy,
-      },
+    const approvalBy = await this.userUtils.getUser({
+      slug: data.approvalBy,
     });
-    if (!approvalBy) {
-      this.logger.warn(`Approval ${data.approvalBy} is not found`, context);
-    }
 
     const order = this.mapper.map(data, CreateOrderRequestDto, Order);
     Object.assign(order, {
@@ -288,10 +244,8 @@ export class OrderService {
     branch: string,
     createOrderItemRequestDtos: CreateOrderItemRequestDto[],
   ): Promise<OrderItem[]> {
-    const context = `${OrderService.name}.${this.constructOrderItems.name}`;
-
     // Get menu
-    const menu = await this.menuRepository.findOne({
+    const menu = await this.menuUtils.getMenu({
       where: {
         branch: {
           slug: branch,
@@ -299,10 +253,6 @@ export class OrderService {
         date: new Date(moment().format('YYYY-MM-DD')),
       },
     });
-    if (!menu) {
-      this.logger.warn(MenuValidation.MENU_NOT_FOUND.message, context);
-      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
-    }
 
     return await Promise.all(
       createOrderItemRequestDtos.map(
@@ -317,22 +267,14 @@ export class OrderService {
   ): Promise<OrderItem> {
     const context = `${OrderService.name}.${this.constructOrderItem.name}`;
     // Get variant
-    const variant = await this.variantRepository.findOne({
+    const variant = await this.variantUtils.getVariant({
       where: {
         slug: item.variant,
       },
-      relations: ['product'],
     });
-    if (!variant) {
-      this.logger.warn(
-        `${VariantValidation.VARIANT_NOT_FOUND.message} ${item.variant}`,
-        context,
-      );
-      throw new VariantException(VariantValidation.VARIANT_NOT_FOUND);
-    }
 
     // Get menu item
-    const menuItem = await this.menuItemRepository.findOne({
+    const menuItem = await this.menuItemUtils.getMenuItem({
       where: {
         menu: { slug: menu.slug },
         product: {
@@ -340,15 +282,6 @@ export class OrderService {
         },
       },
     });
-    if (!menuItem) {
-      this.logger.warn(
-        ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU.message,
-        context,
-      );
-      throw new ProductException(
-        ProductValidation.PRODUCT_NOT_FOUND_IN_TODAY_MENU,
-      );
-    }
 
     if (item.quantity > menuItem.currentStock) {
       this.logger.warn(
@@ -448,30 +381,10 @@ export class OrderService {
    * @throws {OrderException} If order is not found
    */
   async getOrderBySlug(slug: string): Promise<OrderResponseDto> {
-    const context = `${OrderService.name}.${this.getOrderBySlug.name}`;
-    const order = await this.orderRepository.findOne({
-      where: { slug },
-      relations: [
-        'payment',
-        'owner',
-        'approvalBy',
-        'orderItems.variant.size',
-        'orderItems.variant.product',
-        'orderItems.trackingOrderItems.tracking',
-        'invoice.invoiceItems',
-        'table',
-      ],
-    });
-
-    if (!order) {
-      this.logger.warn(
-        `${OrderValidation.ORDER_NOT_FOUND.message} ${slug}`,
-        context,
-      );
-      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
-    }
-
-    const orderDto = this.getStatusEachOrderItemInOrder(order);
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+    const orderDto = this.mapper.map(order, Order, OrderResponseDto);
+    const orderItems = this.getOrderItemsStatuses(orderDto);
+    orderDto.orderItems = orderItems;
     return orderDto;
   }
 
@@ -480,12 +393,11 @@ export class OrderService {
    * @param {Order} order The order data relates to tracking
    * @returns {Promise<OrderResponseDto>} The order data with order item have status synthesis
    */
-  getStatusEachOrderItemInOrder(order: Order): OrderResponseDto {
+  getOrderItemsStatuses(order: OrderResponseDto): OrderItemResponseDto[] {
     const orderItems = order.orderItems.map((item) => {
       const statusQuantities = item.trackingOrderItems.reduce(
         (acc, trackingItem) => {
           const status = trackingItem.tracking.status;
-
           acc[status] += trackingItem.quantity;
           return acc;
         },
@@ -494,16 +406,13 @@ export class OrderService {
           [WorkflowStatus.RUNNING]: 0,
           [WorkflowStatus.COMPLETED]: 0,
           [WorkflowStatus.FAILED]: 0,
-        },
+        } as StatusOrderItemResponseDto,
       );
-
       return {
         ...item,
         status: statusQuantities,
-      };
+      } as OrderItemResponseDto;
     });
-    const orderDto = this.mapper.map(order, Order, OrderResponseDto);
-    Object.assign(orderDto, { orderItems });
-    return orderDto;
+    return orderItems;
   }
 }

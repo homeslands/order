@@ -33,11 +33,14 @@ export interface ICreateUserRequest {
 }
 
 export interface IUpdateUserRequest {
+  slug: string
   phonenumber: string
   firstName: string
   lastName: string
+  dob: string
+  email: string
+  address: string
   branch?: string
-  role?: string
 }
 
 export interface IUserQuery {

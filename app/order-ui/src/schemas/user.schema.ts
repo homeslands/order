@@ -39,15 +39,14 @@ export const createUserSchema = z
   })
 
 export const updateUserSchema = z.object({
-  phonenumber: z
-    .string()
-    .min(10)
-    .max(10)
-    .regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+  slug: z.string(),
+  phonenumber: z.string().regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  branch: z.optional(z.string()),
-  role: z.optional(z.string()),
+  dob: z.string(),
+  email: z.string().email('login.emailInvalid'),
+  address: z.string(),
+  branch: z.string(),
 })
 
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>

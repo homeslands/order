@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PenLineIcon } from 'lucide-react'
 
 import {
   Button,
@@ -13,7 +14,6 @@ import {
 
 import { UpdateEmployeeForm } from '@/components/app/form'
 import { IUserInfo } from '@/types'
-import { PenLineIcon } from 'lucide-react'
 
 interface IUpdateEmployeeDialogProps {
   employee: IUserInfo

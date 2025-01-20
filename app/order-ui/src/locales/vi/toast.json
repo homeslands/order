@@ -73,6 +73,10 @@
     "forgotPasswordSuccess": "Gửi email đặt lại mật khẩu thành công",
     "resetPasswordSuccess": "Đặt lại mật khẩu thành công",
 
+    "createUserSuccess": "Tạo người dùng thành công",
+    "updateUserSuccess": "Cập nhật người dùng thành công",
+    "deleteUserSuccess": "Xóa người dùng thành công",
+
     "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
 
     "forbidden": "Không có quyền truy cập",

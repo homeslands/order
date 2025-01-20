@@ -21,6 +21,19 @@ export abstract class BaseFileInterceptor implements NestInterceptor {
     return new Promise((resolve, reject) => {
       this.upload(req, req.res, (err) => {
         if (err) {
+          if (err instanceof FileException) {
+            if(err.errorCodeValue) {
+              switch (err.errorCodeValue.code) {
+                case 121010:
+                  return reject(
+                    new FileException(
+                      FileValidation.MUST_EXCEL_FILE,
+                    ),
+                  );
+              }
+            }
+          }
+
           if (err instanceof multer.MulterError) {
             switch (err.code) {
               case 'LIMIT_FILE_SIZE':

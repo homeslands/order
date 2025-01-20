@@ -10,6 +10,8 @@ export const LIMIT_FIELD_COUNT = 'LIMIT_FIELD_COUNT';
 export const LIMIT_FIELD_VALUE = 'LIMIT_FIELD_VALUE';
 export const MULTER_ERROR = 'MULTER_ERROR';
 export const ERROR_WHEN_UPLOAD_FILE = 'ERROR_WHEN_UPLOAD_FILE';
+export const MUST_EXCEL_FILE = 'MUST_EXCEL_FILE';
+export const EXCEL_FILE_WRONG_HEADER = 'EXCEL_FILE_WRONG_HEADER';
 
 export type TFileErrorCodeKey = 
 typeof FILE_NOT_FOUND |
@@ -21,6 +23,8 @@ typeof LIMIT_FIELD_KEY |
 typeof LIMIT_FIELD_COUNT |
 typeof LIMIT_FIELD_VALUE |
 typeof ERROR_WHEN_UPLOAD_FILE |
+typeof MUST_EXCEL_FILE |
+typeof EXCEL_FILE_WRONG_HEADER |
 typeof MULTER_ERROR;
 
 export type TFileErrorCode = Record<TFileErrorCodeKey, TErrorCodeValue>;
@@ -63,6 +67,14 @@ const FileValidation: TFileErrorCode = {
   ERROR_WHEN_UPLOAD_FILE: createErrorCode(
     121009, 
     'Error when upload file'
+  ),
+  MUST_EXCEL_FILE: createErrorCode(
+    121010, 
+    'Must excel file'
+  ),
+  EXCEL_FILE_WRONG_HEADER: createErrorCode(
+    121011, 
+    'Excel file wrong header'
   ),
 };
 

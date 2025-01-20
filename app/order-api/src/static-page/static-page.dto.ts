@@ -1,8 +1,12 @@
-import { AutoMap } from "@automapper/classes";
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
-import { STATIC_PAGE_CONTENT_INVALID, STATIC_PAGE_KEY_INVALID, STATIC_PAGE_TITLE_INVALID } from "./static-page.validation";
-import { BaseResponseDto } from "src/app/base.dto";
+import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  STATIC_PAGE_CONTENT_INVALID,
+  STATIC_PAGE_KEY_INVALID,
+  STATIC_PAGE_TITLE_INVALID,
+} from './static-page.validation';
+import { BaseResponseDto } from 'src/app/base.dto';
 
 export class CreateStaticPageDto {
   @AutoMap()
@@ -17,7 +21,7 @@ export class CreateStaticPageDto {
 
   @AutoMap()
   @ApiProperty()
-  @IsNotEmpty({ message: STATIC_PAGE_CONTENT_INVALID })
+  @IsOptional()
   content: string;
 }
 

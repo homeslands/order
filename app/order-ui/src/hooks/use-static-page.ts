@@ -1,11 +1,20 @@
 import {
   createStaticPage,
   deleteStaticPage,
+  getAllStaticPages,
   getStaticPage,
   updateStaticPage,
 } from '@/api'
 import { ICreateStaticPage, IUpdateStaticPage } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+
+export const useGetAllStaticPages = () => {
+  return useQuery({
+    queryKey: ['staticPages'],
+    queryFn: () => getAllStaticPages(),
+    placeholderData: keepPreviousData,
+  })
+}
 
 export const useStaticPage = (q: string) => {
   return useQuery({

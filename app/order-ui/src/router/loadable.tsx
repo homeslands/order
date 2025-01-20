@@ -183,6 +183,13 @@ export const StaticPageManagementPage = React.lazy(() =>
   })),
 )
 
+//Static page detail page
+export const StaticPageDetailPage = React.lazy(() =>
+  import('@/app/system/static-page').then((module) => ({
+    default: module.StaticPageDetailPage,
+  })),
+)
+
 //Config page
 export const ConfigPage = React.lazy(() =>
   import('@/app/system/config').then((module) => ({

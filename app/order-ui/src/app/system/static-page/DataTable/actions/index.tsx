@@ -1,1 +1,1 @@
-export { default as BranchActionOptions } from './menu-action-options'
+export { default as StaticPageActionOptions } from './static-page-action-options'

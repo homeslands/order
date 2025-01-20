@@ -19,6 +19,7 @@
     "product-management": "Quản lý món",
     "table-management": "Quản lý bàn",
     "user-management": "Quản lý người dùng",
-    "revenue": "Quản lý doanh thu"
+    "revenue": "Quản lý doanh thu",
+    "static-page": "Quản lý trang tĩnh"
   }
 }

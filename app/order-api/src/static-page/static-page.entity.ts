@@ -1,9 +1,9 @@
-import { Column, Entity } from "typeorm";
-import { AutoMap } from "@automapper/classes";
-import { Base } from "src/app/base.entity";
+import { Column, Entity } from 'typeorm';
+import { AutoMap } from '@automapper/classes';
+import { Base } from 'src/app/base.entity';
 
 @Entity('static_page_tbl')
-export class StaticPage  extends Base {
+export class StaticPage extends Base {
   @AutoMap()
   @Column({ name: 'key_column', unique: true })
   key: string;
@@ -13,6 +13,6 @@ export class StaticPage  extends Base {
   title: string;
 
   @AutoMap()
-  @Column({ name: 'content_column', type: 'text' })
+  @Column({ name: 'content_column', type: 'text', nullable: true })
   content: string;
 }

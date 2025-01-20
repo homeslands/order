@@ -6,8 +6,9 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { OrderStatus } from './order.contants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { Menu } from 'src/menu/menu.entity';
 import { OrderUtils } from './order.utils';
+import moment from 'moment';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 
 @Injectable()
 export class OrderScheduler {
@@ -15,11 +16,10 @@ export class OrderScheduler {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(Menu)
-    private readonly menuRepository: Repository<Menu>,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
+    private readonly menuItemUtils: MenuItemUtils,
   ) {}
 
   // Called once after 5 minutes
@@ -27,14 +27,11 @@ export class OrderScheduler {
     const context = `${OrderScheduler.name}.${this.cancelOrder.name}`;
     this.logger.log(`Cancel order ${orderSlug}`, context);
 
-    const order = await this.orderRepository.findOne({
-      where: { slug: orderSlug },
-      relations: ['orderItems.variant.product', 'branch', 'payment'],
+    const order = await this.orderUtils.getOrder({
+      where: {
+        slug: orderSlug,
+      },
     });
-    if (!order) {
-      this.logger.warn(`Order ${orderSlug} not found`, context);
-      return;
-    }
 
     if (order.status !== OrderStatus.PENDING) {
       this.logger.warn(`Order ${orderSlug} is not pending`, context);
@@ -42,8 +39,9 @@ export class OrderScheduler {
     }
 
     // Get all menu items base on unique products
-    const menuItems = await this.orderUtils.getCurrentMenuItems(
+    const menuItems = await this.menuItemUtils.getCurrentMenuItems(
       order,
+      new Date(moment().format('YYYY-MM-DD')),
       'increment',
     );
 

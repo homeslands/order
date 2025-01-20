@@ -7,11 +7,12 @@ import { Variant } from './variant.entity';
 import { VariantProfile } from './variant.mapper';
 import { Product } from 'src/product/product.entity';
 import { Size } from 'src/size/size.entity';
+import { VariantUtils } from './variant.utils';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Variant, Product, Size])],
   controllers: [VariantController],
-  providers: [VariantService, VariantProfile],
-  exports: [VariantService],
+  providers: [VariantService, VariantProfile, VariantUtils],
+  exports: [VariantService, VariantUtils],
 })
 export class VariantModule {}

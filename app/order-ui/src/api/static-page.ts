@@ -6,6 +6,13 @@ import {
   IUpdateStaticPage,
 } from '@/types'
 
+export async function getAllStaticPages(): Promise<
+  IApiResponse<IStaticPage[]>
+> {
+  const response = await http.get<IApiResponse<IStaticPage[]>>('/static-page')
+  return response.data
+}
+
 export async function getStaticPage(
   key: string,
 ): Promise<IApiResponse<IStaticPage>> {

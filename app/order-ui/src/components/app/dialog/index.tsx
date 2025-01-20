@@ -77,3 +77,4 @@ export { default as OrderTypeAlertDialog } from './order-type-alert-dialog'
 
 export { default as CreateStaticPageDialog } from './create-static-page-dialog'
 export { default as UpdateStaticPageDialog } from './update-static-page-dialog'
+export { default as DeleteStaticPageDialog } from './delete-static-page-dialog'

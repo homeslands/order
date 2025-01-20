@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
@@ -6,7 +7,6 @@ import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
 import { Role } from '@/constants'
 import { EmployeeFilterOptions, EmployeesAction } from './DataTable/actions'
-import { useState } from 'react'
 
 export default function UserListPage() {
   const { t } = useTranslation(['employee'])
