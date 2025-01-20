@@ -104,7 +104,16 @@ export class OrderUtils {
   async getOrder(where: FindOptionsWhere<Order>) {
     const order = await this.orderRepository.findOne({
       where,
-      relations: ['orderItems', 'orderItems.variant'],
+      relations: [
+        'payment',
+        'owner',
+        'approvalBy',
+        'orderItems.variant.size',
+        'orderItems.variant.product',
+        'orderItems.trackingOrderItems.tracking',
+        'invoice.invoiceItems',
+        'table',
+      ],
     });
     if (!order) {
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);

@@ -8,9 +8,14 @@ import { Order } from 'src/order/order.entity';
 import { Variant } from 'src/variant/variant.entity';
 import { DbModule } from 'src/db/db.module';
 import { OrderItemUtils } from './order-item.utils';
+import { OrderModule } from 'src/order/order.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderItem, Order, Variant]), DbModule],
+  imports: [
+    TypeOrmModule.forFeature([OrderItem, Order, Variant]),
+    DbModule,
+    OrderModule,
+  ],
   controllers: [OrderItemController],
   providers: [OrderItemService, OrderItemProfile, OrderItemUtils],
   exports: [OrderItemService, OrderItemUtils],
