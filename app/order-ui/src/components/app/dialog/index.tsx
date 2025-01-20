@@ -74,3 +74,6 @@ export { default as UpdateEmployeeDialog } from './update-employee-dialog'
 
 export { default as UpdateCustomerProfileDialog } from './update-customer-profile-dialog'
 export { default as OrderTypeAlertDialog } from './order-type-alert-dialog'
+
+export { default as CreateStaticPageDialog } from './create-static-page-dialog'
+export { default as UpdateStaticPageDialog } from './update-static-page-dialog'

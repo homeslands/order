@@ -63,6 +63,7 @@
     "class-validator": "^0.14.1",
     "cron": "^3.5.0",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "googleapis": "^144.0.0",
     "http-status-codes": "^2.3.0",
     "lodash": "^4.17.21",
@@ -82,7 +83,8 @@
     "typeorm": "^0.3.20",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
-    "winston-transport": "^4.9.0"
+    "winston-transport": "^4.9.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.26",

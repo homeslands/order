@@ -3,7 +3,7 @@ import {
   repositoryMockFactory,
 } from 'src/test-utils/repository-mock.factory';
 import { ProductService } from './product.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { Variant } from 'src/variant/variant.entity';
 import { Mapper } from '@automapper/core';
@@ -22,12 +22,14 @@ import { File } from 'src/file/file.entity';
 import { ProductException } from './product.exception';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { CatalogException } from 'src/catalog/catalog.exception';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('ProductService', () => {
   let service: ProductService;
   let productRepositoryMock: MockType<Repository<Product>>;
   let variantRepositoryMock: MockType<Repository<Variant>>;
   let catalogRepositoryMock: MockType<Repository<Catalog>>;
+  let sizeRepositoryMock: MockType<Repository<Size>>;
   let mapperMock: MockType<Mapper>;
   let fileService: FileService;
 
@@ -45,6 +47,7 @@ describe('ProductService', () => {
             handleDuplicateFilesName: jest.fn(),
           },
         },
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,
@@ -59,6 +62,10 @@ describe('ProductService', () => {
         },
         {
           provide: getRepositoryToken(Catalog),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Size),
           useFactory: repositoryMockFactory,
         },
         {
@@ -77,6 +84,7 @@ describe('ProductService', () => {
     productRepositoryMock = module.get(getRepositoryToken(Product));
     variantRepositoryMock = module.get(getRepositoryToken(Variant));
     catalogRepositoryMock = module.get(getRepositoryToken(Catalog));
+    sizeRepositoryMock = module.get(getRepositoryToken(Size));
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
   });
 

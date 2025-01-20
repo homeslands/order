@@ -214,6 +214,9 @@
     "shipping": "Đang giao hàng",
     "completed": "Đã hoàn tất",
     "paid": "Đã thanh toán",
-    "canceled": "Đã hủy"
+    "canceled": "Đã hủy",
+
+    "timeRemaining": "Thời gian thanh toán còn lại",
+    "timeExpired": "Hết hạn"
   }
 }

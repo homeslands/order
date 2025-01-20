@@ -8,9 +8,15 @@ import { ProductProfile } from './product.mapper';
 import { Variant } from 'src/variant/variant.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { FileModule } from 'src/file/file.module';
+import { Size } from 'src/size/size.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Variant, Catalog]), FileModule],
+  imports: [TypeOrmModule.forFeature([
+    Product, 
+    Variant, 
+    Catalog,
+    Size
+  ]), FileModule],
   controllers: [ProductController],
   providers: [ProductService, ProductProfile],
   exports: [ProductService],

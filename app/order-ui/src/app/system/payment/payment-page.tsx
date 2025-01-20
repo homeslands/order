@@ -9,7 +9,6 @@ import { PaymentMethod, ROUTE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
-// import { QrCodeDialog } from '@/components/app/dialog'
 
 export default function PaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -25,11 +24,11 @@ export default function PaymentPage() {
   const [qrCode, setQrCode] = useState<string>('')
   const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(false)
-
-  // Tạo biến để kiểm tra trạng thái nút xác nhận
   const isDisabled = !paymentMethod || !slug
 
-  // Xử lý xác nhận thanh toán
+  console.log('created', order?.result.createdAt)
+
+  //polling order status every 3 seconds
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
 
@@ -41,7 +40,7 @@ export default function PaymentPage() {
           clearInterval(interval!)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
-      }, 3000) // Gọi API mỗi 3 giây
+      }, 3000)
     }
 
     return () => {
@@ -49,12 +48,10 @@ export default function PaymentPage() {
     }
   }, [isPolling, refetchOrder, navigate, slug])
 
-  // Xử lý chọn phương thức thanh toán
   const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
     setPaymentMethod(selectedPaymentMethod)
   }
 
-  // Xử lý xác nhận thanh toán
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
 
@@ -99,7 +96,7 @@ export default function PaymentPage() {
           <div className="flex flex-col w-full gap-3">
             {order && (
               <div className="w-full space-y-2">
-                {/* Thông tin khách hàng */}
+                {/* Customer Information */}
                 <div className="grid items-center justify-between grid-cols-1 p-4 rounded-sm bg-background sm:grid-cols-2">
                   <div className="flex flex-col col-span-1 gap-1 sm:border-r sm:px-4">
                     <div className="grid grid-cols-2 gap-2">
@@ -127,7 +124,7 @@ export default function PaymentPage() {
                       </p>
                     </div>
                   </div>
-                  {/* Thông tin vận chuyển */}
+                  {/* Delivery Information */}
                   <div className="flex flex-col col-span-1 gap-1 sm:px-4">
                     <div className="grid grid-cols-2 gap-2">
                       <h3 className="col-span-1 text-sm font-medium">
@@ -149,7 +146,7 @@ export default function PaymentPage() {
                     </div>
                   </div>
                 </div>
-                {/* Thông tin đơn hàng */}
+                {/* Order Information */}
                 <div className="grid w-full grid-cols-4 px-4 py-3 mb-2 text-sm font-thin rounded-md bg-muted-foreground/10">
                   <span className="col-span-1">{t('order.product')}</span>
                   <span className="col-span-1">{t('order.unitPrice')}</span>

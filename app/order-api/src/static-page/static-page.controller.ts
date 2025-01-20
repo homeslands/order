@@ -48,7 +48,7 @@ export class StaticPageController {
     })
     @ApiOperation({ summary: 'Retrieve a static page by key' })
     @ApiResponse({ status: 500, description: 'Internal Server Error' })
-    @ApiParam({ name: 'key', type: 'string', required: true, example: 'ABOUT-US' })
+    @ApiParam({ name: 'key', type: 'string', required: true, example: 'about-us' })
     async getByKey(@Param('key') key: string) {
       const result = await this.staticPageService.getByKey(key);
       return {
@@ -57,6 +57,27 @@ export class StaticPageController {
         timestamp: new Date().toISOString(),
         result,
       } as AppResponseDto<StaticPageResponseDto>;
+    }
+
+    @Get()
+    @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager) 
+    @HttpCode(HttpStatus.OK)    
+    @ApiResponseWithType({
+      status: HttpStatus.OK,
+      description: 'All static pages retrieved successfully',
+      type: StaticPageResponseDto,
+      isArray: true
+    })
+    @ApiOperation({ summary: 'Retrieve all static pages' })
+    @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    async getAll() {
+      const result = await this.staticPageService.getAll();
+      return {
+        message: 'All static pages have been retrieved successfully',
+        statusCode: HttpStatus.OK,
+        timestamp: new Date().toISOString(),
+        result,
+      } as AppResponseDto<StaticPageResponseDto[]>;
     }
 
     @Patch(':slug')

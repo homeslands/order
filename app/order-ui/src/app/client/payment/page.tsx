@@ -28,6 +28,8 @@ export function ClientPaymentPage() {
   const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isDisabled, setDisabled] = useState<boolean>(false)
+  const [timeRemaining, setTimeRemaining] = useState<number>(300) // 5 minutes in seconds
+  const [isExpired, setIsExpired] = useState<boolean>(false)
 
   useEffect(() => {
     setDisabled(!paymentMethod || !slug)
@@ -35,6 +37,7 @@ export function ClientPaymentPage() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
+
 
     if (isPolling) {
       interval = setInterval(async () => {
@@ -44,7 +47,7 @@ export function ClientPaymentPage() {
           clearInterval(interval!)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
-      }, 3000) // Call APi every 3 seconds
+      }, 1000) // Call APi every 3 seconds
     }
 
     return () => {
@@ -52,12 +55,39 @@ export function ClientPaymentPage() {
     }
   }, [isPolling, refetchOrder, navigate, slug])
 
+  // Add countdown timer effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+
+    if (order?.result.createdAt && timeRemaining > 0 && !isExpired) {
+      timer = setInterval(() => {
+        setTimeRemaining((prevTime) => {
+          if (prevTime <= 1) {
+            setIsExpired(true);
+            setPaymentSlug(''); // Reset payment slug when expired
+            setQrCode(''); // Also reset QR code
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [order?.result.createdAt, timeRemaining, isExpired]);
+
   const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
     setPaymentMethod(selectedPaymentMethod)
   }
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
+
+    // Reset timer when getting new QR code
+    setTimeRemaining(300);
+    setIsExpired(false);
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -101,6 +131,7 @@ export function ClientPaymentPage() {
         {t('menu.payment')}
         <span className="text-muted-foreground">#{slug}</span>
       </span>
+
       <div className="flex flex-col gap-3 mt-5">
         <div className="flex flex-col gap-5 lg:flex-row">
           {/* Customer info */}
@@ -227,6 +258,8 @@ export function ClientPaymentPage() {
         </div>
         {/* Lựa chọn phương thức thanh toán */}
         <ClientPaymentMethodSelect
+          isExpired={isExpired}
+          timeRemaining={timeRemaining}
           qrCode={qrCode ? qrCode : ''}
           total={order.result ? order.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}

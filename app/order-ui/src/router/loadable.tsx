@@ -245,3 +245,17 @@ export const ClientUpdateOrderPage = React.lazy(() =>
     default: module.ClientUpdateOrderPage,
   })),
 )
+
+//About page
+export const ClientAboutPage = React.lazy(() =>
+  import('@/app/client/about').then((module) => ({
+    default: module.AboutPage,
+  })),
+)
+
+//Policy page
+export const ClientPolicyPage = React.lazy(() =>
+  import('@/app/client/policy').then((module) => ({
+    default: module.PolicyPage,
+  })),
+)

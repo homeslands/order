@@ -82,6 +82,10 @@
     "updateSystemConfigSuccess": "Cập nhật cấu hình hệ thống thành công",
     "deleteSystemConfigSuccess": "Xóa cấu hình hệ thống thành công",
 
+    "createStaticPageSuccess": "Tạo trang tĩnh thành công",
+    "updateStaticPageSuccess": "Cập nhật trang tĩnh thành công",
+    "deleteStaticPageSuccess": "Xóa trang tĩnh thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

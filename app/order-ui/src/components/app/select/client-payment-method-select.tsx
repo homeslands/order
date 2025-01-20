@@ -6,17 +6,28 @@ import { Label } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 
 interface PaymentMethodSelectProps {
+  isExpired?: boolean
+  timeRemaining?: number
   qrCode?: string
   total?: number
   onSubmit?: (paymentMethod: string) => void
 }
 
 export default function ClientPaymentMethodSelect({
+  isExpired,
+  timeRemaining,
   qrCode,
   total,
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
+
+  // Format remaining time
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const handlePaymentMethodSubmit = (paymentMethod: string) => {
     if (onSubmit) {
@@ -58,6 +69,18 @@ export default function ClientPaymentMethodSelect({
                 <div className="flex items-center gap-1 px-4 text-xs text-muted-foreground">
                   <CircleAlert size={12} className="text-blue-500" />
                   {t('paymentMethod.paymentNote')}
+                </div>
+                {/* Add countdown timer display */}
+                <div className="mt-2 text-center">
+                  {!isExpired ? (
+                    <div className="text-lg font-semibold text-primary">
+                      {t('paymentMethod.timeRemaining')}: {formatTime(timeRemaining || 0)}
+                    </div>
+                  ) : (
+                    <div className="text-lg font-semibold text-destructive">
+                      {t('paymentMethod.timeExpired')}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

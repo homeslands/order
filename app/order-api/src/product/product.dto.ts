@@ -94,3 +94,8 @@ export class ProductResponseDto extends BaseResponseDto {
   @AutoMap(() => VariantResponseDto)
   variants: VariantResponseDto[];
 }
+
+export class ValidationError {
+  row: number;
+  errors: { [key: string]: string };
+}

@@ -7,6 +7,8 @@ export const PRODUCT_LIMIT_REQUIRED = 'PRODUCT_LIMIT_REQUIRED';
 export const PRODUCT_ACTIVE_REQUIRED = 'PRODUCT_ACTIVE_REQUIRED';
 export const PRODUCT_NOT_FOUND_IN_TODAY_MENU =
   'PRODUCT_NOT_FOUND_IN_TODAY_MENU';
+export const CREATE_MANY_PRODUCTS_FAILED =
+  'CREATE_MANY_PRODUCTS_FAILED';
 
 export type TProductErrorCodeKey =
   | typeof PRODUCT_NOT_FOUND
@@ -14,6 +16,7 @@ export type TProductErrorCodeKey =
   | typeof PRODUCT_LIMIT_REQUIRED
   | typeof PRODUCT_ACTIVE_REQUIRED
   | typeof PRODUCT_NAME_REQUIRED
+  | typeof CREATE_MANY_PRODUCTS_FAILED
   | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU;
 
 export type TProductErrorCode = Record<TProductErrorCodeKey, TErrorCodeValue>;
@@ -34,6 +37,10 @@ const ProductValidation: TProductErrorCode = {
   PRODUCT_NOT_FOUND_IN_TODAY_MENU: createErrorCode(
     115005,
     `The product is not found in today's menu`,
+  ),
+  CREATE_MANY_PRODUCTS_FAILED: createErrorCode(
+    115006,
+    'Create many product failed',
   ),
 };
 

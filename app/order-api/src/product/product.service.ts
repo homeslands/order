@@ -1,6 +1,6 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Product } from './product.entity';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import {
   CreateProductRequestDto,
   ProductResponseDto,
   UpdateProductRequestDto,
+  ValidationError,
 } from './product.dto';
 import { Variant } from 'src/variant/variant.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
@@ -17,6 +18,11 @@ import { ProductException } from './product.exception';
 import ProductValidation from './product.validation';
 import { CatalogException } from 'src/catalog/catalog.exception';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
+import { Workbook, Worksheet } from 'exceljs';
+import * as _ from 'lodash';
+import * as reader from 'xlsx';
+import { Size } from 'src/size/size.entity';
+import { name } from 'ejs';
 
 @Injectable()
 export class ProductService {
@@ -27,9 +33,13 @@ export class ProductService {
     private readonly variantRepository: Repository<Variant>,
     @InjectRepository(Catalog)
     private readonly catalogRepository: Repository<Catalog>,
+    @InjectRepository(Size)
+    private readonly sizeRepository: Repository<Size>,
     @InjectMapper() private readonly mapper: Mapper,
     private readonly fileService: FileService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly dataSource: DataSource,
+    
   ) {}
 
   async getPopularProducts() {}
@@ -308,4 +318,307 @@ export class ProductService {
       slug: In(variantSlugs),
     });
   }
+
+  async createManyProducts (
+    file?: Express.Multer.File
+  ) {
+    const context = `${ProductService.name}.${this.createManyProducts.name}`;
+    const workbook = new Workbook();
+    if (!file?.buffer)
+      throw new BadRequestException('File not found');
+
+    await workbook.xlsx.load(file.buffer);
+
+    if (_.isEmpty(workbook.worksheets))
+      throw new BadRequestException('File not any sheets');
+
+    const worksheet = workbook.getWorksheet(1);
+
+    const validationData = this.validateDataFromExcel(worksheet);
+    console.log({validationData});
+    if(!_.isEmpty(validationData.errors)) {
+      const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
+      const ws = reader.utils.json_to_sheet(formattedErrors);
+      const validationWorkbook = reader.utils.book_new();
+      reader.utils.book_append_sheet(validationWorkbook, ws, 'ValidationErrors');
+
+      const excelBuffer = reader.write(validationWorkbook, { type: 'buffer', bookType: 'xlsx' });
+
+      return { errors: true, excelBuffer};
+    }
+
+    const normalizedData = this.dataStandardization(validationData.data);
+    
+    const createdCatalogsAndSizes = await this.getListCreatedCatalogsAndSizes(
+      normalizedData
+    );
+
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // code
+      const createdCatalogs = await queryRunner.manager.save(
+        createdCatalogsAndSizes.setCreatedCatalogs
+      );
+      
+      const createdSizes = await queryRunner.manager.save(
+        createdCatalogsAndSizes.setCreatedSizes
+      );
+
+      for(const productData of normalizedData) {
+        let catalog = await this.catalogRepository.findOneBy({
+          name: productData[2]
+        });
+        if(!catalog) {
+          catalog = createdCatalogs.find((item) => item.name === productData[2]);
+        }
+        const newProduct = new Product();
+        Object.assign(newProduct, {
+          name: productData[1],
+          description: productData[3],
+          catalog
+        });
+        console.log({productData})
+        console.log({newProduct})
+
+        const createdProduct = await queryRunner.manager.save(newProduct);
+
+        const newVariants: Variant[] = [];
+        if(productData[6]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[6]
+          });
+          if(!size) {
+            size = createdSizes.find((item) => item.name === productData[6]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[7]
+          });
+          newVariants.push(newVariant);
+        }
+
+        if(productData[8]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[8]
+          });
+          if(!size) {
+            size = createdSizes.find((item) => item.name === productData[8]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[9]
+          });
+          newVariants.push(newVariant);
+        }
+        
+        if(productData[10]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[10]
+          });
+          if(!size) {
+            size = createdSizes.find((item) => item.name === productData[10]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[11]
+          });
+          newVariants.push(newVariant);
+        }
+
+        await queryRunner.manager.save(newVariants);
+      }
+
+      await queryRunner.commitTransaction();
+      this.logger.log(`Created ${normalizedData.length} successfully`);
+      return { errors: false, countCreated: normalizedData.length };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.warn(
+        ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
+        context
+      );
+      console.log("lôiixiii", error)
+      throw new ProductException(ProductValidation.CREATE_MANY_PRODUCTS_FAILED);
+    } finally {
+      await queryRunner.release();
+    }
+
+    
+  }
+
+  validateDataFromExcel(
+    worksheet: Worksheet
+  ) {
+    const validateDataType = {
+      2: 'string',
+      3: 'string',
+      7: 'string',
+      8: 'number',
+      9: 'string',
+      10: 'number',
+      11: 'string',
+      12: 'number',
+    };
+
+    const requiredColumns = [2, 3];
+
+    const errors = [];
+    const data = [];
+    const headerRow = worksheet.getRow(1);
+
+    const headerRowValues = headerRow.values;
+    worksheet.eachRow((row, rowNumber) => {
+      if(rowNumber > 1) {
+        if(!(row.values && Array.isArray(row.values))) {
+          return;
+        }
+    
+        const rowLength = row.values.length;
+        // let rowErrors: { [key: string]: string } = {};
+        let rowErrors: { [key: string]: string[] } = {};
+        for(let colNumber = 1; colNumber <= rowLength; colNumber ++) {
+          const expectedType = validateDataType[colNumber];
+          const value = row.values[colNumber];
+          const isRequired = requiredColumns.includes(colNumber);
+
+          if(isRequired) {
+            if(!value || value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+              // rowErrors.value = `${headerRowValues[colNumber]} là cột bắt buộc và không thể trống.`;
+              rowErrors[colNumber] = rowErrors[colNumber] || [];
+              rowErrors[colNumber].push(`${headerRowValues[colNumber]} là cột bắt buộc và không thể trống.`);
+            } else {
+              let actualType = typeof value;
+
+              if (expectedType && actualType !== expectedType) {
+                // rowErrors.value = `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`;
+                rowErrors[colNumber] = rowErrors[colNumber] || [];
+                rowErrors[colNumber].push(`Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`);
+              }
+            }
+          } else {
+            if(value !== null && value !== undefined || (typeof value === 'string' && value.trim() === '')) {
+              let actualType = typeof value;
+              if (expectedType && actualType !== expectedType) {
+                // rowErrors.value = `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`;
+                rowErrors[colNumber] = rowErrors[colNumber] || [];
+                rowErrors[colNumber].push(`Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`);
+              }
+            }
+          }
+        }
+        if (Object.keys(rowErrors).length > 0) {
+          errors.push({ row: rowNumber, errors: rowErrors });
+        }
+        data.push(row.values.slice(1));
+      }          
+    });
+
+    return {
+      errors,
+      data
+    };
+  }
+
+  dataStandardization (
+    data: any[][]
+  ) {
+    const result = [];
+    data.forEach((rowData) => {
+      const normalizedRowData = rowData;
+      rowData.forEach((itemData, index) => {
+        if(index === 2) {
+          normalizedRowData[2] = itemData.toLocaleLowerCase();
+        }
+        if(index === 6) {
+          normalizedRowData[6] = itemData.toLocaleLowerCase();
+        }
+        if(index === 8) {
+          normalizedRowData[8] = itemData.toLocaleLowerCase();
+        }
+        if(index === 10) {
+          normalizedRowData[10] = itemData.toLocaleLowerCase();
+        }
+      });
+
+      result.push(normalizedRowData);
+    });
+    return result;
+  }
+
+  async getListCreatedCatalogsAndSizes(
+    data: any[][]
+  ) {
+    const setCatalogs = new Set<string>();
+    const setCreatedCatalogs: Catalog[] = []; // need create new
+    const setSizes = new Set<string>();
+    const setCreatedSizes: Size[] = []; // need create new
+    data.forEach((rowData) => {
+      rowData.forEach((itemData, index) => {
+        if(index === 2) {
+          setCatalogs.add(itemData);
+        }
+        if(index === 6) {
+          setSizes.add(itemData);
+        }
+        if(index === 8) {
+          setSizes.add(itemData);
+        }
+        if(index === 10) {
+          setSizes.add(itemData);
+        }
+      });
+    });
+
+    for(const catalog of setCatalogs) {
+      const queryCatalog = await this.catalogRepository.findOneBy({
+        name: catalog
+      });
+      
+      if(!queryCatalog) {
+        const newCatalog = new Catalog();
+        Object.assign(newCatalog, { name: catalog });
+        setCreatedCatalogs.push(newCatalog);
+      } 
+    }
+    for(const size of setSizes) {
+      const querySize = await this.sizeRepository.findOneBy({
+        name: size
+      });
+      if(!querySize) {
+        const newSize = new Size();
+        Object.assign(newSize, { name: size });
+        setCreatedSizes.push(newSize);
+      }
+    }
+
+    return {
+      setCreatedSizes,
+      setCreatedCatalogs
+    }
+  }
+  
+  convertErrorsToExcelFormat(errors: ValidationError[]): any[] {
+    return errors.map(error => ({
+        row: error.row,
+        errors: Object.entries(error.errors)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('; ')
+    }));
+  }
+
+  exportProducts(){
+    
+  }
 }
+
+

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  StreamableFile,
   UploadedFile,
   UploadedFiles,
   UseFilters,
@@ -323,5 +325,59 @@ export class ProductController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ProductResponseDto>;
+  }
+
+  @Post('multi')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Create many products successfully',
+    type: ProductResponseDto,
+  })
+  @ApiOperation({ summary: 'Create many products' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
+  @Public()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(new CustomFileInterceptor('file', {
+    limits: {
+      fileSize: 20 * 1024 * 1024,
+    },
+    // fileFilter: (req, file, callback) => {
+    //   if (!file.originalname.match(/\.(xlsx|xls)$/)) {
+    //     return callback(new BadRequestException('Only Excel files are allowed!'), false);
+    //   }
+    //   callback(null, true);
+    // },
+  }))
+  async createManyProducts(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.productService.createManyProducts(file);
+
+    if(result.errors) {
+      return new StreamableFile(result.excelBuffer, {
+        disposition: 'attachment; filename="errorsCreateManyProducts.xlsx"',
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    } else {
+      return {
+        message: 'Products have been created successfully',
+        statusCode: HttpStatus.CREATED,
+        timestamp: new Date().toISOString(),
+        result: `${result.countCreated} products have been created successfully`,
+      } as AppResponseDto<string>;
+    }
   }
 }

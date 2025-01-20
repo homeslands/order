@@ -1,11 +1,15 @@
 {
   "staticPage": {
-    "title": "Trang tĩnh",
     "content": "Nội dung trang tĩnh",
-    "slugs": {
-      "about-us": "Về chúng tôi",
-      "terms": "Điều khoản sử dụng",
-      "privacy": "Chính sách bảo mật"
-    }
+    "createDescription": "Tạo mới trang tĩnh",
+    "create": "Hoàn thành",
+    "key": "Từ khóa",
+    "enterKey": "Nhập từ khóa (Ví dụ ABOUT-US)",
+    "title": "Tiêu đề",
+    "enterTitle": "Nhập tiêu đề",
+    "warning": "Bạn có chắc chắn muốn tạo trang tĩnh này?",
+
+    "update": "Cập nhật",
+    "updateDescription": "Cập nhật trang tĩnh"
   }
 }
