@@ -9,6 +9,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { OrderValidation } from 'src/order/order.validation';
 import { OrderException } from 'src/order/order.exception';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 @Injectable()
 export class MenuItemUtils {
@@ -99,5 +100,59 @@ export class MenuItemUtils {
       context,
     );
     return menuItems;
+  }
+
+  async getCurrentMenuItem(
+    entity: OrderItem,
+    date: Date,
+    action: 'increment' | 'decrement',
+  ) {
+    const context = `${MenuItemUtils.name}.${this.getCurrentMenuItem.name}`;
+    this.logger.log(
+      `Get current of menu item for order item: ${entity.slug}`,
+      context,
+    );
+
+    const menu = await this.menuUtils.getMenu({
+      where: {
+        branch: {
+          id: entity.order.branch?.id,
+        },
+        date,
+      },
+    });
+
+    const menuItem = menu.menuItems.find(
+      (item) => item.product.id === entity.variant.product.id,
+    );
+
+    if (!menuItem) {
+      this.logger.warn(MenuItemValidation.MENU_ITEM_NOT_FOUND.message, context);
+      throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
+    }
+
+    switch (action) {
+      case 'increment':
+        menuItem.currentStock += entity.quantity;
+        break;
+      case 'decrement':
+        if (entity.quantity > menuItem.currentStock) {
+          this.logger.warn(
+            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+            context,
+          );
+          throw new OrderException(
+            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+          );
+        }
+        menuItem.currentStock -= entity.quantity;
+        break;
+      default:
+        this.logger.warn(MenuItemValidation.INVALID_ACTION.message, context);
+        throw new MenuItemException(MenuItemValidation.INVALID_ACTION);
+    }
+
+    this.logger.log(`Menu item: ${menuItem.product.name}`, context);
+    return menuItem;
   }
 }

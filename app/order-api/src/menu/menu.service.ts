@@ -70,6 +70,18 @@ export class MenuService {
       throw new MenuException(MenuValidation.MENU_NOT_FOUND);
     }
 
+    if (query.date && !query.branch) {
+      this.logger.warn(`Branch slug is required`, context);
+      throw new BranchException(
+        BranchValidation.INVALID_BRANCH_SLUG,
+        BranchValidation.BRANCH_NOT_FOUND.message,
+      );
+    }
+    if (query.branch && !query.date) {
+      this.logger.warn(`Date is required`, context);
+      throw new MenuException(MenuValidation.INVALID_DATE);
+    }
+
     const findOptionsWhere: FindOptionsWhere<Menu> = {
       date: query.date,
       branch: { slug: query.branch },

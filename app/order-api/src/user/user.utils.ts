@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthException } from 'src/auth/auth.exception';
 import { UserException } from './user.exception';
 import { UserValidation } from './user.validation';
 

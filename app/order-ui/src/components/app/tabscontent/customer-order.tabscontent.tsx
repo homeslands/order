@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -47,7 +47,6 @@ export default function CustomerOrderTabsContent({
   }
 
   const handleUpdateOrder = (order: IOrder) => {
-    console.log('order', order)
     if (!getUserInfo()?.slug)
       return (
         showErrorToast(1042), navigate(ROUTE.LOGIN)
@@ -66,58 +65,53 @@ export default function CustomerOrderTabsContent({
               <span className="text-xs text-muted-foreground">
                 {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
               </span>
-
               <OrderStatusBadge order={orderItem} />
             </div>
-
             {/* Order items */}
-            <div className="flex flex-col">
-              {orderItem.orderItems.map((product) => (
-                <div
-                  key={product.slug}
-                  className="grid items-center grid-cols-12 gap-2 p-4"
-                >
-                  <div className="relative col-span-3">
-                    <img
-                      src={`${publicFileURL}/${product.variant.product.image}`}
-                      alt={product.variant.product.name}
-                      className="object-cover w-20 h-20 rounded-md sm:w-36"
-                    />
-                    <div className="absolute flex items-center justify-center text-xs text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:right-4 sm:h-8 sm:w-8">
-                      x{product.quantity}
+            <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`} key={orderItem.slug}>
+              <div className="flex flex-col">
+                {orderItem.orderItems.map((product) => (
+                  <div
+                    key={product.slug}
+                    className="grid items-center grid-cols-12 gap-2 p-4"
+                  >
+                    <div className="relative col-span-3">
+                      <img
+                        src={`${publicFileURL}/${product.variant.product.image}`}
+                        alt={product.variant.product.name}
+                        className="object-cover w-20 h-20 rounded-md sm:w-36"
+                      />
+                      <div className="absolute flex items-center justify-center text-xs text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:right-4 sm:h-8 sm:w-8">
+                        x{product.quantity}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col col-span-6 gap-1 px-1">
-                    <div className="text-sm font-semibold truncate sm:text-md">
-                      {product.variant.product.name}
+                    <div className="flex flex-col col-span-6 gap-1 px-1">
+                      <div className="text-sm font-semibold truncate sm:text-md">
+                        {product.variant.product.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground sm:text-sm">
+                        {product.variant.size.name.toLocaleUpperCase()} -{' '}
+                        {`${formatCurrency(product.variant.price)}`}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground sm:text-sm">
-                      {product.variant.size.name.toLocaleUpperCase()} -{' '}
-                      {`${formatCurrency(product.variant.price)}`}
+                    <div className="col-span-3">
+                      <span>
+                        {`${formatCurrency(product.variant.price * product.quantity)}`}
+                      </span>
                     </div>
                   </div>
-                  <div className="col-span-3">
-                    <span>
-                      {`${formatCurrency(product.variant.price * product.quantity)}`}
-                    </span>
-                  </div>
+                ))}
+              </div>
+            </NavLink>
+            <div className="flex flex-col justify-end gap-2 px-4">
+              <div className="flex flex-col">
+                <div className='flex justify-end w-full'>
+                  {t('order.subtotal')}:&nbsp;
+                  <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex flex-col justify-end gap-2 p-4">
-              <div className="flex items-center justify-between">
-                <Button
-                  onClick={() =>
-                    navigate(
-                      `${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`,
-                    )
-                  }
-                >
-                  {t('order.viewDetail')}
-                </Button>
                 {orderItem.status === OrderStatus.PENDING && (
-                  <div className='flex gap-2'>
+                  <div className='grid grid-cols-2 gap-2 py-4'>
                     <Button
                       variant="outline"
                       onClick={() =>
@@ -129,10 +123,6 @@ export default function CustomerOrderTabsContent({
                     <CancelOrderDialog order={orderItem} />
                   </div>
                 )}
-                <div>
-                  {t('order.subtotal')}:&nbsp;
-                  <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
-                </div>
               </div>
             </div>
           </div>

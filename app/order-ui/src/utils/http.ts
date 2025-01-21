@@ -50,6 +50,7 @@ const publicRoutes = [
   { path: /^\/auth\/login$/, methods: ['post'] },
   { path: /^\/auth\/register$/, methods: ['post'] },
   { path: /^\/auth\/refresh$/, methods: ['post'] },
+  { path: /^\/static-page\/[^/]+$/, methods: ['get'] },
   { path: /^\/auth\/forgot-password$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password\/token$/, methods: ['post'] },
   { path: /^\/menu\/specific$/, methods: ['get'] },

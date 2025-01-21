@@ -9,6 +9,7 @@ import { DbModule } from 'src/db/db.module';
 import { OrderItemUtils } from './order-item.utils';
 import { OrderModule } from 'src/order/order.module';
 import { VariantModule } from 'src/variant/variant.module';
+import { MenuItemModule } from 'src/menu-item/menu-item.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { VariantModule } from 'src/variant/variant.module';
     DbModule,
     OrderModule,
     VariantModule,
+    MenuItemModule,
   ],
   controllers: [OrderItemController],
   providers: [OrderItemService, OrderItemProfile, OrderItemUtils],

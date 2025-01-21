@@ -13,6 +13,8 @@ import { OrderItemUtils } from './order-item.utils';
 import { VariantUtils } from 'src/variant/variant.utils';
 import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import moment from 'moment';
 
 @Injectable()
 export class OrderItemService {
@@ -23,9 +25,15 @@ export class OrderItemService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
+    private readonly menuItemUtils: MenuItemUtils,
   ) {}
 
-  async deleteOrderItem(slug: string) {
+  /**
+   * Handles order item deletion
+   * @param {string} slug
+   * @returns {Promise<void>} Result when deleting order item
+   */
+  async deleteOrderItem(slug: string): Promise<void> {
     const context = `${OrderItemService.name}.${this.deleteOrderItem.name}`;
     const orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
@@ -38,7 +46,17 @@ export class OrderItemService {
 
     await this.transactionManagerService.execute(
       async (manager) => {
+        // Remove order item
         await manager.remove(orderItem);
+
+        // Update menu items
+        const menuItem = await this.menuItemUtils.getCurrentMenuItem(
+          orderItem,
+          new Date(moment().format('YYYY-MM-DD')),
+          'increment',
+        );
+        await manager.save(menuItem);
+
         // Update order
         order.subtotal = await this.orderUtils.getOrderSubtotal(order);
         await manager.save(order);
@@ -56,7 +74,14 @@ export class OrderItemService {
     );
   }
 
-  async createOrderItem(requestData: CreateOrderItemRequestDto) {
+  /**
+   * Handles order item creation
+   * @param {CreateOrderItemRequestDto} requestData
+   * @returns {Promise<OrderItemResponseDto>} Result when creating order item
+   */
+  async createOrderItem(
+    requestData: CreateOrderItemRequestDto,
+  ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
     const order = await this.orderUtils.getOrder({
       where: {
@@ -84,8 +109,20 @@ export class OrderItemService {
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(
         async (manager) => {
+          // Create order item
           const created = await manager.save(orderItem);
+
+          // Update menu items
+          const menuItem = await this.menuItemUtils.getCurrentMenuItem(
+            orderItem,
+            new Date(moment().format('YYYY-MM-DD')),
+            'decrement',
+          );
+          await manager.save(menuItem);
+
+          // Update order
           await manager.save(order);
+
           return created;
         },
         (result) => {

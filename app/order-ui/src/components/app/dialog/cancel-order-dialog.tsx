@@ -35,10 +35,10 @@ export default function DeleteSizeDialog({ order }: { order: IOrder }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="flex justify-start w-full" asChild>
+      <DialogTrigger className="flex justify-center w-full" asChild>
         <DialogTrigger asChild>
           <Button
-            variant="outline"
+            variant="destructive"
             className="gap-1 px-2 text-sm"
             onClick={() => setIsOpen(true)}
           >

@@ -63,6 +63,34 @@ export const router = createBrowserRouter([
     element: <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />,
   },
   {
+    path: ROUTE.ABOUT,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <ClientLayout />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: <SuspenseElement component={ClientAboutPage} />,
+      },
+    ],
+  },
+  {
+    path: ROUTE.POLICY,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <ClientLayout />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: <SuspenseElement component={ClientPolicyPage} />,
+      },
+    ],
+  },
+  {
     path: ROUTE.OVERVIEW,
     element: (
       <Suspense fallback={<SkeletonCart />}>
@@ -718,44 +746,6 @@ export const router = createBrowserRouter([
           <ProtectedElement
             allowedRoles={[Role.CUSTOMER]}
             element={<SuspenseElement component={ClientProfilePage} />}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    path: ROUTE.ABOUT,
-    element: (
-      <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={ClientLayout} />
-      </Suspense>
-    ),
-    children: [
-      {
-        index: true,
-        element: (
-          <ProtectedElement
-            allowedRoles={[Role.CUSTOMER]}
-            element={<SuspenseElement component={ClientAboutPage} />}
-          />
-        ),
-      },
-    ],
-  },
-  {
-    path: ROUTE.POLICY,
-    element: (
-      <Suspense fallback={<SkeletonCart />}>
-        <SuspenseElement component={ClientLayout} />
-      </Suspense>
-    ),
-    children: [
-      {
-        index: true,
-        element: (
-          <ProtectedElement
-            allowedRoles={[Role.CUSTOMER]}
-            element={<SuspenseElement component={ClientPolicyPage} />}
           />
         ),
       },

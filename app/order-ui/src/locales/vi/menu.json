@@ -143,7 +143,7 @@
     "viewDetail": "Xem chi tiết",
     "cancelOrder": "Hủy đơn hàng",
     "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
-    "updateOrder": "Cập nhật đơn hàng",
+    "updateOrder": "Cập nhật",
 
     "updatePayment": "Cập nhật thanh toán",
     "exportPayment": "Xuất QR code thanh toán",

@@ -3,10 +3,12 @@ import { createErrorCode, TErrorCodeValue } from 'src/app/app.validation';
 export const MENU_ITEM_NOT_FOUND = 'MENU_ITEM_NOT_FOUND';
 export const MENU_ITEM_EXIST = 'MENU_ITEM_EXIST';
 export const UPDATE_MENU_ITEM_ERROR = 'UPDATE_MENU_ITEM_ERROR';
+export const INVALID_ACTION = 'INVALID_ACTION';
 
 export type TMenuItemErrorCodeKey =
   | typeof MENU_ITEM_NOT_FOUND
   | typeof UPDATE_MENU_ITEM_ERROR
+  | typeof INVALID_ACTION
   | typeof MENU_ITEM_EXIST;
 
 export type TMenuItemErrorCode = Record<TMenuItemErrorCodeKey, TErrorCodeValue>;
@@ -19,4 +21,5 @@ export const MenuItemValidation: TMenuItemErrorCode = {
     113002,
     'Error when updating menu item',
   ),
+  INVALID_ACTION: createErrorCode(113003, 'Invalid action'),
 };

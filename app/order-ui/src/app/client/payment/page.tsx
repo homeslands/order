@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import moment from 'moment'
+import _ from 'lodash'
 import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
+import { CircleX, SquareMenu } from 'lucide-react'
 
 import { Button } from '@/components/ui'
 import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
@@ -11,6 +12,8 @@ import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
+import { PaymentCountdown } from '@/components/app/countdown/PaymentCountdown'
+import { OrderStatus } from '@/types'
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -26,68 +29,72 @@ export function ClientPaymentPage() {
     useExportPayment()
   const [qrCode, setQrCode] = useState<string>('')
   const [paymentSlug, setPaymentSlug] = useState<string>('')
-  const [isPolling, setIsPolling] = useState<boolean>(false)
-  const [isDisabled, setDisabled] = useState<boolean>(false)
-  const [timeRemaining, setTimeRemaining] = useState<number>(300) // 5 minutes in seconds
+  const [isPolling, setIsPolling] = useState<boolean>(true) // Start polling initially
+  const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
   const [isExpired, setIsExpired] = useState<boolean>(false)
 
   useEffect(() => {
-    setDisabled(!paymentMethod || !slug)
-  }, [paymentMethod, slug])
+    if (order?.result.createdAt) {
+      const createdAt = moment(order.result.createdAt)
+      const now = moment()
+      const timePassed = now.diff(createdAt, 'seconds')
+      const remainingTime = 60 - timePassed // 60 seconds
+      setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
+      setIsExpired(remainingTime <= 0)
+    }
+  }, [order?.result.createdAt])
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    let timerInterval: NodeJS.Timeout | null = null
 
+    if (timeRemainingInSec > 0 && !isExpired) {
+      timerInterval = setInterval(() => {
+        setTimeRemainingInSec((prev) => {
+          const newTime = prev - 1
+          if (newTime <= 0) {
+            setIsExpired(true)
+            setIsPolling(false)
+            if (timerInterval) clearInterval(timerInterval)
+          }
+          return newTime
+        })
+      }, 1000)
+    }
 
-    if (isPolling) {
-      interval = setInterval(async () => {
+    return () => {
+      if (timerInterval) clearInterval(timerInterval)
+    }
+  }, [timeRemainingInSec, isExpired])
+
+  useEffect(() => {
+    let pollingInterval: NodeJS.Timeout | null = null
+
+    if (isPolling && !isExpired) {
+      pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
-        const orderStatus = updatedOrder.data?.result?.status
-        if (orderStatus === 'paid') {
-          clearInterval(interval!)
+        if (updatedOrder.data?.result?.status === OrderStatus.PAID) {
+          if (pollingInterval) clearInterval(pollingInterval)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
-      }, 1000) // Call APi every 3 seconds
+      }, 3000) // Poll every 3 seconds
     }
 
     return () => {
-      if (interval) clearInterval(interval)
+      if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [isPolling, refetchOrder, navigate, slug])
-
-  // Add countdown timer effect
-  useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-
-    if (order?.result.createdAt && timeRemaining > 0 && !isExpired) {
-      timer = setInterval(() => {
-        setTimeRemaining((prevTime) => {
-          if (prevTime <= 1) {
-            setIsExpired(true);
-            setPaymentSlug(''); // Reset payment slug when expired
-            setQrCode(''); // Also reset QR code
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [order?.result.createdAt, timeRemaining, isExpired]);
+  }, [isPolling, isExpired, refetchOrder, navigate, slug])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
     setPaymentMethod(selectedPaymentMethod)
+    setIsPolling(false) // Stop polling after selecting payment method
   }
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
 
     // Reset timer when getting new QR code
-    setTimeRemaining(300);
-    setIsExpired(false);
+    setTimeRemainingInSec(60)
+    setIsExpired(false)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -96,7 +103,6 @@ export function ClientPaymentPage() {
           onSuccess: (data) => {
             setPaymentSlug(data.result.slug)
             setQrCode(data.result.qrCode)
-            setIsPolling(true) // Bắt đầu polling khi thanh toán qua chuyển khoản ngân hàng
           },
         },
       )
@@ -122,10 +128,23 @@ export function ClientPaymentPage() {
     })
   }
 
-  if (!order) return <div>Đơn hàng không tồn tại</div>
+  if (isExpired || _.isEmpty(order?.result)) {
+    return (
+      <div className="container py-20 lg:h-[60vh]">
+        <div className="flex flex-col items-center justify-center gap-5">
+          <CircleX className="w-32 h-32 text-destructive" />
+          <p className="text-center text-muted-foreground">Đơn hàng đã hết hạn thanh toán</p>
+          <NavLink to={ROUTE.CLIENT_MENU}>
+            <Button variant="default">Quay lại trang thực đơn</Button>
+          </NavLink>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container py-10">
+      <PaymentCountdown timeRemaining={timeRemainingInSec} isExpired={isExpired} />
       <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('menu.payment')}
@@ -258,8 +277,6 @@ export function ClientPaymentPage() {
         </div>
         {/* Lựa chọn phương thức thanh toán */}
         <ClientPaymentMethodSelect
-          isExpired={isExpired}
-          timeRemaining={timeRemaining}
           qrCode={qrCode ? qrCode : ''}
           total={order.result ? order.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
@@ -270,7 +287,7 @@ export function ClientPaymentPage() {
               <div className="flex gap-2">
                 {!paymentSlug && (
                   <Button
-                    disabled={isDisabled || isPendingInitiatePayment}
+                    disabled={isPendingInitiatePayment}
                     className="w-fit"
                     onClick={handleConfirmPayment}
                   >
@@ -280,7 +297,7 @@ export function ClientPaymentPage() {
                 )}
                 {paymentSlug && (
                   <Button
-                    disabled={isDisabled || isPendingExportPayment}
+                    disabled={isPendingExportPayment}
                     className="w-fit"
                     onClick={handleExportPayment}
                   >
