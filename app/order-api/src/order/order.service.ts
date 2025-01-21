@@ -313,7 +313,7 @@ export class OrderService {
   async getAllOrders(
     options: GetOrderRequestDto,
   ): Promise<AppPaginatedResponseDto<OrderResponseDto>> {
-    const findOptionsWhere: FindOptionsWhere<any> = {
+    const findOptionsWhere: FindOptionsWhere<Order> = {
       branch: {
         slug: options.branch,
       },

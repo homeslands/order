@@ -1,7 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from './order.entity';
-import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { OrderStatus } from './order.contants';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -14,8 +11,6 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 export class OrderScheduler {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
@@ -45,13 +40,23 @@ export class OrderScheduler {
       'increment',
     );
 
+    const { payment } = order;
+
     // Delete order
     await this.transactionManagerService.execute<void>(
       async (manager) => {
+        // Update stock of menu items
         await manager.save(menuItems);
-        if (order.payment) await manager.remove(order.payment);
+
+        // Remove order items
         if (order.orderItems) await manager.remove(order.orderItems);
+
+        // Remove order
         await manager.remove(order);
+
+        // Remove payment
+        if (payment) await manager.remove(payment);
+
         this.logger.log(
           `Menu items: ${menuItems.map((item) => item.product.name).join(', ')} updated`,
           context,
@@ -79,7 +84,7 @@ export class OrderScheduler {
       const existedJob = this.schedulerRegistry.getTimeout(jobName);
       if (existedJob) {
         this.logger.warn(`Job ${orderSlug} already exists`, context);
-        return;
+        this.schedulerRegistry.deleteTimeout(jobName);
       }
     } catch (error) {
       this.logger.error(
@@ -90,7 +95,7 @@ export class OrderScheduler {
 
     const job = setTimeout(async () => {
       await this.cancelOrder(orderSlug);
-    }, delay); // 5 minutes
+    }, delay);
 
     this.schedulerRegistry.addTimeout(jobName, job);
   }
