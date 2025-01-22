@@ -1,7 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
+import { MenuItemActionType } from 'src/menu-item/menu-item.constants';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
 
@@ -40,7 +41,7 @@ export class UpdateOrderItemRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The note of order item', example: 'Ghi chú' })
   @IsOptional()
-  note: string;
+  note?: string;
 
   @AutoMap()
   @ApiProperty({
@@ -49,6 +50,11 @@ export class UpdateOrderItemRequestDto {
   })
   @IsNotEmpty({ message: 'Invalid slug of variant' })
   variant: string;
+
+  @AutoMap()
+  @ApiProperty({ description: `increment or decrement` })
+  @IsOptional()
+  action?: 'increment' | 'decrement';
 }
 
 export class StatusOrderItemResponseDto {

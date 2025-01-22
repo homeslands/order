@@ -6,15 +6,18 @@ import { Mapper } from '@automapper/core';
 import {
   CreateOrderItemRequestDto,
   OrderItemResponseDto,
+  UpdateOrderItemRequestDto,
 } from './order-item.dto';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { OrderUtils } from 'src/order/order.utils';
 import { OrderItemUtils } from './order-item.utils';
 import { VariantUtils } from 'src/variant/variant.utils';
-import { OrderException } from 'src/order/order.exception';
-import { OrderValidation } from 'src/order/order.validation';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import moment from 'moment';
+import { OrderItemException } from './order-item.exception';
+import { OrderItemValidation } from './order-item.validation';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrderItemService {
@@ -26,7 +29,63 @@ export class OrderItemService {
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
     private readonly menuItemUtils: MenuItemUtils,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
+
+  async updateOrderItem(slug: string, requestData: UpdateOrderItemRequestDto) {
+    const context = `${OrderItemService.name}.${this.updateOrderItem.name}`;
+
+    if (!requestData.action) {
+      this.logger.warn('Action is required', context);
+      throw new OrderItemException(OrderItemValidation.INVALID_ACTION);
+    }
+
+    const orderItem = await this.orderItemUtils.getOrderItem({
+      where: { slug },
+    });
+    const variant = await this.variantUtils.getVariant({
+      where: { slug: requestData.variant },
+    });
+
+    orderItem.variant = variant;
+    orderItem.quantity = requestData.quantity;
+    orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
+    if (requestData.note) orderItem.note = requestData.note;
+
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        // Update order item
+        await manager.save(orderItem);
+
+        // Update menu item
+        const menuItem = await this.menuItemUtils.getCurrentMenuItem(
+          orderItem,
+          new Date(moment().format('YYYY-MM-DD')),
+          requestData.action,
+        );
+        await manager.save(menuItem);
+
+        // Update order
+        const { order } = orderItem;
+        order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+        await manager.save(order);
+      },
+      () => {
+        this.logger.log(`Order item updated: ${slug}`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when updating order item: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new OrderItemException(
+          OrderItemValidation.UPDATE_ORDER_ITEM_ERROR,
+        );
+      },
+    );
+  }
 
   /**
    * Handles order item deletion
@@ -38,17 +97,13 @@ export class OrderItemService {
     const orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
     });
-    const { order } = orderItem;
-    if (!order) {
-      this.logger.warn(`Order not found in order item: ${slug}`, context);
-      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
-    }
+    const { slug: orderSlug } = orderItem.order;
+    const order = await this.orderUtils.getOrder({
+      where: { slug: orderSlug },
+    });
 
     await this.transactionManagerService.execute(
       async (manager) => {
-        // Remove order item
-        await manager.remove(orderItem);
-
         // Update menu items
         const menuItem = await this.menuItemUtils.getCurrentMenuItem(
           orderItem,
@@ -56,6 +111,15 @@ export class OrderItemService {
           'increment',
         );
         await manager.save(menuItem);
+
+        // Remove order item
+        // Can not use manager.remove(orderItem) because order item is not managed by manager
+        // We get order item from order repository so we need to remove it from order item repository
+        orderItem.order = null;
+        order.orderItems = order.orderItems.filter(
+          (item) => item.slug !== orderItem.slug,
+        );
+        await manager.remove(OrderItem, orderItem);
 
         // Update order
         order.subtotal = await this.orderUtils.getOrderSubtotal(order);
@@ -69,6 +133,9 @@ export class OrderItemService {
           `Error when deleting order item: ${error.message}`,
           error.stack,
           context,
+        );
+        throw new OrderItemException(
+          OrderItemValidation.DELETE_ORDER_ITEM_ERROR,
         );
       },
     );
@@ -133,6 +200,9 @@ export class OrderItemService {
             `Error when creating order item: ${error.mesage}`,
             error.stack,
             context,
+          );
+          throw new OrderItemException(
+            OrderItemValidation.CREATE_ORDER_ITEM_ERROR,
           );
         },
       );

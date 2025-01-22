@@ -5,7 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { OrderItemService } from './order-item.service';
@@ -13,6 +15,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   CreateOrderItemRequestDto,
   OrderItemResponseDto,
+  UpdateOrderItemRequestDto,
 } from './order-item.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 
@@ -44,9 +47,26 @@ export class OrderItemController {
 
   async getOrderItem() {}
 
-  async updateOrderItem() {}
+  @Patch(':slug')
+  async updateOrderItem(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: UpdateOrderItemRequestDto,
+  ) {
+    const result = await this.orderItemService.updateOrderItem(
+      slug,
+      requestData,
+    );
+  }
 
   @Delete(':slug')
+  @ApiOperation({ summary: 'Delete order item' })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Order item deleted successfully',
+    type: OrderItemResponseDto,
+  })
   async deleteOrderItem(@Param('slug') slug: string) {
     await this.orderItemService.deleteOrderItem(slug);
     return {

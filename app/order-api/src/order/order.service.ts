@@ -179,7 +179,7 @@ export class OrderService {
         );
 
         // Cancel order after 5 minutes
-        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 60 * 1000);
+        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 2 * 60 * 1000);
         return createdOrder;
       },
       (result) => {

@@ -14,7 +14,7 @@ export class OrderItemUtils {
 
   async getOrderItem(options: FindOneOptions<OrderItem>): Promise<OrderItem> {
     const orderItem = await this.orderItemRepository.findOne({
-      relations: ['order'],
+      relations: ['order', 'variant.product', 'variant.size'],
       ...options,
     });
     if (!orderItem) {
