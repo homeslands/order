@@ -26,6 +26,9 @@
     "selectReservedTableWarning2": " đã được đặt, bạn có chắc vẫn muốn chọn bàn này không?",
     "confirmSelectTable": "Tôi đã hiểu, xác nhận chọn",
 
+    "selectedTableToRemoveWarning": "Bạn có chắc muốn xóa bàn đã chọn không?",
+    "confirmRemoveTable": "Tôi đã hiểu, xác nhận xóa",
+
     "order": "Đơn hàng",
     "selectOrderType": "Chọn loại đơn hàng",
     "orderDescription": "Vui lòng kiểm tra thông tin đơn hàng",
@@ -85,6 +88,7 @@
   "order": {
     "confirmation": "Xác nhận thanh toán",
     "openMenu": "Mở thực đơn",
+    "menu": "Thực đơn",
     "product": "Sản phẩm",
     "unitPrice": "Đơn giá",
     "quantity": "Số lượng",

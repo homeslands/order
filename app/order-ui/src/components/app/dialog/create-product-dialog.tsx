@@ -24,16 +24,12 @@ export default function CreateProductDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-10 gap-1 text-sm"
-          onClick={() => setIsOpen(true)}
-        >
+        <Button className="gap-1 text-xs" onClick={() => setIsOpen(true)}>
           <PlusCircledIcon className="icon" />
           {t('product.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">
+      <DialogContent className="max-w-[90%] rounded-md px-6 sm:max-w-[36%]">
         <DialogHeader>
           <DialogTitle>{t('product.create')}</DialogTitle>
           <DialogDescription>

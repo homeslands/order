@@ -64,6 +64,10 @@
     "createOrderSuccess": "Đặt hàng thành công",
     "orderItemDeleted": "Xóa món thành công",
 
+    "addNewOrderItemSuccess": "Thêm món vào đơn hàng thành công",
+    "deleteOrderItemSuccess": "Xóa món khỏi đơn hàng thành công",
+    "updateOrderTypeSuccess": "Cập nhật loại đơn hàng thành công",
+
     "createOrderTrackingSuccess": "Phân robot giao hàng thành công",
 
     "exportInvoiceSuccess": "Xuất hóa đơn thành công",
@@ -90,6 +94,8 @@
     "updateStaticPageSuccess": "Cập nhật trang tĩnh thành công",
     "deleteStaticPageSuccess": "Xóa trang tĩnh thành công",
 
+    "refreshRevenueSuccess": "Lấy dữ liệu doanh thu mới thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",
@@ -105,6 +111,7 @@
     "userNotFound": "Không tìm thấy người dùng",
     "fileNotFound": "Không tìm thấy tệp",
     "productNotFound": "Không tìm thấy sản phẩm",
+    "orderTypeInvalid": "Loại đơn hàng không hợp lệ",
     "productNameExist": "Tên sản phẩm đã tồn tại",
     "productNameRequired": "Tên sản phẩm là bắt buộc",
     "productLimitRequired": "Giới hạn sản phẩm là bắt buộc",
@@ -147,6 +154,7 @@
     "sizeNameDoesExist": "Tên kích thước đã tồn tại",
     "mustChangeSizeOfVariantsBeforeDelete": "Cần thay đổi kích thước của phân loại trước khi xóa",
     "workflowDoesExist": "Workflow đã tồn tại",
-    "branchHaveAWorkflow": "Chi nhánh đã có workflow"
+    "branchHaveAWorkflow": "Chi nhánh đã có workflow",
+    "newRevenueNotFound": "Chưa có dữ liệu doanh thu mới"
   }
 }

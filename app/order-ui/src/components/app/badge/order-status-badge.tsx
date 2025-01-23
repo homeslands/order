@@ -71,10 +71,9 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
     }
   }
 
-  // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block min-w-[4.5rem] px-2 py-0.5 text-center text-[0.7rem] ${getBadgeColor(
+      className={`inline-block w-fit px-3 py-0.5 text-center text-[0.7rem] ${getBadgeColor(
         order?.status || OrderStatus.FAILED,
       )} rounded-full`}
     >

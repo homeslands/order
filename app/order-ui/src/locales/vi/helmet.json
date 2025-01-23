@@ -1,0 +1,9 @@
+{
+  "helmet": {
+    "menu": {
+      "title": "Thực đơn",
+      "description": "Quản lý thực đơn của bạn tại đây",
+      "keywords": "thực đơn, quản lý thực đơn, thực đơn quán ăn"
+    }
+  }
+}

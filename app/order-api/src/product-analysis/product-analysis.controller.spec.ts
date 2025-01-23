@@ -9,6 +9,8 @@ import { Branch } from 'src/branch/branch.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Product } from 'src/product/product.entity';
 import { ProductAnalysis } from './product-analysis.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Menu } from 'src/menu/menu.entity';
 
 describe('ProductAnalysisController', () => {
   let controller: ProductAnalysisController;
@@ -28,6 +30,14 @@ describe('ProductAnalysisController', () => {
         },
         {
           provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
         },
         {

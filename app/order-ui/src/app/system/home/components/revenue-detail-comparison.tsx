@@ -7,13 +7,14 @@ import { formatCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
 
 interface RevenueData {
+    trigger?: number
     branch: string
 }
-export default function RevenueComparison({ branch }: RevenueData) {
+export default function RevenueComparison({ trigger, branch }: RevenueData) {
     const chartRef = useRef<HTMLDivElement>(null)
 
     // Get current month data
-    const { data: currentMonthData } = useBranchRevenue({
+    const { data: currentMonthData, refetch: refreshCurrentMonthRevenue } = useBranchRevenue({
         branch,
         startDate: moment().startOf('month').toISOString(),
         endDate: moment().endOf('month').toISOString(),
@@ -21,12 +22,20 @@ export default function RevenueComparison({ branch }: RevenueData) {
     })
 
     // Get last month data
-    const { data: lastMonthData } = useBranchRevenue({
+    const { data: lastMonthData, refetch: refreshLastMonthRevenue } = useBranchRevenue({
         branch,
         startDate: moment().subtract(1, 'month').startOf('month').toISOString(),
         endDate: moment().subtract(1, 'month').endOf('month').toISOString(),
         type: RevenueTypeQuery.MONTHLY
     })
+
+    // Refetch when trigger changes
+    useEffect(() => {
+        if (trigger) {
+            refreshCurrentMonthRevenue();
+            refreshLastMonthRevenue();
+        }
+    }, [trigger, refreshCurrentMonthRevenue, refreshLastMonthRevenue]);
 
     useEffect(() => {
         if (chartRef.current && currentMonthData?.result && lastMonthData?.result) {

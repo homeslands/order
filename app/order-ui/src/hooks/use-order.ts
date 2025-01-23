@@ -1,14 +1,18 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
 import {
+  addNewOrderItem,
   createOrder,
   createOrderTracking,
+  deleteOrder,
+  deleteOrderItem,
   exportOrderInvoice,
   exportPaymentQRCode,
   getAllOrders,
   getOrderBySlug,
   getOrderInvoice,
   initiatePayment,
+  updateOrderType,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -16,6 +20,8 @@ import {
   ICreateOrderTrackingRequest,
   IGetOrderInvoiceRequest,
   IOrdersQuery,
+  IAddNewOrderItemRequest,
+  IUpdateOrderTypeRequest,
 } from '@/types'
 
 export const useOrders = (q: IOrdersQuery) => {
@@ -82,6 +88,47 @@ export const useExportPayment = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return exportPaymentQRCode(slug)
+    },
+  })
+}
+
+//Update order
+export const useAddNewOrderItem = () => {
+  return useMutation({
+    mutationFn: async (data: IAddNewOrderItemRequest) => {
+      return addNewOrderItem(data)
+    },
+  })
+}
+
+export const useDeleteOrderItem = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return deleteOrderItem(slug)
+    },
+  })
+}
+
+//Update order type
+export const useUpdateOrderType = () => {
+  return useMutation({
+    mutationFn: async ({
+      slug,
+      params,
+    }: {
+      slug: string
+      params: IUpdateOrderTypeRequest
+    }) => {
+      return updateOrderType(slug, params)
+    },
+  })
+}
+
+//Delete order
+export const useDeleteOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return deleteOrder(slug)
     },
   })
 }

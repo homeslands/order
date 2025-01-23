@@ -277,6 +277,8 @@ export function ClientPaymentPage() {
         </div>
         {/* Lựa chọn phương thức thanh toán */}
         <ClientPaymentMethodSelect
+          // isExpired={isExpired}
+          // timeRemaining={timeRemainingInSec}
           qrCode={qrCode ? qrCode : ''}
           total={order.result ? order.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}

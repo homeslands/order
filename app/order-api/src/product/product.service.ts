@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Product } from './product.entity';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -467,6 +467,9 @@ export class ProductService {
     const validateDataType = {
       2: 'string',
       3: 'string',
+      4: 'string',
+      5: 'string',
+      6: 'string',
       7: 'string',
       8: 'number',
       9: 'string',
@@ -494,6 +497,7 @@ export class ProductService {
     const requiredColumns = [2, 3];
 
     const errors = [];
+    // [string, string, string, string, string, string, number, string, number, string, number]
     const data = [];
     const headerRow = worksheet.getRow(1);
 

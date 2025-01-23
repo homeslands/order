@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ShoppingCart } from 'lucide-react';
 
 import {
   Button,
@@ -23,7 +24,6 @@ import { OrderTypeEnum, IProductVariant, IProduct } from '@/types';
 import { useCartItemStore, useUserStore } from '@/stores';
 import { publicFileURL } from '@/constants';
 import { formatCurrency } from '@/utils';
-import { Plus } from 'lucide-react';
 
 interface AddToCartDialogProps {
   product: IProduct;
@@ -77,8 +77,9 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button size="icon" className="text-white rounded-full shadow-none">
-          <Plus />
+        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
+          <ShoppingCart className='icon' />
+          {t('menu.addToCart')}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[90%]">

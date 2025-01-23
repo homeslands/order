@@ -15,7 +15,6 @@ export default function SystemLayout() {
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="box-border flex min-h-screen flex-1">
-        {/* Sidebar - Hidden on mobile by default */}
         <AppSidebar />
 
         {/* Main content */}

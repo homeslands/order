@@ -12,6 +12,7 @@ interface RevenueData {
     branch: string
     startDate: string
     endDate: string
+    trigger?: number // Add trigger prop
 }
 
 interface TooltipParams {
@@ -20,16 +21,23 @@ interface TooltipParams {
     seriesName: string;
 }
 
-export default function RevenueDetailChart({ branch, startDate, endDate }: RevenueData) {
+export default function RevenueDetailChart({ trigger, branch, startDate, endDate }: RevenueData) {
     const chartRef = useRef<HTMLDivElement>(null)
     const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
 
-    const { data: revenueData } = useBranchRevenue({
+    const { data: revenueData, refetch } = useBranchRevenue({
         branch,
         startDate,
         endDate,
         type: revenueType
     })
+
+    // Refetch when trigger changes
+    useEffect(() => {
+        if (trigger) {
+            refetch();
+        }
+    }, [trigger, refetch]);
 
     const handleSelectTimeRange = (timeRange: string) => {
         // Cập nhật type dựa vào timeRange

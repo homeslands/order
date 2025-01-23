@@ -19,7 +19,7 @@ import {
   MenuManagementPage,
   OrderPaymentPage,
   BankConfigPage,
-  MenuDetailPage,
+  MenuDetailManagementPage,
   OrderManagementPage,
   OrderHistoryPage,
   OrderDetailPage,
@@ -372,7 +372,7 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedElement
             allowedRoles={[Role.CHEF, Role.MANAGER]}
-            element={<SuspenseElement component={MenuDetailPage} />}
+            element={<SuspenseElement component={MenuDetailManagementPage} />}
           />
         ),
       },

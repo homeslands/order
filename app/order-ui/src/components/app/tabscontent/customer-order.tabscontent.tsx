@@ -106,12 +106,12 @@ export default function CustomerOrderTabsContent({
             </NavLink>
             <div className="flex flex-col justify-end gap-2 px-4">
               <div className="flex flex-col">
-                <div className='flex justify-end w-full'>
+                <div className='flex items-center justify-end w-full'>
                   {t('order.subtotal')}:&nbsp;
                   <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
                 </div>
                 {orderItem.status === OrderStatus.PENDING && (
-                  <div className='grid grid-cols-2 gap-2 py-4'>
+                  <div className='grid grid-cols-2 gap-2 py-4 sm:grid-cols-5'>
                     <Button
                       variant="outline"
                       onClick={() =>

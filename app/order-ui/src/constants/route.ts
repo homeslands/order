@@ -17,29 +17,18 @@ export const ROUTE = {
   STAFF_CHECKOUT_ORDER: '/checkout-order',
   STAFF_ORDER_PAYMENT: '/system/payment',
   STAFF_ORDER_MANAGEMENT: '/order-management',
-  STAFF_ORDER_HISTORY: '/staff/order-history',
+  STAFF_ORDER_HISTORY: '/system/order-history',
   STAFF_ORDER_PREPARATION: '/order-preparation',
-  STAFF_TABLE_MANAGEMENT: '/table-management',
-  STAFF_PRODUCT_MANAGEMENT: '/product-management',
-  STAFF_MENU_MANAGEMENT: '/menu-management',
+  STAFF_TABLE_MANAGEMENT: '/system/table',
+  STAFF_PRODUCT_MANAGEMENT: '/system/product',
+  STAFF_MENU_MANAGEMENT: '/system/menu-management',
   STAFF_DELIVERY_MANAGEMENT: '/delivery-management',
   STAFF_WALLET_MANAGEMENT: '/wallet-management',
   STAFF_LOG_MANAGEMENT: '/log',
-  STAFF_USER_MANAGEMENT: '/user-management',
-  STAFF_CUSTOMER_MANAGEMENT: '/customers',
+  STAFF_USER_MANAGEMENT: '/system/staff',
+  STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
   STAFF_BANK_CONFIG: '/bank-config',
-  STAFF_REVENUE: '/revenue',
-  STAFF_STATIC_PAGE: '/static-page',
-
-  // Admin Routes
-  ADMIN_MENU_MANAGEMENT: '/menu-management',
-  ADMIN_PRODUCT_DETAIL: '/product',
-  ADMIN_TABLE_MANAGEMENT: '/table-management',
-  ADMIN_ORDER_HISTORY: '/order-history',
-  ADMIN_WALLET_APPROVALS: '/wallet-approvals',
-  ADMIN_USER_MANAGEMENT: '/user-management',
-  ADMIN_FINANCIAL_REPOR: '/financial-report',
-  ADMIN_CONFIG: '/config',
+  STAFF_STATIC_PAGE: '/system/static-page',
 
   //Client Routes
   CLIENT_HOME: '/',
@@ -57,4 +46,6 @@ export const ROUTE = {
   CONTACT: '/contact',
   HELP: '/help',
   POLICY: '/policy',
+
+  ADMIN_CONFIG: '/config',
 }

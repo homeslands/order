@@ -1,1 +1,1 @@
-export { default as BranchManagementPage } from './branch-page'
+export { default as BranchManagementPage } from './page'

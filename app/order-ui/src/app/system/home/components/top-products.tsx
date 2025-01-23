@@ -73,10 +73,6 @@ export default function TopProducts() {
         }
     }, [revenueData])
 
-    // const handleSelectTimeRange = (timeRange: string) => {
-    //     console.log(timeRange)
-    // }
-
     return (
         <Card className='shadow-none'>
             <CardHeader >

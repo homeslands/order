@@ -67,6 +67,9 @@ export class ProductAnalysisResponseDto {
   @AutoMap(() => BranchResponseDto)
   branch: BranchResponseDto;
 
+  @AutoMap(() => BranchResponseDto)
+  branches: BranchResponseDto[];
+
   @AutoMap(() => ProductResponseDto)
   product: ProductResponseDto;
 }

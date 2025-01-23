@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ChevronRight, SquareMenu } from 'lucide-react'
+import { ChevronRight, RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
@@ -8,10 +8,13 @@ import { RevenueSummary, RevenueChart, TopProducts, RevenueComparison } from './
 // import { BranchSelect } from '@/components/app/select'
 import { TimeRangeRevenueFilter } from '@/components/app/popover'
 import { ROUTE } from '@/constants'
+import { Button } from '@/components/ui'
+import { useLatestRevenue } from '@/hooks'
 
 export default function OverviewPage() {
   const { t } = useTranslation(['dashboard'])
   const { t: tCommon } = useTranslation(['common'])
+  const [trigger, setTrigger] = useState(0)
   // Get first and last day of current month as default values
   const [startDate, setStartDate] = useState<string>(
     moment().startOf('month').toISOString()
@@ -19,15 +22,16 @@ export default function OverviewPage() {
   const [endDate, setEndDate] = useState<string>(
     moment().endOf('day').toISOString()
   )
-  // const [branch, setBranch] = useState<string>('')
-
-  // const handleSelectBranch = (branch: string) => {
-  //   setBranch(branch)
-  // }
+  const { mutate: refreshRevenue } = useLatestRevenue()
 
   const handleSelectDateRange = (start: string, end: string) => {
     setStartDate(start)
     setEndDate(end)
+  }
+
+  const handleRefreshRevenue = () => {
+    refreshRevenue()
+    setTrigger(prev => prev + 1) // Increment trigger to cause refresh
   }
 
   return (
@@ -45,6 +49,10 @@ export default function OverviewPage() {
 
             <div className='flex items-center gap-2'>
               {/* <BranchSelect onChange={handleSelectBranch} /> */}
+              <Button variant="outline" onClick={handleRefreshRevenue} className='flex items-center gap-1'>
+                <RefreshCcw />
+                {tCommon('common.refresh')}
+              </Button>
               <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
               <NavLink to={ROUTE.OVERVIEW_DETAIL} className='flex items-center justify-between px-4 py-2 transition-all duration-300 rounded-full hover:text-primary hover:bg-primary/10'>
                 <span className='text-xs'>
@@ -56,14 +64,14 @@ export default function OverviewPage() {
           </div>
         </span>
         <div>
-          <RevenueSummary startDate={startDate} endDate={endDate} />
+          <RevenueSummary startDate={startDate} endDate={endDate} trigger={trigger} />
         </div>
         <div className="grid grid-cols-1 gap-2">
-          <RevenueChart startDate={startDate} endDate={endDate} />
+          <RevenueChart trigger={trigger} startDate={startDate} endDate={endDate} />
           {/* <BranchRevenueChart branch={branch} startDate={startDate} endDate={endDate} /> */}
           <TopProducts />
         </div>
-        <RevenueComparison />
+        <RevenueComparison trigger={trigger} />
       </main>
     </div>
   )

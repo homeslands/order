@@ -18,8 +18,6 @@ export default function TopProductsDetail({ branch }: TopProductData) {
         hasPaging: true
     })
 
-    console.log(topBranchProducts?.result.items)
-
     useEffect(() => {
         if (chartRef.current && topBranchProducts?.result?.items) {
             const chart = echarts.init(chartRef.current)
@@ -76,10 +74,6 @@ export default function TopProductsDetail({ branch }: TopProductData) {
             }
         }
     }, [topBranchProducts, branch])
-
-    // const handleSelectTimeRange = (timeRange: string) => {
-    //     console.log(timeRange)
-    // }
 
     return (
         <Card className='shadow-none'>

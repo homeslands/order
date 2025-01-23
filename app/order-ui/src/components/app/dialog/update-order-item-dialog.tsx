@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
 
@@ -19,65 +20,52 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, IProduct, IProductVariant, OrderTypeEnum } from '@/types'
-import { useUpdateOrderStore, useUserStore } from '@/stores'
+import { IAddNewOrderItemRequest, IProduct, IProductVariant } from '@/types'
 import { publicFileURL } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
+import { useAddNewOrderItem } from '@/hooks'
 
 interface AddToCartDialogProps {
+  onAddNewOrderItemSuccess: () => void
   product: IProduct
   trigger?: React.ReactNode
 }
 
 export default function UpdateOrderItemDialog({
+  onAddNewOrderItemSuccess,
   product,
   trigger,
 }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation(['toast'])
+  const { slug } = useParams()
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.variants[0] || null)
-  const { addOrderItem } = useUpdateOrderStore()
-  const { getUserInfo } = useUserStore()
-
-  const generateCartItemId = () => {
-    return Date.now().toString(36)
-  }
+  const { mutate: addNewOrderItem } = useAddNewOrderItem()
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
-    const cartItem: ICartItem = {
-      id: generateCartItemId(),
-      slug: product.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-      // branch: getUserInfo()?.branch.slug, // get branch from user info
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product.slug,
-          image: product.image,
-          name: product.name,
-          quantity: 1,
-          variant: selectedVariant.slug,
-          price: selectedVariant.price,
-          description: product.description,
-          isLimit: product.isLimit,
-          // catalog: product.catalog,
-          note: note,
-        },
-      ],
-      table: '', // will be set later via addTable
+    const newOrderItem: IAddNewOrderItemRequest = {
+      order: slug as string,
+      variant: selectedVariant.slug,
+      quantity: 1,
+      note: note,
     }
 
-    addOrderItem(cartItem)
-    // Reset states
-    setNote('')
-    setSelectedVariant(product.variants[0] || null)
-    setIsOpen(false)
+    addNewOrderItem(newOrderItem, {
+      onSuccess: () => {
+        setIsOpen(false)
+        onAddNewOrderItemSuccess?.()
+        showToast(tToast('toast.addNewOrderItemSuccess'))
+        // Reset states
+        setNote('')
+        setIsOpen(false)
+      },
+    })
   }
 
   return (
@@ -91,7 +79,7 @@ export default function UpdateOrderItemDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="h-[70%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[60rem]">
+      <DialogContent className="h-[70%] max-w-[22rem] overflow-y-auto rounded-md p-4 sm:max-w-[60rem]">
         <DialogHeader>
           <DialogTitle>{t('menu.confirmProduct')}</DialogTitle>
           <DialogDescription>

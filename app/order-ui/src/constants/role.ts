@@ -43,7 +43,6 @@ export const RoutePermissions: Record<string, Role[]> = {
     Role.MANAGER,
     Role.STAFF,
   ],
-  [ROUTE.STAFF_REVENUE]: [Role.SUPER_ADMIN, Role.ADMIN, Role.MANAGER],
 
   // Customer routes
   // [ROUTE.CLIENT_MENU]: [Role.CUSTOMER],

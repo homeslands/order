@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, DataTable } from '@/components/ui'
 import { useProducts } from '@/hooks'
-import { useProductColumns } from './DataTable/columns'
 import { useMenuItemStore } from '@/stores'
 import { AddMultipleItemsDialog } from '@/components/app/dialog'
+import { useProductColumns } from '../../order-history/DataTable/columns'
 
-export default function AddMenuItem() {
+export function AddMenuItem() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
   const { getMenuItems, clearMenuItems } = useMenuItemStore()

@@ -17,6 +17,9 @@ import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { Branch } from 'src/branch/branch.entity';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Menu } from 'src/menu/menu.entity';
+import { BranchResponseDto } from 'src/branch/branch.dto';
 
 @Injectable()
 export class ProductAnalysisService {
@@ -25,6 +28,10 @@ export class ProductAnalysisService {
     private readonly productAnalysisRepository: Repository<ProductAnalysis>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(MenuItem)
+    private readonly menuItemRepository: Repository<MenuItem>,
+    @InjectRepository(Menu)
+    private readonly menuRepository: Repository<Menu>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
@@ -54,12 +61,13 @@ export class ProductAnalysisService {
       .addGroupBy('pa.branch')
       .orderBy('totalProducts', 'DESC');
 
+    
     if (query.hasPaging)
       queryBuilder.take(query.size).skip((query.page - 1) * query.size);
 
     const results: ProductAnalysisQueryDto[] = await queryBuilder.getRawMany();
 
-    const productAnalyses: ProductAnalysis[] = await Promise.all(
+    const productAnalyses: ProductAnalysisResponseDto[] = await Promise.all(
       results.map(async (item) => {
         const product = await this.productRepository.findOne({
           where: {
@@ -82,7 +90,13 @@ export class ProductAnalysisService {
           throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
         productAnalysis.product = product;
         productAnalysis.branch = branch;
-        return productAnalysis;
+
+        const productAnalysisDto = this.mapper.map(productAnalysis, ProductAnalysis, ProductAnalysisResponseDto);
+
+        const branchesDto = await this.getBranchesListByProduct(product);
+        productAnalysisDto.branches = branchesDto;
+
+        return productAnalysisDto;
       }),
     );
 
@@ -103,7 +117,7 @@ export class ProductAnalysisService {
 
     const results: ProductAnalysisQueryDto[] = await queryBuilder.getRawMany();
 
-    const productAnalyses: ProductAnalysis[] = await Promise.all(
+    const productAnalyses: ProductAnalysisResponseDto[] = await Promise.all(
       results.map(async (item) => {
         const product = await this.productRepository.findOne({
           where: {
@@ -119,7 +133,13 @@ export class ProductAnalysisService {
           ProductAnalysis,
         );
         productAnalysis.product = product;
-        return productAnalysis;
+
+        const productAnalysisDto = this.mapper.map(
+          productAnalysis,
+          ProductAnalysis,
+          ProductAnalysisResponseDto,
+        );
+        return productAnalysisDto;
       }),
     );
 
@@ -127,10 +147,10 @@ export class ProductAnalysisService {
   }
 
   private async getPaginatedResults(
-    productAnalyses: ProductAnalysis[],
+    productAnalysesDto: ProductAnalysisResponseDto[],
     query: GetProductAnalysisQueryDto,
   ) {
-    const total = productAnalyses.length;
+    const total = productAnalysesDto.length;
     const page = query.hasPaging ? query.page : 1;
     const pageSize = query.hasPaging ? query.size : total;
 
@@ -143,15 +163,41 @@ export class ProductAnalysisService {
     return {
       hasNext: hasNext,
       hasPrevios: hasPrevious,
-      items: this.mapper.mapArray(
-        productAnalyses,
-        ProductAnalysis,
-        ProductAnalysisResponseDto,
-      ),
+      items: productAnalysesDto,
       total,
       page,
       pageSize,
       totalPages,
     } as AppPaginatedResponseDto<ProductAnalysisResponseDto>;
+  }
+
+  private async getBranchesListByProduct(
+    product: Product
+  ): Promise<BranchResponseDto[]> {
+    const menuItems = await this.menuItemRepository.find({
+      where: {
+        product: { id: product.id },
+      }
+    });
+
+    const currentDate = new Date();
+    currentDate.setHours(7,0,0,0);
+    const branches: Branch[] = [];
+    for(const menuItem of menuItems) {
+      const menu = await this.menuRepository.findOne({
+        where: {
+          menuItems: { id: menuItem.id },
+          date: currentDate
+        }, 
+        relations: ['branch']
+      });
+
+      if(menu && menu?.branch) {
+        branches.push(menu.branch);
+      }
+    }
+    const branchesDto = this.mapper.mapArray(branches, Branch, BranchResponseDto);
+
+    return branchesDto;
   }
 }

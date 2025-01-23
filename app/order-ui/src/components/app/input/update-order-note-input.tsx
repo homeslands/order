@@ -4,19 +4,19 @@ import { ChangeEvent } from 'react'
 
 import { Input } from '@/components/ui'
 import { useUpdateOrderStore } from '@/stores'
-import { IOrderItem } from '@/types'
+import { IOrderDetail } from '@/types'
 
 interface CartNoteInputProps {
-  cartItem: IOrderItem
+  orderItem: IOrderDetail
 }
 
-export default function UpdateOrderNoteInput({ cartItem }: CartNoteInputProps) {
+export default function UpdateOrderNoteInput({ orderItem }: CartNoteInputProps) {
   const { t } = useTranslation('menu')
   const { addNote } = useUpdateOrderStore()
 
   const handleNoteChange = (e: ChangeEvent<HTMLInputElement>) => {
     const note = e.target.value
-    addNote(cartItem.id, note)
+    addNote(orderItem.id, note)
   }
 
   return (
@@ -24,7 +24,7 @@ export default function UpdateOrderNoteInput({ cartItem }: CartNoteInputProps) {
       <div className="flex flex-row items-center justify-between flex-1 w-full gap-2">
         <NotepadText className="text-muted-foreground" />
         <Input
-          defaultValue={cartItem?.note || ''}
+          defaultValue={orderItem?.note || ''}
           type="text"
           className='shadow-none'
           placeholder={t('order.enterNote')}

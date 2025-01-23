@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import moment from 'moment'
 import { CalendarIcon } from 'lucide-react'
@@ -57,16 +57,13 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
   })
 
   // Get existing menu dates
-  const existingMenuDates =
-    menuData?.result.items.map((menu) =>
-      moment(menu.date).format('YYYY-MM-DD'),
-    ) || []
-
-  // Function to disable dates
-  const disabledDays = [
-    { before: new Date() }, // Disable past dates
-    ...existingMenuDates.map((date) => new Date(date)), // Disable dates with menus
-  ]
+  const existingMenuDates = useMemo(() => {
+    return (
+      menuData?.result.items.map((menu) =>
+        moment(menu.date).format('YYYY-MM-DD'),
+      ) || []
+    )
+  }, [menuData])
 
   // Custom modifier for dates with menus
   const modifiers = {
@@ -127,7 +124,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
                         field.onChange(formattedDate)
                       }
                     }}
-                    disabled={disabledDays}
+                    // disabled={disabledDays}
                     modifiers={modifiers}
                     modifiersClassNames={{
                       booked:

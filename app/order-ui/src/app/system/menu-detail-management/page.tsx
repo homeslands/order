@@ -5,13 +5,12 @@ import moment from 'moment'
 
 import { useSpecificMenu } from '@/hooks'
 import { ProductDetailSkeleton } from '@/components/app/skeleton'
-import MenuItemCard from './menu-item-card'
 import { useState } from 'react'
 import { CartToggleButton } from '@/components/app/button'
-import AddMenuItem from './add-menu-item'
 import { cn } from '@/lib'
+import { AddMenuItem, MenuItemCard } from './components'
 
-export default function MenuDetailPage() {
+export default function MenuDetailManagementPage() {
   const [isCartOpen, setIsCartOpen] = useState(true)
   const { t } = useTranslation(['menu'])
   const { slug } = useParams()

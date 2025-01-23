@@ -7,22 +7,34 @@ import { useRevenue } from '@/hooks'
 import { formatCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
 
-export default function RevenueComparison() {
+interface IRevenueComparisonProps {
+    trigger?: number
+}
+
+export default function RevenueComparison({ trigger }: IRevenueComparisonProps) {
     const chartRef = useRef<HTMLDivElement>(null)
 
     // Get current month data
-    const { data: currentMonthData } = useRevenue({
+    const { data: currentMonthData, refetch: refreshCurrentMonthRevenue } = useRevenue({
         startDate: moment().startOf('month').toISOString(),
         endDate: moment().endOf('month').toISOString(),
         type: RevenueTypeQuery.MONTHLY
     })
 
     // Get last month data
-    const { data: lastMonthData } = useRevenue({
+    const { data: lastMonthData, refetch: refreshLastMonthRevenue } = useRevenue({
         startDate: moment().subtract(1, 'month').startOf('month').toISOString(),
         endDate: moment().subtract(1, 'month').endOf('month').toISOString(),
         type: RevenueTypeQuery.MONTHLY
     })
+
+    // Refetch when trigger changes
+    useEffect(() => {
+        if (trigger) {
+            refreshCurrentMonthRevenue();
+            refreshLastMonthRevenue();
+        }
+    }, [trigger, refreshCurrentMonthRevenue, refreshLastMonthRevenue]);
 
     useEffect(() => {
         if (chartRef.current && currentMonthData?.result && lastMonthData?.result) {

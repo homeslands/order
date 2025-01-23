@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -84,8 +84,9 @@ export default function ClientAddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button size="icon" className="flex [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full shadow-none">
-            <Plus />
+          <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
+            <ShoppingCart className='icon' />
+            {t('menu.addToCart')}
           </Button>
         )}
       </DialogTrigger>

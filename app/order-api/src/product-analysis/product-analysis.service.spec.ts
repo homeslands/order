@@ -8,6 +8,8 @@ import { Branch } from 'src/branch/branch.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Menu } from 'src/menu/menu.entity';
 
 describe('ProductAnalysisService', () => {
   let service: ProductAnalysisService;
@@ -22,6 +24,14 @@ describe('ProductAnalysisService', () => {
         },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
         },
         {

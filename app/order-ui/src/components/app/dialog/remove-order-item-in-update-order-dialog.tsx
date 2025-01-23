@@ -13,24 +13,33 @@ import {
   DialogTrigger,
   Label,
 } from '@/components/ui'
-import { IOrderItem } from '@/types'
-import { useUpdateOrderStore } from '@/stores'
+import { IOrderDetail } from '@/types'
+import { useDeleteOrderItem } from '@/hooks'
+import { showToast } from '@/utils'
 
 interface DialogDeleteCartItemProps {
-  cartItem: IOrderItem
+  onSubmit: () => void
+  orderItem: IOrderDetail
 }
 
 export default function RemoveOrderItemInUpdateOrderDialog({
-  cartItem,
+  onSubmit,
+  orderItem,
 }: DialogDeleteCartItemProps) {
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
+  const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
-  const { removeOrderItem } = useUpdateOrderStore()
+  const { mutate: deleteOrderItem } = useDeleteOrderItem()
 
-  const handleDelete = (cartItemId: string) => {
-    setIsOpen(false)
-    removeOrderItem(cartItemId)
+  const handleDelete = (orderItemSlug: string) => {
+    deleteOrderItem(orderItemSlug, {
+      onSuccess: () => {
+        showToast(tToast('toast.deleteOrderItemSuccess'))
+        setIsOpen(false)
+        onSubmit()
+      }
+    })
   }
 
   return (
@@ -53,7 +62,7 @@ export default function RemoveOrderItemInUpdateOrderDialog({
         <div>
           <div className="flex items-center gap-4 mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
-              {t('order.deleteContent')} <strong>{cartItem.name}</strong>
+              {t('order.deleteContent')} <strong>{orderItem.variant.product.name}</strong>
               {t('order.deleteContent2')}
             </Label>
           </div>
@@ -64,7 +73,7 @@ export default function RemoveOrderItemInUpdateOrderDialog({
           </Button>
           <Button
             variant="destructive"
-            onClick={() => handleDelete(cartItem.id)} // Truyền vào đúng id của orderItem
+            onClick={() => handleDelete(orderItem.slug)} // Truyền vào đúng id của orderItem
           >
             {tCommon('common.confirmDelete')}
           </Button>

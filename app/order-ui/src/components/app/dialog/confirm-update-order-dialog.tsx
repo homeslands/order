@@ -85,7 +85,7 @@ export default function ConfirmUpdateOrderDialog({ disabled }: IUpdateOrderDialo
           className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
-          {t('order.create')}
+          {t('order.confirm')}
         </Button>
       </DialogTrigger>
 

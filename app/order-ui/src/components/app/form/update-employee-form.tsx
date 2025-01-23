@@ -51,7 +51,6 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
   })
 
   const handleSubmit = (data: IUpdateUserRequest) => {
-    console.log(data)
     updateUser(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({

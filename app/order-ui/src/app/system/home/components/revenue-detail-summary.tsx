@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
@@ -8,17 +9,25 @@ interface RevenueData {
     branch: string;
     startDate: string;
     endDate: string;
+    trigger?: number; // Add trigger prop
 }
 
-export default function RevenueDetailSummary({ branch, startDate, endDate }: RevenueData) {
-    const { data: revenueData } = useBranchRevenue({
+export default function RevenueDetailSummary({ branch, startDate, endDate, trigger }: RevenueData) {
+    const { data: revenueData, refetch } = useBranchRevenue({
         branch,
         startDate,
         endDate,
         type: RevenueTypeQuery.DAILY
     });
 
-    // Lấy ngày hôm nay
+    // Refetch when trigger changes
+    useEffect(() => {
+        if (trigger) {
+            refetch();
+        }
+    }, [trigger, refetch]);
+
+
     const today = new Date();
 
     // Lọc doanh thu hôm nay

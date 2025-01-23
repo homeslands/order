@@ -1,14 +1,20 @@
 import { useState } from 'react'
-import { SquareMenu } from 'lucide-react'
+import { RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
 import { RevenueDetailChart, TopProductsDetail, RevenueDetailComparison, RevenueDetailSummary } from './components'
 import { BranchSelect } from '@/components/app/select'
 import { TimeRangeRevenueFilter } from '@/components/app/popover'
+import { Button } from '@/components/ui'
+import { useLatestBranchRevenue } from '@/hooks'
+import { showToast } from '@/utils'
 
 export default function OverviewDetailPage() {
   const { t } = useTranslation(['dashboard'])
+  const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation('toast')
+  const [trigger, setTrigger] = useState(0)
   // Get first and last day of current month as default values
   const [startDate, setStartDate] = useState<string>(
     moment().startOf('month').toISOString()
@@ -17,6 +23,7 @@ export default function OverviewDetailPage() {
     moment().endOf('day').toISOString()
   )
   const [branch, setBranch] = useState<string>('')
+  const { mutate: refreshBranchRevenue } = useLatestBranchRevenue()
 
   const handleSelectBranch = (branch: string) => {
     setBranch(branch)
@@ -25,6 +32,15 @@ export default function OverviewDetailPage() {
   const handleSelectDateRange = (start: string, end: string) => {
     setStartDate(start)
     setEndDate(end)
+  }
+
+  const handleRefreshRevenue = () => {
+    refreshBranchRevenue('', {
+      onSuccess: () => {
+        showToast(tToast('toast.refreshRevenueSuccess'))
+        setTrigger(prev => prev + 1) // Increment trigger to cause refresh
+      }
+    })
   }
 
   return (
@@ -41,19 +57,23 @@ export default function OverviewDetailPage() {
             </div>
 
             <div className='flex items-center gap-2'>
+              <Button variant="outline" onClick={handleRefreshRevenue} className='flex items-center gap-1'>
+                <RefreshCcw />
+                {tCommon('common.refresh')}
+              </Button>
               <BranchSelect onChange={handleSelectBranch} />
               <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
             </div>
           </div>
         </span>
         <div>
-          <RevenueDetailSummary branch={branch} startDate={startDate} endDate={endDate} />
+          <RevenueDetailSummary trigger={trigger} branch={branch} startDate={startDate} endDate={endDate} />
         </div>
         <div className="grid grid-cols-1 gap-2">
-          <RevenueDetailChart branch={branch} startDate={startDate} endDate={endDate} />
+          <RevenueDetailChart trigger={trigger} branch={branch} startDate={startDate} endDate={endDate} />
           <TopProductsDetail branch={branch} />
         </div>
-        <RevenueDetailComparison branch={branch} />
+        <RevenueDetailComparison trigger={trigger} branch={branch} />
       </main>
     </div>
   )

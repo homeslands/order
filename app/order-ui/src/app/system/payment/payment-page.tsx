@@ -26,8 +26,6 @@ export default function PaymentPage() {
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const isDisabled = !paymentMethod || !slug
 
-  console.log('created', order?.result.createdAt)
-
   //polling order status every 3 seconds
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null

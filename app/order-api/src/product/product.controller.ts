@@ -77,7 +77,8 @@ export class ProductController {
   })
   @ApiOperation({ summary: 'Get import products template' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
+  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
+  @Public()
   async getTemplateImportProducts() {
     const result = await this.productService.getTemplateImportProducts();
 

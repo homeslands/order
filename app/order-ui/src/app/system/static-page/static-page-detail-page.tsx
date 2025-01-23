@@ -35,8 +35,7 @@ export default function StaticPageDetailPage() {
   };
 
   const onCompleted = () => {
-    refetch(); // Refresh data
-    console.log('Updated static page successfully');
+    refetch();
   };
 
   return (

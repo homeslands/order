@@ -19,7 +19,9 @@
     "action": "Thao tác",
     "createOrder": "Tạo đơn hàng",
     "understand": "Tôi đã hiểu",
-    "warning": "Cảnh báo"
+    "warning": "Cảnh báo",
+
+    "refresh": "Làm mới"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",

@@ -4,6 +4,7 @@ export { default as NestedDialogs } from './nested-dialog'
 
 export { default as AddToCartDialog } from './add-to-cart-dialog'
 export { default as SelectReservedTableDialog } from './select-reserved-table-dialog'
+export { default as SelectedTableToRemoveDialog } from './selected-table-to-remove-dialog'
 export { default as DeleteCartItemDialog } from './delete-cart-item-dialog'
 export { default as ClientAddToCartDialog } from './client-add-to-cart-dialog'
 

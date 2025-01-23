@@ -1,54 +1,74 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { useTables } from '@/hooks'
-import { useBranchStore, useUpdateOrderStore } from '@/stores'
-import { ITable } from '@/types'
+import { useTables, useUpdateOrderType } from '@/hooks'
+import { useBranchStore } from '@/stores'
+import { IOrder, ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
 import { NonResizableTableItem } from '../table'
 import { TableStatus } from '@/constants'
+import { showToast } from '@/utils'
+import { SelectedTableToRemoveDialog } from '@/components/app/dialog'
 
 interface ClientTableSelectProps {
+  order?: IOrder
   defaultValue?: string
+  onSuccess: () => void
 }
 
-
-export default function ClientUpdateOrderTableSelect({ defaultValue }: ClientTableSelectProps) {
+export default function ClientUpdateOrderTableSelect({ order, defaultValue, onSuccess }: ClientTableSelectProps) {
   const { t } = useTranslation(['table'])
+  const { t: tToast } = useTranslation('toast')
   const { branch } = useBranchStore()
+  const { slug } = useParams()
   const { data: tables } = useTables(branch?.slug)
+  const { mutate: updateOrderType } = useUpdateOrderType()
+
   const [selectedTableId, setSelectedTableId] = useState<string | undefined>(undefined)
-  const { orderItems, addTable, removeTable } = useUpdateOrderStore()
-  const [reservedTable, setReservedTable] = useState<ITable | null>(null)
+  const [dialogState, setDialogState] = useState<{
+    type: 'reserve' | 'remove' | null,
+    table: ITable | null
+  }>({ type: null, table: null })
 
   useEffect(() => {
-    const addedTable = orderItems?.table
-    if (addedTable) {
-      setSelectedTableId(addedTable)
-    } else if (defaultValue) {
-      setSelectedTableId(defaultValue)
-    }
-  }, [orderItems, defaultValue])
+    setSelectedTableId(order?.table?.slug || defaultValue)
+  }, [order?.table?.slug, defaultValue])
 
   const handleTableClick = (table: ITable) => {
-    if (selectedTableId === table.slug) {
-      // Remove table for any status
-      setSelectedTableId(undefined)
-      removeTable()
-    } else {
-      if (table.status === TableStatus.RESERVED) {
-        setReservedTable(table) // Show confirmation dialog
-      } else if (table.status === TableStatus.AVAILABLE) {
-        setSelectedTableId(table.slug)
-        addTable(table)
+    if (table.status === TableStatus.RESERVED) {
+      if (table.slug === selectedTableId) {
+        setDialogState({ type: 'remove', table })
+      } else {
+        setDialogState({ type: 'reserve', table })
       }
+    } else if (table.status === TableStatus.AVAILABLE) {
+      updateTableSelection(table.slug)
     }
   }
 
-  const confirmAddReservedTable = (table: ITable) => {
-    setSelectedTableId(table.slug)
-    addTable(table)
-    setReservedTable(null) // Close the dialog
+  const updateTableSelection = (tableSlug: string | null) => {
+    console.log('updateTableSelection', tableSlug)
+    const params: IUpdateOrderTypeRequest = {
+      type: order?.type || OrderTypeEnum.AT_TABLE,
+      table: tableSlug,
+    }
+
+    updateOrderType(
+      { slug: slug as string, params },
+      {
+        onSuccess: () => {
+          showToast(tToast('toast.updateOrderTypeSuccess'))
+          setSelectedTableId(tableSlug || undefined)
+          onSuccess()
+          setDialogState({ type: null, table: null })
+        }
+      }
+    )
+  }
+
+  const handleDialogClose = () => {
+    setDialogState({ type: null, table: null })
   }
 
   return (
@@ -81,12 +101,22 @@ export default function ClientUpdateOrderTableSelect({ defaultValue }: ClientTab
           />
         ))}
       </div>
-      {reservedTable && (
+
+      {dialogState.type === 'reserve' && (
         <SelectReservedTableDialog
-          table={reservedTable}
+          table={dialogState.table!}
           setSelectedTableId={setSelectedTableId}
-          onConfirm={confirmAddReservedTable}
-          onCancel={() => setReservedTable(null)} // Close dialog on cancel
+          onConfirm={() => updateTableSelection(dialogState.table!.slug)}
+          onCancel={handleDialogClose}
+        />
+      )}
+
+      {dialogState.type === 'remove' && (
+        <SelectedTableToRemoveDialog
+          table={dialogState.table}
+          setSelectedTableId={setSelectedTableId}
+          onConfirm={() => updateTableSelection(null)}
+          onCancel={handleDialogClose}
         />
       )}
     </div>

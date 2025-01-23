@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -62,7 +63,7 @@ export class BranchController {
   })
   @Public()
   async getAllBranchs() {
-    const result = await this.branchService.getAllBranchs();
+    const result = await this.branchService.getAllBranches();
     return {
       message: 'All branchs have been retrieved successfully',
       statusCode: HttpStatus.OK,
@@ -90,5 +91,27 @@ export class BranchController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<BranchResponseDto>;
+  }
+
+  @Delete(':slug')
+  // @Public()
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete branch' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Branch have been deleted successfully',
+    type: String,
+  })
+  async deleteBranch(
+    @Param('slug') slug: string,
+  ) {
+    const result = await this.branchService.deleteBranch(slug);
+    return {
+      message: 'Branch have been deleted successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: `${result} records have been deleted successfully`,
+    } as AppResponseDto<string>;
   }
 }

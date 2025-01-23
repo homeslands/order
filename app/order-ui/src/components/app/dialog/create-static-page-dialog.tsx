@@ -13,10 +13,6 @@ import {
 
 import { CreateStaticPageForm } from '@/components/app/form'
 
-// interface CreateStaticPageDialogProps {
-//   content: string
-// }
-
 export default function CreateStaticPageDialog() {
   const { t } = useTranslation(['staticPage'])
   const [isOpen, setIsOpen] = useState(false)
@@ -27,11 +23,7 @@ export default function CreateStaticPageDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="h-10 gap-1 text-sm"
-          onClick={() => setIsOpen(true)}
-        >
-          {/* <PlusCircledIcon className="icon" /> */}
+        <Button className="gap-1 text-xs" onClick={() => setIsOpen(true)}>
           {t('staticPage.create')}
         </Button>
       </DialogTrigger>
@@ -47,4 +39,3 @@ export default function CreateStaticPageDialog() {
     </Dialog>
   )
 }
-

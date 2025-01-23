@@ -109,9 +109,9 @@ export const MenuManagementPage = React.lazy(() =>
   })),
 )
 
-export const MenuDetailPage = React.lazy(() =>
-  import('@/app/system/menu-management').then((module) => ({
-    default: module.MenuDetailPage,
+export const MenuDetailManagementPage = React.lazy(() =>
+  import('@/app/system/menu-detail-management').then((module) => ({
+    default: module.MenuDetailManagementPage,
   })),
 )
 

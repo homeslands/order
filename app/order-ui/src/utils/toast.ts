@@ -97,6 +97,7 @@ const errorCodes: { [key: number]: string } = {
   140003: 'toast.createSystemConfigError',
   140004: 'toast.systemConfigQueryInvalid',
   140005: 'toast.systemConfigInvalid',
+  143202: 'toast.newRevenueNotFound',
 }
 
 export function showToast(message: string) {

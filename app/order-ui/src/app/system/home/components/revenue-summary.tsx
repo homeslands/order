@@ -1,17 +1,26 @@
 import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { useRevenue } from "@/hooks";
+import { useEffect } from 'react';
 
 interface RevenueData {
     startDate: string;
     endDate: string;
+    trigger?: number; // Add trigger prop
 }
 
-export default function RevenueSummary({ startDate, endDate }: RevenueData) {
-    const { data: revenueData } = useRevenue({
+export default function RevenueSummary({ startDate, endDate, trigger }: RevenueData) {
+    const { data: revenueData, refetch } = useRevenue({
         startDate,
         endDate,
     });
+
+    // Refetch when trigger changes
+    useEffect(() => {
+        if (trigger) {
+            refetch();
+        }
+    }, [trigger, refetch]);
 
     // Lấy ngày hôm nay
     const today = new Date();

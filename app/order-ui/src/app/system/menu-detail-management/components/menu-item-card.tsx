@@ -12,7 +12,7 @@ interface MenuItemCardProps {
   menuItem: IMenuItem
 }
 
-export default function MenuItemCard({ menuItem }: MenuItemCardProps) {
+export function MenuItemCard({ menuItem }: MenuItemCardProps) {
   const { t } = useTranslation(['menu'])
 
   const getPriceRange = () => {
@@ -28,9 +28,9 @@ export default function MenuItemCard({ menuItem }: MenuItemCardProps) {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-start gap-2 p-2 border group rounded-xl">
-      <div className="absolute inset-0 flex items-start justify-end transition-opacity opacity-0 group-hover:opacity-100">
-        <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
+    <div className="group relative flex flex-col items-center justify-start gap-2 rounded-xl border p-2">
+      <div className="absolute inset-0 flex items-start justify-end opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex flex-row gap-2 rounded-md bg-transparent p-4">
           <UpdateMenuItemDialog menuItem={menuItem} />
           <DeleteMenuItemDialog menuItem={menuItem} />
         </div>
@@ -39,15 +39,15 @@ export default function MenuItemCard({ menuItem }: MenuItemCardProps) {
       <img
         src={`${publicFileURL}/${menuItem.product.image}`}
         alt={menuItem.product.name}
-        className="object-cover w-full h-40 rounded-md"
+        className="h-40 w-full rounded-md object-cover"
       />
-      <h3 className="flex justify-start w-full font-bold text-md">
+      <h3 className="text-md flex w-full justify-start font-bold">
         {menuItem.product.name}
       </h3>
-      <p className="flex justify-start w-full text-sm text-muted-foreground">
+      <p className="flex w-full justify-start text-sm text-muted-foreground">
         {menuItem.product.description || t('menu.noDescription')}
       </p>
-      <div className="flex flex-col justify-between w-full gap-1 mt-2 text-sm font-medium">
+      <div className="mt-2 flex w-full flex-col justify-between gap-1 text-sm font-medium">
         <span>
           {t('menu.stock')} {menuItem.currentStock}/{menuItem.defaultStock}
         </span>

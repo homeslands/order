@@ -6,12 +6,13 @@ import {
 } from './branch.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Branch } from './branch.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { BranchException } from './branch.exception';
 import { BranchValidation } from './branch.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { BranchUtils } from './branch.utils';
 
 @Injectable()
 export class BranchService {
@@ -19,6 +20,7 @@ export class BranchService {
     @InjectRepository(Branch) private branchRepository: Repository<Branch>,
     @InjectMapper() private mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly branchUtil: BranchUtils,
   ) {}
 
   async updateBranch(slug: string, requestData: UpdateBranchDto) {
@@ -65,8 +67,29 @@ export class BranchService {
    * Retrieve all branch
    * @returns {Promise<BranchResponseDto[]>} All branchs have been retrieved successfully
    */
-  async getAllBranchs(): Promise<BranchResponseDto[]> {
-    const branchs = await this.branchRepository.find();
-    return this.mapper.mapArray(branchs, Branch, BranchResponseDto);
+  async getAllBranches(): Promise<BranchResponseDto[]> {
+    const branches = await this.branchRepository.find();
+    return this.mapper.mapArray(branches, Branch, BranchResponseDto);
+  }
+
+  async deleteBranch(
+    slug: string
+  ): Promise<number> {
+    const context = `${BranchService.name}.${this.deleteBranch.name}`;
+
+    const findOptionsWhere: FindOptionsWhere<Branch> = { slug };
+    const branch = await this.branchUtil.getBranch(findOptionsWhere);
+
+    try {      
+      const removed = await this.branchRepository.delete(branch.id);
+      return removed.affected || 0;
+    } catch (error) {
+      this.logger.error(
+        BranchValidation.ERROR_WHEN_DELETE_BRANCH.message,
+        error.stack,
+        context
+      );
+      throw new BranchException(BranchValidation.ERROR_WHEN_DELETE_BRANCH);
+    }
   }
 }

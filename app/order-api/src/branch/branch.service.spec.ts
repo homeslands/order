@@ -4,14 +4,17 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Branch } from './branch.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { BranchUtils } from './branch.utils';
 
 describe('BranchService', () => {
   let service: BranchService;
+  let branchUtils: BranchUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BranchService,
+        BranchUtils,
         {
           provide: getRepositoryToken(Branch),
           useValue: {},
@@ -28,6 +31,7 @@ describe('BranchService', () => {
     }).compile();
 
     service = module.get<BranchService>(BranchService);
+    branchUtils = module.get<BranchUtils>(BranchUtils);
   });
 
   afterEach(() => {

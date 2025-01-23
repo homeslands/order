@@ -24,16 +24,12 @@ export default function CreateEmployeeDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-10 gap-1 text-sm"
-          onClick={() => setIsOpen(true)}
-        >
+        <Button className="gap-1 text-xs" onClick={() => setIsOpen(true)}>
           <PlusCircledIcon className="icon" />
           {t('employee.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">
+      <DialogContent className="h-4/5 max-w-[90%] overflow-y-auto rounded-md px-6 sm:max-w-[36%]">
         <DialogHeader>
           <DialogTitle>{t('employee.create')}</DialogTitle>
           <DialogDescription>

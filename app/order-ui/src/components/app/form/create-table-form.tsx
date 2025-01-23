@@ -12,7 +12,6 @@ import {
   Input,
   Form,
   Button,
-  ScrollArea,
 } from '@/components/ui'
 import { createTableSchema, TCreateTableSchema } from '@/schemas'
 
@@ -173,15 +172,13 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <ScrollArea className="h-[300px] pr-4">
-            <div className="grid grid-cols-1 gap-2">
-              {Object.keys(formFields).map((key) => (
-                <React.Fragment key={key}>
-                  {formFields[key as keyof typeof formFields]}
-                </React.Fragment>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="grid grid-cols-1 gap-2">
+            {Object.keys(formFields).map((key) => (
+              <React.Fragment key={key}>
+                {formFields[key as keyof typeof formFields]}
+              </React.Fragment>
+            ))}
+          </div>
           <div className="flex justify-end">
             <Button className="flex justify-end" type="submit">
               {t('table.create')}

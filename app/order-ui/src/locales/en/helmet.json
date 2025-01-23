@@ -1,0 +1,9 @@
+{
+  "helmet": {
+    "menu": {
+      "title": "Menu management",
+      "description": "Manage your menu here",
+      "keywords": "menu, menu management, restaurant menu"
+    }
+  }
+}

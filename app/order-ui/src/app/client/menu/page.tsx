@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import moment from 'moment'
 import { MapPinIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Helmet } from "react-helmet";
 
 import { useCatalogStore, usePriceRangeStore, useBranchStore } from '@/stores'
 import { useDebouncedInput, useSpecificMenu } from '@/hooks'
@@ -22,6 +23,7 @@ interface FilterState {
 
 export default function ClientMenuPage() {
   const { t } = useTranslation(['menu'])
+  const { t: tHelmet } = useTranslation('helmet')
   const { minPrice, maxPrice } = usePriceRangeStore()
   const { branch } = useBranchStore()
   const { catalog } = useCatalogStore()
@@ -43,7 +45,7 @@ export default function ClientMenuPage() {
       ...prev,
       branch: branch?.slug,
       catalog: catalog?.slug,
-      productName: debouncedInputValue, // sử dụng giá trị debounce
+      productName: debouncedInputValue,
       minPrice: minPrice,
       maxPrice: maxPrice,
     }))
@@ -58,6 +60,13 @@ export default function ClientMenuPage() {
 
   return (
     <div className="container py-10">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.menu.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.menu.title')} />
+      </Helmet>
       <div className="flex flex-col items-start gap-5 lg:flex-row">
         {/* Left - sidebar */}
         <div className="w-full lg:sticky lg:top-20 lg:z-10 lg:w-1/4">

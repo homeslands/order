@@ -29,5 +29,11 @@
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
     "login": "Đăng nhập"
+  },
+  "bottombar": {
+    "home": "Trang chủ",
+    "menu": "Thực đơn",
+    "notification": "Thông báo",
+    "profile": "Hồ sơ"
   }
 }

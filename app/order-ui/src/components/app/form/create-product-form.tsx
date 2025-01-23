@@ -12,7 +12,6 @@ import {
   Form,
   Button,
   Textarea,
-  ScrollArea,
 } from '@/components/ui'
 import { createProductSchema, TCreateProductSchema } from '@/schemas'
 
@@ -126,15 +125,13 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <ScrollArea className="h-[300px] pr-4">
-            <div className="grid grid-cols-1 gap-2">
-              {Object.keys(formFields).map((key) => (
-                <React.Fragment key={key}>
-                  {formFields[key as keyof typeof formFields]}
-                </React.Fragment>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="grid grid-cols-1 gap-2">
+            {Object.keys(formFields).map((key) => (
+              <React.Fragment key={key}>
+                {formFields[key as keyof typeof formFields]}
+              </React.Fragment>
+            ))}
+          </div>
           <div className="flex justify-end">
             <Button className="flex justify-end" type="submit">
               {t('product.create')}

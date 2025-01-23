@@ -19,50 +19,52 @@ export default function DataTableFilterOptions({
   const [filterValue, setFilterValue] = useState<string>('all')
 
   const handleFilterChange = (value: string) => {
-    setFilterValue(value);
+    setFilterValue(value)
 
-    let filterConditions: ColumnFiltersState = [];
+    let filterConditions: ColumnFiltersState = []
 
     switch (value) {
       case 'all': // Hiển thị tất cả
-        filterConditions = [];
-        break;
+        filterConditions = []
+        break
       case 'true': // Lọc những bản ghi có isTemplate = true
         filterConditions = [
           {
             id: 'isTemplate',
             value: true,
           },
-        ];
-        break;
+        ]
+        break
       case 'false': // Lọc những bản ghi có isTemplate = false
         filterConditions = [
           {
             id: 'isTemplate',
             value: false,
           },
-        ];
-        break;
+        ]
+        break
       default:
-        filterConditions = [];
+        filterConditions = []
     }
-    console.log(filterConditions);
 
-    setFilterOption(filterConditions);
-  };
-
+    setFilterOption(filterConditions)
+  }
 
   return (
     <Select value={filterValue} onValueChange={handleFilterChange}>
-      <SelectTrigger className="w-[12rem]">
-        <SelectValue placeholder={t('dataTable.filter')} />
+      <SelectTrigger className="min-w-fit text-xs">
+        <SelectValue placeholder={t('dataTable.filter')} className="" />
       </SelectTrigger>
-      <SelectContent side="top">
-        <SelectItem value="all">{t('dataTable.all')}</SelectItem>
-        <>
-          <SelectItem value="true">{t('dataTable.isTemplate')}</SelectItem>
-          <SelectItem value="false">{t('dataTable.noTemplate')}</SelectItem>
-        </>
+      <SelectContent side="bottom">
+        <SelectItem value="all" className="text-xs">
+          {t('dataTable.all')}
+        </SelectItem>
+        <SelectItem value="true" className="text-xs">
+          {t('dataTable.isTemplate')}
+        </SelectItem>
+        <SelectItem value="false" className="text-xs">
+          {t('dataTable.noTemplate')}
+        </SelectItem>
       </SelectContent>
     </Select>
   )

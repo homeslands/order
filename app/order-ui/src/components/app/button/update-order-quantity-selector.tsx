@@ -12,6 +12,7 @@ interface QuantitySelectorProps {
 export default function UpdateOrderQuantitySelector({ cartItem }: QuantitySelectorProps) {
   const [quantity, setQuantity] = React.useState(cartItem.quantity)
   const { updateOrderItemQuantity } = useUpdateOrderStore()
+  // const {mutate: updateOrderItemQuantity} = useAddNewOrderItem(updateOrderItemQuantity)
 
   const handleIncrement = () => {
     setQuantity((prev) => {

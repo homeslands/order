@@ -15,7 +15,6 @@ export default function ProductTab() {
         pages={1}
         onPageChange={() => {}}
         onPageSizeChange={() => {}}
-        // onRowClick={handleRowClick}
         actionOptions={ProductActionOptions}
       />
     </div>

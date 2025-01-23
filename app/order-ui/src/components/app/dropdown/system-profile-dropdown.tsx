@@ -17,16 +17,19 @@ import { LogoutDialog } from '@/components/app/dialog'
 import { Role, ROUTE } from '@/constants'
 import { useAuthStore, useUserStore } from '@/stores'
 
-export default function HeaderDropdown() {
+export default function SystemProfileDropdown() {
   const { t } = useTranslation(['sidebar'])
   const { isAuthenticated } = useAuthStore()
   const { userInfo } = useUserStore()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon" className="rounded-full">
+        <div className="flex cursor-pointer items-center gap-2">
           <ProfileAvatar />
-        </Button>
+          <span className="text-sm font-semibold">
+            {userInfo?.firstName} {userInfo?.lastName}
+          </span>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>
