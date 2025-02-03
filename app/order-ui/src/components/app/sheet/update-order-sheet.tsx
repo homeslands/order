@@ -5,13 +5,13 @@ import { CircleX, MapPinIcon, Search } from 'lucide-react'
 
 import {
   Sheet,
-  SheetContent,
   SheetHeader,
   SheetTrigger,
   Button,
   ScrollArea,
   Input,
   SheetTitle,
+  LeftSheetContent,
 } from '@/components/ui'
 import { useBranchStore, useCatalogStore, usePriceRangeStore } from '@/stores'
 import { useDebouncedInput, useSpecificMenu } from '@/hooks'
@@ -65,7 +65,7 @@ export default function CheckoutCartSheet({ onAddNewOrderItemSuccess }: Checkout
           {t('order.openMenu')}
         </Button>
       </SheetTrigger>
-      <SheetContent className='w-5/6 sm:max-w-4xl'>
+      <LeftSheetContent className='w-5/6 sm:max-w-4xl'>
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
             {t('order.menu')}
@@ -128,7 +128,7 @@ export default function CheckoutCartSheet({ onAddNewOrderItemSuccess }: Checkout
             </div>
           </ScrollArea>
         </div>
-      </SheetContent>
+      </LeftSheetContent>
     </Sheet>
   )
 }

@@ -174,7 +174,7 @@ export class RevenueScheduler {
     );
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
   // @Timeout(5000)
   async refreshRevenueAnyWhen() {
     const context = `${RevenueScheduler.name}.${this.refreshRevenueAnyWhen.name}`;

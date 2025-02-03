@@ -33,7 +33,6 @@ export default function AddMenuItemsDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
           className="h-10 gap-1 text-sm"
           onClick={() => setIsOpen(true)}
         >

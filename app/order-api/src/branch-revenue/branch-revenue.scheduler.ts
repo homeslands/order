@@ -265,7 +265,7 @@ export class BranchRevenueScheduler {
     return newBranchRevenues;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1PM)
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
   // @Timeout(5000)
   async refreshBranchRevenueAnyWhen() {
     const context = `${BranchRevenue.name}.${this.refreshBranchRevenueAnyWhen.name}`;

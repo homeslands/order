@@ -54,6 +54,7 @@
     "amount": "Số lượng: ",
     "noDescription": "Không có mô tả",
     "totalSold": "Tổng số đã bán: ",
+    "stock": "Số lượng tồn: ",
 
     "create": "Tạo thực đơn",
     "createMenuDescription": "Điền đầy đủ thông tin để tạo thực đơn mới",
