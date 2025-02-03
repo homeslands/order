@@ -29,7 +29,7 @@ export default function SettingsDropdown() {
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-primary hover:text-white"
+          className="hover:bg-primary/10 hover:text-primary"
         >
           <Settings className="h-[1.1rem] w-[1.1rem]" />
           <span className="sr-only">Open settings</span>

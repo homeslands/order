@@ -19,7 +19,7 @@ import { Button } from '@/components/ui'
 import { UpdateOrderSheet } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
-import { OrderTypeSelect } from '@/components/app/select'
+import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
 import { showToast } from '@/utils'
 
@@ -112,7 +112,7 @@ export default function ClientUpdateOrderPage() {
 
                 {/* Right content */}
                 <div className="w-full lg:w-1/2">
-                    <OrderTypeSelect onChange={handleChangeOrderType} orderItems={orderItems} />
+                    <OrderTypeInUpdateOrderSelect onChange={handleChangeOrderType} orderItems={orderItems} />
                     {/* Table list order items */}
                     <div className="mt-5">
                         <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin border rounded-md bg-muted/60">

@@ -13,7 +13,7 @@ export default function SystemNotificationPopover() {
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-primary hover:text-white"
+          className="hover:bg-primary/10 hover:text-primary"
         >
           <BellIcon className="h-[1.1rem] w-[1.1rem]" />
         </Button>

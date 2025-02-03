@@ -63,6 +63,7 @@
 
     "createOrderSuccess": "Đặt hàng thành công",
     "orderItemDeleted": "Xóa món thành công",
+    "handleCancelOrderSuccess": "Hủy đơn hàng thành công",
 
     "addNewOrderItemSuccess": "Thêm món vào đơn hàng thành công",
     "deleteOrderItemSuccess": "Xóa món khỏi đơn hàng thành công",

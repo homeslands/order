@@ -11,3 +11,4 @@ export { default as ClientPaymentMethodSelect } from './client-payment-method-se
 export { default as ClientTableSelect } from './client-table-select'
 export { default as SystemTableSelect } from './system-table-select'
 export { default as OrderTypeSelect } from './order-type-select'
+export { default as OrderTypeInUpdateOrderSelect } from './order-type-in-update-order-select'

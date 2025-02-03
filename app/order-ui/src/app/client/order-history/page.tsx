@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 import moment from 'moment'
@@ -23,8 +23,9 @@ import { OrderTypeEnum } from '@/types'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
-  const [searchParams] = useSearchParams()
-  const slug = searchParams.get('order')
+  // const [searchParams] = useSearchParams()
+  const { slug } = useParams()
+  // const slug = searchParams.get('order')
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
 
@@ -32,22 +33,22 @@ export default function OrderHistoryPage() {
     <div className="container py-5">
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="sticky -top-1 z-10 flex flex-col items-center gap-2 bg-white py-2">
-          <span className="flex w-full items-center justify-start gap-1 text-lg">
+        <div className="sticky z-10 flex flex-col items-center gap-2 py-2 bg-white -top-1">
+          <span className="flex items-center justify-start w-full gap-1 text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
-            <span className="text-muted-foreground">
+            {/* <span className="text-muted-foreground">
               #{orderDetail?.result?.slug}
-            </span>
+            </span> */}
           </span>
         </div>
         <ProgressBar step={orderDetail?.result.status} />
 
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex w-full flex-col gap-4 lg:w-3/4">
+          <div className="flex flex-col w-full gap-4 lg:w-3/4">
             {/* Order info */}
-            <div className="flex items-center justify-between rounded-sm border border-muted-foreground/30 p-3">
+            <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
               <div className="">
                 <p className="flex items-center gap-2 pb-2">
                   <span className="font-bold">Đơn hàng:</span>{' '}
@@ -69,8 +70,8 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
-                <div className="bg-muted-foreground/10 px-3 py-2 font-bold">
+              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+                <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   Khách hàng
                 </div>
                 <div className="px-3 py-2">
@@ -79,8 +80,8 @@ export default function OrderHistoryPage() {
                   </p>
                 </div>
               </div>
-              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
-                <div className="bg-muted-foreground/10 px-3 py-2 font-bold">
+              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+                <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   Loại đơn hàng
                 </div>
                 <div className="px-3 py-2 text-sm">
@@ -96,7 +97,7 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order table */}
             <div className="overflow-x-auto">
-              <Table className="min-w-full table-auto border-collapse border border-muted-foreground/20">
+              <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
                 <TableCaption>A list of orders.</TableCaption>
                 <TableHeader className="rounded bg-muted-foreground/10">
                   <TableRow>
@@ -118,9 +119,9 @@ export default function OrderHistoryPage() {
                             <img
                               src={`${publicFileURL}/${item.variant.product.image}`}
                               alt={item.variant.product.name}
-                              className="aspect-square h-full w-full rounded-md bg-green-200 object-cover"
+                              className="object-cover w-full h-full rounded-md aspect-square"
                             />
-                            <div className="absolute -bottom-2 -right-3 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs text-white sm:h-10 sm:w-10">
+                            <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:h-10 sm:w-10">
                               x{item.quantity}
                             </div>
                           </div>
@@ -152,31 +153,31 @@ export default function OrderHistoryPage() {
           {/* Right, payment*/}
           <div className="grid w-full grid-cols-1 gap-2 lg:w-1/4">
             {/* Payment method, status */}
-            <div className="rounded-sm border border-muted-foreground/30">
-              <div className="bg-muted-foreground/10 px-3 py-2 font-bold">
+            <div className="border rounded-sm border-muted-foreground/30">
+              <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                 {t('paymentMethod.title')}
               </div>
               <div className="px-3 py-2">
-                <div className="flex items-center">
-                  <span className="w-1/2 text-sm">
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm">
                     {orderDetail?.result?.payment?.paymentMethod && (
                       <>
                         {orderDetail?.result?.payment.paymentMethod ===
                           'bank-transfer' && (
-                          <span className="italic">
-                            {t('paymentMethod.bankTransfer')}
-                          </span>
-                        )}
+                            <span className="italic">
+                              {t('paymentMethod.bankTransfer')}
+                            </span>
+                          )}
                         {orderDetail?.result?.payment.paymentMethod ===
                           'cash' && (
-                          <span className="italic">
-                            {t('paymentMethod.cash')}
-                          </span>
-                        )}
+                            <span className="italic">
+                              {t('paymentMethod.cash')}
+                            </span>
+                          )}
                       </>
                     )}
                   </span>
-                  <div className="flex w-1/2 justify-end">
+                  <div className="flex">
                     {orderDetail?.result?.payment && (
                       <PaymentStatusBadge
                         status={orderDetail?.result?.payment?.statusCode}
@@ -187,8 +188,8 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {/* Total */}
-            <div className="rounded-sm border border-muted-foreground/30">
-              <div className="bg-muted-foreground/10 px-3 py-2 font-bold">
+            <div className="border rounded-sm border-muted-foreground/30">
+              <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                 Thông tin thanh toán
               </div>
               <div className="px-3 py-2">
@@ -202,7 +203,7 @@ export default function OrderHistoryPage() {
                 </div>
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between">
-                  <p className="text-md font-semibold">Tổng tiền thanh toán</p>
+                  <p className="font-semibold text-md">Tổng tiền thanh toán</p>
                   <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
                 </div>
                 <div className="flex items-center justify-between">

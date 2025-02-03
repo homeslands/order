@@ -1,13 +1,18 @@
-import { useCartItemStore } from '@/stores'
-import { OrderTypeEnum } from '@/types'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
-export default function OrderTypeSelect() {
+import { IOrder, OrderTypeEnum } from '@/types'
+
+interface OrderTypeSelectProps {
+  orderItems?: IOrder | null
+  onChange?: (orderType: string) => void
+}
+
+export default function OrderTypeSelect({ orderItems, onChange }: OrderTypeSelectProps) {
   const { t } = useTranslation('menu')
-  const { addOrderType, removeTable, getCartItems } = useCartItemStore()
+
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
     return [
       {
@@ -23,27 +28,37 @@ export default function OrderTypeSelect() {
   const [selectedType, setSelectedType] = useState<{
     value: string
     label: string
-  } | null>(null)
+  } | null>(() => {
+    if (orderItems?.type) {
+      return orderTypes.find((type) => type.value === orderItems.type) || null
+    }
+    if (orderItems?.type) {
+      return orderTypes.find((type) => type.value === orderItems.type) || null
+    }
+    return null
+  })
 
   useEffect(() => {
-    const cartItems = getCartItems()
-    if (cartItems?.type) {
-      const result = orderTypes.find((type) => type.value === cartItems.type)
+    if (orderItems?.type) {
+      const result = orderTypes.find((type) => type.value === orderItems.type)
       if (result) {
         setSelectedType(result)
       }
     }
-  }, [getCartItems, orderTypes])
+  }, [orderItems, orderTypes])
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
   ) => {
     if (selectedOption) {
-      setSelectedType(selectedOption)
-      if (selectedOption.value === OrderTypeEnum.TAKE_OUT) {
-        removeTable()
+      if (onChange) {
+        onChange(selectedOption.value)
       }
-      addOrderType(selectedOption.value as OrderTypeEnum)
+      if (selectedOption && selectedOption.value === OrderTypeEnum.TAKE_OUT) {
+        if (onChange) {
+          onChange(selectedOption.value)
+        }
+      }
     }
   }
 

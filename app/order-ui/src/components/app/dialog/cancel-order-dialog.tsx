@@ -14,23 +14,35 @@ import {
 } from '@/components/ui'
 
 import { IOrder } from '@/types'
+import { useDeleteOrder } from '@/hooks'
+import { showToast } from '@/utils'
+// import { useQueryClient } from '@tanstack/react-query'
 
-export default function DeleteSizeDialog({ order }: { order: IOrder }) {
+export default function DeleteSizeDialog({
+  order,
+  onSuccess,
+}: {
+  order: IOrder
+  onSuccess: () => void
+}) {
+  // const queryClient = useQueryClient()
+  const { t: tToast } = useTranslation('toast')
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
+  const { mutate: deleteOrder } = useDeleteOrder()
 
-  const handleSubmit = (catalogSlug: string) => {
-    console.log('catalogSlug', catalogSlug)
-    // deleteSize(catalogSlug, {
-    //   onSuccess: () => {
-    //     queryClient.invalidateQueries({
-    //       queryKey: ['size'],
-    //     })
-    //     setIsOpen(false)
-    //     showToast(tToast('toast.deleteSizeSuccess'))
-    //   },
-    // })
+  const handleSubmit = (orderSlug: string) => {
+    deleteOrder(orderSlug, {
+      onSuccess: () => {
+        // queryClient.invalidateQueries({
+        //   queryKey: ['orders'],
+        // })
+        setIsOpen(false)
+        showToast(tToast('toast.handleCancelOrderSuccess'))
+        onSuccess()
+      },
+    })
   }
 
   return (
@@ -60,8 +72,7 @@ export default function DeleteSizeDialog({ order }: { order: IOrder }) {
           </DialogDescription>
 
           <div className="py-4 text-sm text-muted-foreground">
-            {t('order.cancelOrderWarning')}{' '}
-            <br />
+            {t('order.cancelOrderWarning')} <br />
           </div>
         </DialogHeader>
         <DialogFooter className="flex flex-row justify-center gap-2">

@@ -1,46 +1,46 @@
-import { useEffect, useState } from 'react';
-import { SquareMenu } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { SquareMenu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
-import { UpdateStaticPageDialog } from '@/components/app/dialog';
-import { useStaticPage } from '@/hooks';
-import { TextEditor } from './components';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
+import { UpdateStaticPageDialog } from '@/components/app/dialog'
+import { useStaticPage } from '@/hooks'
+import { TextEditor } from './components'
 
 export default function StaticPageDetailPage() {
-  const { t } = useTranslation(['staticPage']);
-  const { key } = useParams();
-  const { data: staticPage, refetch } = useStaticPage(key as string);
-  const [editorData, setEditorData] = useState('');
+  const { t } = useTranslation(['staticPage'])
+  const { key } = useParams()
+  const { data: staticPage, refetch } = useStaticPage(key as string)
+  const [editorData, setEditorData] = useState('')
 
   // Fetch data whenever the selected page changes
   useEffect(() => {
     if (staticPage?.result?.content) {
-      setEditorData(staticPage.result.content); // Update editor data with fetched content
+      setEditorData(staticPage.result.content) // Update editor data with fetched content
     } else {
-      setEditorData(''); // Clear editor data if no content is available
+      setEditorData('') // Clear editor data if no content is available
     }
-  }, [staticPage]);
+  }, [staticPage])
 
   const getUpdatePageData = () => {
-    if (!staticPage?.result) return null;
+    if (!staticPage?.result) return null
 
     return {
       slug: staticPage.result.slug,
       key: staticPage.result.key,
       title: staticPage.result.title,
       content: editorData, // Use current editor content instead of staticPage content
-    };
-  };
+    }
+  }
 
   const onCompleted = () => {
-    refetch();
-  };
+    refetch()
+  }
 
   return (
     <div className="editor-container">
-      <span className="flex items-center justify-start w-full gap-1 text-lg">
+      <span className="flex w-full items-center justify-start gap-1 text-lg">
         <SquareMenu />
         {t('staticPage.staticPageTitle')}
       </span>
@@ -53,9 +53,12 @@ export default function StaticPageDetailPage() {
           }}
         /> */}
         {/* {!staticPage?.result && <CreateStaticPageDialog content={editorData} />} */}
-        <UpdateStaticPageDialog staticPageData={getUpdatePageData()} onCompleted={onCompleted} />
+        <UpdateStaticPageDialog
+          staticPageData={getUpdatePageData()}
+          onCompleted={onCompleted}
+        />
       </div>
-      <Tabs defaultValue="text" className="flex flex-col w-full gap-2">
+      <Tabs defaultValue="text" className="flex w-full flex-col gap-2">
         <TabsList className="sticky z-10 grid grid-cols-7 gap-2">
           <TabsTrigger value="text">Chỉnh sửa</TabsTrigger>
           <TabsTrigger value="preview">Xem trước</TabsTrigger>
@@ -70,11 +73,14 @@ export default function StaticPageDetailPage() {
           </div>
         </TabsContent>
         <TabsContent value="preview">
-          <div className="p-4">
-            <div dangerouslySetInnerHTML={{ __html: editorData }} />
+          <div className="ql-snow">
+            <div
+              className="ql-editor text-xs"
+              dangerouslySetInnerHTML={{ __html: editorData }}
+            />
           </div>
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

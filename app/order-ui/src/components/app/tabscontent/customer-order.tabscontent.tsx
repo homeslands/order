@@ -18,7 +18,7 @@ import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { IOrder, OrderStatus } from '@/types'
 import { OrderHistorySkeleton } from '@/components/app/skeleton'
 import { formatCurrency, showErrorToast } from '@/utils'
-import { CancelOrderDialog } from '../dialog'
+import { CancelOrderDialog } from '@/components/app/dialog'
 
 export default function CustomerOrderTabsContent({
   status,
@@ -31,7 +31,11 @@ export default function CustomerOrderTabsContent({
   const { pagination, handlePageChange } = usePagination()
   const { setOrderItems } = useUpdateOrderStore()
 
-  const { data: order, isLoading } = useOrders({
+  const {
+    data: order,
+    isLoading,
+    refetch,
+  } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     ownerSlug: userInfo?.slug,
@@ -47,10 +51,7 @@ export default function CustomerOrderTabsContent({
   }
 
   const handleUpdateOrder = (order: IOrder) => {
-    if (!getUserInfo()?.slug)
-      return (
-        showErrorToast(1042), navigate(ROUTE.LOGIN)
-      )
+    if (!getUserInfo()?.slug) return showErrorToast(1042), navigate(ROUTE.LOGIN)
     setOrderItems(order)
     navigate(`${ROUTE.CLIENT_UPDATE_ORDER}/${order.slug}`)
   }
@@ -59,21 +60,24 @@ export default function CustomerOrderTabsContent({
     <div className="mb-4">
       {orderData?.length ? (
         orderData.map((orderItem) => (
-          <div key={orderItem.slug} className="mb-6 border rounded-md">
+          <div key={orderItem.slug} className="mb-6 rounded-md border">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b rounded-t-md">
+            <div className="flex justify-between items-center px-4 py-4 rounded-t-md border-b">
               <span className="text-xs text-muted-foreground">
                 {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
               </span>
               <OrderStatusBadge order={orderItem} />
             </div>
             {/* Order items */}
-            <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`} key={orderItem.slug}>
+            <NavLink
+              to={`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`}
+              key={orderItem.slug}
+            >
               <div className="flex flex-col">
                 {orderItem.orderItems.map((product) => (
                   <div
                     key={product.slug}
-                    className="grid items-center grid-cols-12 gap-2 p-4"
+                    className="grid grid-cols-12 gap-2 items-center p-4"
                   >
                     <div className="relative col-span-3">
                       <img
@@ -81,7 +85,7 @@ export default function CustomerOrderTabsContent({
                         alt={product.variant.product.name}
                         className="object-cover w-20 h-20 rounded-md sm:w-36"
                       />
-                      <div className="absolute flex items-center justify-center text-xs text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:right-4 sm:h-8 sm:w-8">
+                      <div className="flex absolute -bottom-2 -right-3 justify-center items-center w-7 h-7 text-xs text-white rounded-full bg-primary sm:right-4 sm:h-8 sm:w-8">
                         x{product.quantity}
                       </div>
                     </div>
@@ -104,23 +108,21 @@ export default function CustomerOrderTabsContent({
                 ))}
               </div>
             </NavLink>
-            <div className="flex flex-col justify-end gap-2 px-4">
+            <div className="flex flex-col gap-2 justify-end px-4">
               <div className="flex flex-col">
-                <div className='flex items-center justify-end w-full'>
+                <div className="flex justify-end items-center w-full">
                   {t('order.subtotal')}:&nbsp;
                   <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
                 </div>
                 {orderItem.status === OrderStatus.PENDING && (
-                  <div className='grid grid-cols-2 gap-2 py-4 sm:grid-cols-5'>
+                  <div className="grid grid-cols-2 gap-2 py-4 sm:grid-cols-5">
                     <Button
                       variant="outline"
-                      onClick={() =>
-                        handleUpdateOrder(orderItem)
-                      }
+                      onClick={() => handleUpdateOrder(orderItem)}
                     >
                       {t('order.updateOrder')}
                     </Button>
-                    <CancelOrderDialog order={orderItem} />
+                    <CancelOrderDialog onSuccess={refetch} order={orderItem} />
                   </div>
                 )}
               </div>
@@ -132,7 +134,7 @@ export default function CustomerOrderTabsContent({
       )}
 
       {orderData && orderData?.length > 0 && (
-        <div className="flex items-center justify-center py-4 space-x-2">
+        <div className="flex justify-center items-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

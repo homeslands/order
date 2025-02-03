@@ -1,8 +1,5 @@
 export { default as CheckoutCart } from './checkout-cart'
-export { default as ConfirmOrderPage } from './checkout-order-page'
 export { default as MenuPage } from './page'
 export { default as OrderSuccessPage } from './order-success'
 export { default as PaymentMethodSelect } from '../payment/payment-method-select'
-// export { default as TableSelect } from './table-select'
-// export { default as ClientTableSelect } from './client-table-select'
 export { default as ClientUpdateOrderTableSelect } from './client-update-order-table-select'

@@ -33,11 +33,11 @@ export default function UpdateCustomerProfileDialog({
       <DialogTrigger asChild>
         <Button
           variant="default"
-          className="h-10 w-fit gap-1"
+          className="h-10 gap-1 w-fit"
           onClick={() => setIsOpen(true)}
         >
           <PencilLine className="icon" />
-          <span className="">{t('profile.updateProfile')}</span>
+          <span className="text-xs sm:text-sm">{t('profile.updateProfile')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="h-[80%] max-w-[20rem] overflow-y-auto rounded-md px-0 sm:max-w-[56rem]">

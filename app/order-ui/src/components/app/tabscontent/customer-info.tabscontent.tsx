@@ -15,7 +15,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.firstName')}</span>
         <Input
-          className=""
           value={userProfile?.firstName}
           readOnly
           disabled
@@ -27,7 +26,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.lastName')}</span>
         <Input
-          className=""
           value={userProfile?.lastName}
           readOnly
           disabled
@@ -39,7 +37,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.email')}</span>
         <Input
-          className=""
           value={userProfile?.email}
           readOnly
           disabled
@@ -51,7 +48,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.phoneNumber')}</span>
         <Input
-          className=""
           value={userProfile?.phonenumber}
           readOnly
           disabled
@@ -63,7 +59,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.dob')}</span>
         <Input
-          className=""
           value={userProfile?.dob}
           readOnly
           disabled
@@ -75,7 +70,6 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.address')}</span>
         <Textarea
-          className=""
           value={userProfile?.address}
           readOnly
           disabled
@@ -86,13 +80,13 @@ export function CustomerInfoTabsContent() {
   }
 
   return (
-    <div className="">
-      <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2">
+    <div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {Object.keys(formFields).map((key) => (
           <div key={key}>{formFields[key as keyof typeof formFields]}</div>
         ))}
       </div>
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className="grid grid-cols-2 mt-4 sm:flex sm:justify-end sm:gap-2">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
         <UpdatePasswordDialog />
       </div>

@@ -14,7 +14,7 @@ import { CheckoutCartDrawer } from '@/components/app/drawer'
 import { formatCurrency } from '@/utils'
 import { SystemTableSelect } from '@/components/app/select'
 
-export default function ConfirmOrderPage() {
+export default function SystemCheckoutPage() {
   const { t } = useTranslation('menu')
   const [isCartOpen] = useState(true)
   const { getCartItems } = useCartItemStore()

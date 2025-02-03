@@ -8,7 +8,7 @@ import {
   MenuPage,
   SystemLayout,
   LoginPage,
-  ConfirmOrderPage,
+  SystemCheckoutPage,
   TablePage,
   OrderSuccessPage,
   RegisterPage,
@@ -172,7 +172,7 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedElement
             allowedRoles={[Role.STAFF]}
-            element={<SuspenseElement component={ConfirmOrderPage} />}
+            element={<SuspenseElement component={SystemCheckoutPage} />}
           />
         ),
       },
