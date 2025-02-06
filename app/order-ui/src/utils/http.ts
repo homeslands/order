@@ -54,7 +54,7 @@ const publicRoutes = [
   { path: /^\/auth\/forgot-password$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password\/token$/, methods: ['post'] },
   { path: /^\/menu\/specific$/, methods: ['get'] },
-  { path: /^\/products\/[^/]+$/, methods: ['get'] },
+  { path: /^\/products\/[^/]+$/, methods: ['get'] }, // get product by slug
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
   { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },
@@ -84,15 +84,18 @@ axiosInstance.interceptors.request.use(
     } = authStore
 
     const currentToken = authStore.token
+    console.log('currentToken', currentToken, config.url)
     if (config.url) {
       if (isPublicRoute(config.url, config.method || '')) return config
     }
 
     if (!isAuthenticated()) {
+      console.log('User is not authenticated')
       return Promise.reject(new Error('User is not authenticated'))
     }
 
     if (expireTime && isTokenExpired(expireTime) && !isRefreshing) {
+      console.log('refreshToken', refreshToken)
       isRefreshing = true
       try {
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
@@ -116,10 +119,11 @@ axiosInstance.interceptors.request.use(
         isRefreshing = false
       }
     } else if (isRefreshing) {
+      console.log('token', currentToken)
       return new Promise((resolve, reject) => {
         failedQueue.push({
-          resolve: (token: string) => {
-            config.headers['Authorization'] = `Bearer ${token}`
+          resolve: (currentToken: string) => {
+            config.headers['Authorization'] = `Bearer ${currentToken}`
             resolve(config)
           },
           reject: (error: unknown) => {
@@ -129,8 +133,9 @@ axiosInstance.interceptors.request.use(
       })
     }
 
-    if (currentToken) {
-      config.headers['Authorization'] = `Bearer ${currentToken}`
+    if (token) {
+      console.log('currentToken exists', token)
+      config.headers['Authorization'] = `Bearer ${token}`
       if (!(config as CustomAxiosRequestConfig).doNotShowLoading) {
         useLoadingStore.getState().setIsLoading(true)
         const requestStore = useRequestStore.getState()
@@ -140,7 +145,7 @@ axiosInstance.interceptors.request.use(
         requestStore.incrementRequestQueueSize()
       }
     }
-
+    console.log('config', config)
     return config
   },
   (error) => {

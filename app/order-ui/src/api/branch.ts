@@ -27,3 +27,8 @@ export async function updateBranch(
   )
   return response.data
 }
+
+export async function deleteBranch(slug: string): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(`/branch/${slug}`)
+  return response.data
+}

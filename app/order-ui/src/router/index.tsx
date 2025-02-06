@@ -43,10 +43,13 @@ import {
   ClientAboutPage,
   ClientPolicyPage,
   StaticPageDetailPage,
+  DocsPage,
+  VoucherPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
+import { DocsLayout } from '@/app/layouts/system'
 
 export const router = createBrowserRouter([
   { path: ROUTE.LOGIN, element: <SuspenseElement component={LoginPage} /> },
@@ -575,6 +578,44 @@ export const router = createBrowserRouter([
           <ProtectedElement
             allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
             element={<SuspenseElement component={ConfigPage} />}
+          />
+        ),
+      },
+    ],
+  },
+  {
+    path: ROUTE.ADMIN_VOUCHER,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <SuspenseElement component={SystemLayout} />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedElement
+            allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+            element={<SuspenseElement component={VoucherPage} />}
+          />
+        ),
+      },
+    ],
+  },
+  {
+    path: ROUTE.DOCS,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <SuspenseElement component={DocsLayout} />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedElement
+            allowedRoles={[Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN]}
+            element={<SuspenseElement component={DocsPage} />}
           />
         ),
       },

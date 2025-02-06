@@ -1,6 +1,7 @@
 import {
   Banknote,
   Bolt,
+  BookText,
   ChartColumn,
   ClipboardList,
   CookingPot,
@@ -11,6 +12,7 @@ import {
   Phone,
   ShoppingBag,
   Store,
+  Ticket,
   Users,
 } from 'lucide-react'
 
@@ -120,5 +122,17 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.CONTACT,
     roles: [Role.CUSTOMER],
     icon: Phone,
+  },
+  {
+    title: 'sidebar.voucher',
+    path: ROUTE.ADMIN_VOUCHER,
+    roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    icon: Ticket,
+  },
+  {
+    title: 'sidebar.docs',
+    path: ROUTE.DOCS,
+    roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    icon: BookText,
   },
 ]

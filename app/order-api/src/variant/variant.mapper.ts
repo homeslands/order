@@ -8,7 +8,7 @@ import {
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
-import { CreateVariantRequestDto, UpdateVariantRequestDto, VariantResponseDto } from './variant.dto';
+import { CreateVariantRequestDto, VariantResponseDto } from './variant.dto';
 import { Variant } from './variant.entity';
 import { baseMapper } from 'src/app/base.mapper';
 import { SizeResponseDto } from 'src/size/size.dto';

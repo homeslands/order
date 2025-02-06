@@ -13,6 +13,7 @@ import { router } from '@/router'
 import '@/i18n'
 import { IApiErrorResponse, IApiResponse } from '@/types'
 import { showErrorToast } from '@/utils'
+// import { MessengerChat } from '@/components/messenger'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -47,6 +48,7 @@ function App() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        {/* <MessengerChat /> */}
       </QueryClientProvider>
     </StrictMode>
   )

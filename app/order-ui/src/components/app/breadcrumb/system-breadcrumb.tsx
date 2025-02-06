@@ -1,4 +1,6 @@
 import React from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import {
   Breadcrumb,
@@ -8,8 +10,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui'
-import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router-dom'
+import { useUserStore } from '@/stores'
+import { Role, ROUTE } from '@/constants'
 
 const routeNameMap: { [key: string]: string } = {
   orders: 'orders',
@@ -28,6 +30,7 @@ const routeNameMap: { [key: string]: string } = {
 export default function SystemBreadcrumb() {
   const location = useLocation()
   const { t } = useTranslation(['route'])
+  const { userInfo } = useUserStore()
 
   // Filter out empty segments and clean up path
   const pathnames = location.pathname.split('/').filter((x) => x && x !== 'app')
@@ -42,7 +45,6 @@ export default function SystemBreadcrumb() {
     if (name.match(/^[0-9a-f-]+$/)) {
       return t('route.details')
     }
-
     return t(`route.${key}`, { defaultValue: name })
   }
 
@@ -51,7 +53,11 @@ export default function SystemBreadcrumb() {
       <BreadcrumbList>
         <BreadcrumbItem className="hidden md:block">
           <BreadcrumbLink asChild>
-            <Link to="/">{t('route.home')}</Link>
+            {userInfo?.role.name === Role.CUSTOMER ? (
+              <Link to="/">{t('route.home')}</Link>
+            ) : (
+              <Link to={ROUTE.OVERVIEW}>{t('route.home')}</Link>
+            )}
           </BreadcrumbLink>
         </BreadcrumbItem>
         {pathnames.map((name, index) => {

@@ -1,3 +1,5 @@
+import { MapPinIcon } from 'lucide-react'
+
 import {
   Button,
   DropdownMenu,
@@ -11,7 +13,6 @@ import {
 } from '@/components/ui'
 import { useBranch } from '@/hooks'
 import { useBranchStore } from '@/stores/branch.store'
-import { MapPinIcon } from 'lucide-react'
 
 export default function SelectBranchDropdown() {
   const { data: branchRes } = useBranch()
@@ -33,12 +34,12 @@ export default function SelectBranchDropdown() {
           <MapPinIcon className="h-[1.1rem] w-[1.1rem]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="mr-2 mt-1 w-56">
+      <DropdownMenuContent className="w-56 mt-1 mr-2">
         <Select
           value={branch?.slug}
           onValueChange={(value) => handleSelectChange(value)}
         >
-          <SelectTrigger className="h-8 w-full">
+          <SelectTrigger className="w-full h-8">
             <SelectValue
               className="text-xs"
               placeholder={'Lựa chọn chi nhánh'}

@@ -95,7 +95,23 @@
     "upload": "Tải lên",
     "deleteImage": "Xóa hình ảnh",
     "deleteProductImageConfirmation": "Bạn có chắc muốn xóa hình ảnh này?",
-    "productDetail": "Chi tiết món"
+    "productDetail": "Chi tiết món",
+
+    "exportAllProducts": "Xuất file tất cả món ăn",
+    "exportAllProductsDescription": "Xuất tất cả món ăn ra file excel",
+    "exportAllProductsConfirmation": "Bạn có chắc muốn xuất tất cả món ăn ra file excel không?",
+    "confirm": "Xác nhận",
+
+    "exportProductImportTemplate": "Xuất file template tạp món ăn",
+    "exportProductImportTemplateDescription": "Xuất file mẫu import món ăn ra file excel",
+    "exportProductImportTemplateConfirmation": "Bạn có chắc muốn xuất file mẫu import món ăn không?",
+
+    "importProducts": "Import món ăn",
+    "importProductsDescription": "Import món ăn từ file excel",
+    "dropFileHere": "Kéo thả file vào đây hoặc nhấn để chọn file",
+    "dragAndDropOrClick": "Kéo thả file vào đây hoặc nhấn để chọn file",
+    "supportedFormats": "Định dạng hỗ trợ: .xls, .xlsx",
+    "importProductsConfirmation": "Bạn có chắc muốn import món ăn từ file excel không?"
   },
   "productVariant": {
     "title": "Quản lý phân loại",

@@ -97,6 +97,10 @@
 
     "refreshRevenueSuccess": "Lấy dữ liệu doanh thu mới thành công",
 
+    "exportAllProductsTemplateSuccess": "Xuất mẫu thực đơn thành công",
+    "exportProductImportTemplateSuccess": "Xuất mẫu nhập sản phẩm thành công",
+    "importMultipleProductsSuccess": "Import sản phẩm thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

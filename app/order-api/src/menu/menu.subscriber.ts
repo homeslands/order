@@ -7,7 +7,6 @@ import {
 import { Menu } from './menu.entity';
 import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import moment from 'moment';
 import { getDayIndex } from 'src/helper';
 
 @EventSubscriber()

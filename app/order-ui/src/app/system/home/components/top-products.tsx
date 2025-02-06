@@ -1,10 +1,7 @@
-"use client"
-
 import { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
-// import { DateSelect } from '@/components/app/select'
 import { usePagination, useTopProducts } from '@/hooks'
 
 export default function TopProducts() {

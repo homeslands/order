@@ -31,7 +31,7 @@ import {
 } from '@/components/ui'
 import { sidebarRoutes } from '@/router/routes'
 import { ISidebarRoute } from '@/types'
-import { Logo } from '@/assets/images'
+import { HomelandLogo } from '@/assets/images'
 import { cn } from '@/lib'
 import { ROUTE } from '@/constants'
 
@@ -67,7 +67,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       variant="inset"
-      className="z-50 border-r bg-slate-50 shadow-2xl shadow-gray-300"
+      className="z-50 border-r shadow-2xl bg-slate-50 shadow-gray-300"
       collapsible="icon"
     >
       <SidebarHeader>
@@ -82,7 +82,7 @@ export function AppSidebar() {
                   <House size={20} />
                 </div>
               ) : (
-                <img src={Logo} alt="logo" className="h-6" />
+                <img src={HomelandLogo} alt="logo" className="h-6" />
               )}
             </NavLink>
           </SidebarMenuItem>

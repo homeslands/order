@@ -4,11 +4,14 @@ import {
   deleteProduct,
   deleteProductImage,
   deleteProductVariant,
+  exportAllProductsFile,
   getAllProducts,
   getAllProductVariant,
   getProductBySlug,
+  getProductImportTemplate,
   getTopBranchProducts,
   getTopProducts,
+  importProducts,
   updateProduct,
   updateProductVariant,
   uploadMultipleProductImages,
@@ -137,5 +140,31 @@ export const useTopBranchProducts = (q: ITopBranchProductQuery) => {
     queryKey: ['topBranchProducts', JSON.stringify(q)],
     queryFn: () => getTopBranchProducts(q),
     placeholderData: keepPreviousData,
+  })
+}
+
+export const useExportAllProductsFile = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return exportAllProductsFile()
+    },
+  })
+}
+
+export const useExportProductImportTemplate = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return getProductImportTemplate()
+    },
+  })
+}
+
+export const useImportMultipleProducts = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      return importProducts(file)
+    },
   })
 }

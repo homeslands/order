@@ -28,7 +28,8 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/api-docs', app, documentFactory, {
-    jsonDocumentUrl: 'api/swagger/json',
+    // jsonDocumentUrl: 'api/swagger/json',
+    jsonDocumentUrl: 'swagger.json',
   });
 
   logger.log(`Server running on port ${port}`);

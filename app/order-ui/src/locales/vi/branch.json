@@ -8,11 +8,18 @@
     "branchEmail": "Email",
     "branchDescription": "Mô tả",
 
+    "chooseBranch": "Chọn chi nhánh",
+    "chooseBranchDescription": "Chọn chi nhánh để xem thông tin thực đơn",
+
     "update": "Cập nhật chi nhánh",
     "updateBranchDescription": "Thay đổi thông tin để cập nhật chi nhánh",
     "create": "Tạo chi nhánh",
     "createBranchDescription": "Điền đầy đủ thông tin để tạo chi nhánh mới",
     "enterBranchName": "Nhập tên chi nhánh",
-    "enterBranchAddress": "Nhập địa chỉ chi nhánh"
+    "enterBranchAddress": "Nhập địa chỉ chi nhánh",
+
+    "delete": "Xóa chi nhánh",
+    "deleteBranchWarning1": "Bạn sắp sửa xóa chi nhánh ",
+    "deleteBranchConfirmation": "Bạn có chắc chắn muốn xóa chi nhánh này không?"
   }
 }

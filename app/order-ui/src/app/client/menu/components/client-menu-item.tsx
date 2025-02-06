@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next'
 
 import { IMenuItem, IProduct } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
-import { Button } from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { ClientAddToCartDialog } from '@/components/app/dialog'
 import { ClientAddToCartDrawer } from '@/components/app/drawer'
 import { useIsMobile } from '@/hooks'
+import { PromotionTag } from '@/components/app/badge'
 
 interface IClientMenuItemProps {
   item: IMenuItem
@@ -38,19 +39,23 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       className="flex min-h-[20rem] hover:scale-105 flex-col rounded-xl border bg-white backdrop-blur-md transition-all duration-300"
     >
       <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-        {/* Image Section with Discount Tag */}
+        {/* Image Section with Ribbon Discount Tag */}
         <div className="relative">
           {item.product.image ? (
-            <img
-              src={`${publicFileURL}/${item.product.image}`}
-              alt={item.product.name}
-              className="object-cover w-full h-36 rounded-t-md"
-            />
+            <>
+              <img
+                src={`${publicFileURL}/${item.product.image}`}
+                alt={item.product.name}
+                className="object-cover w-full h-36 rounded-t-md"
+              />
+              {/* Discount Ribbon Tag */}
+              <PromotionTag />
+            </>
           ) : (
             <div className="w-full h-24 rounded-t-md bg-muted/60" />
           )}
         </div>
-        {/* Content Section - More compact */}
+        {/* Content Section */}
         <div className="flex flex-col justify-between flex-1 p-2 min-h-[8rem]">
           <div>
             <h3 className="text-lg font-bold line-clamp-1">
@@ -65,15 +70,20 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
             <div className="flex flex-col">
               {item.product.variants.length > 0 ? (
                 <div className="flex flex-col items-start justify-start gap-1">
-                  <span className="text-sm font-bold sm:text-lg text-primary">
-                    {(() => {
-                      const range = getPriceRange(item.product.variants)
-                      if (!range) return formatCurrency(0)
-                      return range.isSinglePrice
-                        ? `${formatCurrency(range.min)}`
-                        : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
-                    })()}
-                  </span>
+                  <div className='flex flex-row items-center gap-1'>
+                    <span className="text-sm font-bold sm:text-lg text-primary">
+                      {(() => {
+                        const range = getPriceRange(item.product.variants)
+                        if (!range) return formatCurrency(0)
+                        return range.isSinglePrice
+                          ? `${formatCurrency(range.min)}`
+                          : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
+                      })()}
+                    </span>
+                    <Badge className="text-xs bg-destructive">
+                      -10%
+                    </Badge>
+                  </div>
                   <span className="text-[0.7rem] text-muted-foreground">
                     {t('menu.amount')}
                     {item.currentStock}/{item.defaultStock}
@@ -88,6 +98,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           </div>
         </div>
       </NavLink>
+
       {item.currentStock > 0 ? (
         <div className="flex justify-center w-full gap-2 p-2">
           {isMobile ? (
@@ -105,6 +116,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
         </Button>
       )}
     </div>
+
     // </NavLink>
   )
 }

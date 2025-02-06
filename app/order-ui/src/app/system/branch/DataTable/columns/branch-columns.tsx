@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IBranch } from '@/types'
-import { UpdateBranchDialog } from '@/components/app/dialog'
+import { DeleteBranchDialog, UpdateBranchDialog } from '@/components/app/dialog'
 
 export const useBranchesColumns = (): ColumnDef<IBranch>[] => {
   const { t } = useTranslation(['branch'])
@@ -66,6 +66,7 @@ export const useBranchesColumns = (): ColumnDef<IBranch>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <UpdateBranchDialog branch={branch} />
+                <DeleteBranchDialog branch={branch} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

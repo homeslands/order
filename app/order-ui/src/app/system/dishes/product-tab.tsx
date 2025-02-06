@@ -7,14 +7,14 @@ export default function ProductTab() {
   const { data: products, isLoading } = useProducts()
 
   return (
-    <div className="grid h-full grid-cols-1 gap-2">
+    <div className="w-full">
       <DataTable
         columns={useProductColumns()}
         data={products?.result || []}
         isLoading={isLoading}
         pages={1}
-        onPageChange={() => {}}
-        onPageSizeChange={() => {}}
+        onPageChange={() => { }}
+        onPageSizeChange={() => { }}
         actionOptions={ProductActionOptions}
       />
     </div>

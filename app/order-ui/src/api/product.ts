@@ -12,6 +12,10 @@ import {
   ITopProduct,
   IBranchTopProduct,
 } from '@/types'
+import { useDownloadStore } from '@/stores'
+import { AxiosRequestConfig } from 'axios'
+import { saveAs } from 'file-saver'
+import { useAuthStore } from '@/stores'
 
 export async function getAllProducts(): Promise<IApiResponse<IProduct[]>> {
   const response = await http.get<IApiResponse<IProduct[]>>('/products')
@@ -142,4 +146,88 @@ export async function getTopBranchProducts(
     params,
   })
   return response.data
+}
+
+export async function exportAllProductsFile(): Promise<void> {
+  const { setProgress, setIsDownloading, reset } = useDownloadStore.getState()
+  const { token } = useAuthStore.getState()
+  setIsDownloading(true)
+  try {
+    const config = {
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          )
+          setProgress(percentCompleted)
+        }
+      },
+      doNotShowLoading: true,
+    } as AxiosRequestConfig
+
+    const response = await http.get('/products/export', config)
+    const contentDisposition = response.headers['content-disposition']
+    const fileNameMatch = contentDisposition?.match(/filename="(.+)"/)
+    const fileName = fileNameMatch ? fileNameMatch[1] : 'all-products.xlsx'
+
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    saveAs(blob, fileName)
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
+
+export async function getProductImportTemplate(): Promise<void> {
+  const { setProgress, setIsDownloading, reset } = useDownloadStore.getState()
+  const { token } = useAuthStore.getState()
+  setIsDownloading(true)
+  try {
+    const config = {
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+      onDownloadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          )
+          setProgress(percentCompleted)
+        }
+      },
+      doNotShowLoading: true,
+    } as AxiosRequestConfig
+
+    const response = await http.get('/products/import-template', config)
+    const contentDisposition = response.headers['content-disposition']
+    const fileNameMatch = contentDisposition?.match(/filename="(.+)"/)
+    const fileName = fileNameMatch
+      ? fileNameMatch[1]
+      : 'product-import-template.xlsx'
+
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    saveAs(blob, fileName)
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
+
+export async function importProducts(file: File): Promise<void> {
+  const formData = new FormData()
+  formData.append('file', file)
+  await http.post('/products/multi', formData)
 }

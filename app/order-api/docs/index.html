@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="icon" href="_media/tab-logo.png" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'Docs',
+      repo: 'https://github.com/homeslands/order',
+      loadSidebar: true,
+      coverpage: true,
+      subMaxLevel: 2,
+      swagger: {
+      cache: true,
+      tableWidth: "auto",
+      i18n: {
+        "en": {
+          request: "Request parameters",
+          response: "Response parameters",
+          name: "Name",
+          type: "Type",
+          required: "Required",
+          description: "Description",
+          none: "None"
+        },
+        fallback: "en"
+      }
+      }
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//unpkg.com/docsify-swagger/dist/docsify-swagger.min.js"></script>
+</body>
+</html>

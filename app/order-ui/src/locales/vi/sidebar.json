@@ -19,7 +19,9 @@
     "config": "Cấu hình",
     "aboutMe": "Về chúng tôi",
     "contact": "Liên hệ",
-    "overview": "Tổng quan"
+    "overview": "Tổng quan",
+    "voucher": "Voucher",
+    "docs": "Tài liệu"
   },
   "header": {
     "search": "Tìm kiếm",

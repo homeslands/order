@@ -15,11 +15,16 @@
     "order-history": "Quản lý đơn hàng",
     "profile": "Trang cá nhân",
     "product": "Món",
+    "system": "Hệ thống",
+    "branch": "Chi nhánh",
     "product-detail": "Chi tiết món",
     "product-management": "Quản lý món",
     "table-management": "Quản lý bàn",
     "user-management": "Quản lý người dùng",
     "revenue": "Quản lý doanh thu",
-    "static-page": "Quản lý trang tĩnh"
+    "static-page": "Quản lý trang tĩnh",
+    "staff": "Nhân viên",
+    "voucher": "Voucher",
+    "docs": "Tài liệu"
   }
 }
