@@ -10,6 +10,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { VoucherUtils } from './voucher.utils';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -19,6 +20,7 @@ describe('VoucherController', () => {
       controllers: [VoucherController],
       providers: [
         VoucherService,
+        VoucherUtils,
         {
           provide: getRepositoryToken(Voucher),
           useValue: repositoryMockFactory,

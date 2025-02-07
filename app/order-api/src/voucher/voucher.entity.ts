@@ -31,4 +31,12 @@ export class Voucher extends Base {
   @AutoMap()
   @Column({ name: 'end_date_column' })
   endDate: Date;
+
+  @AutoMap()
+  @Column({ name: 'value_column' })
+  value: number;
+
+  @AutoMap()
+  @Column({ name: 'is_active_column', default: false })
+  isActive: boolean;
 }

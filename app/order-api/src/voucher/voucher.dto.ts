@@ -22,6 +22,11 @@ export class CreateVoucherDto {
 
   @ApiProperty()
   @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_VALUE' })
+  value: number;
+
+  @ApiProperty()
+  @AutoMap()
   @IsNotEmpty({ message: 'INVALID_MAX_USAGE' })
   maxUsage: number;
 
@@ -41,7 +46,37 @@ export class CreateVoucherDto {
   endDate: Date;
 }
 
-export class UpdateVoucherDto extends CreateVoucherDto {}
+export class UpdateVoucherDto extends CreateVoucherDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  isActive?: boolean;
+}
+
+export class GetAllVoucherDto {
+  @ApiProperty({ required: false })
+  @AutoMap()
+  @IsOptional()
+  minOrderValue?: number;
+
+  @ApiProperty({ example: '2024-12-26', required: false })
+  @AutoMap()
+  @Type(() => Date)
+  @IsOptional()
+  date?: Date;
+}
+
+export class GetVoucherDto {
+  @ApiProperty({ required: false })
+  @AutoMap()
+  @IsOptional()
+  slug: string;
+
+  @ApiProperty({ required: false })
+  @AutoMap()
+  @IsOptional()
+  code: string;
+}
 
 export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
@@ -71,4 +106,12 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   endDate: Date;
+
+  @ApiProperty()
+  @AutoMap()
+  value: number;
+
+  @ApiProperty()
+  @AutoMap()
+  isActive: boolean;
 }

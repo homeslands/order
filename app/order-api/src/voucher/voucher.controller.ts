@@ -9,9 +9,15 @@ import {
   HttpStatus,
   HttpCode,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
-import { CreateVoucherDto, VoucherResponseDto } from './voucher.dto';
+import {
+  CreateVoucherDto,
+  GetAllVoucherDto,
+  GetVoucherDto,
+  VoucherResponseDto,
+} from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HasRoles } from 'src/role/roles.decorator';
@@ -48,7 +54,14 @@ export class VoucherController {
   }
 
   @Get()
-  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HasRoles(
+    RoleEnum.Customer,
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.SuperAdmin,
+    RoleEnum.Admin,
+    RoleEnum.Manager,
+  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all voucher' })
   @ApiResponseWithType({
@@ -57,8 +70,10 @@ export class VoucherController {
     type: VoucherResponseDto,
     isArray: true,
   })
-  async findAll() {
-    const result = await this.voucherService.findAll();
+  async findAll(
+    @Query(new ValidationPipe({ transform: true })) options: GetAllVoucherDto,
+  ) {
+    const result = await this.voucherService.findAll(options);
     return {
       message: 'All voucher have been retrieved successfully',
       statusCode: HttpStatus.OK,
@@ -67,8 +82,15 @@ export class VoucherController {
     } as AppResponseDto<VoucherResponseDto[]>;
   }
 
-  @Get(':slug')
-  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @Get('/specific')
+  @HasRoles(
+    RoleEnum.Customer,
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.SuperAdmin,
+    RoleEnum.Admin,
+    RoleEnum.Manager,
+  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve voucher' })
   @ApiResponseWithType({
@@ -76,8 +98,10 @@ export class VoucherController {
     description: 'Voucher has been retrieved successfully',
     type: VoucherResponseDto,
   })
-  async findOne(@Param('slug') slug: string) {
-    const result = await this.voucherService.findOne(slug);
+  async findOne(
+    @Query(new ValidationPipe({ transform: true })) option: GetVoucherDto,
+  ) {
+    const result = await this.voucherService.findOne(option);
     return {
       message: 'Voucher has been retrieved successfully',
       statusCode: HttpStatus.OK,

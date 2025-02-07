@@ -5,10 +5,12 @@ import { VoucherProfile } from './voucher.mapper';
 import { Voucher } from './voucher.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbModule } from 'src/db/db.module';
+import { VoucherUtils } from './voucher.utils';
+import { VoucherScheduler } from './voucher.scheduler';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Voucher]), DbModule],
   controllers: [VoucherController],
-  providers: [VoucherService, VoucherProfile],
+  providers: [VoucherService, VoucherProfile, VoucherUtils, VoucherScheduler],
 })
 export class VoucherModule {}
