@@ -6,6 +6,8 @@ export const FIND_ALL_VOUCHER_FAILED = 'FIND_ALL_VOUCHER_FAILED';
 export const FIND_ONE_VOUCHER_FAILED = 'FIND_ONE_VOUCHER_FAILED';
 export const UPDATE_VOUCHER_FAILED = 'UPDATE_VOUCHER_FAILED';
 export const DELETE_VOUCHER_FAILED = 'DELETE_VOUCHER_FAILED';
+export const VOUCHER_ALREADY_USED = 'VOUCHER_ALREADY_USED';
+export const VOUCHER_IS_NOT_ACTIVE = 'VOUCHER_IS_NOT_ACTIVE';
 
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
@@ -13,6 +15,8 @@ export type TVoucherErrorCodeKey =
   | typeof FIND_ONE_VOUCHER_FAILED
   | typeof UPDATE_VOUCHER_FAILED
   | typeof DELETE_VOUCHER_FAILED
+  | typeof VOUCHER_ALREADY_USED
+  | typeof VOUCHER_IS_NOT_ACTIVE
   | typeof CREATE_VOUCHER_FAILED;
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -30,4 +34,6 @@ export const VoucherValidation: TVoucherErrorCode = {
   ),
   UPDATE_VOUCHER_FAILED: createErrorCode(143405, 'Failed to update voucher'),
   DELETE_VOUCHER_FAILED: createErrorCode(143406, 'Failed to delete voucher'),
+  VOUCHER_ALREADY_USED: createErrorCode(143407, 'Voucher already used'),
+  VOUCHER_IS_NOT_ACTIVE: createErrorCode(143408, 'Voucher is not active'),
 };

@@ -25,6 +25,7 @@ import enEmployee from '@/locales/en/employee.json'
 import enHelmet from '@/locales/en/helmet.json'
 import enDoc from '@/locales/en/doc.json'
 import enVoucher from '@/locales/en/voucher.json'
+import enPromotion from '@/locales/en/promotion.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -50,6 +51,7 @@ import viEmployee from '@/locales/vi/employee.json'
 import viHelmet from '@/locales/vi/helmet.json'
 import viDoc from '@/locales/vi/doc.json'
 import viVoucher from '@/locales/vi/voucher.json'
+import viPromotion from '@/locales/vi/promotion.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -80,6 +82,7 @@ i18n
         helmet: enHelmet,
         doc: enDoc,
         voucher: enVoucher,
+        promotion: enPromotion,
       },
       vi: {
         toast: viToast,
@@ -106,6 +109,7 @@ i18n
         helmet: viHelmet,
         doc: viDoc,
         voucher: viVoucher,
+        promotion: viPromotion,
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',
@@ -138,6 +142,7 @@ i18n
       'helmet',
       'doc',
       'voucher',
+      'promotion',
     ], //Dùng để phân biệt các phần khác nhau của app
     defaultNS: 'auth', //Ngôn ngữ mặc định
   })

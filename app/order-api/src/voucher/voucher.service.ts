@@ -9,6 +9,7 @@ import {
   CreateVoucherDto,
   GetAllVoucherDto,
   GetVoucherDto,
+  ValidateVoucherDto,
   VoucherResponseDto,
 } from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
@@ -28,6 +29,7 @@ import { VoucherException } from './voucher.exception';
 import { VoucherValidation } from './voucher.validation';
 import _ from 'lodash';
 import { VoucherUtils } from './voucher.utils';
+import { OrderUtils } from 'src/order/order.utils';
 
 @Injectable()
 export class VoucherService {
@@ -40,7 +42,35 @@ export class VoucherService {
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
     private readonly voucherUtils: VoucherUtils,
+    private readonly orderUtils: OrderUtils,
   ) {}
+
+  async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
+    const context = `${VoucherService.name}.${this.validateVoucher.name}`;
+    const voucher = await this.voucherUtils.getVoucher({
+      where: { slug: validateVoucherDto.voucher },
+    });
+    if (!voucher.isActive) {
+      throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_ACTIVE);
+    }
+
+    let order = null;
+    try {
+      order = await this.orderUtils.getOrder({
+        where: {
+          owner: {
+            slug: validateVoucherDto.user,
+          },
+          voucher: {
+            slug: validateVoucherDto.voucher,
+          },
+        },
+      });
+    } catch (error) {}
+    if (order) {
+      throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
+    }
+  }
 
   async create(createVoucherDto: CreateVoucherDto) {
     const context = `${VoucherService.name}.${this.create.name}`;

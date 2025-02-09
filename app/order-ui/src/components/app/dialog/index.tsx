@@ -56,6 +56,10 @@ export { default as UpdateBankConnectorDialog } from './update-bank-connector-di
 
 export { default as QrCodeDialog } from './qr-code-dialog'
 
+export { default as CreateVoucherDialog } from './confirm-create-voucher-dialog'
+export { default as ConfirmUpdateVoucherDialog } from './confirm-update-voucher-dialog'
+export { default as DeleteVoucherDialog } from './delete-voucher-dialog'
+
 export { default as AddMenuItemDialog } from './add-product-to-menu-dialog'
 export { default as AddMultipleItemsDialog } from './add-multiple-products-to-menu-dialog'
 export { default as UpdateMenuItemDialog } from './update-menu-item-dialog'

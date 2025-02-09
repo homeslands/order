@@ -1,28 +1,15 @@
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
+
 import { DataTable } from '@/components/ui'
-import { useUserListColumns } from '../users/DataTable/columns'
-import { usePagination, useUsers } from '@/hooks'
-import { useState } from 'react'
-import { Role } from '@/constants'
-import { EmployeeFilterOptions, EmployeesAction } from '../users/DataTable/actions'
+import { useVoucherColumns } from './DataTable/columns'
+import { usePagination, useVouchers } from '@/hooks'
+import { EmployeesAction } from './DataTable/actions'
 
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
-    const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
-    const [phonenumber, setPhoneNumber] = useState<string>('')
-
-    const { data, isLoading } = useUsers({
-        page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
-        phonenumber,
-        order: 'DESC',
-        role: [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
-    })
-
-    const handleSearchChange = (value: string) => {
-        setPhoneNumber(value)
-    }
+    const { handlePageChange, handlePageSizeChange } = usePagination()
+    const { data, isLoading } = useVouchers()
 
     return (
         <div>
@@ -30,17 +17,16 @@ export default function VoucherPage() {
                 <div className="flex flex-col flex-1 w-full">
                     <span className="flex items-center gap-1 text-lg">
                         <SquareMenu />
-                        {t('voucher.title')}
+                        {t('voucher.voucherTitle')}
                     </span>
-                    <div className="grid h-full grid-cols-1 gap-2">
+                    <div className="grid h-full grid-cols-1 gap-2 mt-4">
                         <DataTable
-                            columns={useUserListColumns()}
-                            data={data?.result.items || []}
+                            columns={useVoucherColumns()}
+                            data={data?.result || []}
                             isLoading={isLoading}
-                            pages={data?.result.totalPages || 0}
+                            pages={1}
                             hiddenInput={false}
-                            onInputChange={handleSearchChange}
-                            filterOptions={EmployeeFilterOptions}
+                            // filterOptions={EmployeeFilterOptions}
                             actionOptions={EmployeesAction}
                             onPageChange={handlePageChange}
                             onPageSizeChange={handlePageSizeChange}

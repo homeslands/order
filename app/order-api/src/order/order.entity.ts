@@ -17,6 +17,7 @@ import { Invoice } from 'src/invoice/invoice.entity';
 import { Table } from 'src/table/table.entity';
 import { IsNotEmpty, IsNumber, ValidateNested } from 'class-validator';
 import { ORDER_STATUS_INVALID } from './order.validation';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 @Entity('order_tbl')
 export class Order extends Base {
@@ -76,4 +77,9 @@ export class Order extends Base {
   @JoinColumn({ name: 'table_column' })
   @AutoMap()
   table: Table;
+
+  @ManyToOne(() => Voucher, (voucher) => voucher.orders, { nullable: true })
+  @JoinColumn({ name: 'voucher_column' })
+  @AutoMap()
+  voucher: Voucher;
 }

@@ -37,6 +37,7 @@ import { UserUtils } from 'src/user/user.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { VariantUtils } from 'src/variant/variant.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
 
 @Injectable()
 export class OrderService {
@@ -54,6 +55,7 @@ export class OrderService {
     private readonly menuItemUtils: MenuItemUtils,
     private readonly variantUtils: VariantUtils,
     private readonly menuUtils: MenuUtils,
+    private readonly voucherUtils: VoucherUtils,
   ) {}
 
   @OnEvent(PaymentAction.PAYMENT_PAID)
@@ -154,6 +156,11 @@ export class OrderService {
 
     // Construct order
     const order: Order = await this.constructOrder(requestData);
+    const voucher = await this.voucherUtils.getVoucher({
+      where: {
+        slug: requestData.voucher,
+      },
+    });
     // Get order items
     const orderItems = await this.constructOrderItems(
       requestData.branch,
@@ -161,7 +168,8 @@ export class OrderService {
     );
     this.logger.log(`Number of order items: ${orderItems.length}`, context);
     order.orderItems = orderItems;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+    order.voucher = voucher;
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
 
     const createdOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {

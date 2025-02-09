@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Order } from 'src/order/order.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('voucher_tbl')
 export class Voucher extends Base {
@@ -39,4 +40,7 @@ export class Voucher extends Base {
   @AutoMap()
   @Column({ name: 'is_active_column', default: false })
   isActive: boolean;
+
+  @OneToMany(() => Order, (order) => order.voucher)
+  orders: Order[];
 }

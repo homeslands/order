@@ -1,15 +1,12 @@
-import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Order } from './order.entity';
 import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Menu } from 'src/menu/menu.entity';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
-import { MenuValidation } from 'src/menu/menu.validation';
-import { MenuException } from 'src/menu/menu.exception';
+import { FindOneOptions, Repository } from 'typeorm';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
 import { MenuUtils } from 'src/menu/menu.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 export class OrderUtils {
   constructor(
@@ -44,10 +41,15 @@ export class OrderUtils {
    * @param {Order} order order.
    * @returns {Promise<number>} The subtotal of order
    */
-  async getOrderSubtotal(order: Order): Promise<number> {
-    return order.orderItems.reduce(
+  async getOrderSubtotal(order: Order, voucher?: Voucher): Promise<number> {
+    let total = 0;
+    let discount = 0;
+    const subtotal = order.orderItems.reduce(
       (previous, current) => previous + current.subtotal,
       0,
     );
+    if (voucher) discount = (subtotal * voucher.value) / 100;
+    total = subtotal - discount;
+    return total;
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './order.entity';
 import { OrderController } from './order.controller';
@@ -22,6 +22,7 @@ import { UserModule } from 'src/user/user.module';
 import { MenuItemModule } from 'src/menu-item/menu-item.module';
 import { VariantModule } from 'src/variant/variant.module';
 import { MenuModule } from 'src/menu/menu.module';
+import { VoucherModule } from 'src/voucher/voucher.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MenuModule } from 'src/menu/menu.module';
     MenuItemModule,
     VariantModule,
     MenuModule,
+    forwardRef(() => VoucherModule),
   ],
   controllers: [OrderController],
   providers: [

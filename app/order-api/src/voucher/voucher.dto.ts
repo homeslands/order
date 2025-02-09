@@ -78,6 +78,18 @@ export class GetVoucherDto {
   code: string;
 }
 
+export class ValidateVoucherDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_VOUCHER_SLUG' })
+  voucher: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_USER_SLUG' })
+  user: string;
+}
+
 export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()

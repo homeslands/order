@@ -11,6 +11,10 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { VoucherUtils } from './voucher.utils';
+import { OrderUtils } from 'src/order/order.utils';
+import { Order } from 'src/order/order.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -21,8 +25,18 @@ describe('VoucherController', () => {
       providers: [
         VoucherService,
         VoucherUtils,
+        OrderUtils,
+        MenuUtils,
         {
           provide: getRepositoryToken(Voucher),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
           useValue: repositoryMockFactory,
         },
         {

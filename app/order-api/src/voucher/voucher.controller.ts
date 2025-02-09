@@ -16,6 +16,7 @@ import {
   CreateVoucherDto,
   GetAllVoucherDto,
   GetVoucherDto,
+  ValidateVoucherDto,
   VoucherResponseDto,
 } from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
@@ -142,5 +143,25 @@ export class VoucherController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<VoucherResponseDto>;
+  }
+
+  @Post('validate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validate voucher before apply' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher has been validated successfully',
+    type: VoucherResponseDto,
+  })
+  async validateVoucher(
+    @Body(new ValidationPipe({ transform: true }))
+    validateVoucherDto: ValidateVoucherDto,
+  ) {
+    await this.voucherService.validateVoucher(validateVoucherDto);
+    return {
+      message: 'Voucher has been validated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
   }
 }

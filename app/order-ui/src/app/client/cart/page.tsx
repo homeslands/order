@@ -14,6 +14,7 @@ import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { ClientTableSelect, OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
+import { VoucherListSheet } from '@/components/app/sheet'
 
 export function ClientCartPage() {
   const { t } = useTranslation('menu')
@@ -72,6 +73,7 @@ export function ClientCartPage() {
               </span>
             </div>
 
+
             <div className="flex flex-col border rounded-md">
               {cartItems?.orderItems.map((item) => (
                 <div
@@ -110,6 +112,7 @@ export function ClientCartPage() {
                 </div>
               ))}
             </div>
+            <VoucherListSheet />
           </div>
           {/* Button */}
           <div className="flex justify-end w-full">

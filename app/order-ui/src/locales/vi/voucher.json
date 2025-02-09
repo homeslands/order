@@ -1,5 +1,48 @@
 {
   "voucher": {
-    "title": "Voucher"
+    "voucherTitle": "Quản lý voucher",
+
+    "slug": "Slug",
+    "createdAt": "Ngày tạo",
+    "title": "Tiêu đề",
+    "code": "Mã giảm giá",
+    "maxUsage": "Số voucher tối đa",
+    "minOrderValue": "Giá trị đơn hàng tối thiểu",
+    "copyCode": "Sao chép mã giảm giá",
+
+    "create": "Tạo voucher",
+    "name": "Tên voucher",
+    "enterVoucherName": "Nhập tên voucher",
+    "description": "Mô tả",
+    "enterVoucherDescription": "Nhập mô tả voucher",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "type": "Loại voucher",
+    "value": "Giá trị",
+    "enterVoucherValue": "Nhập giá trị voucher",
+    "enterVoucherCode": "Nhập mã giảm giá",
+    "term": "Điều kiện tối thiểu",
+    "noTerm": "Không có điều kiện",
+    "minValue": "Giá trị tối thiểu",
+    "enterMinOrderValue": "Nhập giá trị đơn hàng tối thiểu",
+    "enterMaxUsage": "Nhập số lần sử dụng tối đa",
+
+    "confirmCreateVoucher": "Xác nhận tạo voucher",
+
+    "update": "Cập nhật voucher",
+    "updateVoucherDescription": "Cập nhật thông tin voucher",
+    "confirmUpdateVoucher": "Xác nhận cập nhật voucher",
+
+    "delete": "Xóa voucher",
+    "deleteVoucherWarning1": "Bạn sắp sửa xóa voucher ",
+    "deleteVoucherConfirmation": "Bạn có chắc chắn muốn xóa voucher này không?",
+
+    "list": "Danh sách voucher",
+    "search": "Tìm kiếm voucher",
+    "enterVoucher": "Nhập mã giảm giá",
+    "apply": "Áp dụng",
+    "use": "Sử dụng",
+    "maxApply": "Áp dụng tối đa",
+    "complete": "Hoàn thành"
   }
 }

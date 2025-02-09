@@ -74,6 +74,11 @@ export class CreateOrderRequestDto {
   @ApiProperty()
   @IsOptional()
   approvalBy?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  voucher?: string;
 }
 
 export class UpdateOrderRequestDto {

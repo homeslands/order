@@ -56,6 +56,8 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -89,6 +91,7 @@ describe('OrderService', () => {
         TableUtils,
         UserUtils,
         MenuUtils,
+        VoucherUtils,
         VariantUtils,
         SchedulerRegistry,
         {
@@ -119,6 +122,10 @@ describe('OrderService', () => {
         },
         {
           provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Voucher),
           useFactory: repositoryMockFactory,
         },
         {
