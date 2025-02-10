@@ -5,6 +5,7 @@ export const corsOptions: CorsOptions = {
     'http://localhost:5173',
     'https://sandbox.order.cmsiot.net',
     'https://trendcoffee.net',
+    'https://coffee.homeslands.net',
   ],
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
   credentials: true,
