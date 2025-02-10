@@ -8,9 +8,16 @@ import { MenuProfile } from './menu.mapper';
 import { MenuScheduler } from './menu.scheduler';
 import { MenuSubscriber } from './menu.subscriber';
 import { MenuUtils } from './menu.utils';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Menu, Branch])],
+  imports: [TypeOrmModule.forFeature([
+    Menu, 
+    Branch,
+    ApplicablePromotion,
+    Promotion
+  ])],
   controllers: [MenuController],
   providers: [
     MenuService,

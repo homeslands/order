@@ -25,4 +25,12 @@ export class MenuItem extends Base {
   @ManyToOne(() => Product, (product) => product.menuItems)
   @JoinColumn({ name: 'product_id_column' })
   product: Product;
+
+  @AutoMap()
+  @Column({ name: 'promotion_value_column', default: 0 })
+  promotionValue: number;
+
+  @AutoMap()
+  @Column({ name: 'promotion_id_column', nullable: true })
+  promotionId: string;
 }

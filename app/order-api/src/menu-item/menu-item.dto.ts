@@ -61,6 +61,10 @@ export class MenuItemResponseDto {
   @ApiProperty()
   currentStock: number;
 
+  @AutoMap()
+  @ApiProperty()
+  promotionValue: number;
+
   @AutoMap(() => ProductResponseDto)
   @ApiProperty()
   product: ProductResponseDto;

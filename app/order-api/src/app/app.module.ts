@@ -48,6 +48,8 @@ import { RevenueModule } from 'src/revenue/revenue.module';
 import { BranchRevenueModule } from 'src/branch-revenue/branch-revenue.module';
 import { StaticPageModule } from 'src/static-page/static-page.module';
 import { ProductAnalysisModule } from 'src/product-analysis/product-analysis.module';
+import { PromotionModule } from 'src/promotion/promotion.module';
+import { ApplicablePromotionModule } from 'src/applicable-promotion/applicable-promotion.module';
 import { VoucherModule } from 'src/voucher/voucher.module';
 
 @Module({
@@ -113,6 +115,8 @@ import { VoucherModule } from 'src/voucher/voucher.module';
     BranchRevenueModule,
     StaticPageModule,
     ProductAnalysisModule,
+    PromotionModule,
+    ApplicablePromotionModule,
     VoucherModule,
   ],
   controllers: [AppController],

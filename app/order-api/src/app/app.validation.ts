@@ -1,4 +1,5 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
+import { ApplicablePromotionValidation } from 'src/applicable-promotion/applicable-promotion.validation';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
@@ -13,6 +14,7 @@ import { OrderValidation } from 'src/order/order.validation';
 import { PaymentValidation } from 'src/payment/payment.validation';
 import { ProductAnalysisValidation } from 'src/product-analysis/product-analysis.validation';
 import ProductValidation from 'src/product/product.validation';
+import { PromotionValidation } from 'src/promotion/promotion.validation';
 import { RevenueValidation } from 'src/revenue/revenue.validation';
 import { RobotConnectorValidation } from 'src/robot-connector/robot-connector.validation';
 import { RoleValidation } from 'src/role/role.validation';
@@ -67,6 +69,8 @@ export const AppValidation: TErrorCode = {
   ...BranchRevenueValidation,
   ...RevenueValidation,
   ...BranchValidation,
+  ...PromotionValidation,
+  ...ApplicablePromotionValidation,
   ...VoucherValidation,
 };
 
