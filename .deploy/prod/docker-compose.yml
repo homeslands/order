@@ -5,7 +5,7 @@ volumes:
 
 services:
   redis:
-    image: "bitnami/redis:latest"
+    image: bitnami/redis:latest
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
@@ -17,9 +17,8 @@ services:
       retries: 5
 
   order-api:
-    build:
-      context: ../../app/order-api
-      dockerfile: ../../.build/order-api/Dockerfile # current context at app/order-api/
+    image: ghcr.io/homeslands/order-api:latest
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/${VERSION}/health"]
       interval: 5s
@@ -68,8 +67,7 @@ services:
         condition: service_healthy
 
   mysql_db:
-    build:
-      context: ../../.build/order-db
+    image: mysql:8.2.0
     volumes:
       - mysql:/var/lib/mysql
     environment:
@@ -81,21 +79,19 @@ services:
       interval: 5s
       timeout: 60s # Increase timeout to give MySQL more time
       retries: 5
+    restart: unless-stopped
 
   order-ui:
-    build:
-      context: ../../app/order-ui
-      dockerfile: ../../.build/order-ui/Dockerfile # Adjusted to be relative to the context
+    image: ghcr.io/homeslands/order-ui:latest
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "5173"] # TCP check on port 5173
       interval: 10s # Increase interval between health checks
       timeout: 10s # Increase timeout for slower responses
       retries: 5
-    restart: always
+    restart: unless-stopped
 
   postgres:
-    build:
-      context: ../../.build/order-postgres
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
