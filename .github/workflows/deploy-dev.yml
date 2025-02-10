@@ -19,8 +19,6 @@ jobs:
       - name: Copy Environment Configuration
         env:
           ENV_DEV: ${{ secrets.ENV_DEV }}
-          GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
-          FE_ENV_DEV: ${{ secrets.FE_ENV_DEV }}
         run: |
           echo "$ENV_DEV" > .deploy/dev/.env
 
