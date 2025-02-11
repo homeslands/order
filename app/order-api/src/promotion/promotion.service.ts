@@ -12,16 +12,22 @@ import { BranchValidation } from "src/branch/branch.validation";
 import { PromotionException } from "./promotion.exception";
 import { PromotionValidation } from "./promotion.validation";
 import * as _ from 'lodash';
+import { MenuItem } from "src/menu-item/menu-item.entity";
+import { ApplicablePromotion } from "src/applicable-promotion/applicable-promotion.entity";
+import { ApplicablePromotionService } from "src/applicable-promotion/applicable-promotion.service";
 
 @Injectable()
 export class PromotionService {
   constructor(
     @InjectRepository(Promotion)
     private readonly promotionRepository: Repository<Promotion>,
+    @InjectRepository(ApplicablePromotion)
+    private readonly applicablePromotionRepository: Repository<ApplicablePromotion>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly applicablePromotionService: ApplicablePromotionService,
   ) {}
 
   async createPromotion(
@@ -131,7 +137,10 @@ export class PromotionService {
 
     const promotion = await this.promotionRepository.findOne({
       where: { slug },
-      relations: ['applicablePromotions']
+      relations: [
+        'applicablePromotions',
+        'branch'
+      ]
      });
     if(!promotion) {
       this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
@@ -143,12 +152,54 @@ export class PromotionService {
       throw new PromotionException(PromotionValidation.DENY_DELETE_PROMOTION);
     }
 
-    const deleted = await this.promotionRepository.delete({ id: promotion.id });
+    // const date = new Date();
+    // date.setHours(7, 0, 0, 0);
+    // console.log({ promotion})
+    // const menItems = await this.getAllMenuItemsByPromotion(new Date(), promotion);
+    // console.log('menItems', menItems);
+
+    const deleted = await this.promotionRepository.softDelete({ id: promotion.id });
 
     this.logger.log(
       `Promotion ${promotion.id} deleted successfully`,
       context
     );
     return deleted.affected;
+    // return 0;
+  }
+
+  async getAllMenuItemsByPromotion(
+    date: Date,
+    promotion: Promotion
+  ): Promise<MenuItem[]> {
+    const context = `${PromotionService.name}.${this.getAllMenuItemsByPromotion.name}`;
+    this.logger.log(`Get menu item by promotion`, context);
+
+    const applicablePromotions = await this.applicablePromotionRepository.find({
+      where: { 
+        promotion: { id: promotion.id } 
+      },
+    });
+
+    console.log({ applicablePromotions });
+
+    if(_.isEmpty(applicablePromotions)) return [];
+
+    try {
+      const menuItems = await Promise.all(
+        applicablePromotions.map(async (applicablePromotion) => {
+          const menuItem = 
+            await this.applicablePromotionService.getMenuItemByApplicablePromotion(
+              date,
+              promotion.branch.id,
+              applicablePromotion
+            );
+          return menuItem;
+        })
+      )
+      return menuItems;
+    } catch (error) {
+      return [];
+    }
   }
 }

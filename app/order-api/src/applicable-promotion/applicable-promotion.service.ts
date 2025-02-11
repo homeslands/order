@@ -38,7 +38,6 @@ export class ApplicablePromotionService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly applicablePromotionUtils: ApplicablePromotionUtils,
-    private readonly transactionManagerService: TransactionManagerService,
     private readonly promotionUtils: PromotionUtils,
     private readonly dataSource: DataSource,
   ) {}
@@ -49,6 +48,7 @@ export class ApplicablePromotionService {
     const context = `${ApplicablePromotionService.name}.${this.createApplicablePromotion.name}`;
 
     // Kiểm tra lại đã tồn tại promotion nào được gán cho product chưa
+    // Check ngày bắt đầu với việc check vào ô applyFromToday
     const promotion = await this.promotionRepository.findOne({ 
       where: { slug: createApplicablePromotionRequestDto.promotion },
       relations: ['branch']
@@ -270,6 +270,38 @@ export class ApplicablePromotionService {
       }
     });
     console.log({ menuItemD: menuItem });
+    if(!menuItem) return null;
+
+    Object.assign(menuItem, {
+      promotionValue: 0,
+      promotionId: null
+    });
+
+    return menuItem;
+  }
+
+  async getMenuItemByApplicablePromotion(
+    date: Date,
+    branchId: string,
+    applicablePromotion: ApplicablePromotion
+  ): Promise<MenuItem> {
+    const context = `${ApplicablePromotionService.name}.${this.getMenuItemByApplicablePromotion.name}`;
+
+    const menu = await this.menuRepository.findOne({
+      where: {
+        branch: { id: branchId },
+        date
+      },
+      relations: ['menuItems.product'],
+    });
+    if(!menu) return null;
+
+    const menuItem = await this.menuItemRepository.findOne({
+      where: {
+        menu: { id: menu.id },
+        product: { id: applicablePromotion.applicableId }
+      }
+    });
     if(!menuItem) return null;
 
     Object.assign(menuItem, {

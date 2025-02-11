@@ -39,7 +39,7 @@ export class CreatePromotionRequestDto {
   @ApiProperty({ description: 'The value of promotion', example: 10 })
   @IsNotEmpty({ message: 'The value of promotion is required' })
   @Min(0, { message: 'The value of promotion must be greater than or equal to 0'})
-  @Max(1, { message: 'The value of promotion must be less than or equal to 1'})
+  @Max(100, { message: 'The value of promotion must be less than or equal to 100'})
   value: number;
 }
 
@@ -78,14 +78,14 @@ export class UpdatePromotionRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The value of promotion', example: 10 })
   @IsNotEmpty({ message: 'The value of promotion is required' })
-  @Min(0.01, { message: 'The value of promotion must be greater than or equal to 0.01'})
+  @Min(0, { message: 'The value of promotion must be greater than or equal to 0'})
   @Max(100, { message: 'The value of promotion must be less than or equal to 100'})
   value: number;
 }
 
 export class PromotionResponseDto extends BaseResponseDto {
   @AutoMap()
-  tile: string;
+  title: string;
 
   @AutoMap()
   description?: string;
