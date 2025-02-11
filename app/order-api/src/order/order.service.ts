@@ -93,8 +93,7 @@ export class OrderService {
    * @returns {Promise<void>} The deleted order
    */
   async deleteOrder(slug: string): Promise<void> {
-    const context = `${OrderService.name}.${this.deleteOrder.name}`;
-    this.orderScheduler.addCancelOrderJob(slug, 10000);
+    this.orderScheduler.addCancelOrderJob(slug, 0); // Delete order immediately
   }
 
   /**
@@ -186,8 +185,11 @@ export class OrderService {
           context,
         );
 
-        // Cancel order after 5 minutes
-        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 2 * 60 * 1000);
+        // Cancel order after 10 minutes
+        this.orderScheduler.addCancelOrderJob(
+          createdOrder.slug,
+          10 * 60 * 1000,
+        );
         return createdOrder;
       },
       (result) => {
