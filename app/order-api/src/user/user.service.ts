@@ -116,7 +116,7 @@ export class UserService {
     // Check if role exists
     const role = await this.roleRepository.findOne({
       where: {
-        name: requestData.role,
+        slug: requestData.role,
       },
     });
     if (!role) {
