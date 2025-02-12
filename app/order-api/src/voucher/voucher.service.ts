@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  Query,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   CreateVoucherDto,
   GetAllVoucherDto,
@@ -17,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Voucher } from './voucher.entity';
 import {
   FindOptionsWhere,
+  IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -46,30 +41,15 @@ export class VoucherService {
   ) {}
 
   async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
-    const context = `${VoucherService.name}.${this.validateVoucher.name}`;
     const voucher = await this.voucherUtils.getVoucher({
-      where: { slug: validateVoucherDto.voucher },
+      where: { slug: validateVoucherDto.voucher ?? IsNull() },
     });
-    if (!voucher.isActive) {
-      throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_ACTIVE);
-    }
 
-    let order = null;
-    try {
-      order = await this.orderUtils.getOrder({
-        where: {
-          owner: {
-            slug: validateVoucherDto.user,
-          },
-          voucher: {
-            slug: validateVoucherDto.voucher,
-          },
-        },
-      });
-    } catch (error) {}
-    if (order) {
-      throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
-    }
+    await this.voucherUtils.validateVoucher(voucher);
+    await this.voucherUtils.validateVoucherUsage(
+      voucher,
+      validateVoucherDto.user,
+    );
   }
 
   async create(createVoucherDto: CreateVoucherDto) {
@@ -79,6 +59,8 @@ export class VoucherService {
       CreateVoucherDto,
       Voucher,
     );
+    voucher.remainingUsage = voucher.maxUsage;
+
     const createdVoucher = await this.transactionService.execute<Voucher>(
       async (manager) => await manager.save(voucher),
       (result) => {
@@ -128,9 +110,10 @@ export class VoucherService {
     if (_.isEmpty(option))
       throw new VoucherException(VoucherValidation.FIND_ONE_VOUCHER_FAILED);
 
-    const findOptionsWhere: FindOptionsWhere<Voucher> = {};
-    if (!_.isNil(option.slug)) findOptionsWhere.slug = option.slug;
-    if (!_.isNil(option.code)) findOptionsWhere.code = option.code;
+    const findOptionsWhere: FindOptionsWhere<Voucher> = {
+      slug: option.slug,
+      code: option.code,
+    };
 
     const voucher = await this.voucherUtils.getVoucher({
       where: findOptionsWhere,
@@ -148,7 +131,10 @@ export class VoucherService {
         return await manager.save(voucher);
       },
       (result) => {
-        this.logger.log(`Voucher updated successfully: ${result}`, context);
+        this.logger.log(
+          `Voucher updated successfully: ${result.code}`,
+          context,
+        );
       },
       (error) => {
         this.logger.error(

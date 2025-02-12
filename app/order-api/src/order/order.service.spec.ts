@@ -75,6 +75,7 @@ describe('OrderService', () => {
   let menuItemUtils: MenuItemUtils;
   let userUtils: UserUtils;
   let branchUtils: BranchUtils;
+  let voucherUtils: VoucherUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -182,6 +183,7 @@ describe('OrderService', () => {
     menuItemUtils = module.get(MenuItemUtils);
     userUtils = module.get(UserUtils);
     branchUtils = module.get(BranchUtils);
+    voucherUtils = module.get(VoucherUtils);
   });
 
   it('should be defined', () => {
@@ -664,6 +666,7 @@ describe('OrderService', () => {
 
       jest.spyOn(service, 'constructOrder').mockResolvedValue(mockOutput);
       jest.spyOn(service, 'constructOrderItems').mockResolvedValue(orderItems);
+      jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(null);
       jest
         .spyOn(orderUtils, 'getOrderSubtotal')
         .mockResolvedValue(mockOutput.subtotal);

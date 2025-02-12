@@ -27,7 +27,7 @@ export const useUpdateOrderStore = create<IUpdateOrderStore>()(
           id: orderId,
           slug: order.slug,
           owner: order.owner?.slug,
-          paymentMethod: order.payment.paymentMethod,
+          paymentMethod: order?.payment?.paymentMethod || '',
           ownerFullName: order.owner?.firstName,
           ownerPhoneNumber: order.owner?.phonenumber,
           type: order.type,

@@ -1,6 +1,37 @@
 {
   "promotion": {
     "promotionTitle": "Quản lý khuyến mãi",
-    "description": "Khuyến mãi hấp dẫn từ chúng tôi"
+    "promotionDescription": "Khuyến mãi hấp dẫn từ chúng tôi",
+
+    "slug": "Slug",
+    "createdAt": "Ngày tạo",
+    "time": "Thời gian",
+    "title": "Tiêu đề",
+    "description": "Mô tả",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "type": "Loại khuyến mãi",
+    "value": "Giá trị",
+
+    "create": "Tạo khuyến mãi",
+    "name": "Tên khuyến mãi",
+    "enterPromotionName": "Nhập tên khuyến mãi",
+    "enterPromotionDescription": "Nhập mô tả khuyến mãi",
+    "confirmCreatePromotion": "Xác nhận tạo khuyến mãi",
+    "enterPromotionValue": "Nhập giá trị khuyến mãi",
+    "defaultPromotionType": "per-product",
+    "selectPromotionType": "Chọn loại khuyến mãi",
+
+    "update": "Cập nhật khuyến mãi",
+    "confirmUpdatePromotion": "Xác nhận cập nhật khuyến mãi",
+
+    "delete": "Xóa khuyến mãi",
+    "deletePromotionWarning1": "Bạn sắp sửa xóa khuyến mãi ",
+    "deletePromotionConfirmation": "Bạn có chắc chắn muốn xóa khuyến mãi này không?",
+
+    "applyPromotion": "Áp dụng khuyến mãi",
+    "confirmApplyPromotion": "Xác nhận áp dụng khuyến mãi. Lưu ý: Sau khi áp dụng, khuyến mãi sẽ không thể chỉnh sửa giá trị.",
+    "apply": "Áp dụng",
+    "applyFromToday": "Áp dụng từ hôm nay"
   }
 }

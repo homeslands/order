@@ -31,28 +31,28 @@ export function ClientPaymentPage() {
   const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(true) // Start polling initially
   const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
-  const [isExpired, setIsExpired] = useState<boolean>(false)
+  // const [isExpired, setIsExpired] = useState<boolean>(false)
 
   useEffect(() => {
     if (order?.result.createdAt) {
       const createdAt = moment(order.result.createdAt)
       const now = moment()
       const timePassed = now.diff(createdAt, 'seconds')
-      const remainingTime = 60 - timePassed // 60 seconds
+      const remainingTime = 600 - timePassed // 10 minutes
       setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
-      setIsExpired(remainingTime <= 0)
+      // setIsExpired(remainingTime <= 0)
     }
   }, [order?.result.createdAt])
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout | null = null
 
-    if (timeRemainingInSec > 0 && !isExpired) {
+    if (timeRemainingInSec > 0) {
       timerInterval = setInterval(() => {
         setTimeRemainingInSec((prev) => {
           const newTime = prev - 1
           if (newTime <= 0) {
-            setIsExpired(true)
+            // setIsExpired(true)
             setIsPolling(false)
             if (timerInterval) clearInterval(timerInterval)
           }
@@ -64,12 +64,12 @@ export function ClientPaymentPage() {
     return () => {
       if (timerInterval) clearInterval(timerInterval)
     }
-  }, [timeRemainingInSec, isExpired])
+  }, [timeRemainingInSec])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
 
-    if (isPolling && !isExpired) {
+    if (isPolling) {
       pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
         if (updatedOrder.data?.result?.status === OrderStatus.PAID) {
@@ -82,7 +82,7 @@ export function ClientPaymentPage() {
     return () => {
       if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [isPolling, isExpired, refetchOrder, navigate, slug])
+  }, [isPolling, refetchOrder, navigate, slug])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
     setPaymentMethod(selectedPaymentMethod)
@@ -94,7 +94,7 @@ export function ClientPaymentPage() {
 
     // Reset timer when getting new QR code
     setTimeRemainingInSec(60)
-    setIsExpired(false)
+    // setIsExpired(false)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -128,7 +128,7 @@ export function ClientPaymentPage() {
     })
   }
 
-  if (isExpired || _.isEmpty(order?.result)) {
+  if (_.isEmpty(order?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
@@ -144,7 +144,7 @@ export function ClientPaymentPage() {
 
   return (
     <div className="container py-10">
-      <PaymentCountdown timeRemaining={timeRemainingInSec} isExpired={isExpired} />
+      <PaymentCountdown timeRemaining={timeRemainingInSec} />
       <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('menu.payment')}
@@ -163,14 +163,14 @@ export function ClientPaymentPage() {
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.customerName')}
                 </h3>
-                <p className="text-sm font-semibold">{`${order.result.owner.lastName} ${order.result.owner.firstName}`}</p>
+                <p className="text-sm font-semibold">{`${order?.result.owner.lastName} ${order?.result.owner.firstName}`}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.orderDate')}
                 </h3>
                 <span className="text-sm font-semibold">
-                  {moment(order.result.createdAt).format('HH:mm:ss DD/MM/YYYY')}
+                  {moment(order?.result.createdAt).format('HH:mm:ss DD/MM/YYYY')}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -178,7 +178,7 @@ export function ClientPaymentPage() {
                   {t('order.phoneNumber')}
                 </h3>
                 <p className="text-sm font-semibold">
-                  {order.result.owner.phonenumber}
+                  {order?.result.owner.phonenumber}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -186,7 +186,7 @@ export function ClientPaymentPage() {
                   {t('order.deliveryMethod')}
                 </h3>
                 <p className="col-span-1 text-sm font-semibold">
-                  {order.result.type === 'at-table'
+                  {order?.result.type === 'at-table'
                     ? t('order.dineIn')
                     : t('order.takeAway')}
                 </p>
@@ -196,8 +196,8 @@ export function ClientPaymentPage() {
                   {t('order.location')}
                 </h3>
                 <p className="col-span-1 text-sm font-semibold">
-                  {order.result.table && t('order.tableNumber')}{' '}
-                  {order.result.table ? order.result.table.name : ''}
+                  {order?.result.table && t('order.tableNumber')}{' '}
+                  {order?.result.table ? order?.result.table.name : ''}
                 </p>
               </div>
             </div>
@@ -250,8 +250,8 @@ export function ClientPaymentPage() {
                 <div className="flex w-[20rem] flex-col gap-2">
                   <div className="flex justify-between w-full pb-4 border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
-                    <p className="text-sm font-semibold">
-                      {`${formatCurrency(order.result.subtotal || 0)}`}
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      {`${formatCurrency(order?.result.subtotal || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
@@ -260,16 +260,13 @@ export function ClientPaymentPage() {
                         {t('order.totalPayment')}
                       </h3>
                       <p className="text-lg font-semibold text-primary">
-                        {`${formatCurrency(order.result.subtotal || 0)}`}
+                        {`${formatCurrency(order?.result.subtotal || 0)}`}
                       </p>
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {t('order.vat')}
                     </span>
                   </div>
-                  <p className="flex items-center justify-end col-span-2 text-lg font-semibold text-primary">
-                    {`${formatCurrency(order.result.subtotal || 0)}`}
-                  </p>
                 </div>
               </div>
             </div>
@@ -280,7 +277,7 @@ export function ClientPaymentPage() {
           // isExpired={isExpired}
           // timeRemaining={timeRemainingInSec}
           qrCode={qrCode ? qrCode : ''}
-          total={order.result ? order.result.subtotal : 0}
+          total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
         />
         <div className="flex justify-end py-6">

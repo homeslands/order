@@ -1,12 +1,9 @@
-import { CreateProductDialog, ExportAllProductsTemplateDialog, ExportProductImportTemplateDialog, ImportProductByTemplateDialog } from '@/components/app/dialog'
+import { ProductToolDropdown } from '@/components/app/dropdown'
 
 export default function ProductActionOptions() {
   return (
     <>
-      <CreateProductDialog />
-      <ImportProductByTemplateDialog />
-      <ExportAllProductsTemplateDialog />
-      <ExportProductImportTemplateDialog />
+      <ProductToolDropdown />
     </>
   )
 }

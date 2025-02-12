@@ -14,12 +14,10 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, ICreateOrderRequest } from '@/types'
-
 import { useCreateOrder } from '@/hooks'
 import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
-import { useCartItemStore, useUserStore } from '@/stores'
-import { useBranchStore } from '@/stores/branch.store'
+import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
   disabled?: boolean
@@ -62,6 +60,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
         variant: orderItem.variant,
         note: orderItem.note || '',
       })),
+      voucher: order.voucher?.slug || null,
     }
 
     // Gọi API để tạo đơn hàng.

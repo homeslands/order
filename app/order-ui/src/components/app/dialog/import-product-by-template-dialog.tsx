@@ -10,21 +10,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription
 } from '@/components/ui'
 
-import { useImportMultipleProducts } from '@/hooks'
+import { useExportProductImportTemplate, useImportMultipleProducts } from '@/hooks'
 import { showToast } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
 
-export default function ImportProductByTemplateDialog() {
+interface ImportProductByTemplateDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function ImportProductByTemplateDialog({ isOpen, onOpenChange }: ImportProductByTemplateDialogProps) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['product'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { mutate: importMultipleProducts } = useImportMultipleProducts()
-  const [isOpen, setIsOpen] = useState(false)
+  const { mutate: exportProductImportTemplate } = useExportProductImportTemplate()
   const [file, setFile] = useState<File | null>(null)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -44,12 +48,21 @@ export default function ImportProductByTemplateDialog() {
     maxFiles: 1
   })
 
+  const handleDownloadTemplate = () => {
+    exportProductImportTemplate(undefined, {
+      onSuccess: () => {
+        onOpenChange(false)
+        showToast(tToast('toast.exportProductImportTemplateSuccess'))
+      },
+    })
+  }
+
   const handleSubmit = () => {
     if (!file) return
 
     importMultipleProducts(file, {
       onSuccess: () => {
-        setIsOpen(false)
+        onOpenChange(false)
         setFile(null)
         queryClient.invalidateQueries({
           queryKey: ['products'],
@@ -66,18 +79,9 @@ export default function ImportProductByTemplateDialog() {
       open={isOpen}
       onOpenChange={(open) => {
         if (!open) setFile(null)
-        setIsOpen(open)
+        onOpenChange(open)
       }}
     >
-      <DialogTrigger asChild>
-        <Button
-          className="flex justify-start w-full gap-1 px-2 text-xs"
-        >
-          <FileUp className="icon" />
-          {t('product.importProducts')}
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle>
@@ -88,7 +92,21 @@ export default function ImportProductByTemplateDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div>
+          <span>
+            <span className='text-sm text-muted-foreground'>
+              {t('product.downloadTemplate')}&nbsp;
+            </span>
+            <Button
+              variant='ghost'
+              onClick={handleDownloadTemplate}
+              className="p-0 hover:text-primary hover:bg-transparent"
+            >
+              <span className='text-sm text-primary'>
+                {t('product.downloadHere')}
+              </span>
+            </Button>
+          </span>
           {!file ? (
             <div
               {...getRootProps()}
@@ -126,7 +144,7 @@ export default function ImportProductByTemplateDialog() {
         </div>
 
         <DialogFooter className="flex flex-row justify-end gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             {tCommon('common.cancel')}
           </Button>
           <Button

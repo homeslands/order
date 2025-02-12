@@ -18,7 +18,7 @@ import { IVoucher } from '@/types'
 
 import { useDeleteVoucher } from '@/hooks'
 import { showToast } from '@/utils'
-import { QUERYKEY } from '@/constants/query'
+import { QUERYKEY } from '@/constants'
 
 export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) {
   const queryClient = useQueryClient()

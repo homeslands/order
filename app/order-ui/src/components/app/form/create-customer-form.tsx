@@ -147,8 +147,8 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
     <div className="flex flex-col h-full max-h-[600px]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="grid grid-cols-1 gap-4">
+          <ScrollArea className="h-[400px] px-2">
+            <div className="grid grid-cols-1 gap-4 px-1">
               {Object.keys(formFields).map((key) => (
                 <React.Fragment key={key}>
                   {formFields[key as keyof typeof formFields]}
@@ -158,7 +158,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
           </ScrollArea>
           <div className="flex justify-end pt-4 border-t">
             <Button type="submit">
-              {t('user.create')}
+              {t('customer.create')}
             </Button>
           </div>
         </form>

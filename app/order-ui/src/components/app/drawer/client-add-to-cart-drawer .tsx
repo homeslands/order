@@ -20,13 +20,13 @@ import {
   Textarea,
 } from '@/components/ui';
 
-import { OrderTypeEnum, IProductVariant, IProduct } from '@/types';
+import { OrderTypeEnum, IProductVariant, IMenuItem } from '@/types';
 import { useCartItemStore, useUserStore } from '@/stores';
 import { publicFileURL } from '@/constants';
 import { formatCurrency } from '@/utils';
 
 interface AddToCartDialogProps {
-  product: IProduct;
+  product: IMenuItem;
 }
 
 export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps) {
@@ -34,7 +34,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
   const { t: tCommon } = useTranslation(['common']);
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(product.variants[0] || null);
+    useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
   const { addCartItem } = useCartItemStore();
   const { getUserInfo } = useUserStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -55,13 +55,13 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
         {
           id: generateCartItemId(),
           slug: product.slug,
-          image: product.image,
-          name: product.name,
+          image: product.product.image,
+          name: product.product.name,
           quantity: 1,
           variant: selectedVariant.slug,
           price: selectedVariant.price,
-          description: product.description,
-          isLimit: product.isLimit,
+          description: product.product.description,
+          isLimit: product.product.isLimit,
           note,
         },
       ],
@@ -70,7 +70,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
 
     addCartItem(cartItem);
     setNote('');
-    setSelectedVariant(product.variants[0] || null);
+    setSelectedVariant(product.product.variants?.[0] || null);
     setIsOpen(false); // Close drawer after adding to cart
   };
 
@@ -91,10 +91,10 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
           <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
             <div className="sm:col-span-2">
-              {product.image ? (
+              {product.product.image ? (
                 <img
-                  src={`${publicFileURL}/${product.image}`}
-                  alt={product.name}
+                  src={`${publicFileURL}/${product.product.image}`}
+                  alt={product.product.name}
                   className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
                 />
               ) : (
@@ -104,11 +104,11 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
 
             <div className="flex flex-col gap-6 sm:col-span-2">
               <div>
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="text-sm text-muted-foreground">{product.description}</p>
+                <h3 className="text-lg font-semibold">{product.product.name}</h3>
+                <p className="text-sm text-muted-foreground">{product.product.description}</p>
               </div>
 
-              {product.variants.length > 0 && (
+              {product.product.variants.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
                     {t('menu.selectSize')}
@@ -116,7 +116,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
                   <Select
                     value={selectedVariant?.slug}
                     onValueChange={(value) => {
-                      const variant = product.variants.find(
+                      const variant = product.product.variants.find(
                         (v) => v.slug === value
                       );
                       setSelectedVariant(variant || null);
@@ -126,7 +126,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
                       <SelectValue placeholder={t('menu.selectSize')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {product.variants
+                      {product.product.variants
                         .sort((a, b) => a.price - b.price)
                         .map((variant) => (
                           <SelectItem key={variant.slug} value={variant.slug}>

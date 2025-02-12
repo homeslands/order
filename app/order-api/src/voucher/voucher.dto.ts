@@ -126,4 +126,8 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   isActive: boolean;
+
+  @ApiProperty()
+  @AutoMap()
+  remainingUsage: number;
 }

@@ -11,12 +11,11 @@ import { UpdateOrderQuantitySelector } from '@/components/app/button'
 import { ClientUpdateOrderTableSelect } from '@/app/system/menu'
 import { UpdateOrderNoteInput } from '@/components/app/input'
 import {
-    ConfirmUpdateOrderDialog,
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
-import { UpdateOrderSheet } from '@/components/app/sheet'
+import { UpdateOrderSheet, VoucherListSheet } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
@@ -43,7 +42,6 @@ export default function ClientUpdateOrderPage() {
     }
 
     const handleUpdateOrderTypeSuccess = () => {
-        console.log('Update order type success')
         refetch()
     }
 
@@ -166,10 +164,28 @@ export default function ClientUpdateOrderPage() {
                                 </div>
                             ))}
                         </div>
+                        <VoucherListSheet />
+                        <div className="flex flex-col pt-4 mt-4 border-t border-muted-foreground/40">
+                            <div className="flex items-center justify-end w-full">
+                                <div className='flex flex-col items-start'>
+                                    <div>
+                                        {t('order.subtotal')}:&nbsp;
+                                        <span className="font-semibold text-md text-primary sm:text-2xl">
+                                            {`${orderItems?.subtotal.toLocaleString('vi-VN')}đ`}
+                                        </span>
+                                    </div>
+                                    <span className='text-xs text-muted-foreground'>
+                                        {t('order.vat')}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {/* Button */}
                     <div className="flex justify-end w-full mt-4">
-                        <ConfirmUpdateOrderDialog />
+                        <NavLink to={`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`}>
+                            <Button>{t('order.continueToPayment')}</Button>
+                        </NavLink>
                     </div>
                 </div>
             </div>

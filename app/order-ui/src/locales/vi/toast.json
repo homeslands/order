@@ -106,6 +106,15 @@
     "updateVoucherSuccess": "Cập nhật voucher thành công",
     "deleteVoucherSuccess": "Xóa voucher thành công",
 
+    "createPromotionSuccess": "Tạo khuyến mãi thành công",
+    "updatePromotionSuccess": "Cập nhật khuyến mãi thành công",
+    "deletePromotionSuccess": "Xóa khuyến mãi thành công",
+    "applyPromotionSuccess": "Áp dụng khuyến mãi thành công",
+    "removePromotionSuccess": "Hủy khuyến mãi thành công",
+
+    "applyVoucherSuccess": "Áp dụng voucher thành công",
+    "removeVoucherSuccess": "Hủy voucher thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

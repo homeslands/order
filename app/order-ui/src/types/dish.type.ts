@@ -30,6 +30,10 @@ export interface ICartItem {
   orderItems: IOrderItem[]
   table?: string
   tableName?: string
+  voucher?: {
+    slug: string
+    value: number
+  } | null
   note?: string
   approvalBy?: string
 }
@@ -201,6 +205,7 @@ export interface ICreateOrderRequest {
     note: string
   }[]
   approvalBy: string
+  voucher: string | null // voucher slug
 }
 
 export interface IAddNewOrderItemRequest {

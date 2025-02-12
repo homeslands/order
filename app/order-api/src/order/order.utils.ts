@@ -27,6 +27,7 @@ export class OrderUtils {
         'orderItems.trackingOrderItems.tracking',
         'invoice.invoiceItems',
         'table',
+        'voucher',
       ],
       ...options,
     });
@@ -42,14 +43,12 @@ export class OrderUtils {
    * @returns {Promise<number>} The subtotal of order
    */
   async getOrderSubtotal(order: Order, voucher?: Voucher): Promise<number> {
-    let total = 0;
     let discount = 0;
-    const subtotal = order.orderItems.reduce(
+    const subtotal = order.orderItems?.reduce(
       (previous, current) => previous + current.subtotal,
       0,
     );
     if (voucher) discount = (subtotal * voucher.value) / 100;
-    total = subtotal - discount;
-    return total;
+    return subtotal - discount;
   }
 }

@@ -19,13 +19,13 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, OrderTypeEnum, IProduct, IProductVariant } from '@/types'
+import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 
 interface AddToCartDialogProps {
-  product: IProduct
+  product: IMenuItem
   trigger?: React.ReactNode
 }
 
@@ -38,7 +38,7 @@ export default function ClientAddToCartDialog({
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(product.variants[0] || null)
+    useState<IProductVariant | null>(product.product.variants[0] || null)
   const { addCartItem } = useCartItemStore()
   const { getUserInfo } = useUserStore()
 
@@ -48,6 +48,10 @@ export default function ClientAddToCartDialog({
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
+
+    const finalPrice = product.promotionValue > 0
+      ? selectedVariant.price * (1 - product.promotionValue / 100)
+      : selectedVariant.price;
 
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -59,13 +63,13 @@ export default function ClientAddToCartDialog({
         {
           id: generateCartItemId(),
           slug: product.slug,
-          image: product.image,
-          name: product.name,
+          image: product.product.image,
+          name: product.product.name,
           quantity: 1,
           variant: selectedVariant.slug,
-          price: selectedVariant.price,
-          description: product.description,
-          isLimit: product.isLimit,
+          price: finalPrice, // Use the calculated final price
+          description: product.product.description,
+          isLimit: product.product.isLimit,
           // catalog: product.catalog,
           note: note,
         },
@@ -76,7 +80,7 @@ export default function ClientAddToCartDialog({
     addCartItem(cartItem)
     // Reset states
     setNote('')
-    setSelectedVariant(product.variants[0] || null)
+    setSelectedVariant(product.product.variants[0] || null)
     setIsOpen(false)
   }
 
@@ -102,10 +106,10 @@ export default function ClientAddToCartDialog({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           {/* Product Image */}
           <div className="relative col-span-2">
-            {product.image ? (
+            {product.product.image ? (
               <img
-                src={`${publicFileURL}/${product.image}`}
-                alt={product.name}
+                src={`${publicFileURL}/${product.product.image}`}
+                alt={product.product.name}
                 className="object-cover w-full h-56 rounded-md sm:h-64 lg:h-80"
               />
             ) : (
@@ -116,14 +120,14 @@ export default function ClientAddToCartDialog({
           <div className="flex flex-col col-span-2 gap-6">
             {/* Product Details */}
             <div>
-              <h3 className="text-lg font-semibold">{product.name}</h3>
+              <h3 className="text-lg font-semibold">{product.product.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {product.description}
+                {product.product.description}
               </p>
             </div>
 
             {/* Size Selection */}
-            {product.variants.length > 0 && (
+            {product.product.variants.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   {t('menu.selectSize')}
@@ -131,7 +135,7 @@ export default function ClientAddToCartDialog({
                 <Select
                   value={selectedVariant?.slug}
                   onValueChange={(value) => {
-                    const variant = product.variants.find(
+                    const variant = product.product.variants.find(
                       (v) => v.slug === value,
                     )
                     setSelectedVariant(variant || null)
@@ -141,12 +145,12 @@ export default function ClientAddToCartDialog({
                     <SelectValue placeholder={t('menu.selectSize')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.variants
+                    {product.product.variants
                       .sort((a, b) => a.price - b.price)
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>
                           {variant.size.name.toUpperCase()} -{' '}
-                          {formatCurrency(variant.price)}
+                          {product.promotionValue > 0 ? formatCurrency((variant.price) * (1 - (product.promotionValue) / 100)) : formatCurrency(variant.price)}
                         </SelectItem>
                       ))}
                   </SelectContent>

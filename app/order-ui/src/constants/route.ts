@@ -50,4 +50,5 @@ export const ROUTE = {
 
   ADMIN_CONFIG: '/config',
   ADMIN_VOUCHER: '/voucher',
+  ADMIN_PROMOTION: '/promotion',
 }

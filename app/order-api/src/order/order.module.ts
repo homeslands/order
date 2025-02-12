@@ -23,6 +23,7 @@ import { MenuItemModule } from 'src/menu-item/menu-item.module';
 import { VariantModule } from 'src/variant/variant.module';
 import { MenuModule } from 'src/menu/menu.module';
 import { VoucherModule } from 'src/voucher/voucher.module';
+import { OrderListener } from './order.listener';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { VoucherModule } from 'src/voucher/voucher.module';
     OrderSubscriber,
     OrderScheduler,
     OrderUtils,
+    OrderListener,
   ],
   exports: [OrderService, OrderUtils],
 })

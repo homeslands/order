@@ -53,6 +53,7 @@ export default function CustomerOrderTabsContent({
   const handleUpdateOrder = (order: IOrder) => {
     if (!getUserInfo()?.slug) return showErrorToast(1042), navigate(ROUTE.LOGIN)
     setOrderItems(order)
+    console.log('order', order)
     navigate(`${ROUTE.CLIENT_UPDATE_ORDER}/${order.slug}`)
   }
 
@@ -60,9 +61,9 @@ export default function CustomerOrderTabsContent({
     <div className="mb-4">
       {orderData?.length ? (
         orderData.map((orderItem) => (
-          <div key={orderItem.slug} className="mb-6 rounded-md border">
+          <div key={orderItem.slug} className="mb-6 border rounded-md">
             {/* Header */}
-            <div className="flex justify-between items-center px-4 py-4 rounded-t-md border-b">
+            <div className="flex items-center justify-between px-4 py-4 border-b rounded-t-md">
               <span className="text-xs text-muted-foreground">
                 {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
               </span>
@@ -77,7 +78,7 @@ export default function CustomerOrderTabsContent({
                 {orderItem.orderItems.map((product) => (
                   <div
                     key={product.slug}
-                    className="grid grid-cols-12 gap-2 items-center p-4"
+                    className="grid items-center grid-cols-12 gap-2 p-4"
                   >
                     <div className="relative col-span-3">
                       <img
@@ -85,7 +86,7 @@ export default function CustomerOrderTabsContent({
                         alt={product.variant.product.name}
                         className="object-cover w-20 h-20 rounded-md sm:w-36"
                       />
-                      <div className="flex absolute -bottom-2 -right-3 justify-center items-center w-7 h-7 text-xs text-white rounded-full bg-primary sm:right-4 sm:h-8 sm:w-8">
+                      <div className="absolute flex items-center justify-center text-xs text-white rounded-full -bottom-2 -right-3 w-7 h-7 bg-primary sm:right-4 sm:h-8 sm:w-8">
                         x{product.quantity}
                       </div>
                     </div>
@@ -108,9 +109,9 @@ export default function CustomerOrderTabsContent({
                 ))}
               </div>
             </NavLink>
-            <div className="flex flex-col gap-2 justify-end px-4">
+            <div className="flex flex-col justify-end gap-2 px-4">
               <div className="flex flex-col">
-                <div className="flex justify-end items-center w-full">
+                <div className="flex items-center justify-end w-full">
                   {t('order.subtotal')}:&nbsp;
                   <span className="font-semibold text-md text-primary sm:text-2xl">{`${formatCurrency(orderItem.subtotal)}`}</span>
                 </div>
@@ -134,7 +135,7 @@ export default function CustomerOrderTabsContent({
       )}
 
       {orderData && orderData?.length > 0 && (
-        <div className="flex justify-center items-center py-4 space-x-2">
+        <div className="flex items-center justify-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

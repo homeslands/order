@@ -203,6 +203,12 @@ export const VoucherPage = React.lazy(() =>
   })),
 )
 
+export const PromotionPage = React.lazy(() =>
+  import('@/app/system/promotion').then((module) => ({
+    default: module.PromotionPage,
+  })),
+)
+
 export const DocsPage = React.lazy(() =>
   import('@/app/system/docs').then((module) => ({
     default: module.DocsPage,
@@ -235,7 +241,7 @@ export const ClientProductDetailPage = React.lazy(() =>
 //Cart page
 export const ClientCartPage = React.lazy(() =>
   import('@/app/client/cart').then((module) => ({
-    default: module.ClientCartPage,
+    default: module.CartPage,
   })),
 )
 

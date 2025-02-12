@@ -9,6 +9,7 @@ import {
   ITable,
   OrderTypeEnum,
   IUserInfo,
+  IVoucher,
 } from '@/types'
 
 export const useCartItemStore = create<ICartItemStore>()(
@@ -181,6 +182,24 @@ export const useCartItemStore = create<ICartItemStore>()(
             })
           }
           showToast(i18next.t('toast.removeSuccess'))
+        }
+      },
+
+      addVoucher: (voucher: IVoucher) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: { ...cartItems, voucher },
+          })
+        }
+      },
+
+      removeVoucher: () => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: { ...cartItems, voucher: null },
+          })
         }
       },
 

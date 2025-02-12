@@ -7,7 +7,7 @@ import {
   getVouchers,
   updateVoucher,
 } from '@/api'
-import { QUERYKEY } from '@/constants/query'
+import { QUERYKEY } from '@/constants'
 import { ICreateVoucherRequest, IUpdateVoucherRequest } from '@/types'
 
 export const useVouchers = () => {

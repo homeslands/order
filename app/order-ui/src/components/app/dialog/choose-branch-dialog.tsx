@@ -5,7 +5,6 @@ import {
   Button,
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   Select,
@@ -48,38 +47,44 @@ export default function ChooseBranchDialog() {
   }, [branch])
 
   // Skip rendering if branch is already selected
-  if (branch && !isOpen) return null;
+  if (branch && !isOpen) return null
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!selectedBranch) {
-        setIsOpen(true)
-        return
-      }
-      setIsOpen(open)
-    }}>
-      <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!selectedBranch) {
+          setIsOpen(true)
+          return
+        }
+        setIsOpen(open)
+      }}
+    >
+      <DialogContent className="max-w-[20rem] rounded-md px-4 sm:max-w-[36rem]">
         <DialogHeader>
           <DialogTitle>{t('branch.chooseBranch')}</DialogTitle>
-          <DialogDescription>
-            {t('branch.chooseBranchDescription')}
-          </DialogDescription>
         </DialogHeader>
-        <Select
-          value={selectedBranch}
-          onValueChange={handleSelectChange}
-        >
+        <Select value={selectedBranch} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-full h-8">
             <SelectValue
               className="text-xs"
-              placeholder={'Lựa chọn chi nhánh'}
+              placeholder={t('branch.chooseBranch')}
             />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[300px]">
             {branchRes?.result.map((item) => {
               return (
-                <SelectItem value={item.slug} key={item.slug}>
-                  <span className="text-xs">{item.address}</span>
+                <SelectItem
+                  value={item.slug}
+                  key={item.slug}
+                  className="truncate"
+                >
+                  <span
+                    className="block text-xs max-w-[16rem] sm:max-w-full truncate"
+                    title={item.address}
+                  >
+                    {item.address}
+                  </span>
                 </SelectItem>
               )
             })}
@@ -88,8 +93,9 @@ export default function ChooseBranchDialog() {
         <Button
           onClick={handleClose}
           disabled={!selectedBranch}
+          className="w-full"
         >
-          {t('branch.chooseBranch')} {branch?.address}
+          <span className="block truncate">{t('branch.chooseBranch')}</span>
         </Button>
       </DialogContent>
     </Dialog>

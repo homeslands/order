@@ -1,4 +1,4 @@
-import { ICartItem, OrderTypeEnum, ITable, IUserInfo } from '@/types'
+import { ICartItem, OrderTypeEnum, ITable, IUserInfo, IVoucher } from '@/types'
 
 export interface ICartItemStore {
   cartItems: ICartItem | null
@@ -13,5 +13,7 @@ export interface ICartItemStore {
   removeTable: () => void
   addPaymentMethod: (paymentMethod: string) => void
   removeCartItem: (cartItemId: string) => void
+  addVoucher: (voucher: IVoucher) => void
+  removeVoucher: () => void
   clearCart: () => void
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import ReactSelect, { SingleValue } from 'react-select'
+import { useTranslation } from 'react-i18next'
 
 import { useRole } from '@/hooks'
 
@@ -19,26 +20,20 @@ export default function RoleSelect({
         value: string
         label: string
     } | null>(null)
-    //   const { pagination, handlePageChange } = usePagination({ isSearchParams: false })
     const { data } = useRole()
-
-    //   const handleScrollToBottom = () => {
-    //     if (data?.result?.page && data.result.totalPages) {
-    //       if (data.result.page < data.result.totalPages) handlePageChange(pagination.pageIndex + 1)
-    //     }
-    //   }
+    const { t } = useTranslation('role')
 
     // Effect to append new users to the local state when users are fetched
     useEffect(() => {
         if (data?.result) {
             const newRoles = data.result.map((item) => ({
                 value: item.slug || '',
-                label: item.name || '',
+                label: t(`role.${item.name}`) || item.name || '',
             }))
             // Append new users to the previous users
             setAllRoles(newRoles)
         }
-    }, [data])
+    }, [data, t])
 
     // Set default value when it's available
     useEffect(() => {

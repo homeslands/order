@@ -57,6 +57,7 @@ export interface ISpecificMenu extends IBase {
 export interface IMenuItem extends IBase {
   currentStock: number
   defaultStock: number
+  promotionValue: number
   product: IProduct
 }
 

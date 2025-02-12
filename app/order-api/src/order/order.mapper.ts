@@ -20,6 +20,8 @@ import { User } from 'src/user/user.entity';
 import { OrderItemResponseDto } from 'src/order-item/order-item.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { Table } from 'src/table/table.entity';
+import { VoucherResponseDto } from 'src/voucher/voucher.dto';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 @Injectable()
 export class OrderProfile extends AutomapperProfile {
@@ -48,6 +50,10 @@ export class OrderProfile extends AutomapperProfile {
             OrderItem,
             (source) => source.orderItems,
           ),
+        ),
+        forMember(
+          (destination) => destination.voucher,
+          mapWith(VoucherResponseDto, Voucher, (source) => source.voucher),
         ),
         extend(baseMapper(mapper)),
       );

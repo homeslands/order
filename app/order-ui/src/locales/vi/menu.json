@@ -38,7 +38,7 @@
     "enterPromotion": "Nhập mã giảm giá",
     "apply": "Áp dụng",
     "total": "Tổng tiền hàng",
-    "discount": "Giảm giá",
+    "discount": "Giảm",
     "subTotal": "Tạm tính",
     "continue": "Tiếp tục",
     "confirm": "Xác nhận đơn hàng",
@@ -121,6 +121,7 @@
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
 
+    "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
     "orderStatus": "Trạng thái",
     "cash": "Tiền mặt",
@@ -140,6 +141,8 @@
 
     "create": "Đặt hàng",
     "confirmOrder": "Bạn có chắc muốn đặt hàng?",
+
+    "usedVoucher": "Mã giảm giá đã sử dụng",
 
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",

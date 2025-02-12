@@ -1,7 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './order.entity';
-import { FindManyOptions, FindOptionsWhere, In, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  Repository,
+} from 'typeorm';
 import {
   CreateOrderRequestDto,
   GetOrderRequestDto,
@@ -18,12 +24,10 @@ import { Table } from 'src/table/table.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { OrderStatus, OrderType } from './order.contants';
+import { OrderType } from './order.contants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
-import { OnEvent } from '@nestjs/event-emitter';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
-import { PaymentAction, PaymentStatus } from 'src/payment/payment.constants';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { Menu } from 'src/menu/menu.entity';
 import moment from 'moment';
@@ -38,6 +42,9 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { VariantUtils } from 'src/variant/variant.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 @Injectable()
 export class OrderService {
@@ -57,35 +64,6 @@ export class OrderService {
     private readonly menuUtils: MenuUtils,
     private readonly voucherUtils: VoucherUtils,
   ) {}
-
-  @OnEvent(PaymentAction.PAYMENT_PAID)
-  async handleUpdateOrderStatus(requestData: { orderId: string }) {
-    const context = `${OrderService.name}.${this.handleUpdateOrderStatus.name}`;
-    this.logger.log(`Update order status after payment process`, context);
-
-    if (_.isEmpty(requestData)) {
-      this.logger.error(`Request data is empty`, null, context);
-      throw new OrderException(OrderValidation.ORDER_ID_INVALID);
-    }
-
-    this.logger.log(`Request data: ${JSON.stringify(requestData)}`, context);
-    const order = await this.orderUtils.getOrder({
-      where: {
-        id: requestData.orderId,
-      },
-    });
-
-    this.logger.log(`Current order: ${JSON.stringify(order)}`, context);
-
-    if (
-      order.payment?.statusCode === PaymentStatus.COMPLETED &&
-      order.status === OrderStatus.PENDING
-    ) {
-      Object.assign(order, { status: OrderStatus.PAID });
-      await this.orderRepository.save(order);
-      this.logger.log(`Update order status from PENDING to PAID`, context);
-    }
-  }
 
   /**
    * Delete order
@@ -155,11 +133,7 @@ export class OrderService {
 
     // Construct order
     const order: Order = await this.constructOrder(requestData);
-    const voucher = await this.voucherUtils.getVoucher({
-      where: {
-        slug: requestData.voucher,
-      },
-    });
+
     // Get order items
     const orderItems = await this.constructOrderItems(
       requestData.branch,
@@ -167,6 +141,27 @@ export class OrderService {
     );
     this.logger.log(`Number of order items: ${orderItems.length}`, context);
     order.orderItems = orderItems;
+
+    // Get voucher
+    let voucher: Voucher = null;
+    try {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+      });
+    } catch (error) {
+      this.logger.warn(`${error.message}`, context);
+    }
+
+    if (voucher) {
+      await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher, requestData.owner);
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+      // Update remaining quantity of voucher
+      voucher.remainingUsage -= 1;
+    }
+
     order.voucher = voucher;
     order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
 
@@ -179,6 +174,9 @@ export class OrderService {
           'decrement',
         );
         await manager.save(currentMenuItems);
+
+        // Update remaining quantity of voucher
+        if (voucher) await manager.save(voucher);
 
         this.logger.log(
           `Number of menu items: ${currentMenuItems.length} updated successfully`,

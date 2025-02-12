@@ -50,7 +50,6 @@ const publicRoutes = [
   { path: /^\/auth\/login$/, methods: ['post'] },
   { path: /^\/auth\/register$/, methods: ['post'] },
   { path: /^\/auth\/refresh$/, methods: ['post'] },
-  { path: /^\/static-page\/[^/]+$/, methods: ['get'] },
   { path: /^\/auth\/forgot-password$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password\/token$/, methods: ['post'] },
   { path: /^\/menu\/specific$/, methods: ['get'] },
@@ -58,7 +57,8 @@ const publicRoutes = [
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
   { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },
-  { path: /^\/static-pages\/[^/]+$/, methods: ['get'] },
+  { path: /^\/catalogs$/, methods: ['get'] },
+  { path: /^\/static-page\/[^/]+$/, methods: ['get'] },
 ]
 
 const isPublicRoute = (url: string, method: string): boolean => {
@@ -83,8 +83,6 @@ axiosInstance.interceptors.request.use(
       isAuthenticated,
     } = authStore
 
-    const currentToken = authStore.token
-    console.log('currentToken', currentToken, config.url)
     if (config.url) {
       if (isPublicRoute(config.url, config.method || '')) return config
     }
@@ -119,7 +117,6 @@ axiosInstance.interceptors.request.use(
         isRefreshing = false
       }
     } else if (isRefreshing) {
-      console.log('token', currentToken)
       return new Promise((resolve, reject) => {
         failedQueue.push({
           resolve: (currentToken: string) => {
@@ -134,7 +131,6 @@ axiosInstance.interceptors.request.use(
     }
 
     if (token) {
-      console.log('currentToken exists', token)
       config.headers['Authorization'] = `Bearer ${token}`
       if (!(config as CustomAxiosRequestConfig).doNotShowLoading) {
         useLoadingStore.getState().setIsLoading(true)
@@ -145,7 +141,6 @@ axiosInstance.interceptors.request.use(
         requestStore.incrementRequestQueueSize()
       }
     }
-    console.log('config', config)
     return config
   },
   (error) => {
