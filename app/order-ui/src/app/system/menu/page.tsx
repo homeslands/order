@@ -1,9 +1,10 @@
+import moment from 'moment'
+
 import { useSpecificMenu } from '@/hooks'
 import { SystemMenuTabs } from '@/components/app/tabs'
 import { CartContent } from './components/cart-content'
 import { CurrentDateInput } from '@/components/app/input'
 import { useUserStore } from '@/stores'
-import moment from 'moment'
 
 export default function SystemMenuPage() {
   const { userInfo } = useUserStore()
@@ -16,19 +17,16 @@ export default function SystemMenuPage() {
   })
 
   return (
-    <div className="">
-      <div className="flex flex-row items-center gap-2 py-3 pr-4">
+    <div className="flex h-screen">
+      {/* Menu chiếm phần lớn màn hình */}
+      <div className="flex w-[70%] flex-col gap-2 py-3">
         <CurrentDateInput menu={specificMenu?.result} />
+        <SystemMenuTabs />
       </div>
-      <div className="flex flex-row gap-5">
-        <div className="w-full lg:w-[70%]">
-          <SystemMenuTabs />
-        </div>
-        <div
-          className={`hidden w-0 border-l border-gray-500 pl-2 lg:block lg:w-[30%]`}
-        >
-          <CartContent />
-        </div>
+
+      {/* CartContent cố định bên phải */}
+      <div className="fixed right-0 top-14 h-screen w-[25%] bg-white shadow-md">
+        <CartContent />
       </div>
     </div>
   )

@@ -183,7 +183,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: `${ROUTE.STAFF_ORDER_PAYMENT}/:slug`,
+    path: `${ROUTE.STAFF_ORDER_PAYMENT}`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
         <SuspenseElement component={SystemLayout} />

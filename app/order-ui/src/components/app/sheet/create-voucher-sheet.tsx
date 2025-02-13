@@ -39,10 +39,27 @@ export default function CreateVoucherSheet() {
       startDate: '',
       endDate: '',
       code: '',
+      value: 0,
+      isActive: false,
       maxUsage: 0,
       minOrderValue: 0
     }
   })
+
+  const disableStartDate = (date: Date) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return date < today
+  }
+
+  const disableEndDate = (date: Date) => {
+    const startDate = form.getValues('startDate')
+    if (!startDate) return false
+
+    const selectedStartDate = new Date(startDate)
+    selectedStartDate.setHours(0, 0, 0, 0)
+    return date < selectedStartDate
+  }
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
@@ -60,6 +77,8 @@ export default function CreateVoucherSheet() {
       startDate: '',
       endDate: '',
       code: '',
+      value: 0,
+      isActive: false,
       maxUsage: 0,
       minOrderValue: 0
     })
@@ -116,7 +135,7 @@ export default function CreateVoucherSheet() {
               </span>
               {t('voucher.startDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} disabledDates={disableStartDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -135,7 +154,7 @@ export default function CreateVoucherSheet() {
               </span>
               {t('voucher.endDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('endDate', date)} disabledDates={disableEndDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -159,6 +178,42 @@ export default function CreateVoucherSheet() {
                 {...field}
                 placeholder={t('voucher.enterVoucherCode')}
               />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    value: (
+      <FormField
+        control={form.control}
+        name="value"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.value')}</FormLabel>
+            <FormControl>
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    const displayValue = Number(e.target.value)
+                    if (displayValue >= 0 && displayValue <= 100) {
+                      field.onChange(displayValue)
+                    }
+                  }}
+                  min={0}
+                  max={100}
+                  placeholder={t('voucher.enterVoucherValue')}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -202,13 +257,18 @@ export default function CreateVoucherSheet() {
               </span>
               {t('voucher.minOrderValue')}</FormLabel>
             <FormControl>
-              <Input
-                type="number"
-                {...field}
-                placeholder={t('voucher.enterMinOrderValue')}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-                min={0}
-              />
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder={t('voucher.enterMinOrderValue')}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  min={0}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  ₫
+                </span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -258,8 +318,9 @@ export default function CreateVoucherSheet() {
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className="p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
                     {formFields.minOrderValue}
+                    {formFields.value}
                   </div>
                 </form>
               </Form>

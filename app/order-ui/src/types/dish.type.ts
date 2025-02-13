@@ -4,6 +4,7 @@ import { IBase } from './base.type'
 import { IProduct, IProductVariant } from './product.type'
 import { ISize } from './size.type'
 import { ITable } from './table.type'
+import { IVoucher } from './voucher.type'
 
 export interface IDish {
   id: number
@@ -99,6 +100,7 @@ export interface IOrder {
   orderItems: IOrderDetail[]
   status: OrderStatus
   invoice: IOrderInvoice
+  voucher: IVoucher
 }
 
 export interface IOrderDetail extends IBase {

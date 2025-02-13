@@ -13,7 +13,6 @@ import {
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { ClientTableSelect, OrderTypeSelect } from '@/components/app/select'
-import { OrderTypeEnum } from '@/types'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency } from '@/utils'
 
@@ -167,9 +166,7 @@ export default function ClientCartPage() {
           {/* Button */}
           <div className="flex justify-end w-full">
             <CreateOrderDialog
-              disabled={
-                cartItems?.type === OrderTypeEnum.AT_TABLE && !cartItems?.table
-              }
+              disabled={!(cartItems && !cartItems.table)}
             />
           </div>
         </div>

@@ -7,6 +7,7 @@ export const createVoucherSchema = z.object({
   value: z.number().int().positive(),
   maxUsage: z.number().int().positive(),
   minOrderValue: z.number().int().positive(),
+  isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
 })
@@ -20,6 +21,7 @@ export const updateVoucherSchema = z.object({
   value: z.number().int().positive(),
   maxUsage: z.number().int().positive(),
   minOrderValue: z.number().int().positive(),
+  isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
 })

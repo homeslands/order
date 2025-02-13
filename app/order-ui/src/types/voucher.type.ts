@@ -6,7 +6,9 @@ export interface IVoucher extends IBase {
   code: string
   value: number
   maxUsage: number
+  isActive: boolean
   minOrderValue: number
+  remainingUsage: number
   startDate: string
   endDate: string
 }
@@ -18,6 +20,7 @@ export interface ICreateVoucherRequest {
   value: number
   maxUsage: number
   minOrderValue: number
+  isActive: boolean
   startDate: string
   endDate: string
 }
@@ -30,6 +33,7 @@ export interface IUpdateVoucherRequest {
   value: number
   maxUsage: number
   minOrderValue: number
+  isActive: boolean
   startDate: string
   endDate: string
 }

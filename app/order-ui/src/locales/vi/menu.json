@@ -20,6 +20,8 @@
     "price": "Giá: ",
     "note": "Ghi chú",
     "enterNote": "Nhập ghi chú",
+    "menu": "Thực đơn",
+    "table": "Danh sách bàn",
 
     "tableNote": "Ghi chú bàn",
     "selectReservedTableWarning": "Bàn ",
@@ -224,7 +226,7 @@
     "paid": "Đã thanh toán",
     "canceled": "Đã hủy",
 
-    "timeRemaining": "Thời gian thanh toán còn lại",
+    "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Hết hạn"
   }
 }

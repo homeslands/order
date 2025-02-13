@@ -18,6 +18,7 @@ import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
+import moment from 'moment'
 
 export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
   const { t } = useTranslation(['voucher'])
@@ -48,13 +49,33 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div className="flex flex-col gap-1 text-xs">
+          <div className="flex flex-col gap-1 w-[16rem]">
             {voucher?.title}
             <span className="text-xs text-muted-foreground">
               {voucher.description}
             </span>
           </div>
         )
+      },
+    },
+    {
+      accessorKey: 'startDate',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.startDate')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')}</div>
+      },
+    },
+    {
+      accessorKey: 'endDate',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.endDate')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
       },
     },
     {
@@ -98,6 +119,46 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
         return <div className="text-xs sm:text-sm">{voucher?.maxUsage}</div>
       },
     },
+    {
+      accessorKey: 'remainingUsage',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.remainingUsage')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.remainingUsage}</div>
+      },
+    },
+    {
+      accessorKey: 'value',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.value')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.value}%</div>
+      },
+    },
+    {
+      accessorKey: 'isActive',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.activeStatus')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original;
+        const isActive = voucher?.isActive === true;
+
+        return (
+          <div
+            className={`text-xs sm:text-sm min-w-[8rem] italic font-medium ${isActive ? ' text-green-500' : ' text-destructive'
+              }`}
+          >
+            {isActive ? t('voucher.active') : t('voucher.inactive')}
+          </div>
+        );
+      },
+    },
+
     {
       accessorKey: 'minOrderValue',
       header: ({ column }) => (

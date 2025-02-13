@@ -69,7 +69,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
         const orderPath =
           userInfo?.role.name === Role.CUSTOMER
             ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
-            : `${ROUTE.STAFF_ORDER_PAYMENT}/${data.result.slug}`
+            : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
         navigate(orderPath)
         setIsOpen(false)
         clearCart()
@@ -82,8 +82,8 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
+          disabled={!disabled}
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

@@ -31,7 +31,7 @@ export function ClientPaymentPage() {
   const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(true) // Start polling initially
   const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
-  // const [isExpired, setIsExpired] = useState<boolean>(false)
+  const [isExpired, setIsExpired] = useState<boolean>(false)
 
   useEffect(() => {
     if (order?.result.createdAt) {
@@ -40,7 +40,7 @@ export function ClientPaymentPage() {
       const timePassed = now.diff(createdAt, 'seconds')
       const remainingTime = 600 - timePassed // 10 minutes
       setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
-      // setIsExpired(remainingTime <= 0)
+      setIsExpired(remainingTime <= 0)
     }
   }, [order?.result.createdAt])
 
@@ -52,7 +52,7 @@ export function ClientPaymentPage() {
         setTimeRemainingInSec((prev) => {
           const newTime = prev - 1
           if (newTime <= 0) {
-            // setIsExpired(true)
+            setIsExpired(true)
             setIsPolling(false)
             if (timerInterval) clearInterval(timerInterval)
           }
@@ -93,8 +93,8 @@ export function ClientPaymentPage() {
     if (!slug || !paymentMethod) return
 
     // Reset timer when getting new QR code
-    setTimeRemainingInSec(60)
-    // setIsExpired(false)
+    // setTimeRemainingInSec(600)
+    setIsExpired(false)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -103,6 +103,7 @@ export function ClientPaymentPage() {
           onSuccess: (data) => {
             setPaymentSlug(data.result.slug)
             setQrCode(data.result.qrCode)
+            setIsPolling(true)
           },
         },
       )
@@ -128,7 +129,7 @@ export function ClientPaymentPage() {
     })
   }
 
-  if (_.isEmpty(order?.result)) {
+  if (_.isEmpty(order?.result || isExpired)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">

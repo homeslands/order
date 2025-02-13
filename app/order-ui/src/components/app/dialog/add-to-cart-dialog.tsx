@@ -19,13 +19,13 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, OrderTypeEnum, IProduct, IProductVariant } from '@/types'
+import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 
 interface AddToCartDialogProps {
-  product: IProduct
+  product: IMenuItem
   trigger?: React.ReactNode
 }
 
@@ -38,7 +38,7 @@ export default function AddToCartDialog({
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(product.variants[0] || null)
+    useState<IProductVariant | null>(product.product.variants?.[0] || null)
   const { addCartItem } = useCartItemStore()
   const { getUserInfo } = useUserStore()
 
@@ -59,13 +59,13 @@ export default function AddToCartDialog({
         {
           id: generateCartItemId(),
           slug: product.slug,
-          image: product.image,
-          name: product.name,
+          image: product.product.image,
+          name: product.product.name,
           quantity: 1,
           variant: selectedVariant.slug,
           price: selectedVariant.price,
-          description: product.description,
-          isLimit: product.isLimit,
+          description: product.product.description,
+          isLimit: product.product.isLimit,
           // catalog: product.catalog,
           note: note,
         },
@@ -76,7 +76,7 @@ export default function AddToCartDialog({
     addCartItem(cartItem)
     // Reset states
     setNote('')
-    setSelectedVariant(product.variants[0] || null)
+    setSelectedVariant(product.product.variants?.[0] || null)
     setIsOpen(false)
   }
 
@@ -84,7 +84,7 @@ export default function AddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex w-full flex-row items-center justify-center gap-1 rounded-full px-4 text-white shadow-none">
+          <Button className="flex flex-row items-center justify-center w-full gap-1 px-4 text-white rounded-full shadow-none">
             <ShoppingCart size={12} />
             {t('menu.addToCart')}
           </Button>
@@ -102,28 +102,28 @@ export default function AddToCartDialog({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           {/* Product Image */}
           <div className="relative col-span-2">
-            {product.image ? (
+            {product.product.image ? (
               <img
-                src={`${publicFileURL}/${product.image}`}
-                alt={product.name}
-                className="h-56 w-full rounded-md object-cover sm:h-64 lg:h-80"
+                src={`${publicFileURL}/${product.product.image}`}
+                alt={product.product.name}
+                className="object-cover w-full h-56 rounded-md sm:h-64 lg:h-80"
               />
             ) : (
               <div className="w-full rounded-md bg-muted/50" />
             )}
           </div>
 
-          <div className="col-span-2 flex flex-col gap-6">
+          <div className="flex flex-col col-span-2 gap-6">
             {/* Product Details */}
             <div>
-              <h3 className="text-lg font-semibold">{product.name}</h3>
+              <h3 className="text-lg font-semibold">{product.product.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {product.description}
+                {product.product.description}
               </p>
             </div>
 
             {/* Size Selection */}
-            {product.variants.length > 0 && (
+            {product.product.variants.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   {t('menu.selectSize')}
@@ -131,7 +131,7 @@ export default function AddToCartDialog({
                 <Select
                   value={selectedVariant?.slug}
                   onValueChange={(value) => {
-                    const variant = product.variants.find(
+                    const variant = product.product.variants.find(
                       (v) => v.slug === value,
                     )
                     setSelectedVariant(variant || null)
@@ -141,12 +141,12 @@ export default function AddToCartDialog({
                     <SelectValue placeholder={t('menu.selectSize')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.variants
+                    {product.product.variants
                       .sort((a, b) => a.price - b.price)
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>
                           {variant.size.name.toUpperCase()} -{' '}
-                          {formatCurrency(variant.price)}
+                          {product.promotionValue > 0 ? formatCurrency((variant.price) * (1 - (product.promotionValue) / 100)) : formatCurrency(variant.price)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -173,7 +173,7 @@ export default function AddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex w-full flex-row justify-end gap-3">
+        <DialogFooter className="flex flex-row justify-end w-full gap-3">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
