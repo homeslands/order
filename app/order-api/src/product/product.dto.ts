@@ -99,3 +99,34 @@ export class ValidationError {
   row: number;
   errors: { [key: string]: string };
 }
+
+export class GetProductRequestDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of catalog',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  catalog?: string;
+
+  // @AutoMap()
+  // @ApiProperty({
+  //   description: 'The slug of branch',
+  //   example: '',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // branch?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of promotion which is excepted product is applied',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  exceptedPromotion?: string;
+}
+
+

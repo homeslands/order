@@ -38,7 +38,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       slug: customer.slug,
-      phonenumber: customer.phonenumber,
+      // phonenumber: customer.phonenumber,
       firstName: customer.firstName,
       lastName: customer.lastName,
       dob: customer.dob,
@@ -62,21 +62,21 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
   }
 
   const formFields = {
-    phonenumber: (
-      <FormField
-        control={form.control}
-        name="phonenumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('customer.phoneNumber')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+    // phonenumber: (
+    //   <FormField
+    //     control={form.control}
+    //     name="phonenumber"
+    //     render={({ field }) => (
+    //       <FormItem>
+    //         <FormLabel>{t('customer.phoneNumber')}</FormLabel>
+    //         <FormControl>
+    //           <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
+    //         </FormControl>
+    //         <FormMessage />
+    //       </FormItem>
+    //     )}
+    //   />
+    // ),
     firstName: (
       <FormField
         control={form.control}

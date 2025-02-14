@@ -3,6 +3,7 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import {
   CreateProductRequestDto,
+  GetProductRequestDto,
   ProductResponseDto,
   UpdateProductRequestDto,
 } from './product.dto';
@@ -95,7 +96,10 @@ describe('ProductController', () => {
     });
 
     it('should return a array of products', async () => {
-      const catalogSlug = 'mock-catalog-slug';
+      const query: GetProductRequestDto = {
+        catalog: 'mock-catalog-slug',
+        exceptedPromotion: 'mock-promotion-slug',
+      };
       const product: ProductResponseDto = {
         slug: 'mock-product-slug',
         name: 'Mock product name',
@@ -110,17 +114,20 @@ describe('ProductController', () => {
 
       (service.getAllProducts as jest.Mock).mockResolvedValue(mockOutput);
 
-      const result = await controller.getAllProducts(catalogSlug);
+      const result = await controller.getAllProducts(query);
       expect(result.result).toEqual(mockOutput);
     });
 
     it('should return error when service.getAllCatalogs throws', async () => {
-      const catalogSlug = 'mock-catalog-slug';
+      const query: GetProductRequestDto = {
+        catalog: 'mock-catalog-slug',
+        exceptedPromotion: 'mock-promotion-slug',
+      };
       (service.getAllProducts as jest.Mock).mockRejectedValue(
         new InternalServerErrorException(),
       );
 
-      await expect(controller.getAllProducts(catalogSlug)).rejects.toThrow(
+      await expect(controller.getAllProducts(query)).rejects.toThrow(
         InternalServerErrorException,
       );
       expect(service.getAllProducts).toHaveBeenCalled();

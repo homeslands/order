@@ -156,10 +156,10 @@ export function ClientPaymentPage() {
         <div className="flex flex-col gap-5 lg:flex-row">
           {/* Customer info */}
           <div className="w-full lg:w-1/3">
-            <div className="flex flex-col gap-1 p-4 bg-muted">
+            <div className="flex flex-col gap-1 px-4 py-2 rounded-md bg-muted-foreground/10">
               <Label className="text-md">{t('paymentMethod.userInfo')}</Label>
             </div>
-            <div className="flex flex-col gap-3 p-3 border border-gray-200 rounded">
+            <div className="flex flex-col gap-3 p-3 mt-2 border rounded">
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.customerName')}
@@ -215,7 +215,7 @@ export function ClientPaymentPage() {
                 {t('order.grandTotal')}
               </span>
             </div>
-            <div className="flex flex-col w-full border rounded-md bg-background">
+            <div className="flex flex-col w-full border rounded-md">
               {order?.result.orderItems.map((item) => (
                 <div
                   key={item.slug}

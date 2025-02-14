@@ -47,8 +47,6 @@ export class ApplicablePromotionService {
   ): Promise<ApplicablePromotionResponseDto> {
     const context = `${ApplicablePromotionService.name}.${this.createApplicablePromotion.name}`;
 
-    // Kiểm tra lại đã tồn tại promotion nào được gán cho product chưa
-    // Check ngày bắt đầu với việc check vào ô applyFromToday
     const promotion = await this.promotionRepository.findOne({ 
       where: { slug: createApplicablePromotionRequestDto.promotion },
       relations: ['branch']
@@ -96,13 +94,25 @@ export class ApplicablePromotionService {
     Object.assign(createApplicablePromotionData, { promotion, applicableId: product.id });
     const newApplicablePromotion = this.applicablePromotionRepository.create(createApplicablePromotionData);
 
+    const today = new Date();
+    today.setHours(7,0,0,0); // start of today
+
     let updateMenuItem = null;
-    if(createApplicablePromotionRequestDto.isApplyFromToday) {
-      updateMenuItem = await this.addPromotionForMenuItem(
+    if(today.getTime() >= (new Date(promotion.startDate)).getTime()) {
+      // updateMenuItem = await this.addPromotionForMenuItem(
+      //   today,
+      //   promotion.branch.id,
+      //   createApplicablePromotionRequestDto.applicableSlug,
+      //   promotion
+      // );
+      updateMenuItem = await this.getMenuItemByApplicablePromotion(
+        today,
         promotion.branch.id,
-        createApplicablePromotionRequestDto.applicableSlug,
-        promotion
+        product.id,
+        promotion.value,
+        promotion.id
       );
+      console.log({ updateMenuItem });
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -135,7 +145,7 @@ export class ApplicablePromotionService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error(
-        `An error occurred while delete applicable promotion: ${JSON.stringify(error)}`,
+        `An error occurred while create applicable promotion: ${JSON.stringify(error)}`,
         error.stack,
         context,
       );
@@ -146,42 +156,6 @@ export class ApplicablePromotionService {
     } finally {
       await queryRunner.release();
     }
-  }
-
-  async addPromotionForMenuItem(
-    branchId: string,
-    productSlug: string,
-    promotion: Promotion
-  ): Promise<MenuItem> {
-    const context = `${ApplicablePromotionService.name}.${this.addPromotionForMenuItem.name}`;
-    const today = new Date();
-    today.setHours(7,0,0,0);
-
-    const menu = await this.menuRepository.findOne({
-      where: {
-        branch: { id: branchId },
-        date: today
-      },
-      relations: ['menuItems.product'],
-    });
-    if(!menu) return null; // wait menu is created => will apply promotion
-    console.log({ productIdX: productSlug})
-    console.log({ menuX: menu });
-    const menuItem = await this.menuItemRepository.findOne({
-      where: {
-        menu: { id: menu.id },
-        product: { slug: productSlug }
-      }
-    });
-    console.log({ menuItemX: menuItem });
-    if(!menuItem) return null;
-
-    Object.assign(menuItem, {
-      promotionValue: promotion.value,
-      promotionId: promotion.id
-    });
-
-    return menuItem;
   }
 
   async deleteApplicablePromotion(
@@ -208,9 +182,20 @@ export class ApplicablePromotionService {
     };
     const promotion = await this.promotionUtils.getPromotion(promotionFindOptionsWhere, ['branch']);
 
-    const menuItem = await this.removePromotionInMenuItem(
+    const today = new Date();
+    today.setHours(7,0,0,0);
+
+    // const menuItem = await this.removePromotionInMenuItem(
+    //   promotion.branch.id,
+    //   applicablePromotion.applicableId
+    // );
+
+    const menuItem = await this.getMenuItemByApplicablePromotion(
+      today,
       promotion.branch.id,
-      applicablePromotion.applicableId
+      applicablePromotion.applicableId,
+      0,
+      null
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -245,70 +230,50 @@ export class ApplicablePromotionService {
     }
   }
 
-  async removePromotionInMenuItem(
-    branchId: string,
-    productId: string,
-  ): Promise<MenuItem> {
-    const context = `${ApplicablePromotionService.name}.${this.removePromotionInMenuItem.name}`;
-    const today = new Date();
-    today.setHours(7,0,0,0);
-
-    const menu = await this.menuRepository.findOne({
-      where: {
-        branch: { id: branchId },
-        date: today
-      },
-      relations: ['menuItems.product'],
-    });
-    console.log({ menuD: menu });
-    if(!menu) return null; // wait menu is created => will apply promotion
-
-    const menuItem = await this.menuItemRepository.findOne({
-      where: {
-        menu: { id: menu.id },
-        product: { id: productId }
-      }
-    });
-    console.log({ menuItemD: menuItem });
-    if(!menuItem) return null;
-
-    Object.assign(menuItem, {
-      promotionValue: 0,
-      promotionId: null
-    });
-
-    return menuItem;
-  }
-
   async getMenuItemByApplicablePromotion(
     date: Date,
     branchId: string,
-    applicablePromotion: ApplicablePromotion
+    productId: string,
+    updateValue: number,
+    updatePromotionId: string
   ): Promise<MenuItem> {
     const context = `${ApplicablePromotionService.name}.${this.getMenuItemByApplicablePromotion.name}`;
 
-    const menu = await this.menuRepository.findOne({
-      where: {
-        branch: { id: branchId },
-        date
-      },
-      relations: ['menuItems.product'],
-    });
-    if(!menu) return null;
-
-    const menuItem = await this.menuItemRepository.findOne({
-      where: {
-        menu: { id: menu.id },
-        product: { id: applicablePromotion.applicableId }
-      }
-    });
-    if(!menuItem) return null;
-
-    Object.assign(menuItem, {
-      promotionValue: 0,
-      promotionId: null
-    });
-
-    return menuItem;
+    try {
+      const menu = await this.menuRepository.findOne({
+        where: {
+          branch: { id: branchId },
+          date
+        },
+        relations: ['menuItems.product'],
+      });
+      console.log({ menu: menu });
+      if(!menu) return null;
+  
+      const menuItem = await this.menuItemRepository.findOne({
+        where: {
+          menu: { id: menu.id },
+          product: { id: productId }
+        }
+      });
+      console.log({ menuItem: menuItem });
+      if(!menuItem) return null;
+  
+      Object.assign(menuItem, {
+        promotionValue: updateValue,
+        promotionId: updatePromotionId
+      });
+  
+      return menuItem;
+    } catch (error) {
+      this.logger.error(
+        `An error occurred while get menu item by applicable promotion: ${JSON.stringify(error)}`,
+        error.stack,
+        context,
+      );
+      throw new ApplicablePromotionException(
+        ApplicablePromotionValidation.ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION,
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -21,7 +22,6 @@ import { showToast } from '@/utils'
 import { DatePicker } from '@/components/app/picker'
 import { useUserStore } from '@/stores'
 import { getProfile } from '@/api'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface IFormUpdateProfileProps {
   userProfile?: IUserInfo

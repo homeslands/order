@@ -17,7 +17,7 @@ export function ClientHeader() {
   const isMobile = useIsMobile()
   const { getCartItems } = useCartItemStore()
   return (
-    <header className="sticky top-0 z-30 w-full bg-white shadow-md text-muted-foreground backdrop-blur">
+    <header className={`sticky top-0 z-30 w-full shadow-md text-muted-foreground bg-white dark:bg-black`}>
       <div className="container">
         <div className="flex items-center justify-between w-full h-14">
           {/* Left content*/}

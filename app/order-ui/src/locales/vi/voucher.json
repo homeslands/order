@@ -2,6 +2,7 @@
   "voucher": {
     "voucherTitle": "Quản lý voucher",
 
+    "useVoucher": "Sử dụng voucher",
     "slug": "Slug",
     "createdAt": "Ngày tạo",
     "title": "Tiêu đề",

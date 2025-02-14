@@ -257,7 +257,7 @@ export default function CreatePromotionSheet() {
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white border rounded-md">
+                  <div className={`p-4 bg-white dark:bg-transparent border rounded-md`}>
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -265,13 +265,13 @@ export default function CreatePromotionSheet() {
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Kiểu khuyến mãi và giá trị khuyến mãi */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
                     {formFields.type}
                     {formFields.value}
                   </div>

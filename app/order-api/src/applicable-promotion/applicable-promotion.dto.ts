@@ -6,14 +6,14 @@ import { ApplicablePromotionType } from "./applicable-promotion.constant";
 import { ProductResponseDto } from "src/product/product.dto";
 
 export class CreateApplicablePromotionRequestDto {
-  @AutoMap()
-  @ApiProperty({
-    description: 'Confirm apply this promotion from today or not',
-    required: true,
-    example: true,
-  })
-  @IsNotEmpty({ message: 'Confirm apply from today is required' })
-  isApplyFromToday: boolean;
+  // @AutoMap()
+  // @ApiProperty({
+  //   description: 'Confirm apply this promotion from today or not',
+  //   required: true,
+  //   example: true,
+  // })
+  // @IsNotEmpty({ message: 'Confirm apply from today is required' })
+  // isApplyFromToday: boolean;
 
   @AutoMap()
   @ApiProperty({

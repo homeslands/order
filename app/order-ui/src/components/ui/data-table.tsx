@@ -220,9 +220,10 @@ export function DataTable<TData, TValue>({
                   }
                   className={cn(
                     'relative cursor-pointer hover:bg-primary/20',
-                    index % 2 === 0 ? 'bg-white' : 'bg-muted-foreground/5',
-                    rowClassName ? rowClassName(row.original) : '',
+                    index % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-muted-foreground/15',
+                    rowClassName ? rowClassName(row.original) : ''
                   )}
+
                   onClick={() => onRowClick && onRowClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (

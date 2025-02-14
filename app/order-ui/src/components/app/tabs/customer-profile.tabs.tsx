@@ -1,10 +1,10 @@
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { CustomerInfoTabsContent, CustomerNotificationTabsContent } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
 export function CustomerProfileTabs() {
   const { t } = useTranslation(['profile'])

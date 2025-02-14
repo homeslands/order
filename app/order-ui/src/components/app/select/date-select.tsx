@@ -25,7 +25,7 @@ export default function DateSelect({ onChange }: DateSelectProps) {
 
   return (
     <Select onValueChange={handleSelectTimeRange} defaultValue={RevenueTypeQuery.DAILY}>
-      <SelectTrigger className="w-[12rem] flex gap-1 shadow-none font-normal bg-white">
+      <SelectTrigger className="w-[12rem] flex gap-1 shadow-none font-normal">
         <Calendar className="w-4 h-4 text-muted-foreground" />
         <SelectValue className="text-muted-foreground" placeholder={t('dayOfWeek.selectTimeRange')} />
       </SelectTrigger>

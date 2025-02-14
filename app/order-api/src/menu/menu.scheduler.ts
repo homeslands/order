@@ -153,7 +153,7 @@ export class MenuScheduler {
     console.log({ applicablePromotions })
 
     const today = new Date();
-    console.log({ today })
+    today.setHours(7, 0, 0, 0);
 
     const promotions = await Promise.allSettled(
       applicablePromotions.map(async (applicablePromotion) => {

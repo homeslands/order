@@ -13,6 +13,7 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { Catalog } from 'src/catalog/catalog.entity';
 import {
   CreateProductRequestDto,
+  GetProductRequestDto,
   UpdateProductRequestDto,
 } from './product.dto';
 import { Size } from 'src/size/size.entity';
@@ -23,6 +24,8 @@ import { ProductException } from './product.exception';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { CatalogException } from 'src/catalog/catalog.exception';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -38,6 +41,7 @@ describe('ProductService', () => {
       providers: [
         ProductService,
         FileService,
+        PromotionUtils,
         {
           provide: FileService,
           useValue: {
@@ -50,6 +54,10 @@ describe('ProductService', () => {
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Promotion),
           useFactory: repositoryMockFactory,
         },
         {
@@ -183,7 +191,9 @@ describe('ProductService', () => {
     });
 
     it('should get all product success and return product array', async () => {
-      const catalogSlug: string = 'mock-catalog-slug';
+      const query: GetProductRequestDto = {
+        catalog: 'mock-catalog-slug',
+      };
       const product = {
         name: 'Mock product name',
         isActive: false,
@@ -200,7 +210,7 @@ describe('ProductService', () => {
       (catalogRepositoryMock.find as jest.Mock).mockResolvedValue(mockOutput);
       (mapperMock.mapArray as jest.Mock).mockReturnValue(mockOutput);
 
-      const result = await service.getAllProducts(catalogSlug);
+      const result = await service.getAllProducts(query);
       expect(result).toEqual(mockOutput);
     });
   });

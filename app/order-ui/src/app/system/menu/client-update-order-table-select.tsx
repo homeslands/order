@@ -48,7 +48,6 @@ export default function ClientUpdateOrderTableSelect({ order, defaultValue, onSu
   }
 
   const updateTableSelection = (tableSlug: string | null) => {
-    console.log('updateTableSelection', tableSlug)
     const params: IUpdateOrderTypeRequest = {
       type: order?.type || OrderTypeEnum.AT_TABLE,
       table: tableSlug,

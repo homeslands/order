@@ -25,7 +25,7 @@ export default function SystemMenuPage() {
       </div>
 
       {/* CartContent cố định bên phải */}
-      <div className="fixed right-0 top-14 h-screen w-[25%] bg-white shadow-md">
+      <div className={`fixed right-0 top-14 h-screen w-[25%] shadow-md`}>
         <CartContent />
       </div>
     </div>

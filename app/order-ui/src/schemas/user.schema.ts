@@ -40,7 +40,7 @@ export const createUserSchema = z
 
 export const updateUserSchema = z.object({
   slug: z.string(),
-  phonenumber: z.string().regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+  // phonenumber: z.string().regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   dob: z.string(),

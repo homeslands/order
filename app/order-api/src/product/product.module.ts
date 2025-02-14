@@ -9,16 +9,23 @@ import { Variant } from 'src/variant/variant.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { FileModule } from 'src/file/file.module';
 import { Size } from 'src/size/size.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
     Product, 
     Variant, 
     Catalog,
-    Size
+    Size,
+    Promotion
   ]), FileModule],
   controllers: [ProductController],
-  providers: [ProductService, ProductProfile],
+  providers: [
+    ProductService, 
+    ProductProfile,
+    PromotionUtils
+  ],
   exports: [ProductService],
 })
 export class ProductModule {}

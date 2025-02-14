@@ -40,8 +40,6 @@ export default function ApplyPromotionSheet({
 
   const productsData = products?.result
 
-  console.log('productsData', productsData, promotion)
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -79,7 +77,7 @@ export default function ApplyPromotionSheet({
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4">
             {/* Product List */}
-            <div className="p-4 bg-white border rounded-md">
+            <div className={`p-4 bg-white dark:bg-transparent border rounded-md`}>
               <div className="grid grid-cols-1 gap-2">
                 <DataTable
                   columns={useProductColumns({ onSelect: handleProductSelect })}

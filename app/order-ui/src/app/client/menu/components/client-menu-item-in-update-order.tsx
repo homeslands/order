@@ -5,16 +5,17 @@ import { IMenuItem, IProduct } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
 import { Badge, Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
-import { ClientAddToCartDialog } from '@/components/app/dialog'
+import { AddNewOrderItemDialog } from '@/components/app/dialog'
 import { ClientAddToCartDrawer } from '@/components/app/drawer'
 import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
 
-interface IClientMenuItemProps {
+interface IClientMenuItemInUpdateOrderProps {
+  onSuccess: () => void
   item: IMenuItem
 }
 
-export function ClientMenuItem({ item }: IClientMenuItemProps) {
+export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemInUpdateOrderProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
 
@@ -35,7 +36,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className={`flex min-h-[22rem] bg-white dark:bg-transparent hover:scale-105 flex-col justify-between rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out`}
+      className={`flex min-h-[22rem] dark:bg-transparent hover:scale-105 flex-col justify-between rounded-xl border bg-white backdrop-blur-md transition-all duration-300 ease-in-out`}
     >
       <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
         {/* Image Section with Ribbon Discount Tag */}
@@ -129,7 +130,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           {isMobile ? (
             <ClientAddToCartDrawer product={item} />
           ) : (
-            <ClientAddToCartDialog product={item} />
+            <AddNewOrderItemDialog product={item} onSuccess={onSuccess} />
           )}
         </div>
       ) : (

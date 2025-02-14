@@ -3,6 +3,7 @@ import ReactSelect, { SingleValue } from 'react-select'
 import { useTranslation } from 'react-i18next'
 
 import { useRole } from '@/hooks'
+import { useThemeStore } from '@/stores'
 
 interface SelectRoleProps {
     defaultValue?: string
@@ -13,6 +14,7 @@ export default function RoleSelect({
     defaultValue,
     onChange,
 }: SelectRoleProps) {
+    const { getTheme } = useThemeStore()
     const [allRoles, setAllRoles] = useState<{ value: string; label: string }[]>(
         [],
     )
@@ -61,6 +63,35 @@ export default function RoleSelect({
             options={allRoles}
             onChange={handleChange}
             defaultValue={selectedRole}
+            styles={{
+                control: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: getTheme() === 'light' ? 'white' : '',
+                    borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+                }),
+                menu: (baseStyles) => ({
+                    ...baseStyles,
+                    backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
+                }),
+                option: (baseStyles, state) => ({
+                    ...baseStyles,
+                    backgroundColor: state.isFocused
+                        ? getTheme() === 'light'
+                            ? '#e2e8f0'
+                            : '#2d2d2d'
+                        : getTheme() === 'light'
+                            ? 'white'
+                            : '#121212',
+                    color: getTheme() === 'light' ? 'black' : 'white',
+                    '&:hover': {
+                        backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+                    },
+                }),
+                singleValue: (baseStyles) => ({
+                    ...baseStyles,
+                    color: getTheme() === 'light' ? 'black' : 'white',
+                }),
+            }}
         />
     )
 }

@@ -41,7 +41,6 @@ export class PromotionController {
     )
     requestData: CreatePromotionRequestDto,
   ) {
-    console.log('branchSlug', branchSlug);
     const result = await this.promotionService.createPromotion(
       branchSlug,
       requestData
@@ -95,7 +94,7 @@ export class PromotionController {
     name: 'slug',
     description: 'The slug of the promotion to be updated',
     required: true,
-    example: '',
+    example: 'slug',
   })
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   // @Public()
@@ -105,11 +104,11 @@ export class PromotionController {
       new ValidationPipe({
         transform: true,
         whitelist: true,
+        // transformOptions: { enableImplicitConversion: true }
       }),
     )
     updateProductDto: UpdatePromotionRequestDto,
   ) {
-    console.log('slug', slug);
     const result = await this.promotionService.updatePromotion(
       slug,
       updateProductDto,

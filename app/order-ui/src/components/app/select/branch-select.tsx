@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { useBranch } from '@/hooks'
+import { useThemeStore } from '@/stores'
 
 interface SelectBranchProps {
   defaultValue?: string
@@ -12,6 +13,7 @@ export default function BranchSelect({
   defaultValue,
   onChange,
 }: SelectBranchProps) {
+  const { getTheme } = useThemeStore()
   const [allBranches, setAllBranches] = useState<
     { value: string; label: string }[]
   >([])
@@ -51,10 +53,39 @@ export default function BranchSelect({
 
   return (
     <ReactSelect
-      className="w-full border-muted-foreground text-sm text-muted-foreground"
+      className="text-sm max-w-[16rem] border-muted-foreground text-muted-foreground"
       value={selectedBranch}
       options={allBranches}
       onChange={handleChange}
+      styles={{
+        control: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '',
+          borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+        }),
+        menu: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
+        }),
+        option: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: state.isFocused
+            ? getTheme() === 'light'
+              ? '#e2e8f0'
+              : '#2d2d2d'
+            : getTheme() === 'light'
+              ? 'white'
+              : '#121212',
+          color: getTheme() === 'light' ? 'black' : 'white',
+          '&:hover': {
+            backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+          },
+        }),
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: getTheme() === 'light' ? 'black' : 'white',
+        }),
+      }}
     />
   )
 }

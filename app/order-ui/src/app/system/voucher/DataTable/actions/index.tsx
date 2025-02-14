@@ -1,2 +1,2 @@
-export { default as EmployeesAction } from './customer-action'
-export { default as EmployeeFilterOptions } from './voucher-filter'
+export { default as VoucherAction } from './voucher-action'
+export { default as VoucherFilterOptions } from './voucher-filter'

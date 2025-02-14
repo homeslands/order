@@ -1,10 +1,10 @@
 import { AutoMap } from "@automapper/classes";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsOptional, Max, Min } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsOptional, Max, Min } from "class-validator";
 import { BaseResponseDto } from "src/app/base.dto";
 import { BranchResponseDto } from "src/branch/branch.dto";
 import { PromotionType } from "./promotion.constant";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 
 export class CreatePromotionRequestDto {
   @AutoMap()
@@ -20,12 +20,14 @@ export class CreatePromotionRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The start date of promotion', example: '2025-02-10' })
   @IsNotEmpty({ message: 'The start date of promotion is required' })
+  @IsDate({ message: 'The start date of promotion must be a date' })
   @Type(() => Date)
   startDate: Date;
 
   @AutoMap()
   @ApiProperty({ description: 'The end date of promotion', example: '2025-02-20' })
   @IsNotEmpty({ message: 'The end date of promotion is required' })
+  @IsDate({ message: 'The end date of promotion must be a date' })
   @Type(() => Date)
   endDate: Date;
 
@@ -62,15 +64,19 @@ export class UpdatePromotionRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The start date of promotion', example: '2021-10-10' })
   @IsNotEmpty({ message: 'The start date of promotion is required' })
+  @IsDate({ message: 'The start date of promotion must be a date' })
+  @Type(() => Date)
   startDate: Date;
 
   @AutoMap()
   @ApiProperty({ description: 'The end date of promotion', example: '2021-10-20' })
   @IsNotEmpty({ message: 'The end date of promotion is required' })
+  @IsDate({ message: 'The end date of promotion must be a date' })
+  @Type(() => Date)
   endDate: Date;
 
   @AutoMap()
-  @ApiProperty({ description: 'The type of promotion', example: 'percent' })
+  @ApiProperty({ description: 'The type of promotion', example: 'per-product' })
   @IsNotEmpty({ message: 'The type of promotion is required' })
   @IsEnum(PromotionType, { message: 'Promotion type must be co-price or per-product' })
   type: string;
@@ -91,10 +97,10 @@ export class PromotionResponseDto extends BaseResponseDto {
   description?: string;
 
   @AutoMap()
-  startDate: Date;
+  startDate: string;
 
   @AutoMap()
-  endDate: Date;
+  endDate: string;
 
   @AutoMap()
   type: string;

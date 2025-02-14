@@ -22,8 +22,8 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 flex flex-col items-center gap-2 bg-gray-50">
-        <span className="flex w-full items-center justify-start gap-1 text-lg">
+      <div className={`top-0 flex flex-col items-center gap-2`}>
+        <span className="flex items-center justify-start w-full gap-1 text-lg">
           <SquareMenu />
           {t('order.title')}
         </span>

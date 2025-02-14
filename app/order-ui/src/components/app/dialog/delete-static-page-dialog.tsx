@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Trash2, TriangleAlert } from 'lucide-react'
 
@@ -17,7 +18,6 @@ import { IStaticPage } from '@/types'
 
 import { useDeleteStaticPage } from '@/hooks'
 import { showToast } from '@/utils'
-import { useQueryClient } from '@tanstack/react-query'
 
 export default function DeleteStaticPageDialog({
   staticPage,
@@ -66,7 +66,7 @@ export default function DeleteStaticPageDialog({
               {t('staticPage.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
 

@@ -12,7 +12,7 @@ interface IMenuProps {
   isLoading: boolean
 }
 
-export default function SystemMenus({ menu, isLoading }: IMenuProps) {
+export default function ClientMenus({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
 
   const menuItems = menu?.menuItems
@@ -50,7 +50,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
       {menuItems.map((item) => (
         <div
           key={item.slug}
-          className="flex flex-col justify-between rounded-xl min-h-[14rem] border backdrop-blur-md"
+          className="flex flex-col justify-between rounded-xl min-h-[14rem] border bg-white backdrop-blur-md"
         >
           {/* Image Section with Discount Tag */}
           <div className="relative">
@@ -63,15 +63,6 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
             ) : (
               <div className="w-full h-24 rounded-t-md bg-muted/60" />
             )}
-
-            {/* Discount Tag */}
-            {/* {item.discount && (
-              <div className="absolute top-2 left-2">
-                <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
-                  Giảm {item.discount}%
-                </span>
-              </div>
-            )} */}
           </div>
 
           {/* Content Section - More compact */}
