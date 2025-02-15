@@ -1,20 +1,59 @@
-import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
-import { PopupLogo } from '@/assets/images'
+import { useState, useEffect } from 'react';
+import moment from 'moment';
+import { X } from 'lucide-react';
+
+import { PopupLogo } from '@/assets/images';
+import { useVouchers } from '@/hooks';
 
 export function AdPopup() {
-    const [isVisible, setIsVisible] = useState(false)
+    const [isVisible, setIsVisible] = useState(false);
+    const { data: vouchers } = useVouchers();
+
+    const voucherList = vouchers?.result || [];
+
+    // Filter and sort vouchers to get the best one
+    const getBestVoucher = () => {
+        const currentDate = new Date();
+
+        const validVouchers = voucherList
+            .filter(voucher =>
+                voucher.isActive &&
+                moment(voucher.startDate).format('DD/MM/YYYY') <= currentDate.toLocaleString() &&
+                moment(voucher.endDate).format('DD/MM/YYYY') >= currentDate.toLocaleString() &&
+                voucher.remainingUsage > 0
+            )
+            .sort((a, b) => {
+                // Sort by endDate
+                const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+
+                if (endDateDiff !== 0) return endDateDiff;
+
+                // If endDate is the same, sort by minOrderValue
+                if (a.minOrderValue !== b.minOrderValue) {
+                    return a.minOrderValue - b.minOrderValue;
+                }
+
+                // If minOrderValue is the same, sort by value
+                return b.value - a.value;
+            });
+
+        return validVouchers.length > 0 ? validVouchers[0] : null;
+    };
+
+    const bestVoucher = getBestVoucher();
 
     useEffect(() => {
-        // Show popup after 2 seconds
-        const timer = setTimeout(() => {
-            setIsVisible(true)
-        }, 2000)
+        if (bestVoucher) {
+            // Show popup after 2 seconds
+            const timer = setTimeout(() => {
+                setIsVisible(true);
+            }, 2000);
 
-        return () => clearTimeout(timer)
-    }, [])
+            return () => clearTimeout(timer);
+        }
+    }, [bestVoucher]);
 
-    if (!isVisible) return null
+    if (!isVisible || !bestVoucher) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -36,13 +75,19 @@ export function AdPopup() {
                             filter: 'drop-shadow(0 0 100px rgba(0,0,0,0.1))'
                         }}
                     />
-                    <div className="flex items-center justify-center">
-                        <span className="px-6 py-3 text-lg font-medium text-white transition-all rounded-full bg-gradient-to-r from-primary to-primary/80 hover:scale-105">
-                            Giảm giá 50% cho tất cả sản phẩm
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                        <span className="px-6 py-3 text-lg font-medium text-white transition-all rounded-full bg-gradient-to-r from-primary to-primary/80">
+                            {bestVoucher.title}
+                        </span>
+                        <span className="text-sm text-white">
+                            {bestVoucher.description || `Giảm ${bestVoucher.value}% đơn từ ${bestVoucher.minOrderValue.toLocaleString()}₫`}
+                        </span>
+                        <span className="text-xs text-gray-300">
+                            Hạn sử dụng: {moment(bestVoucher.endDate).format('DD/MM/YYYY')}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }

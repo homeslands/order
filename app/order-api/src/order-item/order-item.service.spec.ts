@@ -18,6 +18,8 @@ import { VariantUtils } from 'src/variant/variant.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 describe('OrderItemService', () => {
   let service: OrderItemService;
@@ -32,8 +34,17 @@ describe('OrderItemService', () => {
         VariantUtils,
         MenuUtils,
         MenuItemUtils,
+        PromotionUtils,
         {
           provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(OrderItem),
           useFactory: repositoryMockFactory,
         },
         {

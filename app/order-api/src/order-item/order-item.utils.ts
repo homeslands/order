@@ -4,6 +4,7 @@ import { OrderItem } from './order-item.entity';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Injectable()
 export class OrderItemUtils {
@@ -23,7 +24,16 @@ export class OrderItemUtils {
     return orderItem;
   }
 
-  async calculateSubTotal(orderItem: OrderItem) {
-    return orderItem.quantity * orderItem.variant.price;
+  calculateSubTotal(
+    orderItem: OrderItem,
+    promotion?: Promotion
+  ) {
+    let discount = 0;
+    if(promotion) {
+      const percentPromotion = promotion.value;
+      discount = orderItem.quantity * orderItem.variant.price * percentPromotion/100;
+    }
+    const subtotal = orderItem.quantity * orderItem.variant.price;
+    return subtotal - discount;
   }
 }

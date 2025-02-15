@@ -10,6 +10,8 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Menu } from 'src/menu/menu.entity';
 import { Product } from 'src/product/product.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 describe('MenuItemController', () => {
   let controller: MenuItemController;
@@ -19,6 +21,11 @@ describe('MenuItemController', () => {
       controllers: [MenuItemController],
       providers: [
         MenuItemService,
+        PromotionUtils,
+        {
+          provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,

@@ -45,6 +45,12 @@ import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
 import { VoucherException } from 'src/voucher/voucher.exception';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
+import { OrderItemUtils } from 'src/order-item/order-item.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { PromotionException } from 'src/promotion/promotion.exception';
+import { PromotionValidation } from 'src/promotion/promotion.validation';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
 
 @Injectable()
 export class OrderService {
@@ -63,6 +69,8 @@ export class OrderService {
     private readonly variantUtils: VariantUtils,
     private readonly menuUtils: MenuUtils,
     private readonly voucherUtils: VoucherUtils,
+    private readonly orderItemUtils: OrderItemUtils,
+    private readonly promotionUtils: PromotionUtils
   ) {}
 
   /**
@@ -286,6 +294,7 @@ export class OrderService {
           id: variant.product?.id,
         },
       },
+      relations: ['promotion'],
     });
 
     if (item.quantity > menuItem.currentStock) {
@@ -298,17 +307,36 @@ export class OrderService {
       );
     }
 
+    let promotion: Promotion = menuItem.promotion;
+    await this.promotionUtils.validatePromotionWithMenuItem(item.promotion, menuItem);
+    // const promotionWhere: FindOptionsWhere<Promotion> = { id: menuItem.promotionId };
+    // if(menuItem.promotionId) {
+    //   promotion = await this.promotionUtils.getPromotion(promotionWhere);
+    // }
+
     const orderItem = this.mapper.map(
       item,
       CreateOrderItemRequestDto,
       OrderItem,
     );
+
     Object.assign(orderItem, {
       variant,
-      subtotal: variant.price * item.quantity,
+      promotion,
     });
+
+    const subtotal = this.orderItemUtils.calculateSubTotal(
+      orderItem,
+      promotion
+    );
+
+    Object.assign(orderItem, {
+      subtotal,
+    });
+    console.log({ orderItem });
     return orderItem;
   }
+
 
   /**
    *
@@ -344,6 +372,7 @@ export class OrderService {
         'payment',
         'invoice',
         'table',
+        'orderItems.promotion',
       ],
       order: { createdAt: 'DESC' },
     };

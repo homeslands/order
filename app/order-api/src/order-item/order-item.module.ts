@@ -10,17 +10,19 @@ import { OrderItemUtils } from './order-item.utils';
 import { OrderModule } from 'src/order/order.module';
 import { VariantModule } from 'src/variant/variant.module';
 import { MenuItemModule } from 'src/menu-item/menu-item.module';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderItem, Order]),
+    TypeOrmModule.forFeature([OrderItem, Order, Promotion]),
     DbModule,
     OrderModule,
     VariantModule,
     MenuItemModule,
   ],
   controllers: [OrderItemController],
-  providers: [OrderItemService, OrderItemProfile, OrderItemUtils],
+  providers: [OrderItemService, OrderItemProfile, OrderItemUtils, PromotionUtils],
   exports: [OrderItemService, OrderItemUtils],
 })
 export class OrderItemModule {}

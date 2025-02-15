@@ -3,6 +3,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ProductResponseDto } from 'src/product/product.dto';
+import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 
 export class CreateMenuItemDto {
   @AutoMap()
@@ -61,10 +62,14 @@ export class MenuItemResponseDto {
   @ApiProperty()
   currentStock: number;
 
-  @AutoMap()
-  @ApiProperty()
-  promotionValue: number;
+  // @AutoMap()
+  // @ApiProperty()
+  // promotionValue: number;
 
+  @AutoMap(() => PromotionResponseDto)
+  @ApiProperty()
+  promotion: PromotionResponseDto;
+  
   @AutoMap(() => ProductResponseDto)
   @ApiProperty()
   product: ProductResponseDto;

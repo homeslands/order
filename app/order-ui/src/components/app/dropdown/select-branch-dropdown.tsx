@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui'
 import { useBranch } from '@/hooks'
-import { useBranchStore } from '@/stores/branch.store'
+import { useBranchStore } from '@/stores'
 
 export default function SelectBranchDropdown() {
   const { data: branchRes } = useBranch()

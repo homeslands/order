@@ -61,6 +61,8 @@ export class CreateOrderRequestDto {
         quantity: 2,
         variant: '',
         note: '',
+        promotion: '',
+        order: '',
       },
     ],
   })

@@ -18,6 +18,7 @@ import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Injectable()
 export class OrderItemService {
@@ -31,6 +32,7 @@ export class OrderItemService {
     private readonly menuItemUtils: MenuItemUtils,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    private readonly promotionUtils: PromotionUtils,
   ) {}
 
   async updateOrderItem(slug: string, requestData: UpdateOrderItemRequestDto) {

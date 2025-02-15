@@ -13,6 +13,7 @@ import { Product } from 'src/product/product.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { ApplicablePromotionType } from 'src/applicable-promotion/applicable-promotion.constant';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Injectable()
 export class MenuScheduler {
@@ -26,6 +27,7 @@ export class MenuScheduler {
     private readonly applicablePromotionRepository: Repository<ApplicablePromotion>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
+    private readonly promotionUtils: PromotionUtils,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
@@ -71,10 +73,11 @@ export class MenuScheduler {
           branch: menu.branch,
           menuItems: await Promise.all(
             menu.menuItems.map(async (item: MenuItem) => {
-              const promotion: Promotion = await this.getPromotionFromMenuItem(
-                menu.branch.id,
-                item
-              );
+              const promotion: Promotion = 
+                await this.promotionUtils.getPromotionByProductAndBranch(
+                  menu.branch.id,
+                  item.product.id
+                );
               console.log({ promotion });
               const newItem = _.cloneDeep(item);
               newItem.id = undefined;
@@ -82,8 +85,9 @@ export class MenuScheduler {
               newItem.createdAt = undefined;
               newItem.updatedAt = undefined;
               newItem.deletedAt = undefined;
-              newItem.promotionValue = promotion?.value || 0;
-              newItem.promotionId = promotion?.id || null;
+              // newItem.promotionValue = promotion?.value || 0;
+              // newItem.promotionId = promotion?.id || null;
+              newItem.promotion = promotion;
               newItem.currentStock = newItem.defaultStock;
               newItem.product = newItem.product;
               return newItem;
@@ -131,62 +135,6 @@ export class MenuScheduler {
         );
       }
     });
-  }
-
-  async getPromotionFromMenuItem(
-    branchId: string,
-    menuItem: MenuItem
-  ): Promise<Promotion> {
-    const context = `${MenuScheduler.name}.${this.getPromotionFromMenuItem.name}`;
-    this.logger.log(`Get promotion from menu item`, context);
-
-    const product: Product = menuItem.product;
-    console.log({ product });
-
-    const applicablePromotions = await this.applicablePromotionRepository.find({
-      where: {
-        type: ApplicablePromotionType.PRODUCT, 
-        applicableId: product.id 
-      },
-      relations: ['promotion'],
-    });
-    console.log({ applicablePromotions })
-
-    const today = new Date();
-    today.setHours(7, 0, 0, 0);
-
-    const promotions = await Promise.allSettled(
-      applicablePromotions.map(async (applicablePromotion) => {
-        const promotion = await this.promotionRepository.findOne({
-          where: { 
-            id: applicablePromotion.promotion.id,
-            branch: {
-              id: branchId
-            },
-            startDate: LessThanOrEqual(today),
-            endDate: MoreThanOrEqual(today),
-          },
-        });
-        return promotion;
-      }),
-    );
-
-    console.log({ promotions })
-    const successfulPromotions = promotions
-      .filter(p => p.status === "fulfilled")
-      .map(p => p.value);
-
-    const successfulPromotionsNotNull = successfulPromotions.filter(p => p !== null);
-    if(_.isEmpty(successfulPromotionsNotNull)) return null;
-
-    console.log({ successfulPromotionsNotNull })
-
-    const maxPromotion = successfulPromotionsNotNull.reduce(
-      (max, obj) => (obj.value > max.value ? obj : max), 
-      _.first(successfulPromotionsNotNull)
-    );
-
-    return maxPromotion;
   }
 
   /**

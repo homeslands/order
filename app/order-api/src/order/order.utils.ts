@@ -24,6 +24,7 @@ export class OrderUtils {
         'approvalBy',
         'orderItems.variant.size',
         'orderItems.variant.product',
+        'orderItems.promotion',
         'orderItems.trackingOrderItems.tracking',
         'invoice.invoiceItems',
         'table',

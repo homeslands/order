@@ -9,7 +9,7 @@ import {
   CarouselApi,
 } from '@/components/ui'
 
-import { IProduct } from '@/types'
+// import { IProduct } from '@/types'
 import { publicFileURL } from '@/constants'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { formatCurrency } from '@/utils'
@@ -37,19 +37,19 @@ export default function BestSellerCarousel() {
     refetch()
   }, [branch, refetch])
 
-  const getPriceRange = (variants: IProduct['variants']) => {
-    if (!variants || variants.length === 0) return null
+  // const getPriceRange = (variants: IProduct['variants']) => {
+  //   if (!variants || variants.length === 0) return null
 
-    const prices = variants.map((v) => v.price)
-    const minPrice = Math.min(...prices)
-    const maxPrice = Math.max(...prices)
+  //   const prices = variants.map((v) => v.price)
+  //   const minPrice = Math.min(...prices)
+  //   const maxPrice = Math.max(...prices)
 
-    return {
-      min: minPrice,
-      max: maxPrice,
-      isSinglePrice: minPrice === maxPrice,
-    }
-  }
+  //   return {
+  //     min: minPrice,
+  //     max: maxPrice,
+  //     isSinglePrice: minPrice === maxPrice,
+  //   }
+  // }
 
   const onSelect = useCallback(() => {
     if (!api) return
@@ -131,15 +131,16 @@ export default function BestSellerCarousel() {
                         {item.product.variants.length > 0 ? (
                           <div className="flex flex-col items-start justify-start gap-1">
                             <span className="text-xs font-bold text-primary sm:text-lg">
-                              {(() => {
+                              {formatCurrency(item.product.variants[0].price)}
+                              {/* {(() => {
                                 const range = getPriceRange(
                                   item.product.variants,
                                 )
                                 if (!range) return '0đ'
                                 return range.isSinglePrice
-                                  ? `${formatCurrency(range.min)}`
-                                  : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
-                              })()}
+                                  && `${formatCurrency(range.min)}`
+                                // : `${formatCurrency(range.min)} - ${formatCurrency(range.max)}`
+                              })()} */}
                             </span>
                             <span className="text-[0.7rem] text-muted-foreground">
                               {t('menu.totalSold')}: {item.totalQuantity}

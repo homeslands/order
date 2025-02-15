@@ -9,6 +9,8 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { Product } from 'src/product/product.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 describe('MenuItemService', () => {
   let service: MenuItemService;
@@ -17,8 +19,13 @@ describe('MenuItemService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MenuItemService,
+        PromotionUtils,
         {
           provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Promotion),
           useFactory: repositoryMockFactory,
         },
         {

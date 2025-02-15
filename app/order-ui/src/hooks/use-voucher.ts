@@ -11,6 +11,7 @@ import {
 import { QUERYKEY } from '@/constants'
 import {
   ICreateVoucherRequest,
+  IGetVoucherBySlugRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
 } from '@/types'
@@ -23,10 +24,10 @@ export const useVouchers = () => {
   })
 }
 
-export const useVoucherBySlug = (slug: string) => {
+export const useVoucherBySlug = (data: IGetVoucherBySlugRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.vouchers, slug],
-    queryFn: () => getVoucherBySlug(slug),
+    queryKey: [QUERYKEY.vouchers, data.slug],
+    queryFn: () => getVoucherBySlug(data),
   })
 }
 

@@ -1,9 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, ValidateNested } from "class-validator";
 import { AutoMap } from "@automapper/classes";
 import { PromotionResponseDto } from "src/promotion/promotion.dto";
 import { ApplicablePromotionType } from "./applicable-promotion.constant";
 import { ProductResponseDto } from "src/product/product.dto";
+import { Type } from "class-transformer";
 
 export class CreateApplicablePromotionRequestDto {
   // @AutoMap()
@@ -23,6 +24,39 @@ export class CreateApplicablePromotionRequestDto {
   })
   @IsNotEmpty({ message: 'The slug of the applicable object is required' })
   applicableSlug: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The type of the object to be created applicable promotion',
+    required: true,
+    example: 'product',
+  })
+  @IsNotEmpty({ message: 'The type of the applicable object is required' })
+  @IsEnum(ApplicablePromotionType, { message: 'Invalid applicable promotion' })
+  type: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the promotion to be created applicable promotion',
+    required: true,
+    example: 'promotion-slug',
+  })
+  @IsNotEmpty({message: 'The slug of the promotion is required'})
+  promotion: string;
+}
+
+export class CreateManyApplicablePromotionsRequestDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the object to be created applicable promotion',
+    required: true,
+    example: [ 'product-slug' ],
+  })
+  @IsArray({ message: 'The slug array of the applicable object must be an array' })
+  @ArrayNotEmpty({ message: 'The slug array of the applicable object is not empty' })
+  @ValidateNested({ each: true })
+  @Type(() => String)
+  applicableSlugs: string[];
 
   @AutoMap()
   @ApiProperty({

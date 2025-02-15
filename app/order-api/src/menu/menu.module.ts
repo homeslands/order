@@ -10,6 +10,7 @@ import { MenuSubscriber } from './menu.subscriber';
 import { MenuUtils } from './menu.utils';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -25,6 +26,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
     MenuScheduler,
     MenuSubscriber,
     MenuUtils,
+    PromotionUtils
   ],
   exports: [MenuService, MenuUtils],
 })

@@ -4,7 +4,7 @@ import { ApplicablePromotion } from "./applicable-promotion.entity";
 import { DataSource, FindOptionsWhere, Repository } from "typeorm";
 import { Promotion } from "src/promotion/promotion.entity";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto } from "./applicable-promotion.dto";
+import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto, CreateManyApplicablePromotionsRequestDto } from "./applicable-promotion.dto";
 import { PromotionValidation } from "src/promotion/promotion.validation";
 import { PromotionException } from "src/promotion/promotion.exception";
 import { ApplicablePromotionType } from "./applicable-promotion.constant";
@@ -41,6 +41,22 @@ export class ApplicablePromotionService {
     private readonly promotionUtils: PromotionUtils,
     private readonly dataSource: DataSource,
   ) {}
+
+  // async createManyApplicablePromotions(
+  //   createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto
+  // ): Promise<ApplicablePromotionResponseDto[]> {
+  //   const context = `${ApplicablePromotionService.name}.${this.createManyApplicablePromotions.name}`;
+
+  //   const promotion = await this.promotionRepository.findOne({ 
+  //     where: { slug: createManyApplicablePromotionsRequestDto.promotion },
+  //     relations: ['branch']
+  //   });
+  //   if (!promotion) {
+  //     this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
+  //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+  //   }
+  //   return;
+  // }
 
   async createApplicablePromotion(
     createApplicablePromotionRequestDto: CreateApplicablePromotionRequestDto

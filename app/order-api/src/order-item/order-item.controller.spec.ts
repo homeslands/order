@@ -19,6 +19,8 @@ import { VariantUtils } from 'src/variant/variant.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 describe('OrderItemController', () => {
   let controller: OrderItemController;
@@ -34,6 +36,11 @@ describe('OrderItemController', () => {
         VariantUtils,
         MenuUtils,
         MenuItemUtils,
+        PromotionUtils,
+        {
+          provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,

@@ -61,23 +61,23 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
     {
       accessorKey: 'startDate',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('voucher.startDate')} />
+        <DataTableColumnHeader column={column} title={t('voucher.time')} />
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')}</div>
+        return <div className="text-xs min-w-[13rem] sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')} - {moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
       },
     },
-    {
-      accessorKey: 'endDate',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('voucher.endDate')} />
-      ),
-      cell: ({ row }) => {
-        const voucher = row.original
-        return <div className="text-xs sm:text-sm">{moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
-      },
-    },
+    // {
+    //   accessorKey: 'endDate',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('voucher.endDate')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const voucher = row.original
+    //     return <div className="text-xs sm:text-sm">{moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
+    //   },
+    // },
     {
       accessorKey: 'code',
       header: ({ column }) => (
@@ -158,7 +158,6 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
         );
       },
     },
-
     {
       accessorKey: 'minOrderValue',
       header: ({ column }) => (
@@ -180,7 +179,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div>
+          <div className='w-[4rem]'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-8 h-8 p-0">

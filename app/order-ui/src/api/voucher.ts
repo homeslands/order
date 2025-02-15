@@ -1,6 +1,7 @@
 import {
   IApiResponse,
   ICreateVoucherRequest,
+  IGetVoucherBySlugRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
   IVoucher,
@@ -13,9 +14,11 @@ export async function getVouchers(): Promise<IApiResponse<IVoucher[]>> {
 }
 
 export async function getVoucherBySlug(
-  slug: string,
+  param: IGetVoucherBySlugRequest,
 ): Promise<IApiResponse<IVoucher>> {
-  const response = await http.get<IApiResponse<IVoucher>>(`/voucher/${slug}`)
+  const response = await http.get<IApiResponse<IVoucher>>(`/voucher/specific`, {
+    params: param,
+  })
   return response.data
 }
 

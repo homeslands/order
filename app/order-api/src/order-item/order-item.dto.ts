@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { MenuItemActionType } from 'src/menu-item/menu-item.constants';
+import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
 
@@ -16,17 +17,23 @@ export class CreateOrderItemRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The note of order item', example: 'Ghi chú' })
   @IsOptional()
-  note: string;
+  note?: string;
 
   @AutoMap()
   @ApiProperty({
     description: 'The slug of variant',
+    example: 'variant-slug-123',
   })
   @IsNotEmpty({ message: 'Invalid slug of variant' })
   variant: string;
 
   @AutoMap()
-  @ApiProperty({ description: 'The slug of order' })
+  @ApiProperty({ description: 'The slug of promotion', example: 'promotion-slug-123' })
+  @IsOptional()
+  promotion?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of order', example: 'order-slug-123' })
   @IsOptional()
   order?: string;
 }
@@ -52,7 +59,12 @@ export class UpdateOrderItemRequestDto {
   variant: string;
 
   @AutoMap()
-  @ApiProperty({ description: `increment or decrement` })
+  @ApiProperty({ description: `The slug of promotion`, example: 'promotion-slug-123' })
+  @IsOptional()
+  promotion?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: `increment or decrement`, example: 'increment' })
   @IsOptional()
   action?: 'increment' | 'decrement';
 }
@@ -89,4 +101,7 @@ export class OrderItemResponseDto extends BaseResponseDto {
 
   @AutoMap(() => StatusOrderItemResponseDto)
   status: StatusOrderItemResponseDto;
+
+  @AutoMap(() => PromotionResponseDto)
+  promotion: PromotionResponseDto;
 }

@@ -21,6 +21,7 @@ import { MenuItemException } from './menu-item.exception';
 import { MenuItemValidation } from './menu-item.validation';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Injectable()
 export class MenuItemService {
@@ -35,6 +36,7 @@ export class MenuItemService {
     private readonly catalogRepository: Repository<Catalog>,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly promotionUtils: PromotionUtils,
   ) {}
 
   /**
@@ -61,12 +63,17 @@ export class MenuItemService {
       });
       if (!menu) throw new MenuException(MenuValidation.MENU_NOT_FOUND);
 
+      const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
+        menu.branch.id,
+        product.id,
+      );
+
       const menuItem = this.mapper.map(
         menuItemDto,
         CreateMenuItemDto,
         MenuItem,
       );
-      Object.assign(menuItem, { product, menu });
+      Object.assign(menuItem, { product, menu, promotion });
 
       menuItems.push(menuItem);
     }
@@ -99,6 +106,7 @@ export class MenuItemService {
 
     const menu = await this.menuRepository.findOne({
       where: { slug: createMenuItemDto.menuSlug },
+      relations: ['branch'],
     });
     if (!menu) throw new MenuException(MenuValidation.MENU_NOT_FOUND);
 
@@ -111,12 +119,17 @@ export class MenuItemService {
     if (existedMenuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_EXIST);
 
+    const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
+      menu.branch.id,
+      product.id,
+    );
+
     const menuItem = this.mapper.map(
       createMenuItemDto,
       CreateMenuItemDto,
       MenuItem,
     );
-    Object.assign(menuItem, { product, menu });
+    Object.assign(menuItem, { product, menu, promotion });
 
     this.menuItemRepository.create(menuItem);
     const createdMenuItem = await this.menuItemRepository.save(menuItem);
@@ -124,6 +137,7 @@ export class MenuItemService {
 
     return this.mapper.map(createdMenuItem, MenuItem, MenuItemResponseDto);
   }
+  
 
   /**
    * Retrieve all menu items
@@ -190,7 +204,7 @@ export class MenuItemService {
           },
         },
       },
-      relations: ['product.catalog', 'product.variants.size'],
+      relations: ['product.catalog', 'product.variants.size', 'promotion'],
     });
     return this.mapper.mapArray(menuItems, MenuItem, MenuItemResponseDto);
   }
@@ -203,7 +217,7 @@ export class MenuItemService {
   async findOne(slug: string): Promise<MenuItemResponseDto> {
     const menuItem = await this.menuItemRepository.findOne({
       where: { slug },
-      relations: ['product.catalog', 'product.variants.size'],
+      relations: ['product.catalog', 'product.variants.size', 'promotion'],
       order: {
         product: {
           variants: {

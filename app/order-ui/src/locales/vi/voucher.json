@@ -19,6 +19,7 @@
     "enterVoucherDescription": "Nhập mô tả voucher",
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
+    "time": "Thời gian",
     "type": "Loại voucher",
     "value": "Giá trị",
     "enterVoucherValue": "Nhập giá trị voucher",
@@ -30,9 +31,11 @@
     "enterMinOrderValue": "Nhập giá trị đơn hàng tối thiểu",
     "enterMaxUsage": "Nhập số lần sử dụng tối đa",
     "remainingUsage": "Số lượng còn lại",
+    "outOfStock": "Đã hết",
     "activeStatus": "Trạng thái",
     "active": "Có hiệu lực",
     "inactive": "Không có hiệu lực",
+    "bestChoice": "Lựa chọn tốt nhất",
 
     "confirmCreateVoucher": "Xác nhận tạo voucher",
 
@@ -51,6 +54,8 @@
     "use": "Sử dụng",
     "remove": "Bỏ chọn",
     "maxApply": "Áp dụng tối đa",
-    "complete": "Hoàn thành"
+    "complete": "Hoàn thành",
+    "minOrderNotMet": "Chưa đạt giá trị tối thiểu",
+    "expired": "Voucher đã hết hạn"
   }
 }

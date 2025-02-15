@@ -130,7 +130,8 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
                         .sort((a, b) => a.price - b.price)
                         .map((variant) => (
                           <SelectItem key={variant.slug} value={variant.slug}>
-                            {variant.size.name.toUpperCase()} - {formatCurrency(variant.price)}
+                            {variant.size.name.toUpperCase()} -{' '}
+                            {product.promotionValue > 0 ? formatCurrency((variant.price) * (1 - (product.promotionValue) / 100)) : formatCurrency(variant.price)}
                           </SelectItem>
                         ))}
                     </SelectContent>

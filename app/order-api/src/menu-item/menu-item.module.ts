@@ -9,14 +9,16 @@ import { Product } from 'src/product/product.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { MenuItemUtils } from './menu-item.utils';
 import { MenuModule } from 'src/menu/menu.module';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MenuItem, Menu, Product, Catalog]),
+    TypeOrmModule.forFeature([MenuItem, Menu, Product, Catalog, Promotion]),
     MenuModule,
   ],
   controllers: [MenuItemController],
-  providers: [MenuItemService, MenuItemProfile, MenuItemUtils],
+  providers: [MenuItemService, MenuItemProfile, MenuItemUtils, PromotionUtils],
   exports: [MenuItemService, MenuItemUtils],
 })
 export class MenuItemModule {}
