@@ -42,21 +42,21 @@ export class ApplicablePromotionService {
     private readonly dataSource: DataSource,
   ) {}
 
-  // async createManyApplicablePromotions(
-  //   createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto
-  // ): Promise<ApplicablePromotionResponseDto[]> {
-  //   const context = `${ApplicablePromotionService.name}.${this.createManyApplicablePromotions.name}`;
+  async createManyApplicablePromotions(
+    createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto
+  ): Promise<ApplicablePromotionResponseDto[]> {
+    const context = `${ApplicablePromotionService.name}.${this.createManyApplicablePromotions.name}`;
 
-  //   const promotion = await this.promotionRepository.findOne({ 
-  //     where: { slug: createManyApplicablePromotionsRequestDto.promotion },
-  //     relations: ['branch']
-  //   });
-  //   if (!promotion) {
-  //     this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
-  //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
-  //   }
-  //   return;
-  // }
+    const promotion = await this.promotionRepository.findOne({ 
+      where: { slug: createManyApplicablePromotionsRequestDto.promotion },
+      relations: ['branch']
+    });
+    if (!promotion) {
+      this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
+      throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+    }
+    return;
+  }
 
   async createApplicablePromotion(
     createApplicablePromotionRequestDto: CreateApplicablePromotionRequestDto
@@ -108,19 +108,13 @@ export class ApplicablePromotionService {
     );
 
     Object.assign(createApplicablePromotionData, { promotion, applicableId: product.id });
-    const newApplicablePromotion = this.applicablePromotionRepository.create(createApplicablePromotionData);
+    // const newApplicablePromotion = this.applicablePromotionRepository.create(createApplicablePromotionData);
 
     const today = new Date();
     today.setHours(7,0,0,0); // start of today
 
     let updateMenuItem = null;
     if(today.getTime() >= (new Date(promotion.startDate)).getTime()) {
-      // updateMenuItem = await this.addPromotionForMenuItem(
-      //   today,
-      //   promotion.branch.id,
-      //   createApplicablePromotionRequestDto.applicableSlug,
-      //   promotion
-      // );
       updateMenuItem = await this.getMenuItemByApplicablePromotion(
         today,
         promotion.branch.id,
@@ -136,7 +130,7 @@ export class ApplicablePromotionService {
     await queryRunner.startTransaction();
 
     try {
-      const createdApplicablePromotion = await queryRunner.manager.save(newApplicablePromotion);
+      const createdApplicablePromotion = await queryRunner.manager.save(createApplicablePromotionData);
       if(updateMenuItem) {
         await queryRunner.manager.save(updateMenuItem);
       }

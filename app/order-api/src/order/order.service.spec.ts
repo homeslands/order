@@ -61,6 +61,7 @@ import { Voucher } from 'src/voucher/voucher.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -172,6 +173,10 @@ describe('OrderService', () => {
         },
         {
           provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ApplicablePromotion),
           useFactory: repositoryMockFactory,
         },
         {

@@ -25,8 +25,8 @@ export class ApplicablePromotionController {
   })
   @ApiOperation({ summary: 'Create new applicable promotion' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  // @Public()
-  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Manager, RoleEnum.Admin)
+  @Public()
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Manager, RoleEnum.Admin)
   async createPromotion(
     @Body(
       new ValidationPipe({

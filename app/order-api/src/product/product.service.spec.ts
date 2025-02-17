@@ -26,6 +26,7 @@ import { CatalogException } from 'src/catalog/catalog.exception';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -58,6 +59,10 @@ describe('ProductService', () => {
         },
         {
           provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ApplicablePromotion),
           useFactory: repositoryMockFactory,
         },
         {

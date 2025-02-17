@@ -12,10 +12,11 @@ import { VariantModule } from 'src/variant/variant.module';
 import { MenuItemModule } from 'src/menu-item/menu-item.module';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderItem, Order, Promotion]),
+    TypeOrmModule.forFeature([OrderItem, Order, Promotion, ApplicablePromotion]),
     DbModule,
     OrderModule,
     VariantModule,

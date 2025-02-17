@@ -20,7 +20,7 @@ import { ApplicablePromotionUtils } from "src/applicable-promotion/applicable-pr
     ApplicablePromotion,
     Product,
     Menu,
-    MenuItem
+    MenuItem,
   ])],
   controllers: [PromotionController],
   providers: [

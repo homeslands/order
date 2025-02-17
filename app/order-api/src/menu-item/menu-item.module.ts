@@ -11,10 +11,11 @@ import { MenuItemUtils } from './menu-item.utils';
 import { MenuModule } from 'src/menu/menu.module';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MenuItem, Menu, Product, Catalog, Promotion]),
+    TypeOrmModule.forFeature([MenuItem, Menu, Product, Catalog, Promotion, ApplicablePromotion]),
     MenuModule,
   ],
   controllers: [MenuItemController],

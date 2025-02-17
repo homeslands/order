@@ -15,7 +15,7 @@ export class PromotionUtils {
   constructor(
     @InjectRepository(Promotion)
     private readonly promotionRepository: Repository<Promotion>,
-    @InjectRepository(Promotion)
+    @InjectRepository(ApplicablePromotion)
     private readonly applicablePromotionRepository: Repository<ApplicablePromotion>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
@@ -54,6 +54,7 @@ export class PromotionUtils {
       },
       relations: ['promotion'],
     });
+
     console.log({ applicablePromotions })
 
     const promotions = await Promise.allSettled(

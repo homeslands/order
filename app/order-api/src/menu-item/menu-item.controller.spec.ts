@@ -12,6 +12,7 @@ import { Product } from 'src/product/product.entity';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 describe('MenuItemController', () => {
   let controller: MenuItemController;
@@ -24,6 +25,10 @@ describe('MenuItemController', () => {
         PromotionUtils,
         {
           provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ApplicablePromotion),
           useFactory: repositoryMockFactory,
         },
         {

@@ -11,6 +11,7 @@ import { FileModule } from 'src/file/file.module';
 import { Size } from 'src/size/size.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -18,7 +19,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
     Variant, 
     Catalog,
     Size,
-    Promotion
+    Promotion, 
+    ApplicablePromotion
   ]), FileModule],
   controllers: [ProductController],
   providers: [

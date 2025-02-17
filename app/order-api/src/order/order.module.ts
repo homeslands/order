@@ -28,6 +28,7 @@ import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
       Menu,
       MenuItem,
       OrderItem,
-      Promotion
+      Promotion,
+      ApplicablePromotion
     ]),
     RobotConnectorModule,
     DbModule,
