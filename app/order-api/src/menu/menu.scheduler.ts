@@ -57,6 +57,9 @@ export class MenuScheduler {
         return !isSame;
       });
     this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
+
+    const date = new Date();
+    date.setHours(7, 0, 0, 0);
     
     console.log({ filteredMenus })
     const newMenus = await Promise.all(
@@ -75,6 +78,7 @@ export class MenuScheduler {
             menu.menuItems.map(async (item: MenuItem) => {
               const promotion: Promotion = 
                 await this.promotionUtils.getPromotionByProductAndBranch(
+                  date,
                   menu.branch.id,
                   item.product.id
                 );

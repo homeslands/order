@@ -60,10 +60,14 @@ export class MenuItemService {
 
       const menu = await this.menuRepository.findOne({
         where: { slug: menuItemDto.menuSlug },
+        relations: ['branch'],
       });
       if (!menu) throw new MenuException(MenuValidation.MENU_NOT_FOUND);
 
+      const date = new Date(menu.date);
+
       const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
+        date,
         menu.branch.id,
         product.id,
       );
@@ -119,7 +123,9 @@ export class MenuItemService {
     if (existedMenuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_EXIST);
 
+    const date = new Date(menu.date);
     const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
+      date,
       menu.branch.id,
       product.id,
     );

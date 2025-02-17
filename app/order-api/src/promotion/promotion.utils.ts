@@ -40,6 +40,7 @@ export class PromotionUtils {
   }
 
   async getPromotionByProductAndBranch(
+    date: Date,
     branchId: string,
     productId: string
   ): Promise<Promotion> {
@@ -55,9 +56,6 @@ export class PromotionUtils {
     });
     console.log({ applicablePromotions })
 
-    const today = new Date();
-    today.setHours(7, 0, 0, 0);
-
     const promotions = await Promise.allSettled(
       applicablePromotions.map(async (applicablePromotion) => {
         const promotion = await this.promotionRepository.findOne({
@@ -66,8 +64,8 @@ export class PromotionUtils {
             branch: {
               id: branchId
             },
-            startDate: LessThanOrEqual(today),
-            endDate: MoreThanOrEqual(today),
+            startDate: LessThanOrEqual(date),
+            endDate: MoreThanOrEqual(date),
           },
         });
         return promotion;
