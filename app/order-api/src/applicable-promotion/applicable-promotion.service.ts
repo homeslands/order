@@ -55,7 +55,68 @@ export class ApplicablePromotionService {
       this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
       throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
     }
-    return;
+
+    const constructApplicablePromotions = await Promise.all(
+      createManyApplicablePromotionsRequestDto.applicableSlugs.map( async (applicableSlug) => {
+        return await this.constructApplicablePromotion(
+          promotion,
+          createManyApplicablePromotionsRequestDto,
+          applicableSlug
+        );
+      })
+    );
+
+    const createApplicablePromotions = constructApplicablePromotions.map(
+      constructApplicablePromotion => constructApplicablePromotion.createManyApplicablePromotionsData
+    );
+    const updateMenuItems = constructApplicablePromotions.map(
+      constructApplicablePromotion => {
+        if(constructApplicablePromotion.updateMenuItem) {
+          return constructApplicablePromotion.updateMenuItem;
+        }
+      }
+    );
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const createdApplicablePromotions = await queryRunner.manager.save(createApplicablePromotions);
+      await queryRunner.manager.save(updateMenuItems);
+      
+      await queryRunner.commitTransaction();
+      this.logger.log(
+        `Revenue ${new Date().toISOString()} created successfully`,
+        context,
+      );
+
+      // const product = await this.productRepository.findOneBy({ id: createdApplicablePromotion.applicableId });
+      // const productDto = this.mapper.map(product, Product, ProductResponseDto);
+          
+      const applicablePromotionDtos = this.mapper.mapArray(
+        createdApplicablePromotions,
+        ApplicablePromotion,
+        ApplicablePromotionResponseDto
+      );
+
+      // Object.assign(applicablePromotionDto, { applicableObject: productDto });
+
+      return applicablePromotionDtos;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        `An error occurred while create many applicable promotions: ${JSON.stringify(error)}`,
+        error.stack,
+        context,
+      );
+      throw new ApplicablePromotionException(
+        ApplicablePromotionValidation.ERROR_WHEN_CREATE_APPLICABLE_PROMOTION,
+        error.message,
+      );
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async createApplicablePromotion(
@@ -108,7 +169,6 @@ export class ApplicablePromotionService {
     );
 
     Object.assign(createApplicablePromotionData, { promotion, applicableId: product.id });
-    // const newApplicablePromotion = this.applicablePromotionRepository.create(createApplicablePromotionData);
 
     const today = new Date();
     today.setHours(7,0,0,0); // start of today
@@ -119,8 +179,7 @@ export class ApplicablePromotionService {
         today,
         promotion.branch.id,
         product.id,
-        promotion.value,
-        promotion.id
+        promotion
       );
       console.log({ updateMenuItem });
     }
@@ -160,12 +219,73 @@ export class ApplicablePromotionService {
         context,
       );
       throw new ApplicablePromotionException(
-        ApplicablePromotionValidation.ERROR_WHEN_DELETE_APPLICABLE_PROMOTION,
+        ApplicablePromotionValidation.ERROR_WHEN_CREATE_APPLICABLE_PROMOTION,
         error.message,
       );
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async constructApplicablePromotion(
+    promotion: Promotion,
+    createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto,
+    productSlug: string
+  ) {
+    const context = `${ApplicablePromotionService.name}.${this.constructApplicablePromotion.name}`;
+
+    const createManyApplicablePromotionsData = this.mapper.map(
+      createManyApplicablePromotionsRequestDto,
+      CreateManyApplicablePromotionsRequestDto,
+      ApplicablePromotion
+    );
+
+    const product = await this.productRepository.findOneBy({
+      slug: productSlug
+    });
+
+    if (!product) {
+      this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+      throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+    }
+
+    const applicablePromotionFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> = {
+      promotion: { id: promotion.id },
+      applicableId: product.id
+    };
+
+    const applicablePromotion = 
+      await this.applicablePromotionRepository.findOne({
+        where: applicablePromotionFindOptionsWhere
+      });
+    
+    if(applicablePromotion) {
+      this.logger.warn(
+        ApplicablePromotionValidation.APPLICABLE_PROMOTION_ALREADY_EXISTED.message,
+        context
+      );
+      throw new ApplicablePromotionException(
+        ApplicablePromotionValidation.APPLICABLE_PROMOTION_ALREADY_EXISTED
+      );
+    }
+
+    Object.assign(createManyApplicablePromotionsData, { promotion, applicableId: product.id });
+
+    const today = new Date();
+    today.setHours(7,0,0,0); // start of today
+
+    let updateMenuItem = null;
+    if(today.getTime() >= (new Date(promotion.startDate)).getTime()) {
+      updateMenuItem = await this.getMenuItemByApplicablePromotion(
+        today,
+        promotion.branch.id,
+        product.id,
+        promotion
+      );
+      console.log({ updateMenuItem });
+    }
+
+    return { createManyApplicablePromotionsData, updateMenuItem };
   }
 
   async deleteApplicablePromotion(
@@ -195,16 +315,10 @@ export class ApplicablePromotionService {
     const today = new Date();
     today.setHours(7,0,0,0);
 
-    // const menuItem = await this.removePromotionInMenuItem(
-    //   promotion.branch.id,
-    //   applicablePromotion.applicableId
-    // );
-
     const menuItem = await this.getMenuItemByApplicablePromotion(
       today,
       promotion.branch.id,
       applicablePromotion.applicableId,
-      0,
       null
     );
 
@@ -244,8 +358,7 @@ export class ApplicablePromotionService {
     date: Date,
     branchId: string,
     productId: string,
-    updateValue: number,
-    updatePromotionId: string
+    promotion: Promotion
   ): Promise<MenuItem> {
     const context = `${ApplicablePromotionService.name}.${this.getMenuItemByApplicablePromotion.name}`;
 
@@ -269,10 +382,7 @@ export class ApplicablePromotionService {
       console.log({ menuItem: menuItem });
       if(!menuItem) return null;
   
-      Object.assign(menuItem, {
-        promotionValue: updateValue,
-        promotionId: updatePromotionId
-      });
+      Object.assign(menuItem, { promotion });
   
       return menuItem;
     } catch (error) {

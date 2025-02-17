@@ -29,8 +29,8 @@ export class PromotionController {
       required: true,
       example: 'branch-slug',
     })
-  // @Public()
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @Public()
+  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async createPromotion(
     @Param('branchSlug') branchSlug: string,
     @Body(

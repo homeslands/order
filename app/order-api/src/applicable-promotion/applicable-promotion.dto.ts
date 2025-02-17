@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, ValidateNested } from "class-validator";
 import { AutoMap } from "@automapper/classes";
 import { PromotionResponseDto } from "src/promotion/promotion.dto";
 import { ApplicablePromotionType } from "./applicable-promotion.constant";
@@ -54,7 +54,7 @@ export class CreateManyApplicablePromotionsRequestDto {
   })
   @IsArray({ message: 'The slug array of the applicable object must be an array' })
   @ArrayNotEmpty({ message: 'The slug array of the applicable object is not empty' })
-  @ValidateNested({ each: true })
+  @IsString({ each: true, message: 'Each slug in the array must be a string' })
   @Type(() => String)
   applicableSlugs: string[];
 

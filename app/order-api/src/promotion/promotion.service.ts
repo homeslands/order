@@ -315,8 +315,7 @@ export class PromotionService {
             date,
             promotion.branch.id,
             applicablePromotion.applicableId,
-            updateValue,
-            promotion.id
+            promotion
           );
         })
       );
