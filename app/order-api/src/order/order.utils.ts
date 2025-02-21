@@ -29,6 +29,7 @@ export class OrderUtils {
         'invoice.invoiceItems',
         'table',
         'voucher',
+        'branch',
       ],
       ...options,
     });

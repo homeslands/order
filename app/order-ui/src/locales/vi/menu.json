@@ -82,6 +82,10 @@
     "updateMenuItem": "Cập nhật món",
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
 
+    "deleteMenu": "Xóa thực đơn",
+    "deleteMenuWarning1": "Bạn sắp sửa xóa thực đơn ngày ",
+    "deleteMenuConfirmation": "Bạn có chắc muốn xóa thực đơn này không?",
+
     "deleteMenuItem": "Xóa món",
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",

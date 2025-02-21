@@ -15,7 +15,7 @@ export class OrderItemUtils {
 
   async getOrderItem(options: FindOneOptions<OrderItem>): Promise<OrderItem> {
     const orderItem = await this.orderItemRepository.findOne({
-      relations: ['order', 'variant.product', 'variant.size'],
+      relations: ['order.branch', 'variant.product', 'variant.size'],
       ...options,
     });
     if (!orderItem) {
@@ -31,7 +31,7 @@ export class OrderItemUtils {
     let discount = 0;
     if(promotion) {
       const percentPromotion = promotion.value;
-      discount = orderItem.quantity * orderItem.variant.price * percentPromotion/100;
+      discount = (orderItem.quantity * orderItem.variant.price * percentPromotion)/100;
     }
     const subtotal = orderItem.quantity * orderItem.variant.price;
     return subtotal - discount;

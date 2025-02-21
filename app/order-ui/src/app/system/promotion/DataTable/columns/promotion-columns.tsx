@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IPromotion } from '@/types'
-import { ApplyPromotionSheet, UpdatePromotionSheet } from '@/components/app/sheet'
+import { ApplyPromotionSheet, RemoveAppliedPromotionSheet, UpdatePromotionSheet } from '@/components/app/sheet'
 import { DeletePromotionDialog } from '@/components/app/dialog'
 
 export const usePromotionColumns = (): ColumnDef<IPromotion>[] => {
@@ -81,7 +81,7 @@ export const usePromotionColumns = (): ColumnDef<IPromotion>[] => {
       cell: ({ row }) => {
         const promotion = row.original
         return <div>
-          <div className="text-xs sm:text-sm">{promotion.value}%</div>
+          <div className="text-xs sm:text-sm">{promotion?.value}%</div>
         </div>
       },
     },
@@ -105,6 +105,7 @@ export const usePromotionColumns = (): ColumnDef<IPromotion>[] => {
                 </DropdownMenuLabel>
                 <UpdatePromotionSheet promotion={promotion} />
                 <ApplyPromotionSheet promotion={promotion} />
+                <RemoveAppliedPromotionSheet promotion={promotion} />
                 <DeletePromotionDialog promotion={promotion} />
               </DropdownMenuContent>
             </DropdownMenu>

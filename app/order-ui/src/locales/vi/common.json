@@ -33,6 +33,10 @@
     "previous": "Trước",
     "next": "Sau",
     "search": "Tìm kiếm",
+    "selected": "Đã chọn",
+    "asc": "Tăng dần",
+    "desc": "Giảm dần",
+    "hide": "Ẩn",
 
     "filter": "Lọc",
     "all": "Tất cả",

@@ -300,16 +300,16 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.asc')}
+            {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.desc')}
+            {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.hide')}
+            {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -354,16 +354,16 @@ export function DataTableColumnAddressHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.asc')}
+            {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.desc')}
+            {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.hide')}
+            {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -408,16 +408,16 @@ export function DataTableColumnActionHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.asc')}
+            {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.desc')}
+            {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
             <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
-            {t('tablePaging.hide')}
+            {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

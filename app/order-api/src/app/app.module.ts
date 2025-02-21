@@ -51,6 +51,7 @@ import { ProductAnalysisModule } from 'src/product-analysis/product-analysis.mod
 import { PromotionModule } from 'src/promotion/promotion.module';
 import { ApplicablePromotionModule } from 'src/applicable-promotion/applicable-promotion.module';
 import { VoucherModule } from 'src/voucher/voucher.module';
+import { BannerModule } from 'src/banner/banner.module';
 
 @Module({
   imports: [
@@ -118,6 +119,7 @@ import { VoucherModule } from 'src/voucher/voucher.module';
     PromotionModule,
     ApplicablePromotionModule,
     VoucherModule,
+    BannerModule
   ],
   controllers: [AppController],
   providers: [

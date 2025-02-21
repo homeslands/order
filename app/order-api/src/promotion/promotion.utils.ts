@@ -55,8 +55,6 @@ export class PromotionUtils {
       relations: ['promotion'],
     });
 
-    console.log({ applicablePromotions })
-
     const promotions = await Promise.allSettled(
       applicablePromotions.map(async (applicablePromotion) => {
         const promotion = await this.promotionRepository.findOne({
@@ -73,15 +71,12 @@ export class PromotionUtils {
       }),
     );
 
-    console.log({ promotions })
     const successfulPromotions = promotions
       .filter(p => p.status === "fulfilled")
       .map(p => p.value);
 
     const successfulPromotionsNotNull = successfulPromotions.filter(p => p !== null);
     if(_.isEmpty(successfulPromotionsNotNull)) return null;
-
-    console.log({ successfulPromotionsNotNull })
 
     const maxPromotion = successfulPromotionsNotNull.reduce(
       (max, obj) => (obj.value > max.value ? obj : max), 

@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react'
+import { StrictMode } from 'react'
 import { AxiosError, isAxiosError } from 'axios'
 import { RouterProvider } from 'react-router-dom'
 import {
@@ -14,7 +14,7 @@ import '@/i18n'
 import { IApiErrorResponse, IApiResponse } from '@/types'
 import { showErrorToast } from '@/utils'
 import { ThemeProvider } from '@/components/app/theme-provider'
-import { setupAutoClearCart } from '@/utils/cart'
+// import { setupAutoClearCart } from '@/utils/cart'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -45,9 +45,9 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-  useEffect(() => {
-    setupAutoClearCart()
-  }, [])
+  // useEffect(() => {
+  //   setupAutoClearCart()
+  // }, [])
   return (
     <StrictMode>
       <ThemeProvider defaultTheme="light" storageKey="my-app-theme">

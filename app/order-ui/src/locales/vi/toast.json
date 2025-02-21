@@ -110,7 +110,7 @@
     "updatePromotionSuccess": "Cập nhật khuyến mãi thành công",
     "deletePromotionSuccess": "Xóa khuyến mãi thành công",
     "applyPromotionSuccess": "Áp dụng khuyến mãi thành công",
-    "removePromotionSuccess": "Hủy khuyến mãi thành công",
+    "removeAppliedPromotionSuccess": "Hủy khuyến mãi thành công",
 
     "applyVoucherSuccess": "Áp dụng voucher thành công",
     "removeVoucherSuccess": "Hủy voucher thành công",

@@ -60,7 +60,6 @@ export class ProductService {
       where: { slug },
       relations: ['catalog', 'variants.size'],
     });
-    console.log({ product });
     if (!product) {
       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
     }
@@ -249,6 +248,18 @@ export class ProductService {
       products = products.filter((item) => !exceptedProductIds.includes(item.id));
     }
 
+    if(query.expectedPromotion) {
+      const where: FindOptionsWhere<Promotion> = {
+        slug: query.expectedPromotion,
+      };
+      const promotion = await this.promotionUtils.getPromotion(
+        where,
+        ['applicablePromotions']
+      );
+      const expectedProductIds = promotion.applicablePromotions.map((item) => item.applicableId);
+      products = products.filter((item) => expectedProductIds.includes(item.id));
+    }
+
     const productsDto = this.mapper.mapArray(
       products,
       Product,
@@ -354,7 +365,6 @@ export class ProductService {
       const worksheet = workbook.getWorksheet(1);
 
       const validationData = this.validateDataFromExcel(worksheet);
-      console.log({validationData});
       if(!_.isEmpty(validationData.errors)) {
         const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
         const ws = reader.utils.json_to_sheet(formattedErrors);
@@ -400,8 +410,6 @@ export class ProductService {
             description: productData[3],
             catalog
           });
-          console.log({productData})
-          console.log({newProduct})
 
           const createdProduct = await queryRunner.manager.save(newProduct);
 
@@ -518,8 +526,6 @@ export class ProductService {
     const headerRow = worksheet.getRow(1);
 
     const headerRowValues = headerRow.values;
-    console.log({headerRowValues})
-    console.log({headerRowValues: typeof(headerRowValues)})
 
     if(JSON.stringify(headerRowValidation) !== JSON.stringify(headerRowValues)) {
       this.logger.warn(FileValidation.EXCEL_FILE_WRONG_HEADER.message, context);

@@ -19,7 +19,10 @@ export class ApplicablePromotionUtils {
   ): Promise<ApplicablePromotion> {
     const context = `${ApplicablePromotionUtils.name}.${this.getApplicablePromotion.name}`;
 
-    const applicablePromotion = await this.applicablePromotionRepository.findOne({ where });
+    const applicablePromotion = await this.applicablePromotionRepository.findOne({ 
+      where,
+      relations: ['promotion'],
+    });
     if (!applicablePromotion) {
       this.logger.warn(
         ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND.message, 

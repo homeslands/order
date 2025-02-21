@@ -230,7 +230,6 @@ export class PromotionService {
         const updatedMenuItems = this.getAllMenuItemsByPromotion(
           date,
           promotion,
-          updateValue
         );
 
         await queryRunner.manager.save(updatedMenuItems);
@@ -272,15 +271,26 @@ export class PromotionService {
       where: { slug },
       relations: [
         'applicablePromotions',
-        'branch'
+        'branch',
+        'orderItems',
+        'menuItems'
       ]
      });
+
     if(!promotion) {
       this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
       throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
     }
 
     if(!_.isEmpty(promotion.applicablePromotions)) {
+      this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
+      throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
+    }
+    if(!_.isEmpty(promotion.orderItems)) {
+      this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
+      throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
+    }
+    if(!_.isEmpty(promotion.menuItems)) {
       this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
       throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
     }
@@ -297,7 +307,6 @@ export class PromotionService {
   async getAllMenuItemsByPromotion(
     date: Date,
     promotion: Promotion,
-    updateValue: number
   ): Promise<MenuItem[]> {
     const context = `${PromotionService.name}.${this.getAllMenuItemsByPromotion.name}`;
 

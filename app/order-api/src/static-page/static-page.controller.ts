@@ -110,30 +110,30 @@ export class StaticPageController {
       } as AppResponseDto<StaticPageResponseDto>;
     }
 
-    @Delete(':slug')
-    @Public()
-    @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
-    @HttpCode(HttpStatus.OK)
-    @ApiResponseWithType({
-      status: HttpStatus.OK,
-      description: 'Static page deleted successfully',
-      type: String,
-    })
-    @ApiOperation({ summary: 'Delete a static page by slug' })
-    @ApiResponse({ status: 500, description: 'Internal Server Error' })
-    @ApiParam({ 
-      name: 'slug', 
-      type: 'string', 
-      required: true, 
-      example: 'about-us-slug' 
-    })
-    async remove(@Param('slug') slug: string) {
-      const result = await this.staticPageService.remove(slug);
-      return {
-        message: 'Static page have been deleted successfully',
-        statusCode: HttpStatus.OK,
-        timestamp: new Date().toISOString(),
-        result,
-      } as AppResponseDto<StaticPageResponseDto>;
-    }
+    // @Delete(':slug')
+    // @Public()
+    // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+    // @HttpCode(HttpStatus.OK)
+    // @ApiResponseWithType({
+    //   status: HttpStatus.OK,
+    //   description: 'Static page deleted successfully',
+    //   type: String,
+    // })
+    // @ApiOperation({ summary: 'Delete a static page by slug' })
+    // @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    // @ApiParam({ 
+    //   name: 'slug', 
+    //   type: 'string', 
+    //   required: true, 
+    //   example: 'about-us-slug' 
+    // })
+    // async remove(@Param('slug') slug: string) {
+    //   const result = await this.staticPageService.remove(slug);
+    //   return {
+    //     message: 'Static page have been deleted successfully',
+    //     statusCode: HttpStatus.OK,
+    //     timestamp: new Date().toISOString(),
+    //     result,
+    //   } as AppResponseDto<StaticPageResponseDto>;
+    // }
   }

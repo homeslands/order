@@ -32,6 +32,10 @@
     "applyPromotion": "Áp dụng khuyến mãi",
     "confirmApplyPromotion": "Xác nhận áp dụng khuyến mãi. Lưu ý: Sau khi áp dụng, khuyến mãi sẽ không thể chỉnh sửa giá trị.",
     "apply": "Áp dụng",
-    "applyFromToday": "Áp dụng từ hôm nay"
+    "applyFromToday": "Áp dụng từ hôm nay",
+
+    "removeAppliedPromotion": "Bỏ chọn khuyến mãi",
+    "confirmRemoveAppliedPromotion": "Xác nhận bỏ chọn khuyến mãi",
+    "remove": "Bỏ chọn"
   }
 }

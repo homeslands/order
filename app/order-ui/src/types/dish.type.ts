@@ -65,6 +65,7 @@ export interface IOrderItem {
   price: number
   description: string
   isLimit: boolean
+  promotion?: string // promotion slug
   // catalog: ICatalog
   note?: string
 }
@@ -214,6 +215,7 @@ export interface IAddNewOrderItemRequest {
   quantity: number
   variant: string
   note: string
+  promotion: string
   order: string
 }
 

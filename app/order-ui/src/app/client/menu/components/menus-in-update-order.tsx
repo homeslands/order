@@ -111,7 +111,7 @@ export function MenusInUpdateOrder({ onAddNewOrderItemSuccess, menu, isLoading }
             </div>
             {item.currentStock > 0 ? (
               <div className="flex items-end justify-center w-full">
-                <UpdateOrderItemDialog onAddNewOrderItemSuccess={onAddNewOrderItemSuccess} product={item.product} />
+                <UpdateOrderItemDialog onAddNewOrderItemSuccess={onAddNewOrderItemSuccess} product={item} />
               </div>
             ) : (
               <Button

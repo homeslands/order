@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ApplicablePromotion } from "./applicable-promotion.entity";
-import { DataSource, FindOptionsWhere, Repository } from "typeorm";
+import { DataSource, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
 import { Promotion } from "src/promotion/promotion.entity";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto, CreateManyApplicablePromotionsRequestDto } from "./applicable-promotion.dto";
@@ -21,6 +21,7 @@ import { MenuItem } from "src/menu-item/menu-item.entity";
 import { TransactionManagerService } from "src/db/transaction-manager.service";
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { ProductResponseDto } from "src/product/product.dto";
+import * as _ from 'lodash';
 
 @Injectable()
 export class ApplicablePromotionService {
@@ -181,7 +182,6 @@ export class ApplicablePromotionService {
         product.id,
         promotion
       );
-      console.log({ updateMenuItem });
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -282,7 +282,6 @@ export class ApplicablePromotionService {
         product.id,
         promotion
       );
-      console.log({ updateMenuItem });
     }
 
     return { createManyApplicablePromotionsData, updateMenuItem };
@@ -315,11 +314,11 @@ export class ApplicablePromotionService {
     const today = new Date();
     today.setHours(7,0,0,0);
 
-    const menuItem = await this.getMenuItemByApplicablePromotion(
+    const menuItem = await this.getMenuItemByApplicablePromotionWhenDelete(
       today,
       promotion.branch.id,
       applicablePromotion.applicableId,
-      null
+      applicablePromotion
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -370,7 +369,6 @@ export class ApplicablePromotionService {
         },
         relations: ['menuItems.product'],
       });
-      console.log({ menu: menu });
       if(!menu) return null;
   
       const menuItem = await this.menuItemRepository.findOne({
@@ -379,11 +377,93 @@ export class ApplicablePromotionService {
           product: { id: productId }
         }
       });
-      console.log({ menuItem: menuItem });
       if(!menuItem) return null;
   
       Object.assign(menuItem, { promotion });
   
+      return menuItem;
+    } catch (error) {
+      this.logger.error(
+        `An error occurred while get menu item by applicable promotion: ${JSON.stringify(error)}`,
+        error.stack,
+        context,
+      );
+      throw new ApplicablePromotionException(
+        ApplicablePromotionValidation.ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION,
+      );
+    }
+  }
+
+  async getMenuItemByApplicablePromotionWhenDelete(
+    date: Date,
+    branchId: string,
+    productId: string,
+    deletedApplicablePromotion: ApplicablePromotion
+  ): Promise<MenuItem> {
+    const context = `${ApplicablePromotionService.name}.${this.getMenuItemByApplicablePromotionWhenDelete.name}`;
+
+    try {
+      const menu = await this.menuRepository.findOne({
+        where: {
+          branch: { id: branchId },
+          date
+        },
+        relations: ['menuItems.product'],
+      });
+      if(!menu) return null;
+  
+      const menuItem = await this.menuItemRepository.findOne({
+        where: {
+          menu: { id: menu.id },
+          product: { id: productId }
+        }
+      });
+      if(!menuItem) return null;
+
+      // The case: delete applicable promotion
+      // - Delete current promotion
+      // - Find other promotion if have
+      // - If not found, set promotion to null
+      const applicablePromotions = await this.applicablePromotionRepository.find({
+        where: {
+          type: ApplicablePromotionType.PRODUCT, 
+          applicableId: productId
+        },
+        relations: ['promotion'],
+      });
+      
+      const promotions = await Promise.allSettled(
+        applicablePromotions.map(async (applicablePromotion) => {
+          const promotion = await this.promotionRepository.findOne({
+            where: { 
+              id: applicablePromotion.promotion.id,
+              branch: {
+                id: branchId
+              },
+              startDate: LessThanOrEqual(date),
+              endDate: MoreThanOrEqual(date),
+            },
+          });
+          return promotion;
+        }),
+      );
+
+      const successfulPromotions = promotions
+        .filter(p => p.status === "fulfilled")
+        .map(p => p.value);
+  
+      const successfulPromotionsNotNull = successfulPromotions.filter(
+        p => p !== null && p.id !== deletedApplicablePromotion.promotion.id
+      );
+
+      if(_.isEmpty(successfulPromotionsNotNull)) return null;
+
+      const maxPromotion = successfulPromotionsNotNull.reduce(
+        (max, obj) => (obj.value > max.value ? obj : max), 
+        _.first(successfulPromotionsNotNull)
+      );
+      
+      Object.assign(menuItem, { promotion: maxPromotion });
       return menuItem;
     } catch (error) {
       this.logger.error(

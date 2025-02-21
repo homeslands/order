@@ -58,6 +58,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
         variant: orderItem.variant,
+        promotion: orderItem.promotion || '',
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,

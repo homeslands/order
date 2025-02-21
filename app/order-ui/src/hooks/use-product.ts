@@ -27,10 +27,10 @@ import {
 } from '@/types'
 import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
 
-export const useProducts = () => {
+export const useProducts = (exceptedPromotion?: string) => {
   return useQuery({
     queryKey: ['products'],
-    queryFn: () => getAllProducts(),
+    queryFn: () => getAllProducts(exceptedPromotion ? exceptedPromotion : ''),
     placeholderData: keepPreviousData,
   })
 }

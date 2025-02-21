@@ -1,6 +1,7 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
 import { ApplicablePromotionValidation } from 'src/applicable-promotion/applicable-promotion.validation';
 import { AuthValidation } from 'src/auth/auth.validation';
+import BannerValidation from 'src/banner/banner.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
@@ -72,6 +73,7 @@ export const AppValidation: TErrorCode = {
   ...PromotionValidation,
   ...ApplicablePromotionValidation,
   ...VoucherValidation,
+  ...BannerValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

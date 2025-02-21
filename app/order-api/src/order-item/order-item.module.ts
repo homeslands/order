@@ -13,17 +13,19 @@ import { MenuItemModule } from 'src/menu-item/menu-item.module';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderItem, Order, Promotion, ApplicablePromotion]),
+    TypeOrmModule.forFeature([OrderItem, Order, Promotion, ApplicablePromotion, Menu]),
     DbModule,
     OrderModule,
     VariantModule,
     MenuItemModule,
   ],
   controllers: [OrderItemController],
-  providers: [OrderItemService, OrderItemProfile, OrderItemUtils, PromotionUtils],
+  providers: [OrderItemService, OrderItemProfile, OrderItemUtils, PromotionUtils, MenuUtils],
   exports: [OrderItemService, OrderItemUtils],
 })
 export class OrderItemModule {}

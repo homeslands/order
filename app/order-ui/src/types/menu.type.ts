@@ -1,5 +1,6 @@
 import { IBase } from './base.type'
 import { IProduct } from './product.type'
+import { IPromotion } from './promotion.type'
 
 export interface IMenu extends IBase {
   date: string
@@ -22,6 +23,7 @@ export interface FilterState {
 export interface ICreateMenuRequest {
   date: string
   branchSlug: string
+  isTemplate: boolean
 }
 
 export interface IAllMenuRequest {
@@ -57,7 +59,7 @@ export interface ISpecificMenu extends IBase {
 export interface IMenuItem extends IBase {
   currentStock: number
   defaultStock: number
-  promotionValue: number
+  promotion: IPromotion
   product: IProduct
 }
 

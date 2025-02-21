@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 
-import { useUserStore } from '@/stores'
+import { useBranchStore } from '@/stores'
 import { useSpecificMenu } from '@/hooks'
 import { SkeletonMenuList } from '../skeleton'
 import { ClientMenuItemIUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
@@ -11,14 +11,14 @@ interface ClientMenuTabscontentProps {
 }
 
 export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps) {
-  const { userInfo } = useUserStore()
+  const { branch } = useBranchStore()
   const { t } = useTranslation('menu')
   function getCurrentDate() {
     return moment().format('YYYY-MM-DD')
   }
   const { data: specificMenu, isLoading } = useSpecificMenu({
     date: getCurrentDate(),
-    branch: userInfo?.branch.slug || '',
+    branch: branch ? branch?.slug : '',
   })
 
   if (isLoading) {

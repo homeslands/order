@@ -47,7 +47,7 @@ export async function ApplyPromotion(
   data: IApplyPromotionRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
-    `/applicable-promotion`,
+    `/applicable-promotion/multi`,
     data,
   )
   return response.data

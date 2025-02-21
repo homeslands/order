@@ -146,7 +146,7 @@ export default function AddToCartDialog({
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>
                           {variant.size.name.toUpperCase()} -{' '}
-                          {product.promotionValue > 0 ? formatCurrency((variant.price) * (1 - (product.promotionValue) / 100)) : formatCurrency(variant.price)}
+                          {product?.promotion?.value > 0 ? formatCurrency((variant.price) * (1 - (product?.promotion?.value) / 100)) : formatCurrency(variant.price)}
                         </SelectItem>
                       ))}
                   </SelectContent>

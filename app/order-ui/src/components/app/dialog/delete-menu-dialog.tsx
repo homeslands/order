@@ -14,30 +14,32 @@ import {
   DialogTrigger,
 } from '@/components/ui'
 
-import { IPromotion } from '@/types'
+import { IMenu } from '@/types'
 
-import { useDeletePromotion } from '@/hooks'
+import { useDeleteMenu } from '@/hooks'
 import { showToast } from '@/utils'
-import { QUERYKEY } from '@/constants'
-import { useUserStore } from '@/stores'
+import moment from 'moment'
 
-export default function DeletePromotionDialog({ promotion }: { promotion: IPromotion }) {
+export default function DeleteMenuDialog({
+  menu,
+}: {
+  menu: IMenu
+}) {
   const queryClient = useQueryClient()
-  const { t } = useTranslation(['promotion'])
+  const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
-  const { userInfo } = useUserStore()
-  const { mutate: deletePromotion } = useDeletePromotion()
+  const { mutate: deleteMenu } = useDeleteMenu()
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleSubmit = (promotionSlug: string) => {
-    deletePromotion(promotionSlug, {
+  const handleSubmit = (menuSlug: string) => {
+    deleteMenu(menuSlug, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [QUERYKEY.promotions, userInfo?.branch.slug],
+          queryKey: ['menus'],
         })
         setIsOpen(false)
-        showToast(tToast('toast.deletePromotionSuccess'))
+        showToast(tToast('toast.deleteMenuSuccess'))
       },
     })
   }
@@ -47,12 +49,14 @@ export default function DeletePromotionDialog({ promotion }: { promotion: IPromo
       <DialogTrigger className="flex justify-start w-full" asChild>
         <DialogTrigger asChild>
           <Button
-            variant="ghost"
-            className="gap-1 px-2 text-sm text-destructive bg-destructive/10"
+            variant='ghost'
+            className="gap-1 px-2 text-sm bg-destructive/10 hover:bg-destructive/15 hover:text-destructive text-destructive"
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />
-            {t('promotion.delete')}
+            <span>
+              {t('menu.delete')}
+            </span>
           </Button>
         </DialogTrigger>
       </DialogTrigger>
@@ -62,7 +66,7 @@ export default function DeletePromotionDialog({ promotion }: { promotion: IPromo
           <DialogTitle className="pb-4 border-b border-destructive text-destructive">
             <div className="flex items-center gap-2">
               <TriangleAlert className="w-6 h-6" />
-              {t('promotion.delete')}
+              {t('menu.delete')}
             </div>
           </DialogTitle>
           <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
@@ -70,10 +74,10 @@ export default function DeletePromotionDialog({ promotion }: { promotion: IPromo
           </DialogDescription>
 
           <div className="py-4 text-sm text-muted-foreground">
-            {t('promotion.deletePromotionWarning1')}{' '}
-            <span className="font-bold">{promotion?.title}</span> <br />
+            {t('menu.deleteMenuWarning1')}{' '}
+            <span className="font-bold">{moment(menu?.createdAt).format('DD/MM/YYYY')}</span>
             <br />
-            {t('promotion.deletePromotionConfirmation')}
+            {t('menu.deleteMenuConfirmation')}
           </div>
         </DialogHeader>
         <DialogFooter className="flex flex-row justify-center gap-2">
@@ -82,7 +86,7 @@ export default function DeletePromotionDialog({ promotion }: { promotion: IPromo
           </Button>
           <Button
             variant="destructive"
-            onClick={() => promotion && handleSubmit(promotion.slug || '')}
+            onClick={() => menu && handleSubmit(menu.slug || '')}
           >
             {tCommon('common.confirmDelete')}
           </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PenLine } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 import {
   Sheet,
@@ -12,10 +12,9 @@ import {
   ScrollArea,
   SheetFooter,
   DataTable,
-  Label,
   Switch,
 } from '@/components/ui'
-import { ConfirmApplyPromotionDialog } from '@/components/app/dialog'
+import { RemoveAppliedPromotionDialog } from '@/components/app/dialog'
 import { IApplyPromotionRequest, IProduct, IPromotion } from '@/types'
 import { useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
@@ -24,7 +23,7 @@ interface IApplyPromotionSheetProps {
   promotion: IPromotion
 }
 
-export default function ApplyPromotionSheet({
+export default function RemoveAppliedPromotionSheet({
   promotion,
 }: IApplyPromotionSheetProps) {
   const { t } = useTranslation(['promotion'])
@@ -32,11 +31,12 @@ export default function ApplyPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts(promotion.slug)
+  const { data: products, isLoading } = useProducts()
   const [isApplyFromToday, setIsApplyFromToday] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   const productsData = products?.result
+  console.log('productsData', productsData)
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -68,17 +68,17 @@ export default function ApplyPromotionSheet({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="justify-start w-full gap-1 px-2"
+          className="justify-start w-full gap-1 px-2 bg-destructive/10 text-destructive"
           onClick={handleClick}
         >
-          <PenLine className="icon" />
-          {t('promotion.applyPromotion')}
+          <Trash2 className="icon" />
+          {t('promotion.removeAppliedPromotion')}
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
-            {t('promotion.applyPromotion')}
+            {t('promotion.removeAppliedPromotion')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
@@ -106,14 +106,11 @@ export default function ApplyPromotionSheet({
                   checked={isApplyFromToday}
                   onCheckedChange={setIsApplyFromToday}
                 />
-                <Label htmlFor="is-applied-from-today">
-                  {t('promotion.applyFromToday')}
-                </Label>
               </div>
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <ConfirmApplyPromotionDialog
+            <RemoveAppliedPromotionDialog
               disabled={
                 !applyPromotionRequest || !applyPromotionRequest.applicableSlugs
               }

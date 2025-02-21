@@ -47,8 +47,7 @@ export class MenuScheduler {
 
     // Get all template menus base on list of branches
     const templateMenus = await this.getTemplateMenus(branches, dayIndex);
-    console.log({ templateMenus });
-    console.log({ dayIndex });
+
     const filteredMenus = templateMenus
       .filter((menu) => menu !== null)
       .filter((menu) => {
@@ -61,7 +60,6 @@ export class MenuScheduler {
     const date = new Date();
     date.setHours(7, 0, 0, 0);
     
-    console.log({ filteredMenus })
     const newMenus = await Promise.all(
       filteredMenus.map(async (menu) => {
         const newMenu = _.cloneDeep(menu);
@@ -82,15 +80,12 @@ export class MenuScheduler {
                   menu.branch.id,
                   item.product.id
                 );
-              console.log({ promotion });
               const newItem = _.cloneDeep(item);
               newItem.id = undefined;
               newItem.slug = undefined;
               newItem.createdAt = undefined;
               newItem.updatedAt = undefined;
               newItem.deletedAt = undefined;
-              // newItem.promotionValue = promotion?.value || 0;
-              // newItem.promotionId = promotion?.id || null;
               newItem.promotion = promotion;
               newItem.currentStock = newItem.defaultStock;
               newItem.product = newItem.product;
@@ -101,28 +96,6 @@ export class MenuScheduler {
         return newMenu;
       })
     )
-    // const newMenus = filteredMenus.map((menu) => {
-    //   const newMenu = _.cloneDeep(menu);
-    //   Object.assign(newMenu, {
-    //     date: today,
-    //     isTemplate: false,
-    //     id: undefined,
-    //     slug: undefined,
-    //     branch: menu.branch,
-    //     menuItems: menu.menuItems.map((item: MenuItem) => {
-    //       // const promotion: Promotion = await this.getPromotionFromMenuItem(item);
-    //       const newItem = _.cloneDeep(item);
-    //       newItem.id = undefined;
-    //       newItem.slug = undefined;
-    //       newItem.currentStock = newItem.defaultStock;
-    //       newItem.product = newItem.product;
-    //       return newItem;
-    //     }),
-    //   });
-    //   return newMenu;
-    // });
-
-    console.log({ newMenus })
 
     this.menuRepository.manager.transaction(async (manager) => {
       try {

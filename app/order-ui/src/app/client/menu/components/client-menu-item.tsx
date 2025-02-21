@@ -70,14 +70,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               {item.product.variants.length > 0 ? (
                 <div className="flex flex-col items-start justify-start gap-1">
                   <div className='flex flex-row items-center gap-1'>
-                    {item.promotionValue > 0 ? (
+                    {item?.promotion && item?.promotion?.value > 0 ? (
                       <div className='flex flex-col items-start justify-start gap-1 mt-2'>
                         <span className="text-sm sm:text-lg text-primary">
                           {(() => {
                             const range = getPriceRange(item.product.variants)
                             if (!range) return formatCurrency(0)
                             return range.isSinglePrice
-                              ? `${formatCurrency((range.min) * (1 - item.promotionValue / 100))}` : `${formatCurrency(range.min * (1 - item.promotionValue / 100))}`
+                              ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                           })()}
                         </span>
                         <div className='flex flex-row items-center gap-3'>
@@ -89,9 +89,9 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                                 ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
                             })()}
                           </span>
-                          {item.promotionValue > 0 && (
+                          {item?.promotion?.value > 0 && (
                             <Badge className="text-xs bg-destructive hover:bg-destructive">
-                              {t('menu.discount')} {item.promotionValue}%
+                              {t('menu.discount')} {item?.promotion?.value}%
                             </Badge>
                           )}
                         </div>

@@ -54,7 +54,7 @@ export const useApplyPromotion = () => {
   })
 }
 
-export const useRemoveProductPromotion = () => {
+export const useRemoveAppliedPromotion = () => {
   return useMutation({
     mutationFn: async (applicablePromotionSlug: string) => {
       return RemoveProductPromotion(applicablePromotionSlug)
