@@ -2,14 +2,16 @@ import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
 import { DataTable } from '@/components/ui'
-import { useVoucherColumns } from './DataTable/columns'
-import { usePagination, useVouchers } from '@/hooks'
-import { EmployeesAction } from './DataTable/actions'
+import { usePromotionColumns } from './DataTable/columns'
+import { usePagination, usePromotions } from '@/hooks'
+import { PromotionAction } from './DataTable/actions'
+import { useUserStore } from '@/stores'
 
 export default function PromotionPage() {
     const { t } = useTranslation(['promotion'])
     const { handlePageChange, handlePageSizeChange } = usePagination()
-    const { data, isLoading } = useVouchers()
+    const { userInfo } = useUserStore()
+    const { data, isLoading } = usePromotions(userInfo?.branch.slug || '')
 
     return (
         <div>
@@ -21,13 +23,13 @@ export default function PromotionPage() {
                     </span>
                     <div className="grid h-full grid-cols-1 gap-2 mt-4">
                         <DataTable
-                            columns={useVoucherColumns()}
+                            columns={usePromotionColumns()}
                             data={data?.result || []}
                             isLoading={isLoading}
                             pages={1}
                             hiddenInput={false}
                             // filterOptions={EmployeeFilterOptions}
-                            actionOptions={EmployeesAction}
+                            actionOptions={PromotionAction}
                             onPageChange={handlePageChange}
                             onPageSizeChange={handlePageSizeChange}
                         />

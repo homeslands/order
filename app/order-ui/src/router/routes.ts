@@ -12,6 +12,7 @@ import {
   Phone,
   ShoppingBag,
   Store,
+  Tag,
   Ticket,
   Users,
 } from 'lucide-react'
@@ -128,6 +129,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.ADMIN_VOUCHER,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Ticket,
+  },
+  {
+    title: 'sidebar.promotion',
+    path: ROUTE.ADMIN_PROMOTION,
+    roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    icon: Tag,
   },
   {
     title: 'sidebar.docs',

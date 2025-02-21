@@ -168,7 +168,6 @@ export async function updateOrderType(
   slug: string,
   params: IUpdateOrderTypeRequest,
 ): Promise<IApiResponse<IOrder>> {
-  console.log('params', params)
   const response = await http.patch<IApiResponse<IOrder>>(
     `/orders/${slug}`,
     params,

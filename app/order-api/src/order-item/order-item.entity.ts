@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Order } from 'src/order/order.entity';
+import { Promotion } from 'src/promotion/promotion.entity';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
 import { Variant } from 'src/variant/variant.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
@@ -35,4 +36,12 @@ export class OrderItem extends Base {
     (trackingOrderItem) => trackingOrderItem.orderItem,
   )
   trackingOrderItems: TrackingOrderItem[];
+
+  @ManyToOne(
+    () => Promotion, 
+    (promotion) => promotion.orderItems, 
+    { nullable: true }
+  )
+  @JoinColumn({ name: 'promotion_column' })
+  promotion?: Promotion;
 }

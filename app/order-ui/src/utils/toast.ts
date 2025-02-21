@@ -98,6 +98,7 @@ const errorCodes: { [key: number]: string } = {
   140004: 'toast.systemConfigQueryInvalid',
   140005: 'toast.systemConfigInvalid',
   143202: 'toast.newRevenueNotFound',
+  143407: 'toast.voucherAlreadyUsed',
 }
 
 export function showToast(message: string) {

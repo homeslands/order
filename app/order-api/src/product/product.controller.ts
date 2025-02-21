@@ -31,6 +31,7 @@ import { ProductService } from './product.service';
 import { Public } from 'src/auth/public.decorator';
 import {
   CreateProductRequestDto,
+  GetProductRequestDto,
   ProductResponseDto,
   UpdateProductRequestDto,
 } from './product.dto';
@@ -135,9 +136,10 @@ export class ProductController {
     type: String,
   })
   async getAllProducts(
-    @Query('catalog') catalog: string,
+    @Query(new ValidationPipe({ transform: true })) 
+    query: GetProductRequestDto,
   ): Promise<AppResponseDto<ProductResponseDto[]>> {
-    const result = await this.productService.getAllProducts(catalog);
+    const result = await this.productService.getAllProducts(query);
     return {
       message: 'All products have been retrieved successfully',
       statusCode: HttpStatus.OK,

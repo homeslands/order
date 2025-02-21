@@ -26,14 +26,6 @@ import { SimpleDatePicker } from '../picker'
 import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-const formatNumber = (value: number) => {
-  return new Intl.NumberFormat('vi-VN').format(value)
-}
-
-const parseNumber = (value: string) => {
-  return Number(value.replace(/\./g, ''))
-}
-
 export default function CreateVoucherSheet() {
   const { t } = useTranslation(['voucher'])
   const [isOpen, setIsOpen] = useState(false)
@@ -48,35 +40,28 @@ export default function CreateVoucherSheet() {
       endDate: '',
       code: '',
       value: 0,
+      isActive: false,
       maxUsage: 0,
-      minOrderValue: 0,
-    },
+      minOrderValue: 0
+    }
   })
 
-  const isDateBeforeToday = (date: Date) => {
+  const disableStartDate = (date: Date) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     return date < today
   }
 
-  const isDateBeforeStartDate = (date: Date) => {
+  const disableEndDate = (date: Date) => {
     const startDate = form.getValues('startDate')
     if (!startDate) return false
-    const startDateObj = new Date(startDate)
-    return date <= startDateObj
+
+    const selectedStartDate = new Date(startDate)
+    selectedStartDate.setHours(0, 0, 0, 0)
+    return date < selectedStartDate
   }
 
-  const handleDateChange = (
-    fieldName: 'startDate' | 'endDate',
-    date: string,
-  ) => {
-    if (fieldName === 'startDate') {
-      // If changing start date, clear end date if it's before new start date
-      const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
-        form.setValue('endDate', '')
-      }
-    }
+  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
   }
 
@@ -93,8 +78,9 @@ export default function CreateVoucherSheet() {
       endDate: '',
       code: '',
       value: 0,
+      isActive: false,
       maxUsage: 0,
-      minOrderValue: 0,
+      minOrderValue: 0
     })
   }
 
@@ -105,10 +91,11 @@ export default function CreateVoucherSheet() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.name')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.name')}</FormLabel>
             <FormControl>
               <Input {...field} placeholder={t('voucher.enterVoucherName')} />
             </FormControl>
@@ -123,15 +110,13 @@ export default function CreateVoucherSheet() {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.description')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.description')}</FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                placeholder={t('voucher.enterVoucherDescription')}
-              />
+              <Input {...field} placeholder={t('voucher.enterVoucherDescription')} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -144,16 +129,13 @@ export default function CreateVoucherSheet() {
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.startDate')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.startDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('startDate', date)}
-                disabledDates={isDateBeforeToday}
-              />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} disabledDates={disableStartDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -166,16 +148,13 @@ export default function CreateVoucherSheet() {
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.endDate')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.endDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('endDate', date)}
-                disabledDates={isDateBeforeStartDate}
-              />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('endDate', date)} disabledDates={disableEndDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -188,10 +167,11 @@ export default function CreateVoucherSheet() {
         name="code"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.code')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.code')}</FormLabel>
             <FormControl>
               <Input
                 type="text"
@@ -204,16 +184,53 @@ export default function CreateVoucherSheet() {
         )}
       />
     ),
+    value: (
+      <FormField
+        control={form.control}
+        name="value"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.value')}</FormLabel>
+            <FormControl>
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    const displayValue = Number(e.target.value)
+                    if (displayValue >= 0 && displayValue <= 100) {
+                      field.onChange(displayValue)
+                    }
+                  }}
+                  min={0}
+                  max={100}
+                  placeholder={t('voucher.enterVoucherValue')}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     maxUsage: (
       <FormField
         control={form.control}
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.maxUsage')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.maxUsage')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -234,81 +251,30 @@ export default function CreateVoucherSheet() {
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.minOrderValue')}
-            </FormLabel>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.minOrderValue')}</FormLabel>
             <FormControl>
-              <div className="relative">
-                <Input
-                  type="text"
-                  value={field.value ? formatNumber(field.value) : ''}
-                  onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\./g, '')
-                    if (/^\d*$/.test(rawValue)) {
-                      const numValue = Number(rawValue)
-                      field.onChange(numValue)
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseNumber(e.target.value)
-                    if (isNaN(value)) {
-                      field.onChange(0)
-                    }
-                  }}
-                  placeholder={t('voucher.enterMinOrderValue')}
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  đ
-                </div>
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    value: (
-      <FormField
-        control={form.control}
-        name="value"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.value')}
-            </FormLabel>
-            <FormControl>
-              <div className="relative">
+              <div className='relative'>
                 <Input
                   type="number"
                   {...field}
-                  onChange={(e) => {
-                    const value = Number(e.target.value)
-                    // Constrain value between 0 and 100
-                    if (value < 0) field.onChange(0)
-                    else if (value > 100) field.onChange(100)
-                    else field.onChange(value)
-                  }}
-                  onBlur={(e) => {
-                    const value = Number(e.target.value)
-                    if (isNaN(value)) field.onChange(0)
-                  }}
+                  placeholder={t('voucher.enterMinOrderValue')}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                   min={0}
-                  max={100}
-                  step="1"
-                  placeholder={t('voucher.enterVoucherValue')}
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  %
-                </div>
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  ₫
+                </span>
               </div>
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-    ),
+    )
   }
 
   return (
@@ -326,17 +292,13 @@ export default function CreateVoucherSheet() {
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-muted-foreground/10">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
-                <form
-                  id="voucher-form"
-                  onSubmit={form.handleSubmit(handleSubmit)}
-                  className="space-y-4"
-                >
+                <form id="voucher-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white border rounded-md">
+                  <div className={`p-4 border bg-white dark:bg-transparent rounded-md`}>
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -344,21 +306,21 @@ export default function CreateVoucherSheet() {
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
                     {formFields.code}
                     {formFields.maxUsage}
                   </div>
 
-                  {/* Nhóm: Giá trị giảm giá & Giá trị đơn hàng tối thiểu */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
-                    {formFields.value}
+                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
                     {formFields.minOrderValue}
+                    {formFields.value}
                   </div>
                 </form>
               </Form>

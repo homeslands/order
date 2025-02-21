@@ -1,1 +1,1 @@
-export { default as VoucherPage } from './page'
+export { default as PromotionPage } from './page'

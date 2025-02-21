@@ -2,7 +2,7 @@ import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, Validation
 import { ApplicablePromotionService } from "./applicable-promotion.service";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ApiResponseWithType } from "src/app/app.decorator";
-import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto } from "./applicable-promotion.dto";
+import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto, CreateManyApplicablePromotionsRequestDto } from "./applicable-promotion.dto";
 import { Public } from "src/auth/public.decorator";
 import { AppResponseDto } from "src/app/app.dto";
 import { HasRoles } from "src/role/roles.decorator";
@@ -27,7 +27,7 @@ export class ApplicablePromotionController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   // @Public()
   @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Manager, RoleEnum.Admin)
-  async createPromotion(
+  async createApplicablePromotion(
     @Body(
       new ValidationPipe({
         transform: true,
@@ -45,6 +45,37 @@ export class ApplicablePromotionController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ApplicablePromotionResponseDto>;
+  }
+
+  @Post('multi')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Create many applicable promotions successfully',
+    type: ApplicablePromotionResponseDto,
+  })
+  @ApiOperation({ summary: 'Create many applicable promotions' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  // @Public()
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Manager, RoleEnum.Admin)
+  async createManyApplicablePromotion(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
+    requestData: CreateManyApplicablePromotionsRequestDto,
+  ) {
+    const result = await this.applicablePromotionService.createManyApplicablePromotions(
+      requestData
+    );
+    return {
+      message: `${result.length} applicable promotions have been created successfully`,
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ApplicablePromotionResponseDto[]>;
   }
 
   @Delete(':slug')

@@ -18,7 +18,7 @@ import { IVoucher } from '@/types'
 
 import { useDeleteVoucher } from '@/hooks'
 import { showToast } from '@/utils'
-import { QUERYKEY } from '@/constants/query'
+import { QUERYKEY } from '@/constants'
 
 export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) {
   const queryClient = useQueryClient()
@@ -63,7 +63,7 @@ export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) 
               {t('voucher.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
 

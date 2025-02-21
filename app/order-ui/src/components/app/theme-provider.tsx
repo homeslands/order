@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect } from 'react'
+
 import { useThemeStore } from '@/stores'
 
-type Theme = 'dark' | 'light' | 'system'
+type Theme = 'dark' | 'light'
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -21,7 +22,7 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
-export default function ThemeProvider({
+export function ThemeProvider({
   children,
   defaultTheme = 'light',
   ...props
@@ -32,15 +33,6 @@ export default function ThemeProvider({
     const root = window.document.documentElement
 
     root.classList.remove('light', 'dark')
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-
-      root.classList.add(systemTheme)
-      return
-    }
 
     root.classList.add(theme)
   }, [theme])

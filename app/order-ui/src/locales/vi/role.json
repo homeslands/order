@@ -1,0 +1,10 @@
+{
+  "role": {
+    "ADMIN": "Quản trị viên",
+    "MANAGER": "Quản lý",
+    "STAFF": "Nhân viên",
+    "CHEF": "Đầu bếp",
+    "CUSTOMER": "Khách hàng",
+    "SUPER_ADMIN": "Siêu quản trị viên"
+  }
+}

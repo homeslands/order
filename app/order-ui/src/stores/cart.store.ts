@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import i18next from 'i18next'
+import moment from 'moment'
 
 import { showToast } from '@/utils'
 import {
@@ -9,12 +10,15 @@ import {
   ITable,
   OrderTypeEnum,
   IUserInfo,
+  IVoucher,
 } from '@/types'
+import { setupAutoClearCart } from '@/utils/cart'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
       cartItems: null, // Chỉ lưu một cart item hoặc null nếu không có item nào
+      lastModified: null, // Add this field
 
       getCartItems: () => get().cartItems,
 
@@ -45,7 +49,10 @@ export const useCartItemStore = create<ICartItemStore>()(
         const { cartItems } = get()
         if (!cartItems) {
           // If cart is empty, create new cart with the item
-          set({ cartItems: item })
+          set({
+            cartItems: item,
+            lastModified: moment().valueOf(), // Update timestamp
+          })
         } else {
           // Check if item already exists in cart
           const existingItemIndex = cartItems.orderItems.findIndex(
@@ -63,6 +70,7 @@ export const useCartItemStore = create<ICartItemStore>()(
                 ...cartItems,
                 orderItems: updatedOrderItems,
               },
+              lastModified: moment().valueOf(), // Update timestamp
             })
           } else {
             // If item doesn't exist, add it to the array
@@ -71,10 +79,12 @@ export const useCartItemStore = create<ICartItemStore>()(
                 ...cartItems,
                 orderItems: [...cartItems.orderItems, ...item.orderItems],
               },
+              lastModified: moment().valueOf(), // Update timestamp
             })
           }
         }
         showToast(i18next.t('toast.addSuccess'))
+        setupAutoClearCart() // Setup auto clear when adding items
       },
 
       updateCartItemQuantity: (id: string, quantity: number) => {
@@ -184,9 +194,29 @@ export const useCartItemStore = create<ICartItemStore>()(
         }
       },
 
+      addVoucher: (voucher: IVoucher) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: { ...cartItems, voucher },
+          })
+        }
+      },
+
+      removeVoucher: () => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: { ...cartItems, voucher: null },
+          })
+        }
+      },
+
       clearCart: () => {
-        set({ cartItems: null }) // Xóa cartItems
-        // showToast(i18next.t('toast.clearSuccess'))
+        set({
+          cartItems: null,
+          lastModified: null,
+        })
       },
     }),
     {

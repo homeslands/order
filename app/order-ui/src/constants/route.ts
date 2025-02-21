@@ -40,6 +40,7 @@ export const ROUTE = {
   CLIENT_ORDER_HISTORY: '/history',
   CLIENT_UPDATE_ORDER: '/update-order',
   CLIENT_PROFILE: '/profile',
+  CLIENT_VOUCHER: '/voucher',
 
   // General Routes
   ABOUT: '/about',
@@ -50,4 +51,5 @@ export const ROUTE = {
 
   ADMIN_CONFIG: '/config',
   ADMIN_VOUCHER: '/voucher',
+  ADMIN_PROMOTION: '/promotion',
 }

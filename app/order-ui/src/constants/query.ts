@@ -3,4 +3,5 @@ export const QUERYKEY = {
   catalog: ['catalog'],
   productVariants: ['productVariants'],
   vouchers: ['vouchers'],
+  promotions: ['promotions'],
 }

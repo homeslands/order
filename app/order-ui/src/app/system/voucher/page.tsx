@@ -4,7 +4,7 @@ import { SquareMenu } from 'lucide-react'
 import { DataTable } from '@/components/ui'
 import { useVoucherColumns } from './DataTable/columns'
 import { usePagination, useVouchers } from '@/hooks'
-import { EmployeesAction } from './DataTable/actions'
+import { VoucherAction } from './DataTable/actions'
 
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
@@ -26,8 +26,7 @@ export default function VoucherPage() {
                             isLoading={isLoading}
                             pages={1}
                             hiddenInput={false}
-                            // filterOptions={EmployeeFilterOptions}
-                            actionOptions={EmployeesAction}
+                            actionOptions={VoucherAction}
                             onPageChange={handlePageChange}
                             onPageSizeChange={handlePageSizeChange}
                         />

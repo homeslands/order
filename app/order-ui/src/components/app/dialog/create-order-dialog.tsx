@@ -14,12 +14,10 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, ICreateOrderRequest } from '@/types'
-
 import { useCreateOrder } from '@/hooks'
 import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
-import { useCartItemStore, useUserStore } from '@/stores'
-import { useBranchStore } from '@/stores/branch.store'
+import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
   disabled?: boolean
@@ -60,8 +58,10 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
         variant: orderItem.variant,
+        promotion: orderItem.promotion || '',
         note: orderItem.note || '',
       })),
+      voucher: order.voucher?.slug || null,
     }
 
     // Gọi API để tạo đơn hàng.
@@ -70,7 +70,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
         const orderPath =
           userInfo?.role.name === Role.CUSTOMER
             ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
-            : `${ROUTE.STAFF_ORDER_PAYMENT}/${data.result.slug}`
+            : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
         navigate(orderPath)
         setIsOpen(false)
         clearCart()
@@ -83,8 +83,8 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
+          disabled={!disabled}
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

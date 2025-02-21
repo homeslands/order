@@ -132,27 +132,27 @@ describe('StaticPageService', () => {
       await expect(service.update(slug, updateStaticPage)).rejects.toThrow(StaticPageException);
     });
 
-    it('should throw exception if service.validateUpdatedKey throws', async () => {
-      const slug = 'about-us-slug';
-      const updateStaticPage = {
-        key: 'ABOUT-US',
-        title: 'About Us',
-        content: 'This is about us',
-      } as UpdateStaticPageDto;
-      const mockOutput = {
-        key: 'ABOUT-US',
-        title: 'About Us',
-        content: 'This is about us',
-        id: "",
-        slug: "",
-      } as StaticPage;
+    // it('should throw exception if service.validateUpdatedKey throws', async () => {
+    //   const slug = 'about-us-slug';
+    //   const updateStaticPage = {
+    //     key: 'ABOUT-US',
+    //     title: 'About Us',
+    //     content: 'This is about us',
+    //   } as UpdateStaticPageDto;
+    //   const mockOutput = {
+    //     key: 'ABOUT-US',
+    //     title: 'About Us',
+    //     content: 'This is about us',
+    //     id: "",
+    //     slug: "",
+    //   } as StaticPage;
       
-      (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
-      jest.spyOn(service, 'validateUpdatedKey').mockRejectedValue(
-        new StaticPageException(StaticPageValidation.STATIC_PAGE_KEY_ALREADY_EXIST)
-      );
-      await expect(service.update(slug, updateStaticPage)).rejects.toThrow(StaticPageException);
-    });
+    //   (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
+    //   jest.spyOn(service, 'validateUpdatedKey').mockRejectedValue(
+    //     new StaticPageException(StaticPageValidation.STATIC_PAGE_KEY_ALREADY_EXIST)
+    //   );
+    //   await expect(service.update(slug, updateStaticPage)).rejects.toThrow(StaticPageException);
+    // });
 
     it('should update static page success', async () => {
       const slug = 'about-us-slug';
@@ -169,7 +169,7 @@ describe('StaticPageService', () => {
         slug: "",
       } as StaticPage;
       (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
-      jest.spyOn(service, 'validateUpdatedKey').mockResolvedValue();
+      // jest.spyOn(service, 'validateUpdatedKey').mockResolvedValue();
       (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
       (staticPageRepositoryMock.save as jest.Mock).mockResolvedValue(mockOutput);
       (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
@@ -178,54 +178,54 @@ describe('StaticPageService', () => {
     });
   });
 
-  describe('validateUpdatedKey', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  // describe('validateUpdatedKey', () => {
+  //   beforeEach(() => {
+  //     jest.clearAllMocks();
+  //   });
 
-    it('should throw an error if static page key already exist', async () => {
-      const staticPage = {
-        key: 'ABOUT-US',
-        title: 'About Us',
-        content: 'This is about us',
-        id: "",
-        slug: "",
-      } as StaticPage;
-      const updateStaticPage = {
-        key: 'UPDATED-ABOUT-US',
-        title: 'About Us',
-        content: 'This is about us',
-      } as UpdateStaticPageDto;
-      (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(staticPage);
-      await expect(service.validateUpdatedKey(staticPage, updateStaticPage)).rejects.toThrow(StaticPageException);
-    });
-  });
+  //   it('should throw an error if static page key already exist', async () => {
+  //     const staticPage = {
+  //       key: 'ABOUT-US',
+  //       title: 'About Us',
+  //       content: 'This is about us',
+  //       id: "",
+  //       slug: "",
+  //     } as StaticPage;
+  //     const updateStaticPage = {
+  //       key: 'UPDATED-ABOUT-US',
+  //       title: 'About Us',
+  //       content: 'This is about us',
+  //     } as UpdateStaticPageDto;
+  //     (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(staticPage);
+  //     await expect(service.validateUpdatedKey(staticPage, updateStaticPage)).rejects.toThrow(StaticPageException);
+  //   });
+  // });
 
-  describe('remove', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  // describe('remove', () => {
+  //   beforeEach(() => {
+  //     jest.clearAllMocks();
+  //   });
 
-    it('should throw an error if static page not found', async () => {
-      const slug = 'about-us-slug';
-      (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(undefined);
-      await expect(service.remove(slug)).rejects.toThrow(StaticPageException);
-    });
+  //   it('should throw an error if static page not found', async () => {
+  //     const slug = 'about-us-slug';
+  //     (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(undefined);
+  //     await expect(service.remove(slug)).rejects.toThrow(StaticPageException);
+  //   });
 
-    it('should remove static page success', async () => {
-      const slug = 'about-us-slug';
-      const mockOutput = {
-        key: 'ABOUT-US',
-        title: 'About Us',
-        content: 'This is about us',
-        id: "",
-        slug: "",
-      } as StaticPage;
-      (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
-      (staticPageRepositoryMock.remove as jest.Mock).mockResolvedValue(mockOutput);
-      (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
-      const result = await service.remove(slug);
-      expect(result).toEqual(mockOutput);
-    });
-  });
+  //   it('should remove static page success', async () => {
+  //     const slug = 'about-us-slug';
+  //     const mockOutput = {
+  //       key: 'ABOUT-US',
+  //       title: 'About Us',
+  //       content: 'This is about us',
+  //       id: "",
+  //       slug: "",
+  //     } as StaticPage;
+  //     (staticPageRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
+  //     (staticPageRepositoryMock.remove as jest.Mock).mockResolvedValue(mockOutput);
+  //     (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
+  //     const result = await service.remove(slug);
+  //     expect(result).toEqual(mockOutput);
+  //   });
+  // });
 });

@@ -34,7 +34,7 @@ export interface ICreateUserRequest {
 
 export interface IUpdateUserRequest {
   slug: string
-  phonenumber: string
+  // phonenumber: string
   firstName: string
   lastName: string
   dob: string

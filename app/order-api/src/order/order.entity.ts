@@ -75,11 +75,11 @@ export class Order extends Base {
 
   @ManyToOne(() => Table, (table) => table.orders, { nullable: true })
   @JoinColumn({ name: 'table_column' })
-  @AutoMap()
+  @AutoMap(() => Table)
   table: Table;
 
   @ManyToOne(() => Voucher, (voucher) => voucher.orders, { nullable: true })
   @JoinColumn({ name: 'voucher_column' })
-  @AutoMap()
+  @AutoMap(() => Voucher)
   voucher: Voucher;
 }

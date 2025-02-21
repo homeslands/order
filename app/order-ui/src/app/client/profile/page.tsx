@@ -27,7 +27,7 @@ export default function ProfilePage() {
       <div className="container py-10 mx-auto">
         <div className="flex flex-col items-start gap-10 lg:flex-row">
           {/* ProfilePicture */}
-          <div className="w-full bg-white rounded-sm shadow-lg lg:w-1/4">
+          <div className={`w-full bg-white dark:border rounded-sm shadow-lg lg:w-1/4`}>
             <div className="flex flex-row p-2">
               <ProfilePicture
                 height={70}
@@ -49,7 +49,7 @@ export default function ProfilePage() {
           </div>
           {/* Info */}
           <div
-            className={`w-full rounded-sm bg-white px-5 py-4 shadow-lg transition-all duration-300 ease-in-out lg:w-3/4`}
+            className={`w-full rounded-sm bg-white dark:border px-5 py-4 shadow-lg transition-all duration-300 ease-in-out lg:w-3/4`}
           >
             <CustomerProfileTabs />
           </div>

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui'
 import { IMenu } from '@/types'
 import { ROUTE } from '@/constants'
-import { UpdateMenuDialog } from '@/components/app/dialog'
+import { DeleteMenuDialog, UpdateMenuDialog } from '@/components/app/dialog'
 
 export const useMenusColumns = (): ColumnDef<IMenu>[] => {
   const { t } = useTranslation(['menu'])
@@ -52,8 +52,10 @@ export const useMenusColumns = (): ColumnDef<IMenu>[] => {
     },
     {
       accessorKey: 'isTemplate',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('menu.isTemplate')} />
+      header: () => (
+        <div>
+          {t('menu.isTemplate')}
+        </div>
       ),
       cell: ({ row }) => {
         const isTemplate = row.getValue('isTemplate')
@@ -101,6 +103,7 @@ export const useMenusColumns = (): ColumnDef<IMenu>[] => {
                   </Button>
                 </NavLink>
                 <UpdateMenuDialog menu={menu} />
+                <DeleteMenuDialog menu={menu} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

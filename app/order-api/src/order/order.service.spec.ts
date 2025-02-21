@@ -58,6 +58,10 @@ import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
+import { OrderItemUtils } from 'src/order-item/order-item.utils';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -68,6 +72,8 @@ describe('OrderService', () => {
   let variantRepositoryMock: MockType<Repository<Variant>>;
   let menuRepositoryMock: MockType<Repository<Menu>>;
   let menuItemRepositoryMock: MockType<Repository<MenuItem>>;
+  let orderItemRepositoryMock: MockType<Repository<OrderItem>>;
+  let promotionRepositoryMock: MockType<Repository<Promotion>>;
   let mapperMock: MockType<Mapper>;
   let orderUtils: OrderUtils;
   let mockDataSource: MockType<DataSource>;
@@ -75,6 +81,9 @@ describe('OrderService', () => {
   let menuItemUtils: MenuItemUtils;
   let userUtils: UserUtils;
   let branchUtils: BranchUtils;
+  let voucherUtils: VoucherUtils;
+  let orderItemUtils: OrderItemUtils;
+  let promotionUtils: PromotionUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -93,6 +102,8 @@ describe('OrderService', () => {
         MenuUtils,
         VoucherUtils,
         VariantUtils,
+        OrderItemUtils,
+        PromotionUtils,
         SchedulerRegistry,
         {
           provide: ConfigService,
@@ -157,6 +168,18 @@ describe('OrderService', () => {
           useFactory: repositoryMockFactory,
         },
         {
+          provide: getRepositoryToken(OrderItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ApplicablePromotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
           provide: MAPPER_MODULE_PROVIDER,
           useFactory: mapperMockFactory,
         },
@@ -175,6 +198,8 @@ describe('OrderService', () => {
     userRepositoryMock = module.get(getRepositoryToken(User));
     menuRepositoryMock = module.get(getRepositoryToken(Menu));
     menuItemRepositoryMock = module.get(getRepositoryToken(MenuItem));
+    promotionRepositoryMock = module.get(getRepositoryToken(Promotion));
+    orderItemRepositoryMock = module.get(getRepositoryToken(OrderItem));
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
     orderUtils = module.get(OrderUtils);
     mockDataSource = module.get(DataSource);
@@ -182,6 +207,9 @@ describe('OrderService', () => {
     menuItemUtils = module.get(MenuItemUtils);
     userUtils = module.get(UserUtils);
     branchUtils = module.get(BranchUtils);
+    voucherUtils = module.get(VoucherUtils);
+    orderItemUtils = module.get(OrderItemUtils);
+    promotionUtils = module.get(PromotionUtils);
   });
 
   it('should be defined', () => {
@@ -664,6 +692,7 @@ describe('OrderService', () => {
 
       jest.spyOn(service, 'constructOrder').mockResolvedValue(mockOutput);
       jest.spyOn(service, 'constructOrderItems').mockResolvedValue(orderItems);
+      jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(null);
       jest
         .spyOn(orderUtils, 'getOrderSubtotal')
         .mockResolvedValue(mockOutput.subtotal);

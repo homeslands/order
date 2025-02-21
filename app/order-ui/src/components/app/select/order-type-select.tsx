@@ -1,4 +1,4 @@
-import { useCartItemStore } from '@/stores'
+import { useCartItemStore, useThemeStore } from '@/stores'
 import { OrderTypeEnum } from '@/types'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
 export default function OrderTypeSelect() {
+  const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
   const { addOrderType, removeTable, getCartItems } = useCartItemStore()
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
@@ -51,6 +52,35 @@ export default function OrderTypeSelect() {
     <ReactSelect
       placeholder={t('menu.selectOrderType')}
       className="w-full text-sm border-muted-foreground text-muted-foreground"
+      styles={{
+        control: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '',
+          borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+        }),
+        menu: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
+        }),
+        option: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: state.isFocused
+            ? getTheme() === 'light'
+              ? '#e2e8f0'
+              : '#2d2d2d'
+            : getTheme() === 'light'
+              ? 'white'
+              : '#121212',
+          color: getTheme() === 'light' ? 'black' : 'white',
+          '&:hover': {
+            backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+          },
+        }),
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: getTheme() === 'light' ? 'black' : 'white',
+        }),
+      }}
       value={selectedType}
       options={orderTypes}
       onChange={handleChange}

@@ -20,6 +20,8 @@
     "price": "Giá: ",
     "note": "Ghi chú",
     "enterNote": "Nhập ghi chú",
+    "menu": "Thực đơn",
+    "table": "Danh sách bàn",
 
     "tableNote": "Ghi chú bàn",
     "selectReservedTableWarning": "Bàn ",
@@ -38,7 +40,7 @@
     "enterPromotion": "Nhập mã giảm giá",
     "apply": "Áp dụng",
     "total": "Tổng tiền hàng",
-    "discount": "Giảm giá",
+    "discount": "Giảm",
     "subTotal": "Tạm tính",
     "continue": "Tiếp tục",
     "confirm": "Xác nhận đơn hàng",
@@ -79,6 +81,10 @@
 
     "updateMenuItem": "Cập nhật món",
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
+
+    "deleteMenu": "Xóa thực đơn",
+    "deleteMenuWarning1": "Bạn sắp sửa xóa thực đơn ngày ",
+    "deleteMenuConfirmation": "Bạn có chắc muốn xóa thực đơn này không?",
 
     "deleteMenuItem": "Xóa món",
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
@@ -121,6 +127,7 @@
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
 
+    "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
     "orderStatus": "Trạng thái",
     "cash": "Tiền mặt",
@@ -140,6 +147,8 @@
 
     "create": "Đặt hàng",
     "confirmOrder": "Bạn có chắc muốn đặt hàng?",
+
+    "usedVoucher": "Mã giảm giá đã sử dụng",
 
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
@@ -221,7 +230,7 @@
     "paid": "Đã thanh toán",
     "canceled": "Đã hủy",
 
-    "timeRemaining": "Thời gian thanh toán còn lại",
+    "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Hết hạn"
   }
 }

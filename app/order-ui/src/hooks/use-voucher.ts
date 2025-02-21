@@ -6,9 +6,15 @@ import {
   getVoucherBySlug,
   getVouchers,
   updateVoucher,
+  validateVoucher,
 } from '@/api'
-import { QUERYKEY } from '@/constants/query'
-import { ICreateVoucherRequest, IUpdateVoucherRequest } from '@/types'
+import { QUERYKEY } from '@/constants'
+import {
+  ICreateVoucherRequest,
+  IGetVoucherBySlugRequest,
+  IUpdateVoucherRequest,
+  IValidateVoucherRequest,
+} from '@/types'
 
 export const useVouchers = () => {
   return useQuery({
@@ -18,10 +24,10 @@ export const useVouchers = () => {
   })
 }
 
-export const useVoucherBySlug = (slug: string) => {
+export const useVoucherBySlug = (data: IGetVoucherBySlugRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.vouchers, slug],
-    queryFn: () => getVoucherBySlug(slug),
+    queryKey: [QUERYKEY.vouchers, data.slug],
+    queryFn: () => getVoucherBySlug(data),
   })
 }
 
@@ -45,6 +51,14 @@ export const useDeleteVoucher = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return deleteVoucher(slug)
+    },
+  })
+}
+
+export const useValidateVoucher = () => {
+  return useMutation({
+    mutationFn: async (data: IValidateVoucherRequest) => {
+      return validateVoucher(data)
     },
   })
 }

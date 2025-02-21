@@ -1,5 +1,4 @@
 volumes:
-  mysql:
   redis_data:
   postgres_data:
 
@@ -71,9 +70,6 @@ services:
       OTEL_LGTM_URL: ${OTEL_LGTM_URL}
 
       TZ: Asia/Ho_Chi_Minh
-    depends_on:
-      mysql_db:
-        condition: service_healthy
     ports:
       - 8080:8080
     # deploy:
@@ -84,20 +80,20 @@ services:
     #   restart_policy:
     #     condition: on-failure
 
-  mysql_db:
-    image: mysql:8.2.0
-    volumes:
-      - mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
-      TZ: Asia/Ho_Chi_Minh
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 60s # Increase timeout to give MySQL more time
-      retries: 5
-    restart: unless-stopped
+  # mysql_db:
+  #   image: mysql:8.2.0
+  #   volumes:
+  #     - mysql:/var/lib/mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+  #     MYSQL_DATABASE: ${DATABASE_NAME}
+  #     TZ: Asia/Ho_Chi_Minh
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 5s
+  #     timeout: 60s # Increase timeout to give MySQL more time
+  #     retries: 5
+  #   restart: unless-stopped
 
   order-ui:
     image: ghcr.io/homeslands/order-ui:dev

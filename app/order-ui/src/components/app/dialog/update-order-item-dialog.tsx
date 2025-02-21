@@ -20,14 +20,14 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { IAddNewOrderItemRequest, IProduct, IProductVariant } from '@/types'
+import { IAddNewOrderItemRequest, IMenuItem, IProductVariant } from '@/types'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 import { useAddNewOrderItem } from '@/hooks'
 
 interface AddToCartDialogProps {
   onAddNewOrderItemSuccess: () => void
-  product: IProduct
+  product: IMenuItem
   trigger?: React.ReactNode
 }
 
@@ -43,7 +43,7 @@ export default function UpdateOrderItemDialog({
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(product.variants[0] || null)
+    useState<IProductVariant | null>(product.product.variants[0] || null)
   const { mutate: addNewOrderItem } = useAddNewOrderItem()
 
   const handleAddToCart = () => {
@@ -52,6 +52,7 @@ export default function UpdateOrderItemDialog({
     const newOrderItem: IAddNewOrderItemRequest = {
       order: slug as string,
       variant: selectedVariant.slug,
+      promotion: product.promotion ? product?.promotion?.slug : '',
       quantity: 1,
       note: note,
     }
@@ -90,10 +91,10 @@ export default function UpdateOrderItemDialog({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           {/* Product Image */}
           <div className="relative col-span-2">
-            {product.image ? (
+            {product.product.image ? (
               <img
-                src={`${publicFileURL}/${product.image}`}
-                alt={product.name}
+                src={`${publicFileURL}/${product.product.image}`}
+                alt={product.product.name}
                 className="object-cover w-full h-56 rounded-md sm:h-64 lg:h-80"
               />
             ) : (
@@ -104,14 +105,14 @@ export default function UpdateOrderItemDialog({
           <div className="flex flex-col col-span-2 gap-6">
             {/* Product Details */}
             <div>
-              <h3 className="text-lg font-semibold">{product.name}</h3>
+              <h3 className="text-lg font-semibold">{product.product.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {product.description}
+                {product.product.description}
               </p>
             </div>
 
             {/* Size Selection */}
-            {product.variants.length > 0 && (
+            {product.product.variants.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   {t('menu.selectSize')}
@@ -119,7 +120,7 @@ export default function UpdateOrderItemDialog({
                 <Select
                   value={selectedVariant?.slug}
                   onValueChange={(value) => {
-                    const variant = product.variants.find(
+                    const variant = product.product.variants.find(
                       (v) => v.slug === value,
                     )
                     setSelectedVariant(variant || null)
@@ -129,7 +130,7 @@ export default function UpdateOrderItemDialog({
                     <SelectValue placeholder={t('menu.selectSize')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.variants
+                    {product.product.variants
                       .sort((a, b) => a.price - b.price)
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>

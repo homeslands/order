@@ -46,8 +46,8 @@ export default function DeleteCartItemDialog({
             <TriangleAlert />
             {t('order.deleteItem')}
           </DialogTitle>
-          <DialogDescription className="p-2 rounded-md bg-destructive/10 text-destructive">
-            {t('order.deleteNote')}
+          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
+            {tCommon('common.deleteNote')}
           </DialogDescription>
         </DialogHeader>
         <div>

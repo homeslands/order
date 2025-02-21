@@ -13,7 +13,8 @@ import { router } from '@/router'
 import '@/i18n'
 import { IApiErrorResponse, IApiResponse } from '@/types'
 import { showErrorToast } from '@/utils'
-// import { MessengerChat } from '@/components/messenger'
+import { ThemeProvider } from '@/components/app/theme-provider'
+// import { setupAutoClearCart } from '@/utils/cart'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -44,12 +45,16 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  // useEffect(() => {
+  //   setupAutoClearCart()
+  // }, [])
   return (
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        {/* <MessengerChat /> */}
-      </QueryClientProvider>
+      <ThemeProvider defaultTheme="light" storageKey="my-app-theme">
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </ThemeProvider>
     </StrictMode>
   )
 }

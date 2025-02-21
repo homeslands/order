@@ -60,7 +60,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         return <div className="text-sm">{order?.slug}</div>
       },
     },
-
     {
       accessorKey: 'paymentMethod',
       header: ({ column }) => (
@@ -75,7 +74,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
               {order?.payment &&
-              order?.payment.paymentMethod === PaymentMethod.CASH
+                order?.payment.paymentMethod === PaymentMethod.CASH
                 ? t('order.cash')
                 : t('order.bankTransfer')}
             </span>
@@ -144,9 +143,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="w-8 h-8 p-0">
                   <span className="sr-only">{tCommon('common.action')}</span>
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -155,11 +154,11 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 </DropdownMenuLabel>
                 <NavLink
                   to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}
-                  className="flex w-full items-center justify-start"
+                  className="flex items-center justify-start w-full"
                 >
                   <Button
                     variant="ghost"
-                    className="flex w-full justify-start gap-1 px-2 text-sm"
+                    className="flex justify-start w-full gap-1 px-2 text-sm"
                   >
                     <SquareMousePointer className="icon" />
                     {tCommon('common.viewDetail')}
@@ -168,11 +167,11 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 {!order.payment && (
                   <NavLink
                     to={`${ROUTE.STAFF_ORDER_PAYMENT}/${order.slug}`}
-                    className="flex w-full items-center justify-start"
+                    className="flex items-center justify-start w-full"
                   >
                     <Button
                       variant="ghost"
-                      className="flex w-full justify-start gap-1 px-2 text-sm"
+                      className="flex justify-start w-full gap-1 px-2 text-sm"
                     >
                       <CreditCard className="icon" />
                       {t('order.updatePayment')}
@@ -185,7 +184,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <Button
                     onClick={() => handleExportPayment(order.payment?.slug)}
                     variant="ghost"
-                    className="flex w-full justify-start px-2"
+                    className="flex justify-start w-full px-2"
                   >
                     <DownloadIcon />
                     {t('order.exportPayment')}
@@ -197,7 +196,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <Button
                     onClick={() => handleExportOrderInvoice(order.slug)}
                     variant="ghost"
-                    className="flex w-full justify-start px-2"
+                    className="flex justify-start w-full px-2"
                   >
                     <DownloadIcon />
                     {t('order.exportInvoice')}

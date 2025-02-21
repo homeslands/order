@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import moment from 'moment'
-import { CalendarIcon } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
@@ -11,23 +10,18 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-  Calendar,
   Form,
   Button,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
 } from '@/components/ui'
 import { useAllMenus, usePagination, useCreateMenu } from '@/hooks'
 import { createMenuSchema, TCreateMenuSchema } from '@/schemas'
-
-import { zodResolver } from '@hookform/resolvers/zod'
+import { SimpleDatePicker } from '@/components/app/picker'
 import { ICreateMenuRequest } from '@/types'
 import { showToast } from '@/utils'
 import { BranchSelect } from '@/components/app/select'
-import { cn } from '@/lib'
 import { IsTemplateSwitch } from '@/components/app/switch'
 import { useUserStore } from '@/stores'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 interface IFormCreateMenuProps {
   onSubmit: (isOpen: boolean) => void
@@ -45,8 +39,9 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
     order: 'DESC',
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
+    branch: userInfo?.branch.slug,
   })
-  const [date, setDate] = useState<Date | undefined>(undefined)
+
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),
     defaultValues: {
@@ -58,16 +53,16 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
 
   // Get existing menu dates
   const existingMenuDates = useMemo(() => {
-    return (
-      menuData?.result.items.map((menu) =>
-        moment(menu.date).format('YYYY-MM-DD'),
-      ) || []
-    )
+    return menuData?.result.items.map((menu) =>
+      moment(menu.date).format('YYYY-MM-DD')
+    ) || []
   }, [menuData])
 
-  // Custom modifier for dates with menus
-  const modifiers = {
-    booked: existingMenuDates.map((date) => new Date(date)),
+  console.log('existingMenuDates', existingMenuDates)
+
+  const disabledDates = (date: Date) => {
+    const formattedDate = moment(date).format('YYYY-MM-DD')
+    return existingMenuDates.includes(formattedDate)
   }
 
   const handleSubmit = (data: ICreateMenuRequest) => {
@@ -92,47 +87,11 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
           <FormItem>
             <FormLabel>{t('menu.date')}</FormLabel>
             <FormControl>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !field.value && 'text-muted-foreground',
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? (
-                        field.value
-                      ) : (
-                        <span>{t('menu.chooseDate')}</span>
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(newDate) => {
-                      if (newDate) {
-                        const formattedDate =
-                          moment(newDate).format('YYYY-MM-DD')
-                        setDate(newDate)
-                        field.onChange(formattedDate)
-                      }
-                    }}
-                    // disabled={disabledDays}
-                    modifiers={modifiers}
-                    modifiersClassNames={{
-                      booked:
-                        'relative before:absolute before:bottom-0.5 before:left-1/2 before:-translate-x-1/2 before:w-1.5 before:h-1.5 before:bg-primary before:rounded-full',
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
+              <SimpleDatePicker
+                value={field.value}
+                onChange={(date) => field.onChange(date)}
+                disabledDates={disabledDates}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

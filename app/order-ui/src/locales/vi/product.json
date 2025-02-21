@@ -60,6 +60,9 @@
     "isLimited": "Có giới hạn",
     "actions": "Thao tác",
 
+    "chooseTool": "Chọn công cụ",
+    "tool": "Công cụ",
+
     "update": "Cập nhật món ăn",
     "updateProductDescription": "Điền thông tin để cập nhật món ăn",
 
@@ -102,7 +105,9 @@
     "exportAllProductsConfirmation": "Bạn có chắc muốn xuất tất cả món ăn ra file excel không?",
     "confirm": "Xác nhận",
 
-    "exportProductImportTemplate": "Xuất file template tạp món ăn",
+    "downloadTemplate": "Chưa có file mẫu? Tải file mẫu",
+    "downloadHere": "tại đây",
+    "exportProductImportTemplate": "Xuất file mẫu import món ăn",
     "exportProductImportTemplateDescription": "Xuất file mẫu import món ăn ra file excel",
     "exportProductImportTemplateConfirmation": "Bạn có chắc muốn xuất file mẫu import món ăn không?",
 

@@ -26,10 +26,10 @@ export class CreateStaticPageDto {
 }
 
 export class UpdateStaticPageDto {
-  @AutoMap()
-  @ApiProperty()
-  @IsNotEmpty({ message: STATIC_PAGE_KEY_INVALID })
-  key: string;
+  // @AutoMap()
+  // @ApiProperty()
+  // @IsNotEmpty({ message: STATIC_PAGE_KEY_INVALID })
+  // key: string;
 
   @AutoMap()
   @ApiProperty()

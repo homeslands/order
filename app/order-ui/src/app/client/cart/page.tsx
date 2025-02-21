@@ -13,13 +13,17 @@ import {
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { ClientTableSelect, OrderTypeSelect } from '@/components/app/select'
-import { OrderTypeEnum } from '@/types'
 import { VoucherListSheet } from '@/components/app/sheet'
+import { formatCurrency } from '@/utils'
 
-export function ClientCartPage() {
+export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { getCartItems } = useCartItemStore()
   const cartItems = getCartItems()
+
+  const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
+  const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
+  const totalAfterDiscount = subTotal - (subTotal * (cartItems?.voucher?.value || 0) / 100)
 
   if (_.isEmpty(cartItems?.orderItems)) {
     return (
@@ -40,7 +44,7 @@ export function ClientCartPage() {
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Left content */}
-        <div className="w-full lg:w-2/3">
+        <div className="w-full lg:w-1/2">
           {/* Note */}
           <div className="flex items-end justify-between">
             <div className="flex items-center gap-1">
@@ -56,7 +60,7 @@ export function ClientCartPage() {
         </div>
 
         {/* Right content */}
-        <div className="w-full lg:w-1/3">
+        <div className="w-full lg:w-1/2">
           <OrderTypeSelect />
           {/* Table list order items */}
           <div className="my-4">
@@ -72,8 +76,6 @@ export function ClientCartPage() {
                 <Trash2 size={18} />
               </span>
             </div>
-
-
             <div className="flex flex-col border rounded-md">
               {cartItems?.orderItems.map((item) => (
                 <div
@@ -113,13 +115,58 @@ export function ClientCartPage() {
               ))}
             </div>
             <VoucherListSheet />
+            <div>
+              {getCartItems()?.voucher && (
+                <div className="flex justify-start w-full">
+                  <div className="flex flex-col items-start">
+                    <div className='flex items-center gap-2 mt-2'>
+                      <span className='text-xs text-muted-foreground'>
+                        {t('order.usedVoucher')}:&nbsp;
+                      </span>
+                      <span className="px-3 py-1 text-xs font-semibold border rounded-full text-primary bg-primary/20 border-primary">
+                        -{`${formatCurrency(discount)}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-end justify-between p-2 pt-4 mt-4 border rounded-md">
+              <div className="flex flex-col items-start justify-between w-full">
+                <div className='flex flex-col items-start justify-start w-full gap-1'>
+                  <div className='flex items-center justify-between w-full gap-2 text-xs text-muted-foreground'>
+                    {t('order.subtotal')}:&nbsp;
+                    <span>
+                      {`${formatCurrency(subTotal)}`}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between w-full gap-2 text-xs text-muted-foreground'>
+                    <span>
+                      {t('order.discount')}:&nbsp;
+                    </span>
+                    <span className='text-green-500'>
+                      -{`${formatCurrency(discount)}`}
+                    </span>
+                  </div>
+                  <div className='flex items-center justify-between w-full gap-2 pt-2 mt-4 font-semibold border-t text-md'>
+                    <span>
+                      {t('order.totalPayment')}:&nbsp;
+                    </span>
+                    <span className='font-bold text-primary text-md'>
+                      {`${formatCurrency(totalAfterDiscount)}`}
+                    </span>
+                  </div>
+                  <span className='text-xs text-muted-foreground'>
+                    {t('order.vat')}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
           {/* Button */}
           <div className="flex justify-end w-full">
             <CreateOrderDialog
-              disabled={
-                cartItems?.type === OrderTypeEnum.AT_TABLE && !cartItems?.table
-              }
+              disabled={!(cartItems && !cartItems.table)}
             />
           </div>
         </div>

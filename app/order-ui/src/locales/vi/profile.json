@@ -19,6 +19,9 @@
     "branch": "Chi nhánh",
 
     "myOrders": "Đơn hàng của tôi",
+    "all": "Tất cả",
+    "shipping": "Đang giao",
+    "completed": "Đã giao",
 
     "update": "Cập nhật",
     "updateProfile": "Cập nhật hồ sơ",

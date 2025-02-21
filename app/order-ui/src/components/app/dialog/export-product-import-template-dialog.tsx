@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FileDown } from 'lucide-react'
 
 import {
   Button,
@@ -9,24 +7,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription
 } from '@/components/ui'
 
 import { useExportProductImportTemplate } from '@/hooks'
 import { showToast } from '@/utils'
 
-export default function DownloadImportProductsTemplateDialog() {
+interface ExportProductImportTemplateDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function DownloadImportProductsTemplateDialog({ isOpen, onOpenChange }: ExportProductImportTemplateDialogProps) {
   const { t } = useTranslation(['product'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { mutate: exportProductImportTemplate } = useExportProductImportTemplate()
-  const [isOpen, setIsOpen] = useState(false)
 
   const handleSubmit = () => {
     exportProductImportTemplate(undefined, {
       onSuccess: () => {
-        setIsOpen(false)
+        onOpenChange(false)
         showToast(tToast('toast.exportProductImportTemplateSuccess'))
       },
     })
@@ -36,17 +37,17 @@ export default function DownloadImportProductsTemplateDialog() {
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        setIsOpen(open)
+        onOpenChange(open)
       }}
     >
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button
           className="flex justify-start w-full gap-1 px-2 text-xs"
         >
           <FileDown className="icon" />
           {t('product.exportProductImportTemplate')}
         </Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
@@ -63,7 +64,7 @@ export default function DownloadImportProductsTemplateDialog() {
         </div>
 
         <DialogFooter className="flex flex-row justify-end gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             {tCommon('common.cancel')}
           </Button>
           <Button onClick={handleSubmit}>

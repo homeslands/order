@@ -2,6 +2,8 @@ import { AutoMap } from "@automapper/classes";
 import { Base } from "src/app/base.entity";
 import { ApplicablePromotion } from "src/applicable-promotion/applicable-promotion.entity";
 import { Branch } from "src/branch/branch.entity";
+import { MenuItem } from "src/menu-item/menu-item.entity";
+import { OrderItem } from "src/order-item/order-item.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 
 @Entity("promotion_tbl")
@@ -40,4 +42,13 @@ export class Promotion extends Base {
     (applicablePromotion) => applicablePromotion.promotion
   )
   applicablePromotions: ApplicablePromotion[];
+
+  @OneToMany(
+    () => OrderItem,
+    (orderItem) => orderItem.promotion
+  )
+  orderItems: OrderItem[];
+
+  @OneToMany(() => MenuItem, (menuItem) => menuItem.promotion)
+  menuItems: MenuItem[];
 }

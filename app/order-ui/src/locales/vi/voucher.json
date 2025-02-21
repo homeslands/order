@@ -2,14 +2,16 @@
   "voucher": {
     "voucherTitle": "Quản lý voucher",
 
+    "useVoucher": "Sử dụng voucher",
     "slug": "Slug",
     "createdAt": "Ngày tạo",
     "title": "Tiêu đề",
     "code": "Mã giảm giá",
-    "maxUsage": "Số voucher tối đa",
+    "maxUsage": "Số lượng",
     "minOrderValue": "Giá trị đơn hàng tối thiểu",
     "copyCode": "Sao chép mã giảm giá",
-
+    "discountValue": "Giảm ",
+    "orderValue": "giá trị đơn hàng",
     "create": "Tạo voucher",
     "name": "Tên voucher",
     "enterVoucherName": "Nhập tên voucher",
@@ -17,15 +19,22 @@
     "enterVoucherDescription": "Nhập mô tả voucher",
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
+    "time": "Thời gian",
     "type": "Loại voucher",
     "value": "Giá trị",
     "enterVoucherValue": "Nhập giá trị voucher",
+    "isActive": "Kích hoạt (Voucher sẽ khả dụng sau khi kích hoạt)",
     "enterVoucherCode": "Nhập mã giảm giá",
     "term": "Điều kiện tối thiểu",
     "noTerm": "Không có điều kiện",
     "minValue": "Giá trị tối thiểu",
     "enterMinOrderValue": "Nhập giá trị đơn hàng tối thiểu",
     "enterMaxUsage": "Nhập số lần sử dụng tối đa",
+    "remainingUsage": "Số lượng còn lại",
+    "activeStatus": "Trạng thái",
+    "active": "Có hiệu lực",
+    "inactive": "Không có hiệu lực",
+    "bestChoice": "Lựa chọn tốt nhất",
 
     "confirmCreateVoucher": "Xác nhận tạo voucher",
 
@@ -42,7 +51,10 @@
     "enterVoucher": "Nhập mã giảm giá",
     "apply": "Áp dụng",
     "use": "Sử dụng",
+    "remove": "Bỏ chọn",
     "maxApply": "Áp dụng tối đa",
-    "complete": "Hoàn thành"
+    "complete": "Hoàn thành",
+    "minOrderNotMet": "Chưa đạt giá trị tối thiểu",
+    "expired": "Voucher đã hết hạn"
   }
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import moment from 'moment'
+import _ from 'lodash'
+import { CircleX, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
@@ -9,11 +11,14 @@ import { PaymentMethod, ROUTE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
+import { OrderStatus } from '@/types'
+import { PaymentCountdown } from '@/components/app/countdown/PaymentCountdown'
 
 export default function PaymentPage() {
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
-  const { slug } = useParams()
+  const slug = searchParams.get('order')
   const navigate = useNavigate()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
   const { data: order, refetch: refetchOrder } = useOrderBySlug(slug as string)
@@ -24,34 +29,72 @@ export default function PaymentPage() {
   const [qrCode, setQrCode] = useState<string>('')
   const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(false)
+  const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
+  const [isExpired, setIsExpired] = useState<boolean>(false)
   const isDisabled = !paymentMethod || !slug
+
+  useEffect(() => {
+    if (order?.result.createdAt) {
+      const createdAt = moment(order.result.createdAt)
+      const now = moment()
+      const timePassed = now.diff(createdAt, 'seconds')
+      const remainingTime = 600 - timePassed // 10 minutes
+      setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
+      setIsExpired(remainingTime <= 0)
+    }
+  }, [order?.result.createdAt])
+
+  useEffect(() => {
+    let timerInterval: NodeJS.Timeout | null = null
+
+    if (timeRemainingInSec > 0) {
+      timerInterval = setInterval(() => {
+        setTimeRemainingInSec((prev) => {
+          const newTime = prev - 1
+          if (newTime <= 0) {
+            setIsExpired(true)
+            setIsPolling(false)
+            if (timerInterval) clearInterval(timerInterval)
+          }
+          return newTime
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (timerInterval) clearInterval(timerInterval)
+    }
+  }, [timeRemainingInSec])
 
   //polling order status every 3 seconds
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    let pollingInterval: NodeJS.Timeout | null = null
 
     if (isPolling) {
-      interval = setInterval(async () => {
+      pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
         const orderStatus = updatedOrder.data?.result?.status
-        if (orderStatus === 'paid') {
-          clearInterval(interval!)
+        if (orderStatus === OrderStatus.PAID) {
+          if (pollingInterval) clearInterval(pollingInterval)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
       }, 3000)
     }
 
     return () => {
-      if (interval) clearInterval(interval)
+      if (pollingInterval) clearInterval(pollingInterval)
     }
   }, [isPolling, refetchOrder, navigate, slug])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
     setPaymentMethod(selectedPaymentMethod)
+    setIsPolling(false)
   }
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
+
+    // setTimeRemainingInSec(600) // Reset time remaining
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -87,9 +130,29 @@ export default function PaymentPage() {
     })
   }
 
+  if (_.isEmpty(order?.result) || isExpired) {
+    return (
+      <div className="container py-20 lg:h-[60vh]">
+        <div className="flex flex-col items-center justify-center gap-5">
+          <CircleX className="w-32 h-32 text-destructive" />
+          <p className="text-center text-muted-foreground">Đơn hàng đã hết hạn thanh toán</p>
+          <NavLink to={ROUTE.CLIENT_MENU}>
+            <Button variant="default">Quay lại trang thực đơn</Button>
+          </NavLink>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-row h-full gap-2">
-      <div className={`transition-all duration-300 w-full ease-in-out`}>
+    <div>
+      <PaymentCountdown timeRemaining={timeRemainingInSec} />
+      <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <SquareMenu />
+        {t('menu.payment')}
+        <span className="text-muted-foreground">#{slug}</span>
+      </span>
+      <div>
         <div className="sticky top-0 z-10 flex flex-col items-center gap-2">
           <div className="flex flex-col w-full gap-3">
             {order && (

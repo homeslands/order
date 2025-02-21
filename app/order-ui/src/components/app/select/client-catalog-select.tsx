@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { useCatalogs } from '@/hooks'
+import { useThemeStore } from '@/stores'
 
 interface SelectCatalogProps {
   defaultValue?: string
@@ -12,6 +13,7 @@ export default function CatalogSelect({
   defaultValue,
   onChange,
 }: SelectCatalogProps) {
+  const { getTheme } = useThemeStore()
   const [allCatalogs, setAllCatalogs] = useState<
     { value: string; label: string }[]
   >([{ value: '', label: 'Tất cả' }]) // Option "Tất cả" mặc định
@@ -58,11 +60,40 @@ export default function CatalogSelect({
 
   return (
     <ReactSelect
-      className="text-sm"
+      className="w-full text-sm"
       value={selectedCatalog}
       options={allCatalogs}
       onChange={handleChange}
       defaultValue={selectedCatalog}
+      styles={{
+        control: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '',
+          borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+        }),
+        menu: (baseStyles) => ({
+          ...baseStyles,
+          backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
+        }),
+        option: (baseStyles, state) => ({
+          ...baseStyles,
+          backgroundColor: state.isFocused
+            ? getTheme() === 'light'
+              ? '#e2e8f0'
+              : '#2d2d2d'
+            : getTheme() === 'light'
+              ? 'white'
+              : '#121212',
+          color: getTheme() === 'light' ? 'black' : 'white',
+          '&:hover': {
+            backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
+          },
+        }),
+        singleValue: (baseStyles) => ({
+          ...baseStyles,
+          color: getTheme() === 'light' ? 'black' : 'white',
+        }),
+      }}
     />
   )
 }

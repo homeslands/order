@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Product } from './product.entity';
-import { DataSource, In, IsNull, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateProductRequestDto,
+  GetProductRequestDto,
   ProductResponseDto,
   UpdateProductRequestDto,
   ValidationError,
@@ -25,6 +26,8 @@ import { Size } from 'src/size/size.entity';
 import { name } from 'ejs';
 import FileValidation from 'src/file/file.validation';
 import { FileException } from 'src/file/file.exception';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Injectable()
 export class ProductService {
@@ -41,7 +44,7 @@ export class ProductService {
     private readonly fileService: FileService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly dataSource: DataSource,
-    
+    private readonly promotionUtils: PromotionUtils,
   ) {}
 
   async getPopularProducts() {}
@@ -57,7 +60,6 @@ export class ProductService {
       where: { slug },
       relations: ['catalog', 'variants.size'],
     });
-    console.log({ product });
     if (!product) {
       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
     }
@@ -224,15 +226,40 @@ export class ProductService {
    * @param {string} catalog The catalog slug if get product by catalog
    * @returns {Promise<ProductResponseDto[]>} The products array is retrieved
    */
-  async getAllProducts(catalog?: string): Promise<ProductResponseDto[]> {
-    const products = await this.productRepository.find({
+  async getAllProducts(query: GetProductRequestDto): Promise<ProductResponseDto[]> {
+    let products = await this.productRepository.find({
       where: {
         catalog: {
-          slug: catalog,
+          slug: query.catalog,
         },
       },
       relations: ['catalog', 'variants.size'],
     });
+    
+    if(query.exceptedPromotion) {
+      const where: FindOptionsWhere<Promotion> = {
+        slug: query.exceptedPromotion,
+      };
+      const promotion = await this.promotionUtils.getPromotion(
+        where,
+        ['applicablePromotions']
+      );
+      const exceptedProductIds = promotion.applicablePromotions.map((item) => item.applicableId);
+      products = products.filter((item) => !exceptedProductIds.includes(item.id));
+    }
+
+    if(query.expectedPromotion) {
+      const where: FindOptionsWhere<Promotion> = {
+        slug: query.expectedPromotion,
+      };
+      const promotion = await this.promotionUtils.getPromotion(
+        where,
+        ['applicablePromotions']
+      );
+      const expectedProductIds = promotion.applicablePromotions.map((item) => item.applicableId);
+      products = products.filter((item) => expectedProductIds.includes(item.id));
+    }
+
     const productsDto = this.mapper.mapArray(
       products,
       Product,
@@ -338,7 +365,6 @@ export class ProductService {
       const worksheet = workbook.getWorksheet(1);
 
       const validationData = this.validateDataFromExcel(worksheet);
-      console.log({validationData});
       if(!_.isEmpty(validationData.errors)) {
         const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
         const ws = reader.utils.json_to_sheet(formattedErrors);
@@ -384,8 +410,6 @@ export class ProductService {
             description: productData[3],
             catalog
           });
-          console.log({productData})
-          console.log({newProduct})
 
           const createdProduct = await queryRunner.manager.save(newProduct);
 
@@ -502,8 +526,6 @@ export class ProductService {
     const headerRow = worksheet.getRow(1);
 
     const headerRowValues = headerRow.values;
-    console.log({headerRowValues})
-    console.log({headerRowValues: typeof(headerRowValues)})
 
     if(JSON.stringify(headerRowValidation) !== JSON.stringify(headerRowValues)) {
       this.logger.warn(FileValidation.EXCEL_FILE_WRONG_HEADER.message, context);

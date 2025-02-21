@@ -15,7 +15,7 @@ import {
 import { IUpdateVoucherRequest } from '@/types'
 import { useUpdateVoucher } from '@/hooks'
 import { showToast } from '@/utils'
-import { QUERYKEY } from '@/constants/query'
+import { QUERYKEY } from '@/constants'
 
 interface IConfirmUpdateVoucherDialogProps {
   isOpen: boolean

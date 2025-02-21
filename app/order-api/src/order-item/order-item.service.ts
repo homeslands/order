@@ -18,6 +18,10 @@ import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { OrderValidation } from 'src/order/order.validation';
+import { OrderException } from 'src/order/order.exception';
 
 @Injectable()
 export class OrderItemService {
@@ -31,6 +35,8 @@ export class OrderItemService {
     private readonly menuItemUtils: MenuItemUtils,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    private readonly promotionUtils: PromotionUtils,
+    private readonly menuUtils: MenuUtils,
   ) {}
 
   async updateOrderItem(slug: string, requestData: UpdateOrderItemRequestDto) {
@@ -48,8 +54,35 @@ export class OrderItemService {
       where: { slug: requestData.variant },
     });
 
+    // # Check promotion
+    const date = new Date(orderItem.order.createdAt);
+    date.setHours(7, 0, 0, 0);
+
+    const menu = await this.menuUtils.getMenu({
+      where: {
+        branch: { id: orderItem.order.branch.id },
+        date,
+      }
+    });
+
+    const menuItem = await this.menuItemUtils.getMenuItem({
+      where: {
+        menu: { slug: menu.slug },
+        product: {
+          id: variant.product?.id,
+        },
+      },
+      relations: ['promotion'],
+    });
+
+    await this.promotionUtils.validatePromotionWithMenuItem(
+      requestData.promotion,
+      menuItem
+    );
+
     orderItem.variant = variant;
     orderItem.quantity = requestData.quantity;
+    orderItem.promotion = menuItem.promotion;
     orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
     if (requestData.note) orderItem.note = requestData.note;
 
@@ -61,13 +94,16 @@ export class OrderItemService {
         // Update menu item
         const menuItem = await this.menuItemUtils.getCurrentMenuItem(
           orderItem,
-          new Date(moment().format('YYYY-MM-DD')),
+          // new Date(moment().format('YYYY-MM-DD')),
+          date,
           requestData.action,
         );
         await manager.save(menuItem);
 
         // Update order
         const { order } = orderItem;
+
+
         order.subtotal = await this.orderUtils.getOrderSubtotal(order);
         await manager.save(order);
       },
@@ -149,17 +185,51 @@ export class OrderItemService {
   async createOrderItem(
     requestData: CreateOrderItemRequestDto,
   ): Promise<OrderItemResponseDto> {
+    // validate stock
+    // validate promotion 
+    // validate voucher
+    // # Time in createdDate of order;
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
     const order = await this.orderUtils.getOrder({
       where: {
         slug: requestData.order,
       },
     });
+
     const variant = await this.variantUtils.getVariant({
       where: {
         slug: requestData.variant,
       },
     });
+
+    // # Check promotion
+    const date = new Date(order.createdAt);
+    date.setHours(7, 0, 0, 0);
+
+    console.log({ date });
+
+    const menu = await this.menuUtils.getMenu({
+      where: {
+        branch: { id: order.branch.id },
+        date,
+      }
+    });
+
+    const menuItem = await this.menuItemUtils.getMenuItem({
+      where: {
+        menu: { slug: menu.slug },
+        product: {
+          id: variant.product?.id,
+        },
+      },
+      relations: ['promotion'],
+    });
+
+    await this.promotionUtils.validatePromotionWithMenuItem(
+      requestData.promotion,
+      menuItem
+    );
+
     const orderItem = this.mapper.map(
       requestData,
       CreateOrderItemRequestDto,
@@ -167,11 +237,15 @@ export class OrderItemService {
     );
     orderItem.variant = variant;
     orderItem.order = order;
+    orderItem.promotion = menuItem.promotion;
     orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
+
+    console.log({ orderItem });
 
     // Update order
     order.orderItems.push(orderItem);
     order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+    console.log({ order });
 
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(
@@ -182,7 +256,8 @@ export class OrderItemService {
           // Update menu items
           const menuItem = await this.menuItemUtils.getCurrentMenuItem(
             orderItem,
-            new Date(moment().format('YYYY-MM-DD')),
+            // new Date(moment().format('YYYY-MM-DD')),
+            date,
             'decrement',
           );
           await manager.save(menuItem);

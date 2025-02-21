@@ -22,6 +22,14 @@ export class Voucher extends Base {
   maxUsage: number;
 
   @AutoMap()
+  @Column({ name: 'remaining_usage_column' })
+  remainingUsage: number;
+
+  @AutoMap()
+  @Column({ name: 'value_type_column', default: 'percentage' })
+  valueType: string;
+
+  @AutoMap()
   @Column({ name: 'min_order_value_column', default: 0 })
   minOrderValue: number;
 

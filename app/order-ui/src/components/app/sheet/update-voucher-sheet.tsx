@@ -19,6 +19,7 @@ import {
   FormControl,
   FormMessage,
   Form,
+  Switch,
 } from '@/components/ui'
 import { ConfirmUpdateVoucherDialog } from '@/components/app/dialog'
 import { IUpdateVoucherRequest, IVoucher } from '@/types'
@@ -47,7 +48,9 @@ export default function UpdateVoucherSheet({
       startDate: voucher.startDate,
       endDate: voucher.endDate,
       code: voucher.code,
+      value: voucher.value,
       maxUsage: voucher.maxUsage,
+      isActive: voucher.isActive,
       minOrderValue: voucher.minOrderValue,
     },
   })
@@ -88,7 +91,9 @@ export default function UpdateVoucherSheet({
       startDate: '',
       endDate: '',
       code: '',
+      value: 0,
       maxUsage: 0,
+      isActive: false,
       minOrderValue: 0,
     })
   }
@@ -106,7 +111,7 @@ export default function UpdateVoucherSheet({
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.name')}
             </FormLabel>
@@ -124,7 +129,7 @@ export default function UpdateVoucherSheet({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.description')}
             </FormLabel>
@@ -145,7 +150,7 @@ export default function UpdateVoucherSheet({
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.startDate')}
             </FormLabel>
@@ -167,7 +172,7 @@ export default function UpdateVoucherSheet({
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.endDate')}
             </FormLabel>
@@ -189,7 +194,7 @@ export default function UpdateVoucherSheet({
         name="code"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.code')}
             </FormLabel>
@@ -205,13 +210,42 @@ export default function UpdateVoucherSheet({
         )}
       />
     ),
+    value: (
+      <FormField
+        control={form.control}
+        name="value"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">*</span>
+              {t('voucher.value')}
+            </FormLabel>
+            <FormControl>
+              <div className="relative">
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder={t('voucher.enterVoucherValue')}
+                  className="pr-8" // Tạo khoảng trống bên phải cho ký hiệu %
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+
     maxUsage: (
       <FormField
         control={form.control}
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.maxUsage')}
             </FormLabel>
@@ -235,18 +269,47 @@ export default function UpdateVoucherSheet({
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.minOrderValue')}
             </FormLabel>
             <FormControl>
-              <Input
-                type="number"
-                {...field}
-                placeholder={t('voucher.enterMinOrderValue')}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-                min={0}
-              />
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  placeholder={t('voucher.enterMinOrderValue')}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  min={0}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  ₫
+                </span>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    isActive: (
+      <FormField
+        control={form.control}
+        name="isActive"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex items-center gap-1">
+              <span className="text-destructive">*</span>
+              {t('voucher.isActive')}
+            </FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is-active"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -280,7 +343,7 @@ export default function UpdateVoucherSheet({
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white rounded-md border">
+                  <div className="p-4 bg-white border rounded-md">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -288,20 +351,26 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded-md border">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded-md border">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
                     {formFields.code}
                     {formFields.maxUsage}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className="p-4 bg-white rounded-md border">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
                     {formFields.minOrderValue}
+                    {formFields.value}
+                  </div>
+
+                  {/* Nhóm: Kích hoạt voucher */}
+                  <div className="grid grid-cols-1 p-4 bg-white border rounded-md">
+                    {formFields.isActive}
                   </div>
                 </form>
               </Form>

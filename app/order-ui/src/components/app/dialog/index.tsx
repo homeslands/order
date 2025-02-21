@@ -36,6 +36,7 @@ export { default as UpdateProfileDialog } from './update-profile-dialog'
 
 export { default as CreateMenuDialog } from './create-menu-dialog'
 export { default as UpdateMenuDialog } from './update-menu-dialog'
+export { default as DeleteMenuDialog } from './delete-menu-dialog'
 
 export { default as ChooseBranchDialog } from './choose-branch-dialog'
 export { default as CreateBranchDialog } from './create-branch-dialog'
@@ -48,8 +49,9 @@ export { default as DeleteTableDialog } from './delete-table-dialog'
 
 export { default as CreateOrderDialog } from './create-order-dialog'
 export { default as UpdateOrderItemDialog } from './update-order-item-dialog'
-export { default as ConfirmUpdateOrderDialog } from './confirm-update-order-dialog'
 export { default as CancelOrderDialog } from './cancel-order-dialog'
+
+export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
 
 export { default as CreateBankConnectorDialog } from './create-bank-connector-dialog'
 export { default as UpdateBankConnectorDialog } from './update-bank-connector-dialog'
@@ -89,3 +91,10 @@ export { default as OrderTypeAlertDialog } from './order-type-alert-dialog'
 export { default as CreateStaticPageDialog } from './create-static-page-dialog'
 export { default as UpdateStaticPageDialog } from './update-static-page-dialog'
 export { default as DeleteStaticPageDialog } from './delete-static-page-dialog'
+
+export { default as CreatePromotionDialog } from './confirm-create-promotion-dialog'
+export { default as UpdatePromotionDialog } from './confirm-update-promotion-dialog'
+export { default as DeletePromotionDialog } from './delete-promotion-dialog'
+
+export { default as RemoveAppliedPromotionDialog } from './confirm-remove-applied-promotion-dialog'
+export { default as ConfirmApplyPromotionDialog } from './confirm-apply-promotion-dialog'

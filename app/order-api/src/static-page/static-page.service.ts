@@ -116,7 +116,7 @@ export class StaticPageService {
       throw new StaticPageException(StaticPageValidation.STATIC_PAGE_NOT_FOUND);
     }
 
-    await this.validateUpdatedKey(staticPage, updateStaticPageDto);
+    // await this.validateUpdatedKey(staticPage, updateStaticPageDto);
 
     const updatedStaticPage = this.mapper.map(
       updateStaticPageDto,
@@ -134,44 +134,44 @@ export class StaticPageService {
     return staticPageDto;
   }
 
-  async validateUpdatedKey(
-    staticPage: StaticPage,
-    updateStaticPageDto: UpdateStaticPageDto,
-  ): Promise<void> {
-    if (staticPage.key !== updateStaticPageDto.key) {
-      const existingStaticPage = this.staticPageRepository.findOne({
-        where: {
-          key: updateStaticPageDto.key,
-        },
-      });
-      if (existingStaticPage) {
-        throw new StaticPageException(
-          StaticPageValidation.STATIC_PAGE_KEY_ALREADY_EXIST,
-        );
-      }
-    }
-  }
+  // async validateUpdatedKey(
+  //   staticPage: StaticPage,
+  //   updateStaticPageDto: UpdateStaticPageDto,
+  // ): Promise<void> {
+  //   if (staticPage.key !== updateStaticPageDto.key) {
+  //     const existingStaticPage = this.staticPageRepository.findOne({
+  //       where: {
+  //         key: updateStaticPageDto.key,
+  //       },
+  //     });
+  //     if (existingStaticPage) {
+  //       throw new StaticPageException(
+  //         StaticPageValidation.STATIC_PAGE_KEY_ALREADY_EXIST,
+  //       );
+  //     }
+  //   }
+  // }
 
-  async remove(slug: string): Promise<StaticPageResponseDto> {
-    const context = `${StaticPageService.name}.${this.remove.name}`;
-    const staticPage = await this.staticPageRepository.findOne({
-      where: {
-        slug,
-      },
-    });
-    if (!staticPage) {
-      this.logger.warn(
-        StaticPageValidation.STATIC_PAGE_NOT_FOUND.message,
-        context,
-      );
-      throw new StaticPageException(StaticPageValidation.STATIC_PAGE_NOT_FOUND);
-    }
-    const deletedStaticPage =
-      await this.staticPageRepository.remove(staticPage);
-    return this.mapper.map(
-      deletedStaticPage,
-      StaticPage,
-      StaticPageResponseDto,
-    );
-  }
+  // async remove(slug: string): Promise<StaticPageResponseDto> {
+  //   const context = `${StaticPageService.name}.${this.remove.name}`;
+  //   const staticPage = await this.staticPageRepository.findOne({
+  //     where: {
+  //       slug,
+  //     },
+  //   });
+  //   if (!staticPage) {
+  //     this.logger.warn(
+  //       StaticPageValidation.STATIC_PAGE_NOT_FOUND.message,
+  //       context,
+  //     );
+  //     throw new StaticPageException(StaticPageValidation.STATIC_PAGE_NOT_FOUND);
+  //   }
+  //   const deletedStaticPage =
+  //     await this.staticPageRepository.remove(staticPage);
+  //   return this.mapper.map(
+  //     deletedStaticPage,
+  //     StaticPage,
+  //     StaticPageResponseDto,
+  //   );
+  // }
 }

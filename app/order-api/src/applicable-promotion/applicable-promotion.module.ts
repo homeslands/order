@@ -21,7 +21,6 @@ import { PromotionUtils } from "src/promotion/promotion.utils";
     Menu,
     MenuItem
   ]),
-  DbModule
 ],
   controllers: [ApplicablePromotionController],
   providers: [
@@ -30,6 +29,9 @@ import { PromotionUtils } from "src/promotion/promotion.utils";
     ApplicablePromotionUtils,
     PromotionUtils
   ],
-  exports: [ApplicablePromotionUtils]
+  exports: [
+    ApplicablePromotionUtils,
+    ApplicablePromotionService
+  ]
 })
 export class ApplicablePromotionModule {}

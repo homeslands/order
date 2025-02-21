@@ -40,7 +40,7 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       slug: employee.slug,
-      phonenumber: employee.phonenumber,
+      // phonenumber: employee.phonenumber,
       firstName: employee.firstName,
       lastName: employee.lastName,
       dob: employee.dob,
@@ -64,21 +64,21 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
   }
 
   const formFields = {
-    phonenumber: (
-      <FormField
-        control={form.control}
-        name="phonenumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('employee.phoneNumber')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('employee.enterPhoneNumber')} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+    // phonenumber: (
+    //   <FormField
+    //     control={form.control}
+    //     name="phonenumber"
+    //     render={({ field }) => (
+    //       <FormItem>
+    //         <FormLabel>{t('employee.phoneNumber')}</FormLabel>
+    //         <FormControl>
+    //           <Input placeholder={t('employee.enterPhoneNumber')} {...field} />
+    //         </FormControl>
+    //         <FormMessage />
+    //       </FormItem>
+    //     )}
+    //   />
+    // ),
     firstName: (
       <FormField
         control={form.control}

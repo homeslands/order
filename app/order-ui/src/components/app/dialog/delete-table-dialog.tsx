@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Trash2, TriangleAlert } from 'lucide-react'
 
@@ -17,7 +18,6 @@ import { ITable } from '@/types'
 
 import { useDeleteTable } from '@/hooks'
 import { showToast } from '@/utils'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface DeleteTableDialogProps {
   table: ITable | null
@@ -55,11 +55,11 @@ export default function DeleteTableDialog({
         if (onContextOpen && isOpen) onContextOpen()
       }}
     >
-      <DialogTrigger className="flex w-full justify-start" asChild>
+      <DialogTrigger className="flex justify-start w-full" asChild>
         <DialogTrigger asChild>
           <Button
             variant="ghost"
-            className="flex w-full justify-start gap-1 px-2 text-sm"
+            className="flex justify-start w-full gap-1 px-2 text-sm"
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />
@@ -70,13 +70,13 @@ export default function DeleteTableDialog({
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="border-b border-destructive pb-4 text-destructive">
+          <DialogTitle className="pb-4 border-b border-destructive text-destructive">
             <div className="flex items-center gap-2">
-              <TriangleAlert className="h-6 w-6" />
+              <TriangleAlert className="w-6 h-6" />
               {t('table.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className="rounded-md bg-red-100 p-2 text-destructive">
+          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
 

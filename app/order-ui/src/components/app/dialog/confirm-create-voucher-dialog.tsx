@@ -15,7 +15,7 @@ import {
 import { ICreateVoucherRequest } from '@/types'
 import { useCreateVoucher } from '@/hooks'
 import { showToast } from '@/utils'
-import { QUERYKEY } from '@/constants/query'
+import { QUERYKEY } from '@/constants'
 
 interface IConfirmCreateVoucherDialogProps {
   isOpen: boolean

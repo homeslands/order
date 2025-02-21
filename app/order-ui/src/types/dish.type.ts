@@ -4,6 +4,7 @@ import { IBase } from './base.type'
 import { IProduct, IProductVariant } from './product.type'
 import { ISize } from './size.type'
 import { ITable } from './table.type'
+import { IVoucher } from './voucher.type'
 
 export interface IDish {
   id: number
@@ -30,6 +31,10 @@ export interface ICartItem {
   orderItems: IOrderItem[]
   table?: string
   tableName?: string
+  voucher?: {
+    slug: string
+    value: number
+  } | null
   note?: string
   approvalBy?: string
 }
@@ -60,6 +65,7 @@ export interface IOrderItem {
   price: number
   description: string
   isLimit: boolean
+  promotion?: string // promotion slug
   // catalog: ICatalog
   note?: string
 }
@@ -95,6 +101,7 @@ export interface IOrder {
   orderItems: IOrderDetail[]
   status: OrderStatus
   invoice: IOrderInvoice
+  voucher: IVoucher
 }
 
 export interface IOrderDetail extends IBase {
@@ -201,12 +208,14 @@ export interface ICreateOrderRequest {
     note: string
   }[]
   approvalBy: string
+  voucher: string | null // voucher slug
 }
 
 export interface IAddNewOrderItemRequest {
   quantity: number
   variant: string
   note: string
+  promotion: string
   order: string
 }
 

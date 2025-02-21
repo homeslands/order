@@ -25,6 +25,7 @@ import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('voucher')
 @ApiTags('Voucher')
@@ -55,14 +56,7 @@ export class VoucherController {
   }
 
   @Get()
-  @HasRoles(
-    RoleEnum.Customer,
-    RoleEnum.Staff,
-    RoleEnum.Chef,
-    RoleEnum.SuperAdmin,
-    RoleEnum.Admin,
-    RoleEnum.Manager,
-  )
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all voucher' })
   @ApiResponseWithType({

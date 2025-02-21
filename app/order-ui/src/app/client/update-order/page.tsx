@@ -8,20 +8,19 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import { UpdateOrderQuantitySelector } from '@/components/app/button'
-import { ClientUpdateOrderTableSelect } from '@/app/system/menu'
 import { UpdateOrderNoteInput } from '@/components/app/input'
 import {
-    ConfirmUpdateOrderDialog,
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
-import { UpdateOrderSheet } from '@/components/app/sheet'
+import { VoucherListSheet } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
-import { showToast } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
+import { ClientMenuTabs } from '@/components/app/tabs'
 
 export default function ClientUpdateOrderPage() {
     const { t } = useTranslation('menu')
@@ -38,12 +37,7 @@ export default function ClientUpdateOrderPage() {
         refetch()
     }
 
-    const handleOnAddNewOrderItemSuccess = () => {
-        refetch()
-    }
-
     const handleUpdateOrderTypeSuccess = () => {
-        console.log('Update order type success')
         refetch()
     }
 
@@ -93,8 +87,7 @@ export default function ClientUpdateOrderPage() {
             {/* Order type selection */}
             <div className="flex flex-col gap-4 lg:flex-row">
                 {/* Left content */}
-                <div className="w-full lg:w-1/2">
-                    <UpdateOrderSheet onAddNewOrderItemSuccess={handleOnAddNewOrderItemSuccess} />
+                <div className="w-full lg:w-3/5">
                     {/* Note */}
                     <div className="flex items-end justify-between">
                         <div className="flex items-center gap-1">
@@ -105,13 +98,12 @@ export default function ClientUpdateOrderPage() {
                         </div>
                     </div>
 
-                    {/* Table select */}
-                    <ClientUpdateOrderTableSelect onSuccess={handleUpdateOrderTypeSuccess} order={orderItems} defaultValue={orderItems?.table !== null ? orderItems?.table.slug : ''} />
-                    {/* <ClientTableSelect /> */}
+                    {/* Menu & Table select */}
+                    <ClientMenuTabs onSuccess={handleUpdateOrderTypeSuccess} order={orderItems} defaultValue={orderItems?.table !== null ? orderItems?.table.slug : ''} />
                 </div>
 
                 {/* Right content */}
-                <div className="w-full lg:w-1/2">
+                <div className="w-full lg:w-2/5">
                     <OrderTypeInUpdateOrderSelect onChange={handleChangeOrderType} orderItems={orderItems} />
                     {/* Table list order items */}
                     <div className="mt-5">
@@ -166,10 +158,37 @@ export default function ClientUpdateOrderPage() {
                                 </div>
                             ))}
                         </div>
+                        <VoucherListSheet defaultValue={orderItems?.voucher && orderItems.voucher.slug} />
+                        <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                            <div className="w-2/3 space-y-1">
+                                <div className="grid grid-cols-5">
+                                    <span className="col-span-3 text-sm text-muted-foreground">{t('order.total')}:</span>
+                                    <span className="col-span-2 text-sm text-right text-muted-foreground">
+                                        {formatCurrency(orderItems?.subtotal || 0)}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-5">
+                                    <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                    <span className="col-span-2 text-sm italic text-right text-green-500">
+                                        {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-5 pt-2 mt-4 border-t">
+                                    <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
+                                    <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
+                                        {formatCurrency(orderItems?.voucher ? (orderItems.subtotal - (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100) : 0)}
+                                    </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">{t('order.vat')}</span>
+                            </div>
+                        </div>
+
                     </div>
                     {/* Button */}
                     <div className="flex justify-end w-full mt-4">
-                        <ConfirmUpdateOrderDialog />
+                        <NavLink to={`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`}>
+                            <Button>{t('order.continueToPayment')}</Button>
+                        </NavLink>
                     </div>
                 </div>
             </div>

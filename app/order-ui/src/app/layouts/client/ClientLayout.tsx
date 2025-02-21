@@ -6,7 +6,6 @@ import { DownloadProgress } from '@/components/app/progress'
 import { useDownloadStore } from '@/stores'
 import { ClientHeader, ClientFooter, BackToTop, BottomBar } from './components'
 import { ChooseBranchDialog } from '@/components/app/dialog'
-// import MessengerChat from '@/components/messenger/messenger-chat'
 
 export default function ClientLayout() {
   const isMobile = useIsMobile()
