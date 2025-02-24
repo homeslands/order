@@ -9,6 +9,7 @@ import {
   FileText,
   Grid2x2,
   LayoutGrid,
+  Newspaper,
   Phone,
   ShoppingBag,
   Store,
@@ -135,6 +136,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.ADMIN_PROMOTION,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Tag,
+  },
+  {
+    title: 'sidebar.banner',
+    path: ROUTE.ADMIN_BANNER,
+    roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+    icon: Newspaper,
   },
   {
     title: 'sidebar.docs',

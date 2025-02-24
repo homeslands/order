@@ -1,5 +1,6 @@
 export * from './auth.schema'
 export * from './bank.schema'
+export * from './banner.schema'
 export * from './branch.schema'
 export * from './catalog.schema'
 export * from './log.schema'

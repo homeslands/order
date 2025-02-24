@@ -32,7 +32,7 @@ export default function ApplyPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts(promotion.slug)
+  const { data: products, isLoading } = useProducts(promotion?.slug)
   const [isApplyFromToday, setIsApplyFromToday] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
@@ -56,7 +56,7 @@ export default function ApplyPromotionSheet({
       applicableSlugs: isSelected
         ? [...selectedProducts, product.slug]
         : selectedProducts.filter((slug) => slug !== product.slug),
-      promotion: promotion.slug,
+      promotion: promotion?.slug,
       type: 'product',
       isApplyFromToday: isApplyFromToday || true,
     }

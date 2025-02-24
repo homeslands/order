@@ -66,7 +66,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion.slug : '',
+          promotion: product.promotion ? product.promotion?.slug : '',
           note,
         },
       ],

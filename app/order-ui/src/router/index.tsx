@@ -46,6 +46,8 @@ import {
   DocsPage,
   VoucherPage,
   PromotionPage,
+  BannerPage,
+  BannerDetailPage,
   // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
@@ -618,6 +620,44 @@ export const router = createBrowserRouter([
           <ProtectedElement
             allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
             element={<SuspenseElement component={PromotionPage} />}
+          />
+        ),
+      },
+    ],
+  },
+  {
+    path: ROUTE.ADMIN_BANNER,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <SuspenseElement component={SystemLayout} />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedElement
+            allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+            element={<SuspenseElement component={BannerPage} />}
+          />
+        ),
+      },
+    ],
+  },
+  {
+    path: `${ROUTE.ADMIN_BANNER}/:slug`,
+    element: (
+      <Suspense fallback={<SkeletonCart />}>
+        <SuspenseElement component={SystemLayout} />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedElement
+            allowedRoles={[Role.MANAGER]}
+            element={<SuspenseElement component={BannerDetailPage} />}
           />
         ),
       },

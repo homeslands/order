@@ -53,7 +53,7 @@ export default function ClientAddToCurrentOrderDialog({
       quantity: 1,
       variant: selectedVariant.slug,
       order: slug as string,
-      promotion: product.promotion.slug,
+      promotion: product.promotion ? product.promotion?.slug : '',
       note: note,
     }
 

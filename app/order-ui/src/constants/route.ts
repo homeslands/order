@@ -29,6 +29,7 @@ export const ROUTE = {
   STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
   STAFF_BANK_CONFIG: '/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
+  STAFF_BANNER: '/system/banner',
 
   //Client Routes
   CLIENT_HOME: '/',
@@ -52,4 +53,5 @@ export const ROUTE = {
   ADMIN_CONFIG: '/config',
   ADMIN_VOUCHER: '/voucher',
   ADMIN_PROMOTION: '/promotion',
+  ADMIN_BANNER: '/banner',
 }

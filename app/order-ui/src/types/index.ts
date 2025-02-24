@@ -1,4 +1,5 @@
 export * from './auth.type'
+export * from './banner.type'
 export * from './base.type'
 export * from './bank.type'
 export * from './branch.type'

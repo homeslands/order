@@ -98,3 +98,7 @@ export { default as DeletePromotionDialog } from './delete-promotion-dialog'
 
 export { default as RemoveAppliedPromotionDialog } from './confirm-remove-applied-promotion-dialog'
 export { default as ConfirmApplyPromotionDialog } from './confirm-apply-promotion-dialog'
+
+export { default as CreateBannerDialog } from './create-banner-dialog'
+export { default as DeleteBannerDialog } from './delete-banner-dialog'
+export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'

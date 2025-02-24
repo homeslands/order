@@ -42,7 +42,7 @@ export default function UpdatePromotionSheet({
   const form = useForm<TUpdatePromotionSchema>({
     resolver: zodResolver(updatePromotionSchema),
     defaultValues: {
-      slug: promotion.slug,
+      slug: promotion?.slug,
       branch: userInfo?.branch.slug || '',
       createdAt: promotion.createdAt,
       title: promotion.title,
