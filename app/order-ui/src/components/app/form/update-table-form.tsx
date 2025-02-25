@@ -20,6 +20,7 @@ import { IUpdateTableRequest, ITable } from '@/types'
 import { useUpdateTable } from '@/hooks'
 import { showToast } from '@/utils'
 import TableLocationSelect from '../select/table-location-select'
+import { useBranchStore } from '@/stores'
 
 interface IFormUpdateTableProps {
   table: ITable | null
@@ -32,6 +33,7 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['table'])
+  const { branch } = useBranchStore()
   const { mutate: updateTable } = useUpdateTable()
   const form = useForm<TUpdateTableSchema>({
     resolver: zodResolver(updateTableSchema),
@@ -46,7 +48,7 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
     updateTable(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['tables'],
+          queryKey: ['tables', branch ? branch?.slug : ''],
         })
         onSubmit(false)
         form.reset()

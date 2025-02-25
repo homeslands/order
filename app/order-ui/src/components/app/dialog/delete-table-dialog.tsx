@@ -18,6 +18,7 @@ import { ITable } from '@/types'
 
 import { useDeleteTable } from '@/hooks'
 import { showToast } from '@/utils'
+import { useBranchStore } from '@/stores'
 
 interface DeleteTableDialogProps {
   table: ITable | null
@@ -32,17 +33,21 @@ export default function DeleteTableDialog({
   const { t } = useTranslation(['table'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
+  const { branch } = useBranchStore()
   const { mutate: deleteTable } = useDeleteTable()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleSubmit = (tableSlug: string) => {
     deleteTable(tableSlug, {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['tables'],
-        })
         setIsOpen(false)
-        showToast(tToast('toast.deleteTableSuccess'))
+        setTimeout(() => {
+          queryClient.invalidateQueries({
+            queryKey: ['tables', branch ? branch?.slug : ''],
+          })
+          showToast(tToast('toast.deleteTableSuccess'))
+          document.body.style.pointerEvents = 'auto'
+        }, 300)
       },
     })
   }
@@ -52,31 +57,34 @@ export default function DeleteTableDialog({
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open)
-        if (onContextOpen && isOpen) onContextOpen()
+        if (!open) {
+          document.body.style.pointerEvents = 'auto'
+          if (onContextOpen) onContextOpen()
+        }
       }}
     >
-      <DialogTrigger className="flex justify-start w-full" asChild>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex justify-start w-full gap-1 px-2 text-sm"
-            onClick={() => setIsOpen(true)}
-          >
-            <Trash2 className="icon" />
-            {t('table.delete')}
-          </Button>
-        </DialogTrigger>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          className="flex gap-1 justify-start px-2 w-full text-sm"
+          onClick={() => setIsOpen(true)}
+        >
+          <Trash2 className="icon" />
+          {t('table.delete')}
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b border-destructive text-destructive">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
               {t('table.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
+          <DialogDescription
+            className={`p-2 bg-red-100 rounded-md text-destructive dark:bg-transparent`}
+          >
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
@@ -86,7 +94,7 @@ export default function DeleteTableDialog({
             {t('table.deleteTableConfirmation')}
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
