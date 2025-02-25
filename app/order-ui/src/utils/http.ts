@@ -59,6 +59,7 @@ const publicRoutes = [
   { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },
   { path: /^\/catalogs$/, methods: ['get'] },
   { path: /^\/voucher$/, methods: ['get'] },
+  { path: /^\/banner$/, methods: ['get'] },
   { path: /^\/static-page\/[^/]+$/, methods: ['get'] },
 ]
 

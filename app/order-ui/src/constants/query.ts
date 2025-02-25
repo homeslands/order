@@ -4,4 +4,5 @@ export const QUERYKEY = {
   productVariants: ['productVariants'],
   vouchers: ['vouchers'],
   promotions: ['promotions'],
+  banners: ['banners'],
 }

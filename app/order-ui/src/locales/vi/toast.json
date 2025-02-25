@@ -115,6 +115,10 @@
     "applyVoucherSuccess": "Áp dụng voucher thành công",
     "removeVoucherSuccess": "Hủy voucher thành công",
 
+    "createBannerSuccess": "Tạo banner thành công",
+    "updateBannerSuccess": "Cập nhật banner thành công",
+    "deleteBannerSuccess": "Xóa banner thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

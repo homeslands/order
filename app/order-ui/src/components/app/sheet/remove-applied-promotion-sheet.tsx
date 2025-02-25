@@ -56,7 +56,7 @@ export default function RemoveAppliedPromotionSheet({
       applicableSlugs: isSelected
         ? [...selectedProducts, product.slug]
         : selectedProducts.filter((slug) => slug !== product.slug),
-      promotion: promotion.slug,
+      promotion: promotion?.slug,
       type: 'product',
       isApplyFromToday: isApplyFromToday || true,
     }

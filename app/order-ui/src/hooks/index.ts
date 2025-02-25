@@ -1,5 +1,6 @@
 export * from './use-auth'
 export * from './use-bank'
+export * from './use-banner'
 export * from './use-branch'
 export * from './use-catalog'
 export * from './use-debounced-input'

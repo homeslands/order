@@ -70,7 +70,7 @@ export default function ClientAddToCartDialog({
           price: finalPrice, // Use the calculated final price
           description: product.product.description,
           isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion.slug : '',
+          promotion: product.promotion ? product.promotion?.slug : '',
           // catalog: product.catalog,
           note: note,
         },

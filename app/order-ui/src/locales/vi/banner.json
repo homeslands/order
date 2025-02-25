@@ -1,0 +1,29 @@
+{
+  "banner": {
+    "bannerTitle": "Quản lý Banner",
+    "bannerDetailTitle": "Chi tiết Banner",
+    "bannerDescription": "Quản lý Banner của trang web",
+    "title": "Tiêu đề",
+    "content": "Nội dung",
+    "description": "Chúng tôi cung cấp các dịch vụ tốt nhất cho bạn",
+    "createdAt": "Ngày tạo",
+    "slug": "Slug",
+    "isActive": "Trạng thái",
+    "active": "Đang hoạt động",
+    "inactive": "Không hoạt động",
+    "isActiveDescription": "(Sau khi bật, banner sẽ hiển thị trên trang web)",
+
+    "noData": "Không có dữ liệu",
+
+    "create": "Tạo mới",
+    "createDescription": "Tạo mới banner",
+    "enterTitle": "Nhập tiêu đề",
+
+    "update": "Cập nhật",
+    "confirmUpdateBanner": "Xác nhận cập nhật banner",
+
+    "delete": "Xóa",
+    "deleteBannerWarning1": "Bạn sắp sửa xóa banner ",
+    "deleteBannerConfirmation": "Bạn có chắc chắn muốn xóa banner này không?"
+  }
+}

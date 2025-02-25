@@ -7,13 +7,15 @@ import {
   LandingPageBackground,
   LandingPageBackgroundMobile,
 } from '@/assets/images'
-import { useIsMobile } from '@/hooks'
+import { useBanners, useIsMobile } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { BestSellerCarousel, StoreCarousel } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
 
 export default function HomePage() {
   const isMobile = useIsMobile()
+  const { data: banner } = useBanners()
+  const bannerData = banner?.result || []
 
   // Animation Variants
   const fadeInVariants = {
@@ -45,11 +47,14 @@ export default function HomePage() {
           <div className="w-full col-span-2 mt-12 text-center text-white sm:mt-0">
             <div className="flex flex-col gap-2">
               <div className="text-4xl font-extrabold uppercase sm:text-4xl">
-                HOMELAND COFFEE
+                {bannerData[0]?.title ? bannerData[0].title : 'HOMELAND Coffee'}
               </div>
             </div>
             <p className="mt-4 text-sm sm:text-base">
-              Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.
+              {/* Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc. */}
+              {bannerData[0]?.content ? bannerData[0].content.replace(/(<([^>]+)>)/gi, '')
+                .substring(0, 100) : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
+
             </p>
             <div className="flex justify-center gap-4 mt-6 sm:flex-row">
               <NavLink to={ROUTE.CLIENT_MENU}>

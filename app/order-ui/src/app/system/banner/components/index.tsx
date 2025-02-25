@@ -1,0 +1,1 @@
+export { default as BannerDetailPage } from './banner-detail-page'
