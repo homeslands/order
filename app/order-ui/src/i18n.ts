@@ -28,6 +28,7 @@ import enVoucher from '@/locales/en/voucher.json'
 import enPromotion from '@/locales/en/promotion.json'
 import enRole from '@/locales/en/role.json'
 import enBanner from '@/locales/en/banner.json'
+import enHome from '@/locales/en/home.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -56,6 +57,7 @@ import viVoucher from '@/locales/vi/voucher.json'
 import viPromotion from '@/locales/vi/promotion.json'
 import viRole from '@/locales/vi/role.json'
 import viBanner from '@/locales/vi/banner.json'
+import viHome from '@/locales/vi/home.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -89,6 +91,7 @@ i18n
         promotion: enPromotion,
         role: enRole,
         banner: enBanner,
+        home: enHome,
       },
       vi: {
         toast: viToast,
@@ -118,6 +121,7 @@ i18n
         promotion: viPromotion,
         role: viRole,
         banner: viBanner,
+        home: viHome,
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',
@@ -153,6 +157,7 @@ i18n
       'promotion',
       'role',
       'banner',
+      'home',
     ], //Dùng để phân biệt các phần khác nhau của app
     defaultNS: 'auth', //Ngôn ngữ mặc định
   })

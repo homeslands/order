@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ValidationPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannerService } from './banner.service';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { BannerResponseDto, CreateBannerRequestDto, GetBannerQueryDto, UpdateBannerRequestDto } from './banner.dto';
 import { Public } from 'src/auth/public.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
+import { CustomFileInterceptor } from 'src/file/custom-interceptor';
 
 @ApiTags('Banner')
 @Controller('banner')
@@ -163,5 +164,49 @@ export class BannerController {
       timestamp: new Date().toISOString(),
       result: `${result} banner have been deleted successfully`,
     } as AppResponseDto<string>;
+  }
+  
+
+  @Patch(':slug/upload')
+  // @Public()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.OK)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Chef, RoleEnum.Staff)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Banner image have been uploaded successfully',
+    type: BannerResponseDto,
+  })
+  @ApiOperation({ summary: 'Upload banner image' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @UseInterceptors(new CustomFileInterceptor('file', {
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    }
+  }))
+  async uploadBannerImage(
+    @Param('slug') slug: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.bannerService.uploadImageBanner(slug, file);
+    return {
+      message: 'Banner image have been updated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<BannerResponseDto>;
   }
 }

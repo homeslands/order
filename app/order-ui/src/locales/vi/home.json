@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Trang chủ",
+    "description": "Đây là trang chủ",
+
+    "menu": "Thực đơn",
+    "learnMore": "Tìm hiểu thêm",
+
+    "bestSeller": "Sản phẩm bán chạy",
+    "viewMore": "Xem thêm",
+    "homeDescription": "Không gian hiện đại, ấm cúng – nơi gắn kết những câu chuyện và tạo nên kỷ niệm khó quên.",
+    "newProduct": "Sản phẩm mới",
+
+    "learnAboutUs": "Tìm hiểu về chúng tôi",
+    "aboutUsDescription": "Chúng tôi cung cấp các loại cà phê chất lượng cao với nguồn gốc rõ ràng. Hãy ghé thăm cửa hàng của chúng tôi!",
+    "contactUs": "Liên hệ với chúng tôi"
+  }
+}

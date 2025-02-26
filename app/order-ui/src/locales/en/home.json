@@ -1,0 +1,9 @@
+{
+  "home": {
+    "title": "Home",
+    "description": "This is home page",
+
+    "bestSeller": "Best seller",
+    "newProduct": "New product"
+  }
+}

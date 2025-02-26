@@ -1,5 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 
 import { Button } from '@/components/ui'
@@ -11,8 +12,10 @@ import { useBanners, useIsMobile } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { BestSellerCarousel, StoreCarousel } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
+import MessengerChat from '@/components/messenger/messenger-chat'
 
 export default function HomePage() {
+  const { t } = useTranslation('home')
   const isMobile = useIsMobile()
   const { data: banner } = useBanners()
   const bannerData = banner?.result || []
@@ -58,15 +61,18 @@ export default function HomePage() {
             </p>
             <div className="flex justify-center gap-4 mt-6 sm:flex-row">
               <NavLink to={ROUTE.CLIENT_MENU}>
-                <Button className="w-full">Thực đơn</Button>
+                <Button className="w-full">
+                  {t('home.menu')}
+                </Button>
               </NavLink>
               <Button variant="outline" className="text-white bg-transparent">
-                Tìm hiểu thêm
+                {t('home.learnMore')}
               </Button>
             </div>
           </div>
           <div className="hidden col-span-1 sm:block" />
         </motion.div>
+        <MessengerChat />
 
         {/* Section 2: Sản phẩm bán chạy */}
         <div className="container">
@@ -78,9 +84,36 @@ export default function HomePage() {
             variants={fadeInVariants}
           >
             <div className="w-full flex-between">
-              <div className="primary-highlight">Sản phẩm bán chạy</div>
+              <div className="primary-highlight">
+                {t('home.bestSeller')}
+              </div>
               <NavLink to={ROUTE.CLIENT_MENU}>
-                <Button>Xem thêm</Button>
+                <Button>
+                  {t('home.viewMore')}
+                </Button>
+              </NavLink>
+            </div>
+            <BestSellerCarousel />
+          </motion.div>
+        </div>
+
+        {/* Section 2: Sản phẩm bán chạy */}
+        <div className="container">
+          <motion.div
+            className="flex flex-col items-start w-full gap-4 h-fit"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeInVariants}
+          >
+            <div className="w-full flex-between">
+              <div className="primary-highlight">
+                {t('home.newProduct')}
+              </div>
+              <NavLink to={ROUTE.CLIENT_MENU}>
+                <Button>
+                  {t('home.viewMore')}
+                </Button>
               </NavLink>
             </div>
             <BestSellerCarousel />
@@ -101,15 +134,16 @@ export default function HomePage() {
                 <div className="flex flex-col gap-2">
                   <span className="text-2xl font-extrabold">HOMELAND Coffee</span>
                   <span className="text-muted-foreground">
-                    Không gian hiện đại, ấm cúng – nơi gắn kết những câu chuyện
-                    và tạo nên kỷ niệm khó quên.
+                    {t('home.homeDescription')}
                   </span>
                 </div>
                 <NavLink
                   to={ROUTE.CLIENT_MENU}
                   className="flex text-sm transition-all duration-200 rounded-md hover:scale-105 hover:bg-primary/20"
                 >
-                  <Button>Tìm hiểu thêm</Button>
+                  <Button>
+                    {t('home.learnMore')}
+                  </Button>
                 </NavLink>
               </div>
             </div>
@@ -131,13 +165,14 @@ export default function HomePage() {
         >
           <div className="container mx-auto text-center">
             <h2 className="text-2xl font-bold sm:text-4xl">
-              Tìm hiểu thêm về chúng tôi
+              {t('home.learnAboutUs')}
             </h2>
             <p className="mt-4 text-sm">
-              Chúng tôi cung cấp các loại cà phê chất lượng cao với nguồn gốc rõ
-              ràng. Hãy ghé thăm cửa hàng của chúng tôi!
+              {t('home.aboutUsDescription')}
             </p>
-            <Button className="mt-6">Liên hệ</Button>
+            <Button className="mt-6">
+              {t('home.contactUs')}
+            </Button>
           </div>
         </motion.div>
       </div>
