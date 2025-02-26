@@ -4,11 +4,8 @@ import {
   UpdateDateColumn,
   Column,
   DeleteDateColumn,
-  BeforeInsert,
 } from 'typeorm';
 import { AutoMap } from '@automapper/classes';
-
-import * as shortid from 'shortid';
 
 export class Base {
   @PrimaryGeneratedColumn('uuid', { name: 'id_column' })

@@ -1,8 +1,8 @@
-import { AutoMap } from "@automapper/classes";
-import { ApiProperty } from "@nestjs/swagger";
-import { Transform, Type } from "class-transformer";
-import { IsNotEmpty } from "class-validator";
-import { BaseResponseDto } from "src/app/base.dto";
+import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsNotEmpty } from 'class-validator';
+import { BaseResponseDto } from 'src/app/base.dto';
 
 export class CreateBannerRequestDto {
   @AutoMap()
@@ -11,7 +11,7 @@ export class CreateBannerRequestDto {
     example: 'Banner',
     required: true,
   })
-  @IsNotEmpty({ message: "Title of banner is required"})
+  @IsNotEmpty({ message: 'Title of banner is required' })
   title: string;
 
   @AutoMap()
@@ -20,7 +20,7 @@ export class CreateBannerRequestDto {
     example: 'Banner content',
     required: true,
   })
-  @IsNotEmpty({ message: "Content of banner is required"})
+  @IsNotEmpty({ message: 'Content of banner is required' })
   content: string;
 }
 
@@ -31,7 +31,7 @@ export class UpdateBannerRequestDto {
     example: '',
     required: true,
   })
-  @IsNotEmpty({ message: "Title of banner is required"})
+  @IsNotEmpty({ message: 'Title of banner is required' })
   title: string;
 
   @AutoMap()
@@ -40,7 +40,7 @@ export class UpdateBannerRequestDto {
     example: '',
     required: true,
   })
-  @IsNotEmpty({ message: "Content of banner is required"})
+  @IsNotEmpty({ message: 'Content of banner is required' })
   content: string;
 
   @AutoMap()
@@ -49,17 +49,17 @@ export class UpdateBannerRequestDto {
     example: true,
     required: true,
   })
-  @IsNotEmpty({ message: "The is active of banner is required"})
+  @IsNotEmpty({ message: 'The is active of banner is required' })
   @Type(() => Boolean)
   isActive: boolean;
 }
 
 export class GetBannerQueryDto {
   @AutoMap()
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'The activate banner',
-    required: false, 
-    example: false
+    required: false,
+    example: false,
   })
   // @Type(() => Boolean)
   @Transform(({ value }) => value === 'true')

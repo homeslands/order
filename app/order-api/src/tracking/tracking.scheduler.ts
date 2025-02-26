@@ -60,6 +60,7 @@ export class TrackingScheduler {
 
           Object.assign(tracking, { status: workflow.status });
           await this.trackingRepository.save(tracking);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           this.logger.warn(
             `Error processing workflow execution ${id}`,
@@ -75,6 +76,7 @@ export class TrackingScheduler {
       trackingIds.map(async (id) => {
         try {
           await this.updateStatusOrder(id);
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           this.logger.warn(`Error updating status for order`, context);
         }

@@ -9,10 +9,7 @@ import { SizeProfile } from './size.mapper';
 @Module({
   imports: [TypeOrmModule.forFeature([Size])],
   controllers: [SizeController],
-  providers: [
-    SizeService,
-    SizeProfile,
-  ],
-  exports: [SizeService]
+  providers: [SizeService, SizeProfile],
+  exports: [SizeService],
 })
-export class SizeModule{}
+export class SizeModule {}

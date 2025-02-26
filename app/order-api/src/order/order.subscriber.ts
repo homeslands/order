@@ -11,18 +11,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { TableStatus } from 'src/table/table.constant';
-import moment from 'moment';
-import { MenuValidation } from 'src/menu/menu.validation';
-import { MenuException } from 'src/menu/menu.exception';
 import { Menu } from 'src/menu/menu.entity';
 import { Variant } from 'src/variant/variant.entity';
-import { VariantValidation } from 'src/variant/variant.validation';
-import { VariantException } from 'src/variant/variant.exception';
-import ProductValidation from 'src/product/product.validation';
-import { ProductException } from 'src/product/product.exception';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
-import { OrderValidation } from './order.validation';
-import { OrderException } from './order.exception';
 
 @EventSubscriber()
 export class OrderSubscriber implements EntitySubscriberInterface<Order> {

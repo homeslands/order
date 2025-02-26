@@ -3,10 +3,7 @@ import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
-import {
-  MAPPER_MODULE_PROVIDER,
-  QueueRegisterKey,
-} from 'src/app/app.constants';
+import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MailService } from 'src/mail/mail.service';
@@ -14,9 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/role/role.entity';
 import { MailProducer } from 'src/mail/mail.producer';
-import { BullModule } from '@nestjs/bullmq';
-import { MailModule } from 'src/mail/mail.module';
-import { Queue } from 'bullmq';
 import { Branch } from 'src/branch/branch.entity';
 
 describe('UserService', () => {

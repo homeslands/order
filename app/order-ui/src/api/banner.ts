@@ -35,6 +35,19 @@ export async function updateBanner(
   return response.data
 }
 
+export async function uploadBannerImage(
+  slug: string,
+  file: File,
+): Promise<IApiResponse<IBanner>> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.patch<IApiResponse<IBanner>>(
+    `/banner/${slug}/upload`,
+    formData,
+  )
+  return response.data
+}
+
 export async function deleteBanner(
   slug: string,
 ): Promise<IApiResponse<IBanner>> {

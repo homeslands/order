@@ -9,10 +9,7 @@ import { CatalogProfile } from './catalog.mapper';
 @Module({
   imports: [TypeOrmModule.forFeature([Catalog])],
   controllers: [CatalogController],
-  providers: [
-    CatalogService,
-    CatalogProfile,
-  ],
-  exports: [CatalogService]
+  providers: [CatalogService, CatalogProfile],
+  exports: [CatalogService],
 })
-export class CatalogModule{}
+export class CatalogModule {}

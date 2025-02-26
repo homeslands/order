@@ -35,11 +35,9 @@ export class MenuItem extends Base {
   // @Column({ name: 'promotion_id_column', nullable: true })
   // promotionId: string;
 
-  @ManyToOne(
-    () => Promotion, 
-    (promotion) => promotion.menuItems,
-    { nullable: true }
-  )
+  @ManyToOne(() => Promotion, (promotion) => promotion.menuItems, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'promotion_column' })
   promotion: Promotion;
 }

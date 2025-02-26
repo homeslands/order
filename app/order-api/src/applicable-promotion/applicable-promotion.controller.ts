@@ -1,19 +1,36 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, ValidationPipe } from "@nestjs/common";
-import { ApplicablePromotionService } from "./applicable-promotion.service";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ApiResponseWithType } from "src/app/app.decorator";
-import { ApplicablePromotionResponseDto, CreateApplicablePromotionRequestDto, CreateManyApplicablePromotionsRequestDto } from "./applicable-promotion.dto";
-import { Public } from "src/auth/public.decorator";
-import { AppResponseDto } from "src/app/app.dto";
-import { HasRoles } from "src/role/roles.decorator";
-import { RoleEnum } from "src/role/role.enum";
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApplicablePromotionService } from './applicable-promotion.service';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApiResponseWithType } from 'src/app/app.decorator';
+import {
+  ApplicablePromotionResponseDto,
+  CreateApplicablePromotionRequestDto,
+  CreateManyApplicablePromotionsRequestDto,
+} from './applicable-promotion.dto';
+import { AppResponseDto } from 'src/app/app.dto';
+import { HasRoles } from 'src/role/roles.decorator';
+import { RoleEnum } from 'src/role/role.enum';
 
-@ApiTags("ApplicablePromotion")
-@Controller("applicable-promotion")
+@ApiTags('ApplicablePromotion')
+@Controller('applicable-promotion')
 @ApiBearerAuth()
 export class ApplicablePromotionController {
   constructor(
-    private readonly applicablePromotionService: ApplicablePromotionService
+    private readonly applicablePromotionService: ApplicablePromotionService,
   ) {}
 
   @Post()
@@ -36,9 +53,10 @@ export class ApplicablePromotionController {
     )
     requestData: CreateApplicablePromotionRequestDto,
   ) {
-    const result = await this.applicablePromotionService.createApplicablePromotion(
-      requestData
-    );
+    const result =
+      await this.applicablePromotionService.createApplicablePromotion(
+        requestData,
+      );
     return {
       message: 'Applicable promotion have been created successfully',
       statusCode: HttpStatus.CREATED,
@@ -67,9 +85,10 @@ export class ApplicablePromotionController {
     )
     requestData: CreateManyApplicablePromotionsRequestDto,
   ) {
-    const result = await this.applicablePromotionService.createManyApplicablePromotions(
-      requestData
-    );
+    const result =
+      await this.applicablePromotionService.createManyApplicablePromotions(
+        requestData,
+      );
     return {
       message: `${result.length} applicable promotions have been created successfully`,
       statusCode: HttpStatus.CREATED,
@@ -88,10 +107,9 @@ export class ApplicablePromotionController {
     description: 'Applicable promotion have been deleted successfully',
     type: String,
   })
-  async deleteApplicablePromotion(
-    @Param('slug') slug: string,
-  ) {
-    const result = await this.applicablePromotionService.deleteApplicablePromotion(slug);
+  async deleteApplicablePromotion(@Param('slug') slug: string) {
+    const result =
+      await this.applicablePromotionService.deleteApplicablePromotion(slug);
     return {
       message: 'Applicable promotion have been deleted successfully',
       statusCode: HttpStatus.OK,

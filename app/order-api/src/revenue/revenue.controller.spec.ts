@@ -10,7 +10,6 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
-
 describe('RevenueController', () => {
   let controller: RevenueController;
 

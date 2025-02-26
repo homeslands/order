@@ -23,7 +23,6 @@ import { RobotConnectorException } from './robot-connector.exception';
 import { RobotConnectorValidation } from './robot-connector.validation';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
-import * as _ from 'lodash';
 
 @Injectable()
 export class RobotConnectorClient {

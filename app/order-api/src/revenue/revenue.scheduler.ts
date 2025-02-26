@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Revenue } from './revenue.entity';
 import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { getAllRevenueClause, getCurrentRevenueClause, getYesterdayRevenueClause } from './revenue.clause';
+import {
+  getAllRevenueClause,
+  getYesterdayRevenueClause,
+} from './revenue.clause';
 import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { RevenueQueryResponseDto } from './revenue.dto';
 import { InjectMapper } from '@automapper/nestjs';
@@ -39,7 +42,7 @@ export class RevenueScheduler {
     const revenues = results.map((item) => {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
-    
+
     const revenuesFillZero: Revenue[] = this.fillZeroForEmptyDate(revenues);
     if (!_.isEmpty(hasRevenue)) {
       this.logger.error(`Revenue already exists`, null, context);
@@ -69,11 +72,14 @@ export class RevenueScheduler {
   }
 
   fillZeroForEmptyDate(revenues: Revenue[]): Revenue[] {
-    if(_.isEmpty(revenues)) return;
+    if (_.isEmpty(revenues)) return;
 
     // if only have data in current date
-    if(revenues.length === 1 
-      && _.last(revenues).date.getTime() === (new Date()).setHours(7, 0, 0, 0)) return;
+    if (
+      revenues.length === 1 &&
+      _.last(revenues).date.getTime() === new Date().setHours(7, 0, 0, 0)
+    )
+      return;
 
     const firstRevenue = _.first(revenues);
     const firstDate = new Date(firstRevenue.date);
@@ -82,7 +88,7 @@ export class RevenueScheduler {
     lastDate.setHours(30, 59, 59, 999);
 
     const datesInRange: Date[] = [];
-    let currentDate = new Date(firstDate);
+    const currentDate = new Date(firstDate);
 
     while (currentDate <= lastDate) {
       datesInRange.push(new Date(currentDate));
@@ -91,8 +97,10 @@ export class RevenueScheduler {
 
     const results: Revenue[] = [];
 
-    datesInRange.forEach(dateFull => {
-      const matchingElement = revenues.find(item => item.date.getTime() === dateFull.getTime());
+    datesInRange.forEach((dateFull) => {
+      const matchingElement = revenues.find(
+        (item) => item.date.getTime() === dateFull.getTime(),
+      );
 
       if (matchingElement) {
         results.push(matchingElement);
@@ -101,7 +109,7 @@ export class RevenueScheduler {
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
-          date: dateFull
+          date: dateFull,
         });
         results.push(revenue);
       }
@@ -118,7 +126,7 @@ export class RevenueScheduler {
     // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7,0,0,0);
+    yesterdayDate.setHours(7, 0, 0, 0);
     // console.log({yesterdayDate})
     const hasRevenue = await this.revenueRepository.find({
       where: {
@@ -130,7 +138,7 @@ export class RevenueScheduler {
       this.logger.log(`Revenue for ${yesterdayDate} already exists`, context);
       return;
     }
-    
+
     const results: RevenueQueryResponseDto[] =
       await this.revenueRepository.query(getYesterdayRevenueClause);
     // console.log({results})
@@ -139,12 +147,12 @@ export class RevenueScheduler {
     });
     // console.log({revenues})
 
-    if(_.isEmpty(revenues)) {
+    if (_.isEmpty(revenues)) {
       const revenue = new Revenue();
       Object.assign(revenue, {
         totalAmount: 0,
         totalOrder: 0,
-        date: yesterdayDate
+        date: yesterdayDate,
       });
 
       revenues.push(revenue);
@@ -182,7 +190,7 @@ export class RevenueScheduler {
     // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7,0,0,0);
+    yesterdayDate.setHours(7, 0, 0, 0);
     // console.log({yesterdayDate})
     const hasRevenues = await this.revenueRepository.find({
       where: {
@@ -190,17 +198,17 @@ export class RevenueScheduler {
       },
     });
 
-    if(_.size(hasRevenues) > 1) {
+    if (_.size(hasRevenues) > 1) {
       this.logger.error(
         RevenueValidation.DUPLICATE_RECORD_REVENUE_ONE_DAY_IN_DATABASE.message,
         null,
-        context
+        context,
       );
       throw new RevenueException(
-        RevenueValidation.DUPLICATE_RECORD_REVENUE_ONE_DAY_IN_DATABASE
+        RevenueValidation.DUPLICATE_RECORD_REVENUE_ONE_DAY_IN_DATABASE,
       );
     }
-    
+
     const results: RevenueQueryResponseDto[] =
       await this.revenueRepository.query(getYesterdayRevenueClause);
     // console.log({results})
@@ -210,11 +218,11 @@ export class RevenueScheduler {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
     // console.log({revenues})
-    const createAndUpdateRevenues: Revenue[] = 
+    const createAndUpdateRevenues: Revenue[] =
       this.revenueService.getCreateAndUpdateRevenues(
         hasRevenues,
         revenues,
-        yesterdayDate
+        yesterdayDate,
       );
     // console.log({revenuesNew: createAndUpdateRevenues})
 

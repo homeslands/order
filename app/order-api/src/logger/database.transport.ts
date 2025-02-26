@@ -24,6 +24,7 @@ export class DatabaseTransport extends Transport {
       loggerRepository.create(logger);
       await loggerRepository.save(logger);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving log to database:', error);
     }
 

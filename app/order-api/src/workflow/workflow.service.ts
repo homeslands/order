@@ -97,7 +97,6 @@ export class WorkflowService {
   async getAllWorkflowByBranch(
     branchSlug: string,
   ): Promise<WorkflowResponseDto[]> {
-    const context = `${WorkflowService.name}.${this.getAllWorkflowByBranch.name}`;
     const workflows = await this.workflowRepository.find({
       where: {
         branch: {

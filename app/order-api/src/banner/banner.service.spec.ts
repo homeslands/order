@@ -15,7 +15,7 @@ describe('BannerService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        BannerService, 
+        BannerService,
         FileService,
         BannerUtils,
         {

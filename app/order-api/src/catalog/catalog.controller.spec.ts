@@ -161,7 +161,7 @@ describe('CatalogController', () => {
       const slug: string = 'mock-catalog-slug';
       (service.deleteCatalog as jest.Mock).mockResolvedValue(1);
 
-      const result = await controller.deleteCatalog(slug);
+      await controller.deleteCatalog(slug);
       expect(service.deleteCatalog).toHaveBeenCalledTimes(1);
     });
 

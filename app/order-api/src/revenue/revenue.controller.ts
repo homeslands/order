@@ -3,13 +3,17 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Patch,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { RevenueService } from './revenue.service';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
@@ -17,11 +21,8 @@ import {
   AggregateRevenueResponseDto,
   GetRevenueQueryDto,
   RefreshSpecificRangeRevenueQueryDto,
-  RevenueQueryResponseDto,
-  RevenueResponseDto,
 } from './revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/public.decorator';
 
 @Controller('revenue')
 @ApiTags('Revenue')
@@ -71,10 +72,13 @@ export class RevenueController {
     type: String,
   })
   @ApiOperation({ summary: 'Update latest revenue' })
-  @ApiResponse({ status: 200, description: 'Update latest revenue successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Update latest revenue successfully',
+  })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async updateLatestRevenue() {
-    const result = await this.revenueService.updateLatestRevenueInCurrentDate();
+    await this.revenueService.updateLatestRevenueInCurrentDate();
     return {
       message: 'Update latest revenue successfully',
       statusCode: HttpStatus.OK,
@@ -98,12 +102,16 @@ export class RevenueController {
     type: String,
   })
   @ApiOperation({ summary: 'Update latest revenue for a range time' })
-  @ApiResponse({ status: 200, description: 'Update latest revenue for a range time successfully' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })  
+  @ApiResponse({
+    status: 200,
+    description: 'Update latest revenue for a range time successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async refreshRevenueForSpecificDay(
-    @Query(new ValidationPipe({ transform: true })) query: RefreshSpecificRangeRevenueQueryDto
+    @Query(new ValidationPipe({ transform: true }))
+    query: RefreshSpecificRangeRevenueQueryDto,
   ) {
-    const result = await this.revenueService.refreshRevenueForSpecificDay(query);
+    await this.revenueService.refreshRevenueForSpecificDay(query);
     return {
       message: 'Update latest revenue for a range time successfully',
       statusCode: HttpStatus.OK,

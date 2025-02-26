@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductAnalysis } from './product-analysis.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -61,7 +61,6 @@ export class ProductAnalysisService {
       .addGroupBy('pa.branch')
       .orderBy('totalProducts', 'DESC');
 
-    
     if (query.hasPaging)
       queryBuilder.take(query.size).skip((query.page - 1) * query.size);
 
@@ -91,7 +90,11 @@ export class ProductAnalysisService {
         productAnalysis.product = product;
         productAnalysis.branch = branch;
 
-        const productAnalysisDto = this.mapper.map(productAnalysis, ProductAnalysis, ProductAnalysisResponseDto);
+        const productAnalysisDto = this.mapper.map(
+          productAnalysis,
+          ProductAnalysis,
+          ProductAnalysisResponseDto,
+        );
 
         const branchesDto = await this.getBranchesListByProduct(product);
         productAnalysisDto.branches = branchesDto;
@@ -172,31 +175,35 @@ export class ProductAnalysisService {
   }
 
   private async getBranchesListByProduct(
-    product: Product
+    product: Product,
   ): Promise<BranchResponseDto[]> {
     const menuItems = await this.menuItemRepository.find({
       where: {
         product: { id: product.id },
-      }
+      },
     });
 
     const currentDate = new Date();
-    currentDate.setHours(7,0,0,0);
+    currentDate.setHours(7, 0, 0, 0);
     const branches: Branch[] = [];
-    for(const menuItem of menuItems) {
+    for (const menuItem of menuItems) {
       const menu = await this.menuRepository.findOne({
         where: {
           menuItems: { id: menuItem.id },
-          date: currentDate
-        }, 
-        relations: ['branch']
+          date: currentDate,
+        },
+        relations: ['branch'],
       });
 
-      if(menu && menu?.branch) {
+      if (menu && menu?.branch) {
         branches.push(menu.branch);
       }
     }
-    const branchesDto = this.mapper.mapArray(branches, Branch, BranchResponseDto);
+    const branchesDto = this.mapper.mapArray(
+      branches,
+      Branch,
+      BranchResponseDto,
+    );
 
     return branchesDto;
   }

@@ -83,17 +83,17 @@ export class StaticPageService {
   async getAll(): Promise<StaticPageResponseDto[]> {
     const context = `${StaticPageService.name}.${this.getByKey.name}`;
     const staticPage = await this.staticPageRepository.find();
-    if(!staticPage) {
+    if (!staticPage) {
       this.logger.warn(
         StaticPageValidation.STATIC_PAGE_NOT_FOUND.message,
-        context
+        context,
       );
       throw new StaticPageException(StaticPageValidation.STATIC_PAGE_NOT_FOUND);
     }
     const staticPageDto = this.mapper.mapArray(
       staticPage,
       StaticPage,
-      StaticPageResponseDto
+      StaticPageResponseDto,
     );
     return staticPageDto;
   }

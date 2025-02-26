@@ -150,7 +150,7 @@ export class MenuItemController {
   })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   async remove(@Param('slug') slug: string) {
-    const result = await this.menuItemService.remove(slug);
+    await this.menuItemService.remove(slug);
     return {
       message: 'Menu item deleted successfully',
       statusCode: HttpStatus.OK,

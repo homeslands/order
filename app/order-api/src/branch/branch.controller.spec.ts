@@ -15,7 +15,7 @@ describe('BranchController', () => {
       controllers: [BranchController],
       providers: [
         BranchService,
-        BranchUtils, 
+        BranchUtils,
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},

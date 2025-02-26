@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ProductResponseDto } from 'src/product/product.dto';
@@ -69,7 +69,7 @@ export class MenuItemResponseDto {
   @AutoMap(() => PromotionResponseDto)
   @ApiProperty()
   promotion: PromotionResponseDto;
-  
+
   @AutoMap(() => ProductResponseDto)
   @ApiProperty()
   product: ProductResponseDto;

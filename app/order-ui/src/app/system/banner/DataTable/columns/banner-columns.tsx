@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IBanner } from '@/types'
-import { DeleteBannerDialog } from '@/components/app/dialog'
+import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
 
 import { ROUTE } from '@/constants'
 
@@ -95,8 +95,8 @@ export const useBannerColumns = (): ColumnDef<IBanner>[] => {
                     {tCommon('common.viewAndEdit')}
                   </Button>
                 </NavLink>
+                <UploadBannerBannerDialog banner={banner} />
                 <DeleteBannerDialog banner={banner} />
-                {/* <DeleteBranchDialog branch={branch} /> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

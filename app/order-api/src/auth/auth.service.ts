@@ -20,13 +20,7 @@ import {
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import {
-  DataSource,
-  FindOptionsWhere,
-  Like,
-  MoreThan,
-  Repository,
-} from 'typeorm';
+import { DataSource, MoreThan, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { InjectMapper } from '@automapper/nestjs';
@@ -52,7 +46,6 @@ import { Role } from 'src/role/role.entity';
 import { RoleEnum } from 'src/role/role.enum';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
-import * as _ from 'lodash';
 import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
 
@@ -130,6 +123,7 @@ export class AuthService {
     let isExpiredToken = false;
     try {
       this.jwtService.verify(requestData.token);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       isExpiredToken = true;
     }
@@ -546,6 +540,7 @@ export class AuthService {
     let isExpiredAccessToken = false;
     try {
       this.jwtService.verify(requestData.accessToken);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       isExpiredAccessToken = true;
     }
@@ -558,6 +553,7 @@ export class AuthService {
     let isExpiredRefreshToken = false;
     try {
       this.jwtService.verify(requestData.refreshToken);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       isExpiredRefreshToken = true;
     }

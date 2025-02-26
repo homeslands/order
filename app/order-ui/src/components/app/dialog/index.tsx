@@ -100,5 +100,7 @@ export { default as RemoveAppliedPromotionDialog } from './confirm-remove-applie
 export { default as ConfirmApplyPromotionDialog } from './confirm-apply-promotion-dialog'
 
 export { default as CreateBannerDialog } from './create-banner-dialog'
+export { default as UploadBannerBannerDialog } from './upload-banner-image-dialog'
+export { default as UpdateTableStatusDialog } from './update-table-status-dialog'
 export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'

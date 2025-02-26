@@ -12,7 +12,6 @@ import { Injectable } from '@nestjs/common';
 import { MenuItem } from './menu-item.entity';
 import { CreateMenuItemDto, MenuItemResponseDto } from './menu-item.dto';
 import { baseMapper } from 'src/app/base.mapper';
-import { forEach } from 'lodash';
 import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { Promotion } from 'src/promotion/promotion.entity';
 
@@ -39,11 +38,7 @@ export class MenuItemProfile extends AutomapperProfile {
         MenuItemResponseDto,
         forMember(
           (d) => d.promotion,
-          mapWith(
-            PromotionResponseDto,
-            Promotion,
-            (s) => s.promotion,
-          )
+          mapWith(PromotionResponseDto, Promotion, (s) => s.promotion),
         ),
         extend(baseMapper(mapper)),
       );

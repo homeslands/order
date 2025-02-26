@@ -1,8 +1,15 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { SizeController } from "./size.controller";
-import { SizeService } from "./size.service";
-import { CreateSizeRequestDto, SizeResponseDto, UpdateSizeRequestDto } from "./size.dto";
-import { BadRequestException, InternalServerErrorException } from "@nestjs/common";
+import { Test, TestingModule } from '@nestjs/testing';
+import { SizeController } from './size.controller';
+import { SizeService } from './size.service';
+import {
+  CreateSizeRequestDto,
+  SizeResponseDto,
+  UpdateSizeRequestDto,
+} from './size.dto';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 describe('SizeController', () => {
   let controller: SizeController;
@@ -20,9 +27,9 @@ describe('SizeController', () => {
             getAllSizes: jest.fn(),
             updateSize: jest.fn(),
             deleteSize: jest.fn(),
-          }
-        }
-      ]
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<SizeController>(SizeController);
@@ -49,7 +56,7 @@ describe('SizeController', () => {
       );
 
       await expect(controller.createSize(mockInput)).rejects.toThrow(
-        BadRequestException
+        BadRequestException,
       );
     });
 
@@ -62,7 +69,7 @@ describe('SizeController', () => {
         slug: 'mock-size-slug',
         name: 'Mock size name',
         description: 'Description of size',
-        createdAt: (new Date()).toString(),
+        createdAt: new Date().toString(),
       } as SizeResponseDto;
 
       (service.createSize as jest.Mock).mockResolvedValue(mockOutput);
@@ -82,7 +89,7 @@ describe('SizeController', () => {
         slug: 'mock-size-slug',
         name: 'Mock size name',
         description: 'Description of size',
-        createdAt: (new Date()).toString(),
+        createdAt: new Date().toString(),
       } as SizeResponseDto;
       const mockOutput = [size];
 
@@ -94,10 +101,12 @@ describe('SizeController', () => {
 
     it('should return error when service.getAllSizes throws', async () => {
       (service.getAllSizes as jest.Mock).mockRejectedValue(
-        new InternalServerErrorException()
+        new InternalServerErrorException(),
       );
 
-      await expect(controller.getAllSizes()).rejects.toThrow(InternalServerErrorException);
+      await expect(controller.getAllSizes()).rejects.toThrow(
+        InternalServerErrorException,
+      );
       expect(service.getAllSizes).toHaveBeenCalled();
     });
   });
@@ -118,7 +127,7 @@ describe('SizeController', () => {
         slug: 'mock-size-slug',
         name: 'Mock size name',
         description: 'The description of size',
-        createdAt: (new Date()).toString(),
+        createdAt: new Date().toString(),
       } as SizeResponseDto;
       (service.updateSize as jest.Mock).mockResolvedValue(mockOutput);
 
@@ -134,12 +143,12 @@ describe('SizeController', () => {
       } as UpdateSizeRequestDto;
 
       (service.updateSize as jest.Mock).mockRejectedValue(
-        new BadRequestException()
+        new BadRequestException(),
       );
 
-      await expect(
-        controller.updateSize(slug, mockInput),
-      ).rejects.toThrow(BadRequestException);
+      await expect(controller.updateSize(slug, mockInput)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -152,7 +161,7 @@ describe('SizeController', () => {
       const slug: string = 'mock-size-slug';
       (service.deleteSize as jest.Mock).mockResolvedValue(1);
 
-      const result = await controller.deleteSize(slug);
+      await controller.deleteSize(slug);
       expect(service.deleteSize).toHaveBeenCalledTimes(1);
     });
 
@@ -164,7 +173,7 @@ describe('SizeController', () => {
       );
 
       await expect(controller.deleteSize(slug)).rejects.toThrow(
-        BadRequestException
+        BadRequestException,
       );
       expect(service.deleteSize).toHaveBeenCalled();
     });

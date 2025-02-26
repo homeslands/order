@@ -43,7 +43,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
       MenuItem,
       OrderItem,
       Promotion,
-      ApplicablePromotion
+      ApplicablePromotion,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -64,7 +64,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
     OrderUtils,
     OrderListener,
     OrderItemUtils,
-    PromotionUtils
+    PromotionUtils,
   ],
   exports: [OrderService, OrderUtils],
 })

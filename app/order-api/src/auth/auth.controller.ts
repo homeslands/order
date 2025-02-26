@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Patch,
   Post,
   UploadedFile,
@@ -37,7 +36,6 @@ import {
 import { AppResponseDto } from 'src/app/app.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { CurrentUser } from '../user/user.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CustomFileInterceptor } from 'src/file/custom-interceptor';
 
@@ -200,7 +198,7 @@ export class AuthController {
     @Body(new ValidationPipe({ transform: true }))
     requestData: ForgotPasswordRequestDto,
   ) {
-    const result = await this.authService.forgotPassword(requestData);
+    await this.authService.forgotPassword(requestData);
     return {
       message: 'Password changed successfully',
       statusCode: HttpStatus.OK,

@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
-import {
-  HealthCheckService,
-  HttpHealthIndicator,
-  TerminusModule,
-} from '@nestjs/terminus';
+import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 

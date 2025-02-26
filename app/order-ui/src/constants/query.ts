@@ -5,4 +5,5 @@ export const QUERYKEY = {
   vouchers: ['vouchers'],
   promotions: ['promotions'],
   banners: ['banners'],
+  tables: ['tables'],
 }

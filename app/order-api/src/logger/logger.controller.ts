@@ -1,6 +1,5 @@
 import {
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Query,

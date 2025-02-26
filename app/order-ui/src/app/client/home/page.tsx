@@ -2,23 +2,17 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-
 import { Button } from '@/components/ui'
-import {
-  LandingPageBackground,
-  LandingPageBackgroundMobile,
-} from '@/assets/images'
-import { useBanners, useIsMobile } from '@/hooks'
+import { useBanners } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { BestSellerCarousel, StoreCarousel } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
-import MessengerChat from '@/components/messenger/messenger-chat'
-
+import SwiperBanner from './components/banner'
 export default function HomePage() {
   const { t } = useTranslation('home')
-  const isMobile = useIsMobile()
   const { data: banner } = useBanners()
   const bannerData = banner?.result || []
+
 
   // Animation Variants
   const fadeInVariants = {
@@ -35,44 +29,7 @@ export default function HomePage() {
       <AdPopup />
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
-        <motion.div
-          className="relative grid min-h-[60vh] w-full grid-cols-1 justify-center bg-cover bg-center px-4 sm:grid-cols-6 sm:items-center sm:px-0"
-          style={{
-            backgroundImage: `url(${isMobile ? LandingPageBackgroundMobile : LandingPageBackground
-              })`,
-          }}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeInVariants}
-        >
-          <div className="hidden col-span-1 sm:block" />
-          <div className="w-full col-span-2 mt-12 text-center text-white sm:mt-0">
-            <div className="flex flex-col gap-2">
-              <div className="text-4xl font-extrabold uppercase sm:text-4xl">
-                {bannerData[0]?.title ? bannerData[0].title : 'HOMELAND Coffee'}
-              </div>
-            </div>
-            <p className="mt-4 text-sm sm:text-base">
-              {/* Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc. */}
-              {bannerData[0]?.content ? bannerData[0].content.replace(/(<([^>]+)>)/gi, '')
-                .substring(0, 100) : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
-
-            </p>
-            <div className="flex justify-center gap-4 mt-6 sm:flex-row">
-              <NavLink to={ROUTE.CLIENT_MENU}>
-                <Button className="w-full">
-                  {t('home.menu')}
-                </Button>
-              </NavLink>
-              <Button variant="outline" className="text-white bg-transparent">
-                {t('home.learnMore')}
-              </Button>
-            </div>
-          </div>
-          <div className="hidden col-span-1 sm:block" />
-        </motion.div>
-        <MessengerChat />
+        <SwiperBanner bannerData={bannerData} />
 
         {/* Section 2: Sản phẩm bán chạy */}
         <div className="container">

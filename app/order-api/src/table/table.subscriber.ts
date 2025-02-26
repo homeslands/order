@@ -8,13 +8,9 @@ import {
 } from 'typeorm';
 import { Table } from './table.entity';
 import { RobotConnectorClient } from 'src/robot-connector/robot-connector.client';
-import {
-  UpdateQRLocationMetadataRequestDto,
-  UpdateQRLocationRequestDto,
-} from 'src/robot-connector/robot-connector.dto';
+import { UpdateQRLocationRequestDto } from 'src/robot-connector/robot-connector.dto';
 import { Inject, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import * as _ from 'lodash';
 
 @EventSubscriber()
 export class TableSubscriber implements EntitySubscriberInterface<Table> {
@@ -72,24 +68,26 @@ export class TableSubscriber implements EntitySubscriberInterface<Table> {
     await this.robotConnectorClient.updateQRLocation(location.id, requestData);
   }
 
-  async updateUnAssignedLocationStatus(
-    locationId: string
-  ) {
-    console.log({locationId})
+  async updateUnAssignedLocationStatus(locationId: string) {
     try {
-      const location = await this.robotConnectorClient.getQRLocationById(locationId);
-      if(!location) return;
+      const location =
+        await this.robotConnectorClient.getQRLocationById(locationId);
+      if (!location) return;
 
       const { isAssigned } = location.metadata;
-      if(!isAssigned) return;
+      if (!isAssigned) return;
 
       const requestData = {
         ...location,
         metadata: {
-          isAssigned: false
+          isAssigned: false,
         },
       } as UpdateQRLocationRequestDto;
-      await this.robotConnectorClient.updateQRLocation(location.id, requestData);
+      await this.robotConnectorClient.updateQRLocation(
+        location.id,
+        requestData,
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return;
     }

@@ -103,9 +103,7 @@ export class BranchController {
     description: 'Branch have been deleted successfully',
     type: String,
   })
-  async deleteBranch(
-    @Param('slug') slug: string,
-  ) {
+  async deleteBranch(@Param('slug') slug: string) {
     const result = await this.branchService.deleteBranch(slug);
     return {
       message: 'Branch have been deleted successfully',

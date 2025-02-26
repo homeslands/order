@@ -1,12 +1,34 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
-import { PromotionService } from "./promotion.service";
-import { ApiResponseWithType } from "src/app/app.decorator";
-import { CreatePromotionRequestDto, PromotionResponseDto, UpdatePromotionRequestDto } from "./promotion.dto";
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { HasRoles } from "src/role/roles.decorator";
-import { RoleEnum } from "src/role/role.enum";
-import { AppResponseDto } from "src/app/app.dto";
-import { Public } from "src/auth/public.decorator";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
+import { PromotionService } from './promotion.service';
+import { ApiResponseWithType } from 'src/app/app.decorator';
+import {
+  CreatePromotionRequestDto,
+  PromotionResponseDto,
+  UpdatePromotionRequestDto,
+} from './promotion.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { HasRoles } from 'src/role/roles.decorator';
+import { RoleEnum } from 'src/role/role.enum';
+import { AppResponseDto } from 'src/app/app.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('Promotion')
 @Controller('promotion')
@@ -24,11 +46,11 @@ export class PromotionController {
   @ApiOperation({ summary: 'Create new promotion' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @ApiParam({
-      name: 'branchSlug',
-      description: 'The slug of the branch to be created promotion',
-      required: true,
-      example: 'branch-slug',
-    })
+    name: 'branchSlug',
+    description: 'The slug of the branch to be created promotion',
+    required: true,
+    example: 'branch-slug',
+  })
   @Public()
   // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async createPromotion(
@@ -43,7 +65,7 @@ export class PromotionController {
   ) {
     const result = await this.promotionService.createPromotion(
       branchSlug,
-      requestData
+      requestData,
     );
     return {
       message: 'Promotion have been created successfully',
@@ -65,13 +87,8 @@ export class PromotionController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   // @Public()
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
-  async getAllPromotions(
-    @Query('branchSlug') branchSlug: string,
-  ) {
-    console.log('branchSlug', branchSlug);
-    const result = await this.promotionService.getAllPromotions(
-      branchSlug,
-    );
+  async getAllPromotions(@Query('branchSlug') branchSlug: string) {
+    const result = await this.promotionService.getAllPromotions(branchSlug);
     return {
       message: 'All promotions have been retrieved successfully',
       statusCode: HttpStatus.OK,

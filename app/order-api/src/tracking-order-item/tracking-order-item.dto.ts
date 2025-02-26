@@ -29,7 +29,7 @@ export class CreateTrackingOrderItemWithQuantityAndOrderItemEntity {
 }
 
 export class ValidateDefinedAndQuantityOrderItem {
-  isValid: Boolean;
+  isValid: boolean;
 
   orderItemsData?: CreateTrackingOrderItemWithQuantityAndOrderItemEntity[];
 }

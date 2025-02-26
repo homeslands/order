@@ -2,7 +2,6 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
-import { BranchResponseDto } from 'src/branch/branch.dto';
 
 export class CreateTableRequestDto {
   @AutoMap()

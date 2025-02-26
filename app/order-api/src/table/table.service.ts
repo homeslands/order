@@ -17,7 +17,6 @@ import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { TableException } from './table.exception';
 import { TableValidation } from './table.validation';
-import * as _ from 'lodash';
 
 @Injectable()
 export class TableService {

@@ -20,8 +20,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
-import { OrderValidation } from 'src/order/order.validation';
-import { OrderException } from 'src/order/order.exception';
 
 @Injectable()
 export class OrderItemService {
@@ -62,7 +60,7 @@ export class OrderItemService {
       where: {
         branch: { id: orderItem.order.branch.id },
         date,
-      }
+      },
     });
 
     const menuItem = await this.menuItemUtils.getMenuItem({
@@ -77,13 +75,13 @@ export class OrderItemService {
 
     await this.promotionUtils.validatePromotionWithMenuItem(
       requestData.promotion,
-      menuItem
+      menuItem,
     );
 
     orderItem.variant = variant;
     orderItem.quantity = requestData.quantity;
     orderItem.promotion = menuItem.promotion;
-    orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
+    orderItem.subtotal = this.orderItemUtils.calculateSubTotal(orderItem);
     if (requestData.note) orderItem.note = requestData.note;
 
     await this.transactionManagerService.execute(
@@ -102,7 +100,6 @@ export class OrderItemService {
 
         // Update order
         const { order } = orderItem;
-
 
         order.subtotal = await this.orderUtils.getOrderSubtotal(order);
         await manager.save(order);
@@ -186,7 +183,7 @@ export class OrderItemService {
     requestData: CreateOrderItemRequestDto,
   ): Promise<OrderItemResponseDto> {
     // validate stock
-    // validate promotion 
+    // validate promotion
     // validate voucher
     // # Time in createdDate of order;
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
@@ -206,13 +203,11 @@ export class OrderItemService {
     const date = new Date(order.createdAt);
     date.setHours(7, 0, 0, 0);
 
-    console.log({ date });
-
     const menu = await this.menuUtils.getMenu({
       where: {
         branch: { id: order.branch.id },
         date,
-      }
+      },
     });
 
     const menuItem = await this.menuItemUtils.getMenuItem({
@@ -227,7 +222,7 @@ export class OrderItemService {
 
     await this.promotionUtils.validatePromotionWithMenuItem(
       requestData.promotion,
-      menuItem
+      menuItem,
     );
 
     const orderItem = this.mapper.map(
@@ -240,12 +235,9 @@ export class OrderItemService {
     orderItem.promotion = menuItem.promotion;
     orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
 
-    console.log({ orderItem });
-
     // Update order
     order.orderItems.push(orderItem);
     order.subtotal = await this.orderUtils.getOrderSubtotal(order);
-    console.log({ order });
 
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(

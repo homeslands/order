@@ -33,7 +33,6 @@ describe('ProductService', () => {
   let productRepositoryMock: MockType<Repository<Product>>;
   let variantRepositoryMock: MockType<Repository<Variant>>;
   let catalogRepositoryMock: MockType<Repository<Catalog>>;
-  let sizeRepositoryMock: MockType<Repository<Size>>;
   let mapperMock: MockType<Mapper>;
   let fileService: FileService;
 
@@ -97,7 +96,6 @@ describe('ProductService', () => {
     productRepositoryMock = module.get(getRepositoryToken(Product));
     variantRepositoryMock = module.get(getRepositoryToken(Variant));
     catalogRepositoryMock = module.get(getRepositoryToken(Catalog));
-    sizeRepositoryMock = module.get(getRepositoryToken(Size));
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
   });
 
@@ -129,6 +127,8 @@ describe('ProductService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         productAnalyses: [],
+        isTopSell: false,
+        isNew: false,
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);

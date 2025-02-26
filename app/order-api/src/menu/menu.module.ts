@@ -13,12 +13,9 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    Menu, 
-    Branch,
-    ApplicablePromotion,
-    Promotion
-  ])],
+  imports: [
+    TypeOrmModule.forFeature([Menu, Branch, ApplicablePromotion, Promotion]),
+  ],
   controllers: [MenuController],
   providers: [
     MenuService,
@@ -26,7 +23,7 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
     MenuScheduler,
     MenuSubscriber,
     MenuUtils,
-    PromotionUtils
+    PromotionUtils,
   ],
   exports: [MenuService, MenuUtils],
 })

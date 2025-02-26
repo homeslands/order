@@ -92,7 +92,7 @@ export class UserController {
   async resetPassword(
     @Param('slug') slug: string,
   ): Promise<AppResponseDto<UserResponseDto>> {
-    const result = await this.userService.resetPassword(slug);
+    await this.userService.resetPassword(slug);
     return {
       message: 'User password has been reset successfully',
       statusCode: HttpStatus.OK,

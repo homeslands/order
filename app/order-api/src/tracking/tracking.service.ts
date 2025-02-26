@@ -349,7 +349,6 @@ export class TrackingService {
       relations: ['order.branch', 'order.orderItems'],
     });
     const order = orderItem.order;
-    console.log('a');
     return order;
   }
 
@@ -620,6 +619,7 @@ export class TrackingService {
       await queryRunner.manager.save(trackingOrderItems);
       await queryRunner.commitTransaction();
       return createdTracking.id;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.warn(TrackingValidation.CREATE_TRACKING_FAILED, context);
@@ -633,7 +633,7 @@ export class TrackingService {
     slug: string,
     status: string,
   ): Promise<TrackingResponseDto> {
-    const orders = await this.trackingScheduler.getAllOrdersByTrackingId(
+    await this.trackingScheduler.getAllOrdersByTrackingId(
       '3f15f447-c5b7-4ee2-bcb9-c0cd9bcf0325',
     );
 
@@ -685,6 +685,7 @@ export class TrackingService {
       await queryRunner.commitTransaction();
 
       return deleted.affected || 0;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.warn(

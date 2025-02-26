@@ -1,6 +1,10 @@
 {
   "table": {
+    "tableTitle": "Quản lý bàn",
     "title": "Lựa chọn bàn",
+    "createdAt": "Ngày tạo",
+    "name": "Tên bàn",
+    "action": "Thao tác",
     "available": "Bàn trống",
     "reserved": "Bàn đã đặt",
     "selected": "Bàn đã chọn",
@@ -20,6 +24,11 @@
 
     "update": "Cập nhật bàn",
     "updateDescription": "Thay đổi thông tin bên dưới để cập nhật bàn",
+
+    "updateStatus": "Cập nhật trạng thái bàn",
+    "currentInfo": "Thông tin hiện tại",
+    "willChangeStatus": "Bàn sẽ chuyển sang trạng thái",
+    "confirmUpdateStatus": "Xác nhận cập nhật trạng thái bàn",
 
     "delete": "Xóa bàn",
     "deleteTableWarning1": "Bạn sắp sửa xóa bàn ",

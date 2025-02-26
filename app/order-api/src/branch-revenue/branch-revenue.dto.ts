@@ -74,13 +74,17 @@ export class AggregateBranchRevenueResponseDto {
 export class RefreshSpecificRangeBranchRevenueQueryDto {
   @AutoMap()
   @ApiProperty({ required: true, example: '2024-12-26' })
-  @IsNotEmpty({ message: BranchRevenueValidation.START_DATE_IS_NOT_EMPTY.message })
+  @IsNotEmpty({
+    message: BranchRevenueValidation.START_DATE_IS_NOT_EMPTY.message,
+  })
   @Type(() => Date)
   startDate: Date;
 
   @AutoMap()
   @ApiProperty({ required: true, example: '2024-12-27' })
-  @IsNotEmpty({ message: BranchRevenueValidation.END_DATE_IS_NOT_EMPTY.message })
+  @IsNotEmpty({
+    message: BranchRevenueValidation.END_DATE_IS_NOT_EMPTY.message,
+  })
   @Type(() => Date)
   endDate: Date;
 }

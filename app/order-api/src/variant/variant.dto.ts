@@ -28,7 +28,10 @@ export class CreateVariantRequestDto {
 
 export class UpdateVariantRequestDto {
   @AutoMap()
-  @ApiProperty({ description: 'The price of product at this size', example: '50000'})
+  @ApiProperty({
+    description: 'The price of product at this size',
+    example: '50000',
+  })
   @IsNotEmpty({ message: 'The price is required' })
   price: number;
 }

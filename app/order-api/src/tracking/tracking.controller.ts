@@ -1,10 +1,33 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { TrackingService } from "./tracking.service";
-import { ApiResponseWithType } from "src/app/app.decorator";
-import { ChangeStatusRequestDto, CreateTrackingRequestDto, GetTrackingRequestDto, TrackingResponseDto } from "./tracking.dto";
-import { AppPaginatedResponseDto, AppResponseDto } from "src/app/app.dto";
-import { Public } from "src/auth/public.decorator";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { TrackingService } from './tracking.service';
+import { ApiResponseWithType } from 'src/app/app.decorator';
+import {
+  ChangeStatusRequestDto,
+  CreateTrackingRequestDto,
+  GetTrackingRequestDto,
+  TrackingResponseDto,
+} from './tracking.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('Tracking')
 @Controller('trackings')
@@ -48,13 +71,16 @@ export class TrackingController {
   @ApiResponse({ status: 200, description: 'Create tracking successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async createTracking(
-    @Body(new ValidationPipe({
-      transform: true,
-      whitelist: true,
-    }))
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
     requestData: CreateTrackingRequestDto,
   ) {
-    const result = await this.trackingService.createTrackingAllCases(requestData);
+    const result =
+      await this.trackingService.createTrackingAllCases(requestData);
     return {
       message: 'Tracking have been created successfully',
       statusCode: HttpStatus.CREATED,
@@ -90,7 +116,10 @@ export class TrackingController {
     )
     updateSizeDto: ChangeStatusRequestDto,
   ) {
-    const result = await this.trackingService.changeStatus(slug, updateSizeDto.status);
+    const result = await this.trackingService.changeStatus(
+      slug,
+      updateSizeDto.status,
+    );
     return {
       message: 'The tracking have been updated successfully',
       statusCode: HttpStatus.OK,
@@ -116,9 +145,7 @@ export class TrackingController {
     required: true,
     example: '',
   })
-  async deleteTracking(
-    @Param('slug') slug: string,
-  ) {
+  async deleteTracking(@Param('slug') slug: string) {
     const result = await this.trackingService.delete(slug);
     return {
       message: 'The tracking have been deleted successfully',

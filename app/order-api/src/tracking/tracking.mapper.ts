@@ -1,5 +1,11 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, extend, forMember, mapFrom, Mapper, mapWith } from '@automapper/core';
+import {
+  createMap,
+  extend,
+  forMember,
+  Mapper,
+  mapWith,
+} from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';
@@ -17,18 +23,19 @@ export class TrackingProfile extends AutomapperProfile {
   override get profile() {
     return (mapper: Mapper) => {
       createMap(
-        mapper, 
-        Tracking, 
+        mapper,
+        Tracking,
         TrackingResponseDto,
         forMember(
           (destination) => destination.trackingOrderItems,
           mapWith(
             TrackingOrderItemResponseDto,
             TrackingOrderItem,
-            (source) => source.trackingOrderItems
-          )
-        ), 
-        extend(baseMapper(mapper)));
+            (source) => source.trackingOrderItems,
+          ),
+        ),
+        extend(baseMapper(mapper)),
+      );
     };
   }
 }

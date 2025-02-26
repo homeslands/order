@@ -171,7 +171,7 @@ describe('VariantController', () => {
       const slug: string = 'mock-variant-slug';
       (service.deleteVariant as jest.Mock).mockResolvedValue(1);
 
-      const result = await controller.deleteVariant(slug);
+      await controller.deleteVariant(slug);
       expect(service.deleteVariant).toHaveBeenCalledTimes(1);
     });
 

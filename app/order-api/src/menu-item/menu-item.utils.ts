@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { MenuItem } from './menu-item.entity';
 import { MenuItemException } from './menu-item.exception';
 import { MenuItemValidation } from './menu-item.validation';

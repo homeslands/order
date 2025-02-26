@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 
@@ -30,9 +30,6 @@ describe('AuthController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/auth/profile')
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(200)
-      .expect((res) => {
-        console.log({ body: res.body });
-      });
+      .expect(200);
   });
 });

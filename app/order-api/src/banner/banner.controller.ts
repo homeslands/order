@@ -1,8 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query, ValidationPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+  ValidationPipe,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { BannerService } from './banner.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
-import { BannerResponseDto, CreateBannerRequestDto, GetBannerQueryDto, UpdateBannerRequestDto } from './banner.dto';
+import {
+  BannerResponseDto,
+  CreateBannerRequestDto,
+  GetBannerQueryDto,
+  UpdateBannerRequestDto,
+} from './banner.dto';
 import { Public } from 'src/auth/public.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
@@ -22,18 +49,15 @@ export class BannerController {
     status: HttpStatus.OK,
     description: 'Get all banners successfully',
     type: BannerResponseDto,
-    isArray: true
+    isArray: true,
   })
   @ApiOperation({ summary: 'Get all banners' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async getAllBanners(
     @Query(new ValidationPipe({ transform: true }))
-    query: GetBannerQueryDto
+    query: GetBannerQueryDto,
   ) {
-    console.log({queryX: query})
-    const result = await this.bannerService.getAllBanners(
-      query
-    );
+    const result = await this.bannerService.getAllBanners(query);
     return {
       message: 'Get all banners successfully',
       statusCode: HttpStatus.OK,
@@ -52,12 +76,8 @@ export class BannerController {
   })
   @ApiOperation({ summary: 'Get specific banner' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async getSpecificBanner(
-    @Param('slug') slug: string,
-  ) {
-    const result = await this.bannerService.getSpecificBanner(
-      slug
-    );
+  async getSpecificBanner(@Param('slug') slug: string) {
+    const result = await this.bannerService.getSpecificBanner(slug);
     return {
       message: 'Get specific banner successfully',
       statusCode: HttpStatus.OK,
@@ -123,10 +143,7 @@ export class BannerController {
     )
     updateBannerDto: UpdateBannerRequestDto,
   ) {
-    const result = await this.bannerService.updateBanner(
-      slug,
-      updateBannerDto,
-    );
+    const result = await this.bannerService.updateBanner(slug, updateBannerDto);
 
     return {
       message: 'Banner have been updated successfully',
@@ -165,7 +182,6 @@ export class BannerController {
       result: `${result} banner have been deleted successfully`,
     } as AppResponseDto<string>;
   }
-  
 
   @Patch(':slug/upload')
   // @Public()
@@ -184,7 +200,6 @@ export class BannerController {
       },
     },
   })
-
   @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Banner image have been uploaded successfully',
@@ -192,11 +207,13 @@ export class BannerController {
   })
   @ApiOperation({ summary: 'Upload banner image' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @UseInterceptors(new CustomFileInterceptor('file', {
-    limits: {
-      fileSize: 5 * 1024 * 1024,
-    }
-  }))
+  @UseInterceptors(
+    new CustomFileInterceptor('file', {
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
   async uploadBannerImage(
     @Param('slug') slug: string,
     @UploadedFile() file: Express.Multer.File,
