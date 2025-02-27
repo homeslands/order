@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  BulkCreateTablesRequestDto,
   CreateTableRequestDto,
   TableResponseDto,
   UpdateTableRequestDto,
@@ -20,6 +21,7 @@ import { TableValidation } from './table.validation';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { TableUtils } from './table.utils';
+import { TableStatus } from './table.constant';
 
 @Injectable()
 export class TableService {
@@ -42,6 +44,67 @@ export class TableService {
       const isAssigned = location.metadata?.isAssigned;
       return isAssigned === undefined || isAssigned === false;
     });
+  }
+
+  async bulkCreateTables(
+    bulkCreateTablesRequestDto: BulkCreateTablesRequestDto,
+  ): Promise<TableResponseDto[]> {
+    const context = `${TableService.name}.${this.bulkCreateTables.name}`;
+    const branch = await this.branchUtils.getBranch({
+      slug: bulkCreateTablesRequestDto.branch || IsNull(),
+    });
+    if (bulkCreateTablesRequestDto.from > bulkCreateTablesRequestDto.to) {
+      this.logger.warn(
+        TableValidation.FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER.message,
+        context,
+      );
+      throw new TableException(
+        TableValidation.FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER,
+      );
+    }
+
+    const tables: Table[] = [];
+    for (
+      let i = bulkCreateTablesRequestDto.from;
+      i <= bulkCreateTablesRequestDto.to;
+      i += bulkCreateTablesRequestDto.step
+    ) {
+      await this.validateNameTable(`${i}`, branch.slug);
+      const table = new Table();
+      table.name = `${i}`;
+      table.branch = branch;
+      table.status = TableStatus.AVAILABLE;
+      tables.push(table);
+    }
+
+    const createdTables = await this.transactionManagerService.execute<Table[]>(
+      async (manager) => {
+        return await manager.save(tables);
+      },
+      (result) => {
+        this.logger.log(`${result.length} created successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error creating table: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new TableException(TableValidation.CREATE_TABLE_FAILED);
+      },
+    );
+    return this.mapper.mapArray(createdTables, Table, TableResponseDto);
+  }
+
+  async validateNameTable(name: string, branch: string) {
+    const context = `${TableService.name}.${this.validateNameTable.name}`;
+    const table = await this.tableRepository.findOne({
+      where: { name, branch: { slug: branch } },
+    });
+    if (table) {
+      this.logger.warn(TableValidation.TABLE_NAME_EXIST.message, context);
+      throw new TableException(TableValidation.TABLE_NAME_EXIST);
+    }
   }
 
   /**

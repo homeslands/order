@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +12,7 @@ import {
   Input,
   Form,
   Button,
+  Switch,
 } from '@/components/ui'
 import { updateTableSchema, TUpdateTableSchema } from '@/schemas'
 
@@ -35,6 +36,7 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
   const { t } = useTranslation(['table'])
   const { branch } = useBranchStore()
   const { mutate: updateTable } = useUpdateTable()
+  const [hasLocation, setHasLocation] = useState(false)
   const form = useForm<TUpdateTableSchema>({
     resolver: zodResolver(updateTableSchema),
     defaultValues: {
@@ -72,6 +74,19 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
           </FormItem>
         )}
       />
+    ),
+    hasLocation: (
+      <FormItem className="flex flex-row items-center justify-between py-4">
+        <div className="space-y-0.5">
+          <FormLabel className="">{t('table.hasLocation')}</FormLabel>
+        </div>
+        <FormControl>
+          <Switch
+            checked={hasLocation}
+            onCheckedChange={setHasLocation}
+          />
+        </FormControl>
+      </FormItem>
     ),
     location: (
       <FormField

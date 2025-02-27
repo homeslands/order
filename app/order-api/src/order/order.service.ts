@@ -295,7 +295,7 @@ export class OrderService {
       },
       relations: ['promotion'],
     });
-
+    //  limit product
     if (item.quantity > menuItem.currentStock) {
       this.logger.warn(
         OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
@@ -311,6 +311,7 @@ export class OrderService {
       item.promotion,
       menuItem,
     );
+
     // const promotionWhere: FindOptionsWhere<Promotion> = { id: menuItem.promotionId };
     // if(menuItem.promotionId) {
     //   promotion = await this.promotionUtils.getPromotion(promotionWhere);

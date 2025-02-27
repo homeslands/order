@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import {
+  BulkCreateTablesRequestDto,
   CreateTableRequestDto,
   TableResponseDto,
   UpdateTableRequestDto,
@@ -69,6 +70,40 @@ export class TableController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<TableResponseDto>;
+  }
+
+  @Post('bulk')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiResponseWithType({
+    status: HttpStatus.CREATED,
+    description: 'Many tables created successfully',
+    type: TableResponseDto,
+  })
+  @ApiOperation({ summary: 'Create many tables' })
+  @ApiResponse({
+    status: 200,
+    description: 'Create many tables successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin)
+  // @Public()
+  async bulkCreate(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
+    bulkCreateTablesDto: BulkCreateTablesRequestDto,
+  ) {
+    const result =
+      await this.tableService.bulkCreateTables(bulkCreateTablesDto);
+    return {
+      message: `${result.length} tables have been created successfully`,
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<TableResponseDto[]>;
   }
 
   @Get()

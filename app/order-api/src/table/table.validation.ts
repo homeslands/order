@@ -9,6 +9,8 @@ export const CREATE_TABLE_FAILED = 'CREATE_TABLE_FAILED';
 export const INVALID_TABLE_NAME = 'INVALID_TABLE_NAME';
 export const UPDATE_TABLE_FAILED = 'UPDATE_TABLE_FAILED';
 export const DELETE_TABLE_FAILED = 'DELETE_TABLE_FAILED';
+export const FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER =
+  'FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER';
 
 export type TTableErrorCodeKey =
   | typeof TABLE_NAME_EXIST
@@ -19,6 +21,7 @@ export type TTableErrorCodeKey =
   | typeof UPDATE_TABLE_FAILED
   | typeof INVALID_TABLE_NAME
   | typeof DELETE_TABLE_FAILED
+  | typeof FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER
   | typeof LOCATION_NOT_FOUND;
 
 export type TTableErrorCode = Record<TTableErrorCodeKey, TErrorCodeValue>;
@@ -37,4 +40,8 @@ export const TableValidation: TTableErrorCode = {
   INVALID_TABLE_NAME: createErrorCode(125006, 'Invalid table name'),
   UPDATE_TABLE_FAILED: createErrorCode(125007, 'Update table failed'),
   DELETE_TABLE_FAILED: createErrorCode(125008, 'Delete table failed'),
+  FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER: createErrorCode(
+    125009,
+    'From number must less or equal to number',
+  ),
 };

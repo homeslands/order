@@ -52,7 +52,7 @@ export class OrderSubscriber implements EntitySubscriberInterface<Order> {
     }
 
     if (table?.status === TableStatus.AVAILABLE) {
-      table.status = TableStatus.RESERVERD;
+      table.status = TableStatus.RESERVED;
       await this.tableRepository.save(table);
       this.logger.log(
         `Table status ${table.name} updated successfully`,

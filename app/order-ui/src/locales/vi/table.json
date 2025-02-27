@@ -21,15 +21,13 @@
     "enterXPosition": "Nhập tọa độ X",
     "yPosition": "Tọa độ Y",
     "enterYPosition": "Nhập tọa độ Y",
-
+    "hasLocation": "Có vị trí",
     "update": "Cập nhật bàn",
     "updateDescription": "Thay đổi thông tin bên dưới để cập nhật bàn",
-
     "updateStatus": "Cập nhật trạng thái bàn",
     "currentInfo": "Thông tin hiện tại",
     "willChangeStatus": "Bàn sẽ chuyển sang trạng thái",
     "confirmUpdateStatus": "Xác nhận cập nhật trạng thái bàn",
-
     "delete": "Xóa bàn",
     "deleteTableWarning1": "Bạn sắp sửa xóa bàn ",
     "deleteTableConfirmation": "Bạn có chắc chắn muốn xóa bàn này không?",
