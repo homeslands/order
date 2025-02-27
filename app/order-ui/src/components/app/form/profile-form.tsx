@@ -12,7 +12,6 @@ export default function ProfileForm() {
           <TabsTrigger value="general-info">
             {t('profile.generalInfo')}
           </TabsTrigger>
-          <TabsTrigger value="myOrders">{t('profile.myOrders')}</TabsTrigger>
         </TabsList>
         <TabsContent value="general-info" className="w-full p-0">
           <UserProfileCard />

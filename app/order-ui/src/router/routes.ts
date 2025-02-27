@@ -1,7 +1,6 @@
 import {
   Banknote,
   Bolt,
-  BookText,
   ChartColumn,
   ClipboardList,
   CookingPot,
@@ -143,10 +142,10 @@ export const sidebarRoutes: ISidebarRoute[] = [
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Newspaper,
   },
-  {
-    title: 'sidebar.docs',
-    path: ROUTE.DOCS,
-    roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
-    icon: BookText,
-  },
+  // {
+  //   title: 'sidebar.docs',
+  //   path: ROUTE.DOCS,
+  //   roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+  //   icon: BookText,
+  // },
 ]

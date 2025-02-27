@@ -12,9 +12,10 @@ import {
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
-import { ClientTableSelect, OrderTypeSelect } from '@/components/app/select'
+import { OrderTypeSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency } from '@/utils'
+import { OrderTypeEnum } from '@/types'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
@@ -44,8 +45,8 @@ export default function ClientCartPage() {
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Left content */}
-        <div className="w-full lg:w-1/2">
-          {/* Note */}
+        {/* <div className="w-full lg:w-1/2">
+          Note
           <div className="flex items-end justify-between">
             <div className="flex items-center gap-1">
               <CircleAlert size={14} className="text-destructive" />
@@ -55,13 +56,25 @@ export default function ClientCartPage() {
             </div>
           </div>
 
-          {/* Table select */}
+          Table select
+
           <ClientTableSelect />
-        </div>
+        </div> */}
 
         {/* Right content */}
-        <div className="w-full lg:w-1/2">
-          <OrderTypeSelect />
+        <div className="w-full lg:w-full">
+          <div className="flex items-end justify-between pb-4">
+            <div className="flex items-center gap-1">
+              <CircleAlert size={14} className="text-destructive" />
+              <span className="text-xs italic text-destructive">
+                {t('order.selectTableNote')}
+              </span>
+            </div>
+          </div>
+          <div className='flex gap-1'>
+            <OrderTypeSelect />
+            <TableInCartSelect />
+          </div>
           {/* Table list order items */}
           <div className="my-4">
             <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted/60">
@@ -166,7 +179,11 @@ export default function ClientCartPage() {
           {/* Button */}
           <div className="flex justify-end w-full">
             <CreateOrderDialog
-              disabled={!(cartItems && !cartItems.table)}
+              disabled={!!(
+                !cartItems ||
+                (cartItems.type === OrderTypeEnum.TAKE_OUT && !cartItems.table) ||
+                (cartItems.type === OrderTypeEnum.AT_TABLE && cartItems.table)
+              )}
             />
           </div>
         </div>

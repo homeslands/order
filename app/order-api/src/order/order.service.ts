@@ -89,7 +89,9 @@ export class OrderService {
     const table =
       requestData.type === OrderType.AT_TABLE
         ? await this.tableUtils.getTable({
-            slug: requestData.table,
+            where: {
+              slug: requestData.table,
+            },
           })
         : null;
     order.type = requestData.type;
@@ -218,9 +220,11 @@ export class OrderService {
     let table: Table = null;
     if (data.type === OrderType.AT_TABLE) {
       table = await this.tableUtils.getTable({
-        slug: data.table,
-        branch: {
-          id: branch.id,
+        where: {
+          slug: data.table,
+          branch: {
+            id: branch.id,
+          },
         },
       });
     }

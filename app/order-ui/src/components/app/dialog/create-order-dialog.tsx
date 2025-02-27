@@ -20,7 +20,7 @@ import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
-  disabled?: boolean
+  disabled?: boolean | undefined
 }
 
 export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
@@ -84,7 +84,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       <DialogTrigger asChild>
         <Button
           disabled={!disabled}
-          className="flex items-center w-full text-sm rounded-full"
+          className="flex items-center w-1/6 text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

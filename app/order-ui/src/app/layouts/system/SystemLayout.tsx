@@ -14,15 +14,13 @@ export default function SystemLayout() {
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="box-border flex flex-1 min-h-screen">
+      <div className="box-border flex min-h-screen flex-1">
         <AppSidebar />
 
         {/* Main content */}
-        <div className="relative flex h-[100dvh] flex-1 flex-col overflow-hidden ">
+        <div className="relative flex h-[100dvh] flex-1 flex-col overflow-hidden">
           {/* Header - Fixed on mobile */}
-          <div className="sticky top-0 z-30 border-l-4 border-primary">
-            <AppHeader />
-          </div>
+          <AppHeader />
 
           {/* Breadcrumb - Responsive padding */}
           <div className={cn('sticky z-20', isMobile ? 'px-3 py-2' : 'p-4')}>

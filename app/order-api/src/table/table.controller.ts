@@ -57,6 +57,7 @@ export class TableController {
     @Body(
       new ValidationPipe({
         transform: true,
+        whitelist: true,
       }),
     )
     createTableDto: CreateTableRequestDto,
@@ -115,7 +116,7 @@ export class TableController {
   })
   async changeStatus(
     @Param('slug') slug: string,
-    @Body(new ValidationPipe({ transform: true }))
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
     requestData: UpdateTableStatusRequestDto,
   ) {
     const result = await this.tableService.changeStatus(slug, requestData);
@@ -149,6 +150,7 @@ export class TableController {
     @Body(
       new ValidationPipe({
         transform: true,
+        whitelist: true,
       }),
     )
     updateTableDto: UpdateTableRequestDto,

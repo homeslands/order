@@ -4,7 +4,7 @@ import {
   MockType,
   repositoryMockFactory,
 } from 'src/test-utils/repository-mock.factory';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Table } from './table.entity';
 import { Branch } from 'src/branch/branch.entity';
 import { Mapper } from '@automapper/core';
@@ -21,6 +21,12 @@ import { TableException } from './table.exception';
 import { QRLocationResponseDto } from 'src/robot-connector/robot-connector.dto';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { TableUtils } from './table.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { TableValidation } from './table.validation';
+import { BranchValidation } from 'src/branch/branch.validation';
 
 describe('TableService', () => {
   let service: TableService;
@@ -28,6 +34,9 @@ describe('TableService', () => {
   let branchRepositoryMock: MockType<Repository<Branch>>;
   let mapperMock: MockType<Mapper>;
   let robotConnectorClient: RobotConnectorClient;
+  let mockDataSource: MockType<DataSource>;
+  let tableUtils: TableUtils;
+  let branchUtils: BranchUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,6 +45,10 @@ describe('TableService', () => {
         RobotConnectorClient,
         HttpService,
         SystemConfigService,
+        BranchUtils,
+        TableUtils,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: 'AXIOS_INSTANCE_TOKEN',
           useValue: {
@@ -83,6 +96,13 @@ describe('TableService', () => {
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
     robotConnectorClient =
       module.get<RobotConnectorClient>(RobotConnectorClient);
+    mockDataSource = module.get(DataSource);
+    tableUtils = module.get(TableUtils);
+    branchUtils = module.get(BranchUtils);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -90,10 +110,6 @@ describe('TableService', () => {
   });
 
   describe('Create table', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
     it('should throw error when branch is not found', async () => {
       const mockInput = {
         name: 'Mock table name',
@@ -101,7 +117,11 @@ describe('TableService', () => {
         location: 'mock-location-abfA',
       } as CreateTableRequestDto;
 
-      (branchRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
+      jest
+        .spyOn(branchUtils, 'getBranch')
+        .mockRejectedValue(
+          new BranchException(BranchValidation.BRANCH_NOT_FOUND),
+        );
       await expect(service.create(mockInput)).rejects.toThrow(BranchException);
     });
 
@@ -140,12 +160,13 @@ describe('TableService', () => {
       await expect(service.create(mockInput)).rejects.toThrow(TableException);
     });
 
-    it('should create success and return created table', async () => {
+    it('should create table when provided data is valid', async () => {
       const mockInput = {
         name: 'Mock table name',
         branch: 'mock-branch-slug',
         location: 'mock-location-abfA',
       } as CreateTableRequestDto;
+
       const branch = {
         name: 'Mock branch name',
         address: 'Mock branch address',
@@ -154,6 +175,7 @@ describe('TableService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       } as Branch;
+
       const mockOutput = {
         name: 'Mock table name',
         branch: new Branch(),
@@ -163,21 +185,28 @@ describe('TableService', () => {
         updatedAt: new Date(),
       } as Table;
 
-      (branchRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(branch);
-      (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
-      (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
-      (tableRepositoryMock.create as jest.Mock).mockReturnValue(mockOutput);
-      (tableRepositoryMock.save as jest.Mock).mockResolvedValue(mockOutput);
-      (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
-      jest.spyOn(robotConnectorClient, 'getQRLocationById').mockResolvedValue({
+      const mockLocation = {
         id: 'mock-location-abfA',
         name: 'mock-location-name',
         qr_code: 'mock-location-code',
-      } as QRLocationResponseDto);
+      } as QRLocationResponseDto;
 
-      const result = await service.create(mockInput);
-      expect(result).toEqual(mockOutput);
-      expect(mapperMock.map).toHaveBeenCalledTimes(2);
+      // Mock
+      jest.spyOn(branchUtils, 'getBranch').mockResolvedValue(branch);
+      const queryRunner = mockDataSource.createQueryRunner();
+      mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
+        ...queryRunner,
+        manager: {
+          save: jest.fn().mockResolvedValue(mockOutput),
+        },
+      });
+      (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
+      jest
+        .spyOn(robotConnectorClient, 'getQRLocationById')
+        .mockResolvedValue(mockLocation);
+
+      // Compare
+      expect(await service.create(mockInput)).toEqual(mockOutput);
     });
   });
 
@@ -263,29 +292,30 @@ describe('TableService', () => {
   });
 
   describe('Update table', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
     it('should throw error when table is not found', async () => {
       const slug = 'mock-table-slug';
       const mockInput = {
         name: 'Mock table name',
         location: 'mock-table-location',
       } as UpdateTableRequestDto;
-      (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
+      jest
+        .spyOn(tableUtils, 'getTable')
+        .mockRejectedValue(new TableException(TableValidation.TABLE_NOT_FOUND));
 
       await expect(service.update(slug, mockInput)).rejects.toThrow(
         TableException,
       );
     });
 
-    it('should updated table when updated name already exist in this branch', async () => {
+    it('Should update the table when provided data is valid', async () => {
       const slug = 'mock-table-slug';
+
       const mockInput = {
         name: 'Mock table name',
         location: 'mock-table-location',
       } as UpdateTableRequestDto;
-      const table = {
+
+      const mockOutput = {
         name: 'Mock table name',
         branch: new Branch(),
         id: 'mock-table-id',
@@ -294,38 +324,18 @@ describe('TableService', () => {
         updatedAt: new Date(),
       } as Table;
 
-      (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(table);
-      (mapperMock.map as jest.Mock).mockImplementationOnce(() => table);
-      // jest.spyOn(service, 'isExistUpdatedName').mockResolvedValue(true);
+      jest.spyOn(tableUtils, 'getTable').mockResolvedValue(mockOutput);
+      const queryRunner = mockDataSource.createQueryRunner();
+      mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
+        ...queryRunner,
+        manager: {
+          save: jest.fn().mockResolvedValue(mockOutput),
+        },
+      });
+      (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
 
-      expect(await service.update(slug, mockInput)).toEqual(table);
+      expect(await service.update(slug, mockInput)).toEqual(mockOutput);
     });
-
-    // it('should update success and return updated table', async () => {
-    //   const slug = 'mock-table-slug';
-    //   const mockInput = {
-    //     name: 'Mock table name',
-    //     location: 'mock-table-location',
-    //   } as UpdateTableRequestDto;
-    //   const mockOutput = {
-    //     name: 'Mock table name',
-    //     branch: new Branch(),
-    //     id: 'mock-table-id',
-    //     slug: 'mock-table-slug',
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   } as Table;
-
-    //   (tableRepositoryMock.findOne as jest.Mock).mockResolvedValue(mockOutput);
-    //   (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
-    //   // jest.spyOn(service, 'isExistUpdatedName').mockResolvedValue(false);
-    //   (tableRepositoryMock.save as jest.Mock).mockResolvedValue(mockOutput);
-    //   (mapperMock.map as jest.Mock).mockReturnValue(mockOutput);
-
-    //   const result = await service.update(slug, mockInput);
-    //   expect(result).toEqual(mockOutput);
-    //   expect(mapperMock.map).toHaveBeenCalledTimes(2);
-    // });
   });
 
   describe('Delete table', () => {
@@ -350,14 +360,20 @@ describe('TableService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       } as Table;
-      const mockOutput = { affected: 1 };
-      (tableRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(table);
-      (tableRepositoryMock.softDelete as jest.Mock).mockResolvedValue(
-        mockOutput,
-      );
+      const mockOutput = 1;
 
-      const result = await service.remove(slug);
-      expect(result).toEqual(mockOutput.affected);
+      jest.spyOn(tableUtils, 'getTable').mockResolvedValue(table);
+
+      const queryRunner = mockDataSource.createQueryRunner();
+      mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
+        ...queryRunner,
+        manager: {
+          // save: jest.fn().mockResolvedValue(mockOutput),
+          remove: jest.fn().mockResolvedValue(table),
+        },
+      });
+
+      expect(await service.remove(slug)).toEqual(mockOutput);
     });
   });
 });
