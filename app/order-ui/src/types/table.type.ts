@@ -46,6 +46,13 @@ export interface ICreateTableRequest {
   status: TableStatus
 }
 
+export interface ICreateMultipleTablesRequest {
+  branch: string // Branch slug
+  from: number
+  to: number
+  step: number
+}
+
 export interface IUpdateTableRequest {
   slug: string
   name: string

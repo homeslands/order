@@ -54,6 +54,7 @@ const publicRoutes = [
   { path: /^\/auth\/forgot-password\/token$/, methods: ['post'] },
   { path: /^\/menu\/specific$/, methods: ['get'] },
   { path: /^\/products\/[^/]+$/, methods: ['get'] }, // get product by slug
+  { path: /^\/products$/, methods: ['get'] },
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
   { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },

@@ -40,7 +40,16 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
     },
     {
       accessorKey: 'name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('product.name')} />
+      header: ({ column }) => (<DataTableColumnHeader column={column} title={t('product.name')} />),
+      cell: ({ row }) => {
+        const { name, description } = row.original
+        return (
+          <div className="flex flex-col gap-1 w-[20rem]">
+            <div className="font-bold">{name}</div>
+            <p className="text-sm text-gray-500 break-words line-clamp-3 text-ellipsis overflow-hidden">{description}</p>
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'createdAt',
@@ -51,7 +60,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         const createdAt = row.getValue('createdAt')
         return createdAt ? (
           <div className="text-xs">
-            {moment(new Date(createdAt as string)).format('HH:mm DD/MM/YYYY')}
+            {moment(new Date(createdAt as string)).format('DD/MM/YYYY')}
           </div>
         ) : ''
       }
@@ -61,10 +70,32 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('product.catalog')} />
     },
     {
-      accessorKey: 'description',
+      accessorKey: 'highlight',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('product.description')} />
-      )
+        <DataTableColumnHeader column={column} title={t('product.highlight')} />
+      ),
+      cell: ({ row }) => {
+        const { isLimit, isTopSell, isNew } = row.original
+        return (
+          <div className="flex flex-col gap-2 px-2">
+            {isLimit ? (
+              <div className="bg-yellow-400 text-yellow-900 rounded-xl text-[11px] text-center font-bold">
+                {t('product.isLimited')}
+              </div>
+            ) : null}
+            {isTopSell ? (
+              <div className="bg-red-500 text-white rounded-xl text-[11px] text-center font-bold">
+                {t('product.isTopSell')}
+              </div>
+            ) : null}
+            {isNew ? (
+              <div className="bg-green-500 text-white rounded-xl text-[11px] text-center font-bold">
+                {t('product.isNew')}
+              </div>
+            ) : null}
+          </div>
+        )
+      }
     },
     {
       id: 'actions',

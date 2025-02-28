@@ -16,8 +16,10 @@ export default function SwiperBanner({ bannerData }: { bannerData: IBanner[] }):
         <Swiper
             pagination={{
                 dynamicBullets: true,
+                clickable: true,
             }}
-            loop={true}
+            initialSlide={1}
+            loop
             modules={[Autoplay, Pagination, Navigation]}
             className='relative h-[70vh] w-full'
         >
@@ -53,9 +55,6 @@ export default function SwiperBanner({ bannerData }: { bannerData: IBanner[] }):
                     <div className="hidden col-span-1 sm:block" />
                 </SwiperSlide>
             )}
-
-
-
         </Swiper>
     );
 };

@@ -8,6 +8,13 @@ export const createTableSchema = z.object({
   status: z.enum([TableStatus.AVAILABLE, TableStatus.RESERVED]),
 })
 
+export const createMultipleTablesSchema = z.object({
+  branch: z.string().min(1),
+  from: z.coerce.number().int().positive(),
+  to: z.coerce.number().int().positive(),
+  step: z.coerce.number().int().positive(),
+})
+
 export const updateTableSchema = z.object({
   slug: z.string(),
   name: z.string().min(1),
@@ -15,4 +22,7 @@ export const updateTableSchema = z.object({
 })
 
 export type TCreateTableSchema = z.infer<typeof createTableSchema>
+export type TCreateMultipleTablesSchema = z.infer<
+  typeof createMultipleTablesSchema
+>
 export type TUpdateTableSchema = z.infer<typeof updateTableSchema>

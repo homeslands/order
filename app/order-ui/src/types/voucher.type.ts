@@ -42,7 +42,7 @@ export interface IValidateVoucherRequest {
   voucher: string
   user: string //user slug
 }
-export interface IGetVoucherBySlugRequest {
+export interface IGetSpecificVoucherRequest {
   slug?: string
   code?: string
 }

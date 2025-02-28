@@ -15,3 +15,4 @@ export { default as OrderTypeInUpdateOrderSelect } from './order-type-in-update-
 export { default as VoucherTypeSelect } from './voucher-type-select'
 export { default as ProductToolSelect } from './product-tool-select'
 export { default as TableInCartSelect } from './table-select'
+export { default as TableStatusSelect } from './table-status-select'

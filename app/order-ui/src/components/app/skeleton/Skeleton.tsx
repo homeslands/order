@@ -57,30 +57,23 @@ export function SkeletonCart() {
 export function SkeletonMenuList() {
   return (
     <div className="flex flex-col border bg-muted/50 rounded-xl">
-      {/* Image Section */}
       <div className="relative p-2">
-        <Skeleton className="w-full h-32 rounded-lg" />
-        {/* Status tag */}
-        {/* <div className="absolute top-4 left-4">
-          <Skeleton className="w-16 h-5 rounded-full" />
-        </div> */}
+        <Skeleton className="w-full h-32 rounded-lg bg-gray-300" />
       </div>
-
       {/* Content Section */}
       <div className="flex flex-col flex-1 p-4 space-y-2">
         {/* Name */}
-        <Skeleton className="w-3/4 h-4" />
+        <Skeleton className="w-3/4 h-4 bg-gray-300" />
 
         {/* Description */}
         <div className="space-y-1">
-          <Skeleton className="w-full h-3" />
+          <Skeleton className="w-full h-3 bg-gray-300" />
         </div>
 
         {/* Price and Add button */}
-        <div className="flex items-center justify-between gap-1 mt-auto">
-          <Skeleton className="w-24 h-6" />
-          <Skeleton className="w-24 rounded-full h-7" />
-        </div>
+        <Skeleton className="w-24 h-6 bg-gray-300" />
+
+
       </div>
     </div>
   )

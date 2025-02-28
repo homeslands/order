@@ -588,7 +588,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: ROUTE.ADMIN_VOUCHER,
+    path: ROUTE.STAFF_VOUCHER,
     element: (
       <Suspense fallback={<SkeletonCart />}>
         <SuspenseElement component={SystemLayout} />
@@ -607,7 +607,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: ROUTE.ADMIN_PROMOTION,
+    path: ROUTE.STAFF_PROMOTION,
     element: (
       <Suspense fallback={<SkeletonCart />}>
         <SuspenseElement component={SystemLayout} />
@@ -645,7 +645,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: `${ROUTE.ADMIN_BANNER}/:slug`,
+    path: `${ROUTE.STAFF_BANNER}/:slug`,
     element: (
       <Suspense fallback={<SkeletonCart />}>
         <SuspenseElement component={SystemLayout} />

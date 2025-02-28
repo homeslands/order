@@ -11,17 +11,14 @@
     "slug": "Slug",
     "description": "Description",
     "createdAt": "Created at",
-
     "create": "Create catalog",
     "createCatalogDescription": "Fill in the information to create a catalog",
     "catalogName": "Catalog name",
     "enterCatalogName": "Enter catalog name",
     "catalogDescription": "Catalog description",
     "enterCatalogDescription": "Enter catalog description",
-
     "update": "Update catalog",
     "updateCatalogDescription": "Fill in the information to update the catalog",
-
     "delete": "Delete catalog",
     "deleteCatalogWarning1": "You are about to delete the catalog",
     "deleteCatalogConfirmation": "Are you sure you want to delete the catalog"
@@ -31,24 +28,20 @@
     "name": "Size name",
     "description": "Description",
     "createdAt": "Created at",
-
     "create": "Add size",
     "createSizeDescription": "Fill in the information to create size",
     "sizeName": "Size name",
     "enterSizeName": "Enter size name",
     "sizeDescription": "Size description",
     "enterSizeDescription": "Enter size description",
-
     "update": "Update size",
     "updateSizeDescription": "Fill in the information to update size",
-
     "delete": "Delete size",
     "deleteSizeWarning1": "You are about to delete the size",
     "deleteSizeConfirmation": "Are you sure you want to delete the size"
   },
   "product": {
     "title": "Dish management",
-
     "create": "Add dish",
     "createProductDescription": "Fill in the information to create a dish",
     "productName": "Dish name",
@@ -57,23 +50,22 @@
     "enterProductDescription": "Enter dish description",
     "productCatalog": "Dish catalog",
     "selectProductCatalog": "Select dish catalog",
-    "isLimited": "Is limited",
-
+    "isLimited": "Limited",
+    "isTopSell": "Top sale",
+    "isNew": "New dish",
     "update": "Update dish",
     "updateProductDescription": "Fill in the information to update the dish",
-
     "uploadImage": "Upload image",
     "uploadImageDescription": "Upload image for dish",
-
     "delete": "Delete dish",
     "deleteProductWarning1": "You are about to delete the dish",
     "deleteProductConfirmation": "Are you sure you want to delete the dish",
-
     "image": "Image",
     "slug": "Slug",
     "createdAt": "Created at",
     "name": "Name",
     "catalog": "Catalog",
-    "description": "Description"
+    "description": "Description",
+    "highlight": "Highlight"
   }
 }

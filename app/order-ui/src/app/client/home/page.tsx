@@ -3,17 +3,16 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui'
-import { useBanners } from '@/hooks'
+import { useBanners, useProducts } from '@/hooks'
 import { ROUTE } from '@/constants'
-import { BestSellerCarousel, StoreCarousel } from './components'
+import { StoreCarousel } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
 import SwiperBanner from './components/banner'
+import SliderProduct from './components/slider-product'
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { data: banner } = useBanners()
   const bannerData = banner?.result || []
-
-
   // Animation Variants
   const fadeInVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -24,6 +23,10 @@ export default function HomePage() {
     },
   }
 
+  const { data: products, isFetching } = useProducts({})
+  const bestSellerProducts = products?.result?.filter(product => product.isTopSell) || []
+  const newProducts = products?.result?.filter(product => product.isNew) || []
+
   return (
     <React.Fragment>
       <AdPopup />
@@ -32,50 +35,56 @@ export default function HomePage() {
         <SwiperBanner bannerData={bannerData} />
 
         {/* Section 2: Sản phẩm bán chạy */}
-        <div className="container">
-          <motion.div
-            className="flex flex-col items-start w-full gap-4 h-fit"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeInVariants}
-          >
-            <div className="w-full flex-between">
-              <div className="primary-highlight">
-                {t('home.bestSeller')}
+        {bestSellerProducts.length > 0 &&
+          <div className="container">
+            <motion.div
+              className="flex flex-col items-start w-full gap-4 h-[22rem]"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={fadeInVariants}
+            >
+              <div className="w-full flex-between">
+                <div className="primary-highlight">
+                  {t('home.bestSeller')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>
+                    {t('home.viewMore')}
+                  </Button>
+                </NavLink>
               </div>
-              <NavLink to={ROUTE.CLIENT_MENU}>
-                <Button>
-                  {t('home.viewMore')}
-                </Button>
-              </NavLink>
-            </div>
-            <BestSellerCarousel />
-          </motion.div>
-        </div>
+              <SliderProduct products={bestSellerProducts} isFetching={isFetching} />
+            </motion.div>
+          </div>
+        }
 
-        {/* Section 2: Sản phẩm bán chạy */}
-        <div className="container">
-          <motion.div
-            className="flex flex-col items-start w-full gap-4 h-fit"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeInVariants}
-          >
-            <div className="w-full flex-between">
-              <div className="primary-highlight">
-                {t('home.newProduct')}
+
+        {/* Section 2: Sản phẩm mới */}
+        {newProducts.length > 0 &&
+          <div className="container">
+            <motion.div
+              className="flex flex-col items-start w-full h-[22rem] gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={fadeInVariants}
+            >
+              <div className="w-full flex-between mb-4">
+                <div className="primary-highlight">
+                  {t('home.newProduct')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>
+                    {t('home.viewMore')}
+                  </Button>
+                </NavLink>
               </div>
-              <NavLink to={ROUTE.CLIENT_MENU}>
-                <Button>
-                  {t('home.viewMore')}
-                </Button>
-              </NavLink>
-            </div>
-            <BestSellerCarousel />
-          </motion.div>
-        </div>
+              <SliderProduct products={newProducts} isFetching={isFetching} />
+            </motion.div>
+          </div>
+        }
+
 
         {/* Section 3: Info */}
         <div className="container">

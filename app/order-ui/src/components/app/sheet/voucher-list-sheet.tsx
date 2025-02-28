@@ -25,7 +25,7 @@ import {
 } from '@/components/ui'
 import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
 import { useIsMobile, useValidateVoucher, useVouchers } from '@/hooks'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import { IValidateVoucherRequest, IVoucher } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
 
@@ -107,6 +107,23 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
           showToast(tToast('toast.applyVoucherSuccess'))
         }
       })
+    }
+  }
+
+  const handleApplyVoucher = () => {
+    if (selectedVoucher) {
+      const voucher = voucherListData.find(voucher => voucher.code === selectedVoucher)
+      if (voucher && isVoucherValid(voucher)) {
+        handleToggleVoucher(voucher)
+      } else {
+        if (!voucher) {
+          showErrorToast(1000)
+        } else if (voucher.minOrderValue > subTotal) {
+          showErrorToast(1001)
+        } else {
+          showErrorToast(1002)
+        }
+      }
     }
   }
 
@@ -309,9 +326,14 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
+                    onChange={(e) => setSelectedVoucher(e.target.value)}
+                    value={selectedVoucher || ''}
                   />
                 </div>
-                <Button className='col-span-1'>
+                <Button className='col-span-1'
+                  disabled={!selectedVoucher}
+                  onClick={handleApplyVoucher}
+                >
                   {t('voucher.apply')}
                 </Button>
               </div>

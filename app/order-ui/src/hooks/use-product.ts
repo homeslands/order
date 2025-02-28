@@ -20,6 +20,7 @@ import {
 import {
   ICreateProductRequest,
   ICreateProductVariantRequest,
+  IProductRequest,
   ITopBranchProductQuery,
   ITopProductQuery,
   IUpdateProductRequest,
@@ -27,10 +28,10 @@ import {
 } from '@/types'
 import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
 
-export const useProducts = (exceptedPromotion?: string) => {
+export const useProducts = (params?: IProductRequest) => {
   return useQuery({
     queryKey: ['products'],
-    queryFn: () => getAllProducts(exceptedPromotion ? exceptedPromotion : ''),
+    queryFn: () => getAllProducts(params),
     placeholderData: keepPreviousData,
   })
 }

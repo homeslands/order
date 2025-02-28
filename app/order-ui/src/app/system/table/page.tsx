@@ -10,7 +10,7 @@ import { TableAction } from './DataTable/actions'
 export default function TablePage() {
   const { t } = useTranslation(['table'])
   const { getUserInfo } = useUserStore()
-  const { data: tables, isLoading } = useTables(getUserInfo()?.branch.slug)
+  const { data: tables, isLoading } = useTables(getUserInfo()?.branch?.slug)
 
   return (
     <div>

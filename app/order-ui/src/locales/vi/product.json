@@ -11,17 +11,14 @@
     "slug": "Slug",
     "description": "Mô tả",
     "createdAt": "Thời gian tạo",
-
     "create": "Tạo danh mục",
     "createCatalogDescription": "Điền thông tin để tạo danh mục",
     "catalogName": "Tên danh mục",
     "enterCatalogName": "Nhập tên danh mục",
     "catalogDescription": "Mô tả danh mục",
     "enterCatalogDescription": "Nhập mô tả danh mục",
-
     "update": "Cập nhật danh mục",
     "updateCatalogDescription": "Điền thông tin để cập nhật danh mục",
-
     "delete": "Xóa danh mục",
     "deleteCatalogWarning1": "Bạn sắp sửa xóa danh mục",
     "deleteCatalogConfirmation": "Bạn có chắc muốn xóa danh mục"
@@ -31,24 +28,20 @@
     "name": "Tên kích thước",
     "description": "Mô tả",
     "createdAt": "Thời gian tạo",
-
     "create": "Thêm kích thước",
     "createSizeDescription": "Điền thông tin để tạo kích thước",
     "sizeName": "Tên kích thước",
     "enterSizeName": "Nhập tên kích thước",
     "sizeDescription": "Mô tả kích thước",
     "enterSizeDescription": "Nhập mô tả kích thước",
-
     "update": "Cập nhật kích thước",
     "updateSizeDescription": "Điền thông tin để cập nhật kích thước",
-
     "delete": "Xóa kích thước",
     "deleteSizeWarning1": "Bạn sắp sửa xóa kích thước",
     "deleteSizeConfirmation": "Bạn có chắc muốn xóa kích thước"
   },
   "product": {
     "title": "Quản lý món ăn",
-
     "create": "Thêm món ăn",
     "createProductDescription": "Điền thông tin để tạo món ăn",
     "productName": "Tên món ăn",
@@ -58,24 +51,19 @@
     "productCatalog": "Danh mục món ăn",
     "selectProductCatalog": "Chọn danh mục món ăn",
     "isLimited": "Có giới hạn",
-    "isTopSell": "Là sản phẩm bán chạy",
-    "isNew": "Là sản phẩm mới",
+    "isTopSell": "Bán chạy",
+    "isNew": "Món mới",
     "actions": "Thao tác",
-
     "chooseTool": "Chọn công cụ",
     "tool": "Công cụ",
-
     "update": "Cập nhật món ăn",
     "updateProductDescription": "Điền thông tin để cập nhật món ăn",
-
     "uploadImage": "Tải hình ảnh",
     "uploadImageDescription": "Chọn hình ảnh từ máy tính của bạn",
     "addImage": "Thêm hình ảnh",
-
     "delete": "Xóa món ăn",
     "deleteProductWarning1": "Bạn sắp sửa xóa món ăn",
     "deleteProductConfirmation": "Bạn có chắc muốn xóa món ăn",
-
     "createVariant": "Thêm phân loại",
     "createVariantDescription": "Điền thông tin để tạo phân loại",
     "price": "Giá",
@@ -83,36 +71,31 @@
     "size": "Kích thước",
     "selectSize": "Chọn kích thước",
     "selectQuantity": "Chọn số lượng",
-
     "updateVariant": "Cập nhật phân loại",
     "deleteVariant": "Xóa phân loại",
-
     "image": "Hình ảnh",
     "slug": "Slug",
     "createdAt": "Thời gian tạo",
     "name": "Tên",
     "catalog": "Danh mục",
     "description": "Mô tả",
+    "highlight": "Nổi bật",
     "rating": "Đánh giá",
     "variant": "Phân loại",
     "chooseSizeToViewPrice": "Chọn kích thước để xem giá",
-
     "upload": "Tải lên",
     "deleteImage": "Xóa hình ảnh",
     "deleteProductImageConfirmation": "Bạn có chắc muốn xóa hình ảnh này?",
     "productDetail": "Chi tiết món",
-
     "exportAllProducts": "Xuất file tất cả món ăn",
     "exportAllProductsDescription": "Xuất tất cả món ăn ra file excel",
     "exportAllProductsConfirmation": "Bạn có chắc muốn xuất tất cả món ăn ra file excel không?",
     "confirm": "Xác nhận",
-
     "downloadTemplate": "Chưa có file mẫu? Tải file mẫu",
     "downloadHere": "tại đây",
     "exportProductImportTemplate": "Xuất file mẫu import món ăn",
     "exportProductImportTemplateDescription": "Xuất file mẫu import món ăn ra file excel",
     "exportProductImportTemplateConfirmation": "Bạn có chắc muốn xuất file mẫu import món ăn không?",
-
     "importProducts": "Import món ăn",
     "importProductsDescription": "Import món ăn từ file excel",
     "dropFileHere": "Kéo thả file vào đây hoặc nhấn để chọn file",
@@ -126,7 +109,6 @@
     "price": "Giá",
     "size": "Kích thước",
     "createdAt": "Thời gian tạo",
-
     "create": "Thêm phân loại",
     "createProductVariantDescription": "Điền thông tin để tạo phân loại",
     "productVariantName": "Tên phân loại",
@@ -135,10 +117,8 @@
     "enterProductVariantPrice": "Nhập giá phân loại",
     "productVariantSize": "Kích thước phân loại",
     "selectProductVariantSize": "Chọn kích thước phân loại",
-
     "update": "Cập nhật phân loại",
     "updateProductVariantDescription": "Điền thông tin để cập nhật phân loại",
-
     "delete": "Xóa phân loại",
     "deleteProductVariantWarning1": "Bạn sắp sửa xóa phân loại",
     "deleteProductVariantWarning2": " của món ăn hiện tại.",

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateTableRequest } from '@/types'
 import { useCreateTable } from '@/hooks'
 import { showToast } from '@/utils'
-import { BranchSelect } from '@/components/app/select'
+import { BranchSelect, TableStatusSelect } from '@/components/app/select'
 import { TableStatus } from '@/constants'
 import TableLocationSelect from '../select/table-location-select'
 import { useUserStore } from '@/stores'
@@ -36,7 +36,7 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
   const { t } = useTranslation(['table'])
   const { userInfo } = useUserStore()
   const { mutate: createTable } = useCreateTable()
-  const [hasLocation, setHasLocation] = React.useState(false)
+  const [hasLocation, setHasLocation] = useState(false)
   const form = useForm<TCreateTableSchema>({
     resolver: zodResolver(createTableSchema),
     defaultValues: {
@@ -127,11 +127,7 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
           <FormItem>
             <FormLabel>{t('table.status')}</FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                value={t(`table.${field.value}`)}
-                placeholder={t('table.enterStatus')}
-              />
+              <TableStatusSelect {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

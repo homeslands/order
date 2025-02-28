@@ -54,6 +54,7 @@
 
     "createTableSuccess": "Tạo bàn thành công",
     "updateTableSuccess": "Cập nhật bàn thành công",
+    "createMultipleTablesSuccess": "Tạo nhiều bàn thành công",
     "updateTableStatusSuccess": "Cập nhật trạng thái bàn thành công",
     "deleteTableSuccess": "Xóa bàn thành công",
 
@@ -179,6 +180,9 @@
     "workflowDoesExist": "Workflow đã tồn tại",
     "branchHaveAWorkflow": "Chi nhánh đã có workflow",
     "newRevenueNotFound": "Chưa có dữ liệu doanh thu mới",
-    "voucherAlreadyUsed": "Voucher đã được sử dụng!"
+    "voucherAlreadyUsed": "Voucher đã được sử dụng!",
+    "voucherNotFound": "Không tìm thấy voucher",
+    "voucherExpired": "Voucher đã hết hạn",
+    "minOrderNotMet": "Chưa đạt giá trị tối thiểu"
   }
 }

@@ -29,7 +29,7 @@ export default function CreateCustomerDialog() {
           {t('customer.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-4/5 max-w-[90%] rounded-md px-6 sm:max-w-[50%]">
+      <DialogContent className="max-w-[90%] rounded-md px-6 sm:max-w-[50%]">
         <DialogHeader>
           <DialogTitle>{t('customer.create')}</DialogTitle>
           <DialogDescription>

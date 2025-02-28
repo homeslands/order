@@ -23,13 +23,16 @@ export const ROUTE = {
   STAFF_PRODUCT_MANAGEMENT: '/system/product',
   STAFF_MENU_MANAGEMENT: '/system/menu-management',
   STAFF_DELIVERY_MANAGEMENT: '/delivery-management',
-  STAFF_WALLET_MANAGEMENT: '/wallet-management',
-  STAFF_LOG_MANAGEMENT: '/log',
+  STAFF_WALLET_MANAGEMENT: '/system/wallet-management',
+  STAFF_LOG_MANAGEMENT: '/system/log',
   STAFF_USER_MANAGEMENT: '/system/staff',
   STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
-  STAFF_BANK_CONFIG: '/bank-config',
+  STAFF_BANK_CONFIG: '/system/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
+  STAFF_VOUCHER: '/system/voucher',
+  STAFF_PROMOTION: '/system/promotion',
   STAFF_BANNER: '/system/banner',
+  STAFF_CONFIG: '/system/config',
 
   //Client Routes
   CLIENT_HOME: '/',
@@ -41,7 +44,7 @@ export const ROUTE = {
   CLIENT_ORDER_HISTORY: '/history',
   CLIENT_UPDATE_ORDER: '/update-order',
   CLIENT_PROFILE: '/profile',
-  CLIENT_VOUCHER: '/voucher',
+  // CLIENT_VOUCHER: '/voucher',
 
   // General Routes
   ABOUT: '/about',
@@ -50,8 +53,8 @@ export const ROUTE = {
   POLICY: '/policy',
   DOCS: '/docs',
 
-  ADMIN_CONFIG: '/config',
-  ADMIN_VOUCHER: '/voucher',
-  ADMIN_PROMOTION: '/promotion',
-  ADMIN_BANNER: '/banner',
+  ADMIN_CONFIG: 'system/config',
+  ADMIN_VOUCHER: 'system/voucher',
+  ADMIN_PROMOTION: 'system/promotion',
+  ADMIN_BANNER: 'system/banner',
 }

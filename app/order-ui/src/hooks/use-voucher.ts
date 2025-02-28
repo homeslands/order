@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import {
   createVoucher,
   deleteVoucher,
-  getVoucherBySlug,
+  getSpecificVoucher,
   getVouchers,
   updateVoucher,
   validateVoucher,
@@ -11,7 +11,7 @@ import {
 import { QUERYKEY } from '@/constants'
 import {
   ICreateVoucherRequest,
-  IGetVoucherBySlugRequest,
+  IGetSpecificVoucherRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
 } from '@/types'
@@ -24,10 +24,10 @@ export const useVouchers = () => {
   })
 }
 
-export const useVoucherBySlug = (data: IGetVoucherBySlugRequest) => {
+export const useSpecificVoucher = (data: IGetSpecificVoucherRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.vouchers, data.slug],
-    queryFn: () => getVoucherBySlug(data),
+    queryKey: [QUERYKEY.vouchers, data],
+    queryFn: () => getSpecificVoucher(data),
   })
 }
 

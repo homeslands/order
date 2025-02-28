@@ -21,7 +21,7 @@ export default function CreateTableDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-1 text-xs" onClick={() => setIsOpen(true)}>
+        <Button className="h-10 gap-1 text-xs" onClick={() => setIsOpen(true)}>
           <PlusCircledIcon className="icon" />
           {t('table.create')}
         </Button>

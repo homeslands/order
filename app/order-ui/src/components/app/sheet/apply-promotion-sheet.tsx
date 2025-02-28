@@ -32,7 +32,7 @@ export default function ApplyPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts(promotion?.slug)
+  const { data: products, isLoading } = useProducts({ expectedPromotion: promotion?.slug })
   const [isApplyFromToday, setIsApplyFromToday] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
