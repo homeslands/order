@@ -85,13 +85,9 @@ export class ApplicablePromotionService {
       (constructApplicablePromotion) =>
         constructApplicablePromotion.createManyApplicablePromotionsData,
     );
-    const updateMenuItems = constructApplicablePromotions.map(
-      (constructApplicablePromotion) => {
-        if (constructApplicablePromotion.updateMenuItem) {
-          return constructApplicablePromotion.updateMenuItem;
-        }
-      },
-    );
+    const updateMenuItems = constructApplicablePromotions
+      .map((promotion) => promotion.updateMenuItem)
+      .filter(Boolean); // Remove null & undefined
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
