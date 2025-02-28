@@ -65,8 +65,9 @@ export default function OrderItemDetailSheet({
     const interval = setInterval(async () => {
       try {
         await refetchSelectedOrder()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error('Error polling main order:', error)
+        /* empty */
       }
     }, 5000) // Polling mỗi 5 giây
 
@@ -77,7 +78,7 @@ export default function OrderItemDetailSheet({
   const { data: ordersInTheSameTable, refetch: allOrderRefetch } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    ownerSlug: userInfo?.slug,
+    owner: userInfo?.slug,
     order: 'DESC',
     branchSlug: userInfo?.branch.slug,
     table: selectedOrder?.result?.table?.slug,
@@ -93,13 +94,6 @@ export default function OrderItemDetailSheet({
       ordersInTheSameTable?.result?.items?.map((item) => item.slug) || []
     setOrderSlugs(slugs)
   }, [ordersInTheSameTable])
-
-  // Update orderDetails when ordersInTheSameTable changes
-  // useEffect(() => {
-  //   if (ordersInTheSameTable?.result?.items) {
-  //     setOrderDetails(ordersInTheSameTable.result.items)
-  //   }
-  // }, [ordersInTheSameTable])
 
   // Fetch từng order từ danh sách orders cùng bàn
   const { data: currentOrderDetail } = useOrderBySlug(
@@ -143,7 +137,7 @@ export default function OrderItemDetailSheet({
     setShouldFetchOrders(false)
     setCurrentFetchIndex(0)
     clearSelectedItems()
-  }, [order])
+  }, [clearSelectedItems, order])
 
   const handleFetchOrders = () => {
     setShouldFetchOrders(true)
@@ -175,8 +169,9 @@ export default function OrderItemDetailSheet({
     const interval = setInterval(async () => {
       try {
         await allOrderRefetch()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error('Error during polling orders:', error)
+        /* empty */
       }
     }, 5000)
 

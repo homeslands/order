@@ -78,8 +78,8 @@ export const CreateOrderTrackingByStaffForm: React.FC<
 
           // Show success toast
           showToast(t('toast.createOrderTrackingSuccess'))
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-          console.error('Error updating order store:', error)
           showToast(t('toast.errorUpdatingOrder'))
         }
       },
@@ -101,7 +101,7 @@ export const CreateOrderTrackingByStaffForm: React.FC<
                     key={`product-row-${index}`}
                     className="grid grid-cols-5 gap-4 text-sm text-muted-foreground"
                   >
-                    <div className="flex flex-col col-span-3 gap-1">
+                    <div className="col-span-3 flex flex-col gap-1">
                       <Label>{t('order.productName')}</Label>
                       <Input
                         className="flex-1"
@@ -116,7 +116,7 @@ export const CreateOrderTrackingByStaffForm: React.FC<
                         placeholder={`Product Name ${index + 1}`}
                       />
                     </div>
-                    <div className="flex flex-col w-full col-span-2 gap-1">
+                    <div className="col-span-2 flex w-full flex-col gap-1">
                       <Label>{t('order.quantity')}</Label>
                       <Input
                         readOnly

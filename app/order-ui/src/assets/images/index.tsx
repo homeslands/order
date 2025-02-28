@@ -20,3 +20,5 @@ export { default as LandingPageBackgroundMobile } from './landing-page-backgroun
 // export { default as PromotionTag } from './promotion-tag.svg'
 export { default as HomelandLogo } from './homeland-logo.png'
 export { default as TabHomelandLogo } from './tab-homeland-logo.png'
+export { default as ErrorIllustration } from './error-page-logo.svg'
+export { default as NotFoundIllustration } from './404-page-logo.svg'

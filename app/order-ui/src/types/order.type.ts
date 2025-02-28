@@ -35,7 +35,7 @@ export interface IOrderTrackingStore {
 }
 
 export interface IOrdersQuery {
-  ownerSlug?: string
+  owner?: string
   branchSlug?: string
   page: number | 1
   size: number | 10

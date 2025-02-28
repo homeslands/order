@@ -21,7 +21,14 @@
     "understand": "Tôi đã hiểu",
     "warning": "Cảnh báo",
 
-    "refresh": "Làm mới"
+    "refresh": "Làm mới",
+    "pageNotFound": "Trang không tồn tại",
+    "pageNotFoundDescription": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa",
+    "goHome": "Về trang chủ",
+    "goBack": "Quay lại trang trước",
+
+    "oops": "Oops!",
+    "somethingWentWrong": "Có lỗi xảy ra"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",

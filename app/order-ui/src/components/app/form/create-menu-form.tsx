@@ -53,12 +53,12 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
 
   // Get existing menu dates
   const existingMenuDates = useMemo(() => {
-    return menuData?.result.items.map((menu) =>
-      moment(menu.date).format('YYYY-MM-DD')
-    ) || []
+    return (
+      menuData?.result.items.map((menu) =>
+        moment(menu.date).format('YYYY-MM-DD'),
+      ) || []
+    )
   }, [menuData])
-
-  console.log('existingMenuDates', existingMenuDates)
 
   const disabledDates = (date: Date) => {
     const formattedDate = moment(date).format('YYYY-MM-DD')

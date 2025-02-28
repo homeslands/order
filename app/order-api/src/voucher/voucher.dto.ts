@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 
@@ -64,6 +64,18 @@ export class GetAllVoucherDto {
   @Type(() => Date)
   @IsOptional()
   date?: Date;
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isActive?: boolean;
 }
 
 export class GetVoucherDto {

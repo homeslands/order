@@ -70,7 +70,7 @@ export default function HomePage() {
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="w-full flex-between mb-4">
+              <div className="w-full mb-4 flex-between">
                 <div className="primary-highlight">
                   {t('home.newProduct')}
                 </div>

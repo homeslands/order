@@ -36,7 +36,6 @@ export default function RemoveAppliedPromotionSheet({
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   const productsData = products?.result
-  console.log('productsData', productsData)
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -68,7 +67,7 @@ export default function RemoveAppliedPromotionSheet({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="justify-start w-full gap-1 px-2 bg-destructive/10 text-destructive"
+          className="w-full justify-start gap-1 bg-destructive/10 px-2 text-destructive"
           onClick={handleClick}
         >
           <Trash2 className="icon" />
@@ -81,11 +80,11 @@ export default function RemoveAppliedPromotionSheet({
             {t('promotion.removeAppliedPromotion')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
+        <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4">
             {/* Product List */}
             <div
-              className={`p-4 bg-white rounded-md border dark:bg-transparent`}
+              className={`rounded-md border bg-white p-4 dark:bg-transparent`}
             >
               <div className="grid grid-cols-1 gap-2">
                 <DataTable
@@ -96,8 +95,8 @@ export default function RemoveAppliedPromotionSheet({
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={1}
-                  onPageChange={() => { }}
-                  onPageSizeChange={() => { }}
+                  onPageChange={() => {}}
+                  onPageSizeChange={() => {}}
                 />
               </div>
               <div className="flex items-center space-x-2">

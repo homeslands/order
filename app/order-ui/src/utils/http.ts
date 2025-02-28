@@ -91,12 +91,10 @@ axiosInstance.interceptors.request.use(
     }
 
     if (!isAuthenticated()) {
-      console.log('User is not authenticated')
       return Promise.reject(new Error('User is not authenticated'))
     }
 
     if (expireTime && isTokenExpired(expireTime) && !isRefreshing) {
-      console.log('refreshToken', refreshToken)
       isRefreshing = true
       try {
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =

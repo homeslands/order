@@ -344,8 +344,6 @@ export class RevenueService {
         revenuesFilledEmptyDate,
       );
 
-    // console.log({createAndUpdateRevenues})
-
     this.transactionManagerService.execute(
       async (manager) => {
         await manager.save(createAndUpdateRevenues);

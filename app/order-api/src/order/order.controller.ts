@@ -72,7 +72,7 @@ export class OrderController {
     isArray: true,
   })
   async getAllOrders(
-    @Query(new ValidationPipe({ transform: true }))
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: GetOrderRequestDto,
   ) {
     const result = await this.orderService.getAllOrders(query);

@@ -83,6 +83,7 @@ export class VoucherService {
 
   async findAll(options: GetAllVoucherDto) {
     const context = `${VoucherService.name}.${this.findAll.name}`;
+
     const findOptionsWhere: FindOptionsWhere<Voucher> = {};
     if (!_.isNil(options.minOrderValue))
       findOptionsWhere.minOrderValue = MoreThanOrEqual(options.minOrderValue);
@@ -91,6 +92,9 @@ export class VoucherService {
       findOptionsWhere.startDate = LessThanOrEqual(options.date);
       findOptionsWhere.endDate = MoreThanOrEqual(options.date);
     }
+
+    if (!_.isNil(options.isActive))
+      findOptionsWhere.isActive = options.isActive;
 
     try {
       const vouchers = await this.voucherRepository.find({
