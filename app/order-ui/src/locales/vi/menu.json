@@ -108,7 +108,7 @@
     "subTotal": "Tạm tính",
     "total": "Tổng tiền hàng",
     "discount": "Giảm giá",
-    "vat": "(Đã bao gồm VAT)",
+    "vat": "Đã bao gồm VAT",
     "grandTotal": "Thành tiền",
     "totalPayment": "Tổng tiền thanh toán",
     "confirmPaid": "Xác nhận đã thanh toán",
@@ -148,7 +148,15 @@
     "totalOrders": "Tổng đơn hàng",
     "pendingOrders": "Danh sách chờ",
     "orderList": "Danh sách đơn hàng",
+
+    "order": "Đơn hàng:",
+    "orderTime": "Thời gian đặt hàng:",
+    "customer": "Khách hàng:",
+    "aListOfOrders": "Danh sách đơn hàng",
+    "buyAgain": "Mua lại",
+
     "customerInformation": "Thông tin khách hàng",
+    "paymentInformation": "Thông tin thanh toán",
     "itemAmount": "Số lượng món",
     "paymentMethod": "Phương thức thanh toán",
     "status": "Trạng thái",
@@ -204,6 +212,6 @@
     "paid": "Đã thanh toán",
     "canceled": "Đã hủy",
     "timeRemaining": "Thời gian thanh toán còn lại: ",
-    "timeExpired": "Hết hạn"
+    "timeExpired": "Đơn hàng đã hết hạn thanh toán"
   }
 }

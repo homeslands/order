@@ -1,9 +1,31 @@
 {
   "users": {
-    "title": "User management",
+    "title": "User Management",
+
+    "viewDetail": "View Details",
+    "detailInfo": "Detailed Information",
+    "detailInfoDescription": "View user details",
+    "createdAt": "Created At",
+    "slug": "User ID",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "dob": "Date of Birth",
     "name": "Name",
     "email": "Email",
-    "phoneNumber": "Phone number",
-    "address": "Address"
+    "phoneNumber": "Phone Number",
+    "role": "Role",
+    "address": "Address",
+    "branch": "Branch",
+
+    "updateRole": "Update Role",
+    "updateRoleDescription": "Update user role",
+    "update": "Update",
+
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Reset user password",
+    "resetPasswordContent": "Are you sure you want to reset the password for user ",
+    "resetPasswordContent2": "?",
+    "userEmailNotFound": "User email not found",
+    "resetPasswordNotAvailable": "Password reset function is not available"
   }
 }

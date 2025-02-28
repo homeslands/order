@@ -4,6 +4,12 @@
       "title": "Menu management",
       "description": "Manage your menu here",
       "keywords": "menu, menu management, restaurant menu"
+    },
+    "cart": {
+      "title": "Cart management",
+      "manageCart": "Manage your cart",
+      "description": "Manage your cart here",
+      "keywords": "cart, cart management, shopping cart"
     }
   }
 }

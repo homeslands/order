@@ -31,6 +31,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      email: '',
       phonenumber: '',
       password: '',
       confirmPassword: '',
@@ -44,6 +45,21 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   }
 
   const formFields = {
+    email: (
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('login.email')}</FormLabel>
+            <FormControl>
+              <Input placeholder={t('login.enterEmail')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     phonenumber: (
       <FormField
         control={form.control}
@@ -138,7 +154,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
               </React.Fragment>
             ))}
           </div>
-          <Button type="submit" className="mt-5 w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full mt-5" disabled={isLoading}>
             {isLoading ? <ButtonLoading /> : t('register.title')}
           </Button>
         </form>

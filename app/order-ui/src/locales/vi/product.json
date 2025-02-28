@@ -77,6 +77,7 @@
     "slug": "Slug",
     "createdAt": "Thời gian tạo",
     "name": "Tên",
+    "inStock": "sản phẩm có sẵn",
     "catalog": "Danh mục",
     "description": "Mô tả",
     "highlight": "Nổi bật",
@@ -101,7 +102,13 @@
     "dropFileHere": "Kéo thả file vào đây hoặc nhấn để chọn file",
     "dragAndDropOrClick": "Kéo thả file vào đây hoặc nhấn để chọn file",
     "supportedFormats": "Định dạng hỗ trợ: .xls, .xlsx",
-    "importProductsConfirmation": "Bạn có chắc muốn import món ăn từ file excel không?"
+    "importProductsConfirmation": "Bạn có chắc muốn import món ăn từ file excel không?",
+
+    "specialOffer": "Ưu đãi đặc biệt",
+    "discount": "Giảm giá",
+    "perEachProduct": "cho mỗi sản phẩm",
+    "relatedProducts": "Món ăn liên quan",
+    "viewMore": "Xem thêm"
   },
   "productVariant": {
     "title": "Quản lý phân loại",

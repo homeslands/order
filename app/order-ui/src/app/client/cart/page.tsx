@@ -31,9 +31,13 @@ export default function ClientCartPage() {
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
           <ShoppingCartIcon className="w-32 h-32 text-primary" />
-          <p className="text-center text-[13px]">Giỏ hàng trống</p>
+          <p className="text-center text-[13px]">
+            {t('order.noOrders')}
+          </p>
           <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button variant="default">Quay lại trang thực đơn</Button>
+            <Button variant="default">
+              {t('order.backToMenu')}
+            </Button>
           </NavLink>
         </div>
       </div>

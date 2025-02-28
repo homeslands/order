@@ -17,6 +17,8 @@ import {
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   UpdateAuthProfileRequestDto,
+  EmailVerificationRequestDto,
+  ConFirmEmailVerificationRequestDto,
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
@@ -48,6 +50,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
+import { VerifyEmailToken } from './verify-email-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -69,6 +72,8 @@ export class AuthService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(ForgotPasswordToken)
     private readonly forgotPasswordRepository: Repository<ForgotPasswordToken>,
+    @InjectRepository(VerifyEmailToken)
+    private readonly verifyEmailRepository: Repository<VerifyEmailToken>,
     private readonly fileService: FileService,
     private readonly mailService: MailService,
     private readonly dataSource: DataSource,
@@ -112,7 +117,7 @@ export class AuthService {
       },
     });
     if (!existToken) {
-      this.logger.warn(`Forgot token is not exsited`, context);
+      this.logger.warn(`Forgot token is not existed`, context);
       throw new AuthException(
         AuthValidation.FORGOT_TOKEN_EXPIRED,
         FORGOT_TOKEN_EXPIRED,
@@ -157,7 +162,7 @@ export class AuthService {
     this.logger.log(`User ${user.id} has been updated password`, context);
 
     // Set token expired after forgot password successfully
-    existToken.expiresAt = new Date(Date.now() - 1000); // Set expiry time to the past
+    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
     await this.forgotPasswordRepository.save(existToken);
     this.logger.log(`Token ${existToken.token} is expired`, context);
 
@@ -230,6 +235,170 @@ export class AuthService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async createVerifyEmail(
+    requestData: EmailVerificationRequestDto,
+  ): Promise<string> {
+    const context = `${AuthService.name}.${this.createVerifyEmail.name}`;
+    this.logger.log(
+      `Request verify email ${JSON.stringify(requestData)}`,
+      context,
+    );
+
+    try {
+      this.jwtService.verify(requestData.accessToken);
+    } catch (error) {
+      this.logger.error(
+        AuthValidation.INVALID_TOKEN.message,
+        error.stack,
+        context,
+      );
+      throw new AuthException(AuthValidation.INVALID_TOKEN);
+    }
+    const payload: AuthJwtPayload = this.jwtService.decode(
+      requestData.accessToken,
+    );
+    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id: payload.sub,
+      },
+    });
+    if (!user) {
+      this.logger.warn(`User ${payload.sub} not found`, context);
+      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
+    }
+
+    const existingToken = await this.verifyEmailRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        expiresAt: MoreThan(new Date()),
+      },
+    });
+    if (existingToken) {
+      this.logger.warn(`User ${user.id} already has a valid token`, context);
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_ALREADY_EXISTS);
+    }
+
+    const existedEmailUser = await this.userRepository.findOne({
+      where: { email: requestData.email },
+    });
+    if (existedEmailUser) {
+      this.logger.warn(AuthValidation.EMAIL_ALREADY_EXISTS.message, context);
+      throw new AuthException(AuthValidation.EMAIL_ALREADY_EXISTS);
+    }
+
+    const generatedPayload = { sub: user.id, jti: uuidv4() };
+    const expiresIn = 120; // 2 minutes
+    const token = this.jwtService.sign(generatedPayload, {
+      expiresIn: expiresIn,
+    });
+
+    const verifyEmailToken = new VerifyEmailToken();
+    Object.assign(verifyEmailToken, {
+      expiresAt: moment().add(expiresIn, 'seconds').toDate(),
+      token,
+      user,
+      email: requestData.email,
+    } as VerifyEmailToken);
+
+    const url = `${await this.getFrontendUrl()}/verify-email?token=${token}&email=${requestData.email}`;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(verifyEmailToken);
+      await this.mailService.sendVerifyEmail(user, url, requestData.email);
+      await queryRunner.commitTransaction();
+      this.logger.log(`User ${user.id} created verified email token`, context);
+      return url;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async confirmEmailVerification(
+    requestData: ConFirmEmailVerificationRequestDto,
+  ): Promise<boolean> {
+    const context = `${AuthService.name}.${this.confirmEmailVerification.name}`;
+
+    const existToken = await this.verifyEmailRepository.findOne({
+      where: {
+        token: requestData.token,
+        expiresAt: MoreThan(new Date()),
+      },
+    });
+    if (!existToken) {
+      this.logger.warn(`Verify token is not existed`, context);
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+    }
+
+    let isExpiredToken = false;
+    try {
+      this.jwtService.verify(requestData.token);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      isExpiredToken = true;
+    }
+    if (isExpiredToken) {
+      this.logger.warn(
+        AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED.message,
+        context,
+      );
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED);
+    }
+
+    // Get payload
+    const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
+    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id: payload.sub,
+      },
+    });
+    if (!user)
+      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
+
+    user.email = requestData.email;
+    user.isVerifiedEmail = true;
+
+    // Set token expired after forgot password successfully
+    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(user);
+      await queryRunner.manager.save(existToken);
+      await queryRunner.commitTransaction();
+      this.logger.log(
+        `User ${user.id} confirmed email verification token`,
+        context,
+      );
+      return true;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        `Error when confirm email verification`,
+        error.stack,
+        context,
+      );
+      throw new AuthException(AuthValidation.CONFIRM_EMAIL_VERIFICATION_ERROR);
     } finally {
       await queryRunner.release();
     }

@@ -23,6 +23,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { MailProducer } from 'src/mail/mail.producer';
+import { VerifyEmailToken } from './verify-email-token.entity';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -46,6 +47,10 @@ describe('AuthController', () => {
         },
         {
           provide: getRepositoryToken(File),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VerifyEmailToken),
           useFactory: repositoryMockFactory,
         },
         {

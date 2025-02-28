@@ -1,14 +1,42 @@
 {
   "profile": {
     "title": "Profile",
-    "name": "Name",
-    "enterName": "Enter name",
+    "profile": "Personal Information",
+
+    "generalInfo": "General Information",
+    "passwordAndAuthentication": "Password and Authentication",
+    "firstName": "First Name",
+    "enterFirstName": "Enter first name",
+    "lastName": "Last Name",
+    "enterLastName": "Enter last name",
     "email": "Email",
     "enterEmail": "Enter email",
-    "phoneNumber": "Phone number",
+    "phoneNumber": "Phone Number",
     "enterPhoneNumber": "Enter phone number",
     "address": "Address",
     "enterAddress": "Enter address",
-    "branch": "Branch"
+    "dob": "Date of Birth",
+    "branch": "Branch",
+
+    "myOrders": "My Orders",
+    "all": "All",
+    "shipping": "Shipping",
+    "completed": "Delivered",
+
+    "update": "Update",
+    "updateProfile": "Update Profile",
+    "updateProfileDescription": "Modify the details below to update your personal information",
+
+    "updatePassword": "Update Password",
+    "updatePasswordDescription": "Please enter your current and new password to update your password",
+    "oldPassword": "Current Password",
+    "enterOldPassword": "Enter current password",
+    "newPassword": "New Password",
+    "enterNewPassword": "Enter new password",
+    "confirmPassword": "Confirm New Password",
+    "enterConfirmPassword": "Re-enter new password",
+
+    "notification": "Notification",
+    "history": "History"
   }
 }

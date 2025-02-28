@@ -1,6 +1,41 @@
 {
   "promotion": {
-    "title": "Promotion",
-    "description": "Promotion description"
+    "promotionTitle": "Promotion Management",
+    "promotionDescription": "Exciting promotions from us",
+
+    "slug": "Slug",
+    "createdAt": "Created At",
+    "time": "Time",
+    "title": "Title",
+    "description": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "type": "Promotion Type",
+    "value": "Value",
+
+    "create": "Create Promotion",
+    "name": "Promotion Name",
+    "enterPromotionName": "Enter promotion name",
+    "enterPromotionDescription": "Enter promotion description",
+    "confirmCreatePromotion": "Confirm promotion creation",
+    "enterPromotionValue": "Enter promotion value",
+    "defaultPromotionType": "per-product",
+    "selectPromotionType": "Select promotion type",
+
+    "update": "Update Promotion",
+    "confirmUpdatePromotion": "Confirm promotion update",
+
+    "delete": "Delete Promotion",
+    "deletePromotionWarning1": "You are about to delete the promotion",
+    "deletePromotionConfirmation": "Are you sure you want to delete this promotion?",
+
+    "applyPromotion": "Apply Promotion",
+    "confirmApplyPromotion": "Confirm applying promotion. Note: Once applied, the promotion value cannot be edited.",
+    "apply": "Apply",
+    "applyFromToday": "Apply from today",
+
+    "removeAppliedPromotion": "Remove Applied Promotion",
+    "confirmRemoveAppliedPromotion": "Confirm removing applied promotion",
+    "remove": "Remove"
   }
 }

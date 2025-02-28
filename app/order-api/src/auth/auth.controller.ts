@@ -23,6 +23,8 @@ import {
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   UpdateAuthProfileRequestDto,
+  EmailVerificationRequestDto,
+  ConFirmEmailVerificationRequestDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -93,6 +95,51 @@ export class AuthController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<RegisterAuthResponseDto>;
+    return response;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('request-verify-email')
+  @ApiOperation({ summary: 'Send request verify email' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: EmailVerificationRequestDto,
+    description: 'Send request successful',
+  })
+  async sendVerifyEmail(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: EmailVerificationRequestDto,
+  ) {
+    const result = await this.authService.createVerifyEmail(requestData);
+    const response = {
+      message: 'Send request successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<string>;
+    return response;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('confirm-email-verification')
+  @ApiOperation({ summary: 'Confirm email verification' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: ConFirmEmailVerificationRequestDto,
+    description: 'Confirm email verification successful',
+  })
+  async confirmVerifyEmail(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ConFirmEmailVerificationRequestDto,
+  ) {
+    const result = await this.authService.confirmEmailVerification(requestData);
+    const response = {
+      message: 'Confirm email verification successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<boolean>;
     return response;
   }
 

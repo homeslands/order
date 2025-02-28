@@ -4,14 +4,40 @@
     "menu": "Menu",
     "orderManagement": "Order Management",
     "orderHistory": "Order History",
+    "myOrders": "My Orders",
     "tableManagement": "Table Management",
     "internalWallet": "Internal Wallet",
     "menuManagement": "Menu Management",
     "dishManagement": "Dish Management",
+    "customerManagement": "Customer Management",
+    "userManagement": "User Management",
+    "branchManagement": "Branch Management",
     "revenueManagement": "Revenue Management",
-    "staticPageManagement": "Static Management",
     "logManagement": "Log Management",
+    "staticPageManagement": "Static Page Management",
+    "bankConfig": "Bank Configuration",
+    "config": "Configuration",
+    "aboutMe": "About Us",
+    "contact": "Contact",
     "overview": "Overview",
-    "docs": "Docs"
+    "voucher": "Voucher",
+    "promotion": "Promotion",
+    "banner": "Banner",
+    "docs": "Documents"
+  },
+  "header": {
+    "search": "Search",
+    "notification": "Notification",
+    "myProfile": "My Profile",
+    "myOrders": "My Orders",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "bottombar": {
+    "home": "Home",
+    "menu": "Menu",
+    "notification": "Notification",
+    "profile": "Profile"
   }
 }

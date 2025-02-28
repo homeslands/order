@@ -1,5 +1,11 @@
 {
   "revenue": {
-    "title": "Revenue"
+    "title": "Revenue",
+    "dateRangeFilter": "Filter by date",
+    "dateRange": "Date range",
+    "dateRangeDescription": "Select a date range to view revenue",
+    "fromDate": "From date",
+    "toDate": "To date",
+    "apply": "Apply"
   }
 }

@@ -1,9 +1,18 @@
 {
   "home": {
     "title": "Home",
-    "description": "This is home page",
+    "description": "This is the home page",
+
+    "menu": "Menu",
+    "learnMore": "Learn more",
 
     "bestSeller": "Best seller",
-    "newProduct": "New product"
+    "viewMore": "View more",
+    "homeDescription": "A modern, cozy space – a place to connect stories and create unforgettable memories.",
+    "newProduct": "New product",
+
+    "learnAboutUs": "Learn about us",
+    "aboutUsDescription": "We provide high-quality coffee with clear origins. Visit our store!",
+    "contactUs": "Contact us"
   }
 }

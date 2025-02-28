@@ -17,6 +17,7 @@ import { MailModule } from 'src/mail/mail.module';
 import { ForgotPasswordToken } from './forgot-password-token.entity';
 import { Role } from 'src/role/role.entity';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
+import { VerifyEmailToken } from './verify-email-token.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,13 @@ import { SystemConfigModule } from 'src/system-config/system-config.module';
     JwtModule.register({
       secret: jwtConstants.secret,
     }),
-    TypeOrmModule.forFeature([User, Branch, ForgotPasswordToken, Role]),
+    TypeOrmModule.forFeature([
+      User,
+      Branch,
+      ForgotPasswordToken,
+      Role,
+      VerifyEmailToken,
+    ]),
     ConfigModule,
     FileModule,
     MailModule,

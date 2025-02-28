@@ -5,6 +5,12 @@
       "manageMenu": "Quản lý thực đơn",
       "description": "Quản lý thực đơn của bạn tại đây",
       "keywords": "thực đơn, quản lý thực đơn, thực đơn quán ăn"
+    },
+    "cart": {
+      "title": "Giỏ hàng",
+      "manageCart": "Quản lý giỏ hàng",
+      "description": "Quản lý giỏ hàng của bạn tại đây",
+      "keywords": "giỏ hàng, quản lý giỏ hàng, giỏ hàng mua sắm"
     }
   }
 }

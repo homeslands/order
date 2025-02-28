@@ -15,8 +15,6 @@ import {
 import { IBanner } from '@/types'
 import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
 
-import { ROUTE } from '@/constants'
-
 export const useBannerColumns = (): ColumnDef<IBanner>[] => {
   const { t } = useTranslation(['banner'])
   const { t: tCommon } = useTranslation(['common'])
@@ -89,7 +87,7 @@ export const useBannerColumns = (): ColumnDef<IBanner>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink to={`${ROUTE.ADMIN_BANNER}/${banner.slug}`}>
+                <NavLink to={`${banner.slug}`}>
                   <Button variant="ghost" className="flex justify-start gap-1 px-2">
                     <SquareMousePointer className='icon' />
                     {tCommon('common.viewAndEdit')}

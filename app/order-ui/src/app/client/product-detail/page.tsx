@@ -39,17 +39,17 @@ export default function ProductDetailPage() {
   const { data: product, isLoading } = useSpecificMenuItem(slug as string)
   const { addCartItem } = useCartItemStore()
 
-  const productDetail = product?.result.product
+  const productDetail = product?.result
   const [size, setSize] = useState<string | null>(
-    productDetail?.variants[0]?.size.name || null,
+    productDetail?.product.variants[0]?.size.name || null,
   )
   const [price, setPrice] = useState<number | null>(
-    productDetail?.variants[0]?.price || null,
+    productDetail?.product.variants[0]?.price || null,
   )
   const [note, setNote] = useState<string>('')
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(productDetail?.variants[0] || null)
+    useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const generateCartItemId = () => {
@@ -86,13 +86,13 @@ export default function ProductDetailPage() {
         {
           id: generateCartItemId(),
           slug: productDetail?.slug || '',
-          image: productDetail?.image || '',
-          name: productDetail?.name || '',
+          image: productDetail?.product.image || '',
+          name: productDetail?.product.name || '',
           quantity: quantity,
           variant: selectedVariant.slug,
           price: selectedVariant.price,
-          description: productDetail?.description || '',
-          isLimit: productDetail?.isLimit || false,
+          description: productDetail?.product.description || '',
+          isLimit: productDetail?.product.isLimit || false,
           note: note,
         },
       ],
@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
     addCartItem(cartItem)
     // Reset states
     setNote('')
-    setSelectedVariant(productDetail?.variants[0] || null)
+    setSelectedVariant(productDetail?.product.variants[0] || null)
   }
 
   return (
@@ -111,33 +111,33 @@ export default function ProductDetailPage() {
         <div className={`transition-all duration-300 ease-in-out`}>
           <div className="flex flex-col items-start gap-10">
             {/* Product detail */}
-            <div className="flex w-full flex-col gap-5 lg:flex-row">
-              <div className="col-span-1 flex w-full flex-col gap-2 lg:w-1/2">
+            <div className="flex flex-col w-full gap-5 lg:flex-row">
+              <div className="flex flex-col w-full col-span-1 gap-2 lg:w-1/2">
                 {productDetail && (
                   <img
-                    src={`${publicFileURL}/${selectedImage || productDetail.image}`}
-                    alt={productDetail.name}
+                    src={`${publicFileURL}/${selectedImage || productDetail.product.image}`}
+                    alt={productDetail.product.name}
                     className="h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
                   />
                 )}
                 <ProductImageCarousel
                   images={
                     productDetail
-                      ? [productDetail.image, ...(productDetail.images || [])]
+                      ? [productDetail.product.image, ...(productDetail.product.images || [])]
                       : []
                   }
                   onImageClick={setSelectedImage}
                 />
               </div>
-              <div className="col-span-1 flex flex-col justify-between gap-4">
+              <div className="flex flex-col justify-between col-span-1 gap-4">
                 {productDetail && (
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1">
                       <span className="text-xl font-semibold">
-                        {productDetail.name}
+                        {productDetail.product.name}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {productDetail.description}
+                        {productDetail.product.description}
                       </span>
                       {price ? (
                         <div className="text-lg font-semibold text-primary">
@@ -150,16 +150,16 @@ export default function ProductDetailPage() {
                       )}
                       {/* Product Rating */}
                       <div className="mt-2">
-                        <ProductRating rating={productDetail.rating} />
+                        <ProductRating rating={productDetail.product.rating} />
                       </div>
                     </div>
-                    {productDetail.variants.length > 0 && (
-                      <div className="flex w-full flex-row items-center gap-6">
+                    {productDetail.product.variants.length > 0 && (
+                      <div className="flex flex-row items-center w-full gap-6">
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           {t('product.selectSize')}
                         </label>
                         <div className="flex flex-row items-center justify-start gap-2">
-                          {productDetail.variants.map((variant) => (
+                          {productDetail.product.variants.map((variant) => (
                             <div
                               className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-500 p-2 text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
                               key={variant.slug}
@@ -171,8 +171,8 @@ export default function ProductDetailPage() {
                         </div>
                       </div>
                     )}
-                    {productDetail.variants.length > 0 && (
-                      <div className="flex w-full flex-row items-center gap-6">
+                    {productDetail.product.variants.length > 0 && (
+                      <div className="flex flex-row items-center w-full gap-6">
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           {t('product.selectQuantity')}
                         </label>
@@ -183,19 +183,25 @@ export default function ProductDetailPage() {
                           />
                           <div className="text-xs text-muted-foreground">
                             {product.result.currentStock}/
-                            {product.result.defaultStock} sản phẩm có sẵn
+                            {product.result.defaultStock}{' '}{t('product.inStock')}
                           </div>
                         </div>
                       </div>
                     )}
                     {/* Khuyến mãi */}
-                    <div className="flex flex-col gap-4 rounded-md border-l-4 border-yellow-500 bg-yellow-50 p-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-primary">
-                          🎉 Khuyến mãi đặc biệt:
-                        </span>
-                      </div>
-                      <ul className="list-disc pl-5 text-sm text-primary">
+                    {productDetail.promotion && (
+                      <div className="flex flex-col gap-4 p-4 border-l-4 border-yellow-500 rounded-md bg-yellow-50">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-primary">
+                            🎉 {t('product.specialOffer')}
+                          </span>
+                        </div>
+                        <ul className="pl-5 text-sm list-disc text-primary">
+                          <li>
+                            {productDetail.promotion.description}
+                          </li>
+                        </ul>
+                        {/* <ul className="pl-5 text-sm list-disc text-primary">
                         <li>
                           <strong>Mua 2 tặng 1:</strong> Áp dụng cho tất cả các
                           kích cỡ.
@@ -212,8 +218,9 @@ export default function ProductDetailPage() {
                       <div className="mt-2 text-xs text-yellow-600">
                         * Lưu ý: Các ưu đãi không được cộng gộp. Thời hạn đến
                         cuối tháng này!
+                      </div> */}
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
                 <Button
@@ -229,15 +236,17 @@ export default function ProductDetailPage() {
 
             {/* Related products */}
             <div className="w-full">
-              <p className="flex justify-between border-l-4 border-primary pl-2 text-primary">
-                <span>Món liên quan</span>
+              <p className="flex justify-between pl-2 border-l-4 border-primary text-primary">
+                <span>
+                  {t('product.relatedProducts')}
+                </span>
                 <NavLink to={ROUTE.CLIENT_MENU}>
                   <span className="text-sm text-muted-foreground">
-                    Xem thêm
+                    {t('product.viewMore')}
                   </span>
                 </NavLink>
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-5 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-5 mt-4 lg:grid-cols-4">
                 {specificMenu?.result.menuItems.map((item) => {
                   return (
                     <NavLink
@@ -246,7 +255,7 @@ export default function ProductDetailPage() {
                     >
                       <div
                         key={item.slug}
-                        className="flex flex-col rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-105"
+                        className="flex flex-col transition-all duration-300 rounded-xl backdrop-blur-md hover:scale-105"
                       >
                         {/* Image Section with Discount Tag */}
                         <div className="relative">
@@ -254,15 +263,15 @@ export default function ProductDetailPage() {
                             <img
                               src={`${publicFileURL}/${item.product.image}`}
                               alt={item.product.name}
-                              className="h-36 w-full rounded-md object-cover"
+                              className="object-cover w-full rounded-md h-36"
                             />
                           ) : (
-                            <div className="h-24 w-full rounded-t-md bg-muted/60" />
+                            <div className="w-full h-24 rounded-t-md bg-muted/60" />
                           )}
                         </div>
 
-                        <h3 className="mt-3 flex flex-col gap-1">
-                          <span className="text-md font-semibold">
+                        <h3 className="flex flex-col gap-1 mt-3">
+                          <span className="font-semibold text-md">
                             {item.product.name}
                           </span>
                           <span className="text-xs text-muted-foreground">

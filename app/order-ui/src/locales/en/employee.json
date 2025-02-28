@@ -1,11 +1,11 @@
 {
   "employee": {
-    "title": "Employees management",
-    "viewDetail": "View detail",
-    "detailInfo": "Detail information",
-    "detailInfoDescription": "View detail information of employee",
+    "title": "Employee Management",
+    "viewDetail": "View details",
+    "detailInfo": "Detailed information",
+    "detailInfoDescription": "View detailed information of the employee",
     "createdAt": "Created at",
-    "slug": "Employee code",
+    "slug": "Employee ID",
     "firstName": "First name",
     "lastName": "Last name",
     "dob": "Date of birth",
@@ -14,6 +14,7 @@
     "phoneNumber": "Phone number",
     "role": "Role",
     "address": "Address",
+    "branch": "Branch",
 
     "STAFF": "Staff",
     "MANAGER": "Manager",
@@ -22,8 +23,13 @@
     "SUPER_ADMIN": "Super admin",
     "CUSTOMER": "Customer",
 
+    "updateRole": "Update role",
+    "updateRoleDescription": "Update role for employee",
+    "update": "Update",
+    "updateDescription": "Update employee information",
+
     "create": "Create new employee",
-    "createDescription": "Create new employee",
+    "createDescription": "Create a new employee",
     "enterPhoneNumber": "Enter phone number",
     "enterFirstName": "Enter first name",
     "enterLastName": "Enter last name",

@@ -233,7 +233,7 @@ export class OrderItemService {
     orderItem.variant = variant;
     orderItem.order = order;
     orderItem.promotion = menuItem.promotion;
-    orderItem.subtotal = await this.orderItemUtils.calculateSubTotal(orderItem);
+    orderItem.subtotal = this.orderItemUtils.calculateSubTotal(orderItem);
 
     // Update order
     order.orderItems.push(orderItem);

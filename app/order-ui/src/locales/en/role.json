@@ -1,10 +1,10 @@
 {
   "role": {
-    "admin": "Admin",
-    "manager": "Manager",
-    "staff": "Staff",
-    "chef": "Chef",
-    "customer": "Customer",
-    "super_admin": "Super Admin"
+    "ADMIN": "Admin",
+    "MANAGER": "Manager",
+    "STAFF": "Staff",
+    "CHEF": "Chef",
+    "CUSTOMER": "Customer",
+    "SUPER_ADMIN": "Super Admin"
   }
 }

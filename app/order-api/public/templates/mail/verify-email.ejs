@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Request Forgot Password</title>
+    <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+      <div class="px-6 py-4">
+        <h1 class="text-xl font-semibold text-gray-800">Verify Your Email</h1>
+        <p class="text-gray-600 mt-2">Hi <%= locals.name %>,</p>
+        <p class="text-gray-600 mt-2">
+          We received a request to verify your email. Click the button below to
+          verify your email:
+        </p>
+        <div class="mt-4">
+          <a
+            href="<%= locals.url %>"
+            class="block text-center bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+          >
+            Verify Email
+          </a>
+        </div>
+        <p class="text-gray-600 mt-4">This link will expire in 2 minutes.</p>
+        <p class="text-gray-600 mt-4">
+          If you didn’t request verify email, please ignore this email.
+        </p>
+      </div>
+      <div class="bg-gray-100 px-6 py-4">
+        <p class="text-sm text-gray-500">
+          If you’re having trouble clicking the button, copy and paste the link
+          below into your web browser:
+        </p>
+        <p class="text-sm text-blue-500 break-all"><%= locals.url %></p>
+      </div>
+    </div>
+  </body>
+</html>

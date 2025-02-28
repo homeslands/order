@@ -40,6 +40,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { MailProducer } from 'src/mail/mail.producer';
 import { CurrentUserDto } from 'src/user/user.dto';
+import { VerifyEmailToken } from './verify-email-token.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -69,6 +70,10 @@ describe('AuthService', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VerifyEmailToken),
           useFactory: repositoryMockFactory,
         },
         {
@@ -356,6 +361,9 @@ describe('AuthService', () => {
       forgotPasswordTokens: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      isVerifiedEmail: false,
+      isVerifiedPhonenumber: false,
+      verifyEmailTokens: [],
     };
 
     const mockExistToken: ForgotPasswordToken = {
@@ -440,6 +448,9 @@ describe('AuthService', () => {
       forgotPasswordTokens: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      isVerifiedEmail: false,
+      isVerifiedPhonenumber: false,
+      verifyEmailTokens: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -519,6 +530,9 @@ describe('AuthService', () => {
       forgotPasswordTokens: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      isVerifiedEmail: false,
+      isVerifiedPhonenumber: false,
+      verifyEmailTokens: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {

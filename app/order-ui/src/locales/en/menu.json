@@ -14,8 +14,55 @@
     "discount": "Discount",
     "subTotal": "Sub Total",
     "continue": "Continue",
-    "confirm": "Confirm"
+    "confirm": "Confirm order",
+
+    "payment": "Order payment",
+
+    "date": "Date: ",
+    "title": "Menu management",
+    "createdAt": "Created date",
+    "totalItems": "Total dishes",
+    "dayIndex": "Day",
+    "noTemplate": "Not a menu template",
+    "amount": "Quantity: ",
+    "noDescription": "No description available",
+    "totalSold": "Total sold",
+    "stock": "Stock quantity: ",
+
+    "create": "Create menu",
+    "createMenuDescription": "Fill in all information to create a new menu",
+    "chooseDate": "Choose date",
+    "branchSlug": "Branch",
+    "isTemplate": "Is menu template",
+
+    "update": "Edit menu",
+    "updateMenuDescription": "Modify the information to update the menu",
+    "delete": "Delete menu",
+    "deleteContent": "Are you sure you want to delete the menu for ",
+    "deleteContent2": " from branch ",
+    "deleteContent3": "?",
+
+    "addMenuItem": "Add dish",
+    "addMenuItemDescription": "Please confirm the details before adding to the menu",
+    "menuSlug": "Menu slug",
+    "productName": "Dish name",
+    "selectedProducts": "Selected dishes",
+    "defaultStock": "Quantity",
+    "defaultStockDescription": "Default quantity",
+
+    "updateMenuItem": "Update dish",
+    "updateMenuItemDescription": "Modify details to update the dish",
+
+    "deleteMenu": "Delete menu",
+    "deleteMenuWarning1": "You are about to delete the menu for ",
+    "deleteMenuConfirmation": "Are you sure you want to delete this menu?",
+
+    "deleteMenuItem": "Delete dish",
+    "deleteMenuItemWarning1": "Are you sure you want to remove ",
+    "deleteMenuItemConfirmation": " from the menu?",
+    "searchProduct": "Search product"
   },
+
   "order": {
     "orderId": "Order ID",
     "items": "items",
@@ -25,6 +72,9 @@
     "shipping": "Shipping",
     "unknown": "Unknown",
     "confirmation": "Order confirmation",
+    "confirmation": "Payment confirmation",
+    "openMenu": "Open menu",
+    "menu": "Menu",
     "product": "Product",
     "unitPrice": "Unit Price",
     "quantity": "Quantity",
@@ -49,7 +99,20 @@
     "grandTotal": "Grand Total",
     "confirmPaid": "Confirm Paid",
     "complete": "Complete",
-    "deleteItem": "Delete Product",
+    "orderSuccess": "Order placed successfully",
+
+    "continueToPayment": "Continue to payment",
+    "paymentStatus": "Payment status",
+    "orderStatus": "Order status",
+    "cash": "Cash",
+    "bankTransfer": "Bank transfer",
+    "pending": "Pending payment",
+    "paid": "Paid",
+    "completed": "Completed",
+    "shipping": "Shipping",
+    "failed": "Failed",
+
+    "deleteItem": "Delete item",
     "deleteNote": "Note: This action cannot be undone!",
     "deleteContent": "Are you sure you want to delete ",
     "deleteContent2": " from cart?",

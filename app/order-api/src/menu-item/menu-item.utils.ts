@@ -131,6 +131,7 @@ export class MenuItemUtils {
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
     }
 
+    // limit product
     switch (action) {
       case 'increment':
         menuItem.currentStock += entity.quantity;

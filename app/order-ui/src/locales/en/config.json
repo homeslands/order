@@ -1,5 +1,22 @@
 {
   "config": {
-    "title": "Configuration"
+    "title": "Configuration",
+
+    "save": "Save",
+
+    "update": "Update",
+    "updateSystemConfigDescription": "Update system configuration",
+    "key": "Key",
+    "enterKey": "Enter key",
+    "value": "Value",
+    "enterValue": "Enter value",
+    "description": "Description",
+    "enterDescription": "Enter description",
+
+    "delete": "Delete",
+    "deleteSystemConfig": "Delete system configuration",
+    "deleteContent": "Are you sure you want to delete the configuration with key ",
+    "deleteContent2": " and value ",
+    "deleteContent3": "?"
   }
 }

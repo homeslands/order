@@ -1,6 +1,23 @@
 {
   "staticPage": {
-    "title": "Static page",
-    "content": "Static page content"
+    "staticPageTitle": "Static Page Management",
+    "content": "Static Page Content",
+    "createDescription": "Create a new static page",
+    "create": "Create Static Page",
+
+    "createdAt": "Created At",
+    "slug": "Page Slug",
+    "key": "Keyword",
+    "enterKey": "Enter keyword (e.g., ABOUT-US)",
+    "title": "Title",
+    "enterTitle": "Enter title",
+    "warning": "Are you sure you want to create this static page?",
+
+    "update": "Update",
+    "updateDescription": "Update static page",
+
+    "delete": "Delete",
+    "deleteStaticPageWarning": "You are about to delete the static page ",
+    "deleteStaticPageConfirmation": "Are you sure you want to delete this static page?"
   }
 }
