@@ -38,7 +38,7 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 &&
           <div className="container">
             <motion.div
-              className="flex flex-col items-start w-full gap-4 h-[22rem]"
+              className="flex flex-col items-start w-full gap-4 h-[20rem]"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -64,7 +64,7 @@ export default function HomePage() {
         {newProducts.length > 0 &&
           <div className="container">
             <motion.div
-              className="flex flex-col items-start w-full h-[22rem] gap-4"
+              className="flex flex-col items-start w-full h-[20rem] gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}

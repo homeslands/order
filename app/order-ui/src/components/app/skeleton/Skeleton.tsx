@@ -69,11 +69,6 @@ export function SkeletonMenuList() {
         <div className="space-y-1">
           <Skeleton className="w-full h-3 bg-gray-300" />
         </div>
-
-        {/* Price and Add button */}
-        <Skeleton className="w-24 h-6 bg-gray-300" />
-
-
       </div>
     </div>
   )

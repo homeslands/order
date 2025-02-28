@@ -16,8 +16,14 @@
     "continue": "Continue",
     "confirm": "Confirm"
   },
-
   "order": {
+    "orderId": "Order ID",
+    "items": "items",
+    "pending": "Pending",
+    "paid": "Paid",
+    "completed": "Completed",
+    "shipping": "Shipping",
+    "unknown": "Unknown",
     "confirmation": "Order confirmation",
     "product": "Product",
     "unitPrice": "Unit Price",
@@ -36,13 +42,13 @@
     "enterPromotion": "Enter Promotion",
     "apply": "Apply",
     "subTotal": "Sub Total",
+    "subtotal": "Total",
     "total": "Total",
     "discount": "Discount",
     "vat": "VAT",
     "grandTotal": "Grand Total",
     "confirmPaid": "Confirm Paid",
     "complete": "Complete",
-
     "deleteItem": "Delete Product",
     "deleteNote": "Note: This action cannot be undone!",
     "deleteContent": "Are you sure you want to delete ",

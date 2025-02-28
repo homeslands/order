@@ -102,6 +102,7 @@ export interface IOrder {
   status: OrderStatus
   invoice: IOrderInvoice
   voucher: IVoucher
+  isExtend?: boolean
 }
 
 export interface IOrderDetail extends IBase {

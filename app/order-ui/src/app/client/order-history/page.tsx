@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 import moment from 'moment'
@@ -109,40 +109,37 @@ export default function OrderHistoryPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orderDetail?.result.orderItems?.map((item) => (
-                    <TableRow key={item.slug}>
-                      <TableCell className="flex flex-col gap-3 font-bold sm:flex-row sm:items-center">
-                        <div className="relative col-span-4">
-                          <div className="relative h-[8rem] w-full cursor-pointer">
-                            <img
-                              src={`${publicFileURL}/${item.variant.product.image}`}
-                              alt={item.variant.product.name}
-                              className="aspect-square h-full w-full rounded-md object-cover"
-                            />
-                            <div className="absolute -bottom-2 -right-3 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm text-white sm:h-10 sm:w-10">
-                              x{item.quantity}
+                  {orderDetail?.result.orderItems?.map((item) => {
+                    return (
+                      <TableRow key={item.slug}>
+                        <TableCell className="flex flex-col gap-3 font-bold sm:flex-row sm:items-center">
+                          <div className="relative col-span-4">
+                            <div className="relative h-[8rem] w-full cursor-pointer">
+                              <img
+                                src={`${publicFileURL}/${item.variant.product.image}`}
+                                alt={item.variant.product.name}
+                                className="object-cover w-full h-full rounded-md aspect-square"
+                              />
+                              <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:h-10 sm:w-10">
+                                x{item.quantity}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <span className="text-xs sm:text-sm">
-                          {item.variant.product.name} - Size{' '}
-                          {item.variant.size.name.toUpperCase()}
-                        </span>
-                        <NavLink
-                          to={`${ROUTE.CLIENT_MENU}/${item.variant.product.slug}`}
-                        >
-                          <Button variant="outline">Mua lại</Button>
-                        </NavLink>
-                      </TableCell>
-                      {/* <TableCell className='text-center'>{item.quantity}</TableCell> */}
-                      <TableCell className="text-right">
-                        {`${formatCurrency(orderDetail.result.subtotal)}`}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          <span className="text-xs sm:text-sm">
+                            {item.variant.product.name} - Size{' '}
+                            {item.variant.size.name.toUpperCase()}
+                          </span>
+                        </TableCell>
+                        {/* <TableCell className='text-center'>{item.quantity}</TableCell> */}
+                        <TableCell className="text-right">
+                          {`${formatCurrency(orderDetail.result.subtotal)}`}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -162,16 +159,16 @@ export default function OrderHistoryPage() {
                       <>
                         {orderDetail?.result?.payment.paymentMethod ===
                           'bank-transfer' && (
-                          <span className="italic">
-                            {t('paymentMethod.bankTransfer')}
-                          </span>
-                        )}
+                            <span className="italic">
+                              {t('paymentMethod.bankTransfer')}
+                            </span>
+                          )}
                         {orderDetail?.result?.payment.paymentMethod ===
                           'cash' && (
-                          <span className="italic">
-                            {t('paymentMethod.cash')}
-                          </span>
-                        )}
+                            <span className="italic">
+                              {t('paymentMethod.cash')}
+                            </span>
+                          )}
                       </>
                     )}
                   </span>

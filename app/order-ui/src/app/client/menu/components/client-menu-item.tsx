@@ -17,7 +17,6 @@ interface IClientMenuItemProps {
 export function ClientMenuItem({ item }: IClientMenuItemProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
-
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
 

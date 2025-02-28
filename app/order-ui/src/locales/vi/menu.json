@@ -4,13 +4,11 @@
     "outOfStock": "Hết hàng",
     "contactForPrice": "Liên hệ",
     "chooseDishCategory": "Chọn loại món",
-
     "priceRangeFilter": "Lọc giá",
     "priceRange": "Khoảng giá",
     "priceRangeDescription": "Chọn khoảng giá để lọc sản phẩm",
     "fromPrice": "Từ giá",
     "toPrice": "Đến giá",
-
     "addToCart": "Thêm vào giỏ",
     "buyNow": "Mua ngay",
     "viewDetails": "Xem chi tiết",
@@ -22,15 +20,12 @@
     "enterNote": "Nhập ghi chú",
     "menu": "Thực đơn",
     "table": "Danh sách bàn",
-
     "tableNote": "Ghi chú bàn",
     "selectReservedTableWarning": "Bàn ",
     "selectReservedTableWarning2": " đã được đặt, bạn có chắc vẫn muốn chọn bàn này không?",
     "confirmSelectTable": "Tôi đã hiểu, xác nhận chọn",
-
     "selectedTableToRemoveWarning": "Bạn có chắc muốn xóa bàn đã chọn không?",
     "confirmRemoveTable": "Tôi đã hiểu, xác nhận xóa",
-
     "order": "Đơn hàng",
     "selectOrderType": "Chọn loại đơn hàng",
     "orderDescription": "Vui lòng kiểm tra thông tin đơn hàng",
@@ -44,9 +39,7 @@
     "subTotal": "Tạm tính",
     "continue": "Tiếp tục",
     "confirm": "Xác nhận đơn hàng",
-
     "payment": "Thanh toán đơn hàng",
-
     "date": "Ngày: ",
     "title": "Quản lý thực đơn",
     "createdAt": "Ngày tạo",
@@ -57,20 +50,17 @@
     "noDescription": "Không có mô tả",
     "totalSold": "Đã bán",
     "stock": "Số lượng tồn: ",
-
     "create": "Tạo thực đơn",
     "createMenuDescription": "Điền đầy đủ thông tin để tạo thực đơn mới",
     "chooseDate": "Chọn ngày",
     "branchSlug": "Chi nhánh",
     "isTemplate": "Là mẫu thực đơn",
-
     "update": "Chỉnh sửa thực đơn",
     "updateMenuDescription": "Thay đổi thông tin để cập nhật thực đơn",
     "delete": "Xóa thực đơn",
     "deleteContent": "Bạn có chắc muốn xóa thực đơn ngày ",
     "deleteContent2": " thuộc chi nhánh ",
     "deleteContent3": " không?",
-
     "addMenuItem": "Thêm món",
     "addMenuItemDescription": "Vui lòng xác nhận thông tin trước khi thêm vào thực đơn",
     "menuSlug": "Slug thực đơn",
@@ -78,21 +68,19 @@
     "selectedProducts": "Món đã chọn",
     "defaultStock": "Số lượng",
     "defaultStockDescription": "Số lượng mặc định",
-
     "updateMenuItem": "Cập nhật món",
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
-
     "deleteMenu": "Xóa thực đơn",
     "deleteMenuWarning1": "Bạn sắp sửa xóa thực đơn ngày ",
     "deleteMenuConfirmation": "Bạn có chắc muốn xóa thực đơn này không?",
-
     "deleteMenuItem": "Xóa món",
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",
     "searchProduct": "Tìm kiếm sản phẩm"
   },
-
   "order": {
+    "orderId": "Đơn hàng",
+    "items": "món",
     "confirmation": "Xác nhận thanh toán",
     "openMenu": "Mở thực đơn",
     "menu": "Thực đơn",
@@ -126,7 +114,6 @@
     "confirmPaid": "Xác nhận đã thanh toán",
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
-
     "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
     "orderStatus": "Trạng thái",
@@ -137,40 +124,30 @@
     "completed": "Đã hoàn tất",
     "shipping": "Đang giao hàng",
     "failed": "Thất bại",
-
     "deleteItem": "Xóa sản phẩm",
     "deleteNote": "Lưu ý: Hành động này không thể hoàn tác!",
     "deleteContent": "Bạn có chắc muốn xóa sản phẩm ",
     "deleteContent2": " khỏi giỏ hàng không?",
-
     "selectTableNote": "Lưu ý: Lựa chọn bàn trước khi nhấn xác nhận đơn hàng.  Nhiều đơn hàng có thể đặt chung một bàn.",
-
     "create": "Đặt hàng",
     "confirmOrder": "Bạn có chắc muốn đặt hàng?",
-
     "usedVoucher": "Mã giảm giá đã sử dụng",
-
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
     "confirm": "Xác nhận",
-
     "viewDetail": "Xem chi tiết",
     "cancelOrder": "Hủy đơn hàng",
     "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
     "updateOrder": "Cập nhật",
-
     "updatePayment": "Cập nhật thanh toán",
     "exportPayment": "Xuất QR code thanh toán",
     "exportInvoice": "Xuất hóa đơn",
-
     "noOrders": "Không có đơn hàng nào!",
     "backToMenu": "Quay lại thực đơn",
-
     "title": "Quản lý đơn hàng",
     "totalOrders": "Tổng đơn hàng",
     "pendingOrders": "Danh sách chờ",
     "orderList": "Danh sách đơn hàng",
-
     "customerInformation": "Thông tin khách hàng",
     "itemAmount": "Số lượng món",
     "paymentMethod": "Phương thức thanh toán",
@@ -196,7 +173,6 @@
     "confirmCreateOrderTracking": "Xác nhận giao hàng",
     "createOrderTrackingByRobot": "Robot giao",
     "createOrderTrackingByRobotDescription": "Robot sẽ giao hàng tới vị trí bàn của khách hàng",
-
     "currentOrder": "Đơn hàng chính",
     "refreshOrdersInTheSameTable": "Lưu ý: Bạn nên làm mới trang để lấy dữ liệu mới nhất",
     "refresh": "Làm mới dữ liệu",
@@ -214,14 +190,12 @@
     "internalWallet": "Ví nội bộ",
     "bankTransferProcessing": "Chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",
     "confirmPayment": "Thanh toán",
-
     "cusomterInformation": "Thông tin khách hàng",
     "customerName": "Tên khách hàng",
     "orderDate": "Ngày đặt hàng",
     "phoneNumber": "Số điện thoại",
     "exportPayment": "Xuất QR code thanh toán",
     "cashMethodNote": "Lưu ý: Đối với phương thức thanh toán bằng tiền mặt, vui lòng đến quầy thanh toán tại cửa hàng để thanh toán",
-
     "total": "Số tiền thanh toán: ",
     "paymentNote": "Quý khách vui lòng kiển tra thông tin thanh toán toán trước khi thực hiện giao dịch",
     "pending": "Chờ thanh toán",
@@ -229,7 +203,6 @@
     "completed": "Đã hoàn tất",
     "paid": "Đã thanh toán",
     "canceled": "Đã hủy",
-
     "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Hết hạn"
   }
