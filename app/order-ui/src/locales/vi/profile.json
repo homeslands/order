@@ -27,6 +27,16 @@
     "updateProfile": "Cập nhật hồ sơ",
     "updateProfileDescription": "thay đổi các thông tin bên dưới để cập nhật thông tin cá nhân của bạn",
 
+    "verifyEmail": "Xác minh email",
+    "verifyEmailDescription": "Sau khi bấm xác nhận, mã xác minh sẽ được gửi đến email của bạn",
+    "sendVerifyEmail": "Gửi email xác minh",
+    "verifyingEmail": "Đang xác minh...",
+    "verifyEmailSuccessfully": "Email đã được xác minh thành công!",
+    "verifyEmailFailed": "Xác minh email thất bại. Vui lòng thử lại",
+    "redirectingIn5s": "Bạn sẽ được chuyển hướng đến trang cá nhân sau 5 giây",
+    "resend": "Gửi lại",
+    "resendVerificationEmail": "Gửi lại email xác minh",
+
     "updatePassword": "Cập nhật mật khẩu",
     "updatePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới để cập nhật mật khẩu của bạn",
     "oldPassword": "Mật khẩu hiện tại",

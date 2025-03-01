@@ -1,4 +1,5 @@
 export { default as LogoutDialog } from './logout-dialog'
+export { default as SendVerifyEmailDialog } from './send-verify-email-dialog'
 
 export { default as NestedDialogs } from './nested-dialog'
 

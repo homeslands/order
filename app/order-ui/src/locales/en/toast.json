@@ -12,6 +12,7 @@
     "requestFailed": "Request failed",
 
     "registerSuccess": "Account registration successful",
+    "sendVerifyEmailSuccess": "Verification email sent successfully. Please check your email",
 
     "branchRequired": "You haven't selected a branch",
     "orderSuccess": "Order placed successfully",

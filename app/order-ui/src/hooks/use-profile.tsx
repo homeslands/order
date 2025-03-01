@@ -1,10 +1,11 @@
 import { getProfile, updateProfile, updatePassword, uploadProfilePicture } from '@/api'
+import { QUERYKEY } from '@/constants'
 import { IUpdateProfileRequest, IUpdatePasswordRequest } from '@/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 export const useProfile = () => {
   return useQuery({
-    queryKey: ['profile'],
+    queryKey: [QUERYKEY.profile],
     queryFn: async () => getProfile(),
   })
 }

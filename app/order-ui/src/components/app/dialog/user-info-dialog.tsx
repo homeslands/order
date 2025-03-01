@@ -38,7 +38,7 @@ export default function UserInfoDialog({ user }: IUserInfoDialogProps) {
           {t('users.viewDetail')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-4/5 w-4/5 overflow-y-auto rounded-md px-6 sm:max-w-[40rem]">
+      <DialogContent className="w-4/5 overflow-y-auto rounded-md px-6 sm:max-w-[40rem]">
         <DialogHeader>
           <DialogTitle>{t('users.detailInfo')}</DialogTitle>
           <DialogDescription>

@@ -5,6 +5,7 @@ import { ProfilePicture } from '@/components/app/avatar'
 import { useProfile, useUploadProfilePicture } from '@/hooks'
 import { publicFileURL } from '@/constants'
 import {
+  SendVerifyEmailDialog,
   UpdatePasswordDialog,
   UpdateProfileDialog,
 } from '@/components/app/dialog'
@@ -30,50 +31,50 @@ export default function UserProfileCard() {
   const formFields = {
     firstName: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.firstName')}</span>
+        <span className="text-sm text-normal">{t('profile.firstName')}</span>
         <Input className="" value={userProfile?.firstName} readOnly />
       </div>
     ),
     lastName: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.lastName')}</span>
+        <span className="text-sm text-normal">{t('profile.lastName')}</span>
         <Input className="" value={userProfile?.lastName} readOnly />
       </div>
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.email')}</span>
+        <span className="text-sm text-normal">{t('profile.email')}</span>
         <Input className="" value={userProfile?.email} readOnly />
       </div>
     ),
     phonenumber: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.phoneNumber')}</span>
+        <span className="text-sm text-normal">{t('profile.phoneNumber')}</span>
         <Input className="" value={userProfile?.phonenumber} readOnly />
       </div>
     ),
     dob: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.dob')}</span>
+        <span className="text-sm text-normal">{t('profile.dob')}</span>
         <Input className="" value={userProfile?.dob} readOnly />
       </div>
     ),
     address: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.address')}</span>
+        <span className="text-sm text-normal">{t('profile.address')}</span>
         <Input className="" value={userProfile?.address} readOnly />
       </div>
     ),
     branch: (
       <div className="flex flex-col gap-1">
-        <span className="text-normal text-sm">{t('profile.branch')}</span>
+        <span className="text-sm text-normal">{t('profile.branch')}</span>
         <Input className="" value={userProfile?.branch?.name} readOnly />
       </div>
     ),
   }
   return (
     <div>
-      <Card className="border-none bg-transparent shadow-none">
+      <Card className="bg-transparent border-none shadow-none">
         <CardContent className="flex flex-col gap-6 p-0">
           <div className="flex flex-row p-2">
             <ProfilePicture
@@ -86,24 +87,25 @@ export default function UserProfileCard() {
               }
               onUpload={handleUploadProfilePicture}
             />
-            <div className="ml-4 flex flex-col justify-center">
-              <span className="text-md font-bold">
+            <div className="flex flex-col justify-center ml-4">
+              <span className="font-bold text-md">
                 {userProfile?.lastName} {userProfile?.firstName}
               </span>
-              <div className="text-description flex items-center"></div>
+              <div className="flex items-center text-description"></div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 rounded-md border">
+          <div className="grid grid-cols-1 gap-3 border rounded-md">
             <div
               className={
                 'flex w-full items-center justify-between bg-muted-foreground/5 px-6 py-6'
               }
             >
-              <span className="text-md font-semibold">
+              <span className="font-semibold text-md">
                 {t('profile.profile')}
               </span>
               <div className="flex gap-2">
                 <UpdateProfileDialog userProfile={userProfile} />
+                <SendVerifyEmailDialog />
                 <UpdatePasswordDialog />
               </div>
             </div>

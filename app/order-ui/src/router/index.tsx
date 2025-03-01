@@ -48,6 +48,7 @@ import {
   PromotionPage,
   BannerPage,
   BannerDetailPage,
+  EmailVerificationPage,
   // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
       {
         path: `${ROUTE.RESET_PASSWORD}`,
         element: <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />,
+      },
+      {
+        path: ROUTE.VERIFY_EMAIL,
+        element: <SuspenseElement component={EmailVerificationPage} />,
       },
       {
         path: ROUTE.ABOUT,

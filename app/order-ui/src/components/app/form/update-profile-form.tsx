@@ -43,7 +43,7 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
     defaultValues: {
       firstName: userProfile?.firstName || '',
       lastName: userProfile?.lastName || '',
-      email: userProfile?.email || '',
+      // email: userProfile?.email || '',
       dob: userProfile?.dob || '',
       address: userProfile?.address || '',
       branch: userProfile?.branch?.slug || '',
@@ -120,21 +120,21 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
         )}
       />
     ),
-    email: (
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('profile.email')}</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder={t('profile.enterEmail')} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+    // email: (
+    //   <FormField
+    //     control={form.control}
+    //     name="email"
+    //     render={({ field }) => (
+    //       <FormItem>
+    //         <FormLabel>{t('profile.email')}</FormLabel>
+    //         <FormControl>
+    //           <Input {...field} placeholder={t('profile.enterEmail')} />
+    //         </FormControl>
+    //         <FormMessage />
+    //       </FormItem>
+    //     )}
+    //   />
+    // ),
     address: (
       <FormField
         control={form.control}

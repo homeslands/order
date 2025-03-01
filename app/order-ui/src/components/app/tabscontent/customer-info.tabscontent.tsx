@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Input, Textarea } from '@/components/ui'
 import { useProfile } from '@/hooks'
-import { UpdatePasswordDialog } from '@/components/app/dialog'
+import { SendVerifyEmailDialog, UpdatePasswordDialog } from '@/components/app/dialog'
 import UpdateCustomerProfileDialog from '../dialog/update-customer-profile-dialog'
 
 export function CustomerInfoTabsContent() {
@@ -88,6 +88,7 @@ export function CustomerInfoTabsContent() {
       </div>
       <div className="grid grid-cols-2 mt-4 sm:flex sm:justify-end sm:gap-2">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
+        <SendVerifyEmailDialog />
         <UpdatePasswordDialog />
       </div>
     </div>
