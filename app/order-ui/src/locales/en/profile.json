@@ -27,6 +27,16 @@
     "updateProfile": "Update Profile",
     "updateProfileDescription": "Modify the details below to update your personal information",
 
+    "verifyEmail": "Verify Email",
+    "verifyEmailDescription": "Please enter the verification code sent to your email",
+    "sendVerifyEmail": "Send Verification Email",
+    "verifyingEmail": "Verifying...",
+    "verifyEmailSuccessfully": "Email verified successfully",
+    "verifyEmailFailed": "Email verification failed. Please try again",
+    "automaticDirectToProfilePage": "You will be automatically directed to the profile page after 5 seconds",
+    "resend": "Resend",
+    "resendVerificationEmail": "Resend Verification Email",
+
     "updatePassword": "Update Password",
     "updatePasswordDescription": "Please enter your current and new password to update your password",
     "oldPassword": "Current Password",

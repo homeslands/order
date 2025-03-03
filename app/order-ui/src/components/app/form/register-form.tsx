@@ -147,7 +147,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 gap-2 text-white">
+          <div className="grid grid-cols-1 gap-2 text-white sm:grid-cols-2">
             {Object.keys(formFields).map((key) => (
               <React.Fragment key={key}>
                 {formFields[key as keyof typeof formFields]}

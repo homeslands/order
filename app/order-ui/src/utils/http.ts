@@ -7,7 +7,7 @@ import axios, {
 import NProgress from 'nprogress'
 import moment from 'moment'
 
-import { useRequestStore } from '@/stores'
+import { useCurrentUrlStore, useRequestStore } from '@/stores'
 import { useAuthStore } from '@/stores'
 import { IApiResponse, IRefreshTokenResponse } from '@/types'
 import { baseURL, ROUTE } from '@/constants'
@@ -74,6 +74,7 @@ const isPublicRoute = (url: string, method: string): boolean => {
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore.getState()
+    const { setCurrentUrl } = useCurrentUrlStore.getState()
     const {
       token,
       expireTime,
@@ -113,6 +114,10 @@ axiosInstance.interceptors.request.use(
         processQueue(error, null)
         setLogout()
         showErrorToast(1017)
+        const currentUrl = window.location.pathname
+        if (currentUrl !== ROUTE.LOGIN) {
+          setCurrentUrl(currentUrl)
+        }
         window.location.href = ROUTE.LOGIN
       } finally {
         isRefreshing = false

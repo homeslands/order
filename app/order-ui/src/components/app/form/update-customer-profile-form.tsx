@@ -41,7 +41,6 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
     defaultValues: {
       firstName: userProfile?.firstName || '',
       lastName: userProfile?.lastName || '',
-      email: userProfile?.email || '',
       dob: userProfile?.dob || '',
       address: userProfile?.address || '',
     },
@@ -111,21 +110,6 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
                   return true // Thay thế bằng logic xác thực thực tế của bạn
                 }}
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    email: (
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('profile.email')}</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder={t('profile.enterEmail')} />
             </FormControl>
             <FormMessage />
           </FormItem>

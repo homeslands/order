@@ -7,6 +7,7 @@ export const ROUTE = {
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/reset-password',
   ORDER_SUCCESS: '/order-success',
+  VERIFY_EMAIL: '/verify-email', // Make sure this matches exactly with your URL path
 
   // System Routes
   OVERVIEW: '/system/overview',

@@ -12,7 +12,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui'
-import { LoginBackground } from '@/assets/images'
+import { LoginBackground, } from '@/assets/images'
 import { RegisterForm } from '@/components/app/form'
 import { ROUTE } from '@/constants'
 import { showToast } from '@/utils'
@@ -35,13 +35,14 @@ export default function Register() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center">
+    <div className="relative flex items-center justify-center min-h-screen">
       <img
         src={LoginBackground}
-        className="absolute left-0 top-0 h-full w-full sm:object-fill"
+        className="absolute top-0 left-0 object-cover w-full h-full sm:object-fill"
       />
-      <div className="flex h-full w-full items-center justify-center py-10">
-        <Card className="mx-auto w-96 border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
+
+      <div className="flex items-center justify-center w-full h-full py-10">
+        <Card className="mx-auto sm:w-[48rem] w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
           <CardHeader>
             <CardTitle className={cn('text-center text-2xl text-white')}>
               {t('register.welcome')}{' '}
@@ -57,7 +58,7 @@ export default function Register() {
             <span>{t('register.haveAccount')}</span>
             <NavLink
               to={ROUTE.LOGIN}
-              className="text-center text-sm text-primary"
+              className="text-sm text-center text-primary"
             >
               {t('register.login')}
             </NavLink>

@@ -42,7 +42,10 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const { data: voucherList } = useVouchers()
+  const { data: voucherList } = useVouchers({
+    isActive: true,
+    // minOrderValue: cartItems?.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0
+  })
   const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(defaultValue)
 
   const voucherListData = voucherList?.result || []

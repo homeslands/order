@@ -13,6 +13,12 @@ export interface IVoucher extends IBase {
   endDate: string
 }
 
+export interface IGetAllVoucherRequest {
+  minOrderValue?: number
+  date?: string
+  isActive?: boolean
+}
+
 export interface ICreateVoucherRequest {
   title: string
   description?: string

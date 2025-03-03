@@ -1,4 +1,5 @@
 export const QUERYKEY = {
+  profile: ['profile'],
   branches: ['branches'],
   catalog: ['catalog'],
   productVariants: ['productVariants'],

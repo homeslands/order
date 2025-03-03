@@ -7,7 +7,9 @@ import { useVouchers } from '@/hooks';
 
 export function AdPopup() {
     const [isVisible, setIsVisible] = useState(false);
-    const { data: vouchers } = useVouchers();
+    const { data: vouchers } = useVouchers({
+        isActive: true
+    });
 
     const voucherList = vouchers?.result || [];
 

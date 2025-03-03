@@ -11,15 +11,16 @@ import {
 import { QUERYKEY } from '@/constants'
 import {
   ICreateVoucherRequest,
+  IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
 } from '@/types'
 
-export const useVouchers = () => {
+export const useVouchers = (params: IGetAllVoucherRequest) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchers],
-    queryFn: () => getVouchers(),
+    queryFn: () => getVouchers(params),
     placeholderData: keepPreviousData,
   })
 }

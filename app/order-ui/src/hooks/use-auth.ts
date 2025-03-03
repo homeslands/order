@@ -1,13 +1,17 @@
 import {
+  confirmEmailVerification,
   forgotPasswordAndGetToken,
   forgotPasswordAndResetPassword,
   login,
   register,
+  verifyEmail,
 } from '@/api'
 import {
   ILoginRequest,
   IRegisterRequest,
   IForgotPasswordRequest,
+  IVerifyEmailRequest,
+  IConfirmEmailVerificationRequest,
 } from '@/types'
 import { useMutation } from '@tanstack/react-query'
 
@@ -40,6 +44,22 @@ export const useResetPasswordForForgotPassword = () => {
   return useMutation({
     mutationFn: async (data: { newPassword: string; token: string }) => {
       return forgotPasswordAndResetPassword(data)
+    },
+  })
+}
+
+export const useVerifyEmail = () => {
+  return useMutation({
+    mutationFn: async (data: IVerifyEmailRequest) => {
+      return verifyEmail(data)
+    },
+  })
+}
+
+export const useConfirmEmailVerification = () => {
+  return useMutation({
+    mutationFn: async (data: IConfirmEmailVerificationRequest) => {
+      return confirmEmailVerification(data)
     },
   })
 }
