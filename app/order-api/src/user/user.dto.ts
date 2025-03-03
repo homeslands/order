@@ -85,6 +85,14 @@ export class UserResponseDto extends BaseResponseDto {
   @AutoMap(() => RoleResponseDto)
   @ApiProperty()
   role: RoleResponseDto;
+
+  @AutoMap()
+  @ApiProperty()
+  isVerifiedEmail: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  isVerifiedPhonenumber: boolean;
 }
 
 export class UpdateUserRoleRequestDto {
