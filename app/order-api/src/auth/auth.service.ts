@@ -51,6 +51,7 @@ import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
 import { VerifyEmailToken } from './verify-email-token.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class AuthService {
@@ -78,6 +79,7 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly dataSource: DataSource,
     private readonly systemConfigService: SystemConfigService,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
     this.duration = this.configService.get<number>('DURATION');
@@ -569,7 +571,10 @@ export class AuthService {
    */
   async validateUser(phonenumber: string, pass: string): Promise<User | null> {
     const context = `${AuthService.name}.${this.validateUser.name}`;
-    const user = await this.userRepository.findOne({ where: { phonenumber } });
+    const user = await this.userRepository.findOne({
+      where: { phonenumber },
+      relations: ['role'],
+    });
     if (!user) {
       this.logger.warn(`User ${phonenumber} is not found`, `${context}`);
       return null;
@@ -626,7 +631,7 @@ export class AuthService {
     const payload: AuthJwtPayload = {
       sub: user.id,
       jti: uuidv4(),
-      scope: '[]',
+      scope: user.role?.name,
     };
     this.logger.log(
       `User ${user.phonenumber} logged in`,
@@ -681,9 +686,26 @@ export class AuthService {
     );
 
     Object.assign(user, { password: hashedPass, role });
-    this.userRepository.create(user);
-    const createdUser = await this.userRepository.save(user);
-    this.logger.warn(`User ${requestData.phonenumber} registered`, context);
+
+    const createdUser = await this.transactionManagerService.execute<User>(
+      async (manager) => {
+        return await manager.save(user);
+      },
+      (result) => {
+        this.logger.log(`User ${result.phonenumber} registered`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when register user: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(
+          AuthValidation.ERROR_REGISTER_USER,
+          error.message,
+        );
+      },
+    );
     return this.mapper.map(createdUser, User, RegisterAuthResponseDto);
   }
 

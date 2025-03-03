@@ -41,6 +41,7 @@ import { SystemConfig } from 'src/system-config/system-config.entity';
 import { MailProducer } from 'src/mail/mail.producer';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { VerifyEmailToken } from './verify-email-token.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -49,6 +50,7 @@ describe('AuthService', () => {
   let jwtService: MockType<JwtService>;
   let mapperMock: MockType<Mapper>;
   let systemConfigService: SystemConfigService;
+  let mockDataSource: DataSource;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -56,6 +58,7 @@ describe('AuthService', () => {
         AuthService,
         FileService,
         SystemConfigService,
+        TransactionManagerService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         MailProducer,
         {
@@ -133,6 +136,7 @@ describe('AuthService', () => {
     jwtService = module.get(JwtService);
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
     systemConfigService = module.get(SystemConfigService);
+    mockDataSource = module.get(DataSource);
   });
 
   it('should be defined', () => {
@@ -306,8 +310,15 @@ describe('AuthService', () => {
       jest
         .spyOn(bcrypt, 'hash')
         .mockImplementation((pass, saltOfRounds) => 'hashed-password');
-      userRepositoryMock.create.mockReturnValue(mockUserEntity);
-      userRepositoryMock.save.mockReturnValue(mockUserEntity);
+
+      const queryRunner = mockDataSource.createQueryRunner();
+      mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
+        ...queryRunner,
+        manager: {
+          save: jest.fn().mockResolvedValue(mockUserOutput),
+        },
+      });
+
       mapperMock.map.mockImplementation(
         (source, sourceType, destinationType) => {
           if (sourceType === RegisterAuthRequestDto && destinationType === User)

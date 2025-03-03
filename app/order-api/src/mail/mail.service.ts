@@ -69,91 +69,27 @@ export class MailService {
     this.logger.log(`Email is sending to ${email}`, context);
   }
 
-  // async sendInvoiceWhenOrderPaid(user: User, orderSlug: string) {
-  //   const context = `${MailService.name}.${this.sendInvoiceWhenOrderPaid.name}`;
+  async sendInvoiceWhenOrderPaid(user: User, invoice: Buffer) {
+    const context = `${MailService.name}.${this.sendInvoiceWhenOrderPaid.name}`;
 
-  //   this.logger.log(orderSlug, context);
-  //   await this.mailProducer.sendMail({
-  //     // to: user.email,
-  //     to: 'cr7ronadol12345@gmail.com',
-  //     subject: 'Send Invoice',
-  //     template: resolve('public/templates/invoice'),
-  //     context: {
-  //       // name: `${user.firstName} ${user.lastName}`,
-  //       // url,
-  //       logoString: 'BASE64_ENCODED_IMAGE_STRING',
-  //       branchAddress: '123 Đường ABC, TP.HCM',
-  //       qrcode:
-  //         'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com',
-  //       createdAt: new Date(),
-  //       tableName: 'Bàn 5',
-  //       customer: 'Nguyễn Văn A',
-  //       cashier: 'Trần Thị B',
-  //       invoiceItems: [
-  //         {
-  //           productName: 'Trà Sữa Trân Châu',
-  //           size: 'L',
-  //           quantity: 2,
-  //           price: 50000,
-  //           total: 100000,
-  //         },
-  //         {
-  //           productName: 'Cà Phê Đen',
-  //           size: 'M',
-  //           quantity: 1,
-  //           price: 30000,
-  //           total: 30000,
-  //         },
-  //       ],
-  //       paymentMethod: 'Tiền mặt',
-  //       amount: 130000,
-  //       formatCurrency: (amount) => `${amount.toLocaleString('vi-VN')}₫`,
-  //       formatDate: (date, format) => date.toLocaleString('vi-VN'),
-  //       formatPaymentMethod: (method) => method,
-  //     },
-  //   });
-  //   this.logger.log(`Invoice is sending to ${user.email}`, context);
-  //   if (user.email && user.isVerifiedEmail) {
-  //     // await this.mailProducer.sendMail({
-  //     //   // to: user.email,
-  //     //   to: 'huuthietn01@gmail.com',
-  //     //   subject: 'Send Invoice',
-  //     //   template: resolve('public/templates/invoice'),
-  //     //   context: {
-  //     //     // name: `${user.firstName} ${user.lastName}`,
-  //     //     // url,
-  //     //     logoString: 'BASE64_ENCODED_IMAGE_STRING',
-  //     //     branchAddress: '123 Đường ABC, TP.HCM',
-  //     //     qrcode:
-  //     //       'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com',
-  //     //     createdAt: new Date(),
-  //     //     tableName: 'Bàn 5',
-  //     //     customer: 'Nguyễn Văn A',
-  //     //     cashier: 'Trần Thị B',
-  //     //     invoiceItems: [
-  //     //       {
-  //     //         productName: 'Trà Sữa Trân Châu',
-  //     //         size: 'L',
-  //     //         quantity: 2,
-  //     //         price: 50000,
-  //     //         total: 100000,
-  //     //       },
-  //     //       {
-  //     //         productName: 'Cà Phê Đen',
-  //     //         size: 'M',
-  //     //         quantity: 1,
-  //     //         price: 30000,
-  //     //         total: 30000,
-  //     //       },
-  //     //     ],
-  //     //     paymentMethod: 'Tiền mặt',
-  //     //     amount: 130000,
-  //     //     formatCurrency: (amount) => `${amount.toLocaleString('vi-VN')}₫`,
-  //     //     formatDate: (date, format) => date.toLocaleString('vi-VN'),
-  //     //     formatPaymentMethod: (method) => method,
-  //     //   },
-  //     // });
-  //     // this.logger.log(`Invoice is sending to ${user.email}`, context);
-  //   }
-  // }
+    if (user.email && user.isVerifiedEmail) {
+      await this.mailProducer.sendMail({
+        to: user.email,
+        subject: 'Invoice',
+        template: resolve('public/templates/mail/send-invoice'),
+        context: {
+          name: `${user.firstName} ${user.lastName}`,
+        },
+        attachments: [
+          {
+            filename: 'invoice.pdf',
+            content: invoice.toString('base64'),
+            encoding: 'base64',
+            contentType: 'application/pdf',
+          },
+        ],
+      });
+      this.logger.log(`Invoice is sending to ${user.email}`, context);
+    }
+  }
 }

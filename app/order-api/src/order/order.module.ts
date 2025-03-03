@@ -29,6 +29,11 @@ import { OrderItem } from 'src/order-item/order-item.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { InvoiceService } from 'src/invoice/invoice.service';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -44,6 +49,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
       OrderItem,
       Promotion,
       ApplicablePromotion,
+      Invoice,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -54,6 +60,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
     VariantModule,
     MenuModule,
     forwardRef(() => VoucherModule),
+    MailModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -65,6 +72,9 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
     OrderListener,
     OrderItemUtils,
     PromotionUtils,
+    InvoiceService,
+    PdfService,
+    QrCodeService,
   ],
   exports: [OrderService, OrderUtils],
 })

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { validate } from './env.validation';
@@ -52,6 +52,7 @@ import { PromotionModule } from 'src/promotion/promotion.module';
 import { ApplicablePromotionModule } from 'src/applicable-promotion/applicable-promotion.module';
 import { VoucherModule } from 'src/voucher/voucher.module';
 import { BannerModule } from 'src/banner/banner.module';
+import { LoggerMiddleware } from 'src/logger/logger.middleware';
 
 @Module({
   imports: [
@@ -139,4 +140,8 @@ import { BannerModule } from 'src/banner/banner.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

@@ -24,6 +24,7 @@ export const EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS';
 export const CONFIRM_EMAIL_VERIFICATION_ERROR =
   'CONFIRM_EMAIL_VERIFICATION_ERROR';
 export const THIS_EMAIL_ALREADY_VERIFY = 'THIS_EMAIL_ALREADY_VERIFY';
+export const ERROR_REGISTER_USER = 'ERROR_REGISTER_USER';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -47,6 +48,7 @@ export type TAuthErrorCodeKey =
   | typeof VERIFY_EMAIL_TOKEN_IS_EXPIRED
   | typeof CONFIRM_EMAIL_VERIFICATION_ERROR
   | typeof THIS_EMAIL_ALREADY_VERIFY
+  | typeof ERROR_REGISTER_USER
   | typeof INVALID_FIRSTNAME;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
@@ -90,4 +92,5 @@ export const AuthValidation: TAuthErrorCode = {
     119021,
     'This email already verified',
   ),
+  ERROR_REGISTER_USER: createErrorCode(119022, 'Error when registering user'),
 };
