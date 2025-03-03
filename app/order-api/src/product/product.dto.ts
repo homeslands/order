@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, ValidateIf } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { CatalogResponseDto } from 'src/catalog/catalog.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
@@ -9,6 +9,7 @@ import {
   PRODUCT_LIMIT_REQUIRED,
   PRODUCT_NAME_REQUIRED,
 } from './product.validation';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateProductRequestDto {
   @AutoMap()
@@ -35,6 +36,29 @@ export class CreateProductRequestDto {
   })
   @IsNotEmpty({ message: 'The slug of catalog is required' })
   catalog: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is to sell',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  isTopSell?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is new',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true')
+  isNew?: boolean;
 }
 
 export class UpdateProductRequestDto {
@@ -51,11 +75,14 @@ export class UpdateProductRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The limit of product', example: true })
   @IsNotEmpty({ message: PRODUCT_LIMIT_REQUIRED })
+  @Type(() => Boolean)
   isLimit: boolean;
 
   @AutoMap()
   @ApiProperty({ description: 'The active of product', example: false })
   @IsNotEmpty({ message: PRODUCT_ACTIVE_REQUIRED })
+  @IsBoolean()
+  @Type(() => Boolean)
   isActive: boolean;
 
   @ApiProperty({
@@ -64,6 +91,28 @@ export class UpdateProductRequestDto {
   })
   @IsNotEmpty({ message: 'The slug of catalog is required' })
   catalog: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is to sell',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty({ message: 'The isTopSell field is required' })
+  @IsBoolean()
+  @Type(() => Boolean)
+  isTopSell: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is new',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty({ message: 'The isNew field is required' })
+  @IsBoolean()
+  @Type(() => Boolean)
+  isNew: boolean;
 }
 
 export class ProductResponseDto extends BaseResponseDto {
@@ -93,6 +142,12 @@ export class ProductResponseDto extends BaseResponseDto {
 
   @AutoMap(() => VariantResponseDto)
   variants: VariantResponseDto[];
+
+  @AutoMap()
+  isTopSell: boolean;
+
+  @AutoMap()
+  isNew: boolean;
 }
 
 export class ValidationError {
@@ -137,6 +192,25 @@ export class GetProductRequestDto {
   @IsOptional()
   expectedPromotion?: string;
 
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is top sell',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  isTopSell?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is new',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  isNew?: boolean;
 }
-
-

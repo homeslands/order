@@ -1,3 +1,3 @@
 export enum RobotStatus {
-  IDLE = 'IDLE'
-};
+  IDLE = 'IDLE',
+}

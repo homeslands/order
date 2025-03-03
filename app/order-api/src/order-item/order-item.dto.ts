@@ -1,8 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
-import { MenuItemActionType } from 'src/menu-item/menu-item.constants';
 import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
@@ -28,7 +27,10 @@ export class CreateOrderItemRequestDto {
   variant: string;
 
   @AutoMap()
-  @ApiProperty({ description: 'The slug of promotion', example: 'promotion-slug-123' })
+  @ApiProperty({
+    description: 'The slug of promotion',
+    example: 'promotion-slug-123',
+  })
   @IsOptional()
   promotion?: string;
 
@@ -60,7 +62,10 @@ export class UpdateOrderItemRequestDto {
   variant: string;
 
   @AutoMap()
-  @ApiProperty({ description: `The slug of promotion`, example: 'promotion-slug-123' })
+  @ApiProperty({
+    description: `The slug of promotion`,
+    example: 'promotion-slug-123',
+  })
   @IsOptional()
   promotion?: string;
 

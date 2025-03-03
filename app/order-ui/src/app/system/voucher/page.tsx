@@ -9,7 +9,9 @@ import { VoucherAction } from './DataTable/actions'
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
     const { handlePageChange, handlePageSizeChange } = usePagination()
-    const { data, isLoading } = useVouchers()
+    const { data, isLoading } = useVouchers({
+        isActive: true,
+    })
 
     return (
         <div>

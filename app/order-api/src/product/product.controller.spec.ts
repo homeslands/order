@@ -109,6 +109,8 @@ describe('ProductController', () => {
         isLimit: false,
         catalog: new CatalogResponseDto(),
         variants: [],
+        isTopSell: false,
+        isNew: false,
       };
       const mockOutput = [product];
 
@@ -195,7 +197,7 @@ describe('ProductController', () => {
       const slug: string = 'mock-product-slug';
       (service.deleteProduct as jest.Mock).mockResolvedValue(1);
 
-      const result = await controller.deleteProduct(slug);
+      await controller.deleteProduct(slug);
       expect(service.deleteProduct).toHaveBeenCalledTimes(1);
     });
 

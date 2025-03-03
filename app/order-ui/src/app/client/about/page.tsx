@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
+
 import { useStaticPage } from "@/hooks";
 
 export default function AboutPage() {
     const { data: staticPage, isLoading } = useStaticPage("ABOUT-US");
+    const { t } = useTranslation('about');
 
     if (isLoading) {
         return (
@@ -15,7 +18,7 @@ export default function AboutPage() {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
                 <p className="text-lg font-medium text-gray-500">
-                    No content available.
+                    {t("about.noContent")}
                 </p>
             </div>
         );

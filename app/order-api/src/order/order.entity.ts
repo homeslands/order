@@ -15,7 +15,7 @@ import { OrderStatus } from './order.contants';
 import { Payment } from 'src/payment/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { Table } from 'src/table/table.entity';
-import { IsNotEmpty, IsNumber, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ORDER_STATUS_INVALID } from './order.validation';
 import { Voucher } from 'src/voucher/voucher.entity';
 

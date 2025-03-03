@@ -1,6 +1,33 @@
 {
   "banner": {
-    "title": "Welcome to our website",
-    "description": "We provide the best services for you"
+    "bannerTitle": "Banner Management",
+    "bannerDetailTitle": "Banner Details",
+    "bannerDescription": "Manage website banners",
+    "title": "Title",
+    "content": "Content",
+    "description": "We provide the best services for you",
+    "createdAt": "Created Date",
+    "slug": "Slug",
+    "isActive": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "isActiveDescription": "(Once enabled, the banner will be displayed on the website)",
+
+    "noData": "No data available",
+
+    "create": "Create New",
+    "createDescription": "Create a new banner",
+    "enterTitle": "Enter title",
+
+    "uploadImage": "Upload Image",
+    "uploadImageDescription": "Upload an image for the banner",
+    "addImage": "Add Image",
+
+    "update": "Update",
+    "confirmUpdateBanner": "Confirm banner update",
+
+    "delete": "Delete",
+    "deleteBannerWarning1": "You are about to delete the banner ",
+    "deleteBannerConfirmation": "Are you sure you want to delete this banner?"
   }
 }

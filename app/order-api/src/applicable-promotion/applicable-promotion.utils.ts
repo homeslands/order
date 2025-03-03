@@ -15,23 +15,24 @@ export class ApplicablePromotionUtils {
   ) {}
 
   async getApplicablePromotion(
-    where: FindOptionsWhere<ApplicablePromotion>
+    where: FindOptionsWhere<ApplicablePromotion>,
   ): Promise<ApplicablePromotion> {
     const context = `${ApplicablePromotionUtils.name}.${this.getApplicablePromotion.name}`;
 
-    const applicablePromotion = await this.applicablePromotionRepository.findOne({ 
-      where,
-      relations: ['promotion'],
-    });
+    const applicablePromotion =
+      await this.applicablePromotionRepository.findOne({
+        where,
+        relations: ['promotion'],
+      });
     if (!applicablePromotion) {
       this.logger.warn(
-        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND.message, 
-        context
+        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND.message,
+        context,
       );
       throw new ApplicablePromotionException(
-        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND
+        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND,
       );
-    } 
+    }
     return applicablePromotion;
   }
 }

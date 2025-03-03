@@ -3,11 +3,11 @@ export enum WorkflowStatus {
   RUNNING = 'RUNNING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
-  CANCELED = 'CANCELED'
+  CANCELED = 'CANCELED',
 }
 export enum WorkflowExecutionStepStatus {
   PENDING = 'PENDING',
   RUNNING = 'RUNNING',
   COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED'
+  FAILED = 'FAILED',
 }

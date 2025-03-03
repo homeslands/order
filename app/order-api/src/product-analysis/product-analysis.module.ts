@@ -11,13 +11,15 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    ProductAnalysis, 
-    Branch, 
-    Product,
-    MenuItem,
-    Menu
-  ])],
+  imports: [
+    TypeOrmModule.forFeature([
+      ProductAnalysis,
+      Branch,
+      Product,
+      MenuItem,
+      Menu,
+    ]),
+  ],
   controllers: [ProductAnalysisController],
   providers: [
     ProductAnalysisService,

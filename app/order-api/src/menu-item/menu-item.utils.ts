@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { MenuItem } from './menu-item.entity';
 import { MenuItemException } from './menu-item.exception';
 import { MenuItemValidation } from './menu-item.validation';
@@ -131,6 +131,7 @@ export class MenuItemUtils {
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
     }
 
+    // limit product
     switch (action) {
       case 'increment':
         menuItem.currentStock += entity.quantity;

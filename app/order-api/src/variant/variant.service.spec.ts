@@ -23,7 +23,6 @@ import { ProductException } from 'src/product/product.exception';
 import { VariantException } from './variant.exception';
 
 describe('VariantService', () => {
-  const mapperProvider = 'automapper:nestjs:default';
   let service: VariantService;
   let productRepositoryMock: MockType<Repository<Product>>;
   let variantRepositoryMock: MockType<Repository<Variant>>;

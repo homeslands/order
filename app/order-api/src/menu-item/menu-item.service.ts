@@ -49,7 +49,7 @@ export class MenuItemService {
     createMenuItemDto: CreateMenuItemDto[],
   ): Promise<MenuItemResponseDto[]> {
     const context = `${MenuItemService.name}.${this.bulkCreate.name}`;
-    let menuItems: MenuItem[] = [];
+    const menuItems: MenuItem[] = [];
 
     for (const menuItemDto of createMenuItemDto) {
       const product = await this.productRepository.findOne({
@@ -66,11 +66,12 @@ export class MenuItemService {
 
       const date = new Date(menu.date);
 
-      const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
-        date,
-        menu.branch.id,
-        product.id,
-      );
+      const promotion =
+        await this.promotionUtils.getPromotionByProductAndBranch(
+          date,
+          menu.branch.id,
+          product.id,
+        );
 
       const menuItem = this.mapper.map(
         menuItemDto,
@@ -143,7 +144,6 @@ export class MenuItemService {
 
     return this.mapper.map(createdMenuItem, MenuItem, MenuItemResponseDto);
   }
-  
 
   /**
    * Retrieve all menu items

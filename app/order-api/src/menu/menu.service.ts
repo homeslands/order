@@ -226,10 +226,10 @@ export class MenuService {
     // Check if template menu already exist
     if (requestData.isTemplate) {
       const dayIndex = getDayIndex(requestData.date);
-      const isExsitTemplate = await this.menuRepository.findOne({
+      const isExistTemplate = await this.menuRepository.findOne({
         where: { branch: { id: branch.id }, dayIndex, isTemplate: true },
       });
-      if (isExsitTemplate) {
+      if (isExistTemplate) {
         this.logger.warn(
           `Template menu for ${requestData.date} already exist`,
           context,
@@ -259,10 +259,7 @@ export class MenuService {
     const [menus, total] = await this.menuRepository.findAndCount({
       where: { branch: { slug: query.branch }, isTemplate: query.isTemplate },
       order: { date: 'DESC' },
-      relations: [
-        'menuItems.product.variants.size',
-        'menuItems.promotion',
-      ],
+      relations: ['menuItems.product.variants.size', 'menuItems.promotion'],
       skip: (query.page - 1) * query.size,
       take: query.size,
     });

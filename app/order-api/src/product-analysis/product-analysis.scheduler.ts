@@ -9,7 +9,10 @@ import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import * as _ from 'lodash';
-import { getAllProductAnalysisClause, getYesterdayProductAnalysisClause } from './product-analysis.clause';
+import {
+  getAllProductAnalysisClause,
+  getYesterdayProductAnalysisClause,
+} from './product-analysis.clause';
 import { plainToInstance } from 'class-transformer';
 import { ProductAnalysisQueryDto } from './product-analysis.dto';
 import { Branch } from 'src/branch/branch.entity';
@@ -52,7 +55,7 @@ export class ProductAnalysisScheduler {
     const results: any[] = await this.productAnalysisRepository.query(
       getAllProductAnalysisClause,
     );
-    
+
     const productAnalysisQueryDtos = plainToInstance(
       ProductAnalysisQueryDto,
       results,
@@ -114,7 +117,7 @@ export class ProductAnalysisScheduler {
 
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7,0,0,0);
+    yesterdayDate.setHours(7, 0, 0, 0);
 
     const hasProductAnalysis = await this.productAnalysisRepository.find({
       where: {
@@ -124,9 +127,9 @@ export class ProductAnalysisScheduler {
 
     if (!_.isEmpty(hasProductAnalysis)) {
       this.logger.error(
-        `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`, 
-        null, 
-        context
+        `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`,
+        null,
+        context,
       );
       return;
     }
@@ -134,7 +137,7 @@ export class ProductAnalysisScheduler {
     const results: any[] = await this.productAnalysisRepository.query(
       getYesterdayProductAnalysisClause,
     );
-    
+
     const productAnalysisQueryDtos = plainToInstance(
       ProductAnalysisQueryDto,
       results,

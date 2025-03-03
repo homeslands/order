@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  BulkCreateTablesRequestDto,
   CreateTableRequestDto,
   TableResponseDto,
   UpdateTableRequestDto,
@@ -7,7 +8,7 @@ import {
 } from './table.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Table } from './table.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Branch } from 'src/branch/branch.entity';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
@@ -17,7 +18,10 @@ import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { TableException } from './table.exception';
 import { TableValidation } from './table.validation';
-import * as _ from 'lodash';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { TableUtils } from './table.utils';
+import { TableStatus } from './table.constant';
 
 @Injectable()
 export class TableService {
@@ -29,6 +33,9 @@ export class TableService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly robotConnectorClient: RobotConnectorClient,
+    private readonly branchUtils: BranchUtils,
+    private readonly tableUtils: TableUtils,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
   async getLocations() {
@@ -37,6 +44,67 @@ export class TableService {
       const isAssigned = location.metadata?.isAssigned;
       return isAssigned === undefined || isAssigned === false;
     });
+  }
+
+  async bulkCreateTables(
+    bulkCreateTablesRequestDto: BulkCreateTablesRequestDto,
+  ): Promise<TableResponseDto[]> {
+    const context = `${TableService.name}.${this.bulkCreateTables.name}`;
+    const branch = await this.branchUtils.getBranch({
+      slug: bulkCreateTablesRequestDto.branch || IsNull(),
+    });
+    if (bulkCreateTablesRequestDto.from > bulkCreateTablesRequestDto.to) {
+      this.logger.warn(
+        TableValidation.FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER.message,
+        context,
+      );
+      throw new TableException(
+        TableValidation.FROM_NUMBER_MUST_LESS_OR_EQUAL_TO_NUMBER,
+      );
+    }
+
+    const tables: Table[] = [];
+    for (
+      let i = bulkCreateTablesRequestDto.from;
+      i <= bulkCreateTablesRequestDto.to;
+      i += bulkCreateTablesRequestDto.step
+    ) {
+      await this.validateNameTable(`${i}`, branch.slug);
+      const table = new Table();
+      table.name = `${i}`;
+      table.branch = branch;
+      table.status = TableStatus.AVAILABLE;
+      tables.push(table);
+    }
+
+    const createdTables = await this.transactionManagerService.execute<Table[]>(
+      async (manager) => {
+        return await manager.save(tables);
+      },
+      (result) => {
+        this.logger.log(`${result.length} created successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error creating table: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new TableException(TableValidation.CREATE_TABLE_FAILED);
+      },
+    );
+    return this.mapper.mapArray(createdTables, Table, TableResponseDto);
+  }
+
+  async validateNameTable(name: string, branch: string) {
+    const context = `${TableService.name}.${this.validateNameTable.name}`;
+    const table = await this.tableRepository.findOne({
+      where: { name, branch: { slug: branch } },
+    });
+    if (table) {
+      this.logger.warn(TableValidation.TABLE_NAME_EXIST.message, context);
+      throw new TableException(TableValidation.TABLE_NAME_EXIST);
+    }
   }
 
   /**
@@ -49,44 +117,36 @@ export class TableService {
     createTableDto: CreateTableRequestDto,
   ): Promise<TableResponseDto> {
     const context = `${TableService.name}.${this.create.name}`;
-    const branch = await this.branchRepository.findOneBy({
-      slug: createTableDto.branch,
+    const branch = await this.branchUtils.getBranch({
+      slug: createTableDto.branch || IsNull(),
     });
-    if (!branch) {
-      this.logger.warn(`Branch ${createTableDto.branch} not found`, context);
-      throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-    }
 
-    // Validate location
-    await this.validateTableLocation(createTableDto.location);
+    // Validate location if location is provided
+    if (createTableDto.location)
+      await this.validateTableLocation(createTableDto.location);
 
-    const tableData = this.mapper.map(
-      createTableDto,
-      CreateTableRequestDto,
-      Table,
-    );
-    const existedTable = await this.tableRepository.findOne({
-      where: {
-        branch: {
-          id: branch.id,
-        },
-        name: tableData.name,
+    const table = this.mapper.map(createTableDto, CreateTableRequestDto, Table);
+
+    Object.assign(table, { branch });
+
+    const createdTable = await this.transactionManagerService.execute<Table>(
+      async (manager) => {
+        return await manager.save(table);
       },
-    });
-    if (existedTable) {
-      this.logger.warn(
-        `Table name ${createTableDto.name} already exists`,
-        context,
-      );
-      throw new TableException(TableValidation.TABLE_NAME_EXIST);
-    }
+      (result) => {
+        this.logger.log(`Table ${result.name} created successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error creating table: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new TableException(TableValidation.CREATE_TABLE_FAILED);
+      },
+    );
 
-    Object.assign(tableData, { branch });
-    const table = this.tableRepository.create(tableData);
-    const createdTable = await this.tableRepository.save(table);
-    this.logger.log(`Table ${createdTable.name} created successfully`, context);
-    const tableDto = this.mapper.map(createdTable, Table, TableResponseDto);
-    return tableDto;
+    return this.mapper.map(createdTable, Table, TableResponseDto);
   }
 
   /**
@@ -150,16 +210,12 @@ export class TableService {
     updateTableDto: UpdateTableRequestDto,
   ): Promise<TableResponseDto> {
     const context = `${TableService.name}.${this.update.name}`;
-    const table = await this.tableRepository.findOne({
+    const table = await this.tableUtils.getTable({
       where: {
         slug,
       },
       relations: ['branch'],
     });
-    if (!table) {
-      this.logger.warn(`Table ${slug} not found`, context);
-      throw new TableException(TableValidation.TABLE_NOT_FOUND);
-    }
 
     const requestData = this.mapper.map(
       updateTableDto,
@@ -168,18 +224,36 @@ export class TableService {
     );
 
     // Validate location if new location is different from old location
-    if (requestData.location !== table.location)
-      await this.validateTableLocation(requestData.location);
+    if (requestData.location)
+      if (requestData.location !== table.location) {
+        // Validate location if location is provided
+        await this.validateTableLocation(requestData.location);
+      }
 
     // update table
     Object.assign(table, {
       ...requestData,
     });
-    const updatedTable = await this.tableRepository.save(table);
-    this.logger.log(`Table ${slug} updated successfully`, context);
-    const tableDto = this.mapper.map(updatedTable, Table, TableResponseDto);
 
-    return tableDto;
+    const updatedTable = await this.transactionManagerService.execute<Table>(
+      async (manager) => {
+        const updatedTable = await manager.save(table);
+        return updatedTable;
+      },
+      (result) => {
+        this.logger.log(`Table ${result.name} updated successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error updating table: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new TableException(TableValidation.UPDATE_TABLE_FAILED);
+      },
+    );
+
+    return this.mapper.map(updatedTable, Table, TableResponseDto);
   }
 
   /**
@@ -189,14 +263,26 @@ export class TableService {
    */
   async remove(slug: string): Promise<number> {
     const context = `${TableService.name}.${this.remove.name}`;
-    const table = await this.tableRepository.findOneBy({ slug });
-    if (!table) {
-      this.logger.warn(`Table ${slug} not found`, context);
-      throw new TableException(TableValidation.TABLE_NOT_FOUND);
-    }
-    const deleted = await this.tableRepository.softDelete({ slug });
-    this.logger.log(`Table ${slug} deleted successfully`, context);
-    return deleted.affected || 0;
+    const table = await this.tableUtils.getTable({ where: { slug } });
+
+    const deleted = await this.transactionManagerService.execute<Table>(
+      async (manager) => {
+        return await manager.remove(Table, table);
+      },
+      () => {
+        this.logger.log(`Table ${slug} deleted successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error deleting table: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new TableException(TableValidation.DELETE_TABLE_FAILED);
+      },
+    );
+    const effected = 1;
+    return deleted ? effected : 0;
   }
 
   private async validateTableLocation(locationId: string) {

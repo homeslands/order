@@ -1,6 +1,11 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Product } from './product.entity';
-import { DataSource, FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,7 +28,6 @@ import { Workbook, Worksheet } from 'exceljs';
 import * as _ from 'lodash';
 import * as reader from 'xlsx';
 import { Size } from 'src/size/size.entity';
-import { name } from 'ejs';
 import FileValidation from 'src/file/file.validation';
 import { FileException } from 'src/file/file.exception';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
@@ -184,6 +188,7 @@ export class ProductService {
     const product = await this.productRepository.findOneBy({
       name: createProductDto.name,
     });
+
     if (product) {
       this.logger.error(
         ProductValidation.PRODUCT_NAME_EXIST.message,
@@ -226,38 +231,48 @@ export class ProductService {
    * @param {string} catalog The catalog slug if get product by catalog
    * @returns {Promise<ProductResponseDto[]>} The products array is retrieved
    */
-  async getAllProducts(query: GetProductRequestDto): Promise<ProductResponseDto[]> {
+  async getAllProducts(
+    query: GetProductRequestDto,
+  ): Promise<ProductResponseDto[]> {
     let products = await this.productRepository.find({
       where: {
         catalog: {
           slug: query.catalog,
         },
+        isTopSell: query.isTopSell,
+        isNew: query.isNew,
       },
       relations: ['catalog', 'variants.size'],
     });
-    
-    if(query.exceptedPromotion) {
+
+    if (query.exceptedPromotion) {
       const where: FindOptionsWhere<Promotion> = {
         slug: query.exceptedPromotion,
       };
-      const promotion = await this.promotionUtils.getPromotion(
-        where,
-        ['applicablePromotions']
+      const promotion = await this.promotionUtils.getPromotion(where, [
+        'applicablePromotions',
+      ]);
+      const exceptedProductIds = promotion.applicablePromotions.map(
+        (item) => item.applicableId,
       );
-      const exceptedProductIds = promotion.applicablePromotions.map((item) => item.applicableId);
-      products = products.filter((item) => !exceptedProductIds.includes(item.id));
+      products = products.filter(
+        (item) => !exceptedProductIds.includes(item.id),
+      );
     }
 
-    if(query.expectedPromotion) {
+    if (query.expectedPromotion) {
       const where: FindOptionsWhere<Promotion> = {
         slug: query.expectedPromotion,
       };
-      const promotion = await this.promotionUtils.getPromotion(
-        where,
-        ['applicablePromotions']
+      const promotion = await this.promotionUtils.getPromotion(where, [
+        'applicablePromotions',
+      ]);
+      const expectedProductIds = promotion.applicablePromotions.map(
+        (item) => item.applicableId,
       );
-      const expectedProductIds = promotion.applicablePromotions.map((item) => item.applicableId);
-      products = products.filter((item) => expectedProductIds.includes(item.id));
+      products = products.filter((item) =>
+        expectedProductIds.includes(item.id),
+      );
     }
 
     const productsDto = this.mapper.mapArray(
@@ -304,6 +319,8 @@ export class ProductService {
       context,
     );
 
+    // product = await this.productRepository.findOneBy({ slug });
+
     const productDto = this.mapper.map(
       updatedProduct,
       Product,
@@ -348,14 +365,11 @@ export class ProductService {
     });
   }
 
-  async createManyProducts (
-    file?: Express.Multer.File
-  ) {
+  async createManyProducts(file?: Express.Multer.File) {
     const context = `${ProductService.name}.${this.createManyProducts.name}`;
     try {
       const workbook = new Workbook();
-      if (!file?.buffer)
-        throw new BadRequestException('File not found');
+      if (!file?.buffer) throw new BadRequestException('File not found');
 
       await workbook.xlsx.load(file.buffer);
 
@@ -365,23 +379,30 @@ export class ProductService {
       const worksheet = workbook.getWorksheet(1);
 
       const validationData = this.validateDataFromExcel(worksheet);
-      if(!_.isEmpty(validationData.errors)) {
-        const formattedErrors = this.convertErrorsToExcelFormat(validationData.errors);
+      if (!_.isEmpty(validationData.errors)) {
+        const formattedErrors = this.convertErrorsToExcelFormat(
+          validationData.errors,
+        );
         const ws = reader.utils.json_to_sheet(formattedErrors);
         const validationWorkbook = reader.utils.book_new();
-        reader.utils.book_append_sheet(validationWorkbook, ws, 'ValidationErrors');
+        reader.utils.book_append_sheet(
+          validationWorkbook,
+          ws,
+          'ValidationErrors',
+        );
 
-        const excelBuffer = reader.write(validationWorkbook, { type: 'buffer', bookType: 'xlsx' });
+        const excelBuffer = reader.write(validationWorkbook, {
+          type: 'buffer',
+          bookType: 'xlsx',
+        });
 
-        return { errors: true, excelBuffer};
+        return { errors: true, excelBuffer };
       }
 
       const normalizedData = this.dataStandardization(validationData.data);
-      
-      const createdCatalogsAndSizes = await this.getListCreatedCatalogsAndSizes(
-        normalizedData
-      );
 
+      const createdCatalogsAndSizes =
+        await this.getListCreatedCatalogsAndSizes(normalizedData);
 
       const queryRunner = this.dataSource.createQueryRunner();
       await queryRunner.connect();
@@ -390,74 +411,76 @@ export class ProductService {
       try {
         // code
         const createdCatalogs = await queryRunner.manager.save(
-          createdCatalogsAndSizes.setCreatedCatalogs
-        );
-        
-        const createdSizes = await queryRunner.manager.save(
-          createdCatalogsAndSizes.setCreatedSizes
+          createdCatalogsAndSizes.setCreatedCatalogs,
         );
 
-        for(const productData of normalizedData) {
+        const createdSizes = await queryRunner.manager.save(
+          createdCatalogsAndSizes.setCreatedSizes,
+        );
+
+        for (const productData of normalizedData) {
           let catalog = await this.catalogRepository.findOneBy({
-            name: productData[2]
+            name: productData[2],
           });
-          if(!catalog) {
-            catalog = createdCatalogs.find((item) => item.name === productData[2]);
+          if (!catalog) {
+            catalog = createdCatalogs.find(
+              (item) => item.name === productData[2],
+            );
           }
           const newProduct = new Product();
           Object.assign(newProduct, {
             name: productData[1],
             description: productData[3],
-            catalog
+            catalog,
           });
 
           const createdProduct = await queryRunner.manager.save(newProduct);
 
           const newVariants: Variant[] = [];
-          if(productData[6]) {
+          if (productData[6]) {
             let size = await this.sizeRepository.findOneBy({
-              name: productData[6]
+              name: productData[6],
             });
-            if(!size) {
+            if (!size) {
               size = createdSizes.find((item) => item.name === productData[6]);
             }
             const newVariant = new Variant();
             Object.assign(newVariant, {
               product: createdProduct,
               size,
-              price: productData[7]
+              price: productData[7],
             });
             newVariants.push(newVariant);
           }
 
-          if(productData[8]) {
+          if (productData[8]) {
             let size = await this.sizeRepository.findOneBy({
-              name: productData[8]
+              name: productData[8],
             });
-            if(!size) {
+            if (!size) {
               size = createdSizes.find((item) => item.name === productData[8]);
             }
             const newVariant = new Variant();
             Object.assign(newVariant, {
               product: createdProduct,
               size,
-              price: productData[9]
+              price: productData[9],
             });
             newVariants.push(newVariant);
           }
-          
-          if(productData[10]) {
+
+          if (productData[10]) {
             let size = await this.sizeRepository.findOneBy({
-              name: productData[10]
+              name: productData[10],
             });
-            if(!size) {
+            if (!size) {
               size = createdSizes.find((item) => item.name === productData[10]);
             }
             const newVariant = new Variant();
             Object.assign(newVariant, {
               product: createdProduct,
               size,
-              price: productData[11]
+              price: productData[11],
             });
             newVariants.push(newVariant);
           }
@@ -468,24 +491,26 @@ export class ProductService {
         await queryRunner.commitTransaction();
         this.logger.log(`Created ${normalizedData.length} successfully`);
         return { errors: false, countCreated: normalizedData.length };
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         await queryRunner.rollbackTransaction();
         this.logger.warn(
           ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
-          context
+          context,
         );
-        throw new ProductException(ProductValidation.CREATE_MANY_PRODUCTS_FAILED);
+        throw new ProductException(
+          ProductValidation.CREATE_MANY_PRODUCTS_FAILED,
+        );
       } finally {
         await queryRunner.release();
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new FileException(FileValidation.ERROR_WHEN_UPLOAD_FILE);
     }
   }
 
-  validateDataFromExcel(
-    worksheet: Worksheet
-  ) {
+  validateDataFromExcel(worksheet: Worksheet) {
     const context = `${ProductService.name}.${this.validateDataFromExcel.name}`;
 
     const validateDataType = {
@@ -515,8 +540,8 @@ export class ProductService {
       'Kích thước 2',
       'Giá kích thước 2',
       'Kích thước 3',
-      'Giá kích thước 3'
-    ]
+      'Giá kích thước 3',
+    ];
 
     const requiredColumns = [2, 3];
 
@@ -527,45 +552,61 @@ export class ProductService {
 
     const headerRowValues = headerRow.values;
 
-    if(JSON.stringify(headerRowValidation) !== JSON.stringify(headerRowValues)) {
+    if (
+      JSON.stringify(headerRowValidation) !== JSON.stringify(headerRowValues)
+    ) {
       this.logger.warn(FileValidation.EXCEL_FILE_WRONG_HEADER.message, context);
       throw new FileException(FileValidation.EXCEL_FILE_WRONG_HEADER);
     }
     worksheet.eachRow((row, rowNumber) => {
-      if(rowNumber > 1) {
-        if(!(row.values && Array.isArray(row.values))) {
+      if (rowNumber > 1) {
+        if (!(row.values && Array.isArray(row.values))) {
           return;
         }
-    
+
         const rowLength = row.values.length;
         // let rowErrors: { [key: string]: string } = {};
-        let rowErrors: { [key: string]: string[] } = {};
-        for(let colNumber = 1; colNumber <= rowLength; colNumber ++) {
+        const rowErrors: { [key: string]: string[] } = {};
+        for (let colNumber = 1; colNumber <= rowLength; colNumber++) {
           const expectedType = validateDataType[colNumber];
           const value = row.values[colNumber];
           const isRequired = requiredColumns.includes(colNumber);
 
-          if(isRequired) {
-            if(!value || value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+          if (isRequired) {
+            if (
+              !value ||
+              value === null ||
+              value === undefined ||
+              (typeof value === 'string' && value.trim() === '')
+            ) {
               // rowErrors.value = `${headerRowValues[colNumber]} là cột bắt buộc và không thể trống.`;
               rowErrors[colNumber] = rowErrors[colNumber] || [];
-              rowErrors[colNumber].push(`${headerRowValues[colNumber]} là cột bắt buộc và không thể trống.`);
+              rowErrors[colNumber].push(
+                `${headerRowValues[colNumber]} là cột bắt buộc và không thể trống.`,
+              );
             } else {
-              let actualType = typeof value;
+              const actualType = typeof value;
 
               if (expectedType && actualType !== expectedType) {
                 // rowErrors.value = `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`;
                 rowErrors[colNumber] = rowErrors[colNumber] || [];
-                rowErrors[colNumber].push(`Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`);
+                rowErrors[colNumber].push(
+                  `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`,
+                );
               }
             }
           } else {
-            if(value !== null && value !== undefined || (typeof value === 'string' && value.trim() === '')) {
-              let actualType = typeof value;
+            if (
+              (value !== null && value !== undefined) ||
+              (typeof value === 'string' && value.trim() === '')
+            ) {
+              const actualType = typeof value;
               if (expectedType && actualType !== expectedType) {
                 // rowErrors.value = `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`;
                 rowErrors[colNumber] = rowErrors[colNumber] || [];
-                rowErrors[colNumber].push(`Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`);
+                rowErrors[colNumber].push(
+                  `Giá trị "${value}" không thỏa mãn kiểu dữ liệu cho cột ${headerRowValues[colNumber]}. Mong đợi kiểu ${expectedType}, nhưng nhận được ${actualType}.`,
+                );
               }
             }
           }
@@ -574,32 +615,30 @@ export class ProductService {
           errors.push({ row: rowNumber, errors: rowErrors });
         }
         data.push(row.values.slice(1));
-      }          
+      }
     });
 
     return {
       errors,
-      data
+      data,
     };
   }
 
-  dataStandardization (
-    data: any[][]
-  ) {
+  dataStandardization(data: any[][]) {
     const result = [];
     data.forEach((rowData) => {
       const normalizedRowData = rowData;
       rowData.forEach((itemData, index) => {
-        if(index === 2) {
+        if (index === 2) {
           normalizedRowData[2] = itemData.toLocaleLowerCase();
         }
-        if(index === 6) {
+        if (index === 6) {
           normalizedRowData[6] = itemData.toLocaleLowerCase();
         }
-        if(index === 8) {
+        if (index === 8) {
           normalizedRowData[8] = itemData.toLocaleLowerCase();
         }
-        if(index === 10) {
+        if (index === 10) {
           normalizedRowData[10] = itemData.toLocaleLowerCase();
         }
       });
@@ -609,46 +648,44 @@ export class ProductService {
     return result;
   }
 
-  async getListCreatedCatalogsAndSizes(
-    data: any[][]
-  ) {
+  async getListCreatedCatalogsAndSizes(data: any[][]) {
     const setCatalogs = new Set<string>();
     const setCreatedCatalogs: Catalog[] = []; // need create new
     const setSizes = new Set<string>();
     const setCreatedSizes: Size[] = []; // need create new
     data.forEach((rowData) => {
       rowData.forEach((itemData, index) => {
-        if(index === 2) {
+        if (index === 2) {
           setCatalogs.add(itemData);
         }
-        if(index === 6) {
+        if (index === 6) {
           setSizes.add(itemData);
         }
-        if(index === 8) {
+        if (index === 8) {
           setSizes.add(itemData);
         }
-        if(index === 10) {
+        if (index === 10) {
           setSizes.add(itemData);
         }
       });
     });
 
-    for(const catalog of setCatalogs) {
+    for (const catalog of setCatalogs) {
       const queryCatalog = await this.catalogRepository.findOneBy({
-        name: catalog
+        name: catalog,
       });
-      
-      if(!queryCatalog) {
+
+      if (!queryCatalog) {
         const newCatalog = new Catalog();
         Object.assign(newCatalog, { name: catalog });
         setCreatedCatalogs.push(newCatalog);
-      } 
+      }
     }
-    for(const size of setSizes) {
+    for (const size of setSizes) {
       const querySize = await this.sizeRepository.findOneBy({
-        name: size
+        name: size,
       });
-      if(!querySize) {
+      if (!querySize) {
         const newSize = new Size();
         Object.assign(newSize, { name: size });
         setCreatedSizes.push(newSize);
@@ -657,25 +694,22 @@ export class ProductService {
 
     return {
       setCreatedSizes,
-      setCreatedCatalogs
-    }
+      setCreatedCatalogs,
+    };
   }
-  
+
   convertErrorsToExcelFormat(errors: ValidationError[]): any[] {
-    return errors.map(error => ({
-        row: error.row,
-        errors: Object.entries(error.errors)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join('; ')
+    return errors.map((error) => ({
+      row: error.row,
+      errors: Object.entries(error.errors)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('; '),
     }));
   }
 
-  async exportAllProducts(){
+  async exportAllProducts() {
     const products = await this.productRepository.find({
-      relations: [
-        'catalog',
-        'variants.size'
-      ]
+      relations: ['catalog', 'variants.size'],
     });
     const cellData: {
       cellPosition: string;
@@ -689,42 +723,42 @@ export class ProductService {
         {
           cellPosition: `A${rowIndex}`,
           value: (index + 1).toString(),
-          type: "data",
+          type: 'data',
         },
         {
           cellPosition: `B${rowIndex}`,
-          value: item.name || "N/A",
-          type: "data",
+          value: item.name || 'N/A',
+          type: 'data',
         },
         {
           cellPosition: `C${rowIndex}`,
-          value: item.catalog?.name || "N/A",
-          type: "data",
+          value: item.catalog?.name || 'N/A',
+          type: 'data',
         },
         {
           cellPosition: `D${rowIndex}`,
-          value: item.isLimit? 'x' : '',
-          type: "data",
+          value: item.isLimit ? 'x' : '',
+          type: 'data',
         },
         {
           cellPosition: `E${rowIndex}`,
-          value: item.description || "N/A",
-          type: "data",
+          value: item.description || 'N/A',
+          type: 'data',
         },
       );
 
       let uniCodeNameColumn = 70;
-      item.variants?.forEach((variant, index) => {
+      item.variants?.forEach((variant) => {
         cellData.push(
           {
             cellPosition: `${String.fromCharCode(uniCodeNameColumn)}${rowIndex}`,
-            value: variant.size?.name || "N/A",
-            type: "data",
+            value: variant.size?.name || 'N/A',
+            type: 'data',
           },
           {
             cellPosition: `${String.fromCharCode(uniCodeNameColumn + 1)}${rowIndex}`,
-            value: variant.price.toString() || "N/A",
-            type: "data",
+            value: variant.price.toString() || 'N/A',
+            type: 'data',
           },
         );
 
@@ -735,14 +769,12 @@ export class ProductService {
     });
 
     return this.fileService.generateExcelFile({
-      filename: "export-products.xlsx",
-      cellData
+      filename: 'export-products.xlsx',
+      cellData,
     });
   }
 
-  async getTemplateImportProducts(){
-    return this.fileService.getTemplateExcel("import-products.xlsx");
+  async getTemplateImportProducts() {
+    return this.fileService.getTemplateExcel('import-products.xlsx');
   }
 }
-
-

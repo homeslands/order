@@ -11,6 +11,7 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     // phoneNumber: z.string().min(10).max(10).regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+    email: z.string().email('Email không hợp lệ'),
     phonenumber: z.string(),
     password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),

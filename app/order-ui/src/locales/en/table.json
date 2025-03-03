@@ -1,10 +1,47 @@
 {
   "table": {
-    "title": "Table management",
-    "create": "Create table",
-    "tableName": "Table name",
+    "tableTitle": "Table Management",
+    "title": "Select Table",
+    "createdAt": "Created At",
+    "name": "Table Name",
+    "action": "Action",
+    "available": "Available Table",
+    "reserved": "Reserved Table",
+    "selected": "Selected Table",
+    "uploadBackgroundImage": "Upload Background Image",
+
+    "create": "Create Table",
+    "createMultipleTables": "Create Multiple Tables",
+    "createTableDescription": "Modify the information below to create a new table",
+    "tableName": "Table Name",
+    "enterTableName": "Enter table name",
     "branch": "Branch",
-    "update": "Update table",
-    "delete": "Delete table"
+    "location": "Location",
+    "enterLocation": "Enter location",
+    "status": "Status",
+    "xPosition": "X Position",
+    "enterXPosition": "Enter X position",
+    "yPosition": "Y Position",
+    "enterYPosition": "Enter Y position",
+    "hasLocation": "Has Location",
+    "rangeFrom": "Starting Table Number",
+    "rangeTo": "Ending Table Number",
+    "enterRangeFrom": "Enter starting table number",
+    "enterRangeTo": "Enter ending table number",
+    "step": "Step Between Table Numbers",
+    "enterStep": "Enter step between table numbers",
+    "confirmCreateMultipleTables": "Confirm Create Multiple Tables",
+
+    "update": "Update Table",
+    "updateDescription": "Modify the information below to update the table",
+    "updateStatus": "Update Table Status",
+    "currentInfo": "Current Information",
+    "willChangeStatus": "Table will change to status",
+    "confirmUpdateStatus": "Confirm Update Table Status",
+
+    "delete": "Delete Table",
+    "deleteTableWarning1": "You are about to delete table ",
+    "deleteTableConfirmation": "Are you sure you want to delete this table?",
+    "takeOutOrderAlert": "Takeaway order selected. Please switch to dine-in order before selecting a table."
   }
 }

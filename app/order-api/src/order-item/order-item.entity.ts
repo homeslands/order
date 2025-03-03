@@ -37,11 +37,9 @@ export class OrderItem extends Base {
   )
   trackingOrderItems: TrackingOrderItem[];
 
-  @ManyToOne(
-    () => Promotion, 
-    (promotion) => promotion.orderItems, 
-    { nullable: true }
-  )
+  @ManyToOne(() => Promotion, (promotion) => promotion.orderItems, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'promotion_column' })
   promotion?: Promotion;
 }

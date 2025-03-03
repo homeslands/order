@@ -16,8 +16,6 @@
 
 //     const voucherData = voucher?.result || {}
 
-//     console.log(voucherData)
-
 //     return (
 //         <div className="grid grid-cols-1 gap-2 mt-4">
 //             <span className="flex items-center gap-1 text-lg">

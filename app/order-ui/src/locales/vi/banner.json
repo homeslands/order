@@ -19,6 +19,10 @@
     "createDescription": "Tạo mới banner",
     "enterTitle": "Nhập tiêu đề",
 
+    "uploadImage": "Tải ảnh lên",
+    "uploadImageDescription": "Tải ảnh lên cho banner",
+    "addImage": "Thêm ảnh",
+
     "update": "Cập nhật",
     "confirmUpdateBanner": "Xác nhận cập nhật banner",
 

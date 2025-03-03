@@ -8,7 +8,6 @@ import { BranchUtils } from './branch.utils';
 
 describe('BranchService', () => {
   let service: BranchService;
-  let branchUtils: BranchUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,7 +30,6 @@ describe('BranchService', () => {
     }).compile();
 
     service = module.get<BranchService>(BranchService);
-    branchUtils = module.get<BranchUtils>(BranchUtils);
   });
 
   afterEach(() => {

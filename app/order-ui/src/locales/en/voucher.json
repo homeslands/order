@@ -1,5 +1,60 @@
 {
   "voucher": {
-    "title": "Voucher"
+    "voucherTitle": "Voucher Management",
+
+    "useVoucher": "Use Voucher",
+    "slug": "Slug",
+    "createdAt": "Created At",
+    "title": "Title",
+    "code": "Discount Code",
+    "maxUsage": "Usage Limit",
+    "minOrderValue": "Minimum Order Value",
+    "copyCode": "Copy Discount Code",
+    "discountValue": "Discount ",
+    "orderValue": "on order value",
+    "create": "Create Voucher",
+    "name": "Voucher Name",
+    "enterVoucherName": "Enter voucher name",
+    "description": "Description",
+    "enterVoucherDescription": "Enter voucher description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "time": "Time",
+    "type": "Voucher Type",
+    "value": "Value",
+    "enterVoucherValue": "Enter voucher value",
+    "isActive": "Activate (Voucher will be available after activation)",
+    "enterVoucherCode": "Enter discount code",
+    "term": "Minimum Condition",
+    "noTerm": "No Condition",
+    "minValue": "Minimum Value",
+    "enterMinOrderValue": "Enter minimum order value",
+    "enterMaxUsage": "Enter maximum usage limit",
+    "remainingUsage": "Remaining Quantity",
+    "activeStatus": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "bestChoice": "Best Choice",
+
+    "confirmCreateVoucher": "Confirm Voucher Creation",
+
+    "update": "Update Voucher",
+    "updateVoucherDescription": "Update voucher information",
+    "confirmUpdateVoucher": "Confirm Voucher Update",
+
+    "delete": "Delete Voucher",
+    "deleteVoucherWarning1": "You are about to delete the voucher ",
+    "deleteVoucherConfirmation": "Are you sure you want to delete this voucher?",
+
+    "list": "Voucher List",
+    "search": "Search Voucher",
+    "enterVoucher": "Enter Discount Code",
+    "apply": "Apply",
+    "use": "Use",
+    "remove": "Remove",
+    "maxApply": "Maximum Apply",
+    "complete": "Complete",
+    "minOrderNotMet": "Minimum order value not met",
+    "expired": "Voucher has expired"
   }
 }

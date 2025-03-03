@@ -1,18 +1,22 @@
 import { z } from 'zod'
 
 export const createProductSchema = z.object({
-  name: z.string().min(1, 'Tên sản phẩm không được để trống'),
+  name: z.string().min(1, 'Tên sản phẩm không được để trống').max(255, 'Tên sản phẩm không được quá 255 ký tự'),
   description: z.optional(z.string()),
   isLimit: z.boolean(),
+  isTopSell: z.boolean(),
+  isNew: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống')
 })
 
 export const updateProductSchema = z.object({
   slug: z.string().min(1, 'Slug không được để trống'),
-  name: z.string().min(1, 'Tên sản phẩm không được để trống'),
+  name: z.string().min(1, 'Tên sản phẩm không được để trống').max(255, 'Tên sản phẩm không được quá 255 ký tự'),
   description: z.optional(z.string()),
   isLimit: z.boolean(),
   isActive: z.optional(z.boolean()),
+  isTopSell: z.boolean(),
+  isNew: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống')
 })
 

@@ -1,5 +1,6 @@
 {
   "progress": {
+    "downloading": "Downloading",
     "pending": "Pending",
     "paid": "Paid",
     "shipping": "Shipping",

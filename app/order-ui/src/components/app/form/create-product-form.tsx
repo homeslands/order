@@ -20,7 +20,7 @@ import { ICreateProductRequest } from '@/types'
 import { useCreateProduct } from '@/hooks'
 import { showToast } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
-import { IsLimitSwitch } from '@/components/app/switch'
+import { IsLimitSwitch, IsNewProductSwitch, IsTopSaleSwitch, } from '@/components/app/switch'
 import { CatalogSelect } from '@/components/app/select'
 
 interface IFormCreateProductProps {
@@ -39,6 +39,8 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
       name: '',
       description: '',
       isLimit: false,
+      isTopSell: false,
+      isNew: false,
       catalog: '',
     },
   })
@@ -90,19 +92,45 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
         )}
       />
     ),
-    isLimit: (
-      <FormField
-        control={form.control}
-        name="isLimit"
-        render={({ field }) => (
-          <FormItem className="flex items-center gap-4">
-            <FormControl className="flex items-center p-0">
-              <IsLimitSwitch defaultValue={false} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    switch: (
+      <div className='flex justify-between'>
+        <FormField
+          control={form.control}
+          name="isLimit"
+          render={({ field }) => (
+            <FormItem className="flex items-center  gap-4">
+              <FormControl className="flex items-center p-0">
+                <IsLimitSwitch defaultValue={false} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isTopSell"
+          render={({ field }) => (
+            <FormItem className="flex items-center gap-4 ">
+              <FormControl className="flex items-center p-0">
+                <IsTopSaleSwitch defaultValue={false} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isNew"
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl className="flex items-center p-0">
+                <IsNewProductSwitch defaultValue={false} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     ),
     catalog: (
       <FormField

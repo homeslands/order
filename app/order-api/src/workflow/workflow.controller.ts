@@ -1,10 +1,32 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { WorkflowService } from "./workflow.service";
-import { Public } from "src/auth/public.decorator";
-import { ApiResponseWithType } from "src/app/app.decorator";
-import { CreateWorkflowRequestDto, UpdateWorkflowRequestDto, WorkflowResponseDto } from "./workflow.dto";
-import { AppResponseDto } from "src/app/app.dto";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { WorkflowService } from './workflow.service';
+import { Public } from 'src/auth/public.decorator';
+import { ApiResponseWithType } from 'src/app/app.decorator';
+import {
+  CreateWorkflowRequestDto,
+  UpdateWorkflowRequestDto,
+  WorkflowResponseDto,
+} from './workflow.dto';
+import { AppResponseDto } from 'src/app/app.dto';
 
 @Controller('workflows')
 @ApiBearerAuth()
@@ -24,10 +46,12 @@ export class WorkflowController {
   @ApiResponse({ status: 200, description: 'Create new workflow successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async createVariant(
-    @Body(new ValidationPipe({
-      transform: true,
-      whitelist: true,
-    }))
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
     requestData: CreateWorkflowRequestDto,
   ) {
     const result = await this.workflowService.addNewWorkflow(requestData);

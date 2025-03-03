@@ -5,6 +5,7 @@ import { Branch } from 'src/branch/branch.entity';
 import { Order } from 'src/order/order.entity';
 import { ForgotPasswordToken } from 'src/auth/forgot-password-token.entity';
 import { Role } from 'src/role/role.entity';
+import { VerifyEmailToken } from 'src/auth/verify-email-token.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -65,4 +66,15 @@ export class User extends Base {
   @JoinColumn({ name: 'role_column' })
   @AutoMap(() => Role)
   role: Role;
+
+  @Column({ name: 'is_verified_email_column', default: false })
+  @AutoMap()
+  isVerifiedEmail: boolean;
+
+  @Column({ name: 'is_verified_phonenumber_column', default: false })
+  @AutoMap()
+  isVerifiedPhonenumber: boolean;
+
+  @OneToMany(() => VerifyEmailToken, (token) => token.user)
+  verifyEmailTokens: VerifyEmailToken[];
 }

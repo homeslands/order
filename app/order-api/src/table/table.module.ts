@@ -8,9 +8,16 @@ import { Branch } from 'src/branch/branch.entity';
 import { RobotConnectorModule } from 'src/robot-connector/robot-connector.module';
 import { TableSubscriber } from './table.subscriber';
 import { TableUtils } from './table.utils';
+import { BranchModule } from 'src/branch/branch.module';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Table, Branch]), RobotConnectorModule],
+  imports: [
+    TypeOrmModule.forFeature([Table, Branch]),
+    RobotConnectorModule,
+    BranchModule,
+    DbModule,
+  ],
   controllers: [TableController],
   providers: [TableService, TableProfile, TableSubscriber, TableUtils],
   exports: [TableService, TableUtils],

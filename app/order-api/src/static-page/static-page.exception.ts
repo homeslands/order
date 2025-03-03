@@ -1,6 +1,6 @@
-import { HttpStatus } from "@nestjs/common";
-import { AppException } from "src/app/app.exception";
-import { TErrorCodeValue } from "src/app/app.validation";
+import { HttpStatus } from '@nestjs/common';
+import { AppException } from 'src/app/app.exception';
+import { TErrorCodeValue } from 'src/app/app.validation';
 
 export class StaticPageException extends AppException {
   constructor(

@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BranchRevenue } from './branch-revenue.entity';
 import { DataSource, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { getAllBranchRevenueClause, getCurrentBranchRevenueClause, getYesterdayBranchRevenueClause } from './branch-revenue.clause';
+import {
+  getAllBranchRevenueClause,
+  getYesterdayBranchRevenueClause,
+} from './branch-revenue.clause';
 import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { BranchRevenueQueryResponseDto } from './branch-revenue.dto';
 import { InjectMapper } from '@automapper/nestjs';
@@ -30,125 +33,130 @@ export class BranchRevenueScheduler {
     private readonly dataSource: DataSource,
     private readonly branchRevenueService: BranchRevenueService,
     private readonly transactionManagerService: TransactionManagerService,
-    
   ) {}
 
   @Timeout(5000)
-    async initBranchRevenue() {
-      const context = `${BranchRevenueScheduler.name}.${this.initBranchRevenue.name}`;
-      const hasBranchRevenue = await this.branchRevenueRepository.find();
-  
-      if (!_.isEmpty(hasBranchRevenue)) {
-        this.logger.error(`Branch revenue already exists`, null, context);
-        return;
-      }
-  
-      // handle the date have not payment
-      const results: BranchRevenueQueryResponseDto[] =
-        await this.branchRevenueRepository.query(getAllBranchRevenueClause);
-  
-        // console.log({results})
-      const branchRevenues = results.map((item) => {
-        return this.mapper.map(item, BranchRevenueQueryResponseDto, BranchRevenue);
-      });
-      // console.log({branchRevenues})
+  async initBranchRevenue() {
+    const context = `${BranchRevenueScheduler.name}.${this.initBranchRevenue.name}`;
+    const hasBranchRevenue = await this.branchRevenueRepository.find();
 
-      const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
-      // console.log({groupedDatasByBranch})
-      
-      let revenuesFillZero: BranchRevenue[] = [];
-      for(const groupedDataByBranch of groupedDatasByBranch) {
-        // console.log({groupedDataByBranch})
-        const revenueFillZero: BranchRevenue[] = this.fillZeroForEmptyDate(groupedDataByBranch)
-        revenuesFillZero = revenuesFillZero.concat(revenueFillZero);
-      }
-      // console.log({revenuesFillZero});
+    if (!_.isEmpty(hasBranchRevenue)) {
+      this.logger.error(`Branch revenue already exists`, null, context);
+      return;
+    }
 
-      this.transactionManagerService.execute(
-        async (manager) => {
-          await manager.save(revenuesFillZero);
-        },
-        () =>
-          this.logger.log(
-            `${revenuesFillZero.length} Branch revenues initialized successfully`,
-            context,
-          ),
-        (error) => {
-          this.logger.error(
-            `An error occurred while initializing branch revenues: ${JSON.stringify(error)}`,
-            error.stack,
-            context,
-          );
-          throw new BranchRevenueException(
-            BranchRevenueValidation.CREATE_BRANCH_REVENUE_ERROR,
-            error.message,
-          );
-        },
+    // handle the date have not payment
+    const results: BranchRevenueQueryResponseDto[] =
+      await this.branchRevenueRepository.query(getAllBranchRevenueClause);
+
+    // console.log({results})
+    const branchRevenues = results.map((item) => {
+      return this.mapper.map(
+        item,
+        BranchRevenueQueryResponseDto,
+        BranchRevenue,
       );
-    }
+    });
 
-    groupRevenueByBranch(
-      branchRevenues: BranchRevenue[]
-    ): BranchRevenue[][] {
-      const groupedData = branchRevenues.reduce((acc, item) => {
-        const branchGroup = acc.find(group => group.branchId === item.branchId);
-        if (branchGroup) {
-          branchGroup.items.push(item);
-        } else {
-          acc.push({ branchId: item.branchId, items: [item] });
-        }
-        return acc;
-      }, []);
-      
-      const result = groupedData.map(group => group.items);
-      return result;
-    }
-  
-    fillZeroForEmptyDate(branchRevenues: BranchRevenue[]): BranchRevenue[] {
-      if(_.isEmpty(branchRevenues)) return;
-  
-      // if only have data in current date
-      if(branchRevenues.length === 1 
-        && _.last(branchRevenues).date.getTime() === (new Date()).setHours(7, 0, 0, 0)) return;
+    const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
+    // console.log({groupedDatasByBranch})
 
-      const firstBranchRevenue = _.first(branchRevenues);
-  
-      const firstRevenue = _.first(branchRevenues);
-      const firstDate = new Date(firstRevenue.date);
-      const lastDate = new Date();
-      lastDate.setDate(lastDate.getDate() - 1);
-      lastDate.setHours(30, 59, 59, 999);
-  
-      const datesInRange: Date[] = [];
-      let currentDate = new Date(firstDate);
-  
-      while (currentDate <= lastDate) {
-        datesInRange.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
+    let revenuesFillZero: BranchRevenue[] = [];
+    for (const groupedDataByBranch of groupedDatasByBranch) {
+      // console.log({groupedDataByBranch})
+      const revenueFillZero: BranchRevenue[] =
+        this.fillZeroForEmptyDate(groupedDataByBranch);
+      revenuesFillZero = revenuesFillZero.concat(revenueFillZero);
+    }
+    // console.log({revenuesFillZero});
+
+    this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(revenuesFillZero);
+      },
+      () =>
+        this.logger.log(
+          `${revenuesFillZero.length} Branch revenues initialized successfully`,
+          context,
+        ),
+      (error) => {
+        this.logger.error(
+          `An error occurred while initializing branch revenues: ${JSON.stringify(error)}`,
+          error.stack,
+          context,
+        );
+        throw new BranchRevenueException(
+          BranchRevenueValidation.CREATE_BRANCH_REVENUE_ERROR,
+          error.message,
+        );
+      },
+    );
+  }
+
+  groupRevenueByBranch(branchRevenues: BranchRevenue[]): BranchRevenue[][] {
+    const groupedData = branchRevenues.reduce((acc, item) => {
+      const branchGroup = acc.find((group) => group.branchId === item.branchId);
+      if (branchGroup) {
+        branchGroup.items.push(item);
+      } else {
+        acc.push({ branchId: item.branchId, items: [item] });
       }
-  
-      const results: BranchRevenue[] = [];
-  
-      datesInRange.forEach(dateFull => {
-        const matchingDate = 
-          branchRevenues.find(item => item.date.getTime() === dateFull.getTime());
-  
-        if (matchingDate) {
-          results.push(matchingDate);
-        } else {
-          const revenue = new BranchRevenue();
-          Object.assign(revenue, {
-            totalAmount: 0,
-            totalOrder: 0,
-            date: dateFull,
-            branchId: firstBranchRevenue.branchId
-          });
-          results.push(revenue);
-        }
-      });
-  
-      return results;
+      return acc;
+    }, []);
+
+    const result = groupedData.map((group) => group.items);
+    return result;
+  }
+
+  fillZeroForEmptyDate(branchRevenues: BranchRevenue[]): BranchRevenue[] {
+    if (_.isEmpty(branchRevenues)) return;
+
+    // if only have data in current date
+    if (
+      branchRevenues.length === 1 &&
+      _.last(branchRevenues).date.getTime() === new Date().setHours(7, 0, 0, 0)
+    )
+      return;
+
+    const firstBranchRevenue = _.first(branchRevenues);
+
+    const firstRevenue = _.first(branchRevenues);
+    const firstDate = new Date(firstRevenue.date);
+    const lastDate = new Date();
+    lastDate.setDate(lastDate.getDate() - 1);
+    lastDate.setHours(30, 59, 59, 999);
+
+    const datesInRange: Date[] = [];
+    const currentDate = new Date(firstDate);
+
+    while (currentDate <= lastDate) {
+      datesInRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
+
+    const results: BranchRevenue[] = [];
+
+    datesInRange.forEach((dateFull) => {
+      const matchingDate = branchRevenues.find(
+        (item) => item.date.getTime() === dateFull.getTime(),
+      );
+
+      if (matchingDate) {
+        results.push(matchingDate);
+      } else {
+        const revenue = new BranchRevenue();
+        Object.assign(revenue, {
+          totalAmount: 0,
+          totalOrder: 0,
+          date: dateFull,
+          branchId: firstBranchRevenue.branchId,
+        });
+        results.push(revenue);
+      }
+    });
+
+    return results;
+  }
 
   // @Cron(CronExpression.EVERY_DAY_AT_1PM)
   // @Timeout(5000)
@@ -157,35 +165,38 @@ export class BranchRevenueScheduler {
 
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7,0,0,0);
+    yesterdayDate.setHours(7, 0, 0, 0);
 
     // console.log({yesterdayDate})
 
     const hasBranchRevenues = await this.branchRevenueRepository.find({
-      where: { 
-        date: yesterdayDate
-      }
+      where: {
+        date: yesterdayDate,
+      },
     });
     // console.log({hasBranchRevenues})
     const branches = await this.branchRepository.find();
     // console.log({branches})
-    if(_.size(hasBranchRevenues) >= _.size(branches)) {
-      this.logger.log(`Branch revenue for ${yesterdayDate} already exists`, context);
+    if (_.size(hasBranchRevenues) >= _.size(branches)) {
+      this.logger.log(
+        `Branch revenue for ${yesterdayDate} already exists`,
+        context,
+      );
       return;
     }
-    
+
     // const branchIdsFromBranchRevenues = _.map(hasBranchRevenues, 'branchId');
-    const branchIdsFromBranchRevenues = hasBranchRevenues.map((item) => item.branchId);
+    const branchIdsFromBranchRevenues = hasBranchRevenues.map(
+      (item) => item.branchId,
+    );
     const branchesDoNotExistBranchRevenues = branches.filter(
-      (item) => !_.includes(branchIdsFromBranchRevenues, item.id)
+      (item) => !_.includes(branchIdsFromBranchRevenues, item.id),
     );
 
     // console.log({branchesDoNotExistBranchRevenues});
 
-    const results: BranchRevenueQueryResponseDto[] = 
-      await this.branchRevenueRepository.query(
-        getYesterdayBranchRevenueClause,
-      );
+    const results: BranchRevenueQueryResponseDto[] =
+      await this.branchRevenueRepository.query(getYesterdayBranchRevenueClause);
     // console.log({results})
 
     const branchRevenueQueryResponseDtos = plainToInstance(
@@ -206,7 +217,7 @@ export class BranchRevenueScheduler {
     const newBranchRevenues: BranchRevenue[] = this.getBranchRevenuesToCreate(
       branchesDoNotExistBranchRevenues,
       revenues,
-      yesterdayDate
+      yesterdayDate,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -239,15 +250,14 @@ export class BranchRevenueScheduler {
   getBranchRevenuesToCreate(
     branchesDoNotExistBranchRevenues: Branch[],
     revenues: BranchRevenue[],
-    yesterdayDate: Date
+    yesterdayDate: Date,
   ): BranchRevenue[] {
     const newBranchRevenues: BranchRevenue[] = [];
 
-    branchesDoNotExistBranchRevenues.forEach(branch => {
-      const matchRevenue = 
-        revenues.find(item => item.branchId === branch.id);
+    branchesDoNotExistBranchRevenues.forEach((branch) => {
+      const matchRevenue = revenues.find((item) => item.branchId === branch.id);
 
-      if(matchRevenue) {
+      if (matchRevenue) {
         newBranchRevenues.push(matchRevenue);
       } else {
         const revenue = new BranchRevenue();
@@ -255,7 +265,7 @@ export class BranchRevenueScheduler {
           totalAmount: 0,
           totalOrder: 0,
           date: yesterdayDate,
-          branchId: branch.id
+          branchId: branch.id,
         });
         newBranchRevenues.push(revenue);
       }
@@ -272,33 +282,32 @@ export class BranchRevenueScheduler {
 
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7,0,0,0);
+    yesterdayDate.setHours(7, 0, 0, 0);
 
     // console.log({yesterdayDate})
 
     const hasBranchRevenues = await this.branchRevenueRepository.find({
-      where: { 
-        date: yesterdayDate
-      }
+      where: {
+        date: yesterdayDate,
+      },
     });
     // console.log({hasBranchRevenues})
     const branches = await this.branchRepository.find();
     // console.log({branches})
-    if(_.size(hasBranchRevenues) > _.size(branches)) {
+    if (_.size(hasBranchRevenues) > _.size(branches)) {
       this.logger.error(
-        BranchRevenueValidation.MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE.message,
+        BranchRevenueValidation
+          .MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE.message,
         null,
-        context
+        context,
       );
       throw new BranchRevenueException(
-        BranchRevenueValidation.MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE
+        BranchRevenueValidation.MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE,
       );
     }
-    
-    const results: BranchRevenueQueryResponseDto[] = 
-      await this.branchRevenueRepository.query(
-        getYesterdayBranchRevenueClause,
-      );
+
+    const results: BranchRevenueQueryResponseDto[] =
+      await this.branchRevenueRepository.query(getYesterdayBranchRevenueClause);
     // console.log({results})
 
     const branchRevenueQueryResponseDtos = plainToInstance(
@@ -316,11 +325,11 @@ export class BranchRevenueScheduler {
     });
     // console.log({revenues})
 
-    const newBranchRevenues: BranchRevenue[] = 
+    const newBranchRevenues: BranchRevenue[] =
       await this.branchRevenueService.getBranchRevenueDataToCreateAndUpdate(
         hasBranchRevenues,
         revenues,
-        yesterdayDate
+        yesterdayDate,
       );
 
     // console.log({newBranchRevenues})
@@ -352,5 +361,3 @@ export class BranchRevenueScheduler {
     }
   }
 }
-
-

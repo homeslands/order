@@ -4,11 +4,7 @@ import { Payment } from '../payment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import {
-  PaymentAction,
-  PaymentMethod,
-  PaymentStatus,
-} from '../payment.constants';
+import { PaymentMethod, PaymentStatus } from '../payment.constants';
 import { Order } from 'src/order/order.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter2 } from '@nestjs/event-emitter';

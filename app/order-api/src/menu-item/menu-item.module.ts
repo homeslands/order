@@ -15,7 +15,14 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MenuItem, Menu, Product, Catalog, Promotion, ApplicablePromotion]),
+    TypeOrmModule.forFeature([
+      MenuItem,
+      Menu,
+      Product,
+      Catalog,
+      Promotion,
+      ApplicablePromotion,
+    ]),
     MenuModule,
   ],
   controllers: [MenuItemController],

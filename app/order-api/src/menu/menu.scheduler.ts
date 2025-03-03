@@ -1,17 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
-import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
+import { Repository } from 'typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import * as _ from 'lodash';
 import { getDayIndex } from 'src/helper';
 import { Branch } from 'src/branch/branch.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import moment from 'moment';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
-import { Product } from 'src/product/product.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
-import { ApplicablePromotionType } from 'src/applicable-promotion/applicable-promotion.constant';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 
@@ -19,11 +17,11 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
 export class MenuScheduler {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-    @InjectRepository(Menu) 
+    @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
-    @InjectRepository(Promotion) 
+    @InjectRepository(Promotion)
     private readonly promotionRepository: Repository<Promotion>,
-    @InjectRepository(ApplicablePromotion) 
+    @InjectRepository(ApplicablePromotion)
     private readonly applicablePromotionRepository: Repository<ApplicablePromotion>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
@@ -59,7 +57,7 @@ export class MenuScheduler {
 
     const date = new Date();
     date.setHours(7, 0, 0, 0);
-    
+
     const newMenus = await Promise.all(
       filteredMenus.map(async (menu) => {
         const newMenu = _.cloneDeep(menu);
@@ -74,11 +72,11 @@ export class MenuScheduler {
           branch: menu.branch,
           menuItems: await Promise.all(
             menu.menuItems.map(async (item: MenuItem) => {
-              const promotion: Promotion = 
+              const promotion: Promotion =
                 await this.promotionUtils.getPromotionByProductAndBranch(
                   date,
                   menu.branch.id,
-                  item.product.id
+                  item.product.id,
                 );
               const newItem = _.cloneDeep(item);
               newItem.id = undefined;
@@ -91,11 +89,11 @@ export class MenuScheduler {
               newItem.product = newItem.product;
               return newItem;
             }),
-          )
+          ),
         });
         return newMenu;
-      })
-    )
+      }),
+    );
 
     this.menuRepository.manager.transaction(async (manager) => {
       try {

@@ -53,10 +53,7 @@ export class OrderItemController {
     @Body(new ValidationPipe({ transform: true }))
     requestData: UpdateOrderItemRequestDto,
   ) {
-    const result = await this.orderItemService.updateOrderItem(
-      slug,
-      requestData,
-    );
+    await this.orderItemService.updateOrderItem(slug, requestData);
   }
 
   @Delete(':slug')

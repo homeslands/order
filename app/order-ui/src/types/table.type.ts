@@ -42,19 +42,21 @@ export interface TableLayoutProps {
 export interface ICreateTableRequest {
   name: string
   branch: string // Branch slug
-  location: string
+  location?: string
   status: TableStatus
-  // isEmpty: boolean
-  xPosition?: number
-  yPosition?: number
+}
+
+export interface ICreateMultipleTablesRequest {
+  branch: string // Branch slug
+  from: number
+  to: number
+  step: number
 }
 
 export interface IUpdateTableRequest {
   slug: string
   name: string
-  location: string
-  xPosition?: number
-  yPosition?: number
+  location?: string
 }
 
 export interface IUpdateTableStatusRequest {

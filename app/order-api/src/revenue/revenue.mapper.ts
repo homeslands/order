@@ -7,7 +7,11 @@ import {
   Mapper,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { AggregateRevenueResponseDto, RevenueQueryResponseDto, RevenueResponseDto } from './revenue.dto';
+import {
+  AggregateRevenueResponseDto,
+  RevenueQueryResponseDto,
+  RevenueResponseDto,
+} from './revenue.dto';
 import { Revenue } from './revenue.entity';
 import { baseMapper } from 'src/app/base.mapper';
 import moment from 'moment';
@@ -50,11 +54,7 @@ export class RevenueProfile extends AutomapperProfile {
         extend(baseMapper(mapper)),
       );
 
-      createMap(
-        mapper,
-        Revenue,
-        AggregateRevenueResponseDto,
-      );
+      createMap(mapper, Revenue, AggregateRevenueResponseDto);
 
       createMap(
         mapper,

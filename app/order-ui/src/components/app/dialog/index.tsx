@@ -1,4 +1,5 @@
 export { default as LogoutDialog } from './logout-dialog'
+export { default as SendVerifyEmailDialog } from './send-verify-email-dialog'
 
 export { default as NestedDialogs } from './nested-dialog'
 
@@ -44,6 +45,7 @@ export { default as UpdateBranchDialog } from './update-branch-dialog'
 export { default as DeleteBranchDialog } from './delete-branch-dialog'
 
 export { default as CreateTableDialog } from './create-table-dialog'
+export { default as CreateMultipleTablesDialog } from './confirm-create-multiple-tables-dialog'
 export { default as UpdateTableDialog } from './update-table-dialog'
 export { default as DeleteTableDialog } from './delete-table-dialog'
 
@@ -100,5 +102,7 @@ export { default as RemoveAppliedPromotionDialog } from './confirm-remove-applie
 export { default as ConfirmApplyPromotionDialog } from './confirm-apply-promotion-dialog'
 
 export { default as CreateBannerDialog } from './create-banner-dialog'
+export { default as UploadBannerBannerDialog } from './upload-banner-image-dialog'
+export { default as UpdateTableStatusDialog } from './update-table-status-dialog'
 export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'

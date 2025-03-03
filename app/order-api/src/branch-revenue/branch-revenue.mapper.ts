@@ -54,11 +54,7 @@ export class BranchRevenueProfile extends AutomapperProfile {
         extend(baseMapper(mapper)),
       );
 
-      createMap(
-        mapper,
-        BranchRevenue,
-        AggregateBranchRevenueResponseDto,
-      );
+      createMap(mapper, BranchRevenue, AggregateBranchRevenueResponseDto);
 
       createMap(
         mapper,

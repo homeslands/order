@@ -112,7 +112,7 @@ export class FileService {
     cellData: { cellPosition: string; value: string; type: string }[];
   }): Promise<FileResponseDto> {
     // Read file
-    const templatePath = path.resolve("public/templates/excel", filename);
+    const templatePath = path.resolve('public/templates/excel', filename);
     const workbook = new Workbook();
     await workbook.xlsx.readFile(templatePath);
 
@@ -122,16 +122,16 @@ export class FileService {
     const worksheet = workbook.worksheets[0];
 
     for (const item of cellData) {
-      if (item.type === "data") {
+      if (item.type === 'data') {
         worksheet.getCell(item.cellPosition).value = item.value;
-      } else if (item.type === "image") {
+      } else if (item.type === 'image') {
         const imageUrl = item.value;
         const response = await fetch(imageUrl);
         const buffer = await response.arrayBuffer();
 
         const image = workbook.addImage({
           buffer: buffer,
-          extension: "jpeg",
+          extension: 'jpeg',
         });
 
         const tl = this.extractPosition(item.cellPosition);
@@ -139,7 +139,7 @@ export class FileService {
           worksheet.addImage(image, {
             tl: { col: 0, row: 0 },
             ext: { width: 120, height: 80 }, // Set desired width and height
-            editAs: "oneCell", // Optional: can be "oneCell" or "absolute"
+            editAs: 'oneCell', // Optional: can be "oneCell" or "absolute"
           });
         }
       }
@@ -148,12 +148,12 @@ export class FileService {
     const buffer = await workbook.xlsx.writeBuffer();
     const nodeBuffer: Buffer = Buffer.from(buffer);
 
-    return { 
+    return {
       name: generateFileName(Extension.EXCEL),
       extension: Extension.EXCEL,
       mimetype: Extension.EXCEL,
       data: nodeBuffer,
-      size: nodeBuffer.length
+      size: nodeBuffer.length,
     };
   }
 
@@ -174,15 +174,13 @@ export class FileService {
   private columnToNumber(column: string) {
     let number = 0;
     for (let i = 0; i < column.length; i++) {
-      number = number * 26 + (column.charCodeAt(i) - "A".charCodeAt(0) + 1);
+      number = number * 26 + (column.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
     }
     return number;
   }
 
-  async getTemplateExcel(
-    filename: string
-  ): Promise<FileResponseDto> {
-    const templatePath = path.resolve("public/templates/excel", filename);
+  async getTemplateExcel(filename: string): Promise<FileResponseDto> {
+    const templatePath = path.resolve('public/templates/excel', filename);
     const workbook = new Workbook();
     await workbook.xlsx.readFile(templatePath);
 

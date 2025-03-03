@@ -1,12 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { RobotConnectorClient } from './robot-connector.client';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { RobotResponseDto } from './robot-connector.dto';
-import { pipe } from 'rxjs';
-import { RobotConnectorException } from './robot-connector.exception';
-import { RobotConnectorValidation } from './robot-connector.validation';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';

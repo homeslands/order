@@ -1,8 +1,5 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { Tracking } from "src/tracking/tracking.entity";
-import { Repository } from "typeorm";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class RobotConnectorService {

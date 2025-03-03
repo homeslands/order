@@ -6,6 +6,7 @@ import {
   IUpdateTableRequest,
   IUpdateTableStatusRequest,
   ITableLocation,
+  ICreateMultipleTablesRequest,
 } from '@/types'
 
 export async function getAllTables(
@@ -24,6 +25,13 @@ export async function createTable(
     '/tables',
     data,
   )
+  return response.data
+}
+
+export async function createMultipleTables(
+  data: ICreateMultipleTablesRequest,
+): Promise<IApiResponse<ITable>> {
+  const response = await http.post<IApiResponse<ITable>>('/tables/bulk', data)
   return response.data
 }
 

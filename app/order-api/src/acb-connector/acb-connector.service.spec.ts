@@ -8,11 +8,12 @@ import {
   repositoryMockFactory,
 } from 'src/test-utils/repository-mock.factory';
 import { ACBConnectorConfig } from './acb-connector.entity';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 describe('ACBConnectorService', () => {
   let service: ACBConnectorService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let acbConfigRepositoryMock: MockType<Repository<ACBConnectorConfig>>;
 
   beforeEach(async () => {

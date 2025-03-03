@@ -1,5 +1,5 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 import {
   INVALID_FIRSTNAME,
   INVALID_LASTNAME,
@@ -91,6 +91,30 @@ export class ForgotPasswordRequestDto {
   @AutoMap()
   @IsString()
   newPassword: string;
+}
+
+export class EmailVerificationRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  email: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  accessToken: string;
+}
+
+export class ConFirmEmailVerificationRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  email: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  token: string;
 }
 
 export class UpdateAuthProfileRequestDto {

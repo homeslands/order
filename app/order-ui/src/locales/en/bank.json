@@ -1,7 +1,9 @@
 {
   "bank": {
     "title": "Bank management",
-    "bankName": "Bank name",
+    "qrCodeTitle": "Scan QR Code",
+    "qrCodeTitleDescription": "Scan the QR code to make an instant payment",
+
     "create": "Create bank link",
     "createBankConnectorDescription": "Fill in the information to create a new bank link",
     "xProviderId": "Provider ID",
@@ -15,8 +17,10 @@
     "beneficiaryName": "Beneficiary name",
     "beneficiaryNamePlaceholder": "Enter beneficiary name",
     "virtualAccountPrefix": "Virtual account prefix",
+
     "update": "Edit bank link",
     "updateBankDescription": "Change the information to update the bank link",
+
     "delete": "Delete bank link",
     "deleteContent": "Are you sure you want to delete the bank link "
   }

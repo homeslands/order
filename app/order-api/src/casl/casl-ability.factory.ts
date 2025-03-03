@@ -15,7 +15,9 @@ export type AppAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createForUser(user: User) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { can, cannot, build } = new AbilityBuilder<
       Ability<[Action, Subjects]>
     >(Ability as AbilityClass<AppAbility>);

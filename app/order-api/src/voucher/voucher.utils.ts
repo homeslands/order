@@ -68,6 +68,7 @@ export class VoucherUtils {
           },
         },
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {}
 
     if (order) {

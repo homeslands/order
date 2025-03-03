@@ -13,9 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IBanner } from '@/types'
-import { DeleteBannerDialog } from '@/components/app/dialog'
-
-import { ROUTE } from '@/constants'
+import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
 
 export const useBannerColumns = (): ColumnDef<IBanner>[] => {
   const { t } = useTranslation(['banner'])
@@ -89,14 +87,14 @@ export const useBannerColumns = (): ColumnDef<IBanner>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink to={`${ROUTE.ADMIN_BANNER}/${banner.slug}`}>
+                <NavLink to={`${banner.slug}`}>
                   <Button variant="ghost" className="flex justify-start gap-1 px-2">
                     <SquareMousePointer className='icon' />
                     {tCommon('common.viewAndEdit')}
                   </Button>
                 </NavLink>
+                <UploadBannerBannerDialog banner={banner} />
                 <DeleteBannerDialog banner={banner} />
-                {/* <DeleteBranchDialog branch={branch} /> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

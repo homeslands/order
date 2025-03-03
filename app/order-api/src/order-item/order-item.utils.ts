@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderItem } from './order-item.entity';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
 import { Promotion } from 'src/promotion/promotion.entity';
@@ -24,14 +24,12 @@ export class OrderItemUtils {
     return orderItem;
   }
 
-  calculateSubTotal(
-    orderItem: OrderItem,
-    promotion?: Promotion
-  ) {
+  calculateSubTotal(orderItem: OrderItem, promotion?: Promotion) {
     let discount = 0;
-    if(promotion) {
+    if (promotion) {
       const percentPromotion = promotion.value;
-      discount = (orderItem.quantity * orderItem.variant.price * percentPromotion)/100;
+      discount =
+        (orderItem.quantity * orderItem.variant.price * percentPromotion) / 100;
     }
     const subtotal = orderItem.quantity * orderItem.variant.price;
     return subtotal - discount;

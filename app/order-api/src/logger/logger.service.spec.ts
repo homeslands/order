@@ -13,6 +13,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 describe('LoggerService', () => {
   let service: LoggerService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let loggerRepositoryMock: MockType<Repository<Logger>>;
 
   beforeEach(async () => {

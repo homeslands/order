@@ -7,6 +7,8 @@ export interface IProduct {
   description: string
   isActive: boolean
   isLimit: boolean
+  isTopSell: boolean
+  isNew: boolean
   image: string
   images: string[]
   rating: number
@@ -15,6 +17,14 @@ export interface IProduct {
   slug: string
   note?: string
   createdAt: string
+}
+
+export interface IProductRequest {
+  exceptedPromotion?: string
+  catalog?: string
+  expectedPromotion?: string
+  isTopSell?: boolean
+  isNew?: boolean
 }
 
 export interface ITopProduct {
@@ -31,6 +41,7 @@ export interface IBranchTopProduct {
   product: IProduct
   totalQuantity: number
 }
+
 
 // export interface ICartItem {
 //   name: string
@@ -61,6 +72,8 @@ export interface ICreateProductRequest {
   name: string
   description?: string
   isLimit: boolean
+  isTopSell: boolean
+  isNew: boolean
   catalog: string
 }
 
@@ -69,6 +82,8 @@ export interface IUpdateProductRequest {
   name: string
   description?: string
   isLimit: boolean
+  isTopSell: boolean
+  isNew: boolean
   isActive?: boolean
   catalog: string
 }

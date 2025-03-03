@@ -5,7 +5,6 @@ import {
   forMember,
   mapFrom,
   Mapper,
-  mapWith,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { File } from './file.entity';

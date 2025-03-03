@@ -1,7 +1,6 @@
 import {
   Banknote,
   Bolt,
-  BookText,
   ChartColumn,
   ClipboardList,
   CookingPot,
@@ -103,7 +102,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
   },
   {
     title: 'sidebar.config',
-    path: ROUTE.ADMIN_CONFIG,
+    path: ROUTE.STAFF_CONFIG,
     roles: [Role.ADMIN, Role.SUPER_ADMIN],
     icon: Bolt,
   },
@@ -127,26 +126,26 @@ export const sidebarRoutes: ISidebarRoute[] = [
   },
   {
     title: 'sidebar.voucher',
-    path: ROUTE.ADMIN_VOUCHER,
+    path: ROUTE.STAFF_VOUCHER,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Ticket,
   },
   {
     title: 'sidebar.promotion',
-    path: ROUTE.ADMIN_PROMOTION,
+    path: ROUTE.STAFF_PROMOTION,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Tag,
   },
   {
     title: 'sidebar.banner',
-    path: ROUTE.ADMIN_BANNER,
+    path: ROUTE.STAFF_BANNER,
     roles: [Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
     icon: Newspaper,
   },
-  {
-    title: 'sidebar.docs',
-    path: ROUTE.DOCS,
-    roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
-    icon: BookText,
-  },
+  // {
+  //   title: 'sidebar.docs',
+  //   path: ROUTE.DOCS,
+  //   roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
+  //   icon: BookText,
+  // },
 ]

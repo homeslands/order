@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Mapper } from '@automapper/core';
 import { MockType } from './repository-mock.factory';
 

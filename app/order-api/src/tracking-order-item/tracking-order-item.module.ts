@@ -6,9 +6,7 @@ import { TrackingOrderItem } from './tracking-order-item.entity';
 import { TrackingOrderItemProfile } from './tracking-order-item.mapper';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    TrackingOrderItem, 
-  ])],
+  imports: [TypeOrmModule.forFeature([TrackingOrderItem])],
   controllers: [TrackingOrderItemController],
   providers: [TrackingOrderItemService, TrackingOrderItemProfile],
 })

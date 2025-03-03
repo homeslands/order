@@ -13,7 +13,6 @@ import { Mapper } from '@automapper/core';
 import {
   AggregateBranchRevenueResponseDto,
   BranchRevenueQueryResponseDto,
-  BranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
 } from './branch-revenue.dto';
@@ -21,7 +20,10 @@ import { Branch } from 'src/branch/branch.entity';
 import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import * as _ from 'lodash';
-import { getCurrentBranchRevenueClause, getSpecificRangeBranchRevenueClause } from './branch-revenue.clause';
+import {
+  getCurrentBranchRevenueClause,
+  getSpecificRangeBranchRevenueClause,
+} from './branch-revenue.clause';
 import { plainToInstance } from 'class-transformer';
 import { BranchRevenueException } from './branch-revenue.exception';
 import { BranchRevenueValidation } from './branch-revenue.validation';
@@ -44,8 +46,8 @@ export class BranchRevenueService {
   ) {}
 
   async findAll(
-    branchSlug: string, 
-    query: GetBranchRevenueQueryDto
+    branchSlug: string,
+    query: GetBranchRevenueQueryDto,
   ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
     const findOptionsWhere: FindOptionsWhere<BranchRevenue> = {};
@@ -86,30 +88,30 @@ export class BranchRevenueService {
         this.logger.error(`Start date is not provided`, null, context);
         throw new BadRequestException(`Start date must be provided`);
       }
-      
+
       switch (query.type) {
         case 'day':
           findOptionsWhere.date = Between(
-            moment(startDate).startOf('days').add(7, 'hours').toDate(), 
-            moment(endDate).endOf('days').add(7, 'hours').toDate()
+            moment(startDate).startOf('days').add(7, 'hours').toDate(),
+            moment(endDate).endOf('days').add(7, 'hours').toDate(),
           );
           break;
         case 'month':
           findOptionsWhere.date = Between(
-            moment(startDate).startOf('months').add(7, 'hours').toDate(), 
-            moment(endDate).endOf('months').add(7, 'hours').toDate()
+            moment(startDate).startOf('months').add(7, 'hours').toDate(),
+            moment(endDate).endOf('months').add(7, 'hours').toDate(),
           );
           break;
         case 'year':
           findOptionsWhere.date = Between(
-            moment(startDate).startOf('years').add(7, 'hours').toDate(), 
-            moment(endDate).endOf('years').add(7, 'hours').toDate()
+            moment(startDate).startOf('years').add(7, 'hours').toDate(),
+            moment(endDate).endOf('years').add(7, 'hours').toDate(),
           );
           break;
         default:
           findOptionsWhere.date = Between(
-            moment(startDate).startOf('days').add(7, 'hours').toDate(), 
-            moment(endDate).endOf('days').add(7, 'hours').toDate()
+            moment(startDate).startOf('days').add(7, 'hours').toDate(),
+            moment(endDate).endOf('days').add(7, 'hours').toDate(),
           );
           break;
       }
@@ -127,7 +129,7 @@ export class BranchRevenueService {
     //   BranchRevenue,
     //   BranchRevenueResponseDto,
     // );
-    return this.queryBranchRevenueCases(query.type ,revenues);
+    return this.queryBranchRevenueCases(query.type, revenues);
   }
 
   queryBranchRevenueCases(type: string, branchRevenues: BranchRevenue[]) {
@@ -143,55 +145,69 @@ export class BranchRevenueService {
     }
   }
 
-  private aggregateByDay(branchRevenues: BranchRevenue[]): AggregateBranchRevenueResponseDto[] {
-    return this.mapper.mapArray(branchRevenues, BranchRevenue, AggregateBranchRevenueResponseDto);
+  private aggregateByDay(
+    branchRevenues: BranchRevenue[],
+  ): AggregateBranchRevenueResponseDto[] {
+    return this.mapper.mapArray(
+      branchRevenues,
+      BranchRevenue,
+      AggregateBranchRevenueResponseDto,
+    );
   }
 
-  private aggregateByMonth(branchRevenues: BranchRevenue[]): AggregateBranchRevenueResponseDto[] {
-    const result = branchRevenues.reduce((acc, item) => {
-      const date = moment(item.date).startOf('months').add(7, 'hours');
-      let index = date.toISOString();
-      if (!acc[index]) {
-        acc[index] = { 
-          date: date.toDate(), 
-          totalAmount: 0, 
-          totalOrder: 0, 
-        };
-      }
-      acc[index].totalAmount += item.totalAmount;
-      acc[index].totalOrder += item.totalOrder;
-      return acc;
-    }, {} as Record<string, AggregateBranchRevenueResponseDto>);
+  private aggregateByMonth(
+    branchRevenues: BranchRevenue[],
+  ): AggregateBranchRevenueResponseDto[] {
+    const result = branchRevenues.reduce(
+      (acc, item) => {
+        const date = moment(item.date).startOf('months').add(7, 'hours');
+        const index = date.toISOString();
+        if (!acc[index]) {
+          acc[index] = {
+            date: date.toDate(),
+            totalAmount: 0,
+            totalOrder: 0,
+          };
+        }
+        acc[index].totalAmount += item.totalAmount;
+        acc[index].totalOrder += item.totalOrder;
+        return acc;
+      },
+      {} as Record<string, AggregateBranchRevenueResponseDto>,
+    );
 
-    const data = Object.values(result)
+    const data = Object.values(result);
     return this.mapper.mapArray(
-      data, 
-      AggregateBranchRevenueResponseDto, 
-      AggregateBranchRevenueResponseDto
+      data,
+      AggregateBranchRevenueResponseDto,
+      AggregateBranchRevenueResponseDto,
     );
   }
 
   private aggregateByYear(branchRevenues: BranchRevenue[]) {
-    const result = branchRevenues.reduce((acc, item) => {
-      const date = moment(item.date).startOf('years').add(7, 'hours');
-      let index = date.toISOString();
-      if (!acc[index]) {
-        acc[index] = { 
-          date: date.toDate(), 
-          totalAmount: 0, 
-          totalOrder: 0,
-        };
-      }
-      acc[index].totalAmount += item.totalAmount;
-      acc[index].totalOrder += item.totalOrder;
-      return acc;
-    }, {} as Record<string, AggregateBranchRevenueResponseDto>);
+    const result = branchRevenues.reduce(
+      (acc, item) => {
+        const date = moment(item.date).startOf('years').add(7, 'hours');
+        const index = date.toISOString();
+        if (!acc[index]) {
+          acc[index] = {
+            date: date.toDate(),
+            totalAmount: 0,
+            totalOrder: 0,
+          };
+        }
+        acc[index].totalAmount += item.totalAmount;
+        acc[index].totalOrder += item.totalOrder;
+        return acc;
+      },
+      {} as Record<string, AggregateBranchRevenueResponseDto>,
+    );
 
     const data = Object.values(result);
     return this.mapper.mapArray(
-      data, 
-      AggregateBranchRevenueResponseDto, 
-      AggregateBranchRevenueResponseDto
+      data,
+      AggregateBranchRevenueResponseDto,
+      AggregateBranchRevenueResponseDto,
     );
   }
 
@@ -201,19 +217,17 @@ export class BranchRevenueService {
     this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
     const currentDate = new Date();
-    currentDate.setHours(7,0,0,0);
+    currentDate.setHours(7, 0, 0, 0);
 
     const hasBranchRevenues = await this.branchRevenueRepository.find({
-      where: { 
-        date: currentDate
-      }
+      where: {
+        date: currentDate,
+      },
     });
     // console.log({hasBranchRevenues});
-    const results: BranchRevenueQueryResponseDto[] = 
-      await this.branchRevenueRepository.query(
-        getCurrentBranchRevenueClause
-      );
-  
+    const results: BranchRevenueQueryResponseDto[] =
+      await this.branchRevenueRepository.query(getCurrentBranchRevenueClause);
+
     const branchRevenueQueryResponseDtos = plainToInstance(
       BranchRevenueQueryResponseDto,
       results,
@@ -227,12 +241,12 @@ export class BranchRevenueService {
       );
     });
     // console.log({revenues})
-    
-    const newBranchRevenues: BranchRevenue[] = 
+
+    const newBranchRevenues: BranchRevenue[] =
       await this.getBranchRevenueDataToCreateAndUpdate(
         hasBranchRevenues,
         revenues,
-        currentDate
+        currentDate,
       );
 
     // console.log({newBranchRevenues})
@@ -265,41 +279,44 @@ export class BranchRevenueService {
   }
 
   async getBranchRevenueDataToCreateAndUpdate(
-    hasBranchRevenues: BranchRevenue[], // existed 
+    hasBranchRevenues: BranchRevenue[], // existed
     revenues: BranchRevenue[], // new
-    date: Date
+    date: Date,
   ): Promise<BranchRevenue[]> {
     const newBranchRevenues: BranchRevenue[] = [];
     const branches = await this.branchRepository.find();
     // console.log({branches})
-    branches.forEach(branch => {
-      const existedBranchRevenue = 
-        hasBranchRevenues.find(item => item.branchId === branch.id);
+    branches.forEach((branch) => {
+      const existedBranchRevenue = hasBranchRevenues.find(
+        (item) => item.branchId === branch.id,
+      );
 
-      if(existedBranchRevenue) {
+      if (existedBranchRevenue) {
         // already exist in db in this current date
 
         // exist in
-        const existedInNewData = revenues.find(revenue => 
-          revenue.branchId === branch.id);
-        
-        if(existedInNewData) {
-          if(
+        const existedInNewData = revenues.find(
+          (revenue) => revenue.branchId === branch.id,
+        );
+
+        if (existedInNewData) {
+          if (
             existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
             existedInNewData.totalOrder !== existedBranchRevenue.totalOrder
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
           }
-        }  
+        }
       } else {
         // do not exist in db
 
         // find in new data
-        const existedInNewData = revenues.find(revenue => 
-          revenue.branchId === branch.id);
-        
-        if(existedInNewData) {
+        const existedInNewData = revenues.find(
+          (revenue) => revenue.branchId === branch.id,
+        );
+
+        if (existedInNewData) {
           newBranchRevenues.push(existedInNewData);
         } else {
           // do not find in new data
@@ -308,7 +325,7 @@ export class BranchRevenueService {
             totalAmount: 0,
             totalOrder: 0,
             date,
-            branchId: branch.id
+            branchId: branch.id,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -323,54 +340,62 @@ export class BranchRevenueService {
     const currentMoment = moment();
     const currentHour = currentMoment.hour();
 
-    if(currentHour >= 0 && currentHour <= 2) {
+    if (currentHour >= 0 && currentHour <= 2) {
       this.logger.error(
-        BranchRevenueValidation.CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H.message,
+        BranchRevenueValidation
+          .CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H.message,
         null,
-        context
+        context,
       );
       throw new BranchRevenueException(
-        BranchRevenueValidation.CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H      
-      )
+        BranchRevenueValidation.CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H,
+      );
     }
   }
 
   async refreshBranchRevenueForSpecificDay(
-    query: RefreshSpecificRangeBranchRevenueQueryDto
+    query: RefreshSpecificRangeBranchRevenueQueryDto,
   ) {
     const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
 
     this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
-    if(query.startDate.getTime() > query.endDate.getTime()) {
+    if (query.startDate.getTime() > query.endDate.getTime()) {
       this.logger.warn(
-        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE.message,
-        context
+        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
+          .message,
+        context,
       );
       throw new BranchRevenueException(
-        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
+        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
       );
     }
 
-    const startQuery = moment(query.startDate).format("YYYY-MM-DD");
-    const endQuery = moment(query.endDate).add(1, 'days').format("YYYY-MM-DD");
-    
+    const startQuery = moment(query.startDate).format('YYYY-MM-DD');
+    const endQuery = moment(query.endDate).add(1, 'days').format('YYYY-MM-DD');
+
     const startDate = new Date(query.startDate);
-    startDate.setHours(7,0,0,0);
+    startDate.setHours(7, 0, 0, 0);
     const endDate = new Date(query.endDate);
-    endDate.setHours(30,59,59,99);
+    endDate.setHours(30, 59, 59, 99);
 
     const params = [startQuery, endQuery];
     const results: BranchRevenueQueryResponseDto[] =
-      await this.branchRevenueRepository.query(getSpecificRangeBranchRevenueClause, params);
+      await this.branchRevenueRepository.query(
+        getSpecificRangeBranchRevenueClause,
+        params,
+      );
 
     const branchRevenues = results.map((item) => {
-      return this.mapper.map(item, BranchRevenueQueryResponseDto, BranchRevenue);
+      return this.mapper.map(
+        item,
+        BranchRevenueQueryResponseDto,
+        BranchRevenue,
+      );
     });
 
-    const groupedDatasByBranch = 
-      this.groupRevenueByBranch(branchRevenues);
-    
+    const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
+
     const branches = await this.branchRepository.find();
 
     let createAndUpdateBranchRevenues: BranchRevenue[] = [];
@@ -379,28 +404,28 @@ export class BranchRevenueService {
       const hasBranchRevenues = await this.branchRevenueRepository.find({
         where: {
           branchId: branch.id,
-          date: Between(startDate, endDate)
+          date: Between(startDate, endDate),
         },
       });
 
       const branchRevenue = groupedDatasByBranch.find(
-        groupedData => groupedData.branchId === branch.id
+        (groupedData) => groupedData.branchId === branch.id,
       );
 
       let branchRevenueFillZero: BranchRevenue[] = [];
-      if(branchRevenue) {
+      if (branchRevenue) {
         branchRevenueFillZero = this.fillZeroForEmptyDate(
           branch.id,
           branchRevenue.items,
           startDate,
-          endDate
+          endDate,
         );
       } else {
         branchRevenueFillZero = this.fillZeroForEmptyDate(
           branch.id,
           [],
           startDate,
-          endDate
+          endDate,
         );
       }
 
@@ -409,14 +434,15 @@ export class BranchRevenueService {
       //   console.log({branchRevenue: branchRevenue.items[1]})
       // }
 
-      const createAndUpdateBranchRevenue: BranchRevenue[] = 
+      const createAndUpdateBranchRevenue: BranchRevenue[] =
         this.getCreateAndUpdateRevenuesInRangeDays(
           hasBranchRevenues,
           branchRevenueFillZero,
         );
-      createAndUpdateBranchRevenues = 
-        createAndUpdateBranchRevenues.concat(createAndUpdateBranchRevenue);
-    };
+      createAndUpdateBranchRevenues = createAndUpdateBranchRevenues.concat(
+        createAndUpdateBranchRevenue,
+      );
+    }
 
     this.transactionManagerService.execute(
       async (manager) => {
@@ -424,8 +450,8 @@ export class BranchRevenueService {
       },
       () =>
         this.logger.log(
-          `${createAndUpdateBranchRevenues.length} branch revenues from ${moment(query.startDate).format("YYYY-MM-DD")} 
-            to ${moment(query.endDate).format("YYYY-MM-DD")} updated successfully`,
+          `${createAndUpdateBranchRevenues.length} branch revenues from ${moment(query.startDate).format('YYYY-MM-DD')} 
+            to ${moment(query.endDate).format('YYYY-MM-DD')} updated successfully`,
           context,
         ),
       (error) => {
@@ -446,10 +472,10 @@ export class BranchRevenueService {
     branchId: string,
     revenues: BranchRevenue[],
     firstDate: Date,
-    lastDate: Date
+    lastDate: Date,
   ): BranchRevenue[] {
     const datesInRange: Date[] = [];
-    let currentDate = new Date(firstDate);
+    const currentDate = new Date(firstDate);
 
     while (currentDate <= lastDate) {
       datesInRange.push(new Date(currentDate));
@@ -458,9 +484,9 @@ export class BranchRevenueService {
 
     const results: BranchRevenue[] = [];
 
-    datesInRange.forEach(dateFull => {
+    datesInRange.forEach((dateFull) => {
       const matchingElement = revenues.find(
-        item => item.date.getTime() === dateFull.getTime()
+        (item) => item.date.getTime() === dateFull.getTime(),
       );
 
       if (matchingElement) {
@@ -471,7 +497,7 @@ export class BranchRevenueService {
           totalAmount: 0,
           totalOrder: 0,
           date: dateFull,
-          branchId
+          branchId,
         });
         results.push(revenue);
       }
@@ -480,14 +506,12 @@ export class BranchRevenueService {
     return results;
   }
 
-  groupRevenueByBranch(
-    branchRevenues: BranchRevenue[]
-  ): {
+  groupRevenueByBranch(branchRevenues: BranchRevenue[]): {
     branchId: string;
-    items: BranchRevenue[]
+    items: BranchRevenue[];
   }[] {
     const groupedData = branchRevenues.reduce((acc, item) => {
-      const branchGroup = acc.find(group => group.branchId === item.branchId);
+      const branchGroup = acc.find((group) => group.branchId === item.branchId);
       if (branchGroup) {
         branchGroup.items.push(item);
       } else {
@@ -499,7 +523,7 @@ export class BranchRevenueService {
     return groupedData;
     // console.log({groupedData})
     // console.log({groupedData: groupedData[0].items[0]})
-    
+
     // const result = groupedData.map(group => group.items);
     // return result;
   }
@@ -508,15 +532,16 @@ export class BranchRevenueService {
     hasBranchRevenues: BranchRevenue[], // existed
     branchRevenues: BranchRevenue[], // new, have all revenues in range time
   ): BranchRevenue[] {
-    if(_.isEmpty(hasBranchRevenues)) return branchRevenues;
+    if (_.isEmpty(hasBranchRevenues)) return branchRevenues;
 
     const createAndUpdateBranchRevenues: BranchRevenue[] = [];
-    branchRevenues.forEach(newBranchRevenue => {
-      const existedBranchRevenue = 
-        hasBranchRevenues.find(item => item.date.getTime() === newBranchRevenue.date.getTime());
+    branchRevenues.forEach((newBranchRevenue) => {
+      const existedBranchRevenue = hasBranchRevenues.find(
+        (item) => item.date.getTime() === newBranchRevenue.date.getTime(),
+      );
 
-      if(existedBranchRevenue) {
-        if(
+      if (existedBranchRevenue) {
+        if (
           existedBranchRevenue.totalAmount !== newBranchRevenue.totalAmount ||
           existedBranchRevenue.totalOrder !== newBranchRevenue.totalOrder
         ) {

@@ -5,7 +5,6 @@ import { ProductActionOptions } from './DataTable/actions'
 
 export default function ProductTab() {
   const { data: products, isLoading } = useProducts()
-
   return (
     <div className="w-full">
       <DataTable

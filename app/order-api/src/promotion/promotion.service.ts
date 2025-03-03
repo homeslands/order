@@ -1,21 +1,24 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Promotion } from "./promotion.entity";
-import { DataSource, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
-import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { CreatePromotionRequestDto, PromotionResponseDto, UpdatePromotionRequestDto } from "./promotion.dto";
-import { Branch } from "src/branch/branch.entity";
-import { BranchException } from "src/branch/branch.exception";
-import { BranchValidation } from "src/branch/branch.validation";
-import { PromotionException } from "./promotion.exception";
-import { PromotionValidation } from "./promotion.validation";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Promotion } from './promotion.entity';
+import { DataSource, Repository } from 'typeorm';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import {
+  CreatePromotionRequestDto,
+  PromotionResponseDto,
+  UpdatePromotionRequestDto,
+} from './promotion.dto';
+import { Branch } from 'src/branch/branch.entity';
+import { BranchException } from 'src/branch/branch.exception';
+import { BranchValidation } from 'src/branch/branch.validation';
+import { PromotionException } from './promotion.exception';
+import { PromotionValidation } from './promotion.validation';
 import * as _ from 'lodash';
-import { MenuItem } from "src/menu-item/menu-item.entity";
-import { ApplicablePromotion } from "src/applicable-promotion/applicable-promotion.entity";
-import { ApplicablePromotionService } from "src/applicable-promotion/applicable-promotion.service";
-import moment from "moment";
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { ApplicablePromotionService } from 'src/applicable-promotion/applicable-promotion.service';
 
 @Injectable()
 export class PromotionService {
@@ -34,7 +37,7 @@ export class PromotionService {
 
   async createPromotion(
     branchSlug: string,
-    createPromotionRequestDto: CreatePromotionRequestDto
+    createPromotionRequestDto: CreatePromotionRequestDto,
   ): Promise<PromotionResponseDto> {
     const context = `${PromotionService.name}.${this.createPromotion.name}`;
 
@@ -47,24 +50,25 @@ export class PromotionService {
     const today = new Date();
     today.setHours(7, 0, 0, 0);
 
-    if( promotionData.startDate.getTime() > promotionData.endDate.getTime() ) {
+    if (promotionData.startDate.getTime() > promotionData.endDate.getTime()) {
       this.logger.warn(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME.message,
-        context
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME
+          .message,
+        context,
       );
       throw new PromotionException(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME,
       );
     }
 
-    if( promotionData.endDate.getTime() < today.getTime()) {
+    if (promotionData.endDate.getTime() < today.getTime()) {
       this.logger.warn(
         PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY.message,
-        context
+        context,
       );
       throw new PromotionException(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY
-      )
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY,
+      );
     }
 
     const branch = await this.branchRepository.findOneBy({ slug: branchSlug });
@@ -79,12 +83,12 @@ export class PromotionService {
 
     this.logger.log(
       `Promotion ${createdPromotion.id} created successfully`,
-      context
+      context,
     );
     const promotionDto = this.mapper.map(
       createdPromotion,
       Promotion,
-      PromotionResponseDto
+      PromotionResponseDto,
     );
     return promotionDto;
   }
@@ -99,15 +103,15 @@ export class PromotionService {
     }
 
     const promotions = await this.promotionRepository.find({
-      where: { 
-        branch: { slug: branchSlug } 
+      where: {
+        branch: { slug: branchSlug },
       },
     });
 
     const promotionDtos = this.mapper.mapArray(
       promotions,
       Promotion,
-      PromotionResponseDto
+      PromotionResponseDto,
     );
 
     return promotionDtos;
@@ -115,7 +119,7 @@ export class PromotionService {
 
   async updatePromotion(
     slug: string,
-    updatePromotionRequestDto: UpdatePromotionRequestDto
+    updatePromotionRequestDto: UpdatePromotionRequestDto,
   ): Promise<PromotionResponseDto> {
     const context = `${PromotionService.name}.${this.updatePromotion.name}`;
 
@@ -129,86 +133,93 @@ export class PromotionService {
     const updateEndDate = updatePromotionData.endDate.getTime();
     const date = new Date();
     date.setHours(7, 0, 0, 0);
-    const today = date.getTime()
+    const today = date.getTime();
 
-    if(updateStartDate > updateEndDate) {
+    if (updateStartDate > updateEndDate) {
       this.logger.warn(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME.message,
-        context
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME
+          .message,
+        context,
       );
       throw new PromotionException(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME,
       );
     }
 
-    if( updateEndDate < today ) {
+    if (updateEndDate < today) {
       this.logger.warn(
         PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY.message,
-        context
+        context,
       );
       throw new PromotionException(
-        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY
-      )
+        PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY,
+      );
     }
 
     const promotion = await this.promotionRepository.findOne({
       where: { slug },
-      relations: ['applicablePromotions', 'branch']
+      relations: ['applicablePromotions', 'branch'],
     });
 
-    if(!promotion) {
-      this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
+    if (!promotion) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_NOT_FOUND.message,
+        context,
+      );
       throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
     }
-    
-    const branch = await this.branchRepository.findOneBy({ slug: updatePromotionRequestDto.branch });
+
+    const branch = await this.branchRepository.findOneBy({
+      slug: updatePromotionRequestDto.branch,
+    });
     if (!branch) {
       this.logger.warn(BranchValidation.BRANCH_NOT_FOUND.message, context);
       throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
     }
 
-    if(!_.isEmpty(promotion.applicablePromotions)) {
-      if(promotion.branch.id !== branch.id) {
+    if (!_.isEmpty(promotion.applicablePromotions)) {
+      if (promotion.branch.id !== branch.id) {
         this.logger.warn(
-          PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_BRANCH.message, 
-          context
-        );
-        throw new PromotionException(
           PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_BRANCH
-        );
-      }
-
-      if(updateStartDate !== (new Date(promotion.startDate)).getTime()) {
-        this.logger.warn(
-          PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_START_TIME.message,
-          context
+            .message,
+          context,
         );
         throw new PromotionException(
-          PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_START_TIME
+          PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_BRANCH,
         );
       }
 
-      if(
-        updateEndDate !== (new Date(promotion.endDate)).getTime()
-      ) {
-        if(updateEndDate < today) {
+      if (updateStartDate !== new Date(promotion.startDate).getTime()) {
+        this.logger.warn(
+          PromotionValidation
+            .PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_START_TIME.message,
+          context,
+        );
+        throw new PromotionException(
+          PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_START_TIME,
+        );
+      }
+
+      if (updateEndDate !== new Date(promotion.endDate).getTime()) {
+        if (updateEndDate < today) {
           this.logger.warn(
             PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY.message,
-            context
+            context,
           );
           throw new PromotionException(
-            PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY
+            PromotionValidation.END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY,
           );
         }
 
         // promotion expired, can not update time
-        if((new Date(promotion.endDate)).getTime() < today) {
+        if (new Date(promotion.endDate).getTime() < today) {
           this.logger.warn(
-            PromotionValidation.PROMOTION_ALREADY_EXPIRED_CAN_NOT_UPDATE_TIME.message,
-            context
+            PromotionValidation.PROMOTION_ALREADY_EXPIRED_CAN_NOT_UPDATE_TIME
+              .message,
+            context,
           );
           throw new PromotionException(
-            PromotionValidation.PROMOTION_ALREADY_EXPIRED_CAN_NOT_UPDATE_TIME
+            PromotionValidation.PROMOTION_ALREADY_EXPIRED_CAN_NOT_UPDATE_TIME,
           );
         }
       }
@@ -223,29 +234,25 @@ export class PromotionService {
     await queryRunner.startTransaction();
 
     try {
-      if(updatePromotionRequestDto.value !== oldPromotionValue) {
+      if (updatePromotionRequestDto.value !== oldPromotionValue) {
         const date = new Date();
         date.setHours(7, 0, 0, 0);
-        const updateValue = updatePromotionRequestDto.value;
         const updatedMenuItems = this.getAllMenuItemsByPromotion(
           date,
           promotion,
         );
 
         await queryRunner.manager.save(updatedMenuItems);
-      };
+      }
       const updatedPromotion = await queryRunner.manager.save(promotion);
-      
+
       await queryRunner.commitTransaction();
-      this.logger.log(
-        `Promotion updated successfully`,
-        context,
-      );
+      this.logger.log(`Promotion updated successfully`, context);
 
       const promotionDto = this.mapper.map(
         updatedPromotion,
         Promotion,
-        PromotionResponseDto
+        PromotionResponseDto,
       );
 
       return promotionDto;
@@ -257,7 +264,7 @@ export class PromotionService {
         context,
       );
       throw new PromotionException(
-        PromotionValidation.ERROR_WHEN_UPDATE_PROMOTION
+        PromotionValidation.ERROR_WHEN_UPDATE_PROMOTION,
       );
     } finally {
       await queryRunner.release();
@@ -269,38 +276,50 @@ export class PromotionService {
 
     const promotion = await this.promotionRepository.findOne({
       where: { slug },
-      relations: [
-        'applicablePromotions',
-        'branch',
-        'orderItems',
-        'menuItems'
-      ]
-     });
+      relations: ['applicablePromotions', 'branch', 'orderItems', 'menuItems'],
+    });
 
-    if(!promotion) {
-      this.logger.warn(PromotionValidation.PROMOTION_NOT_FOUND.message, context);
+    if (!promotion) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_NOT_FOUND.message,
+        context,
+      );
       throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
     }
 
-    if(!_.isEmpty(promotion.applicablePromotions)) {
-      this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
-      throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
+    if (!_.isEmpty(promotion.applicablePromotions)) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message,
+        context,
+      );
+      throw new PromotionException(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE,
+      );
     }
-    if(!_.isEmpty(promotion.orderItems)) {
-      this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
-      throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
+    if (!_.isEmpty(promotion.orderItems)) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message,
+        context,
+      );
+      throw new PromotionException(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE,
+      );
     }
-    if(!_.isEmpty(promotion.menuItems)) {
-      this.logger.warn(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message, context);
-      throw new PromotionException(PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE);
+    if (!_.isEmpty(promotion.menuItems)) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE.message,
+        context,
+      );
+      throw new PromotionException(
+        PromotionValidation.PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE,
+      );
     }
 
-    const deleted = await this.promotionRepository.softDelete({ id: promotion.id });
+    const deleted = await this.promotionRepository.softDelete({
+      id: promotion.id,
+    });
 
-    this.logger.log(
-      `Promotion ${promotion.id} deleted successfully`,
-      context
-    );
+    this.logger.log(`Promotion ${promotion.id} deleted successfully`, context);
     return deleted.affected;
   }
 
@@ -311,32 +330,33 @@ export class PromotionService {
     const context = `${PromotionService.name}.${this.getAllMenuItemsByPromotion.name}`;
 
     try {
-      const applicablePromotions = await this.applicablePromotionRepository.find({
-        where: { 
-          promotion: { id: promotion.id } 
-        },
-      });
-    
-      if(_.isEmpty(applicablePromotions)) return [];
+      const applicablePromotions =
+        await this.applicablePromotionRepository.find({
+          where: {
+            promotion: { id: promotion.id },
+          },
+        });
+
+      if (_.isEmpty(applicablePromotions)) return [];
       const menuItems = await Promise.all(
         applicablePromotions.map(async (applicablePromotion) => {
           return await this.applicablePromotionService.getMenuItemByApplicablePromotion(
             date,
             promotion.branch.id,
             applicablePromotion.applicableId,
-            promotion
+            promotion,
           );
-        })
+        }),
       );
       return menuItems.filter(Boolean); // remove falsy value
     } catch (error) {
       this.logger.error(
         `Error when get menu items by promotion: ${error.message}`,
         error.stack,
-        context
+        context,
       );
       throw new PromotionException(
-        PromotionValidation.ERROR_WHEN_GET_MENU_ITEM_BY_PROMOTION
+        PromotionValidation.ERROR_WHEN_GET_MENU_ITEM_BY_PROMOTION,
       );
     }
   }

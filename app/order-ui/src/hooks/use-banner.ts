@@ -6,6 +6,7 @@ import {
   getBanners,
   getSpecificBanner,
   updateBanner,
+  uploadBannerImage,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
 import { ICreateBannerRequest, IUpdateBannerRequest } from '@/types'
@@ -36,6 +37,14 @@ export const useUpdateBanner = () => {
   return useMutation({
     mutationFn: async (data: IUpdateBannerRequest) => {
       return updateBanner(data)
+    },
+  })
+}
+
+export const useUploadBannerImage = () => {
+  return useMutation({
+    mutationFn: async ({ slug, file }: { slug: string; file: File }) => {
+      return uploadBannerImage(slug, file)
     },
   })
 }

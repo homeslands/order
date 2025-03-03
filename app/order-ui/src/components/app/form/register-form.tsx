@@ -31,6 +31,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      email: '',
       phonenumber: '',
       password: '',
       confirmPassword: '',
@@ -44,6 +45,21 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   }
 
   const formFields = {
+    email: (
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('login.email')}</FormLabel>
+            <FormControl>
+              <Input placeholder={t('login.enterEmail')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     phonenumber: (
       <FormField
         control={form.control}
@@ -131,14 +147,14 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
     <div className="mt-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 gap-2 text-white">
+          <div className="grid grid-cols-1 gap-2 text-white sm:grid-cols-2">
             {Object.keys(formFields).map((key) => (
               <React.Fragment key={key}>
                 {formFields[key as keyof typeof formFields]}
               </React.Fragment>
             ))}
           </div>
-          <Button type="submit" className="mt-5 w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full mt-5" disabled={isLoading}>
             {isLoading ? <ButtonLoading /> : t('register.title')}
           </Button>
         </form>

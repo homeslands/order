@@ -225,8 +225,15 @@ export default function UpdateVoucherSheet({
                 <Input
                   type="number"
                   {...field}
+                  onChange={(e) => {
+                    const displayValue = Number(e.target.value)
+                    if (displayValue >= 0 && displayValue <= 100) {
+                      field.onChange(displayValue)
+                    }
+                  }}
+                  min={0}
+                  max={100}
                   placeholder={t('voucher.enterVoucherValue')}
-                  className="pr-8" // Tạo khoảng trống bên phải cho ký hiệu %
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   %

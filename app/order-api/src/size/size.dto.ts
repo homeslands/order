@@ -5,7 +5,7 @@ import { BaseResponseDto } from 'src/app/base.dto';
 
 export class CreateSizeRequestDto {
   @AutoMap()
-  @ApiProperty({ description: 'The name of size', example: 's'})
+  @ApiProperty({ description: 'The name of size', example: 's' })
   @IsNotEmpty({ message: 'Size name is required' })
   name: string;
 
@@ -20,7 +20,7 @@ export class CreateSizeRequestDto {
 
 export class UpdateSizeRequestDto {
   @AutoMap()
-  @ApiProperty({ description: 'The name of size', example: 's'})
+  @ApiProperty({ description: 'The name of size', example: 's' })
   @IsNotEmpty({ message: 'Size name is required' })
   name: string;
 

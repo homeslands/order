@@ -3,10 +3,10 @@ export enum OrderStatus {
   PAID = 'paid',
   CANCEL = 'cancel',
   SHIPPING = 'shipping',
-  COMPLETED = 'completed'
-};
+  COMPLETED = 'completed',
+}
 
 export enum OrderType {
   TAKE_OUT = 'take-out',
-  AT_TABLE = 'at-table'
-};
+  AT_TABLE = 'at-table',
+}

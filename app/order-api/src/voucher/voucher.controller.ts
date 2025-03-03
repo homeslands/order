@@ -66,7 +66,8 @@ export class VoucherController {
     isArray: true,
   })
   async findAll(
-    @Query(new ValidationPipe({ transform: true })) options: GetAllVoucherDto,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    options: GetAllVoucherDto,
   ) {
     const result = await this.voucherService.findAll(options);
     return {

@@ -1,4 +1,4 @@
-import { Mapper, createMap, typeConverter, Mapping } from "@automapper/core";
+import { Mapper, createMap, typeConverter, Mapping } from '@automapper/core';
 import { BaseResponseDto } from './base.dto';
 import { Base } from './base.entity';
 
@@ -7,7 +7,7 @@ export const baseMapper = (mapper: Mapper): Mapping<Base, BaseResponseDto> => {
     mapper,
     Base,
     BaseResponseDto,
-    typeConverter(Date, String, (createdAt) => (createdAt).toString()),
-    typeConverter(Date, String, (updatedAt) => (updatedAt).toString())
+    typeConverter(Date, String, (createdAt) => createdAt.toString()),
+    typeConverter(Date, String, (updatedAt) => updatedAt.toString()),
   );
 };

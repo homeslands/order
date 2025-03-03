@@ -3,16 +3,32 @@
     "search": "Search",
     "add": "Add",
     "edit": "Edit",
+    "viewAndEdit": "View and edit",
     "delete": "Delete",
     "deleteNote": "Note: This action cannot be undone!",
     "save": "Save",
     "cancel": "Cancel",
+    "close": "Close",
     "back": "Back",
+    "viewDetail": "View details",
+    "confirm": "Confirm",
     "confirmDelete": "I understand, confirm delete",
+    "confirmCancel": "I understand, confirm cancel",
 
     "noData": "No data",
+    "action": "Action",
+    "createOrder": "Create order",
+    "understand": "I understand",
+    "warning": "Warning",
 
-    "action": "Action"
+    "refresh": "Refresh",
+    "pageNotFound": "Page not found",
+    "pageNotFoundDescription": "The page you are looking for does not exist or has been removed",
+    "goHome": "Go to homepage",
+    "goBack": "Go back to the previous page",
+
+    "oops": "Oops!",
+    "somethingWentWrong": "Something went wrong"
   },
   "dataTable": {
     "rowsPerPage": "Rows per page",
@@ -21,21 +37,36 @@
     "rows": "rows",
     "noData": "No data",
     "page": "Page",
+    "previous": "Previous",
+    "next": "Next",
+    "search": "Search",
+    "selected": "Selected",
+    "asc": "Ascending",
+    "desc": "Descending",
+    "hide": "Hide",
 
     "filter": "Filter",
     "all": "All",
     "info": "Info",
     "warn": "Warn",
     "error": "Error",
-    "debug": "Debug"
+    "debug": "Debug",
+    "isTemplate": "Menu template",
+    "noTemplate": "Not a menu template"
   },
   "dayOfWeek": {
+    "selectTimeRange": "Select time range",
+    "day": "Day",
+    "month": "Month",
+    "year": "Year",
+
     "0": "Monday",
     "1": "Tuesday",
     "2": "Wednesday",
     "3": "Thursday",
     "4": "Friday",
     "5": "Saturday",
-    "6": "Sunday"
+    "6": "Sunday",
+    "noDayOfWeek": "None"
   }
 }

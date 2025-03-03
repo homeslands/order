@@ -24,12 +24,10 @@ export class ACBConnectorClient {
   ) {}
 
   async getAuthAcbApiUrl() {
-    const context = `${ACBConnectorClient.name}.${this.getAuthAcbApiUrl.name}`;
     return await this.systemConfigService.get(SystemConfigKey.AUTH_ACB_API_URL);
   }
 
   async getAcbApiUrl() {
-    const context = `${ACBConnectorClient.name}.${this.getAcbApiUrl.name}`;
     return await this.systemConfigService.get(SystemConfigKey.ACB_API_URL);
   }
 

@@ -134,9 +134,13 @@ export function ClientPaymentPage() {
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
           <CircleX className="w-32 h-32 text-destructive" />
-          <p className="text-center text-muted-foreground">Đơn hàng đã hết hạn thanh toán</p>
+          <p className="text-center text-muted-foreground">
+            {t('paymentMethod.timeExpired')}
+          </p>
           <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button variant="default">Quay lại trang thực đơn</Button>
+            <Button variant="default">
+              {t('order.backToMenu')}
+            </Button>
           </NavLink>
         </div>
       </div>

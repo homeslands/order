@@ -4,14 +4,26 @@ import { SquareMenu } from 'lucide-react'
 
 import { DataTable, ScrollArea } from '@/components/ui'
 import { useOrderBySlug, useOrders, usePagination } from '@/hooks'
-import { useOrderStore, useOrderTrackingStore, useSelectedOrderStore, useUserStore } from '@/stores'
+import {
+  useOrderStore,
+  useOrderTrackingStore,
+  useSelectedOrderStore,
+  useUserStore,
+} from '@/stores'
 import { IOrder, OrderStatus } from '@/types'
 import { usePendingOrdersColumns } from './DataTable/columns'
 import { OrderItemDetailSheet } from '@/components/app/sheet'
 
 export default function OrderManagementPage() {
   const { t } = useTranslation(['menu'])
-  const { setOrderSlug, setIsSheetOpen, setSelectedRow, isSheetOpen, orderSlug, selectedRow } = useSelectedOrderStore()
+  const {
+    setOrderSlug,
+    setIsSheetOpen,
+    setSelectedRow,
+    isSheetOpen,
+    orderSlug,
+    selectedRow,
+  } = useSelectedOrderStore()
   const { userInfo } = useUserStore()
   const { addOrder } = useOrderStore()
   const { clearSelectedItems } = useOrderTrackingStore()
@@ -26,7 +38,7 @@ export default function OrderManagementPage() {
     hasPaging: true,
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    ownerSlug: userInfo?.slug,
+    owner: userInfo?.slug,
     order: 'DESC',
     branchSlug: userInfo?.branch.slug,
     status: [OrderStatus.PAID, OrderStatus.SHIPPING].join(','),
@@ -54,17 +66,17 @@ export default function OrderManagementPage() {
   }
 
   return (
-    <div className="flex flex-row flex-1 gap-2 py-4">
+    <div className="flex flex-1 flex-row gap-2 py-4">
       <ScrollArea className="flex-1">
         <div className="flex flex-col">
           <div className="sticky top-0 flex flex-col items-center gap-2 pb-4">
-            <span className="flex items-center justify-start w-full gap-1 text-lg">
+            <span className="flex w-full items-center justify-start gap-1 text-lg">
               <SquareMenu />
               {t('order.title')}
             </span>
           </div>
           <div className="grid h-full grid-cols-1 gap-2">
-            <div className="flex flex-col col-span-4 gap-2">
+            <div className="col-span-4 flex flex-col gap-2">
               <DataTable
                 isLoading={isLoading}
                 data={data?.result.items || []}

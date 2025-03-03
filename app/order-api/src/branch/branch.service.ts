@@ -72,22 +72,20 @@ export class BranchService {
     return this.mapper.mapArray(branches, Branch, BranchResponseDto);
   }
 
-  async deleteBranch(
-    slug: string
-  ): Promise<number> {
+  async deleteBranch(slug: string): Promise<number> {
     const context = `${BranchService.name}.${this.deleteBranch.name}`;
 
     const findOptionsWhere: FindOptionsWhere<Branch> = { slug };
     const branch = await this.branchUtil.getBranch(findOptionsWhere);
 
-    try {      
+    try {
       const removed = await this.branchRepository.delete(branch.id);
       return removed.affected || 0;
     } catch (error) {
       this.logger.error(
         BranchValidation.ERROR_WHEN_DELETE_BRANCH.message,
         error.stack,
-        context
+        context,
       );
       throw new BranchException(BranchValidation.ERROR_WHEN_DELETE_BRANCH);
     }

@@ -11,6 +11,7 @@ export class MailConsumer extends WorkerHost {
     super();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async process(job: Job<ISendMailOptions>, token?: string): Promise<any> {
     switch (job.name) {
       case 'send-mail':

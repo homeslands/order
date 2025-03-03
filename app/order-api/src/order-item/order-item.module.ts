@@ -18,14 +18,26 @@ import { Menu } from 'src/menu/menu.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OrderItem, Order, Promotion, ApplicablePromotion, Menu]),
+    TypeOrmModule.forFeature([
+      OrderItem,
+      Order,
+      Promotion,
+      ApplicablePromotion,
+      Menu,
+    ]),
     DbModule,
     OrderModule,
     VariantModule,
     MenuItemModule,
   ],
   controllers: [OrderItemController],
-  providers: [OrderItemService, OrderItemProfile, OrderItemUtils, PromotionUtils, MenuUtils],
+  providers: [
+    OrderItemService,
+    OrderItemProfile,
+    OrderItemUtils,
+    PromotionUtils,
+    MenuUtils,
+  ],
   exports: [OrderItemService, OrderItemUtils],
 })
 export class OrderItemModule {}

@@ -5,8 +5,11 @@ import {
   deleteTable,
   updateTableStatus,
   getAllLocations,
+  createMultipleTables,
 } from '@/api'
+import { QUERYKEY } from '@/constants'
 import {
+  ICreateMultipleTablesRequest,
   ICreateTableRequest,
   IUpdateTableRequest,
   IUpdateTableStatusRequest,
@@ -15,7 +18,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 
 export const useTables = (branch?: string) => {
   return useQuery({
-    queryKey: ['tables', branch],
+    queryKey: [QUERYKEY.tables, branch],
     queryFn: async () => getAllTables(branch as string),
   })
 }
@@ -23,6 +26,13 @@ export const useTables = (branch?: string) => {
 export const useCreateTable = () => {
   return useMutation({
     mutationFn: async (data: ICreateTableRequest) => createTable(data),
+  })
+}
+
+export const useCreateMultipleTables = () => {
+  return useMutation({
+    mutationFn: async (data: ICreateMultipleTablesRequest) =>
+      createMultipleTables(data),
   })
 }
 

@@ -11,6 +11,7 @@ import {
   IPaginationResponse,
   ITopProduct,
   IBranchTopProduct,
+  IProductRequest,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 import { AxiosRequestConfig } from 'axios'
@@ -18,13 +19,9 @@ import { saveAs } from 'file-saver'
 import { useAuthStore } from '@/stores'
 
 export async function getAllProducts(
-  exceptedPromotion: string,
+  params?: IProductRequest,
 ): Promise<IApiResponse<IProduct[]>> {
-  const response = await http.get<IApiResponse<IProduct[]>>('/products', {
-    params: {
-      exceptedPromotion,
-    },
-  })
+  const response = await http.get<IApiResponse<IProduct[]>>('/products', { params })
   return response.data
 }
 
@@ -153,7 +150,6 @@ export async function getTopBranchProducts(
   })
   return response.data
 }
-
 export async function exportAllProductsFile(): Promise<void> {
   const { setProgress, setIsDownloading, reset } = useDownloadStore.getState()
   const { token } = useAuthStore.getState()

@@ -13,6 +13,12 @@ export interface IVoucher extends IBase {
   endDate: string
 }
 
+export interface IGetAllVoucherRequest {
+  minOrderValue?: number
+  date?: string
+  isActive?: boolean
+}
+
 export interface ICreateVoucherRequest {
   title: string
   description?: string
@@ -42,7 +48,7 @@ export interface IValidateVoucherRequest {
   voucher: string
   user: string //user slug
 }
-export interface IGetVoucherBySlugRequest {
+export interface IGetSpecificVoucherRequest {
   slug?: string
   code?: string
 }

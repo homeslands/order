@@ -15,6 +15,14 @@ export const ERROR_UPDATE_USER = 'ERROR_UPDATE_USER';
 export const INVALID_EMAIL = 'INVALID_EMAIL';
 export const INVALID_ADDRESS = 'INVALID_ADDRESS';
 export const INVALID_DOB = 'INVALID_DOB';
+export const INVALID_TOKEN = 'INVALID_TOKEN';
+export const VERIFY_EMAIL_TOKEN_ALREADY_EXISTS =
+  'VERIFY_EMAIL_TOKEN_ALREADY_EXISTS';
+export const VERIFY_EMAIL_TOKEN_IS_EXPIRED = 'VERIFY_EMAIL_TOKEN_IS_EXPIRED';
+export const VERIFY_EMAIL_TOKEN_NOT_FOUND = 'VERIFY_EMAIL_TOKEN_NOT_FOUND';
+export const EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS';
+export const CONFIRM_EMAIL_VERIFICATION_ERROR =
+  'CONFIRM_EMAIL_VERIFICATION_ERROR';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -31,6 +39,12 @@ export type TAuthErrorCodeKey =
   | typeof INVALID_EMAIL
   | typeof INVALID_ADDRESS
   | typeof INVALID_DOB
+  | typeof INVALID_TOKEN
+  | typeof EMAIL_ALREADY_EXISTS
+  | typeof VERIFY_EMAIL_TOKEN_ALREADY_EXISTS
+  | typeof VERIFY_EMAIL_TOKEN_NOT_FOUND
+  | typeof VERIFY_EMAIL_TOKEN_IS_EXPIRED
+  | typeof CONFIRM_EMAIL_VERIFICATION_ERROR
   | typeof INVALID_FIRSTNAME;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
@@ -52,4 +66,22 @@ export const AuthValidation: TAuthErrorCode = {
   INVALID_EMAIL: createErrorCode(119012, 'Invalid email'),
   INVALID_ADDRESS: createErrorCode(119013, 'Invalid address'),
   INVALID_DOB: createErrorCode(119014, 'Invalid date of birth'),
+  INVALID_TOKEN: createErrorCode(119015, 'Invalid token'),
+  EMAIL_ALREADY_EXISTS: createErrorCode(119016, 'Email already exists'),
+  VERIFY_EMAIL_TOKEN_ALREADY_EXISTS: createErrorCode(
+    119017,
+    'Verify email token already exists',
+  ),
+  VERIFY_EMAIL_TOKEN_NOT_FOUND: createErrorCode(
+    119018,
+    'Verify email token not found',
+  ),
+  VERIFY_EMAIL_TOKEN_IS_EXPIRED: createErrorCode(
+    119019,
+    'Verify email token is expired',
+  ),
+  CONFIRM_EMAIL_VERIFICATION_ERROR: createErrorCode(
+    119020,
+    'Error when confirming email verification',
+  ),
 };

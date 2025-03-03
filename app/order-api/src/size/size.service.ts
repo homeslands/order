@@ -103,7 +103,7 @@ export class SizeService {
   async isExistUpdatedName(
     updatedName: string,
     currentName: string,
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
     if (updatedName === currentName) return false;
 
     const sizeExist = await this.sizeRepository.findOne({

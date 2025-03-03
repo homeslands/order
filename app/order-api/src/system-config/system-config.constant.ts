@@ -1,5 +1,6 @@
 export enum SystemConfigKey {
   FRONTEND_URL = 'FRONTEND_URL',
+  BACKEND_URL = 'BACKEND_URL',
   ROBOT_ID = 'ROBOT_ID',
   ROBOT_API_URL = 'ROBOT_API_URL',
   ACB_API_URL = 'ACB_API_URL',

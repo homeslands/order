@@ -8,6 +8,7 @@ import { DbModule } from 'src/db/db.module';
 import { VoucherUtils } from './voucher.utils';
 import { VoucherScheduler } from './voucher.scheduler';
 import { OrderModule } from 'src/order/order.module';
+import { VoucherSubscriber } from './voucher.subscriber';
 
 @Module({
   imports: [
@@ -16,7 +17,13 @@ import { OrderModule } from 'src/order/order.module';
     forwardRef(() => OrderModule),
   ],
   controllers: [VoucherController],
-  providers: [VoucherService, VoucherProfile, VoucherUtils, VoucherScheduler],
+  providers: [
+    VoucherService,
+    VoucherProfile,
+    VoucherUtils,
+    VoucherScheduler,
+    VoucherSubscriber,
+  ],
   exports: [VoucherUtils],
 })
 export class VoucherModule {}

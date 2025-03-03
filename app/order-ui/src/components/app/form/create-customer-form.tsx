@@ -144,10 +144,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full max-h-[600px]">
+    <div className="flex flex-col h-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <ScrollArea className="h-[400px] px-2">
+          <ScrollArea className="px-2 ">
             <div className="grid grid-cols-1 gap-4 px-1">
               {Object.keys(formFields).map((key) => (
                 <React.Fragment key={key}>

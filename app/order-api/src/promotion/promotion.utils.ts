@@ -1,6 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Promotion } from './promotion.entity';
 import { PromotionValidation } from './promotion.validation';
@@ -22,35 +27,36 @@ export class PromotionUtils {
 
   async getPromotion(
     where: FindOptionsWhere<Promotion>,
-    relations?: string[]
+    relations?: string[],
   ): Promise<Promotion> {
     const context = `${PromotionUtils.name}.${this.getPromotion.name}`;
 
-    const promotion = await this.promotionRepository.findOne({ where, relations });
+    const promotion = await this.promotionRepository.findOne({
+      where,
+      relations,
+    });
     if (!promotion) {
       this.logger.warn(
-        PromotionValidation.PROMOTION_NOT_FOUND.message, 
-        context
+        PromotionValidation.PROMOTION_NOT_FOUND.message,
+        context,
       );
-      throw new PromotionException(
-        PromotionValidation.PROMOTION_NOT_FOUND
-      );
-    } 
+      throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+    }
     return promotion;
   }
 
   async getPromotionByProductAndBranch(
     date: Date,
     branchId: string,
-    productId: string
+    productId: string,
   ): Promise<Promotion> {
     const context = `${PromotionUtils.name}.${this.getPromotionByProductAndBranch.name}`;
     this.logger.log(`Get promotion from menu item`, context);
 
     const applicablePromotions = await this.applicablePromotionRepository.find({
       where: {
-        type: ApplicablePromotionType.PRODUCT, 
-        applicableId: productId
+        type: ApplicablePromotionType.PRODUCT,
+        applicableId: productId,
       },
       relations: ['promotion'],
     });
@@ -58,10 +64,10 @@ export class PromotionUtils {
     const promotions = await Promise.allSettled(
       applicablePromotions.map(async (applicablePromotion) => {
         const promotion = await this.promotionRepository.findOne({
-          where: { 
+          where: {
             id: applicablePromotion.promotion.id,
             branch: {
-              id: branchId
+              id: branchId,
             },
             startDate: LessThanOrEqual(date),
             endDate: MoreThanOrEqual(date),
@@ -72,15 +78,17 @@ export class PromotionUtils {
     );
 
     const successfulPromotions = promotions
-      .filter(p => p.status === "fulfilled")
-      .map(p => p.value);
+      .filter((p) => p.status === 'fulfilled')
+      .map((p) => p.value);
 
-    const successfulPromotionsNotNull = successfulPromotions.filter(p => p !== null);
-    if(_.isEmpty(successfulPromotionsNotNull)) return null;
+    const successfulPromotionsNotNull = successfulPromotions.filter(
+      (p) => p !== null,
+    );
+    if (_.isEmpty(successfulPromotionsNotNull)) return null;
 
     const maxPromotion = successfulPromotionsNotNull.reduce(
-      (max, obj) => (obj.value > max.value ? obj : max), 
-      _.first(successfulPromotionsNotNull)
+      (max, obj) => (obj.value > max.value ? obj : max),
+      _.first(successfulPromotionsNotNull),
     );
 
     return maxPromotion;
@@ -92,12 +100,12 @@ export class PromotionUtils {
   ) {
     const context = `${PromotionUtils.name}.${this.validatePromotionWithMenuItem.name}`;
 
-    if(promotionSlug) {
+    if (promotionSlug) {
       const promotion = await this.getPromotion({
         slug: promotionSlug,
       });
 
-      if(promotion.id !== menuItem.promotion?.id) {
+      if (promotion.id !== menuItem.promotion?.id) {
         this.logger.warn(
           PromotionValidation.ERROR_WHEN_VALIDATE_PROMOTION.message,
           context,
@@ -107,7 +115,7 @@ export class PromotionUtils {
         );
       }
     } else {
-      if(menuItem.promotion) {
+      if (menuItem.promotion) {
         this.logger.warn(
           PromotionValidation.ERROR_WHEN_VALIDATE_PROMOTION.message,
           context,
@@ -116,6 +124,6 @@ export class PromotionUtils {
           PromotionValidation.ERROR_WHEN_VALIDATE_PROMOTION,
         );
       }
-    }   
+    }
   }
 }

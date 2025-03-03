@@ -200,7 +200,7 @@ describe('TableController', () => {
       const slug: string = 'mock-table-slug';
       (service.remove as jest.Mock).mockResolvedValue(1);
 
-      const result = await controller.remove(slug);
+      await controller.remove(slug);
       expect(service.remove).toHaveBeenCalledTimes(1);
     });
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +12,7 @@ import {
   Input,
   Form,
   Button,
+  Switch,
 } from '@/components/ui'
 import { createTableSchema, TCreateTableSchema } from '@/schemas'
 
@@ -19,7 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateTableRequest } from '@/types'
 import { useCreateTable } from '@/hooks'
 import { showToast } from '@/utils'
-import { BranchSelect } from '@/components/app/select'
+import { BranchSelect, TableStatusSelect } from '@/components/app/select'
 import { TableStatus } from '@/constants'
 import TableLocationSelect from '../select/table-location-select'
 import { useUserStore } from '@/stores'
@@ -35,6 +36,7 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
   const { t } = useTranslation(['table'])
   const { userInfo } = useUserStore()
   const { mutate: createTable } = useCreateTable()
+  const [hasLocation, setHasLocation] = useState(false)
   const form = useForm<TCreateTableSchema>({
     resolver: zodResolver(createTableSchema),
     defaultValues: {
@@ -42,8 +44,6 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
       branch: '',
       location: '',
       status: TableStatus.AVAILABLE,
-      xPosition: 0,
-      yPosition: 0,
     },
   })
 
@@ -91,7 +91,20 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
         )}
       />
     ),
-    location: (
+    hasLocation: (
+      <FormItem className="flex flex-row items-center justify-between py-4">
+        <div className="space-y-0.5">
+          <FormLabel className="">{t('table.hasLocation')}</FormLabel>
+        </div>
+        <FormControl>
+          <Switch
+            checked={hasLocation}
+            onCheckedChange={setHasLocation}
+          />
+        </FormControl>
+      </FormItem>
+    ),
+    location: hasLocation && (
       <FormField
         control={form.control}
         name="location"
@@ -99,7 +112,6 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
           <FormItem>
             <FormLabel>{t('table.location')}</FormLabel>
             <FormControl>
-              {/* <Input {...field} placeholder={t('table.enterLocation')} /> */}
               <TableLocationSelect {...field} />
             </FormControl>
             <FormMessage />
@@ -115,57 +127,13 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
           <FormItem>
             <FormLabel>{t('table.status')}</FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                value={t(`table.${field.value}`)}
-                placeholder={t('table.enterStatus')}
-              />
+              <TableStatusSelect {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
     ),
-    // xPosition: (
-    //   <FormField
-    //     control={form.control}
-    //     name="xPosition"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('table.xPosition')}</FormLabel>
-    //         <FormControl>
-    //           <Input {...field} placeholder={t('table.enterXPosition')}
-    //             onChange={(e) => {
-    //               const valueAsNumber =
-    //                 e.target.value === '' ? '' : Number(e.target.value)
-    //               field.onChange(valueAsNumber)
-    //             }} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
-    // yPosition: (
-    //   <FormField
-    //     control={form.control}
-    //     name="yPosition"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('table.yPosition')}</FormLabel>
-    //         <FormControl>
-    //           <Input {...field} placeholder={t('table.enterYPosition')}
-    //             onChange={(e) => {
-    //               const valueAsNumber =
-    //                 e.target.value === '' ? '' : Number(e.target.value)
-    //               field.onChange(valueAsNumber)
-    //             }} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
   }
 
   return (

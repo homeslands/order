@@ -1,10 +1,21 @@
-import { AutoMap } from "@automapper/classes";
-import { ApiProperty } from "@nestjs/swagger";
-import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, Min, ValidateNested } from "class-validator";
-import { BaseResponseDto } from "src/app/base.dto";
-import { CreateTrackingOrderItemRequestDto, TrackingOrderItemResponseDto } from "src/tracking-order-item/tracking-order-item.dto";
-import { TrackingType, WorkflowStatus } from "./tracking.constants";
+import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { BaseResponseDto } from 'src/app/base.dto';
+import {
+  CreateTrackingOrderItemRequestDto,
+  TrackingOrderItemResponseDto,
+} from 'src/tracking-order-item/tracking-order-item.dto';
+import { TrackingType, WorkflowStatus } from './tracking.constants';
 
 export class CreateTrackingRequestDto {
   @AutoMap()
@@ -12,15 +23,15 @@ export class CreateTrackingRequestDto {
   @IsNotEmpty({ message: 'Invalid type of tracking' })
   @IsEnum(TrackingType, { message: 'Invalid type of tracking' })
   type: string;
-  
-  @ApiProperty({ 
-    description: 'The array of tracking order item', 
+
+  @ApiProperty({
+    description: 'The array of tracking order item',
     example: [
       {
         quantity: 2,
         orderItem: 'order-item-slug-123',
-      }
-    ] 
+      },
+    ],
   })
   @IsArray({ message: 'Invalid tracking order item list' })
   @ArrayNotEmpty({ message: 'Invalid tracking order item list' })
@@ -70,7 +81,7 @@ export class GetTrackingRequestDto {
   })
   hasPaging?: boolean;
 
-@AutoMap()
+  @AutoMap()
   @ApiProperty({
     example: 1,
     description: 'Page number',

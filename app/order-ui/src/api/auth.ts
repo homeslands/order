@@ -1,4 +1,10 @@
-import { IApiResponse, ILoginResponse, IForgotPasswordRequest } from '@/types'
+import {
+  IApiResponse,
+  ILoginResponse,
+  IForgotPasswordRequest,
+  IVerifyEmailRequest,
+  IConfirmEmailVerificationRequest,
+} from '@/types'
 import { http } from '@/utils'
 
 export async function login(params: {
@@ -39,6 +45,26 @@ export async function forgotPasswordAndResetPassword(data: {
   const response = await http.post<IApiResponse<null>>(
     '/auth/forgot-password',
     data,
+  )
+  return response.data
+}
+
+export async function verifyEmail(
+  verifyParams: IVerifyEmailRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    `/auth/request-verify-email`,
+    verifyParams,
+  )
+  return response.data
+}
+
+export async function confirmEmailVerification(
+  confirmEmailVerificationParams: IConfirmEmailVerificationRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    `/auth/confirm-email-verification`,
+    confirmEmailVerificationParams,
   )
   return response.data
 }

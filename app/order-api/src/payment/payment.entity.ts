@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Order } from 'src/order/order.entity';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 
 @Entity('payment_tbl')
 export class Payment extends Base {

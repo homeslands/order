@@ -3,17 +3,13 @@ import {
   createMap,
   extend,
   forMember,
-  mapFrom,
   Mapper,
   mapWith,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';
-import {
-  CreateTrackingOrderItemWithQuantityAndOrderItemEntity,
-  TrackingOrderItemResponseDto,
-} from './tracking-order-item.dto';
+import { TrackingOrderItemResponseDto } from './tracking-order-item.dto';
 import { TrackingResponseDto } from 'src/tracking/tracking.dto';
 import { Tracking } from 'src/tracking/tracking.entity';
 import { TrackingOrderItem } from './tracking-order-item.entity';

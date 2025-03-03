@@ -27,6 +27,7 @@ const TimePickerInput = React.forwardRef<
   (
     {
       className,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       type = 'tel',
       value,
       id,

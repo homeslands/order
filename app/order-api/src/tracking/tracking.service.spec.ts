@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   MockType,
   repositoryMockFactory,
@@ -45,7 +46,6 @@ import { WorkflowException } from 'src/workflow/workflow.exception';
 import { CreateTrackingRequestDto } from './tracking.dto';
 import { OrderItemException } from 'src/order-item/order-item.exception';
 import { OrderItemValidation } from 'src/order-item/order-item.validation';
-import { OrderType } from 'src/order/order.contants';
 import { TableValidation } from 'src/table/table.validation';
 import { WorkflowValidation } from 'src/workflow/workflow.validation';
 

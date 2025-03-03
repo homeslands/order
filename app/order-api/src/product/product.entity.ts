@@ -53,4 +53,12 @@ export class Product extends Base {
   // one to many with product analysis
   @OneToMany(() => ProductAnalysis, (p) => p.product)
   productAnalyses: ProductAnalysis[];
+
+  @AutoMap()
+  @Column({ name: 'is_top_sell', default: false })
+  isTopSell: boolean;
+
+  @AutoMap()
+  @Column({ name: 'isNew', default: false })
+  isNew: boolean;
 }

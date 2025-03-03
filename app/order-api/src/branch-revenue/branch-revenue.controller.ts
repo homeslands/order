@@ -8,19 +8,22 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BranchRevenueService } from './branch-revenue.service';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   AggregateBranchRevenueResponseDto,
-  BranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
 } from './branch-revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/public.decorator';
 
 @Controller('revenue/branch')
 @ApiTags('Branch Revenue')
@@ -72,10 +75,13 @@ export class BranchRevenueController {
     type: String,
   })
   @ApiOperation({ summary: 'Update latest branch revenue' })
-  @ApiResponse({ status: 200, description: 'Update latest branch revenue successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Update latest branch revenue successfully',
+  })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async updateLatestBranchRevenue() {
-    const result = await this.branchRevenueService.updateLatestBranchRevenueInCurrentDate();
+    await this.branchRevenueService.updateLatestBranchRevenueInCurrentDate();
     return {
       message: 'Update latest branch revenue successfully',
       statusCode: HttpStatus.OK,
@@ -99,13 +105,16 @@ export class BranchRevenueController {
     type: String,
   })
   @ApiOperation({ summary: 'Update latest branch revenue for a range time' })
-  @ApiResponse({ status: 200, description: 'Update latest branch revenue for a range time successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Update latest branch revenue for a range time successfully',
+  })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async refreshBranchRevenueForSpecificDay(
-    @Query(new ValidationPipe({ transform: true })) 
-    query: RefreshSpecificRangeBranchRevenueQueryDto
+    @Query(new ValidationPipe({ transform: true }))
+    query: RefreshSpecificRangeBranchRevenueQueryDto,
   ) {
-    const result = await this.branchRevenueService.refreshBranchRevenueForSpecificDay(query);
+    await this.branchRevenueService.refreshBranchRevenueForSpecificDay(query);
     return {
       message: 'Update latest branch revenue for a range time successfully',
       statusCode: HttpStatus.OK,

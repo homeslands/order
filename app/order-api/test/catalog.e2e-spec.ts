@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatalogService } from 'src/catalog/catalog.service';
@@ -38,7 +38,7 @@ describe('CatalogController (e2e)', () => {
   // const deletedCatalogData: number = 1;
   const deletedCatalogData = { 1: 1 };
 
-  let catalogService = {
+  const catalogService = {
     getAllCatalogs: () => getAllCatalogsData,
     createCatalog: () => createdCatalogData,
     updateCatalog: () => updatedCatalogData,
@@ -110,10 +110,6 @@ describe('CatalogController (e2e)', () => {
       .delete(`/catalogs/${slug}`)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(HttpStatus.OK)
-      .expect((res) => {
-        console.log({ res: res.body });
-        // console.log({res})
-      })
       .expect(deletedCatalogData);
   });
 });

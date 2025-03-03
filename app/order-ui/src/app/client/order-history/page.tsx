@@ -23,9 +23,8 @@ import { OrderTypeEnum } from '@/types'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
-  // const [searchParams] = useSearchParams()
+  const { t: tCommon } = useTranslation('common')
   const { slug } = useParams()
-  // const slug = searchParams.get('order')
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
 
@@ -51,14 +50,16 @@ export default function OrderHistoryPage() {
             <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
               <div className="">
                 <p className="flex items-center gap-2 pb-2">
-                  <span className="font-bold">Đơn hàng:</span>{' '}
+                  <span className="font-bold">
+                    {t('order.order')}{' '}
+                  </span>
                   <span className="text-muted-foreground">
                     {orderDetail?.result?.slug}
                   </span>
                 </p>
                 <div className="flex flex-col gap-1 text-sm font-thin sm:flex-row sm:items-center">
                   <p>
-                    Thời gian đặt hàng:{' '}
+                    {t('order.orderTime')}{' '}
                     <span className="text-muted-foreground">
                       {moment(orderDetail?.result?.createdAt).format(
                         'hh:mm:ss DD/MM/YYYY',
@@ -72,7 +73,7 @@ export default function OrderHistoryPage() {
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
-                  Khách hàng
+                  {t('order.customer')}{' '}
                 </div>
                 <div className="px-3 py-2">
                   <p className="text-sm text-muted-foreground">
@@ -82,7 +83,7 @@ export default function OrderHistoryPage() {
               </div>
               <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
-                  Loại đơn hàng
+                  {t('order.orderType')}
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
@@ -98,7 +99,9 @@ export default function OrderHistoryPage() {
             {/* Order table */}
             <div className="overflow-x-auto">
               <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
-                <TableCaption>A list of orders.</TableCaption>
+                <TableCaption>
+                  {t('order.aListOfOrders')}
+                </TableCaption>
                 <TableHeader className="rounded bg-muted-foreground/10">
                   <TableRow>
                     <TableHead className="">{t('order.product')}</TableHead>
@@ -133,7 +136,9 @@ export default function OrderHistoryPage() {
                         <NavLink
                           to={`${ROUTE.CLIENT_MENU}/${item.variant.product.slug}`}
                         >
-                          <Button variant="outline">Mua lại</Button>
+                          <Button variant="outline">
+                            {t('order.buyAgain')}
+                          </Button>
                         </NavLink>
                       </TableCell>
                       {/* <TableCell className='text-center'>{item.quantity}</TableCell> */}
@@ -190,28 +195,34 @@ export default function OrderHistoryPage() {
             {/* Total */}
             <div className="border rounded-sm border-muted-foreground/30">
               <div className="px-3 py-2 font-bold bg-muted-foreground/10">
-                Thông tin thanh toán
+                {t('order.paymentInformation')}
               </div>
               <div className="px-3 py-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Tạm tính</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('order.subTotal')}
+                  </p>
                   <p className="text-sm">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Thành tiền</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t('order.totalPrice')}
+                  </p>
                   <p className="text-sm">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-md">Tổng tiền thanh toán</p>
+                  <p className="font-semibold text-md">
+                    {t('order.totalPayment')}
+                  </p>
                   <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    ({orderDetail?.result?.orderItems?.length} sản phẩm)
+                    ({orderDetail?.result?.orderItems?.length} {t('order.product')})
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    (Đã bao gồm VAT)
+                    ({t('order.vat')})
                   </p>
                 </div>
               </div>
@@ -224,7 +235,7 @@ export default function OrderHistoryPage() {
                   navigate(`${ROUTE.CLIENT_PROFILE}?tab=history`)
                 }}
               >
-                Quay lại
+                {tCommon('common.goBack')}
               </Button>
             </div>
           </div>

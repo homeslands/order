@@ -43,7 +43,7 @@ import { RoleModule } from 'src/role/role.module';
 import { RolesGuard } from 'src/role/roles.guard';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
 import { BullModule } from '@nestjs/bullmq';
-import { ConnectionOptions, RedisConnection } from 'bullmq';
+import { ConnectionOptions } from 'bullmq';
 import { RevenueModule } from 'src/revenue/revenue.module';
 import { BranchRevenueModule } from 'src/branch-revenue/branch-revenue.module';
 import { StaticPageModule } from 'src/static-page/static-page.module';
@@ -119,7 +119,7 @@ import { BannerModule } from 'src/banner/banner.module';
     PromotionModule,
     ApplicablePromotionModule,
     VoucherModule,
-    BannerModule
+    BannerModule,
   ],
   controllers: [AppController],
   providers: [
