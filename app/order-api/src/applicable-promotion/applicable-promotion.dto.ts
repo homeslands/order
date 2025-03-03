@@ -92,16 +92,29 @@ export class ApplicablePromotionResponseDto {
   @AutoMap()
   type: string;
 
-  // @AutoMap(
-  //   () =>
-  //     ApplicablePromotionResponseDto.prototype.type === ApplicablePromotionType.PRODUCT ?
-  //     ProductResponseDto : null
-  // )
-  // applicableObject: ProductResponseDto | null;
-
   @AutoMap(() => ProductResponseDto)
   applicableObject: ProductResponseDto;
 
   @AutoMap(() => PromotionResponseDto)
   promotion: PromotionResponseDto;
+}
+
+export class GetSpecificApplicablePromotionRequestDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the object to be applied promotion',
+    required: true,
+    example: 'applicable-slug',
+  })
+  @IsNotEmpty({ message: 'The slug of the applicable object is required' })
+  applicableSlug: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the promotion',
+    required: true,
+    example: 'promotion-slug',
+  })
+  @IsNotEmpty({ message: 'The slug of the promotion is required' })
+  promotion: string;
 }

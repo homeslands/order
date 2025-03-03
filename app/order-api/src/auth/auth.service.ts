@@ -22,7 +22,7 @@ import {
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { DataSource, MoreThan, Repository } from 'typeorm';
+import { DataSource, MoreThan, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { InjectMapper } from '@automapper/nestjs';
@@ -287,12 +287,32 @@ export class AuthService {
       throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_ALREADY_EXISTS);
     }
 
-    const existedEmailUser = await this.userRepository.findOne({
-      where: { email: requestData.email },
+    // Check email in system except current user
+    const existedEmailInSystem = await this.userRepository.findOne({
+      where: {
+        email: requestData.email,
+        id: Not(user.id),
+      },
     });
-    if (existedEmailUser) {
+    if (existedEmailInSystem) {
       this.logger.warn(AuthValidation.EMAIL_ALREADY_EXISTS.message, context);
       throw new AuthException(AuthValidation.EMAIL_ALREADY_EXISTS);
+    }
+
+    const existedEmailCurrentUser = await this.userRepository.findOne({
+      where: {
+        email: requestData.email,
+        id: user.id,
+      },
+    });
+    if (existedEmailCurrentUser) {
+      if (user.isVerifiedEmail) {
+        this.logger.warn(
+          AuthValidation.THIS_EMAIL_ALREADY_VERIFY.message,
+          context,
+        );
+        throw new AuthException(AuthValidation.THIS_EMAIL_ALREADY_VERIFY);
+      }
     }
 
     const generatedPayload = { sub: user.id, jti: uuidv4() };

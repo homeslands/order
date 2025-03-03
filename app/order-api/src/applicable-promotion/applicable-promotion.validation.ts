@@ -9,12 +9,15 @@ export const ERROR_WHEN_DELETE_APPLICABLE_PROMOTION =
   'ERROR_WHEN_DELETE_APPLICABLE_PROMOTION';
 export const ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION =
   'ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION';
+export const MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG =
+  'MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG';
 
 export type TApplicablePromotionErrorCodeKey =
   | typeof ERROR_WHEN_DELETE_APPLICABLE_PROMOTION
   | typeof ERROR_WHEN_CREATE_APPLICABLE_PROMOTION
   | typeof APPLICABLE_PROMOTION_ALREADY_EXISTED
   | typeof ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION
+  | typeof MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG
   | typeof APPLICABLE_PROMOTION_NOT_FOUND;
 
 export type TApplicablePromotionErrorCode = Record<
@@ -43,5 +46,9 @@ export const ApplicablePromotionValidation: TApplicablePromotionErrorCode = {
   ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION: createErrorCode(
     151004,
     'Error when get menu item by applicable promotion',
+  ),
+  MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG: createErrorCode(
+    151005,
+    'Must have both promotion slug and applicable slug',
   ),
 };

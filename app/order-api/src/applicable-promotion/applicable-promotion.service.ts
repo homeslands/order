@@ -14,6 +14,7 @@ import {
   ApplicablePromotionResponseDto,
   CreateApplicablePromotionRequestDto,
   CreateManyApplicablePromotionsRequestDto,
+  GetSpecificApplicablePromotionRequestDto,
 } from './applicable-promotion.dto';
 import { PromotionValidation } from 'src/promotion/promotion.validation';
 import { PromotionException } from 'src/promotion/promotion.exception';
@@ -513,5 +514,88 @@ export class ApplicablePromotionService {
         ApplicablePromotionValidation.ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION,
       );
     }
+  }
+
+  /**
+   * Get specific applicable promotion
+   * @param {GetSpecificApplicablePromotionRequestDto} requestData
+   * @returns { Promise<ApplicablePromotionResponseDto>}
+   */
+  async getSpecificApplicablePromotion(
+    requestData: GetSpecificApplicablePromotionRequestDto,
+  ): Promise<ApplicablePromotionResponseDto> {
+    const context = `${ApplicablePromotionService.name}.${this.getSpecificApplicablePromotion.name}`;
+
+    const where: FindOptionsWhere<ApplicablePromotion> = {};
+    const product = await this.productRepository.findOne({
+      where: { slug: requestData.applicableSlug },
+    });
+
+    if (!product) {
+      this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+      throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+    }
+
+    const promotion = await this.promotionRepository.findOne({
+      where: { slug: requestData.promotion },
+    });
+    if (!promotion) {
+      this.logger.warn(
+        PromotionValidation.PROMOTION_NOT_FOUND.message,
+        context,
+      );
+      throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+    }
+
+    where.promotion = { id: promotion.id };
+    where.applicableId = product.id;
+
+    this.logger.log(where, context);
+    // if (requestData.promotion && requestData.applicableSlug) {
+    //   const product = await this.productRepository.findOne({
+    //     where: { slug: requestData.applicableSlug },
+    //   });
+
+    //   if (!product) {
+    //     this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+    //     throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+    //   }
+
+    //   const promotion = await this.promotionRepository.findOne({
+    //     where: { slug: requestData.promotion },
+    //   });
+    //   if (!promotion) {
+    //     this.logger.warn(
+    //       PromotionValidation.PROMOTION_NOT_FOUND.message,
+    //       context,
+    //     );
+    //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+    //   }
+
+    //   where.promotion = promotion;
+    //   where.applicableId = product.id;
+    // } else {
+    //   this.logger.warn(
+    //     ApplicablePromotionValidation
+    //       .MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG.message,
+    //     context,
+    //   );
+    //   throw new ApplicablePromotionException(
+    //     ApplicablePromotionValidation.MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG,
+    //   );
+    // }
+
+    const applicablePromotion =
+      await this.applicablePromotionUtils.getApplicablePromotion(where);
+
+    const productDto = this.mapper.map(product, Product, ProductResponseDto);
+
+    const applicablePromotionDto = this.mapper.map(
+      applicablePromotion,
+      ApplicablePromotion,
+      ApplicablePromotionResponseDto,
+    );
+    applicablePromotionDto.applicableObject = productDto;
+    return applicablePromotionDto;
   }
 }

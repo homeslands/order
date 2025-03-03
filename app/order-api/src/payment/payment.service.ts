@@ -122,9 +122,11 @@ export class PaymentService {
     let payment: Payment;
 
     switch (createPaymentDto.paymentMethod) {
+      // send invoice email
       case PaymentMethod.BANK_TRANSFER:
         payment = await this.bankTransferStrategy.process(order);
         break;
+      // send invoice email
       case PaymentMethod.CASH:
         payment = await this.cashStrategy.process(order);
         break;

@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApplicablePromotionService } from './applicable-promotion.service';
@@ -20,6 +22,7 @@ import {
   ApplicablePromotionResponseDto,
   CreateApplicablePromotionRequestDto,
   CreateManyApplicablePromotionsRequestDto,
+  GetSpecificApplicablePromotionRequestDto,
 } from './applicable-promotion.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
@@ -116,5 +119,31 @@ export class ApplicablePromotionController {
       timestamp: new Date().toISOString(),
       result: `${result} records have been deleted successfully`,
     } as AppResponseDto<string>;
+  }
+
+  @Get('specific')
+  // @Public()
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get specific applicable promotion' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Applicable promotion have been retrieved successfully',
+    type: String,
+  })
+  async getSpecific(
+    @Query(new ValidationPipe({ transform: true }))
+    query: GetSpecificApplicablePromotionRequestDto,
+  ) {
+    const result =
+      await this.applicablePromotionService.getSpecificApplicablePromotion(
+        query,
+      );
+    return {
+      message: 'Applicable promotion have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ApplicablePromotionResponseDto>;
   }
 }
