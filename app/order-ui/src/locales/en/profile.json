@@ -9,6 +9,7 @@
     "enterFirstName": "Enter first name",
     "lastName": "Last Name",
     "enterLastName": "Enter last name",
+    "verified": "Verified",
     "email": "Email",
     "enterEmail": "Enter email",
     "phoneNumber": "Phone Number",
@@ -17,6 +18,7 @@
     "enterAddress": "Enter address",
     "dob": "Date of Birth",
     "branch": "Branch",
+    "notVerified": "Not Verified",
 
     "myOrders": "My Orders",
     "all": "All",
@@ -25,10 +27,11 @@
 
     "update": "Update",
     "updateProfile": "Update Profile",
-    "updateProfileDescription": "Modify the details below to update your personal information",
+    "updateProfileDescription": "Please. Modify the details below to update your personal information",
 
+    "copyEmail": "Copy Email",
     "verifyEmail": "Verify Email",
-    "verifyEmailDescription": "Please enter the verification code sent to your email",
+    "verifyEmailDescription": "Please verify your email address and make any edits if necessary. After clicking verify, a verification code will be sent to your email.",
     "sendVerifyEmail": "Send Verification Email",
     "verifyingEmail": "Verifying...",
     "verifyEmailSuccessfully": "Email verified successfully",

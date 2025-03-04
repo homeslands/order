@@ -3,14 +3,13 @@ import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
 
-import { Button } from '@/components/ui'
-import { useSpecificMenu, useSpecificMenuItem } from '@/hooks'
+import { Badge, Button } from '@/components/ui'
+import { useSpecificMenuItem } from '@/hooks'
 import { publicFileURL, ROUTE } from '@/constants'
-import { ProductRating } from './components'
+import { ProductRating, SliderRelatedProducts } from './components'
 import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { NonPropQuantitySelector } from '@/components/app/button'
 import {
-  useBranchStore,
   useCartItemStore,
   useCurrentUrlStore,
   useUserStore,
@@ -18,8 +17,6 @@ import {
 import { ICartItem, OrderTypeEnum, IProductVariant } from '@/types'
 import { formatCurrency, showErrorToast } from '@/utils'
 import { ProductImageCarousel } from '.'
-import moment from 'moment'
-import { getPriceRange } from '@/utils/priceRange'
 
 export default function ProductDetailPage() {
   const { t } = useTranslation(['product'])
@@ -29,12 +26,6 @@ export default function ProductDetailPage() {
   const { getUserInfo } = useUserStore()
   const { setCurrentUrl } = useCurrentUrlStore()
   const navigate = useNavigate()
-  const { branch } = useBranchStore()
-
-  const { data: specificMenu } = useSpecificMenu({
-    branch: branch?.slug,
-    date: moment().format('YYYY-MM-DD'),
-  })
 
   const { data: product, isLoading } = useSpecificMenuItem(slug as string)
   const { addCartItem } = useCartItemStore()
@@ -139,9 +130,21 @@ export default function ProductDetailPage() {
                       <span className="text-sm text-muted-foreground">
                         {productDetail.product.description}
                       </span>
-                      {price ? (
-                        <div className="text-lg font-semibold text-primary">
-                          {`${formatCurrency(price)}`}
+                      {price && productDetail?.promotion ? (
+                        <div className="flex flex-col items-start justify-start gap-2">
+                          <div className='flex flex-row items-center gap-2'>
+                            <span className='text-sm font-normal line-through text-muted-foreground'>
+                              {`${formatCurrency(price)} `}
+                            </span>
+                            {productDetail?.promotion?.value > 0 && (
+                              <Badge className="text-xs bg-destructive hover:bg-destructive">
+                                {t('product.discount')} {productDetail?.promotion?.value}%
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-2xl font-extrabold text-primary">
+                            {`${formatCurrency(price * (1 - productDetail.promotion.value / 100))} `}
+                          </span>
                         </div>
                       ) : (
                         <div className="font-semibold text-primary">
@@ -242,6 +245,17 @@ export default function ProductDetailPage() {
                 </span>
                 <NavLink to={ROUTE.CLIENT_MENU}>
                   <span className="text-sm text-muted-foreground">
+                    {t('product.goToMenu')}
+                  </span>
+                </NavLink>
+              </p>
+              <SliderRelatedProducts currentProduct={slug || ''} catalog={productDetail?.product.catalog.slug || ''} />
+              {/* <p className="flex justify-between pl-2 border-l-4 border-primary text-primary">
+                <span>
+                  {t('product.relatedProducts')}
+                </span>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <span className="text-sm text-muted-foreground">
                     {t('product.viewMore')}
                   </span>
                 </NavLink>
@@ -257,7 +271,6 @@ export default function ProductDetailPage() {
                         key={item.slug}
                         className="flex flex-col transition-all duration-300 rounded-xl backdrop-blur-md hover:scale-105"
                       >
-                        {/* Image Section with Discount Tag */}
                         <div className="relative">
                           {item.product.image ? (
                             <img
@@ -284,7 +297,7 @@ export default function ProductDetailPage() {
                     </NavLink>
                   )
                 })}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -1,13 +1,20 @@
 import { useTranslation } from 'react-i18next'
+import { Copy, ShieldCheck } from 'lucide-react'
 
-import { Input, Textarea } from '@/components/ui'
+import { Input, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui'
 import { useProfile } from '@/hooks'
-import { SendVerifyEmailDialog, UpdatePasswordDialog } from '@/components/app/dialog'
-import UpdateCustomerProfileDialog from '../dialog/update-customer-profile-dialog'
+import { showToast } from '@/utils'
 
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
   const { data } = useProfile()
+
+  const handleCopyEmail = () => {
+    if (userProfile?.email) {
+      navigator.clipboard.writeText(userProfile.email);
+      showToast(t('toast.copyEmailSuccess'))
+    }
+  };
 
   const userProfile = data?.result
   const formFields = {
@@ -35,13 +42,46 @@ export function CustomerInfoTabsContent() {
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal">{t('profile.email')}</span>
-        <Input
-          value={userProfile?.email}
-          readOnly
-          disabled
-          placeholder={`${t('profile.email')}`}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">
+            {t('profile.email')}
+          </span>
+          {userProfile?.isVerifiedEmail ? (
+            <div className="flex items-center text-green-500">
+              <ShieldCheck className="w-4 h-4" />
+              <span className="text-xs">{t('profile.verified')}</span>
+            </div>
+          ) : (
+            <div className="flex items-center text-destructive">
+              <span className="text-xs">{t('profile.notVerified')}</span>
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <Input
+            value={userProfile?.email}
+            readOnly
+            disabled
+            placeholder={t('profile.email')}
+            className={`bg-gray-100 border ${userProfile?.isVerifiedEmail ? 'border-green-500' : 'border-destructive'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
+
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleCopyEmail}
+                  className="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {t('profile.copyEmail')}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
     ),
     phonenumber: (
@@ -85,11 +125,6 @@ export function CustomerInfoTabsContent() {
         {Object.keys(formFields).map((key) => (
           <div key={key}>{formFields[key as keyof typeof formFields]}</div>
         ))}
-      </div>
-      <div className="grid grid-cols-2 mt-4 sm:flex sm:justify-end sm:gap-2">
-        <UpdateCustomerProfileDialog userProfile={userProfile} />
-        <SendVerifyEmailDialog />
-        <UpdatePasswordDialog />
       </div>
     </div>
   )

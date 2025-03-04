@@ -14,7 +14,6 @@ export default function OrderHistoryPage() {
   const { data, isLoading } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    owner: userInfo?.slug,
     order: 'DESC',
     branchSlug: userInfo?.branch.slug,
     hasPaging: true,
@@ -23,7 +22,7 @@ export default function OrderHistoryPage() {
   return (
     <div className="flex flex-col">
       <div className={`top-0 flex flex-col items-center gap-2`}>
-        <span className="flex w-full items-center justify-start gap-1 text-lg">
+        <span className="flex items-center justify-start w-full gap-1 text-lg">
           <SquareMenu />
           {t('order.title')}
         </span>

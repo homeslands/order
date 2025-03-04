@@ -13,7 +13,7 @@ import {
   Button,
   PasswordInput,
 } from '@/components/ui'
-import { registerSchema } from '@/schemas'
+import { registerSchema, TRegisterSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import React from 'react'
@@ -28,7 +28,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   isLoading,
 }) => {
   const { t } = useTranslation(['auth'])
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<TRegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',

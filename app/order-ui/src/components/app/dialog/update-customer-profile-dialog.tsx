@@ -16,7 +16,7 @@ import { UpdateCustomerProfileForm } from '@/components/app/form'
 import { IUserInfo } from '@/types'
 
 interface IUpdateProfileDialogProps {
-  userProfile?: IUserInfo
+  userProfile: IUserInfo | null
 }
 
 export default function UpdateCustomerProfileDialog({
@@ -30,10 +30,10 @@ export default function UpdateCustomerProfileDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="flex justify-start w-full">
         <Button
-          variant="default"
-          className="h-10 gap-1 w-fit"
+          variant="ghost"
+          className="gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <PencilLine className="icon" />

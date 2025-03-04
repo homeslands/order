@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder } from '@/types'
+import { IOrder, OrderStatus } from '@/types'
 import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
 import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
@@ -164,9 +164,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     {tCommon('common.viewDetail')}
                   </Button>
                 </NavLink>
-                {!order.payment && (
+                {!order.payment || order.status === OrderStatus.PENDING && (
                   <NavLink
-                    to={`${ROUTE.STAFF_ORDER_PAYMENT}/${order.slug}`}
+                    to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
                     className="flex items-center justify-start w-full"
                   >
                     <Button

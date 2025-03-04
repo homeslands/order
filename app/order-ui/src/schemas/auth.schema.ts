@@ -1,18 +1,27 @@
+import { PHONE_NUMBER_REGEX } from '@/constants'
 import * as z from 'zod'
 
 // import { PHONE_NUMBER_REGEX } from '@/constants'
 
 export const loginSchema = z.object({
-  // phoneNumber: z.string().min(10).max(10).regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+  // phoneNumber: z
+  //   .string()
+  //   .min(10)
+  //   .max(10)
+  //   .regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
   phonenumber: z.string(),
   password: z.string(),
 })
 
 export const registerSchema = z
   .object({
-    // phoneNumber: z.string().min(10).max(10).regex(PHONE_NUMBER_REGEX, 'login.phoneNumberInvalid'),
+    phonenumber: z
+      .string()
+      .min(10)
+      .max(10)
+      .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
     email: z.string().email('Email không hợp lệ'),
-    phonenumber: z.string(),
+    // phonenumber: z.string(),
     password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     firstName: z.string().min(1),
@@ -37,6 +46,14 @@ export const resetPasswordSchema = z
     message: 'Mật khẩu không khớp',
   })
 
+export const verifyEmailSchema = z.object({
+  accessToken: z.string(),
+  email: z.string().email(),
+})
+
+export type TRegisterSchema = z.infer<typeof registerSchema>
+export type TLoginSchema = z.infer<typeof loginSchema>
 export type TResetPasswordSchema = z.infer<typeof resetPasswordSchema>
 
 export type TForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
+export type TVerifyEmailSchema = z.infer<typeof verifyEmailSchema>

@@ -38,7 +38,6 @@ export default function OrderManagementPage() {
     hasPaging: true,
     page: pagination.pageIndex,
     size: pagination.pageSize,
-    owner: userInfo?.slug,
     order: 'DESC',
     branchSlug: userInfo?.branch.slug,
     status: [OrderStatus.PAID, OrderStatus.SHIPPING].join(','),
@@ -66,17 +65,17 @@ export default function OrderManagementPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-row gap-2 py-4">
+    <div className="flex flex-row flex-1 gap-2 py-4">
       <ScrollArea className="flex-1">
         <div className="flex flex-col">
-          <div className="sticky top-0 flex flex-col items-center gap-2 pb-4">
-            <span className="flex w-full items-center justify-start gap-1 text-lg">
+          <div className="sticky top-0 z-10 flex flex-col items-center gap-2 pb-4">
+            <span className="flex items-center justify-start w-full gap-1 text-lg">
               <SquareMenu />
               {t('order.title')}
             </span>
           </div>
           <div className="grid h-full grid-cols-1 gap-2">
-            <div className="col-span-4 flex flex-col gap-2">
+            <div className="flex flex-col col-span-4 gap-2">
               <DataTable
                 isLoading={isLoading}
                 data={data?.result.items || []}

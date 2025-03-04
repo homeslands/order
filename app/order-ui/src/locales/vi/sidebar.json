@@ -32,7 +32,11 @@
     "myOrders": "Đơn hàng của tôi",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
-    "login": "Đăng nhập"
+    "login": "Đăng nhập",
+    "home": "Trang chủ",
+    "menu": "Thực đơn",
+    "aboutUs": "Về chúng tôi",
+    "policy": "Điều khoản"
   },
   "bottombar": {
     "home": "Trang chủ",

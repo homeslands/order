@@ -20,6 +20,8 @@ export interface IUserInfo {
     createdAt: string
     description: string
   }
+  isVerifiedEmail: boolean
+  isVerifiedPhonenumber: boolean
 }
 
 export interface ICreateUserRequest {

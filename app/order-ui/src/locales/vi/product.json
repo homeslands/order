@@ -108,7 +108,8 @@
     "discount": "Giảm giá",
     "perEachProduct": "cho mỗi sản phẩm",
     "relatedProducts": "Món ăn liên quan",
-    "viewMore": "Xem thêm"
+    "viewMore": "Xem thêm",
+    "goToMenu": "Đi đến thực đơn"
   },
   "productVariant": {
     "title": "Quản lý phân loại",

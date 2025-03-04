@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { MoreHorizontal } from 'lucide-react'
 
 import { ProfilePicture } from '@/components/app/avatar'
 import { useUploadProfilePicture } from '@/hooks'
@@ -6,9 +7,12 @@ import { useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { showToast } from '@/utils'
 import { CustomerProfileTabs } from '@/components/app/tabs'
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui'
+import { SendVerifyEmailDialog, UpdateCustomerProfileDialog, UpdatePasswordDialog } from '@/components/app/dialog'
 
 export default function ProfilePage() {
-  const { t } = useTranslation(['profile'])
+  const { t } = useTranslation(['profile', 'toast'])
+  const { t: tCommon } = useTranslation('common')
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
   const fullname = userInfo?.firstName + ' ' + userInfo?.lastName
@@ -27,7 +31,7 @@ export default function ProfilePage() {
       <div className="container py-10 mx-auto">
         <div className="flex flex-col items-start gap-10 lg:flex-row">
           {/* ProfilePicture */}
-          <div className={`w-full bg-white dark:border rounded-sm shadow-lg lg:w-1/4`}>
+          <div className={`w-full bg-white dark:border flex justify-between rounded-sm shadow-lg lg:w-1/4`}>
             <div className="flex flex-row p-2">
               <ProfilePicture
                 height={70}
@@ -45,6 +49,26 @@ export default function ProfilePage() {
                   {userInfo?.phonenumber}
                 </div>
               </div>
+            </div>
+            <div className='p-2'>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-8 h-8 p-0">
+                    <span className="sr-only">{tCommon('common.action')}</span>
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    {tCommon('common.action')}
+                  </DropdownMenuLabel>
+                  <UpdateCustomerProfileDialog userProfile={userInfo} />
+                  <SendVerifyEmailDialog />
+                  <UpdatePasswordDialog />
+                  {/* <UpdateBranchDialog branch={branch} /> */}
+                  {/* <DeleteBranchDialog branch={branch} /> */}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           {/* Info */}

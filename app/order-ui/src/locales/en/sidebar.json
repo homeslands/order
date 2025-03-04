@@ -32,7 +32,11 @@
     "myOrders": "My Orders",
     "profile": "Profile",
     "logout": "Logout",
-    "login": "Login"
+    "login": "Login",
+    "home": "Home",
+    "menu": "Menu",
+    "aboutUs": "About Us",
+    "policy": "Policy"
   },
   "bottombar": {
     "home": "Home",

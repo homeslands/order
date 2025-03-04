@@ -12,6 +12,7 @@
     "requestFailed": "Yêu cầu thất bại",
 
     "registerSuccess": "Đăng ký tài khoản thành công",
+    "copyEmailSuccess": "Sao chép email thành công",
     "sendVerifyEmailSuccess": "Gửi email xác minh thành công! Vui lòng kiểm tra email của bạn",
 
     "branchRequired": "Bạn chưa chọn chi nhánh",
