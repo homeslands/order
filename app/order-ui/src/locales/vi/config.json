@@ -1,8 +1,11 @@
 {
   "config": {
-    "title": "Cấu hình",
+    "title": "Cấu hình hệ thống",
 
     "save": "Lưu",
+    "addNewConfig": "Thêm cấu hình mới",
+    "savedConfigs": "Cấu hình đã lưu",
+    "noSavedConfig": "Không có cấu hình nào được lưu",
 
     "update": "Cập nhật",
     "updateSystemConfigDescription": "Cập nhật cấu hình hệ thống",

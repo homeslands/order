@@ -10,10 +10,12 @@ import { TimeRangeRevenueFilter } from '@/components/app/popover'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { useLatestRevenue } from '@/hooks'
+import { Helmet } from 'react-helmet'
 
 export default function OverviewPage() {
   const { t } = useTranslation(['dashboard'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tHelmet } = useTranslation('helmet')
   const [trigger, setTrigger] = useState(0)
   // Get first and last day of current month as default values
   const [startDate, setStartDate] = useState<string>(
@@ -36,6 +38,13 @@ export default function OverviewPage() {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.home.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.home.title')} />
+      </Helmet>
       <main className='flex flex-col gap-2 pb-4'>
         <span className="flex items-center justify-between w-full gap-1 pb-4 text-lg">
           <div className='flex flex-col items-center w-full gap-2 sm:justify-between sm:flex-row'>

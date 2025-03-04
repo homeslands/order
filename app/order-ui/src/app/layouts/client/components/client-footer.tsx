@@ -1,40 +1,61 @@
+import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { FacebookIcon, YoutubeIcon } from 'lucide-react'
+
 import { HomelandLogo, Store1 } from '@/assets/images'
 import { ROUTE } from '@/constants'
-import { FacebookIcon, YoutubeIcon } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
 
 export function ClientFooter() {
+  const { t } = useTranslation('sidebar')
   return (
     <footer className="text-white bg-primary">
       <div className="container py-6">
         <div className="grid items-start grid-cols-2 gap-5 lg:grid-cols-4">
           <div className="flex flex-col items-start justify-center gap-2 w-fit">
-            <span className="font-bold">Truy cập nhanh</span>
+            <span className="font-bold">
+              {t('footer.quickLink')}
+            </span>
             <NavLink
               to={ROUTE.HOME}
               className="text-xs cursor-pointer hover:underline"
             >
-              Trang chủ
+              {t('footer.home')}
             </NavLink>
             <NavLink
               to={ROUTE.CLIENT_MENU}
               className="text-xs cursor-pointer hover:underline"
             >
-              Thực đơn
+              {t('footer.menu')}
             </NavLink>
           </div>
           <div className="flex flex-col items-start justify-center gap-2 w-fit">
-            <span className="font-bold">Giới thiệu</span>
-            <span className="text-sm">Về chúng tôi</span>
-            <span className="text-sm">Sản phẩm</span>
-            <span className="text-sm">Khuyến mãi</span>
-            <span className="text-sm">Cửa hàng</span>
-            <span className="text-sm">Tuyển dụng</span>
+            <span className="font-bold">
+              {t('footer.introduction')}
+            </span>
+            <span className="text-sm">
+              {t('footer.menu')}
+            </span>
+            <span className="text-sm">
+              {t('footer.product')}
+            </span>
+            <span className="text-sm">
+              {t('footer.offer')}
+            </span>
+            <span className="text-sm">
+              {t('footer.store')}
+            </span>
+            <span className="text-sm">
+              {t('footer.recruitment')}
+            </span>
           </div>
           <div className="flex flex-col items-start justify-center gap-2 w-fit">
-            <span className="font-bold">Điều khoản</span>
-            <span className="text-sm">Điều khoản sử dụng</span>
-            <span className="text-sm">Chính sách bảo mật</span>
+            <span className="font-bold">
+              {t('footer.policy')}
+            </span>
+            <span className="text-sm">
+              {t('footer.securityTerm')}
+            </span>
+            {/* <span className="text-sm">Chính sách bảo mật</span> */}
           </div>
           <div className="relative flex flex-col items-start justify-center col-span-1 gap-4">
             <div className="relative">

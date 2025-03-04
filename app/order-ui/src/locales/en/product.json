@@ -51,8 +51,8 @@
     "productCatalog": "Dish catalog",
     "selectProductCatalog": "Select dish catalog",
     "isLimited": "Limited",
-    "isTopSell": "Top sale",
-    "isNew": "New dish",
+    "isTopSell": "Best seller",
+    "isNew": "New",
     "actions": "Actions",
     "chooseTool": "Choose tool",
     "tool": "Tool",
@@ -77,6 +77,7 @@
     "slug": "Slug",
     "createdAt": "Created at",
     "name": "Name",
+    "inStock": "in stock",
     "catalog": "Catalog",
     "description": "Description",
     "highlight": "Highlight",
@@ -101,7 +102,14 @@
     "dropFileHere": "Drag and drop file here or click to select a file",
     "dragAndDropOrClick": "Drag and drop file here or click to select a file",
     "supportedFormats": "Supported formats: .xls, .xlsx",
-    "importProductsConfirmation": "Are you sure you want to import dishes from an Excel file?"
+    "importProductsConfirmation": "Are you sure you want to import dishes from an Excel file?",
+
+    "specialOffer": "Special offer",
+    "discount": "Discount",
+    "perEachProduct": "per each product",
+    "relatedProducts": "Related products",
+    "viewMore": "View more",
+    "goToMenu": "Go to menu"
   },
   "productVariant": {
     "title": "Variant management",

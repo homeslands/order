@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { NavLink, useParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
 import {
     CircleAlert,
     ShoppingCartIcon,
@@ -24,6 +25,7 @@ import { ClientMenuTabs } from '@/components/app/tabs'
 
 export default function ClientUpdateOrderPage() {
     const { t } = useTranslation('menu')
+    const { t: tHelmet } = useTranslation('helmet')
     const { t: tToast } = useTranslation('toast')
     const { slug } = useParams()
     const { mutate: updateOrderType } = useUpdateOrderType()
@@ -88,6 +90,13 @@ export default function ClientUpdateOrderPage() {
 
     return (
         <div className={`container py-10`}>
+            <Helmet>
+                <meta charSet='utf-8' />
+                <title>
+                    {tHelmet('helmet.updateOrder.title')}
+                </title>
+                <meta name='description' content={tHelmet('helmet.updateOrder.title')} />
+            </Helmet>
             {/* Order type selection */}
             <div className="flex flex-col gap-4 lg:flex-row">
                 {/* Left content */}

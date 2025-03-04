@@ -1,6 +1,7 @@
 {
   "branch": {
     "title": "Chi nhánh",
+    "manageBranch": "Quản lý chi nhánh",
     "slug": "Mã chi nhánh",
     "branchName": "Tên chi nhánh",
     "branchAddress": "Địa chỉ chi nhánh",

@@ -1,2 +1,2 @@
-export { default as ConfigPage } from './config-page'
+export { default as ConfigPage } from './page'
 export { default as ConfigDropdown } from './config-dropdown'

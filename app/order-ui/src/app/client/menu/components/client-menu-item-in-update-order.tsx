@@ -49,7 +49,8 @@ export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemI
                 className="object-cover w-full h-36 rounded-t-md"
               />
               {/* Discount Ribbon Tag */}
-              <PromotionTag />
+              {/* <PromotionTag /> */}
+              {item.product.isTopSell && <PromotionTag />}
             </>
           ) : (
             <div className="w-full h-24 rounded-t-md bg-muted/60" />
