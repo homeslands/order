@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { MoreHorizontal } from 'lucide-react'
 
@@ -12,6 +13,7 @@ import { SendVerifyEmailDialog, UpdateCustomerProfileDialog, UpdatePasswordDialo
 
 export default function ProfilePage() {
   const { t } = useTranslation(['profile', 'toast'])
+  const { t: tHelmet } = useTranslation('helmet')
   const { t: tCommon } = useTranslation('common')
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
@@ -27,56 +29,61 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="bg-muted-foreground/5">
-      <div className="container py-10 mx-auto">
-        <div className="flex flex-col items-start gap-10 lg:flex-row">
-          {/* ProfilePicture */}
-          <div className={`w-full bg-white dark:border flex justify-between rounded-sm shadow-lg lg:w-1/4`}>
-            <div className="flex flex-row p-2">
-              <ProfilePicture
-                height={70}
-                width={70}
-                src={
-                  userInfo?.image
-                    ? `${publicFileURL}/${userInfo?.image}`
-                    : 'https://github.com/shadcn.png'
-                }
-                onUpload={handleUploadProfilePicture}
-              />
-              <div className="flex flex-col justify-center ml-4">
-                <span className="font-bold">{fullname}</span>
-                <div className="text-description flex items-center text-[13px]">
-                  {userInfo?.phonenumber}
-                </div>
+    <div className="container py-10 mx-auto bg-muted-foreground/5">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.profile.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.profile.title')} />
+      </Helmet>
+      <div className="flex flex-col items-start gap-10 lg:flex-row">
+        {/* ProfilePicture */}
+        <div className={`w-full bg-white dark:border flex justify-between rounded-sm shadow-lg lg:w-1/4`}>
+          <div className="flex flex-row p-2">
+            <ProfilePicture
+              height={70}
+              width={70}
+              src={
+                userInfo?.image
+                  ? `${publicFileURL}/${userInfo?.image}`
+                  : 'https://github.com/shadcn.png'
+              }
+              onUpload={handleUploadProfilePicture}
+            />
+            <div className="flex flex-col justify-center ml-4">
+              <span className="font-bold">{fullname}</span>
+              <div className="text-description flex items-center text-[13px]">
+                {userInfo?.phonenumber}
               </div>
             </div>
-            <div className='p-2'>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-8 h-8 p-0">
-                    <span className="sr-only">{tCommon('common.action')}</span>
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    {tCommon('common.action')}
-                  </DropdownMenuLabel>
-                  <UpdateCustomerProfileDialog userProfile={userInfo} />
-                  <SendVerifyEmailDialog />
-                  <UpdatePasswordDialog />
-                  {/* <UpdateBranchDialog branch={branch} /> */}
-                  {/* <DeleteBranchDialog branch={branch} /> */}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
-          {/* Info */}
-          <div
-            className={`w-full rounded-sm bg-white dark:border px-5 py-4 shadow-lg transition-all duration-300 ease-in-out lg:w-3/4`}
-          >
-            <CustomerProfileTabs />
+          <div className='p-2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-8 h-8 p-0">
+                  <span className="sr-only">{tCommon('common.action')}</span>
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {tCommon('common.action')}
+                </DropdownMenuLabel>
+                <UpdateCustomerProfileDialog userProfile={userInfo} />
+                <SendVerifyEmailDialog />
+                <UpdatePasswordDialog />
+                {/* <UpdateBranchDialog branch={branch} /> */}
+                {/* <DeleteBranchDialog branch={branch} /> */}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+        </div>
+        {/* Info */}
+        <div
+          className={`w-full rounded-sm bg-white dark:border px-5 py-4 shadow-lg transition-all duration-300 ease-in-out lg:w-3/4`}
+        >
+          <CustomerProfileTabs />
         </div>
       </div>
     </div>

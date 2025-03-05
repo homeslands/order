@@ -9,8 +9,10 @@ import { StoreCarousel } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
 import SwiperBanner from './components/banner'
 import SliderProduct from './components/slider-product'
+import { Helmet } from 'react-helmet'
 export default function HomePage() {
   const { t } = useTranslation('home')
+  const { t: tHelmet } = useTranslation('helmet')
   const { data: banner } = useBanners()
   const bannerData = banner?.result || []
   // Animation Variants
@@ -30,11 +32,18 @@ export default function HomePage() {
   return (
     <React.Fragment>
       <AdPopup />
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.home.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.home.title')} />
+      </Helmet>
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
 
-        {/* Section 2: Sản phẩm bán chạy */}
+        {/* Section 2: Top sell */}
         {bestSellerProducts.length > 0 &&
           <div className="container">
             <motion.div
@@ -59,8 +68,7 @@ export default function HomePage() {
           </div>
         }
 
-
-        {/* Section 2: Sản phẩm mới */}
+        {/* Section 2: New products */}
         {newProducts.length > 0 &&
           <div className="container">
             <motion.div
@@ -70,7 +78,7 @@ export default function HomePage() {
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="w-full mb-4 flex-between">
+              <div className="w-full flex-between">
                 <div className="primary-highlight">
                   {t('home.newProduct')}
                 </div>

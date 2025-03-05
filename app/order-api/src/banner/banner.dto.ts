@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 
 export class CreateBannerRequestDto {
@@ -22,27 +22,20 @@ export class CreateBannerRequestDto {
   })
   @IsNotEmpty({ message: 'Content of banner is required' })
   content: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  url: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  @Type(() => Boolean)
+  useButtonUrl: boolean;
 }
 
-export class UpdateBannerRequestDto {
-  @AutoMap()
-  @ApiProperty({
-    description: 'The title of banner',
-    example: '',
-    required: true,
-  })
-  @IsNotEmpty({ message: 'Title of banner is required' })
-  title: string;
-
-  @AutoMap()
-  @ApiProperty({
-    description: 'The content of banner',
-    example: '',
-    required: true,
-  })
-  @IsNotEmpty({ message: 'Content of banner is required' })
-  content: string;
-
+export class UpdateBannerRequestDto extends CreateBannerRequestDto {
   @AutoMap()
   @ApiProperty({
     description: 'The is active of banner',
@@ -78,4 +71,10 @@ export class BannerResponseDto extends BaseResponseDto {
 
   @AutoMap()
   isActive: string;
+
+  @AutoMap()
+  url: string;
+
+  @AutoMap()
+  useButtonUrl: string;
 }

@@ -13,6 +13,9 @@ import {
 import { InjectMapper } from '@automapper/nestjs';
 import { BannerUtils } from './banner.utils';
 import { FileService } from 'src/file/file.service';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { BannerException } from './banner.exception';
+import BannerValidation from './banner.validation';
 
 @Injectable()
 export class BannerService {
@@ -24,6 +27,7 @@ export class BannerService {
     @InjectMapper() private readonly mapper: Mapper,
     private readonly bannerUtils: BannerUtils,
     private readonly fileService: FileService,
+    private readonly transactionManager: TransactionManagerService,
   ) {}
 
   async createBanner(
@@ -37,18 +41,34 @@ export class BannerService {
       Banner,
     );
 
-    const createBanner = this.bannerRepository.create(bannerData);
-    const banner = await this.bannerRepository.save(createBanner);
+    const createdBanner = await this.transactionManager.execute<Banner>(
+      async (manager) => {
+        return await manager.save(bannerData);
+      },
+      (result) => {
+        this.logger.log(`Create banner ${result.title} successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Create banner failed: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new BannerException(
+          BannerValidation.CREATE_BANNER_FAILED,
+          error.message,
+        );
+      },
+    );
 
-    this.logger.log('Create banner success', context);
-    return this.mapper.map(banner, Banner, BannerResponseDto);
+    return this.mapper.map(createdBanner, Banner, BannerResponseDto);
   }
 
   async getAllBanners(query: GetBannerQueryDto): Promise<BannerResponseDto[]> {
     const context = `${BannerService.name}.${this.getAllBanners.name}`;
 
     const where: FindOptionsWhere<Banner> = {};
-    if (query.isActive !== undefined) {
+    if (query.isActive) {
       where.isActive = query.isActive;
     }
     const banners = await this.bannerRepository.find({ where });
@@ -77,9 +97,26 @@ export class BannerService {
       Banner,
     );
     Object.assign(banner, updateData);
-    const updatedBanner = await this.bannerRepository.save(banner);
 
-    this.logger.log(`Update banner ${banner.slug} successfully`, context);
+    const updatedBanner = await this.transactionManager.execute<Banner>(
+      async (manager) => {
+        return await manager.save(banner);
+      },
+      (result) => {
+        this.logger.log(`Banner ${result.title} updated successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Update banner failed: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new BannerException(
+          BannerValidation.UPDATE_BANNER_FAILED,
+          error.message,
+        );
+      },
+    );
 
     return this.mapper.map(updatedBanner, Banner, BannerResponseDto);
   }

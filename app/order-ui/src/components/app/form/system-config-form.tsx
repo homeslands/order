@@ -23,8 +23,8 @@ const NewConfigRow = ({
   isEditingDescription: boolean
   t: (key: string) => string
 }) => (
-  <div className="col-span-8 grid w-full grid-cols-1 items-center gap-4 lg:grid-cols-2">
-    <div className="flex w-full flex-col gap-2">
+  <div className="grid items-center w-full grid-cols-1 col-span-8 gap-4 lg:grid-cols-2">
+    <div className="flex flex-col w-full gap-2">
       <Label>{t('config.key')}</Label>
       <Input
         value={config.key}
@@ -32,7 +32,7 @@ const NewConfigRow = ({
         placeholder="Enter key"
       />
     </div>
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex flex-col w-full gap-2">
       <Label>Value</Label>
       <Input
         value={config.value}
@@ -45,16 +45,16 @@ const NewConfigRow = ({
 
 // Component con để quản lý hàng đã lưu
 const ConfigRow = ({ config }: { config: ISystemConfig }) => (
-  <div className="flex flex-col gap-2 rounded-md border bg-white p-2 lg:flex-row">
+  <div className="flex flex-col gap-2 p-2 bg-white border rounded-md lg:flex-row">
     {/* Left */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="col-span-1 h-fit w-fit rounded-full bg-gray-100 p-2">
+        <div className="col-span-1 p-2 bg-gray-100 rounded-full h-fit w-fit">
           <ChevronsLeftRight size={18} />
         </div>
         <span className="col-span-3 text-sm">{config.key}</span>
       </div>
-      <div className="col-span-1 flex items-end justify-end gap-2 lg:hidden">
+      <div className="flex items-end justify-end col-span-1 gap-2 lg:hidden">
         <ConfigDropdown systemConfig={config} />
       </div>
     </div>
@@ -64,7 +64,7 @@ const ConfigRow = ({ config }: { config: ISystemConfig }) => (
       <span className="col-span-6 text-sm">{config.value}</span>
     </div>
     {/* Action */}
-    <div className="col-span-1 ml-auto hidden items-end justify-end gap-2 lg:flex">
+    <div className="items-end justify-end hidden col-span-1 gap-2 ml-auto lg:flex">
       <ConfigDropdown systemConfig={config} />
     </div>
   </div>
@@ -161,10 +161,12 @@ export const SystemConfigForm: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex flex-col w-full gap-4">
       {/* Khu vực thêm mới */}
-      <div className="border-b border-gray-300 pb-4">
-        <h3 className="mb-4 text-lg font-semibold">Add New Configuration</h3>
+      <div className="pb-4 border-b border-gray-300">
+        <h3 className="mb-4 text-lg font-semibold">
+          {t('config.addNewConfig')}
+        </h3>
         <div className="grid w-full gap-2">
           {newConfigs.map((config) => (
             <NewConfigRow
@@ -193,7 +195,9 @@ export const SystemConfigForm: React.FC = () => {
 
       {/* Danh sách config */}
       <div className="mt-6">
-        <h3 className="mb-4 text-lg font-semibold">Configuration List</h3>
+        <h3 className="mb-4 text-lg font-semibold">
+          {t('config.savedConfigs')}
+        </h3>
         {configs.length > 0 ? (
           <div className="grid w-full gap-2">
             {configs.map((config) => (
@@ -201,7 +205,9 @@ export const SystemConfigForm: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">No configurations found.</p>
+          <p className="text-gray-500">
+            {t('config.noSavedConfig')}
+          </p>
         )}
       </div>
     </div>

@@ -96,7 +96,6 @@ export class BannerController {
   @ApiOperation({ summary: 'Create new banner' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
-  // @Public()
   async createBanner(
     @Body(
       new ValidationPipe({
@@ -132,7 +131,6 @@ export class BannerController {
     example: '',
   })
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
-  // @Public()
   async updateBanner(
     @Param('slug') slug: string,
     @Body(

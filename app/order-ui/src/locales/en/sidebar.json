@@ -38,6 +38,19 @@
     "aboutUs": "About Us",
     "policy": "Policy"
   },
+  "footer": {
+    "quickLink": "Quick Link",
+    "home": "Home",
+    "menu": "Menu",
+    "introduction": "Introduction",
+    "product": "Product",
+    "offer": "Offer",
+    "store": "Store",
+    "recruitment": "Recruitment",
+    "contact": "Contact",
+    "policy": "Policy",
+    "securityTerm": "Security Term"
+  },
   "bottombar": {
     "home": "Home",
     "menu": "Menu",

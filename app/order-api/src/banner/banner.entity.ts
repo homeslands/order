@@ -19,4 +19,12 @@ export class Banner extends Base {
   @AutoMap()
   @Column({ name: 'is_active_column', default: false })
   isActive: boolean;
+
+  @AutoMap()
+  @Column({ name: 'url_column', nullable: true })
+  url: string;
+
+  @AutoMap()
+  @Column({ name: 'use_button_url_column', default: false })
+  useButtonUrl: boolean;
 }

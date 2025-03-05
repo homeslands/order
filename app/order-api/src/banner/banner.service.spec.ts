@@ -8,6 +8,9 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { BannerUtils } from './banner.utils';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('BannerService', () => {
   let service: BannerService;
@@ -18,6 +21,8 @@ describe('BannerService', () => {
         BannerService,
         FileService,
         BannerUtils,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: FileService,
           useValue: {

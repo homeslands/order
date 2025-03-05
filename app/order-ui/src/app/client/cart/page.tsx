@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { CircleAlert, ShoppingCartIcon, Trash2 } from 'lucide-react'
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
@@ -19,6 +20,7 @@ import { OrderTypeEnum } from '@/types'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
+  const { t: tHelmet } = useTranslation('helmet')
   const { getCartItems } = useCartItemStore()
   const cartItems = getCartItems()
 
@@ -46,6 +48,13 @@ export default function ClientCartPage() {
 
   return (
     <div className={`container py-10`}>
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.cart.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.cart.title')} />
+      </Helmet>
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Left content */}
@@ -66,14 +75,12 @@ export default function ClientCartPage() {
         </div> */}
 
         {/* Right content */}
-        <div className="w-full lg:w-full">
-          <div className="flex items-end justify-between pb-4">
-            <div className="flex items-center gap-1">
-              <CircleAlert size={14} className="text-destructive" />
-              <span className="text-xs italic text-destructive">
-                {t('order.selectTableNote')}
-              </span>
-            </div>
+        <div className="w-full">
+          <div className="flex items-center gap-1 pb-4">
+            <CircleAlert size={14} className="text-destructive" />
+            <span className="text-xs italic text-destructive">
+              {t('order.selectTableNote')}
+            </span>
           </div>
           <div className='flex gap-1'>
             <OrderTypeSelect />
@@ -81,7 +88,7 @@ export default function ClientCartPage() {
           </div>
           {/* Table list order items */}
           <div className="my-4">
-            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted/60">
+            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted-foreground/15">
               <span className="col-span-2">{t('order.product')}</span>
               <span className="col-span-2 text-center">
                 {t('order.quantity')}
@@ -151,13 +158,13 @@ export default function ClientCartPage() {
             <div className="flex flex-col items-end justify-between p-2 pt-4 mt-4 border rounded-md">
               <div className="flex flex-col items-start justify-between w-full">
                 <div className='flex flex-col items-start justify-start w-full gap-1'>
-                  <div className='flex items-center justify-between w-full gap-2 text-xs text-muted-foreground'>
+                  <div className='flex items-center justify-between w-full gap-2 text-sm text-muted-foreground'>
                     {t('order.subtotal')}:&nbsp;
                     <span>
                       {`${formatCurrency(subTotal)}`}
                     </span>
                   </div>
-                  <div className='flex items-center justify-between w-full gap-2 text-xs text-muted-foreground'>
+                  <div className='flex items-center justify-between w-full gap-2 text-sm text-muted-foreground'>
                     <span>
                       {t('order.discount')}:&nbsp;
                     </span>
@@ -169,12 +176,12 @@ export default function ClientCartPage() {
                     <span>
                       {t('order.totalPayment')}:&nbsp;
                     </span>
-                    <span className='font-bold text-primary text-md'>
+                    <span className='text-2xl font-extrabold text-primary'>
                       {`${formatCurrency(totalAfterDiscount)}`}
                     </span>
                   </div>
                   <span className='text-xs text-muted-foreground'>
-                    {t('order.vat')}
+                    ({t('order.vat')})
                   </span>
                 </div>
               </div>

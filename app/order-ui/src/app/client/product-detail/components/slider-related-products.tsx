@@ -57,7 +57,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
                 return (
                     <SwiperSlide key={index} className="w-full h-full py-2">
                         <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-                            <div className="flex flex-col w-full min-h-[14rem] transition-all duration-300 bg-white border rounded-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
+                            <div className="flex flex-col w-full min-h-[18rem] transition-all duration-300 bg-white border rounded-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
                                 <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
                                 <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                     <div>
@@ -68,7 +68,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
                                     </div>
                                     {item?.promotion && item?.promotion?.value > 0 ? (
                                         <div className='flex flex-col items-start justify-start gap-1 mt-2'>
-                                            <span className="text-sm sm:text-lg text-primary">
+                                            <span className="text-sm font-bold sm:text-lg text-primary">
                                                 {(() => {
                                                     const range = getPriceRange(item.product.variants)
                                                     if (!range) return formatCurrency(0)

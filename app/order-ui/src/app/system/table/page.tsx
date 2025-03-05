@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
@@ -9,30 +10,34 @@ import { TableAction } from './DataTable/actions'
 
 export default function TablePage() {
   const { t } = useTranslation(['table'])
+  const { t: tHelmet } = useTranslation('helmet')
   const { getUserInfo } = useUserStore()
   const { data: tables, isLoading } = useTables(getUserInfo()?.branch?.slug)
 
   return (
-    <div>
-      <div className="sticky top-0 z-10 flex flex-col items-center gap-2 pb-4 pr-4">
-        <div className="flex flex-col flex-1 w-full">
-          <span className="flex items-center gap-1 text-lg">
-            <SquareMenu />
-            {t('table.tableTitle')}
-          </span>
-          <div className="grid h-full grid-cols-1 gap-2 mt-4">
-            <DataTable
-              columns={useTableColumns()}
-              data={tables?.result || []}
-              isLoading={isLoading}
-              pages={1}
-              hiddenInput={false}
-              actionOptions={TableAction}
-              onPageChange={() => { }}
-              onPageSizeChange={() => { }}
-            />
-          </div>
-        </div>
+    <div className="flex flex-col flex-1 w-full">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.table.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.table.title')} />
+      </Helmet>
+      <span className="flex items-center gap-1 text-lg">
+        <SquareMenu />
+        {t('table.tableTitle')}
+      </span>
+      <div className="grid h-full grid-cols-1 gap-2 mt-4">
+        <DataTable
+          columns={useTableColumns()}
+          data={tables?.result || []}
+          isLoading={isLoading}
+          pages={1}
+          hiddenInput={false}
+          actionOptions={TableAction}
+          onPageChange={() => { }}
+          onPageSizeChange={() => { }}
+        />
       </div>
     </div>
     // <div className="pb-4">

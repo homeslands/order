@@ -114,6 +114,7 @@
     "confirmPaid": "Xác nhận đã thanh toán",
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
+
     "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
     "orderStatus": "Trạng thái",
@@ -124,6 +125,7 @@
     "completed": "Đã hoàn tất",
     "shipping": "Đang giao hàng",
     "failed": "Thất bại",
+
     "deleteItem": "Xóa sản phẩm",
     "deleteNote": "Lưu ý: Hành động này không thể hoàn tác!",
     "deleteContent": "Bạn có chắc muốn xóa sản phẩm ",
@@ -155,6 +157,8 @@
     "aListOfOrders": "Danh sách đơn hàng",
     "buyAgain": "Mua lại",
 
+    "orderExpired": "Đơn hàng đã hết hạn thanh toán",
+    "goBackToMenu": "Quay lại thực đơn",
     "customerInformation": "Thông tin khách hàng",
     "paymentInformation": "Thông tin thanh toán",
     "itemAmount": "Số lượng món",

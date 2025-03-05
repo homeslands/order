@@ -1,16 +1,133 @@
 {
   "helmet": {
+    "home": {
+      "title": "Trang chủ",
+      "description": "Trang chủ của bạn tại đây",
+      "keywords": "trang chủ, trang chủ quán ăn"
+    },
     "menu": {
       "title": "Thực đơn",
       "manageMenu": "Quản lý thực đơn",
       "description": "Quản lý thực đơn của bạn tại đây",
       "keywords": "thực đơn, quản lý thực đơn, thực đơn quán ăn"
     },
+    "productDetail": {
+      "title": "Chi tiết món",
+      "manageProductDetail": "Chi tiết món",
+      "description": "Chi tiết món của bạn tại đây",
+      "keywords": "chi tiết món, món ăn, chi tiết sản phẩm"
+    },
     "cart": {
       "title": "Giỏ hàng",
       "manageCart": "Quản lý giỏ hàng",
       "description": "Quản lý giỏ hàng của bạn tại đây",
       "keywords": "giỏ hàng, quản lý giỏ hàng, giỏ hàng mua sắm"
+    },
+    "customer": {
+      "title": "Quản lý người dùng",
+      "manageCustomer": "Quản lý người dùng",
+      "description": "Quản lý người dùng của bạn tại đây",
+      "keywords": "quản lý người dùng, người dùng, khách hàng"
+    },
+    "employee": {
+      "title": "Quản lý nhân viên",
+      "manageEmployee": "Quản lý nhân viên",
+      "description": "Quản lý nhân viên của bạn tại đây",
+      "keywords": "quản lý nhân viên, nhân viên, quản lý nhân sự"
+    },
+    "menuManagement": {
+      "title": "Quản lý thực đơn",
+      "manageMenuManagement": "Quản lý thực đơn",
+      "description": "Quản lý thực đơn của bạn tại đây",
+      "keywords": "thực đơn, quản lý thực đơn, thực đơn quán ăn"
+    },
+    "profile": {
+      "title": "Hồ sơ",
+      "manageProfile": "Quản lý hồ sơ",
+      "description": "Quản lý hồ sơ của bạn tại đây"
+    },
+    "log": {
+      "title": "Quản lý log",
+      "manageLog": "Quản lý lịch sử",
+      "description": "Quản lý lịch sử của bạn tại đây",
+      "keywords": "lịch sử, quản lý lịch sử, lịch sử giao dịch"
+    },
+    "bankConfig": {
+      "title": "Quản lý ngân hàng",
+      "manageBankConfig": "Quản lý ngân hàng",
+      "description": "Quản lý ngân hàng của bạn tại đây",
+      "keywords": "quản lý ngân hàng, ngân hàng, quản lý ngân hàng"
+    },
+    "updateOrder": {
+      "title": "Cập nhật đơn hàng",
+      "manageUpdateOrder": "Cập nhật đơn hàng",
+      "description": "Cập nhật đơn hàng của bạn tại đây",
+      "keywords": "cập nhật đơn hàng, đơn hàng, quản lý đơn hàng"
+    },
+    "payment": {
+      "title": "Thanh toán",
+      "managePayment": "Trang thanh toán",
+      "description": "Quản lý thanh toán của bạn tại đây"
+    },
+    "config": {
+      "title": "Cấu hình hệ thống",
+      "manageConfig": "Cấu hình hệ thống",
+      "description": "Quản lý cài đặt của bạn tại đây",
+      "keywords": "cài đặt, quản lý cài đặt, cài đặt hệ thống"
+    },
+    "voucher": {
+      "title": "Quản lý voucher",
+      "manageVoucher": "Quản lý voucher",
+      "description": "Quản lý voucher của bạn tại đây",
+      "keywords": "voucher, quản lý voucher, voucher giảm giá"
+    },
+    "promotion": {
+      "title": "Quản lý khuyến mãi",
+      "managePromotion": "Quản lý khuyến mãi",
+      "description": "Quản lý khuyến mãi của bạn tại đây",
+      "keywords": "khuyến mãi, quản lý khuyến mãi, khuyến mãi giảm giá"
+    },
+    "banner": {
+      "title": "Quản lý banner",
+      "manageBanner": "Quản lý banner",
+      "description": "Quản lý banner của bạn tại đây",
+      "keywords": "banner, quản lý banner, banner quảng cáo"
+    },
+    "orderHistory": {
+      "title": "Lịch sử đơn hàng",
+      "manageOrderHistory": "Lịch sử đơn hàng",
+      "description": "Quản lý lịch sử đơn hàng của bạn tại đây",
+      "keywords": "lịch sử đơn hàng, đơn hàng, quản lý đơn hàng"
+    },
+    "table": {
+      "title": "Quản lý bàn",
+      "manageTable": "Quản lý bàn",
+      "description": "Quản lý bàn của bạn tại đây",
+      "keywords": "bàn, quản lý bàn, bàn ăn"
+    },
+    "product": {
+      "title": "Quản lý món",
+      "manageProduct": "Quản lý sản phẩm",
+      "description": "Quản lý sản phẩm của bạn tại đây",
+      "keywords": "sản phẩm, quản lý sản phẩm, sản phẩm bánh"
+    },
+    "branch": {
+      "title": "Quản lý chi nhánh",
+      "manageBranch": "Quản lý chi nhánh",
+      "description": "Quản lý chi nhánh của bạn tại đây",
+      "keywords": "chi nhánh, quản lý chi nhánh, chi nhánh quán ăn"
+    },
+    "staticPage": {
+      "title": "Quản lý trang tĩnh",
+      "manageStaticPage": "Quản lý trang tĩnh",
+      "description": "Quản lý trang tĩnh của bạn tại đây",
+      "keywords": "trang tĩnh, quản lý trang tĩnh, trang tĩnh quán ăn"
+    },
+    "orderManagement": {
+      "title": "Quản lý đơn hàng",
+      "manageOrderManagement": "Quản lý đơn hàng",
+      "description": "Quản lý đơn hàng của bạn tại đây",
+      "keywords": "đơn hàng, quản lý đơn hàng, đơn hàng quán ăn"
     }
   }
 }

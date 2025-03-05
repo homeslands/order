@@ -22,11 +22,11 @@ describe('ACBConnectorService', () => {
         ACBConnectorService,
         {
           provide: getRepositoryToken(ACBConnectorConfig),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: MAPPER_MODULE_PROVIDER,
-          useValue: mapperMockFactory,
+          useFactory: mapperMockFactory,
         },
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,

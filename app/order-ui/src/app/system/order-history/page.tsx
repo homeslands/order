@@ -5,9 +5,11 @@ import { DataTable } from '@/components/ui'
 import { useOrders, usePagination } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useOrderHistoryColumns } from './DataTable/columns'
+import { Helmet } from 'react-helmet'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
+  const { t: tHelmet } = useTranslation('helmet')
   const { userInfo } = useUserStore()
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
 
@@ -21,12 +23,17 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="flex flex-col">
-      <div className={`top-0 flex flex-col items-center gap-2`}>
-        <span className="flex items-center justify-start w-full gap-1 text-lg">
-          <SquareMenu />
-          {t('order.title')}
-        </span>
-      </div>
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.orderHistory.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.orderHistory.title')} />
+      </Helmet>
+      <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <SquareMenu />
+        {t('order.title')}
+      </span>
       <div className="grid h-full grid-cols-1">
         <DataTable
           columns={useOrderHistoryColumns()}
