@@ -159,7 +159,7 @@ export default function CustomerOrderTabsContent({
                 <PaginationPrevious
                   onClick={() => handlePageChange(pagination.pageIndex - 1)}
                   className={
-                    !order?.result.hasPrevios
+                    !order?.result.hasPrevious
                       ? 'pointer-events-none opacity-50'
                       : 'cursor-pointer'
                   }

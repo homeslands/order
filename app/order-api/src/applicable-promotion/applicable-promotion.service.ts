@@ -53,6 +53,14 @@ export class ApplicablePromotionService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Create many applicable promotions
+   * @param {CreateManyApplicablePromotionsRequestDto} createManyApplicablePromotionsRequestDto The request data to create many applicable promotions
+   * @returns {Promise<ApplicablePromotionResponseDto[]>} The applicable promotion data
+   * @throws {PromotionException} Throw if promotion not found
+   * @throws {ProductException} Throw if product not found
+   * @throws {ApplicablePromotionException} Throw if applicable promotion already existed
+   */
   async createManyApplicablePromotions(
     createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto,
   ): Promise<ApplicablePromotionResponseDto[]> {
@@ -134,6 +142,14 @@ export class ApplicablePromotionService {
     }
   }
 
+  /**
+   * Create applicable promotion
+   * @param {CreateApplicablePromotionRequestDto} createApplicablePromotionRequestDto The request data to create applicable promotion
+   * @returns {Promise<ApplicablePromotionResponseDto>} The applicable promotion data
+   * @throws {PromotionException} Throw if promotion not found
+   * @throws {ProductException} Throw if product not found
+   * @throws {ApplicablePromotionException} Throw if applicable promotion already existed
+   */
   async createApplicablePromotion(
     createApplicablePromotionRequestDto: CreateApplicablePromotionRequestDto,
   ): Promise<ApplicablePromotionResponseDto> {
@@ -253,6 +269,15 @@ export class ApplicablePromotionService {
     }
   }
 
+  /**
+   * Construct applicable promotion
+   * @param {Promotion} promotion The promotion is applied
+   * @param {CreateApplicablePromotionRequestDto} createManyApplicablePromotionsRequestDto The request data to create applicable promotion
+   * @param {string} productSlug The product slug
+   * @returns {Promise<{ createManyApplicablePromotionsData: CreateManyApplicablePromotionsRequestDto, updateMenuItem: MenuItem }>} The applicable promotion data
+   * @throws {ProductException} Throw if product not found
+   * @throws {ApplicablePromotionException} Throw if applicable promotion already existed
+   */
   async constructApplicablePromotion(
     promotion: Promotion,
     createManyApplicablePromotionsRequestDto: CreateManyApplicablePromotionsRequestDto,
@@ -318,6 +343,12 @@ export class ApplicablePromotionService {
     return { createManyApplicablePromotionsData, updateMenuItem };
   }
 
+  /**
+   * Delete applicable promotion
+   * @param {string} slug The slug of applicable promotion
+   * @returns Promise<number> The number of affected to be deleted
+   * @throws {ApplicablePromotionException} Throw if applicable promotion not found
+   */
   async deleteApplicablePromotion(slug: string): Promise<number> {
     const context = `${ApplicablePromotionService.name}.${this.deleteApplicablePromotion.name}`;
 
@@ -338,13 +369,12 @@ export class ApplicablePromotionService {
       );
     }
 
-    const promotionFindOptionsWhere: FindOptionsWhere<Promotion> = {
-      applicablePromotions: { id: applicablePromotion.id },
-    };
-    const promotion = await this.promotionUtils.getPromotion(
-      promotionFindOptionsWhere,
-      ['branch'],
-    );
+    const promotion = await this.promotionUtils.getPromotion({
+      where: {
+        applicablePromotions: { id: applicablePromotion.id },
+      },
+      relations: ['branch'],
+    });
 
     const today = new Date();
     today.setHours(7, 0, 0, 0);
@@ -391,6 +421,15 @@ export class ApplicablePromotionService {
     }
   }
 
+  /**
+   * Get menu item by applicable promotion
+   * @param {Date} date The date of menu
+   * @param {string} branchId The branch id
+   * @param {string} productId The product id
+   * @param {Promotion} promotion The promotion is applied
+   * @returns {Promise<MenuItem>} The menu item
+   * @throws {ApplicablePromotionException} Throw if get menu item by applicable promotion failed
+   */
   async getMenuItemByApplicablePromotion(
     date: Date,
     branchId: string,
@@ -432,6 +471,15 @@ export class ApplicablePromotionService {
     }
   }
 
+  /**
+   * Get menu item by applicable promotion when delete
+   * @param {Date} date
+   * @param {string} branchId
+   * @param {string} productId
+   * @param {ApplicablePromotion} deletedApplicablePromotion
+   * @returns {Promise<MenuItem>}
+   * @throws {ApplicablePromotionException} Throw if get menu item by applicable promotion failed
+   */
   async getMenuItemByApplicablePromotionWhenDelete(
     date: Date,
     branchId: string,

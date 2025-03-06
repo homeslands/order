@@ -30,7 +30,7 @@ import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
 
 export const useProducts = (params?: IProductRequest) => {
   return useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', params],
     queryFn: () => getAllProducts(params),
     placeholderData: keepPreviousData,
   })

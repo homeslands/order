@@ -11,9 +11,7 @@ export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
     const { t: tHelmet } = useTranslation('helmet')
     const { handlePageChange, handlePageSizeChange } = usePagination()
-    const { data, isLoading } = useVouchers({
-        isActive: true,
-    })
+    const { data, isLoading } = useVouchers()
 
     return (
         <div className="flex flex-col flex-1 w-full">

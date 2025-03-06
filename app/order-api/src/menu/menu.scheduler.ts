@@ -32,84 +32,90 @@ export class MenuScheduler {
   // @Timeout(1000)
   async generateMenu() {
     const context = `${MenuScheduler.name}.${this.generateMenu.name}`;
-    // check duplicate menu
+    try {
+      const today = new Date(moment().format('YYYY-MM-DD'));
+      this.logger.log(`Generating menu for today = ${today}`, context);
 
-    const today = new Date(moment().format('YYYY-MM-DD'));
-    this.logger.log(`Generating menu for today = ${today}`, context);
+      const dayIndex = getDayIndex(today);
+      this.logger.log(`Today index: ${dayIndex}`, context);
 
-    const dayIndex = getDayIndex(today);
-    this.logger.log(`Today index: ${dayIndex}`, context);
+      const branches = await this.branchRepository.find();
+      this.logger.log(`Branch count = ${branches.length}`, context);
 
-    const branches = await this.branchRepository.find();
-    this.logger.log(`Branch count = ${branches.length}`, context);
+      // Get all template menus base on list of branches
+      const templateMenus = await this.getTemplateMenus(branches, dayIndex);
 
-    // Get all template menus base on list of branches
-    const templateMenus = await this.getTemplateMenus(branches, dayIndex);
-
-    const filteredMenus = templateMenus
-      .filter((menu) => menu !== null)
-      .filter((menu) => {
-        // Filter the menu if the menu is for today.
-        const isSame = moment(menu.date).isSame(moment(today));
-        return !isSame;
-      });
-    this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
-
-    const date = new Date();
-    date.setHours(7, 0, 0, 0);
-
-    const newMenus = await Promise.all(
-      filteredMenus.map(async (menu) => {
-        const newMenu = _.cloneDeep(menu);
-        Object.assign(newMenu, {
-          date: today,
-          isTemplate: false,
-          id: undefined,
-          slug: undefined,
-          createdAt: undefined,
-          updatedAt: undefined,
-          deletedAt: undefined,
-          branch: menu.branch,
-          menuItems: await Promise.all(
-            menu.menuItems.map(async (item: MenuItem) => {
-              const promotion: Promotion =
-                await this.promotionUtils.getPromotionByProductAndBranch(
-                  date,
-                  menu.branch.id,
-                  item.product.id,
-                );
-              const newItem = _.cloneDeep(item);
-              newItem.id = undefined;
-              newItem.slug = undefined;
-              newItem.createdAt = undefined;
-              newItem.updatedAt = undefined;
-              newItem.deletedAt = undefined;
-              newItem.promotion = promotion;
-              newItem.currentStock = newItem.defaultStock;
-              newItem.product = newItem.product;
-              return newItem;
-            }),
-          ),
+      const filteredMenus = templateMenus
+        .filter((menu) => menu !== null)
+        .filter((menu) => {
+          // Filter the menu if the menu is for today.
+          const isSame = moment(menu.date).isSame(moment(today));
+          return !isSame;
         });
-        return newMenu;
-      }),
-    );
+      this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
 
-    this.menuRepository.manager.transaction(async (manager) => {
-      try {
-        await manager.save(newMenus);
-        this.logger.log(
-          `Menu generated ${newMenus.map((item) => `${item.slug}, `)}`,
-          context,
-        );
-      } catch (error) {
-        this.logger.error(
-          `Error when generating menu: ${error.message}`,
-          error.stack,
-          context,
-        );
-      }
-    });
+      const date = new Date();
+      date.setHours(7, 0, 0, 0);
+
+      const newMenus = await Promise.all(
+        filteredMenus.map(async (menu) => {
+          const newMenu = _.cloneDeep(menu);
+          Object.assign(newMenu, {
+            date: today,
+            isTemplate: false,
+            id: undefined,
+            slug: undefined,
+            createdAt: undefined,
+            updatedAt: undefined,
+            deletedAt: undefined,
+            branch: menu.branch,
+            menuItems: await Promise.all(
+              menu.menuItems.map(async (item: MenuItem) => {
+                const promotion: Promotion =
+                  await this.promotionUtils.getPromotionByProductAndBranch(
+                    date,
+                    menu.branch.id,
+                    item.product.id,
+                  );
+                const newItem = _.cloneDeep(item);
+                newItem.id = undefined;
+                newItem.slug = undefined;
+                newItem.createdAt = undefined;
+                newItem.updatedAt = undefined;
+                newItem.deletedAt = undefined;
+                newItem.promotion = promotion;
+                newItem.currentStock = newItem.defaultStock;
+                newItem.product = newItem.product;
+                return newItem;
+              }),
+            ),
+          });
+          return newMenu;
+        }),
+      );
+
+      this.menuRepository.manager.transaction(async (manager) => {
+        try {
+          await manager.save(newMenus);
+          this.logger.log(
+            `Menu generated ${newMenus.map((item) => `${item.slug}, `)}`,
+            context,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Error when generating menu: ${error.message}`,
+            error.stack,
+            context,
+          );
+        }
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error when handle data to generating menu: ${error.message}`,
+        error.stack,
+        context,
+      );
+    }
   }
 
   /**

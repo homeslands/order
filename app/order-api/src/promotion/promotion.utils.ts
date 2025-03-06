@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  FindOptionsWhere,
+  FindOneOptions,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -25,15 +25,12 @@ export class PromotionUtils {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async getPromotion(
-    where: FindOptionsWhere<Promotion>,
-    relations?: string[],
-  ): Promise<Promotion> {
+  async getPromotion(options: FindOneOptions<Promotion>): Promise<Promotion> {
     const context = `${PromotionUtils.name}.${this.getPromotion.name}`;
 
     const promotion = await this.promotionRepository.findOne({
-      where,
-      relations,
+      relations: ['applicablePromotions'],
+      ...options,
     });
     if (!promotion) {
       this.logger.warn(
@@ -102,7 +99,9 @@ export class PromotionUtils {
 
     if (promotionSlug) {
       const promotion = await this.getPromotion({
-        slug: promotionSlug,
+        where: {
+          slug: promotionSlug,
+        },
       });
 
       if (promotion.id !== menuItem.promotion?.id) {

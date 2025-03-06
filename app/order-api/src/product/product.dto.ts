@@ -165,32 +165,49 @@ export class GetProductRequestDto {
   @IsOptional()
   catalog?: string;
 
-  // @AutoMap()
-  // @ApiProperty({
-  //   description: 'The slug of branch',
-  //   example: '',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // branch?: string;
-
   @AutoMap()
   @ApiProperty({
-    description: 'The slug of promotion which is excepted product is applied',
+    description: 'Get products base on promotion',
     example: '',
     required: false,
   })
   @IsOptional()
-  exceptedPromotion?: string;
+  promotion?: string;
 
   @AutoMap()
   @ApiProperty({
-    description: 'The slug of promotion which is expected product is applied',
+    description: 'Get products that are either applied to a promotion or not',
     example: '',
     required: false,
   })
   @IsOptional()
-  expectedPromotion?: string;
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedPromotion?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get products base on menu',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  menu?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get products that are either assigned to a menu or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  inMenu?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -200,7 +217,10 @@ export class GetProductRequestDto {
   })
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
   isTopSell?: boolean;
 
   @AutoMap()
@@ -211,6 +231,9 @@ export class GetProductRequestDto {
   })
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
   isNew?: boolean;
 }

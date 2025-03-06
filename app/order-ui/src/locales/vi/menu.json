@@ -33,6 +33,7 @@
     "takeAway": "Mang đi",
     "promotion": "Mã giảm giá",
     "enterPromotion": "Nhập mã giảm giá",
+    "cancel": "Hủy",
     "apply": "Áp dụng",
     "total": "Tổng tiền hàng",
     "discount": "Giảm",
@@ -76,7 +77,8 @@
     "deleteMenuItem": "Xóa món",
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",
-    "searchProduct": "Tìm kiếm sản phẩm"
+    "searchProduct": "Tìm kiếm sản phẩm",
+    "all": "Tất cả"
   },
   "order": {
     "orderId": "Đơn hàng",
@@ -114,7 +116,6 @@
     "confirmPaid": "Xác nhận đã thanh toán",
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
-
     "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
     "orderStatus": "Trạng thái",
@@ -125,7 +126,6 @@
     "completed": "Đã hoàn tất",
     "shipping": "Đang giao hàng",
     "failed": "Thất bại",
-
     "deleteItem": "Xóa sản phẩm",
     "deleteNote": "Lưu ý: Hành động này không thể hoàn tác!",
     "deleteContent": "Bạn có chắc muốn xóa sản phẩm ",
@@ -151,12 +151,11 @@
     "pendingOrders": "Danh sách chờ",
     "orderList": "Danh sách đơn hàng",
 
-    "order": "Đơn hàng:",
+    "order": "Đơn hàng: ",
+    "cashier": "Thu ngân: ",
     "orderTime": "Thời gian đặt hàng:",
-    "customer": "Khách hàng:",
+    "customer": "Khách hàng",
     "aListOfOrders": "Danh sách đơn hàng",
-    "buyAgain": "Mua lại",
-
     "orderExpired": "Đơn hàng đã hết hạn thanh toán",
     "goBackToMenu": "Quay lại thực đơn",
     "customerInformation": "Thông tin khách hàng",
@@ -200,9 +199,10 @@
     "status": "Trạng thái",
     "bankTransfer": "Thanh toán bằng chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
+    "comingSoon": "Sắp ra mắt",
     "bankTransferProcessing": "Chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",
     "confirmPayment": "Thanh toán",
-    "cusomterInformation": "Thông tin khách hàng",
+    "customerInformation": "Thông tin khách hàng",
     "customerName": "Tên khách hàng",
     "orderDate": "Ngày đặt hàng",
     "phoneNumber": "Số điện thoại",

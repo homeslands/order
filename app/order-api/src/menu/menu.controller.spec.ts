@@ -8,6 +8,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { MenuUtils } from './menu.utils';
 
 describe('MenuController', () => {
   let controller: MenuController;
@@ -17,17 +18,18 @@ describe('MenuController', () => {
       controllers: [MenuController],
       providers: [
         MenuService,
+        MenuUtils,
         {
           provide: getRepositoryToken(Menu),
-          useValue: {},
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Branch),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: MAPPER_MODULE_PROVIDER,
-          useValue: mapperMockFactory,
+          useFactory: mapperMockFactory,
         },
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,

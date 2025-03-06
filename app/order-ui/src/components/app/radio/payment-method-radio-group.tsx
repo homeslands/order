@@ -9,7 +9,6 @@ interface PaymentMethodRadioGroupProps {
   defaultValue?: string
   onSubmit?: (paymentMethod: PaymentMethod) => void
 }
-
 export default function PaymentMethodRadioGroup({
   defaultValue,
   onSubmit,

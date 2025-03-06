@@ -7,6 +7,10 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ACBConnectorConfig } from './acb-connector.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { ACBConnectorUtils } from './acb-connector.utils';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('ACBConnectorController', () => {
   let controller: ACBConnectorController;
@@ -16,13 +20,19 @@ describe('ACBConnectorController', () => {
       controllers: [ACBConnectorController],
       providers: [
         ACBConnectorService,
+        TransactionManagerService,
+        ACBConnectorUtils,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
         {
           provide: getRepositoryToken(ACBConnectorConfig),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: MAPPER_MODULE_PROVIDER,
-          useValue: mapperMockFactory,
+          useFactory: mapperMockFactory,
         },
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,

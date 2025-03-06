@@ -106,6 +106,17 @@ export class GetMenuRequestDto {
   @ApiProperty({ required: false })
   @Transform(({ value }) => parseInt(value))
   maxPrice: number;
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // Preserve `undefined`
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  promotion: boolean;
 }
 
 export class MenuResponseDto {

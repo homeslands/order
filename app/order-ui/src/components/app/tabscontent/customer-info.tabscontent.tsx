@@ -120,12 +120,10 @@ export function CustomerInfoTabsContent() {
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {Object.keys(formFields).map((key) => (
-          <div key={key}>{formFields[key as keyof typeof formFields]}</div>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      {Object.keys(formFields).map((key) => (
+        <div key={key}>{formFields[key as keyof typeof formFields]}</div>
+      ))}
     </div>
   )
 }

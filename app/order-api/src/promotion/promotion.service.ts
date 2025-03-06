@@ -35,6 +35,14 @@ export class PromotionService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Create a promotion
+   * @param {string} branchSlug The branch slug
+   * @param {CreatePromotionRequestDto} createPromotionRequestDto The create promotion request dto
+   * @returns {Promise<PromotionResponseDto>} The promotion response dto
+   * @throws {PromotionException} If the end time is less than start time or end time is less than today
+   * @throws {BranchException} If the branch is not found
+   */
   async createPromotion(
     branchSlug: string,
     createPromotionRequestDto: CreatePromotionRequestDto,
@@ -93,6 +101,12 @@ export class PromotionService {
     return promotionDto;
   }
 
+  /**
+   * Get all promotions
+   * @param {string} branchSlug The branch slug
+   * @returns {Promise<PromotionResponseDto[]>} The promotion response dto array
+   * @throws {BranchException} If the branch is not found
+   */
   async getAllPromotions(branchSlug: string): Promise<PromotionResponseDto[]> {
     const context = `${PromotionService.name}.${this.getAllPromotions.name}`;
 
@@ -117,6 +131,14 @@ export class PromotionService {
     return promotionDtos;
   }
 
+  /**
+   * Update a promotion
+   * @param {string} slug The promotion slug
+   * @param {UpdatePromotionRequestDto} updatePromotionRequestDto The update promotion request dto
+   * @returns {Promise<PromotionResponseDto>} The promotion response dto
+   * @throws {PromotionException} If the end time is less than start time or end time is less than today
+   * @throws {PromotionException} If the promotion is not found
+   */
   async updatePromotion(
     slug: string,
     updatePromotionRequestDto: UpdatePromotionRequestDto,
@@ -271,6 +293,13 @@ export class PromotionService {
     }
   }
 
+  /**
+   * Delete a promotion
+   * @param {string} slug The promotion slug
+   * @returns {Promise<number>} The affected row
+   * @throws {PromotionException} If the promotion is not found
+   * @throws {PromotionException} If the promotion is already applied
+   */
   async deletePromotion(slug: string): Promise<number> {
     const context = `${PromotionService.name}.${this.deletePromotion.name}`;
 
@@ -323,6 +352,13 @@ export class PromotionService {
     return deleted.affected;
   }
 
+  /**
+   * Get all menu items by promotion
+   * @param {Date} date The date
+   * @param {Promotion} promotion The promotion
+   * @returns {Promise<MenuItem[]>} The menu item array
+   * @throws {PromotionException} If an error
+   */
   async getAllMenuItemsByPromotion(
     date: Date,
     promotion: Promotion,

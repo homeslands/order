@@ -31,18 +31,16 @@ export default function RemoveAppliedPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts()
+  const { data: products, isLoading } = useProducts({ expectedPromotion: promotion?.slug })
   const [isApplyFromToday, setIsApplyFromToday] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   const productsData = products?.result
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
   }
-
   const handleProductSelect = (product: IProduct, isSelected: boolean) => {
     setSelectedProducts((prev) => {
       if (isSelected) {
@@ -61,7 +59,6 @@ export default function RemoveAppliedPromotionSheet({
     }
     setApplyPromotionRequest(applyPromotionRequest)
   }
-
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
@@ -95,8 +92,8 @@ export default function RemoveAppliedPromotionSheet({
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={1}
-                  onPageChange={() => {}}
-                  onPageSizeChange={() => {}}
+                  onPageChange={() => { }}
+                  onPageSizeChange={() => { }}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -116,7 +113,7 @@ export default function RemoveAppliedPromotionSheet({
               applyPromotionData={applyPromotionRequest}
               isOpen={isOpen}
               onOpenChange={setIsOpen}
-              onCloseSheet={() => setSheetOpen(false)}
+              onCloseSheet={() => { setSheetOpen(false) }}
             />
           </SheetFooter>
         </div>

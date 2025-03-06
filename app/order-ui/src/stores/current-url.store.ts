@@ -2,9 +2,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface ICurrentUrlStore {
-  currentUrl: string | null // Lưu trữ URL hiện tại
-  setCurrentUrl: (url: string) => void // Cập nhật URL
-  clearUrl: () => void // Xóa URL sau khi sử dụng
+  currentUrl: string | null
+  setCurrentUrl: (url: string) => void
+  clearUrl: () => void
 }
 
 export const useCurrentUrlStore = create<ICurrentUrlStore>()(
@@ -15,7 +15,7 @@ export const useCurrentUrlStore = create<ICurrentUrlStore>()(
       clearUrl: () => set({ currentUrl: null }),
     }),
     {
-      name: 'current-url-store', // Key lưu vào localStorage
+      name: 'current-url-store',
     },
   ),
 )

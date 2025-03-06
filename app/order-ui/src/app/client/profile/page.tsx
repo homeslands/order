@@ -73,8 +73,6 @@ export default function ProfilePage() {
                 <UpdateCustomerProfileDialog userProfile={userInfo} />
                 <SendVerifyEmailDialog />
                 <UpdatePasswordDialog />
-                {/* <UpdateBranchDialog branch={branch} /> */}
-                {/* <DeleteBranchDialog branch={branch} /> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

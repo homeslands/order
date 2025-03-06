@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import moment from 'moment'
-import { MapPinIcon } from 'lucide-react'
+import { CircleXIcon, MapPinIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from "react-helmet";
 
@@ -10,6 +10,8 @@ import { ClientCatalogSelect } from '@/components/app/select'
 import { ClientMenus } from './components'
 import { ProductNameSearch } from './components/product-name-search'
 import { PriceRangeFilter } from './components/price-range-filter'
+import { formatCurrency } from '@/utils';
+import { PriceRange } from '@/constants';
 
 interface FilterState {
   menu?: string
@@ -24,7 +26,7 @@ interface FilterState {
 export default function ClientMenuPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
-  const { minPrice, maxPrice } = usePriceRangeStore()
+  const { minPrice, maxPrice, clearPriceRange, setPriceRange } = usePriceRangeStore()
   const { branch } = useBranchStore()
   const { catalog } = useCatalogStore()
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput() // debounce 500ms
@@ -58,6 +60,13 @@ export default function ClientMenuPage() {
     }))
   }
 
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    clearPriceRange()
+    setPriceRange(PriceRange.MIN_PRICE, PriceRange.MAX_PRICE)
+
+  }
+
   return (
     <div className="container py-10">
       <Helmet>
@@ -85,6 +94,19 @@ export default function ClientMenuPage() {
 
             {/* Price filter */}
             <PriceRangeFilter />
+            {minPrice || maxPrice !== 0 && (
+              <div className="flex justify-center gap-2 px-2 py-2 text-sm border rounded-xl border-primary bg-primary/5 text-primary">
+                <div>
+                  {/* {t('menu.priceRange')}
+                  {': '} */}
+                  {formatCurrency(minPrice)} - {formatCurrency(maxPrice)}
+                </div>
+                <CircleXIcon
+                  className="w-5 h-5 cursor-pointer hover:text-primary"
+                  onClick={(e) => handleClear(e)}
+                />
+              </div>
+            )}
           </div>
         </div>
 

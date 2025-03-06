@@ -4,23 +4,25 @@ import { useTranslation } from 'react-i18next'
 import { PaymentMethodRadioGroup } from '@/components/app/radio'
 import { Label } from '@/components/ui'
 import { formatCurrency } from '@/utils'
-
+import { PaymentMethod } from '@/constants'
 interface PaymentMethodSelectProps {
+  paymentMethod: PaymentMethod
   qrCode?: string
   total?: number
-  onSubmit?: (paymentMethod: string) => void
+  onSubmit?: (paymentMethod: PaymentMethod) => void
 }
 
 export default function ClientPaymentMethodSelect({
+  paymentMethod,
   qrCode,
   total,
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
 
-  const handlePaymentMethodSubmit = (paymentMethod: string) => {
+  const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
     if (onSubmit) {
-      onSubmit(paymentMethod)
+      onSubmit(paymentMethodSubmit)
     }
   }
 
@@ -37,14 +39,14 @@ export default function ClientPaymentMethodSelect({
       >
         <div className="flex flex-col col-span-1">
           <div className="p-4">
-            <PaymentMethodRadioGroup onSubmit={handlePaymentMethodSubmit} />
+            <PaymentMethodRadioGroup defaultValue={paymentMethod} onSubmit={handlePaymentMethodSubmit} />
           </div>
           <div className="flex items-center gap-1 px-4 pb-4 text-[0.5rem] text-muted-foreground">
             <CircleAlert size={12} className="text-blue-500" />
             {t('paymentMethod.bankTransferProcessing')}
           </div>
         </div>
-        {qrCode && (
+        {qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER && (
           <div className="col-span-1 pb-4">
             <div className="flex flex-col items-center justify-center">
               <img src={qrCode} alt="QR Code" className="w-2/5" />

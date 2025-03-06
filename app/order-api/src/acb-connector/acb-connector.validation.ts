@@ -10,6 +10,10 @@ export const X_SERVICE_INVALID = 'X_SERVICE_INVALID';
 export const ACB_CONNECTOR_CONFIG_EXIST = 'ACB_CONNECTOR_CONFIG_EXIST';
 export const GET_ACB_TOKEN_FAIL = 'GET_ACB_TOKEN_FAIL';
 export const INITIATE_QR_CODE_FAIL = 'INITIATE_QR_CODE_FAIL';
+export const ACB_CONNECTOR_CONFIG_UPDATE_FAILED =
+  'ACB_CONNECTOR_CONFIG_UPDATE_FAILED';
+export const ACB_CONNECTOR_CONFIG_CREATION_FAILED =
+  'ACB_CONNECTOR_CONFIG_CREATION_FAILED';
 
 export type TACBConnectorErrorCodeKey =
   | typeof ACB_CONNECTOR_CONFIG_NOT_FOUND
@@ -21,7 +25,9 @@ export type TACBConnectorErrorCodeKey =
   | typeof ACB_CONNECTOR_CONFIG_EXIST
   | typeof GET_ACB_TOKEN_FAIL
   | typeof INITIATE_QR_CODE_FAIL
-  | typeof X_OWNER_NUMBER_INVALID;
+  | typeof X_OWNER_NUMBER_INVALID
+  | typeof ACB_CONNECTOR_CONFIG_CREATION_FAILED
+  | typeof ACB_CONNECTOR_CONFIG_UPDATE_FAILED;
 
 export type TTACBConnectorErrorCode = Record<
   TACBConnectorErrorCodeKey,
@@ -49,4 +55,12 @@ export const ACBConnectorValidation: TTACBConnectorErrorCode = {
   ),
   GET_ACB_TOKEN_FAIL: createErrorCode(103008, 'Failed to get ACB token'),
   INITIATE_QR_CODE_FAIL: createErrorCode(103009, 'Failed to initiate qr code'),
+  ACB_CONNECTOR_CONFIG_CREATION_FAILED: createErrorCode(
+    103010,
+    'Failed to create ACB Config',
+  ),
+  ACB_CONNECTOR_CONFIG_UPDATE_FAILED: createErrorCode(
+    103011,
+    'Failed to update ACB Config',
+  ),
 };

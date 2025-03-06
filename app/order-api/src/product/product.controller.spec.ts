@@ -13,6 +13,10 @@ import { ProductException } from './product.exception';
 import ProductValidation from './product.validation';
 import { CatalogException } from 'src/catalog/catalog.exception';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Menu } from 'src/menu/menu.entity';
+import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -23,6 +27,11 @@ describe('ProductController', () => {
       controllers: [ProductController],
       providers: [
         ProductService,
+        MenuUtils,
+        {
+          provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: ProductService,
           useValue: {
@@ -98,7 +107,7 @@ describe('ProductController', () => {
     it('should return a array of products', async () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
-        exceptedPromotion: 'mock-promotion-slug',
+        promotion: 'mock-promotion-slug',
       };
       const product: ProductResponseDto = {
         slug: 'mock-product-slug',
@@ -123,7 +132,7 @@ describe('ProductController', () => {
     it('should return error when service.getAllCatalogs throws', async () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
-        exceptedPromotion: 'mock-promotion-slug',
+        promotion: 'mock-promotion-slug',
       };
       (service.getAllProducts as jest.Mock).mockRejectedValue(
         new InternalServerErrorException(),

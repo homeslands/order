@@ -304,10 +304,3 @@ export const BannerDetailPage = React.lazy(() =>
     default: module.BannerDetailPage,
   })),
 )
-
-//Voucher and promotion page
-// export const VoucherAndPromotionPage = React.lazy(() =>
-//   import('@/app/client/voucher-promotion').then((module) => ({
-//     default: module.VoucherAndPromotionPage,
-//   })),
-// )

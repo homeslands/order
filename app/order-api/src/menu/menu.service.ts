@@ -1,7 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
-import { Between, FindOptionsWhere, Like, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  IsNull,
+  Like,
+  Not,
+  Repository,
+} from 'typeorm';
 import {
   CreateMenuDto,
   GetAllMenuQueryRequestDto,
@@ -20,6 +27,7 @@ import { getDayIndex } from 'src/helper';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
+import { MenuUtils } from './menu.utils';
 
 @Injectable()
 export class MenuService {
@@ -30,6 +38,7 @@ export class MenuService {
     private readonly branchRepository: Repository<Branch>,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly menuUtils: MenuUtils,
   ) {}
 
   /**
@@ -115,7 +124,13 @@ export class MenuService {
       };
     }
 
-    const menu = await this.menuRepository.findOne({
+    if (_.isBoolean(query.promotion)) {
+      findOptionsWhere.menuItems = {
+        promotion: query.promotion ? Not(IsNull()) : IsNull(),
+      };
+    }
+
+    const menu = await this.menuUtils.getMenu({
       where: findOptionsWhere,
       relations: [
         'menuItems.product.variants.size',
@@ -132,11 +147,6 @@ export class MenuService {
         },
       },
     });
-
-    if (!menu) {
-      this.logger.warn(`Menu not found`, context);
-      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
-    }
 
     return this.mapper.map(menu, Menu, MenuResponseDto);
   }

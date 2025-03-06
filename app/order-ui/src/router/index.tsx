@@ -829,25 +829,6 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      // {
-      //   path: `${ROUTE.CLIENT_VOUCHER}/:slug`,
-      //   element: (
-      //     <Suspense fallback={<SkeletonCart />}>
-      //       <SuspenseElement component={ClientLayout} />
-      //     </Suspense>
-      //   ),
-      //   children: [
-      //     {
-      //       index: true,
-      //       element: (
-      //         <ProtectedElement
-      //           allowedRoles={[Role.CUSTOMER]}
-      //           element={<SuspenseElement component={VoucherAndPromotionPage} />}
-      //         />
-      //       ),
-      //     },
-      //   ],
-      // },
       {
         path: ROUTE.HOME,
         element: <ClientLayout />,

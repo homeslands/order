@@ -17,7 +17,7 @@ import {
   IValidateVoucherRequest,
 } from '@/types'
 
-export const useVouchers = (params: IGetAllVoucherRequest) => {
+export const useVouchers = (params?: IGetAllVoucherRequest) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchers],
     queryFn: () => getVouchers(params),

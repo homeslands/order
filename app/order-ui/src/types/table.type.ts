@@ -11,8 +11,6 @@ export interface Table extends IBase {
   status: TableStatus
 }
 
-// export type TTableStatus = 'available' | 'occupied' | 'reserved'
-
 export interface ITable extends IBase {
   name: string
   location: string

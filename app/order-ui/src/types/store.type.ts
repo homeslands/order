@@ -1,3 +1,4 @@
+import { PaymentMethod } from '@/constants'
 import { IBranch } from './branch.type'
 import { ICatalog } from './catalog.type'
 import { IUserInfo } from './user.type'
@@ -53,4 +54,12 @@ export interface IUserStore {
   setUserInfo: (userInfo: IUserInfo) => void
   getUserInfo: () => IUserInfo | null
   removeUserInfo: () => void
+}
+
+export interface IPaymentMethodStore {
+  paymentMethod: PaymentMethod
+  setPaymentMethod: (paymentMethod: PaymentMethod) => void
+  qrCode: string
+  setQrCode: (qrCode: string) => void
+  clearStore: () => void
 }

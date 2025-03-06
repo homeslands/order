@@ -31,6 +31,7 @@ export interface IAllMenuRequest {
   pageSize: number | 10
   order: 'ASC' | 'DESC'
   branch?: string
+  isTemplate?: boolean
 }
 
 export interface ISpecificMenuRequest {
@@ -90,7 +91,7 @@ export interface IUpdateMenuItemRequest {
 }
 
 export interface IMenuItemStore {
-  menuItems: IAddMenuItemRequest[] // Thay đổi từ string[] sang IAddMenuItemRequest[]
+  menuItems: IAddMenuItemRequest[]
   getMenuItems: () => IAddMenuItemRequest[]
   addMenuItem: (item: IAddMenuItemRequest) => void
   removeMenuItem: (productSlug: string) => void

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
 
@@ -17,7 +18,6 @@ import {
 import { ICartItem, OrderTypeEnum, IProductVariant } from '@/types'
 import { formatCurrency, showErrorToast } from '@/utils'
 import { ProductImageCarousel } from '.'
-import { Helmet } from 'react-helmet'
 
 export default function ProductDetailPage() {
   const { t } = useTranslation(['product'])

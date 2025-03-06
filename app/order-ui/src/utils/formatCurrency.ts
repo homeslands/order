@@ -1,4 +1,11 @@
-export default function formatCurrency(value: number, currency = 'VND') {
+export function formatCurrency(value: number, currency = 'VND') {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency,
+  }).format(value)
+}
+
+export function formatShortCurrency(value: number, currency = 'VND') {
   if (value >= 1000) {
     return `${(value / 1000).toFixed(1).replace(/\.0$/, '')}`
   }

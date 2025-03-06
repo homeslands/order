@@ -1,6 +1,6 @@
-import { NavLink, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
+import { CircleX, SquareMenu } from 'lucide-react'
 import moment from 'moment'
 
 import {
@@ -20,6 +20,7 @@ import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderTypeEnum } from '@/types'
+import _ from 'lodash'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -27,7 +28,21 @@ export default function OrderHistoryPage() {
   const { slug } = useParams()
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
-
+  if (_.isEmpty(orderDetail?.result)) {
+    return (
+      <div className="container py-20 lg:h-[60vh]">
+        <div className="flex flex-col items-center justify-center gap-5">
+          <CircleX className="w-32 h-32 text-destructive" />
+          <p className="text-center text-muted-foreground">
+            {t('menu.noData')}
+          </p>
+          <Button variant="default" onClick={() => navigate(-1)}>
+            {tCommon('common.goBack')}
+          </Button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="container py-5">
       <div className="flex flex-col gap-2">
@@ -133,13 +148,6 @@ export default function OrderHistoryPage() {
                           {item.variant.product.name} - Size{' '}
                           {item.variant.size.name.toUpperCase()}
                         </span>
-                        <NavLink
-                          to={`${ROUTE.CLIENT_MENU}/${item.variant.product.slug}`}
-                        >
-                          <Button variant="outline">
-                            {t('order.buyAgain')}
-                          </Button>
-                        </NavLink>
                       </TableCell>
                       {/* <TableCell className='text-center'>{item.quantity}</TableCell> */}
                       <TableCell className="text-right">
@@ -228,7 +236,7 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {/* Return order button */}
-            <div className="flex justify-start">
+            <div className="flex justify-between gap-2">
               <Button
                 className="w-fit bg-primary"
                 onClick={() => {
@@ -236,6 +244,14 @@ export default function OrderHistoryPage() {
                 }}
               >
                 {tCommon('common.goBack')}
+              </Button>
+              <Button
+                className="w-fit bg-primary"
+                onClick={() => {
+                  navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderDetail?.result?.slug}`)
+                }}
+              >
+                {tCommon('common.checkout')}
               </Button>
             </div>
           </div>

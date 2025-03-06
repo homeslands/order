@@ -21,7 +21,6 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -78,7 +77,6 @@ export class ProductController {
   })
   @ApiOperation({ summary: 'Get import products template' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
   @Public()
   async getTemplateImportProducts() {
     const result = await this.productService.getTemplateImportProducts();
@@ -99,7 +97,6 @@ export class ProductController {
   @ApiOperation({ summary: 'Create new product' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
-  // @Public()
   async createProduct(
     @Body(
       new ValidationPipe({
@@ -130,12 +127,6 @@ export class ProductController {
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'Get all products successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @ApiQuery({
-    name: 'catalog',
-    required: false,
-    description: 'Filter products by catalog',
-    type: String,
-  })
   async getAllProducts(
     @Query(new ValidationPipe({ transform: true }))
     query: GetProductRequestDto,
@@ -166,7 +157,6 @@ export class ProductController {
     example: '',
   })
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Chef, RoleEnum.Staff)
-  // @Public()
   async updateProduct(
     @Param('slug') slug: string,
     @Body(

@@ -81,6 +81,12 @@
       "description": "Manage your vouchers here",
       "keywords": "voucher, discount, voucher management"
     },
+    "orderDetail": {
+      "title": "Order Details",
+      "manageOrderDetail": "Order Details",
+      "description": "Manage your order details here",
+      "keywords": "order details, order, order information"
+    },
     "promotion": {
       "title": "Promotion Management",
       "managePromotion": "Manage Promotions",

@@ -58,6 +58,12 @@
       "description": "Quản lý ngân hàng của bạn tại đây",
       "keywords": "quản lý ngân hàng, ngân hàng, quản lý ngân hàng"
     },
+    "orderDetail": {
+      "title": "Chi tiết đơn hàng",
+      "manageOrderDetail": "Chi tiết đơn hàng",
+      "description": "Chi tiết đơn hàng của bạn tại đây",
+      "keywords": "chi tiết đơn hàng, đơn hàng, chi tiết đơn hàng"
+    },
     "updateOrder": {
       "title": "Cập nhật đơn hàng",
       "manageUpdateOrder": "Cập nhật đơn hàng",
