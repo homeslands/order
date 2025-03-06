@@ -27,9 +27,8 @@ export class PromotionUtils {
 
   async getPromotion(options: FindOneOptions<Promotion>): Promise<Promotion> {
     const context = `${PromotionUtils.name}.${this.getPromotion.name}`;
-
     const promotion = await this.promotionRepository.findOne({
-      relations: ['applicablePromotions'],
+      relations: ['applicablePromotions', 'branch'],
       ...options,
     });
     if (!promotion) {

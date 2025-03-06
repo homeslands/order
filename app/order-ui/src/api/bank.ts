@@ -11,6 +11,7 @@ export async function getBankConnector(): Promise<
 > {
   const response =
     await http.get<IApiResponse<IBankConnector>>('/acb-connector')
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -21,6 +22,7 @@ export async function createBankConnector(
     `/acb-connector`,
     data,
   )
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -31,5 +33,6 @@ export async function updateBankConnector(
     `/acb-connector/${data.slug}`,
     data,
   )
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }

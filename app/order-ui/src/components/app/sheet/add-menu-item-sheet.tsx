@@ -16,15 +16,27 @@ import { useProducts } from '@/hooks'
 import { AddMultipleItemsDialog } from '../dialog'
 import { useProductColumns } from '@/app/system/order-history/DataTable/columns'
 
+interface IAddMenuItemSheetProps {
+  menuSlug: string | undefined
+}
 
-export default function AddMenuItemSheet() {
+
+export default function AddMenuItemSheet({ menuSlug }: IAddMenuItemSheetProps) {
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
   const { getMenuItems, clearMenuItems } = useMenuItemStore()
-  const { data: products, isLoading } = useProducts()
+  const { data: products, isLoading, refetch } = useProducts({
+    menu: menuSlug,
+    inMenu: false,
+  })
 
   const productsData = products?.result
   const menuItems = getMenuItems()
+
+  const handleSubmitSuccess = () => {
+    refetch()
+    clearMenuItems()
+  }
 
   return (
     <Sheet>
@@ -63,7 +75,7 @@ export default function AddMenuItemSheet() {
                       <Button variant="outline" className='h-10' onClick={() => clearMenuItems()}>
                         {tCommon('common.cancel')}
                       </Button>
-                      <AddMultipleItemsDialog products={menuItems} />
+                      <AddMultipleItemsDialog onSubmit={handleSubmitSuccess} products={menuItems} />
                     </div>
                   )}
                 </div>

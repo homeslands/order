@@ -12,6 +12,7 @@ import { Product } from 'src/product/product.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { ApplicablePromotionUtils } from 'src/applicable-promotion/applicable-promotion.utils';
+import { ProductUtils } from 'src/product/product.utils';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ApplicablePromotionUtils } from 'src/applicable-promotion/applicable-pr
     PromotionUtils,
     ApplicablePromotionService,
     ApplicablePromotionUtils,
+    ProductUtils,
   ],
   exports: [PromotionUtils],
 })

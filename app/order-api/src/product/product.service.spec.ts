@@ -136,6 +136,7 @@ describe('ProductService', () => {
         productAnalyses: [],
         isTopSell: false,
         isNew: false,
+        saleQuantityHistory: 0,
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);

@@ -13,6 +13,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { Product } from 'src/product/product.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { ProductUtils } from 'src/product/product.utils';
 
 describe('ApplicablePromotionService', () => {
   let service: ApplicablePromotionService;
@@ -23,6 +24,7 @@ describe('ApplicablePromotionService', () => {
         ApplicablePromotionService,
         PromotionUtils,
         ApplicablePromotionUtils,
+        ProductUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(ApplicablePromotion),

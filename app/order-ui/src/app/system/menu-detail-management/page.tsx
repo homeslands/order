@@ -39,7 +39,7 @@ export default function MenuDetailManagementPage() {
         {moment(menuDetailData?.date).format('DD/MM/YYYY')}
       </div>
       <div className="flex justify-end pr-2 mb-4">
-        <AddMenuItemSheet />
+        <AddMenuItemSheet menuSlug={menuDetailData?.slug} />
       </div>
       <div className="flex flex-row gap-2">
         {/* List menu items */}

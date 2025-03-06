@@ -17,16 +17,19 @@ import { AddMenuMultipleItemsForm } from '@/components/app/form'
 
 interface AddMenuItemsDialogProps {
   products: IAddMenuItemRequest[]
+  onSubmit: (isOpen: boolean) => void
 }
 
 export default function AddMenuItemsDialog({
   products,
+  onSubmit,
 }: AddMenuItemsDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
 
   const handleSubmit = (isOpen: boolean) => {
     setIsOpen(isOpen)
+    onSubmit(isOpen)
   }
 
   return (

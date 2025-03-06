@@ -148,6 +148,22 @@ export class MenuService {
       },
     });
 
+    if (_.isBoolean(query.isNewProduct)) {
+      if (query.isNewProduct) {
+        menu.menuItems = menu.menuItems.filter((item) => item.product.isNew);
+      }
+    }
+
+    if (_.isBoolean(query.isSortTopSell)) {
+      if (query.isSortTopSell) {
+        menu.menuItems = menu.menuItems.sort((a, b) => {
+          return (
+            b.product?.saleQuantityHistory - a.product?.saleQuantityHistory
+          );
+        });
+      }
+    }
+
     return this.mapper.map(menu, Menu, MenuResponseDto);
   }
 

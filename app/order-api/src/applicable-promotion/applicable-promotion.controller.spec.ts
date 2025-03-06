@@ -15,6 +15,7 @@ import { ApplicablePromotionUtils } from './applicable-promotion.utils';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { ProductUtils } from 'src/product/product.utils';
 
 describe('ApplicablePromotionController', () => {
   let controller: ApplicablePromotionController;
@@ -26,6 +27,7 @@ describe('ApplicablePromotionController', () => {
         ApplicablePromotionService,
         ApplicablePromotionUtils,
         PromotionUtils,
+        ProductUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(ApplicablePromotion),

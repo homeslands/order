@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicablePromotion } from './applicable-promotion.entity';
 import {
   DataSource,
+  FindOneOptions,
   FindOptionsWhere,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -14,7 +15,7 @@ import {
   ApplicablePromotionResponseDto,
   CreateApplicablePromotionRequestDto,
   CreateManyApplicablePromotionsRequestDto,
-  GetSpecificApplicablePromotionRequestDto,
+  DeleteMultiApplicablePromotionsRequestDto,
 } from './applicable-promotion.dto';
 import { PromotionValidation } from 'src/promotion/promotion.validation';
 import { PromotionException } from 'src/promotion/promotion.exception';
@@ -32,6 +33,7 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { ProductResponseDto } from 'src/product/product.dto';
 import * as _ from 'lodash';
+import { ProductUtils } from 'src/product/product.utils';
 
 @Injectable()
 export class ApplicablePromotionService {
@@ -50,6 +52,7 @@ export class ApplicablePromotionService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly applicablePromotionUtils: ApplicablePromotionUtils,
     private readonly promotionUtils: PromotionUtils,
+    private readonly productUtils: ProductUtils,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -343,81 +346,96 @@ export class ApplicablePromotionService {
     return { createManyApplicablePromotionsData, updateMenuItem };
   }
 
-  /**
-   * Delete applicable promotion
-   * @param {string} slug The slug of applicable promotion
-   * @returns Promise<number> The number of affected to be deleted
-   * @throws {ApplicablePromotionException} Throw if applicable promotion not found
-   */
-  async deleteApplicablePromotion(slug: string): Promise<number> {
-    const context = `${ApplicablePromotionService.name}.${this.deleteApplicablePromotion.name}`;
-
-    const applicablePromotionFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
-      { slug };
-    const applicablePromotion =
-      await this.applicablePromotionUtils.getApplicablePromotion(
-        applicablePromotionFindOptionsWhere,
-      );
-
-    if (!applicablePromotion) {
-      this.logger.warn(
-        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND.message,
-        context,
-      );
-      throw new ApplicablePromotionException(
-        ApplicablePromotionValidation.APPLICABLE_PROMOTION_NOT_FOUND,
-      );
-    }
-
-    const promotion = await this.promotionUtils.getPromotion({
-      where: {
-        applicablePromotions: { id: applicablePromotion.id },
-      },
-      relations: ['branch'],
-    });
-
-    const today = new Date();
-    today.setHours(7, 0, 0, 0);
-
-    const menuItem = await this.getMenuItemByApplicablePromotionWhenDelete(
-      today,
-      promotion.branch.id,
-      applicablePromotion.applicableId,
-      applicablePromotion,
-    );
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async deleteMultiApplicablePromotion(
+    requestData: DeleteMultiApplicablePromotionsRequestDto,
+  ): Promise<number> {
+    const context = `${ApplicablePromotionService.name}.${this.deleteMultiApplicablePromotion.name}`;
 
     try {
-      const deleted = await queryRunner.manager.softDelete(
-        ApplicablePromotion,
-        { id: applicablePromotion.id },
+      const promotionFindOptionsWhere: FindOneOptions<Promotion> = {
+        where: { slug: requestData.promotion },
+      };
+      const promotion = await this.promotionUtils.getPromotion(
+        promotionFindOptionsWhere,
       );
-      if (menuItem) {
-        await queryRunner.manager.save(menuItem);
-      }
+      const today = new Date();
+      today.setHours(7, 0, 0, 0);
 
-      await queryRunner.commitTransaction();
-      this.logger.log(
-        `Revenue ${new Date().toISOString()} created successfully`,
-        context,
+      let menuItems: MenuItem[] = [];
+      const applicablePromotions = await Promise.all(
+        requestData.applicableSlugs.map(async (applicableSlug) => {
+          const productFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
+            {
+              slug: applicableSlug,
+            };
+          const product = await this.productUtils.getProduct(
+            productFindOptionsWhere,
+          );
+
+          const applicablePromotionFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
+            {
+              promotion: { slug: requestData.promotion },
+              applicableId: product.id,
+            };
+          const applicablePromotion =
+            await this.applicablePromotionUtils.getApplicablePromotion(
+              applicablePromotionFindOptionsWhere,
+            );
+
+          const menuItem =
+            await this.getMenuItemByApplicablePromotionWhenDelete(
+              today,
+              promotion.branch.id,
+              product.id,
+              applicablePromotion,
+            );
+          menuItems.push(menuItem);
+
+          return applicablePromotion;
+        }),
       );
-      return deleted.affected || 0;
+      menuItems = menuItems.filter(Boolean); // remove null & undefined
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const deleted = await queryRunner.manager.softDelete(
+          ApplicablePromotion,
+          applicablePromotions,
+        );
+        if (!_.isEmpty(menuItems)) {
+          await queryRunner.manager.save(menuItems);
+        }
+        await queryRunner.commitTransaction();
+        this.logger.log(
+          `Deleted ${_.size(applicablePromotions)} applicable promotions successfully`,
+          context,
+        );
+        return deleted.affected || 0;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        this.logger.error(
+          `An error occurred while delete applicable promotion: ${JSON.stringify(error)}`,
+          error.stack,
+          context,
+        );
+        throw new ApplicablePromotionException(
+          ApplicablePromotionValidation.ERROR_WHEN_DELETE_APPLICABLE_PROMOTION,
+          error.message,
+        );
+      } finally {
+        await queryRunner.release();
+      }
     } catch (error) {
-      await queryRunner.rollbackTransaction();
       this.logger.error(
-        `An error occurred while delete applicable promotion: ${JSON.stringify(error)}`,
+        `An error occurred while handle data to delete applicable promotion: ${JSON.stringify(error)}`,
         error.stack,
         context,
       );
       throw new ApplicablePromotionException(
-        ApplicablePromotionValidation.ERROR_WHEN_DELETE_APPLICABLE_PROMOTION,
-        error.message,
+        ApplicablePromotionValidation.ERROR_WHEN_HANDLE_DATA_TO_DELETE_APPLICABLE_PROMOTION,
       );
-    } finally {
-      await queryRunner.release();
     }
   }
 
@@ -564,86 +582,86 @@ export class ApplicablePromotionService {
     }
   }
 
-  /**
-   * Get specific applicable promotion
-   * @param {GetSpecificApplicablePromotionRequestDto} requestData
-   * @returns { Promise<ApplicablePromotionResponseDto>}
-   */
-  async getSpecificApplicablePromotion(
-    requestData: GetSpecificApplicablePromotionRequestDto,
-  ): Promise<ApplicablePromotionResponseDto> {
-    const context = `${ApplicablePromotionService.name}.${this.getSpecificApplicablePromotion.name}`;
+  // /**
+  //  * Get specific applicable promotion
+  //  * @param {GetSpecificApplicablePromotionRequestDto} requestData
+  //  * @returns { Promise<ApplicablePromotionResponseDto>}
+  //  */
+  // async getSpecificApplicablePromotion(
+  //   requestData: GetSpecificApplicablePromotionRequestDto,
+  // ): Promise<ApplicablePromotionResponseDto> {
+  //   const context = `${ApplicablePromotionService.name}.${this.getSpecificApplicablePromotion.name}`;
 
-    const where: FindOptionsWhere<ApplicablePromotion> = {};
-    const product = await this.productRepository.findOne({
-      where: { slug: requestData.applicableSlug },
-    });
+  //   const where: FindOptionsWhere<ApplicablePromotion> = {};
+  //   const product = await this.productRepository.findOne({
+  //     where: { slug: requestData.applicableSlug },
+  //   });
 
-    if (!product) {
-      this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
-      throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-    }
+  //   if (!product) {
+  //     this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+  //     throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+  //   }
 
-    const promotion = await this.promotionRepository.findOne({
-      where: { slug: requestData.promotion },
-    });
-    if (!promotion) {
-      this.logger.warn(
-        PromotionValidation.PROMOTION_NOT_FOUND.message,
-        context,
-      );
-      throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
-    }
+  //   const promotion = await this.promotionRepository.findOne({
+  //     where: { slug: requestData.promotion },
+  //   });
+  //   if (!promotion) {
+  //     this.logger.warn(
+  //       PromotionValidation.PROMOTION_NOT_FOUND.message,
+  //       context,
+  //     );
+  //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+  //   }
 
-    where.promotion = { id: promotion.id };
-    where.applicableId = product.id;
+  //   where.promotion = { id: promotion.id };
+  //   where.applicableId = product.id;
 
-    this.logger.log(where, context);
-    // if (requestData.promotion && requestData.applicableSlug) {
-    //   const product = await this.productRepository.findOne({
-    //     where: { slug: requestData.applicableSlug },
-    //   });
+  //   this.logger.log(where, context);
+  //   // if (requestData.promotion && requestData.applicableSlug) {
+  //   //   const product = await this.productRepository.findOne({
+  //   //     where: { slug: requestData.applicableSlug },
+  //   //   });
 
-    //   if (!product) {
-    //     this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
-    //     throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-    //   }
+  //   //   if (!product) {
+  //   //     this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+  //   //     throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+  //   //   }
 
-    //   const promotion = await this.promotionRepository.findOne({
-    //     where: { slug: requestData.promotion },
-    //   });
-    //   if (!promotion) {
-    //     this.logger.warn(
-    //       PromotionValidation.PROMOTION_NOT_FOUND.message,
-    //       context,
-    //     );
-    //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
-    //   }
+  //   //   const promotion = await this.promotionRepository.findOne({
+  //   //     where: { slug: requestData.promotion },
+  //   //   });
+  //   //   if (!promotion) {
+  //   //     this.logger.warn(
+  //   //       PromotionValidation.PROMOTION_NOT_FOUND.message,
+  //   //       context,
+  //   //     );
+  //   //     throw new PromotionException(PromotionValidation.PROMOTION_NOT_FOUND);
+  //   //   }
 
-    //   where.promotion = promotion;
-    //   where.applicableId = product.id;
-    // } else {
-    //   this.logger.warn(
-    //     ApplicablePromotionValidation
-    //       .MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG.message,
-    //     context,
-    //   );
-    //   throw new ApplicablePromotionException(
-    //     ApplicablePromotionValidation.MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG,
-    //   );
-    // }
+  //   //   where.promotion = promotion;
+  //   //   where.applicableId = product.id;
+  //   // } else {
+  //   //   this.logger.warn(
+  //   //     ApplicablePromotionValidation
+  //   //       .MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG.message,
+  //   //     context,
+  //   //   );
+  //   //   throw new ApplicablePromotionException(
+  //   //     ApplicablePromotionValidation.MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG,
+  //   //   );
+  //   // }
 
-    const applicablePromotion =
-      await this.applicablePromotionUtils.getApplicablePromotion(where);
+  //   const applicablePromotion =
+  //     await this.applicablePromotionUtils.getApplicablePromotion(where);
 
-    const productDto = this.mapper.map(product, Product, ProductResponseDto);
+  //   const productDto = this.mapper.map(product, Product, ProductResponseDto);
 
-    const applicablePromotionDto = this.mapper.map(
-      applicablePromotion,
-      ApplicablePromotion,
-      ApplicablePromotionResponseDto,
-    );
-    applicablePromotionDto.applicableObject = productDto;
-    return applicablePromotionDto;
-  }
+  //   const applicablePromotionDto = this.mapper.map(
+  //     applicablePromotion,
+  //     ApplicablePromotion,
+  //     ApplicablePromotionResponseDto,
+  //   );
+  //   applicablePromotionDto.applicableObject = productDto;
+  //   return applicablePromotionDto;
+  // }
 }

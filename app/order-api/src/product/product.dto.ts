@@ -148,6 +148,9 @@ export class ProductResponseDto extends BaseResponseDto {
 
   @AutoMap()
   isNew: boolean;
+
+  @AutoMap()
+  saleQuantityHistory: number;
 }
 
 export class ValidationError {

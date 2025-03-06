@@ -61,30 +61,55 @@ export class ProductAnalysisScheduler {
       results,
     );
 
-    const productAnalysesPromise = productAnalysisQueryDtos.map(
-      async (item) => {
-        const branch = await this.branchRepository.findOne({
-          where: { id: item.branchId },
-        });
-        if (!branch)
-          throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+    const groupedProductAnalysisByProduct: ProductAnalysisQueryDto[][] =
+      Object.values(
+        productAnalysisQueryDtos.reduce((acc, item) => {
+          if (!acc[item.productId]) {
+            acc[item.productId] = [];
+          }
+          acc[item.productId].push(item);
+          return acc;
+        }, {}),
+      );
 
+    const updateProducts: Product[] = [];
+    const productAnalysesPromise = groupedProductAnalysisByProduct.map(
+      async (groupedItem) => {
         const product = await this.productRepository.findOne({
           where: {
-            id: item.productId,
+            id: _.first(groupedItem).productId,
           },
         });
         if (!product)
           throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        let totalSaleQuantity = product.saleQuantityHistory;
 
-        const pa = this.mapper.map(
-          item,
-          ProductAnalysisQueryDto,
-          ProductAnalysis,
+        const productAnalysesByProductPromise = groupedItem.map(
+          async (item) => {
+            const branch = await this.branchRepository.findOne({
+              where: { id: item.branchId },
+            });
+            if (!branch)
+              throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+            const pa = this.mapper.map(
+              item,
+              ProductAnalysisQueryDto,
+              ProductAnalysis,
+            );
+            totalSaleQuantity += pa.totalQuantity;
+            pa.branch = branch;
+            pa.product = product;
+            return pa;
+          },
         );
-        pa.branch = branch;
-        pa.product = product;
-        return pa;
+        const productAnalysesByProduct = await Promise.all(
+          productAnalysesByProductPromise,
+        );
+        product.saleQuantityHistory = totalSaleQuantity;
+        updateProducts.push(product);
+
+        return productAnalysesByProduct;
       },
     );
 
@@ -95,10 +120,12 @@ export class ProductAnalysisScheduler {
 
     try {
       const productAnalyses = await Promise.all(productAnalysesPromise);
-      await queryRunner.manager.save(productAnalyses);
+      const productAnalysesArr: ProductAnalysis[] = _.flatten(productAnalyses);
+      await queryRunner.manager.save(productAnalysesArr);
+      await queryRunner.manager.save(updateProducts);
       await queryRunner.commitTransaction();
       this.logger.log(
-        `Init product analysis ${productAnalyses.length}`,
+        `Init product analysis ${productAnalysesArr.length}`,
         context,
       );
     } catch (error) {
@@ -112,84 +139,148 @@ export class ProductAnalysisScheduler {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  // @Timeout(1000)
   async refreshProductAnalysis() {
     const context = `${ProductAnalysisScheduler.name}.${this.refreshProductAnalysis.name}`;
 
-    const yesterdayDate = new Date();
-    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    yesterdayDate.setHours(7, 0, 0, 0);
-
-    const hasProductAnalysis = await this.productAnalysisRepository.find({
-      where: {
-        orderDate: yesterdayDate,
-      },
-    });
-
-    if (!_.isEmpty(hasProductAnalysis)) {
-      this.logger.error(
-        `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`,
-        null,
-        context,
-      );
-      return;
-    }
-
-    const results: any[] = await this.productAnalysisRepository.query(
-      getYesterdayProductAnalysisClause,
-    );
-
-    const productAnalysisQueryDtos = plainToInstance(
-      ProductAnalysisQueryDto,
-      results,
-    );
-
-    const productAnalysesPromise = productAnalysisQueryDtos.map(
-      async (item) => {
-        const branch = await this.branchRepository.findOne({
-          where: { id: item.branchId },
-        });
-        if (!branch)
-          throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-
-        const product = await this.productRepository.findOne({
-          where: {
-            id: item.productId,
-          },
-        });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-
-        const pa = this.mapper.map(
-          item,
-          ProductAnalysisQueryDto,
-          ProductAnalysis,
-        );
-        pa.branch = branch;
-        pa.product = product;
-        return pa;
-      },
-    );
-
-    // Insert
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      const productAnalyses = await Promise.all(productAnalysesPromise);
-      await queryRunner.manager.save(productAnalyses);
-      await queryRunner.commitTransaction();
-      this.logger.log(
-        `Refresh product analysis ${productAnalyses.length}`,
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      yesterdayDate.setHours(7, 0, 0, 0);
+
+      const hasProductAnalysis = await this.productAnalysisRepository.find({
+        where: {
+          orderDate: yesterdayDate,
+        },
+      });
+
+      if (!_.isEmpty(hasProductAnalysis)) {
+        this.logger.error(
+          `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`,
+          null,
+          context,
+        );
+        return;
+      }
+
+      const results: any[] = await this.productAnalysisRepository.query(
+        getYesterdayProductAnalysisClause,
+      );
+
+      const productAnalysisQueryDtos = plainToInstance(
+        ProductAnalysisQueryDto,
+        results,
+      );
+
+      const groupedProductAnalysisByProduct: ProductAnalysisQueryDto[][] =
+        Object.values(
+          productAnalysisQueryDtos.reduce((acc, item) => {
+            if (!acc[item.productId]) {
+              acc[item.productId] = [];
+            }
+            acc[item.productId].push(item);
+            return acc;
+          }, {}),
+        );
+
+      const updateProducts: Product[] = [];
+      const productAnalysesPromise = groupedProductAnalysisByProduct.map(
+        async (groupedItem) => {
+          const product = await this.productRepository.findOne({
+            where: {
+              id: _.first(groupedItem).productId,
+            },
+          });
+          if (!product)
+            throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          let totalSaleQuantity = product.saleQuantityHistory;
+
+          const productAnalysesByProductPromise = groupedItem.map(
+            async (item) => {
+              const branch = await this.branchRepository.findOne({
+                where: { id: item.branchId },
+              });
+              if (!branch)
+                throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+              const pa = this.mapper.map(
+                item,
+                ProductAnalysisQueryDto,
+                ProductAnalysis,
+              );
+              totalSaleQuantity += pa.totalQuantity;
+              pa.branch = branch;
+              pa.product = product;
+              return pa;
+            },
+          );
+          const productAnalysesByProduct = await Promise.all(
+            productAnalysesByProductPromise,
+          );
+          product.saleQuantityHistory = totalSaleQuantity;
+          updateProducts.push(product);
+
+          return productAnalysesByProduct;
+        },
+      );
+
+      // const productAnalysesPromise = productAnalysisQueryDtos.map(
+      //   async (item) => {
+      //     const branch = await this.branchRepository.findOne({
+      //       where: { id: item.branchId },
+      //     });
+      //     if (!branch)
+      //       throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+      //     const product = await this.productRepository.findOne({
+      //       where: {
+      //         id: item.productId,
+      //       },
+      //     });
+      //     if (!product)
+      //       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+
+      //     const pa = this.mapper.map(
+      //       item,
+      //       ProductAnalysisQueryDto,
+      //       ProductAnalysis,
+      //     );
+      //     pa.branch = branch;
+      //     pa.product = product;
+      //     return pa;
+      //   },
+      // );
+
+      // Insert
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        const productAnalyses = await Promise.all(productAnalysesPromise);
+        const productAnalysesArr: ProductAnalysis[] =
+          _.flatten(productAnalyses);
+        await queryRunner.manager.save(productAnalysesArr);
+        await queryRunner.manager.save(updateProducts);
+        await queryRunner.commitTransaction();
+        this.logger.log(
+          `Refresh product analysis ${productAnalysesArr.length}`,
+          context,
+        );
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new BadRequestException(
+          `Error when refresh product analysis: ${error.message}`,
+        );
+      } finally {
+        await queryRunner.release();
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error when handle data to refresh product analysis: ${error.message}`,
+        error.stack,
         context,
       );
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException(
-        `Error when refresh product analysis: ${error.message}`,
-      );
-    } finally {
-      await queryRunner.release();
     }
   }
 }

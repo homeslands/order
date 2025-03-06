@@ -61,4 +61,8 @@ export class Product extends Base {
   @AutoMap()
   @Column({ name: 'isNew', default: false })
   isNew: boolean;
+
+  @AutoMap()
+  @Column({ name: 'sale_quantity_history', default: 0 })
+  saleQuantityHistory: number;
 }
