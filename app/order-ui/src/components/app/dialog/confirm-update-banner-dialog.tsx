@@ -29,8 +29,6 @@ interface IConfirmUpdateBannerDialogProps {
 }
 
 export default function ConfirmUpdateBannerDialog({
-  // isOpen,
-  // onOpenChange,
   onCompleted,
   banner,
   disabled,
@@ -46,7 +44,7 @@ export default function ConfirmUpdateBannerDialog({
   const handleSubmit = (banner: IUpdateBannerRequest) => {
     if (!banner) return
     updateBanner(
-      { ...banner, isActive },
+      { ...banner, url: banner.useButtonUrl ? banner.url : "", isActive },
       {
         onSuccess: () => {
           setIsActive(false)
@@ -65,6 +63,7 @@ export default function ConfirmUpdateBannerDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
+          type="button"
           disabled={disabled}
           className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
           onClick={() => setIsOpen(true)}

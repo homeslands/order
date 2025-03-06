@@ -1,7 +1,6 @@
 import moment from 'moment'
-import { NavLink } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, SquareMousePointer } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui'
 import { IBanner } from '@/types'
 import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
+import UpdateBannerDialog from '@/components/app/dialog/update-banner-dialog'
 
 export const useBannerColumns = (): ColumnDef<IBanner>[] => {
   const { t } = useTranslation(['banner'])
@@ -87,12 +87,7 @@ export const useBannerColumns = (): ColumnDef<IBanner>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink to={`${banner.slug}`}>
-                  <Button variant="ghost" className="flex justify-start gap-1 px-2">
-                    <SquareMousePointer className='icon' />
-                    {tCommon('common.viewAndEdit')}
-                  </Button>
-                </NavLink>
+                <UpdateBannerDialog banner={banner} />
                 <UploadBannerBannerDialog banner={banner} />
                 <DeleteBannerDialog banner={banner} />
               </DropdownMenuContent>

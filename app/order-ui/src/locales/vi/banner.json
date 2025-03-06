@@ -5,6 +5,8 @@
     "bannerDescription": "Quản lý Banner của trang web",
     "title": "Tiêu đề",
     "content": "Nội dung",
+    "link": "URL liên kết",
+    "btnLink": "Nút liên kết",
     "description": "Chúng tôi cung cấp các dịch vụ tốt nhất cho bạn",
     "createdAt": "Ngày tạo",
     "slug": "Slug",
@@ -12,20 +14,20 @@
     "active": "Đang hoạt động",
     "inactive": "Không hoạt động",
     "isActiveDescription": "(Sau khi bật, banner sẽ hiển thị trên trang web)",
-
     "noData": "Không có dữ liệu",
-
     "create": "Tạo mới",
     "createDescription": "Tạo mới banner",
     "enterTitle": "Nhập tiêu đề",
-
+    "enterContent": "Nhập nội dung",
+    "enterLink": "http://example.com",
     "uploadImage": "Tải ảnh lên",
     "uploadImageDescription": "Tải ảnh lên cho banner",
     "addImage": "Thêm ảnh",
-
+    "viewAndEdit": "Xem và chỉnh sửa",
+    "viewMore": "Tìm hiểu thêm",
     "update": "Cập nhật",
+    "updateDescription": "Cập nhật banner",
     "confirmUpdateBanner": "Xác nhận cập nhật banner",
-
     "delete": "Xóa",
     "deleteBannerWarning1": "Bạn sắp sửa xóa banner ",
     "deleteBannerConfirmation": "Bạn có chắc chắn muốn xóa banner này không?"

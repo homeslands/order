@@ -298,9 +298,9 @@ export const BannerPage = React.lazy(() =>
   })),
 )
 
-//Banner detail page
-export const BannerDetailPage = React.lazy(() =>
-  import('@/app/system/banner/components').then((module) => ({
-    default: module.BannerDetailPage,
-  })),
-)
+//Voucher and promotion page
+// export const VoucherAndPromotionPage = React.lazy(() =>
+//   import('@/app/client/voucher-promotion').then((module) => ({
+//     default: module.VoucherAndPromotionPage,
+//   })),
+// )

@@ -12,9 +12,11 @@ import {
   Form,
   Button,
   Input,
+  Label,
+  Switch,
 } from '@/components/ui'
 import { useCreateBanner } from '@/hooks'
-import { bannerSchema, TBannerSchema } from '@/schemas'
+import {  bannerCreateSchema, TBannerCreateSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateBannerRequest } from '@/types'
@@ -32,17 +34,19 @@ export const CreateBannerForm: React.FC<IFormCreateBannerProps> = ({
   const queryClient = useQueryClient()
   const { t } = useTranslation(['banner'])
   const { mutate: createBanner } = useCreateBanner()
+  const form = useForm<TBannerCreateSchema>(
+    {
+      resolver: zodResolver(bannerCreateSchema),
+      defaultValues: {
+        title: '',
+        content: '',
+        url: '',
+        useButtonUrl: false,
+      },
+    })
 
-  const form = useForm<TBannerSchema>({
-    resolver: zodResolver(bannerSchema),
-    defaultValues: {
-      title: '',
-      content: 'default content',
-    },
-  })
-
-  const handleSubmit = (data: ICreateBannerRequest) => {
-    createBanner(data, {
+  const handleSubmit = (data: ICreateBannerRequest) => {    
+    createBanner({ ...data, url: data.useButtonUrl ? data.url : "" }, {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.banners],
@@ -72,6 +76,58 @@ export const CreateBannerForm: React.FC<IFormCreateBannerProps> = ({
           </FormItem>
         )}
       />
+    ),
+    content: (
+      <FormField
+        control={form.control}
+        name="content"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('banner.content')}</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder={t('banner.enterContent')}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    useButtonUrl: (
+      <>
+        <FormField
+          control={form.control}
+          name="useButtonUrl"
+          render={() => (
+            <FormItem className="flex items-center gap-4">
+              <FormControl className="flex items-center">
+                <div className="flex items-center gap-4 py-2">
+                  <Label>{t('banner.btnLink')}</Label>
+                  <Switch defaultChecked={false}
+                    onCheckedChange={(checked) => { form.setValue("useButtonUrl", checked) }} />
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="url"
+          render={({ field }) => (
+            <FormItem className={`${form.watch('useButtonUrl') ? 'block' : 'hidden'} mt-1`}>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder={t('banner.enterLink')}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+          } />
+      </>
     ),
   }
 

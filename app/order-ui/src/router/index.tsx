@@ -47,7 +47,6 @@ import {
   VoucherPage,
   PromotionPage,
   BannerPage,
-  BannerDetailPage,
   EmailVerificationPage,
   // VoucherAndPromotionPage,
 } from './loadable'
@@ -661,17 +660,6 @@ export const router = createBrowserRouter([
             <SuspenseElement component={SystemLayout} />
           </Suspense>
         ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
-                element={<SuspenseElement component={BannerDetailPage} />}
-              />
-            ),
-          },
-        ],
       },
       {
         path: ROUTE.DOCS,
