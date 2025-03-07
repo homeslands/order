@@ -1,29 +1,18 @@
+import { httpMock } from '../__mocks__/httpMock'
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { http } from '@/utils'
 import {
-  getBankConnector,
   createBankConnector,
+  getBankConnector,
   updateBankConnector,
-} from '../bank'
+} from '@/api'
+import { SERVER_ERROR } from '../constants'
 
 vi.mock('@/utils', () => ({
-  http: {
-    get: vi.fn(),
-    put: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
+  http: httpMock,
 }))
 
 describe('Bank API', () => {
-  const serverError = {
-    response: {
-      status: 500,
-      data: { message: 'Internal Server Error' },
-    },
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -32,13 +21,21 @@ describe('Bank API', () => {
     it('should call get banks endpoint with correct parameters', async () => {
       const mockResponse = {
         data: {
-          items: [{ id: 1, name: 'Test Bank' }],
-          total: 1,
+          items: [
+            {
+              slug: 'test-bank',
+              xProviderId: '123',
+              xService: 'Service',
+              xOwnerNumber: '1234567890',
+              xOwnerType: 'Personal',
+              beneficiaryName: 'John Doe',
+              virtualAccountPrefix: '123',
+            },
+          ],
         },
       }
       ;(http.get as Mock).mockResolvedValue(mockResponse)
 
-      //   const params = { page: 1, limit: 10 }
       const result = await getBankConnector()
 
       expect(http.get).toHaveBeenCalledWith('/acb-connector')
@@ -46,9 +43,9 @@ describe('Bank API', () => {
     })
 
     it('should handle server error', async () => {
-      ;(http.get as Mock).mockRejectedValue(serverError)
+      ;(http.get as Mock).mockRejectedValue(SERVER_ERROR)
       //   const params = { page: 1, limit: 10 }
-      await expect(getBankConnector()).rejects.toEqual(serverError)
+      await expect(getBankConnector()).rejects.toEqual(SERVER_ERROR)
     })
 
     it('should handle undefined response', async () => {
@@ -131,7 +128,7 @@ describe('Bank API', () => {
     })
 
     it('should handle server error', async () => {
-      ;(http.post as Mock).mockRejectedValue(serverError)
+      ;(http.post as Mock).mockRejectedValue(SERVER_ERROR)
       const bankData = {
         xProviderId: '123',
         xService: 'Service',
@@ -140,7 +137,7 @@ describe('Bank API', () => {
         beneficiaryName: 'John Doe',
         virtualAccountPrefix: '123',
       }
-      await expect(createBankConnector(bankData)).rejects.toEqual(serverError)
+      await expect(createBankConnector(bankData)).rejects.toEqual(SERVER_ERROR)
     })
 
     it('should handle undefined response', async () => {
@@ -276,7 +273,7 @@ describe('Bank API', () => {
     })
 
     it('should handle server error', async () => {
-      ;(http.put as Mock).mockRejectedValue(serverError)
+      ;(http.put as Mock).mockRejectedValue(SERVER_ERROR)
       const bankData = {
         slug: 'test-bank',
         xProviderId: '123',
@@ -286,7 +283,7 @@ describe('Bank API', () => {
         beneficiaryName: 'John Doe',
         virtualAccountPrefix: '123',
       }
-      await expect(updateBankConnector(bankData)).rejects.toEqual(serverError)
+      await expect(updateBankConnector(bankData)).rejects.toEqual(SERVER_ERROR)
     })
 
     it('should handle undefined response', async () => {

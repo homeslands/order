@@ -32,11 +32,11 @@ export class OrderScheduler {
       this.logger.warn(`Order ${orderSlug} is not pending`, context);
       return;
     }
-
     // Get all menu items base on unique products
+    const orderDate = new Date(moment(order.createdAt).format('YYYY-MM-DD'));
     const menuItems = await this.menuItemUtils.getCurrentMenuItems(
       order,
-      new Date(moment().format('YYYY-MM-DD')),
+      orderDate,
       'increment',
     );
 

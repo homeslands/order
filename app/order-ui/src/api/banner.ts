@@ -15,6 +15,7 @@ export async function getSpecificBanner(
   slug: string,
 ): Promise<IApiResponse<IBanner>> {
   const response = await http.get<IApiResponse<IBanner>>(`/banner/${slug}`)
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -22,6 +23,7 @@ export async function createBanner(
   params: ICreateBannerRequest,
 ): Promise<IApiResponse<IBanner>> {
   const response = await http.post<IApiResponse<IBanner>>('/banner', params)
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -32,6 +34,7 @@ export async function updateBanner(
     `/banner/${params.slug}`,
     params,
   )
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -45,6 +48,7 @@ export async function uploadBannerImage(
     `/banner/${slug}/upload`,
     formData,
   )
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
 
@@ -52,5 +56,6 @@ export async function deleteBanner(
   slug: string,
 ): Promise<IApiResponse<IBanner>> {
   const response = await http.delete<IApiResponse<IBanner>>(`/banner/${slug}`)
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }

@@ -1,14 +1,16 @@
-import { HomelandLogo } from '@/assets/images'
-import { ROUTE } from '@/constants'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
+
 import GoogleMap from './google-map';
+import { HomelandLogo } from '@/assets/images'
+import { ROUTE } from '@/constants'
+
 export function ClientFooter() {
   const { t } = useTranslation('sidebar')
   const navigator = useNavigate()
   return (
     <footer className="text-white bg-primary">
-      <div className="container pt-6 md:pb-2 pb-6">
+      <div className="container pt-6 pb-6 md:pb-2">
         <div className="grid items-start grid-cols-2 gap-5 lg:grid-cols-4">
           <div className="flex flex-col items-start justify-center gap-2 w-fit">
             <span className="font-bold">

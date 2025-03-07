@@ -1,3 +1,4 @@
+import { httpMock } from '../__mocks__/httpMock'
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { http } from '@/utils'
 import {
@@ -7,12 +8,10 @@ import {
   forgotPasswordAndResetPassword,
   verifyEmail,
   confirmEmailVerification,
-} from '../auth'
+} from '@/api'
 
 vi.mock('@/utils', () => ({
-  http: {
-    post: vi.fn(),
-  },
+  http: httpMock,
 }))
 
 describe('Auth API', () => {

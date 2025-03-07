@@ -40,7 +40,7 @@ export default function UpdateCustomerProfileDialog({
           <span className="text-xs sm:text-sm">{t('profile.updateProfile')}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[80%] max-w-[20rem] overflow-y-auto rounded-md px-0 sm:max-w-[56rem]">
+      <DialogContent className="max-w-[20rem] overflow-y-auto rounded-md px-0 sm:max-w-[56rem]">
         <DialogHeader className="px-6">
           <DialogTitle>{t('profile.updateProfile')}</DialogTitle>
           <DialogDescription>

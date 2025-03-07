@@ -42,6 +42,7 @@ export interface ISpecificMenuRequest {
   branch?: string
   minPrice?: number
   maxPrice?: number
+  promotion?: boolean
 }
 
 export interface IUpdateMenuRequest {

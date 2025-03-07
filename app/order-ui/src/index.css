@@ -314,6 +314,7 @@
   margin: 0;
   padding: 0;
   counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  line-height: 2;
 }
 
 .ql-editor ol,
@@ -1063,6 +1064,17 @@
 .ql-snow .ql-editor img {
   max-width: 100%;
 }
+
+.ql-snow .ql-editor > .ql-align-center {
+  display: flex;
+  justify-content: center;
+}
+
+.ql-snow .ql-editor > .ql-align-right {
+  display: flex;
+  justify-content: end;
+}
+
 
 .ql-snow .ql-picker {
   color: #444;

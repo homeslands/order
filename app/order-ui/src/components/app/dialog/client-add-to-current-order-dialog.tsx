@@ -56,7 +56,6 @@ export default function ClientAddToCurrentOrderDialog({
       promotion: product.promotion ? product.promotion?.slug : '',
       note: note,
     }
-
     addNewMenuItem(orderItem, {
       onSuccess: () => {
         setIsOpen(false)

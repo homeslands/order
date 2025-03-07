@@ -3,13 +3,19 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui'
-import { useBanners, useProducts } from '@/hooks'
+import { useBanners, useProducts, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
-import { StoreCarousel } from './components'
+import {
+  SliderMenuPromotion,
+  SliderProduct,
+  StoreCarousel,
+  SwiperBanner,
+} from './components'
 import { AdPopup } from '@/components/app/AdPopup'
-import SwiperBanner from './components/banner'
-import SliderProduct from './components/slider-product'
 import { Helmet } from 'react-helmet'
+import moment from 'moment'
+import { useBranchStore } from '@/stores'
+
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tHelmet } = useTranslation('helmet')
@@ -24,80 +30,106 @@ export default function HomePage() {
       transition: { duration: 0.8, ease: 'easeOut' },
     },
   }
-
+  const { branch } = useBranchStore()
   const { data: products, isFetching } = useProducts({})
-  const bestSellerProducts = products?.result?.filter(product => product.isTopSell) || []
-  const newProducts = products?.result?.filter(product => product.isNew) || []
-
+  const bestSellerProducts =
+    products?.result?.filter((product) => product.isTopSell) || []
+  const newProducts = products?.result?.filter((product) => product.isNew) || []
+  const { data: specificMenu, isFetching: fechMenupromotion } = useSpecificMenu(
+    {
+      date: moment().format('YYYY-MM-DD'),
+      branch: branch ? branch?.slug : '',
+      promotion: true,
+    },
+  )
   return (
     <React.Fragment>
       <AdPopup />
       <Helmet>
-        <meta charSet='utf-8' />
-        <title>
-          {tHelmet('helmet.home.title')}
-        </title>
-        <meta name='description' content={tHelmet('helmet.home.title')} />
+        <meta charSet="utf-8" />
+        <title>{tHelmet('helmet.home.title')}</title>
+        <meta name="description" content={tHelmet('helmet.home.title')} />
       </Helmet>
+
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
 
         {/* Section 2: Top sell */}
-        {bestSellerProducts.length > 0 &&
+        {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex flex-col items-start w-full gap-4 h-[20rem]"
+              className="flex h-[20rem] w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="w-full flex-between">
-                <div className="primary-highlight">
-                  {t('home.bestSeller')}
-                </div>
+              <div className="flex-between w-full">
+                <div className="primary-highlight">{t('home.bestSeller')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>
-                    {t('home.viewMore')}
-                  </Button>
+                  <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
-              <SliderProduct products={bestSellerProducts} isFetching={isFetching} />
+              <SliderProduct
+                products={bestSellerProducts}
+                isFetching={isFetching}
+              />
             </motion.div>
           </div>
-        }
+        )}
 
-        {/* Section 2: New products */}
-        {newProducts.length > 0 &&
+        {/* Section 3: New products */}
+        {newProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex flex-col items-start w-full h-[20rem] gap-4"
+              className="flex h-[20rem] w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="w-full flex-between">
-                <div className="primary-highlight">
-                  {t('home.newProduct')}
-                </div>
+              <div className="flex-between w-full">
+                <div className="primary-highlight">{t('home.newProduct')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>
-                    {t('home.viewMore')}
-                  </Button>
+                  <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
               <SliderProduct products={newProducts} isFetching={isFetching} />
             </motion.div>
           </div>
-        }
+        )}
 
+        {/* Section 4: Top promotion */}
+        {newProducts.length > 0 && (
+          <div className="container">
+            <motion.div
+              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={fadeInVariants}
+            >
+              <div className="flex-between w-full">
+                <div className="primary-highlight">
+                  {t('home.topPromotion')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>{t('home.viewMore')}</Button>
+                </NavLink>
+              </div>
+              <SliderMenuPromotion
+                menus={specificMenu?.result?.menuItems}
+                isFetching={fechMenupromotion}
+              />
+            </motion.div>
+          </div>
+        )}
 
-        {/* Section 3: Info */}
+        {/* Section 5: Info */}
         <div className="container">
           <motion.div
-            className="grid items-start w-full grid-cols-1 gap-4 p-4 sm:grid-cols-5"
+            className="grid w-full grid-cols-1 items-start gap-4 p-4 sm:grid-cols-5"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
@@ -106,18 +138,18 @@ export default function HomePage() {
             <div className="flex justify-center sm:col-span-2">
               <div className="flex flex-col items-start gap-4 sm:w-2/3">
                 <div className="flex flex-col gap-2">
-                  <span className="text-2xl font-extrabold">HOMELAND Coffee</span>
+                  <span className="text-2xl font-extrabold">
+                    HOMELAND Coffee
+                  </span>
                   <span className="text-muted-foreground">
                     {t('home.homeDescription')}
                   </span>
                 </div>
                 <NavLink
                   to={ROUTE.CLIENT_MENU}
-                  className="flex text-sm transition-all duration-200 rounded-md hover:scale-105 hover:bg-primary/20"
+                  className="flex rounded-md text-sm transition-all duration-200 hover:scale-105 hover:bg-primary/20"
                 >
-                  <Button>
-                    {t('home.learnMore')}
-                  </Button>
+                  <Button>{t('home.learnMore')}</Button>
                 </NavLink>
               </div>
             </div>
@@ -131,7 +163,7 @@ export default function HomePage() {
 
         {/* Section 4: More info */}
         <motion.div
-          className="flex items-center px-4 text-white bg-gray-900 h-96 sm:justify-center"
+          className="flex h-96 items-center bg-gray-900 px-4 text-white sm:justify-center"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
@@ -141,12 +173,8 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold sm:text-4xl">
               {t('home.learnAboutUs')}
             </h2>
-            <p className="mt-4 text-sm">
-              {t('home.aboutUsDescription')}
-            </p>
-            <Button className="mt-6">
-              {t('home.contactUs')}
-            </Button>
+            <p className="mt-4 text-sm">{t('home.aboutUsDescription')}</p>
+            <Button className="mt-6">{t('home.contactUs')}</Button>
           </div>
         </motion.div>
       </div>
