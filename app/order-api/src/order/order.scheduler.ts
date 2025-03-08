@@ -18,7 +18,7 @@ export class OrderScheduler {
   ) {}
 
   // Cancel order job
-  async cancelOrder(orderSlug: string) {
+  private async cancelOrder(orderSlug: string) {
     const context = `${OrderScheduler.name}.${this.cancelOrder.name}`;
     this.logger.log(`Cancel order ${orderSlug}`, context);
 

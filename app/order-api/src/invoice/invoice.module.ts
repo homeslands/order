@@ -17,5 +17,6 @@ import { InvoiceScheduler } from './invoice.scheduler';
   ],
   controllers: [InvoiceController],
   providers: [InvoiceService, InvoiceProfile, InvoiceScheduler],
+  exports: [InvoiceService],
 })
 export class InvoiceModule {}

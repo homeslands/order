@@ -52,6 +52,7 @@ export { default as DeleteTableDialog } from './delete-table-dialog'
 export { default as CreateOrderDialog } from './create-order-dialog'
 export { default as UpdateOrderItemDialog } from './update-order-item-dialog'
 export { default as CancelOrderDialog } from './cancel-order-dialog'
+export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
 
 export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
 

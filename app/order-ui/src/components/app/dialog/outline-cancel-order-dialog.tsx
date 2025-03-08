@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { TriangleAlert } from 'lucide-react'
+import { Trash2, TriangleAlert } from 'lucide-react'
 
 import {
   Button,
@@ -16,16 +17,15 @@ import {
 import { IOrder } from '@/types'
 import { useDeleteOrder } from '@/hooks'
 import { showToast } from '@/utils'
-// import { useQueryClient } from '@tanstack/react-query'
 
-export default function CancelOrderDialog({
+export default function OutlineCancelOrderDialog({
   order,
   onSuccess,
 }: {
   order: IOrder
   onSuccess?: () => void
 }) {
-  // const queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const { t: tToast } = useTranslation('toast')
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
@@ -35,9 +35,9 @@ export default function CancelOrderDialog({
   const handleSubmit = (orderSlug: string) => {
     deleteOrder(orderSlug, {
       onSuccess: () => {
-        // queryClient.invalidateQueries({
-        //   queryKey: ['orders'],
-        // })
+        queryClient.invalidateQueries({
+          queryKey: ['orders'],
+        })
         setIsOpen(false)
         showToast(tToast('toast.handleCancelOrderSuccess'))
         onSuccess?.()
@@ -47,13 +47,14 @@ export default function CancelOrderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="flex justify-center w-full" asChild>
+      <DialogTrigger className="flex justify-start w-full mt-1" asChild>
         <DialogTrigger asChild>
           <Button
-            variant="destructive"
-            className="gap-1 px-2 text-sm"
+            variant="outline"
+            className="gap-1 px-2 text-sm transition-all duration-300 bg-destructive/15 text-destructive hover:bg-destructive/30 hover:text-destructive"
             onClick={() => setIsOpen(true)}
           >
+            <Trash2 />
             {t('order.cancelOrder')}
           </Button>
         </DialogTrigger>

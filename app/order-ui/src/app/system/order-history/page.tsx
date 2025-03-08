@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
@@ -5,7 +6,6 @@ import { DataTable } from '@/components/ui'
 import { useOrders, usePagination } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useOrderHistoryColumns } from './DataTable/columns'
-import { Helmet } from 'react-helmet'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])

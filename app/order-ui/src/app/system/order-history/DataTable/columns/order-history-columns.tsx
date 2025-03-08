@@ -22,6 +22,7 @@ import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
 import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
+import { OutlineCancelOrderDialog } from '@/components/app/dialog'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -184,7 +185,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <Button
                     onClick={() => handleExportPayment(order.payment?.slug)}
                     variant="ghost"
-                    className="flex justify-start w-full px-2"
+                    className="flex justify-start w-full gap-1 px-2"
                   >
                     <DownloadIcon />
                     {t('order.exportPayment')}
@@ -196,12 +197,15 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <Button
                     onClick={() => handleExportOrderInvoice(order.slug)}
                     variant="ghost"
-                    className="flex justify-start w-full px-2"
+                    className="flex justify-start w-full gap-1 px-2"
                   >
                     <DownloadIcon />
                     {t('order.exportInvoice')}
                   </Button>
                 )}
+
+                {/* Cancel order */}
+                <OutlineCancelOrderDialog order={order} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

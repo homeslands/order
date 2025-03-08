@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import moment from 'moment'
+import _ from 'lodash'
 import { useTranslation } from 'react-i18next'
 import { CircleX, SquareMenu } from 'lucide-react'
-import moment from 'moment'
 
 import {
   Button,
@@ -20,7 +21,6 @@ import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderTypeEnum } from '@/types'
-import _ from 'lodash'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])

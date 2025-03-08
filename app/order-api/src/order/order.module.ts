@@ -27,13 +27,13 @@ import { OrderListener } from './order.listener';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
-import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
-import { InvoiceService } from 'src/invoice/invoice.service';
 import { Invoice } from 'src/invoice/invoice.entity';
-import { PdfService } from 'src/pdf/pdf.service';
-import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { MailModule } from 'src/mail/mail.module';
+import { PromotionModule } from 'src/promotion/promotion.module';
+import { InvoiceModule } from 'src/invoice/invoice.module';
+import { PdfModule } from 'src/pdf/pdf.module';
+import { QrCodeModule } from 'src/qr-code/qr-code.module';
 
 @Module({
   imports: [
@@ -61,6 +61,10 @@ import { MailModule } from 'src/mail/mail.module';
     MenuModule,
     forwardRef(() => VoucherModule),
     MailModule,
+    PromotionModule,
+    InvoiceModule,
+    PdfModule,
+    QrCodeModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -71,11 +75,7 @@ import { MailModule } from 'src/mail/mail.module';
     OrderUtils,
     OrderListener,
     OrderItemUtils,
-    PromotionUtils,
-    InvoiceService,
-    PdfService,
-    QrCodeService,
   ],
-  exports: [OrderService, OrderUtils],
+  exports: [OrderService, OrderUtils, OrderScheduler],
 })
 export class OrderModule {}
