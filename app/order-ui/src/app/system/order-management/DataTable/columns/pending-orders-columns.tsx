@@ -16,12 +16,11 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
       cell: () => {
         return (
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary p-2.5">
-            <BikeIcon className="icon text-white" />
+            <BikeIcon className="text-white icon" />
           </div>
         )
       },
     },
-
     {
       accessorKey: 'slug',
       header: ({ column }) => (
@@ -43,11 +42,24 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
       cell: ({ row }) => {
         const owner =
           row.original.owner.firstName + ' ' + row.original.owner.lastName
-        // const orderItemCount = row.original.orderItems.length
         return (
           <div className="flex flex-col justify-start">
             <span className="text-sm font-medium">{owner}</span>
           </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'type',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.orderType')} />
+      ),
+      cell: ({ row }) => {
+        const orderType = row.original
+        return orderType?.type === OrderTypeEnum.AT_TABLE ? (
+          <div>{t('order.dineIn')}</div>
+        ) : (
+          <div>{t('order.takeAway')}</div>
         )
       },
     },
@@ -59,7 +71,7 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
       cell: ({ row }) => {
         const order = row.original
         return order?.type === OrderTypeEnum.AT_TABLE ? (
-          <div>Bàn số {order?.table?.name}</div>
+          <div>{t('order.tableNumber')} {order?.table?.name}</div>
         ) : (
           <div>{t('order.takeAway')}</div>
         )

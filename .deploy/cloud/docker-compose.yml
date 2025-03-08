@@ -68,7 +68,7 @@ services:
     deploy:
       replicas: 3
       restart_policy:
-        condition: unless-stopped
+        condition: on-failure
       update_config:
         delay: 10s
         parallelism: 1

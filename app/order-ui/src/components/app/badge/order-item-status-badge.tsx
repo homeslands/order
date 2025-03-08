@@ -27,7 +27,7 @@ export default function OrderItemStatusBadge({
   const getBadgeText = (status: OrderItemStatus) => {
     switch (status) {
       case OrderItemStatus.PENDING:
-        return t('order.pending')
+        return t('order.deliveryPending')
       case OrderItemStatus.RUNNING:
         return t('order.shipping')
       case OrderItemStatus.COMPLETED:
