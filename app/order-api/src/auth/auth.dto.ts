@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import {
+  INVALID_EMAIL,
   INVALID_FIRSTNAME,
   INVALID_LASTNAME,
   INVALID_PASSWORD,
@@ -34,6 +35,11 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @IsNotEmpty({ message: INVALID_LASTNAME })
   @AutoMap()
   lastName: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_EMAIL })
+  @AutoMap()
+  email: string;
 }
 
 export class LoginAuthResponseDto {
@@ -185,6 +191,14 @@ export class AuthProfileResponseDto {
   @AutoMap(() => RoleResponseDto)
   @ApiProperty()
   role: RoleResponseDto;
+
+  @AutoMap()
+  @ApiProperty()
+  isVerifiedEmail: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  isVerifiedPhonenumber: boolean;
 }
 
 // PickType: Get the fields from AuthProfileResponseDto

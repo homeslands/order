@@ -12,6 +12,10 @@ export const getAllProductAnalysisClause = `
         ON oi.order_column = o.id_column
     INNER JOIN order_db.branch_tbl AS b
         ON o.branch_column = b.id_column
+    INNER JOIN order_db.payment_tbl AS p
+        ON o.payment_column = p.id_column
+    WHERE
+        p.status_code_column = 'completed'
     GROUP BY
         b.id_column,
         DATE(o.created_at_column),
@@ -34,10 +38,14 @@ export const getYesterdayProductAnalysisClause = `
         ON oi.order_column = o.id_column
     INNER JOIN order_db.branch_tbl AS b
         ON o.branch_column = b.id_column
+    INNER JOIN order_db.payment_tbl AS p
+        ON o.payment_column = p.id_column
     WHERE
         o.created_at_column >= CURRENT_DATE() - INTERVAL 1 DAY
     AND
         o.created_at_column < CURRENT_DATE()
+    AND 
+        p.status_code_column = 'completed'
     GROUP BY
         b.id_column,
         DATE(o.created_at_column),

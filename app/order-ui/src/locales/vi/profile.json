@@ -9,6 +9,7 @@
     "enterFirstName": "Nhập tên",
     "lastName": "Họ",
     "enterLastName": "Nhập họ",
+    "verified": "Đã xác minh",
     "email": "Email",
     "enterEmail": "Nhập email",
     "phoneNumber": "Số điện thoại",
@@ -17,6 +18,7 @@
     "enterAddress": "Nhập địa chỉ",
     "dob": "Ngày sinh",
     "branch": "Chi nhánh",
+    "notVerified": "Chưa xác minh",
 
     "myOrders": "Đơn hàng của tôi",
     "all": "Tất cả",
@@ -27,8 +29,9 @@
     "updateProfile": "Cập nhật hồ sơ",
     "updateProfileDescription": "thay đổi các thông tin bên dưới để cập nhật thông tin cá nhân của bạn",
 
+    "copyEmail": "Sao chép email",
     "verifyEmail": "Xác minh email",
-    "verifyEmailDescription": "Sau khi bấm xác nhận, mã xác minh sẽ được gửi đến email của bạn",
+    "verifyEmailDescription": "Vui lòng xác nhận lại địa chỉ email của bạn và thực hiện chỉnh sửa nếu có. Sau khi bấm xác nhận, mã xác minh sẽ được gửi đến email của bạn.",
     "sendVerifyEmail": "Gửi email xác minh",
     "verifyingEmail": "Đang xác minh...",
     "verifyEmailSuccessfully": "Email đã được xác minh thành công!",

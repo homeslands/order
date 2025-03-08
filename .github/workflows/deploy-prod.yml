@@ -24,57 +24,18 @@ jobs:
 
       - name: Deploy with Docker Compose
         env:
-          REMOTE_HOST_PROD: ${{ secrets.REMOTE_HOST_PROD }}
-          REMOTE_USER_PROD: ${{ secrets.REMOTE_USER_PROD }}
-          SSH_PORT_PROD: ${{ secrets.SSH_PORT_PROD }}
-          SSH_PRIVATE_KEY_PROD: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST_PROD }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER_PROD }}
+          SSH_PORT: ${{ secrets.SSH_PORT_PROD }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY_PROD" > ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p $SSH_PORT_PROD $REMOTE_HOST_PROD >> ~/.ssh/known_hosts
-          export DOCKER_HOST="ssh://$REMOTE_USER_PROD@$REMOTE_HOST_PROD:$SSH_PORT_PROD"
+          ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
+          export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
 
           docker compose -f .deploy/prod/docker-compose.yml pull
           docker compose -f .deploy/prod/docker-compose.yml down
           docker compose -f .deploy/prod/docker-compose.yml up -d
           docker image prune -f  # clean up none image after built
-
-# jobs:
-#   terraform:
-#     runs-on: ubuntu-latest
-#     environment: development
-
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v3
-
-#       - name: Setup Terraform
-#         uses: hashicorp/setup-terraform@v2
-#         with:
-#           terraform_wrapper: false
-
-#       - name: Init teraform
-#         run: |
-#           cd .deploy/dev
-#           terraform init
-
-#       - name: Plan Terraform Changes
-#         env:
-#           TF_VAR_server_ip: ${{ secrets.SSH_HOST }}
-#           TF_VAR_ssh_user: ${{ secrets.SSH_USER }}
-#           TF_VAR_ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           TF_VAR_ssh_port: ${{ secrets.SSH_PORT }}
-#         run: |
-#           cd .deploy/dev
-#           terraform plan
-
-#       - name: Apply Terraform Changes
-#         env:
-#           TF_VAR_server_ip: ${{ secrets.SSH_HOST }}
-#           TF_VAR_ssh_user: ${{ secrets.SSH_USER }}
-#           TF_VAR_ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           TF_VAR_ssh_port: ${{ secrets.SSH_PORT }}
-#         run: |
-#           cd .deploy/dev
-#           terraform apply -auto-approve

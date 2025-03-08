@@ -3,6 +3,7 @@ import moment from 'moment'
 
 import { IOrder, OrderTypeEnum } from '@/types'
 import { PaymentStatusBadge } from '@/components/app/badge/index'
+import { PaymentMethod } from '@/constants'
 
 interface ICustomerInfoProps {
   orderDetailData?: IOrder
@@ -84,10 +85,10 @@ export default function CustomerInformation({
               {orderDetailData?.payment?.paymentMethod && (
                 <>
                   {orderDetailData.payment.paymentMethod ===
-                    'bank-transfer' && (
-                    <span>{t('paymentMethod.bankTransfer')}</span>
-                  )}
-                  {orderDetailData.payment.paymentMethod === 'cash' && (
+                    PaymentMethod.BANK_TRANSFER && (
+                      <span>{t('paymentMethod.bankTransfer')}</span>
+                    )}
+                  {orderDetailData.payment.paymentMethod === PaymentMethod.CASH && (
                     <span>{t('paymentMethod.cash')}</span>
                   )}
                 </>

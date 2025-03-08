@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Product } from './product.entity';
-import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,7 +31,7 @@ import { Size } from 'src/size/size.entity';
 import FileValidation from 'src/file/file.validation';
 import { FileException } from 'src/file/file.exception';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
-import { Promotion } from 'src/promotion/promotion.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
 
 @Injectable()
 export class ProductService {
@@ -49,9 +49,8 @@ export class ProductService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly dataSource: DataSource,
     private readonly promotionUtils: PromotionUtils,
+    private readonly menuUtils: MenuUtils,
   ) {}
-
-  async getPopularProducts() {}
 
   /**
    * Get product by slug
@@ -228,7 +227,7 @@ export class ProductService {
 
   /**
    * Get all products or get products by catalog
-   * @param {string} catalog The catalog slug if get product by catalog
+   * @param {GetProductRequestDto} query The catalog slug if get product by catalog
    * @returns {Promise<ProductResponseDto[]>} The products array is retrieved
    */
   async getAllProducts(
@@ -245,42 +244,38 @@ export class ProductService {
       relations: ['catalog', 'variants.size'],
     });
 
-    if (query.exceptedPromotion) {
-      const where: FindOptionsWhere<Promotion> = {
-        slug: query.exceptedPromotion,
-      };
-      const promotion = await this.promotionUtils.getPromotion(where, [
-        'applicablePromotions',
-      ]);
-      const exceptedProductIds = promotion.applicablePromotions.map(
-        (item) => item.applicableId,
-      );
-      products = products.filter(
-        (item) => !exceptedProductIds.includes(item.id),
-      );
-    }
-
-    if (query.expectedPromotion) {
-      const where: FindOptionsWhere<Promotion> = {
-        slug: query.expectedPromotion,
-      };
-      const promotion = await this.promotionUtils.getPromotion(where, [
-        'applicablePromotions',
-      ]);
-      const expectedProductIds = promotion.applicablePromotions.map(
+    if (query.promotion) {
+      const promotion = await this.promotionUtils.getPromotion({
+        where: {
+          slug: query.promotion,
+        },
+      });
+      const applicableProductIds = promotion.applicablePromotions.map(
         (item) => item.applicableId,
       );
       products = products.filter((item) =>
-        expectedProductIds.includes(item.id),
+        query.isAppliedPromotion
+          ? applicableProductIds.includes(item.id)
+          : !applicableProductIds.includes(item.id),
       );
     }
 
-    const productsDto = this.mapper.mapArray(
-      products,
-      Product,
-      ProductResponseDto,
-    );
-    return productsDto;
+    if (query.menu) {
+      const menu = await this.menuUtils.getMenu({
+        where: {
+          slug: query.menu ?? IsNull(),
+        },
+      });
+
+      const productIdsInMenu = menu.menuItems.map((item) => item.product.id);
+      products = products.filter((item) =>
+        query.inMenu
+          ? productIdsInMenu.includes(item.id)
+          : !productIdsInMenu.includes(item.id),
+      );
+    }
+
+    return this.mapper.mapArray(products, Product, ProductResponseDto);
   }
 
   /**

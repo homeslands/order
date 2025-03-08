@@ -1,4 +1,10 @@
-import { createMap, extend, Mapper } from '@automapper/core';
+import {
+  createMap,
+  extend,
+  forMember,
+  Mapper,
+  mapWith,
+} from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
 import { ApplicablePromotion } from './applicable-promotion.entity';
@@ -8,6 +14,8 @@ import {
   CreateManyApplicablePromotionsRequestDto,
 } from './applicable-promotion.dto';
 import { baseMapper } from 'src/app/base.mapper';
+import { PromotionResponseDto } from 'src/promotion/promotion.dto';
+import { Promotion } from 'src/promotion/promotion.entity';
 
 @Injectable()
 export class ApplicablePromotionProfile extends AutomapperProfile {
@@ -31,6 +39,14 @@ export class ApplicablePromotionProfile extends AutomapperProfile {
         mapper,
         ApplicablePromotion,
         ApplicablePromotionResponseDto,
+        forMember(
+          (destination) => destination.promotion,
+          mapWith(
+            PromotionResponseDto,
+            Promotion,
+            (source) => source.promotion,
+          ),
+        ),
         extend(baseMapper(mapper)),
       );
     };

@@ -5,6 +5,7 @@ import { IProduct, IProductVariant } from './product.type'
 import { ISize } from './size.type'
 import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
+import { IPromotion } from './promotion.type'
 
 export interface IDish {
   id: number
@@ -120,6 +121,7 @@ export interface IOrderDetail extends IBase {
   variant: IProductVariant
   size: ISize
   trackingOrderItems: ITrackingOrderItems[]
+  promotion?: IPromotion
 }
 
 export interface IOrderDetailForTracking extends IBase {
@@ -206,6 +208,7 @@ export interface ICreateOrderRequest {
   orderItems: {
     quantity: number
     variant: string
+    promotion?: string
     note: string
   }[]
   approvalBy: string

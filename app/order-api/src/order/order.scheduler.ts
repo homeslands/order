@@ -17,8 +17,8 @@ export class OrderScheduler {
     private readonly menuItemUtils: MenuItemUtils,
   ) {}
 
-  // Called once after 5 minutes
-  async cancelOrder(orderSlug: string) {
+  // Cancel order job
+  private async cancelOrder(orderSlug: string) {
     const context = `${OrderScheduler.name}.${this.cancelOrder.name}`;
     this.logger.log(`Cancel order ${orderSlug}`, context);
 
@@ -32,21 +32,25 @@ export class OrderScheduler {
       this.logger.warn(`Order ${orderSlug} is not pending`, context);
       return;
     }
-
     // Get all menu items base on unique products
+    const orderDate = new Date(moment(order.createdAt).format('YYYY-MM-DD'));
     const menuItems = await this.menuItemUtils.getCurrentMenuItems(
       order,
-      new Date(moment().format('YYYY-MM-DD')),
+      orderDate,
       'increment',
     );
 
-    const { payment } = order;
+    const { payment, table, voucher } = order;
 
     // Delete order
     await this.transactionManagerService.execute<void>(
       async (manager) => {
         // Update stock of menu items
         await manager.save(menuItems);
+        this.logger.log(
+          `Menu items: ${menuItems.map((item) => item.product.name).join(', ')} updated`,
+          context,
+        );
 
         // Remove order items
         if (order.orderItems) await manager.remove(order.orderItems);
@@ -55,12 +59,27 @@ export class OrderScheduler {
         await manager.remove(order);
 
         // Remove payment
-        if (payment) await manager.remove(payment);
+        if (payment) {
+          await manager.remove(payment);
+          this.logger.log(`Payment has been removed`, context);
+        }
 
-        this.logger.log(
-          `Menu items: ${menuItems.map((item) => item.product.name).join(', ')} updated`,
-          context,
-        );
+        // Update table status if order is at table
+        if (table) {
+          table.status = 'available';
+          await manager.save(table);
+          this.logger.log(`Table ${table.name} is available`, context);
+        }
+
+        // Update voucher remaining quantity
+        if (voucher) {
+          voucher.remainingUsage += 1;
+          await manager.save(voucher);
+          this.logger.log(
+            `Voucher ${voucher.code} remaining usage updated`,
+            context,
+          );
+        }
       },
       () => {
         this.logger.log(`Order ${orderSlug} has been canceled`, context);

@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { IAddMenuItemRequest, IMenuItemStore } from '@/types'
 
-// ... existing code ...
 export const menuItemStore = create<IMenuItemStore>()(
   persist(
     (set, get) => ({

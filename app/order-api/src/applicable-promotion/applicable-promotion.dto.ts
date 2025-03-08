@@ -92,16 +92,46 @@ export class ApplicablePromotionResponseDto {
   @AutoMap()
   type: string;
 
-  // @AutoMap(
-  //   () =>
-  //     ApplicablePromotionResponseDto.prototype.type === ApplicablePromotionType.PRODUCT ?
-  //     ProductResponseDto : null
-  // )
-  // applicableObject: ProductResponseDto | null;
-
   @AutoMap(() => ProductResponseDto)
   applicableObject: ProductResponseDto;
 
   @AutoMap(() => PromotionResponseDto)
   promotion: PromotionResponseDto;
+}
+
+export class DeleteMultiApplicablePromotionsRequestDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the promotion',
+    required: true,
+    example: 'promotion-slug',
+  })
+  @IsNotEmpty({ message: 'The slug of the promotion is required' })
+  promotion: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the object to be created applicable promotion',
+    required: true,
+    example: ['product-slug'],
+  })
+  @IsArray({
+    message: 'The slug array of the applicable object must be an array',
+  })
+  @ArrayNotEmpty({
+    message: 'The slug array of the applicable object is not empty',
+  })
+  @IsString({ each: true, message: 'Each slug in the array must be a string' })
+  @Type(() => String)
+  applicableSlugs: string[];
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The type of the object to be created applicable promotion',
+    required: true,
+    example: 'product',
+  })
+  @IsNotEmpty({ message: 'The type of the applicable object is required' })
+  @IsEnum(ApplicablePromotionType, { message: 'Invalid applicable promotion' })
+  type: string;
 }

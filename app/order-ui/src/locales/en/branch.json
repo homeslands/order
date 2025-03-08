@@ -1,6 +1,7 @@
 {
   "branch": {
     "title": "Branch",
+    "manageBranch": "Manage Branch",
     "slug": "Branch Code",
     "branchName": "Branch Name",
     "branchAddress": "Branch Address",

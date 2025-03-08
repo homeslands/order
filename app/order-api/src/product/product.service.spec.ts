@@ -27,6 +27,8 @@ import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -42,6 +44,7 @@ describe('ProductService', () => {
         ProductService,
         FileService,
         PromotionUtils,
+        MenuUtils,
         {
           provide: FileService,
           useValue: {
@@ -54,6 +57,10 @@ describe('ProductService', () => {
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
         },
         {
@@ -129,6 +136,7 @@ describe('ProductService', () => {
         productAnalyses: [],
         isTopSell: false,
         isNew: false,
+        saleQuantityHistory: 0,
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);

@@ -46,7 +46,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         return (
           <div className="flex flex-col gap-1 w-[20rem]">
             <div className="font-bold">{name}</div>
-            <p className="text-sm text-gray-500 break-words line-clamp-3 text-ellipsis overflow-hidden">{description}</p>
+            <p className="overflow-hidden text-sm text-gray-500 break-words line-clamp-3 text-ellipsis">{description}</p>
           </div>
         )
       },
@@ -77,26 +77,27 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       cell: ({ row }) => {
         const { isLimit, isTopSell, isNew } = row.original
         return (
-          <div className="flex flex-col gap-2 px-2">
-            {isLimit ? (
-              <div className="bg-yellow-400 text-yellow-900 rounded-xl text-[11px] text-center font-bold">
-                {t('product.isLimited')}
+          <div className="flex flex-col gap-1.5 min-w-[8rem] px-2">
+            {isLimit && (
+              <div className="flex items-center justify-center gap-1 px-2 py-1 text-xs font-bold text-yellow-500 bg-yellow-500 border border-yellow-400 bg-opacity-15 rounded-xl">
+                ✨ {t('product.isLimited')}
               </div>
-            ) : null}
-            {isTopSell ? (
-              <div className="bg-red-500 text-white rounded-xl text-[11px] text-center font-bold">
-                {t('product.isTopSell')}
+            )}
+            {isTopSell && (
+              <div className="flex items-center justify-center gap-1 px-2 py-1 text-xs font-bold border text-destructive bg-destructive/15 bg-opacity-15 border-destructive rounded-xl">
+                🔥 {t('product.isTopSell')}
               </div>
-            ) : null}
-            {isNew ? (
-              <div className="bg-green-500 text-white rounded-xl text-[11px] text-center font-bold">
-                {t('product.isNew')}
+            )}
+            {isNew && (
+              <div className="flex items-center justify-center gap-1 px-2 py-1 text-xs font-bold text-green-500 bg-green-600 border border-green-500 bg-opacity-15 rounded-xl">
+                🍃 {t('product.isNew')}
               </div>
-            ) : null}
+            )}
           </div>
         )
       }
     },
+
     {
       id: 'actions',
       header: ({ column }) => <DataTableColumnHeader column={column} title={tCommon('common.action')} />,

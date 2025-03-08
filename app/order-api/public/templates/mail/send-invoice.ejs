@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice</title>
+    <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+  </head>
+  <body>
+    <p>Hey <%= locals.name %>,</p>
+    <p>Your payment is completed.</p>
+    <p>The invoice is attached below.</p>
+  </body>
+</html>

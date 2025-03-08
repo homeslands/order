@@ -68,4 +68,28 @@ export class MailService {
     });
     this.logger.log(`Email is sending to ${email}`, context);
   }
+
+  async sendInvoiceWhenOrderPaid(user: User, invoice: Buffer) {
+    const context = `${MailService.name}.${this.sendInvoiceWhenOrderPaid.name}`;
+
+    if (user.email && user.isVerifiedEmail) {
+      await this.mailProducer.sendMail({
+        to: user.email,
+        subject: 'Invoice',
+        template: resolve('public/templates/mail/send-invoice'),
+        context: {
+          name: `${user.firstName} ${user.lastName}`,
+        },
+        attachments: [
+          {
+            filename: 'invoice.pdf',
+            content: invoice.toString('base64'),
+            encoding: 'base64',
+            contentType: 'application/pdf',
+          },
+        ],
+      });
+      this.logger.log(`Invoice is sending to ${user.email}`, context);
+    }
+  }
 }

@@ -53,6 +53,11 @@ export const LoginForm: React.FC = () => {
       case Role.SUPER_ADMIN:
         navigate(ROUTE.OVERVIEW)
         break
+      case Role.CUSTOMER:
+        // navigate(ROUTE.CLIENT_HOME)
+        navigate(currentUrl || ROUTE.CLIENT_HOME)
+        clearUrl()
+        break
       default:
         navigate(currentUrl || ROUTE.HOME)
         clearUrl()

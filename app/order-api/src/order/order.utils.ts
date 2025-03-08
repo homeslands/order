@@ -1,5 +1,5 @@
 import { Order } from './order.entity';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
@@ -8,6 +8,7 @@ import { OrderException } from './order.exception';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
 
+@Injectable()
 export class OrderUtils {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,

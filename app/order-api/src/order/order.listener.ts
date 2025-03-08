@@ -10,6 +10,9 @@ import { OrderStatus } from './order.contants';
 import { Order } from './order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
+import { MailService } from 'src/mail/mail.service';
+import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
+import { InvoiceService } from 'src/invoice/invoice.service';
 
 @Injectable()
 export class OrderListener {
@@ -17,6 +20,8 @@ export class OrderListener {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly orderUtils: OrderUtils,
+    private readonly mailService: MailService,
+    private readonly invoiceService: InvoiceService,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
   ) {}
@@ -44,8 +49,16 @@ export class OrderListener {
       order.payment?.statusCode === PaymentStatus.COMPLETED &&
       order.status === OrderStatus.PENDING
     ) {
+      // send invoice email
       Object.assign(order, { status: OrderStatus.PAID });
       await this.orderRepository.save(order);
+
+      const invoice = await this.invoiceService.exportInvoice({
+        order: order.slug,
+      } as ExportInvoiceDto);
+
+      await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
+
       this.logger.log(`Update order status from PENDING to PAID`, context);
     }
   }

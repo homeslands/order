@@ -2,17 +2,9 @@ import { IOrderDetail, IOrder } from './dish.type'
 
 export interface IOrderStore {
   order: IOrder | null
-  // selectedItems: IOrderDetail[]
-
   getOrder: () => IOrder | null
   addOrder: (order: IOrder) => void
   removeOrder: () => void
-
-  // getSelectedItems: () => IOrderDetail[]
-  // isItemSelected: (orderId: string, itemIndex: number) => boolean
-  // addSelectedItem: (item: IOrderDetail) => void
-  // removeSelectedItem: (itemId: string) => void
-  // clearSelectedItems: () => void
 }
 
 export interface ISelectedOrderStore {
@@ -40,7 +32,7 @@ export interface IOrdersQuery {
   page: number | 1
   size: number | 10
   order: 'ASC' | 'DESC'
-  status?: string // No changes needed here
+  status?: string
   table?: string
   hasPaging?: boolean
   enabled?: boolean

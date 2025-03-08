@@ -12,6 +12,8 @@ import { Size } from 'src/size/size.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { ProductUtils } from './product.utils';
+import { MenuModule } from 'src/menu/menu.module';
 
 @Module({
   imports: [
@@ -24,9 +26,10 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
       ApplicablePromotion,
     ]),
     FileModule,
+    MenuModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ProductProfile, PromotionUtils],
-  exports: [ProductService],
+  providers: [ProductService, ProductProfile, PromotionUtils, ProductUtils],
+  exports: [ProductService, ProductUtils],
 })
 export class ProductModule {}

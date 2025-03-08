@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ChevronRight, RefreshCcw, SquareMenu } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import moment from 'moment'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
+import { ChevronRight, RefreshCcw, SquareMenu } from 'lucide-react'
 
 import { RevenueSummary, RevenueChart, TopProducts, RevenueComparison } from './components'
-// import { BranchSelect } from '@/components/app/select'
 import { TimeRangeRevenueFilter } from '@/components/app/popover'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
@@ -14,6 +14,7 @@ import { useLatestRevenue } from '@/hooks'
 export default function OverviewPage() {
   const { t } = useTranslation(['dashboard'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tHelmet } = useTranslation('helmet')
   const [trigger, setTrigger] = useState(0)
   // Get first and last day of current month as default values
   const [startDate, setStartDate] = useState<string>(
@@ -36,6 +37,13 @@ export default function OverviewPage() {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.home.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.home.title')} />
+      </Helmet>
       <main className='flex flex-col gap-2 pb-4'>
         <span className="flex items-center justify-between w-full gap-1 pb-4 text-lg">
           <div className='flex flex-col items-center w-full gap-2 sm:justify-between sm:flex-row'>
@@ -54,11 +62,13 @@ export default function OverviewPage() {
                 {tCommon('common.refresh')}
               </Button>
               <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
-              <NavLink to={ROUTE.OVERVIEW_DETAIL} className='flex items-center justify-between px-4 py-2 transition-all duration-300 rounded-full hover:text-primary hover:bg-primary/10'>
-                <span className='text-xs'>
+              <NavLink to={ROUTE.OVERVIEW_DETAIL} className='flex items-center justify-between transition-all duration-300 rounded-full hover:text-primary hover:bg-primary/10'>
+                <Button
+                  variant='outline'
+                >
                   {tCommon('common.viewDetail')}
-                </span>
-                <ChevronRight size={18} />
+                  <ChevronRight size={18} />
+                </Button>
               </NavLink>
             </div>
           </div>
@@ -68,7 +78,6 @@ export default function OverviewPage() {
         </div>
         <div className="grid grid-cols-1 gap-2">
           <RevenueChart trigger={trigger} startDate={startDate} endDate={endDate} />
-          {/* <BranchRevenueChart branch={branch} startDate={startDate} endDate={endDate} /> */}
           <TopProducts />
         </div>
         <RevenueComparison trigger={trigger} />

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Mail, ShoppingCart } from 'lucide-react'
@@ -7,10 +8,17 @@ import {
   Button,
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Form,
+  Input,
+  DialogDescription,
 } from '@/components/ui'
 
 import { IVerifyEmailRequest } from '@/types'
@@ -18,48 +26,70 @@ import { useVerifyEmail } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
+import { TVerifyEmailSchema, verifyEmailSchema } from '@/schemas'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export default function SendVerifyEmailDialog() {
   const queryClient = useQueryClient()
   const { token } = useAuthStore()
   const { userInfo } = useUserStore()
   const { setCurrentUrl } = useCurrentUrlStore()
-  const { t } = useTranslation(['profile'])
-  const { t: tCommon } = useTranslation('common')
-  const { t: tToast } = useTranslation('toast')
+  const { t } = useTranslation(['profile', 'common'])
   const [isOpen, setIsOpen] = useState(false)
   const { mutate: verifyEmail } = useVerifyEmail()
 
-  const handleSubmit = () => {
-    if (!userInfo || !token) return
-    const verifyParamsData: IVerifyEmailRequest = {
+  const form = useForm<TVerifyEmailSchema>({
+    resolver: zodResolver(verifyEmailSchema),
+    defaultValues: {
+      accessToken: token,
       email: userInfo?.email || '',
-      // email: 'cmstbethaibinh@gmail.com',
-      accessToken: token || '',
-    }
+    },
+  })
 
-    verifyEmail(verifyParamsData, {
+  const handleSubmit = (data: IVerifyEmailRequest) => {
+    verifyEmail(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.profile]
         })
         // get current url and set to store
         setCurrentUrl(window.location.href)
-        showToast(tToast('toast.sendVerifyEmailSuccess'))
+        showToast(t('toast.sendVerifyEmailSuccess'))
         setIsOpen(false)
       },
     })
   }
 
+  const formFields = {
+    email: (
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('profile.email')}</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder={t('profile.enterEmail')} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="flex justify-start w-full">
         <Button
-          className="flex items-center h-10 w-full text-sm sm:w-[10rem]"
+          variant="ghost"
+          className="gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <Mail />
-          {t('profile.verifyEmail')}
+          <span className="text-xs sm:text-sm">
+            {t('profile.verifyEmail')}
+          </span>
         </Button>
       </DialogTrigger>
 
@@ -71,13 +101,28 @@ export default function SendVerifyEmailDialog() {
               {t('profile.verifyEmail')}
             </div>
           </DialogTitle>
-
-          <div className="py-4 text-sm text-gray-500">
+          <DialogDescription>
             {t('profile.verifyEmailDescription')}
-            <br />
-          </div>
+          </DialogDescription>
+
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 gap-2">
+              {Object.keys(formFields).map((key) => (
+                <React.Fragment key={key}>
+                  {formFields[key as keyof typeof formFields]}
+                </React.Fragment>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <Button className="flex justify-end" type="submit">
+                {t('profile.sendVerifyEmail')}
+              </Button>
+            </div>
+          </form>
+        </Form>
+        {/* <DialogFooter className="flex flex-row justify-center gap-2">
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}
@@ -88,7 +133,7 @@ export default function SendVerifyEmailDialog() {
           <Button onClick={handleSubmit}>
             {t('profile.sendVerifyEmail')}
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   )

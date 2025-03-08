@@ -9,6 +9,9 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { BannerUtils } from './banner.utils';
 import { FileService } from 'src/file/file.service';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('BannerController', () => {
   let controller: BannerController;
@@ -20,6 +23,8 @@ describe('BannerController', () => {
         BannerService,
         FileService,
         BannerUtils,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Banner),
           useValue: {},

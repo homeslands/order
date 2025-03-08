@@ -24,6 +24,7 @@ import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { MailProducer } from 'src/mail/mail.producer';
 import { VerifyEmailToken } from './verify-email-token.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -36,6 +37,7 @@ describe('AuthController', () => {
         FileService,
         SystemConfigService,
         MailProducer,
+        TransactionManagerService,
         {
           provide: 'BullQueue_mail',
           useValue: {},

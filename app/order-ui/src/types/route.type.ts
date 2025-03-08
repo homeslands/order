@@ -1,12 +1,12 @@
-import { Role } from '@/constants'
 import React from 'react'
-// import { IPermission } from './permission.type'
+
+import { Role } from '@/constants'
 
 export interface ISidebarRoute {
   title: string
   path: string
   icon?: React.ComponentType
   isActive?: boolean
-  roles?: Role[] // Changed from 'role' to 'roles' to support multiple roles
+  roles?: Role[]
   children?: ISidebarRoute[]
 }

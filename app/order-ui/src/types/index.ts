@@ -25,3 +25,4 @@ export * from './table.type'
 export * from './user.type'
 export * from './update-order.type'
 export * from './voucher.type'
+

@@ -18,7 +18,7 @@ export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
       cartItems: null, // Chỉ lưu một cart item hoặc null nếu không có item nào
-      lastModified: null, // Add this field
+      lastModified: null,
 
       getCartItems: () => get().cartItems,
 

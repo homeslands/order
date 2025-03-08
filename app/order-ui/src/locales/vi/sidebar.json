@@ -32,7 +32,25 @@
     "myOrders": "Đơn hàng của tôi",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
-    "login": "Đăng nhập"
+    "login": "Đăng nhập",
+    "home": "Trang chủ",
+    "menu": "Thực đơn",
+    "aboutUs": "Về chúng tôi",
+    "policy": "Điều khoản"
+  },
+  "footer": {
+    "quickLink": "Liên kết nhanh",
+    "home": "Trang chủ",
+    "menu": "Thực đơn",
+    "introduction": "Giới thiệu",
+    "product": "Sản phẩm",
+    "offer": "Khuyến mãi",
+    "store": "Cửa hàng",
+    "recruitment": "Tuyển dụng",
+    "contact": "Liên hệ",
+    "policy": "Chính sách",
+    "securityTerm": "Điều khoản bảo mật",
+    "aboutMe": "Về chúng tôi"
   },
   "bottombar": {
     "home": "Trang chủ",

@@ -40,7 +40,7 @@ export default function StaticPageDetailPage() {
 
   return (
     <div className="editor-container">
-      <span className="flex w-full items-center justify-start gap-1 text-lg">
+      <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('staticPage.staticPageTitle')}
       </span>
@@ -58,10 +58,14 @@ export default function StaticPageDetailPage() {
           onCompleted={onCompleted}
         />
       </div>
-      <Tabs defaultValue="text" className="flex w-full flex-col gap-2">
+      <Tabs defaultValue="text" className="flex flex-col w-full gap-2">
         <TabsList className="sticky z-10 grid grid-cols-7 gap-2">
-          <TabsTrigger value="text">Chỉnh sửa</TabsTrigger>
-          <TabsTrigger value="preview">Xem trước</TabsTrigger>
+          <TabsTrigger value="text">
+            {t('staticPage.update')}
+          </TabsTrigger>
+          <TabsTrigger value="preview">
+            {t('staticPage.preview')}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="text">
           <div className="flex flex-col gap-4">
@@ -75,7 +79,7 @@ export default function StaticPageDetailPage() {
         <TabsContent value="preview">
           <div className="ql-snow">
             <div
-              className="ql-editor text-xs"
+              className="text-xs ql-editor"
               dangerouslySetInnerHTML={{ __html: editorData }}
             />
           </div>

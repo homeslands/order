@@ -15,6 +15,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GetAllMenuQueryRequestDto } from './menu.dto';
 import { BranchException } from 'src/branch/branch.exception';
+import { MenuUtils } from './menu.utils';
 
 describe('MenuService', () => {
   let service: MenuService;
@@ -26,6 +27,7 @@ describe('MenuService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MenuService,
+        MenuUtils,
         {
           provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,

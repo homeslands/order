@@ -10,23 +10,21 @@
     "cancel": "Hủy",
     "close": "Đóng",
     "back": "Quay lại",
+    "checkout": "Thanh toán",
     "viewDetail": "Xem chi tiết",
     "confirm": "Xác nhận",
     "confirmDelete": "Tôi đã hiểu, xác nhận xóa",
     "confirmCancel": "Tôi đã hiểu, xác nhận hủy",
-
     "noData": "Không có dữ liệu",
     "action": "Thao tác",
     "createOrder": "Tạo đơn hàng",
     "understand": "Tôi đã hiểu",
     "warning": "Cảnh báo",
-
     "refresh": "Làm mới",
     "pageNotFound": "Trang không tồn tại",
     "pageNotFoundDescription": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa",
     "goHome": "Về trang chủ",
     "goBack": "Quay lại trang trước",
-
     "oops": "Oops!",
     "somethingWentWrong": "Có lỗi xảy ra"
   },
@@ -44,7 +42,6 @@
     "asc": "Tăng dần",
     "desc": "Giảm dần",
     "hide": "Ẩn",
-
     "filter": "Lọc",
     "all": "Tất cả",
     "info": "Info",
@@ -59,7 +56,6 @@
     "day": "Ngày",
     "month": "Tháng",
     "year": "Năm",
-
     "0": "Thứ hai",
     "1": "Thứ ba",
     "2": "Thứ tư",

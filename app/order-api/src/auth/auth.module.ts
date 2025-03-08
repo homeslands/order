@@ -18,6 +18,7 @@ import { ForgotPasswordToken } from './forgot-password-token.entity';
 import { Role } from 'src/role/role.entity';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
 import { VerifyEmailToken } from './verify-email-token.entity';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { VerifyEmailToken } from './verify-email-token.entity';
     FileModule,
     MailModule,
     SystemConfigModule,
+    DbModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, AuthProfile],

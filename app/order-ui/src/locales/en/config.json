@@ -1,8 +1,11 @@
 {
   "config": {
-    "title": "Configuration",
+    "title": "System configuration",
 
     "save": "Save",
+    "addNewConfig": "Add new configuration",
+    "savedConfigs": "Saved configurations",
+    "noSavedConfig": "No configuration saved",
 
     "update": "Update",
     "updateSystemConfigDescription": "Update system configuration",

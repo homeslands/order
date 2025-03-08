@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { useCatalogs } from '@/hooks'
@@ -13,29 +14,27 @@ export default function CatalogSelect({
   defaultValue,
   onChange,
 }: SelectCatalogProps) {
+  const { t } = useTranslation('menu')
   const { getTheme } = useThemeStore()
   const [allCatalogs, setAllCatalogs] = useState<
     { value: string; label: string }[]
-  >([{ value: '', label: 'Tất cả' }]) // Option "Tất cả" mặc định
+  >([{ value: '', label: t('menu.all') }])
   const [selectedCatalog, setSelectedCatalog] = useState<{
     value: string
     label: string
-  } | null>({ value: '', label: 'Tất cả' }) // Mặc định chọn "Tất cả"
+  } | null>({ value: '', label: t('menu.all') })
   const { data } = useCatalogs()
 
-  // Effect để cập nhật danh sách danh mục khi fetch xong
   useEffect(() => {
     if (data?.result) {
       const newCatalogs = data.result.map((item) => ({
         value: item.slug || '',
         label: item.name || '',
       }))
-      // Thêm tùy chọn "Tất cả" vào danh sách
-      setAllCatalogs([{ value: '', label: 'Tất cả' }, ...newCatalogs])
+      setAllCatalogs([{ value: '', label: t('menu.all') }, ...newCatalogs])
     }
-  }, [data])
+  }, [data, t])
 
-  // Set giá trị mặc định khi có `defaultValue`
   useEffect(() => {
     if (defaultValue && allCatalogs.length > 0) {
       const defaultOption = allCatalogs.find(
@@ -45,16 +44,16 @@ export default function CatalogSelect({
         setSelectedCatalog(defaultOption)
       }
     } else {
-      setSelectedCatalog({ value: '', label: 'Tất cả' }) // Nếu không có giá trị mặc định, chọn "Tất cả"
+      setSelectedCatalog({ value: '', label: t('menu.all') })
     }
-  }, [defaultValue, allCatalogs])
+  }, [defaultValue, allCatalogs, t])
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
   ) => {
     if (selectedOption) {
       setSelectedCatalog(selectedOption)
-      onChange(selectedOption.value) // Chỉ gửi giá trị (slug)
+      onChange(selectedOption.value)
     }
   }
 

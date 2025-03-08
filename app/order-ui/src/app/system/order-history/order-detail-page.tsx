@@ -20,15 +20,25 @@ import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { OrderTypeEnum } from '@/types'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
+import { Helmet } from 'react-helmet'
 
 export default function OrderDetailPage() {
   const { t } = useTranslation(['menu'])
+  const { t: tHelmet } = useTranslation('helmet')
+  const { t: tCommon } = useTranslation('common')
   const { slug } = useParams()
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
 
   return (
     <div className="mb-10">
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.orderDetail.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.orderDetail.title')} />
+      </Helmet>
       <div className="flex flex-col gap-2">
         {/* Title */}
         <div className="top-0 z-10 flex flex-col items-center gap-2 pb-4">
@@ -48,7 +58,9 @@ export default function OrderDetailPage() {
             <div className="flex items-center justify-between p-3 border rounded-sm">
               <div className="">
                 <p className="flex items-center gap-2 pb-2">
-                  <span className="font-bold">Đơn hàng:</span>{' '}
+                  <span className="font-bold">
+                    {t('order.order')}{' '}
+                  </span>{' '}
                   <span className="text-primary">
                     #{orderDetail?.result?.slug}
                   </span>
@@ -62,7 +74,9 @@ export default function OrderDetailPage() {
                   </p>{' '}
                   |
                   <p className="flex items-center gap-1">
-                    <span>Thu ngân:</span>
+                    <span>
+                      {t('order.cashier')}{' '}
+                    </span>
                     <span className="text-muted-foreground">
                       {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName} - ${orderDetail?.result?.owner?.phonenumber}`}
                     </span>
@@ -74,7 +88,7 @@ export default function OrderDetailPage() {
             <div className="flex gap-2">
               <div className="w-1/2 border rounded-sm">
                 <div className="px-3 py-2 font-bold uppercase">
-                  Khách hàng
+                  {t('order.customer')}
                 </div>
                 <div className="px-3 py-2 text-xs">
                   <p className="font-bold">
@@ -87,7 +101,7 @@ export default function OrderDetailPage() {
               </div>
               <div className="w-1/2 border rounded-sm">
                 <div className="px-3 py-2 font-bold uppercase">
-                  Loại đơn hàng
+                  {t('order.orderType')}
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
@@ -189,23 +203,29 @@ export default function OrderDetailPage() {
             {/* Total */}
             <div className="flex flex-col gap-2 p-2 border rounded-sm">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Tạm tính</p>
+                <p className="text-sm text-gray-500">
+                  {t('order.subtotal')}
+                </p>
                 <p>{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Thành tiền</p>
-                <p>{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                <p className="text-sm text-green-500">
+                  {t('order.discount')}
+                </p>
+                <p className='text-sm text-green-500'>{`${formatCurrency(orderDetail?.result?.voucher?.value || 0)}`}</p>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <p className="text-gray-500">Cần thanh toán</p>
+                <p className="text-gray-500">
+                  {t('order.totalPayment')}
+                </p>
                 <p className="text-2xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-500">
-                  ({orderDetail?.result?.orderItems?.length} sản phẩm )
+                  ({orderDetail?.result?.orderItems?.length}{t('order.product')})
                 </p>
-                <p className="text-sm">(Đã bao gồm VAT)</p>
+                <p className="text-xs text-muted-foreground/60">({t('order.vat')})</p>
               </div>
             </div>
             {/* Return order button */}
@@ -215,7 +235,7 @@ export default function OrderDetailPage() {
                 navigate(-1)
               }}
             >
-              Quay lại
+              {tCommon('common.goBack')}
             </Button>
           </div>
         </div>

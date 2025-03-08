@@ -8,7 +8,7 @@ export const useLogger = (q: IQuery) => {
     queryKey: ['logs', JSON.stringify(q)],
     queryFn: () => logger(q),
     placeholderData: keepPreviousData,
-    staleTime: 1000 * 5, // 5 seconds
-    refetchInterval: 1000 * 5, // 5 seconds
+    staleTime: 1000 * 5,
+    refetchInterval: 1000 * 5,
   })
 }

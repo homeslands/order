@@ -13,6 +13,6 @@ export class StaticPage extends Base {
   title: string;
 
   @AutoMap()
-  @Column({ name: 'content_column', type: 'text', nullable: true })
+  @Column({ name: 'content_column', type: 'longtext', nullable: true })
   content: string;
 }

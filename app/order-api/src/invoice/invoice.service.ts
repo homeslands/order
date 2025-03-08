@@ -21,6 +21,7 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { InvoiceException } from './invoice.exception';
 import { InvoiceValidation } from './invoice.validation';
+import { OrderType } from 'src/order/order.contants';
 
 @Injectable()
 export class InvoiceService {
@@ -107,7 +108,8 @@ export class InvoiceService {
       amount: order.subtotal,
       paymentMethod: order.payment?.paymentMethod,
       status: order.status,
-      tableName: order.table.name,
+      tableName:
+        order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
       customer: `${order.owner.firstName} ${order.owner.lastName}`,
       branchAddress: order.branch.address,
       cashier: `${order.approvalBy?.firstName} ${order.approvalBy?.lastName}`,

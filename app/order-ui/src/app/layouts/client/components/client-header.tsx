@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { ShoppingCart } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import {
   DropdownClientHeader,
@@ -14,6 +15,7 @@ import { NavigationSheet } from '@/components/app/sheet'
 import { useIsMobile } from '@/hooks'
 
 export function ClientHeader() {
+  const { t } = useTranslation('sidebar')
   const isMobile = useIsMobile()
   const { getCartItems } = useCartItemStore()
   return (
@@ -36,7 +38,9 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Trang chủ</span>
+              <span className="text-sm">
+                {t('header.home')}
+              </span>
             </NavLink>
             <NavLink
               to={ROUTE.CLIENT_MENU}
@@ -44,7 +48,9 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Thực đơn</span>
+              <span className="text-sm">
+                {t('header.menu')}
+              </span>
             </NavLink>
             <NavLink
               to={ROUTE.ABOUT}
@@ -52,7 +58,9 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Về chúng tôi</span>
+              <span className="text-sm">
+                {t('header.aboutUs')}
+              </span>
             </NavLink>
             <NavLink
               to={ROUTE.POLICY}
@@ -60,7 +68,9 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Điều khoản</span>
+              <span className="text-sm">
+                {t('header.policy')}
+              </span>
             </NavLink>
           </div>
 

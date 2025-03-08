@@ -20,11 +20,13 @@ export interface IProduct {
 }
 
 export interface IProductRequest {
-  exceptedPromotion?: string
   catalog?: string
-  expectedPromotion?: string
+  promotion?: string // get all products base on promotion
+  isAppliedPromotion?: boolean
   isTopSell?: boolean
   isNew?: boolean
+  inMenu?: boolean
+  menu?: string //Slug of the menu, get all products in the menu
 }
 
 export interface ITopProduct {
@@ -41,21 +43,6 @@ export interface IBranchTopProduct {
   product: IProduct
   totalQuantity: number
 }
-
-
-// export interface ICartItem {
-//   name: string
-//   description: string
-//   isActive: boolean
-//   isLimit: boolean
-//   image: string
-//   rating: number
-//   catalog: ICatalog
-//   variants: IProductVariant[]
-//   slug: string
-//   note?: string
-//   createdAt: string
-// }
 
 export interface IProductVariant {
   price: number

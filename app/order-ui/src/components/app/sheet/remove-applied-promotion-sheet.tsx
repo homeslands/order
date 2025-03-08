@@ -31,18 +31,16 @@ export default function RemoveAppliedPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts()
+  const { data: products, isLoading } = useProducts({ promotion: promotion?.slug, isAppliedPromotion: true })
   const [isApplyFromToday, setIsApplyFromToday] = useState(false)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   const productsData = products?.result
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
   }
-
   const handleProductSelect = (product: IProduct, isSelected: boolean) => {
     setSelectedProducts((prev) => {
       if (isSelected) {
@@ -61,13 +59,12 @@ export default function RemoveAppliedPromotionSheet({
     }
     setApplyPromotionRequest(applyPromotionRequest)
   }
-
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-1 bg-destructive/10 px-2 text-destructive"
+          className="justify-start w-full gap-1 px-2 bg-destructive/10 text-destructive"
           onClick={handleClick}
         >
           <Trash2 className="icon" />
@@ -80,7 +77,7 @@ export default function RemoveAppliedPromotionSheet({
             {t('promotion.removeAppliedPromotion')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
+        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4">
             {/* Product List */}
             <div
@@ -95,8 +92,8 @@ export default function RemoveAppliedPromotionSheet({
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={1}
-                  onPageChange={() => {}}
-                  onPageSizeChange={() => {}}
+                  onPageChange={() => { }}
+                  onPageSizeChange={() => { }}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -116,7 +113,7 @@ export default function RemoveAppliedPromotionSheet({
               applyPromotionData={applyPromotionRequest}
               isOpen={isOpen}
               onOpenChange={setIsOpen}
-              onCloseSheet={() => setSheetOpen(false)}
+              onCloseSheet={() => { setSheetOpen(false) }}
             />
           </SheetFooter>
         </div>

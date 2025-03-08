@@ -188,8 +188,11 @@ export class OrderService {
           context,
         );
 
-        // Cancel order after 11 minutes
-        this.orderScheduler.addCancelOrderJob(createdOrder.slug, 1 * 60 * 1000);
+        // Cancel order after 10 minutes
+        this.orderScheduler.addCancelOrderJob(
+          createdOrder.slug,
+          10 * 60 * 1000,
+        );
         return createdOrder;
       },
       (result) => {

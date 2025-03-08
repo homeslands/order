@@ -76,9 +76,8 @@ export const useOrderTrackingStore = create<IOrderTrackingStore>()(
 
       removeSelectedItem: (itemId: string) => {
         const currentItems = get().selectedItems
-        const parts = itemId.split('-') // Tách chuỗi thành các phần
+        const parts = itemId.split('-')
         const orderId = parts.slice(0, -1).join('-')
-        // const [orderId] = itemId.split('-')
 
         set({
           selectedItems: currentItems

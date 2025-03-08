@@ -7,15 +7,23 @@ import { ACBConnectorService } from './acb-connector.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ACBConnectorConfig } from './acb-connector.entity';
 import { ACBConnectorProfile } from './acb-connector.mapper';
+import { DbModule } from 'src/db/db.module';
+import { ACBConnectorUtils } from './acb-connector.utils';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     HttpModule,
     TypeOrmModule.forFeature([ACBConnectorConfig]),
+    DbModule,
   ],
-  providers: [ACBConnectorClient, ACBConnectorService, ACBConnectorProfile],
-  exports: [ACBConnectorClient],
+  providers: [
+    ACBConnectorClient,
+    ACBConnectorService,
+    ACBConnectorProfile,
+    ACBConnectorUtils,
+  ],
+  exports: [ACBConnectorClient, ACBConnectorUtils],
   controllers: [ACBConnectorController],
 })
 export class ACBConnectorModule {}

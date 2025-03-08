@@ -15,6 +15,7 @@
 
     "update": "Update",
     "updateDescription": "Update static page",
+    "preview": "Preview",
 
     "delete": "Delete",
     "deleteStaticPageWarning": "You are about to delete the static page ",

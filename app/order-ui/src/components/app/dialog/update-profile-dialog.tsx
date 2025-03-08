@@ -30,10 +30,10 @@ export default function UpdateProfileDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="flex justify-start w-full">
         <Button
-          variant="default"
-          className="h-10 w-fit gap-1"
+          variant="ghost"
+          className="gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <PencilLine className="icon" />

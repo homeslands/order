@@ -4,21 +4,15 @@ import { IBase } from './base.type'
 export interface Table extends IBase {
   id: string
   name: string
-  xPosition: number
-  yPosition: number
   width: number
   height: number
   status: TableStatus
 }
 
-// export type TTableStatus = 'available' | 'occupied' | 'reserved'
-
 export interface ITable extends IBase {
   name: string
   location: string
   status: TableStatus
-  xPosition?: number
-  yPosition?: number
 }
 
 export interface ITableLocation {

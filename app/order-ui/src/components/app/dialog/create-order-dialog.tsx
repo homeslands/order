@@ -58,7 +58,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
         variant: orderItem.variant,
-        promotion: orderItem.promotion || '',
+        ... (orderItem.promotion && { promotion: orderItem.promotion }),
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,
@@ -84,7 +84,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       <DialogTrigger asChild>
         <Button
           disabled={!disabled}
-          className="flex items-center w-1/6 text-sm rounded-full"
+          className="flex items-center w-full text-sm rounded-full sm:w-1/6"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

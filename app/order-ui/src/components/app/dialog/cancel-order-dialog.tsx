@@ -18,12 +18,12 @@ import { useDeleteOrder } from '@/hooks'
 import { showToast } from '@/utils'
 // import { useQueryClient } from '@tanstack/react-query'
 
-export default function DeleteSizeDialog({
+export default function CancelOrderDialog({
   order,
   onSuccess,
 }: {
   order: IOrder
-  onSuccess: () => void
+  onSuccess?: () => void
 }) {
   // const queryClient = useQueryClient()
   const { t: tToast } = useTranslation('toast')
@@ -40,7 +40,7 @@ export default function DeleteSizeDialog({
         // })
         setIsOpen(false)
         showToast(tToast('toast.handleCancelOrderSuccess'))
-        onSuccess()
+        onSuccess?.()
       },
     })
   }

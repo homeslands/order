@@ -23,10 +23,10 @@ export default function UpdatePasswordDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="flex justify-start w-full">
         <Button
-          variant="default"
-          className="h-10 gap-1 w-fit"
+          variant="ghost"
+          className="gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <KeyRound className="icon" />

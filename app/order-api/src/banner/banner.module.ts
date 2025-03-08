@@ -6,9 +6,10 @@ import { Banner } from './banner.entity';
 import { BannerProfile } from './banner.mapper';
 import { BannerUtils } from './banner.utils';
 import { FileModule } from 'src/file/file.module';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Banner]), FileModule],
+  imports: [TypeOrmModule.forFeature([Banner]), FileModule, DbModule],
   controllers: [BannerController],
   providers: [BannerService, BannerProfile, BannerUtils],
 })

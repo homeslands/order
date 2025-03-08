@@ -13,11 +13,13 @@ import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
 import { PaymentCountdown } from '@/components/app/countdown/PaymentCountdown'
+import { Helmet } from 'react-helmet'
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
+  const { t: tHelmet } = useTranslation('helmet')
   const slug = searchParams.get('order')
   const navigate = useNavigate()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
@@ -38,7 +40,7 @@ export default function PaymentPage() {
       const createdAt = moment(order.result.createdAt)
       const now = moment()
       const timePassed = now.diff(createdAt, 'seconds')
-      const remainingTime = 600 - timePassed // 10 minutes
+      const remainingTime = 600 - timePassed // 1 minute
       setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
       setIsExpired(remainingTime <= 0)
     }
@@ -135,9 +137,13 @@ export default function PaymentPage() {
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
           <CircleX className="w-32 h-32 text-destructive" />
-          <p className="text-center text-muted-foreground">Đơn hàng đã hết hạn thanh toán</p>
+          <p className="text-center text-muted-foreground">
+            {t('menu.orderExpired')}
+          </p>
           <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button variant="default">Quay lại trang thực đơn</Button>
+            <Button variant="default">
+              {t('menu.goBackToMenu')}
+            </Button>
           </NavLink>
         </div>
       </div>
@@ -146,6 +152,13 @@ export default function PaymentPage() {
 
   return (
     <div>
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.payment.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.bankConfig.title')} />
+      </Helmet>
       <PaymentCountdown timeRemaining={timeRemainingInSec} />
       <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />

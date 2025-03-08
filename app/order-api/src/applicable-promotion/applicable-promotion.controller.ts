@@ -4,7 +4,6 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
   ValidationPipe,
 } from '@nestjs/common';
@@ -20,6 +19,7 @@ import {
   ApplicablePromotionResponseDto,
   CreateApplicablePromotionRequestDto,
   CreateManyApplicablePromotionsRequestDto,
+  DeleteMultiApplicablePromotionsRequestDto,
 } from './applicable-promotion.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
@@ -97,19 +97,29 @@ export class ApplicablePromotionController {
     } as AppResponseDto<ApplicablePromotionResponseDto[]>;
   }
 
-  @Delete(':slug')
+  @Delete()
   // @Public()
   @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete applicable promotion' })
+  @ApiOperation({ summary: 'Delete multi applicable promotions' })
   @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Applicable promotion have been deleted successfully',
     type: String,
   })
-  async deleteApplicablePromotion(@Param('slug') slug: string) {
+  async deleteApplicablePromotion(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
+    requestData: DeleteMultiApplicablePromotionsRequestDto,
+  ) {
     const result =
-      await this.applicablePromotionService.deleteApplicablePromotion(slug);
+      await this.applicablePromotionService.deleteMultiApplicablePromotion(
+        requestData,
+      );
     return {
       message: 'Applicable promotion have been deleted successfully',
       statusCode: HttpStatus.OK,
@@ -117,4 +127,30 @@ export class ApplicablePromotionController {
       result: `${result} records have been deleted successfully`,
     } as AppResponseDto<string>;
   }
+
+  // @Get('specific')
+  // // @Public()
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: 'Get specific applicable promotion' })
+  // @ApiResponseWithType({
+  //   status: HttpStatus.OK,
+  //   description: 'Applicable promotion have been retrieved successfully',
+  //   type: String,
+  // })
+  // async getSpecific(
+  //   @Query(new ValidationPipe({ transform: true }))
+  //   query: GetSpecificApplicablePromotionRequestDto,
+  // ) {
+  //   const result =
+  //     await this.applicablePromotionService.getSpecificApplicablePromotion(
+  //       query,
+  //     );
+  //   return {
+  //     message: 'Applicable promotion have been retrieved successfully',
+  //     statusCode: HttpStatus.OK,
+  //     timestamp: new Date().toISOString(),
+  //     result,
+  //   } as AppResponseDto<ApplicablePromotionResponseDto>;
+  // }
 }
