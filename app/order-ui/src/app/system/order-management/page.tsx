@@ -41,8 +41,8 @@ export default function OrderManagementPage() {
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
-    branchSlug: userInfo?.branch.slug,
-    status: [OrderStatus.PAID, OrderStatus.SHIPPING].join(','),
+    branchSlug: userInfo?.branch?.slug,
+    status: [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
   })
 
   useEffect(() => {

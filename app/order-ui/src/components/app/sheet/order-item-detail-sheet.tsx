@@ -182,31 +182,29 @@ export default function OrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
         <SheetHeader>
-          <SheetTitle className="mt-8 flex items-center justify-between sm:mt-6">
+          <SheetTitle className="flex items-center justify-between mt-8">
             {t('order.orderDetail')}
-          </SheetTitle>
-          {getSelectedItems().length > 0 && (
             <div className="flex gap-2">
               {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
-                <CreateOrderTrackingByStaffDialog />
+                <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
               ) : (
                 <div className="flex gap-2">
-                  <CreateOrderTrackingByStaffDialog />
-                  <CreateOrderTrackingByRobotDialog />
+                  <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
+                  <CreateOrderTrackingByRobotDialog disabled={getSelectedItems().length === 0} />
                 </div>
               )}
             </div>
-          )}
+          </SheetTitle>
         </SheetHeader>
         <div className="mt-4">
           {order ? (
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 rounded-lg border-2 border-primary bg-primary/5 p-2 sm:p-4">
+              <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
                 <div className="flex justify-between font-medium text-primary">
                   {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                   {selectedOrder &&
                     selectedOrder.result.payment?.statusCode ===
-                      paymentStatus.COMPLETED && (
+                    paymentStatus.COMPLETED && (
                       <Button
                         onClick={() =>
                           handleExportOrderInvoice(selectedOrder.result.slug)
@@ -249,7 +247,7 @@ export default function OrderItemDetailSheet({
                     .map((orderDetail) => (
                       <div
                         key={orderDetail.slug}
-                        className="flex flex-col gap-2 rounded-lg border p-4"
+                        className="flex flex-col gap-2 p-4 border rounded-lg"
                       >
                         <CustomerInformation orderDetailData={orderDetail} />
                         <OrderItemList orderDetailData={orderDetail} />

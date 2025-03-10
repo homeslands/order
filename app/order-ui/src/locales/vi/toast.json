@@ -219,6 +219,7 @@
     "systemConfigNotFound": "Không tìm thấy cấu hình hệ thống",
     "createSystemConfigError": "Lỗi tạo cấu hình hệ thống",
     "systemConfigQueryInvalid": "Truy vấn cấu hình hệ thống không hợp lệ",
-    "systemConfigInvalid": "Cấu hình hệ thống không hợp lệ"
+    "systemConfigInvalid": "Cấu hình hệ thống không hợp lệ",
+    "errorValidatePromotion": "Lỗi xác thực khuyến mãi"
   }
 }

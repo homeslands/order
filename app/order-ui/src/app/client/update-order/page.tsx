@@ -35,6 +35,18 @@ export default function ClientUpdateOrderPage() {
     }
     const orderItems = order?.result
 
+    const originalTotal = orderItems
+        ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+        : 0;
+
+    const discount = orderItems
+        ? orderItems.orderItems.reduce(
+            (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
+            0
+        )
+        : 0;
+
+
     const handleRemoveOrderItemSuccess = () => {
         refetch()
     }
@@ -149,9 +161,22 @@ export default function ClientUpdateOrderPage() {
                                                     <span className="text-xs font-bold truncate sm:text-md">
                                                         {item.variant.product.name}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground sm:text-sm">
-                                                        {`${(item.variant.price || 0).toLocaleString('vi-VN')}đ`}
-                                                    </span>
+                                                    {item?.promotion ? (
+                                                        <div className='flex items-center gap-1'>
+                                                            <span className="text-xs line-through text-muted-foreground sm:text-sm">
+                                                                {`${formatCurrency(item?.variant?.price)}`}
+                                                            </span>
+                                                            <span className="text-xs font-extrabold text-primary sm:text-base">
+                                                                {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) : item?.variant?.price)}`}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className='flex items-center gap-1'>
+                                                            <span className="text-xs text-primary sm:text-base">
+                                                                {`${formatCurrency(item?.variant?.price)}`}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -160,7 +185,7 @@ export default function ClientUpdateOrderPage() {
                                         </div>
                                         <div className="col-span-2 text-center">
                                             <span className="text-sm font-semibold text-primary">
-                                                {`${((item.variant.price || 0) * item.quantity).toLocaleString('vi-VN')}đ`}
+                                                {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
                                             </span>
                                         </div>
                                         <div className="flex justify-center col-span-1">
@@ -177,22 +202,25 @@ export default function ClientUpdateOrderPage() {
                                 <div className="grid grid-cols-5">
                                     <span className="col-span-3 text-sm text-muted-foreground">{t('order.total')}:</span>
                                     <span className="col-span-2 text-sm text-right text-muted-foreground">
-                                        {formatCurrency(orderItems?.subtotal || 0)}
+                                        {/* {formatCurrency(orderItems ? orderItems.subtotal : 0)} */}
+                                        {/* {formatCurrency(orderItems?.subtotal || 0)} */}
+                                        {formatCurrency(originalTotal)}
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-5">
-                                    <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                    <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
                                     <span className="col-span-2 text-sm italic text-right text-green-500">
-                                        {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)}
+                                        - {formatCurrency(discount)}
+                                        {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-5 pt-2 mt-4 border-t">
                                     <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
                                     <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
-                                        {formatCurrency(orderItems?.voucher ? (orderItems.subtotal - (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100) : 0)}
+                                        {formatCurrency(orderItems ? (orderItems.subtotal) : 0)}
                                     </span>
                                 </div>
-                                <span className="text-xs text-muted-foreground">{t('order.vat')}</span>
+                                <span className="text-xs text-muted-foreground">({t('order.vat')})</span>
                             </div>
                         </div>
 

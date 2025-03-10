@@ -15,10 +15,12 @@ import { ButtonLoading } from '../loading'
 
 interface ICreateOrderTrackingByRobotDialogProps {
   onSuccess?: () => void
+  disabled?: boolean
 }
 
 export default function CreateOrderTrackingByRobotDialog({
   onSuccess,
+  disabled
 }: ICreateOrderTrackingByRobotDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
@@ -37,7 +39,7 @@ export default function CreateOrderTrackingByRobotDialog({
         <Button
           className="gap-1"
           onClick={() => setIsOpen(true)}
-          disabled={isPending} // Disable button khi pending
+          disabled={isPending || disabled} // Disable button khi pending
         >
           {isPending
             ? <ButtonLoading />

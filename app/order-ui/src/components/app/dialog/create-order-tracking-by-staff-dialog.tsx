@@ -12,14 +12,18 @@ import {
 } from '@/components/ui'
 import { CreateOrderTrackingByStaffForm } from '@/components/app/form'
 
-export default function CreateOrderTrackingByStaffDialog() {
+interface ICreateOrderTrackingByStaffDialogProps {
+  disabled?: boolean
+}
+
+export default function CreateOrderTrackingByStaffDialog({ disabled }: ICreateOrderTrackingByStaffDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex justify-start" asChild>
-        <Button className="gap-1 text-sm" onClick={() => setIsOpen(true)}>
+        <Button disabled={disabled} className="gap-1 text-sm" onClick={() => setIsOpen(true)}>
           {t('order.createOrderTrackingByStaff')}
         </Button>
       </DialogTrigger>

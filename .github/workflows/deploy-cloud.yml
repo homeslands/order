@@ -1,9 +1,9 @@
-name: deploy-prod
+name: deploy-cloud
 
 on:
   push:
     branches:
-      - production
+      - cloud
 
 jobs:
   deploy:
@@ -20,14 +20,14 @@ jobs:
         env:
           ENV_PROD: ${{ secrets.ENV_PROD }}
         run: |
-          echo "$ENV_PROD" > .deploy/prod/.env
+          echo "$ENV_PROD" > .deploy/cloud/.env
 
       - name: Deploy with Docker Compose
         env:
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST_PROD }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER_PROD }}
-          SSH_PORT: ${{ secrets.SSH_PORT_PROD }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST_CLOUD }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER_CLOUD }}
+          SSH_PORT: ${{ secrets.SSH_PORT_CLOUD }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_CLOUD }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
@@ -35,7 +35,6 @@ jobs:
           ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
           export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
 
-          docker compose -f .deploy/prod/docker-compose.yml pull
-          docker compose -f .deploy/prod/docker-compose.yml down
-          docker compose -f .deploy/prod/docker-compose.yml up -d
+          docker compose -f .deploy/cloud/docker-compose.yml pull
+          docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack
           docker image prune -f  # clean up none image after built
