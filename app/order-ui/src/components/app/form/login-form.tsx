@@ -51,7 +51,12 @@ export const LoginForm: React.FC = () => {
       case Role.MANAGER:
       case Role.ADMIN:
       case Role.SUPER_ADMIN:
-        navigate(ROUTE.OVERVIEW)
+        navigate(currentUrl || ROUTE.OVERVIEW)
+        clearUrl()
+        break
+      case Role.CHEF:
+        navigate(currentUrl || ROUTE.STAFF_ORDER_MANAGEMENT)
+        clearUrl()
         break
       case Role.CUSTOMER:
         // navigate(ROUTE.CLIENT_HOME)
@@ -77,7 +82,7 @@ export const LoginForm: React.FC = () => {
         if (profile.data) {
           setUserInfo(profile.data.result)
           const roleName = profile.data.result.role.name
-          navigateBasedOnRole(roleName) // Điều hướng dựa trên role
+          navigateBasedOnRole(roleName) // Direct user to the correct page based on their role
         }
         showToast(t('toast.loginSuccess'))
       },

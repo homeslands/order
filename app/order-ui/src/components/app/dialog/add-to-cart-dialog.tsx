@@ -66,6 +66,8 @@ export default function AddToCartDialog({
           price: selectedVariant.price,
           description: product.product.description,
           isLimit: product.product.isLimit,
+          promotion: product.promotion ? product.promotion?.slug : '',
+          promotionValue: product.promotion ? product.promotion?.value : 0,
           // catalog: product.catalog,
           note: note,
         },

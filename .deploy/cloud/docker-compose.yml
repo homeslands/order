@@ -22,7 +22,7 @@ services:
         condition: on-failure
 
   order-api:
-    image: ghcr.io/homeslands/order-api:latest
+    image: ghcr.io/homeslands/order-api:cloud
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/${VERSION}/health"]
       interval: 5s
@@ -100,7 +100,7 @@ services:
         condition: on-failure
 
   order-ui:
-    image: ghcr.io/homeslands/order-ui:latest
+    image: ghcr.io/homeslands/order-ui:cloud
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "5173"] # TCP check on port 5173
       interval: 10s # Increase interval between health checks

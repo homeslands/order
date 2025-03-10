@@ -45,7 +45,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
       const singleItem: IOrderDetail = {
         ...orderItem,
         quantity: 1,
-        subtotal: orderItem.variant.price,
+        subtotal: orderItem.promotion && orderItem.promotion.value ? orderItem.variant.price * (1 - orderItem.promotion.value / 100) : orderItem.variant.price,
         slug: orderItem.slug,
         index: itemIndex,
       }
@@ -64,6 +64,12 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     const key = `${orderItem.slug}-${index}`
     return !!selectedIndexes[key]
   }
+
+  const originalPrice = order.variant.price
+
+  const priceAfterDiscount = order.promotion && order.promotion.value
+    ? order.variant.price * (1 - order.promotion.value / 100)
+    : order.variant.price
 
   const renderOrderItem = (orderItem: IOrderDetail) => {
     const totalProcessedItems = orderItem.status.COMPLETED
@@ -134,9 +140,22 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                 </div>
               )}
 
-              <div className="col-span-2 text-xs text-center sm:text-sm">
-                {formatCurrency(orderItem.variant.price)}
-              </div>
+              {orderItem.promotion && orderItem.promotion.value > 0 ? (
+                <div className="flex items-center col-span-2 gap-3 text-xs text-center sm:text-sm">
+                  <span className='text-xs line-through text-muted-foreground'>
+                    {formatCurrency(originalPrice)}
+                  </span>
+                  <span className='text-primary text-extrabold'>
+                    {formatCurrency(priceAfterDiscount)}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center col-span-2 gap-3 text-xs text-center sm:text-sm">
+                  <span className="text-muted-foreground text-extrabold">
+                    {formatCurrency(originalPrice)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-end col-span-3">
                 <OrderItemStatusBadge status={item.status} />
               </div>
@@ -146,6 +165,8 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
       </div>
     )
   }
+
+
 
   useEffect(() => {
     order.trackingOrderItems.forEach((trackingItem, index) => {

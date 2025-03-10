@@ -67,6 +67,7 @@ export interface IOrderItem {
   description: string
   isLimit: boolean
   promotion?: string // promotion slug
+  promotionValue?: number
   // catalog: ICatalog
   note?: string
 }

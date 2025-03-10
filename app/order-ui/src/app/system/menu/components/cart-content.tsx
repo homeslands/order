@@ -28,12 +28,16 @@ export function CartContent() {
   }, [cartItems])
 
   const discount = useMemo(() => {
-    return cartItems?.voucher ? (subtotal * (cartItems.voucher.value || 0)) / 100 : 0
-  }, [cartItems?.voucher, subtotal])
+    return cartItems?.orderItems.reduce(
+      (sum, item) => sum + (item.promotionValue ? item.price * item.quantity * item.promotionValue / 100 : 0),
+      0
+    ) || 0;
+  }, [cartItems]);
 
   const total = useMemo(() => {
-    return subtotal - discount
-  }, [subtotal, discount])
+    return subtotal - discount;
+  }, [subtotal, discount]);
+
 
   const handleRemoveCartItem = (id: string) => {
     removeCartItem(id)
@@ -53,13 +57,17 @@ export function CartContent() {
       {/* Selected table */}
       {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
         <div className="flex items-center gap-1 px-4 mt-4 text-sm">
-          <p>Bàn đang chọn: </p>
           {getCartItems()?.table ? (
-            <p className="px-3 py-1 text-white rounded bg-primary">
-              Bàn {getCartItems()?.tableName}
-            </p>
+            <div className='flex items-center gap-1'>
+              <p>{t('menu.selectedTable')} </p>
+              <p className="px-3 py-1 text-white rounded bg-primary">
+                {t('menu.tableName')} {getCartItems()?.tableName}
+              </p>
+            </div>
           ) : (
-            <p className="text-muted-foreground">Chưa chọn bàn</p>
+            <p className="text-muted-foreground">
+              {t('menu.noSelectedTable')}
+            </p>
           )}
         </div>
       )}
@@ -86,10 +94,21 @@ export function CartContent() {
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row items-start justify-between">
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="font-bold truncate">{item.name}</span>
-                        <span className="text-xs font-thin text-muted-foreground">
-                          {`${formatCurrency(item.price || 0)}`}
-                        </span>
+                        <span className="text-sm font-bold truncate">{item.name}</span>
+                        {item.promotionValue && item.promotionValue > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs line-through text-muted-foreground">
+                              {`${formatCurrency(item.price)}`}
+                            </span>
+                            <span className="text-sm font-extrabold text-primary">
+                              {`${formatCurrency(item.price * (1 - item.promotionValue / 100))}`}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-primary">
+                            {`${formatCurrency(item.price)}`}
+                          </span>
+                        )}
                       </div>
                       <Button
                         variant="ghost"
@@ -124,13 +143,13 @@ export function CartContent() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('menu.total')}</span>
-              <span>{`${formatCurrency(subtotal || 0)}`}</span>
+              <span className='text-muted-foreground'>{`${formatCurrency(subtotal || 0)}`}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">
+              <span className="text-sm italic text-green-500">
                 {t('menu.discount')}
               </span>
-              <span className="text-xs text-green-600">
+              <span className="italic text-green-500">
                 - {`${formatCurrency(discount)}`}
               </span>
             </div>
@@ -142,9 +161,13 @@ export function CartContent() {
             </div>
           </div>
           {/* Order button */}
-          <CreateOrderDialog
-            disabled={!(cartItems && !cartItems.table)}
-          />
+          <div className='flex justify-end w-full'>
+            <div className='flex justify-end w-1/2'>
+              <CreateOrderDialog
+                disabled={!(cartItems && !cartItems.table)}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>

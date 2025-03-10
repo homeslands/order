@@ -35,6 +35,13 @@ export default function PaymentPage() {
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const isDisabled = !paymentMethod || !slug
 
+  // calculate original total
+  const originalTotal = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
+
+  const discount = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
+
   useEffect(() => {
     if (order?.result.createdAt) {
       const createdAt = moment(order.result.createdAt)
@@ -272,7 +279,15 @@ export default function PaymentPage() {
                           {t('order.total')}
                         </h3>
                         <p className="text-sm font-semibold">
-                          {`${formatCurrency(order.result.subtotal || 0)}`}
+                          {`${formatCurrency(originalTotal)}`}
+                        </p>
+                      </div>
+                      <div className="flex justify-between w-full pb-4 border-b">
+                        <h3 className="text-sm italic font-medium text-green-500">
+                          {t('order.discount')}
+                        </h3>
+                        <p className="text-sm italic font-semibold text-green-500">
+                          - {`${formatCurrency(discount || 0)}`}
                         </p>
                       </div>
                       <div className="flex flex-col">
@@ -280,7 +295,7 @@ export default function PaymentPage() {
                           <h3 className="font-semibold text-md">
                             {t('order.totalPayment')}
                           </h3>
-                          <p className="text-lg font-semibold text-primary">
+                          <p className="text-2xl font-extrabold text-primary">
                             {`${formatCurrency(order.result.subtotal)}`}
                           </p>
                         </div>
