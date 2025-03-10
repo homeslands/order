@@ -16,12 +16,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Copy Environment Configuration
-        env:
-          ENV_PROD: ${{ secrets.ENV_PROD }}
-        run: |
-          echo "$ENV_PROD" > .deploy/cloud/.env
-
       - name: Deploy with Docker Compose
         env:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST_CLOUD }}
@@ -34,6 +28,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
           export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
+
+          # Export env. Docker swarm is not able to read .env file
+          export $(grep -v '^#' .env | xargs)
 
           docker compose -f .deploy/cloud/docker-compose.yml pull
           docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack
