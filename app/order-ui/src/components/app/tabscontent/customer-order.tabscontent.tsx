@@ -85,16 +85,16 @@ export default function CustomerOrderTabsContent({
                   </span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-4 bg-gray-50">
+              <AccordionContent className="px-0 py-4">
                 <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`}>
                   <div className="flex flex-col divide-y">
                     {orderItem.orderItems.map((product) => (
-                      <div key={product.slug} className="grid grid-cols-12 gap-2 p-4">
+                      <div key={product.slug} className="grid grid-cols-12 gap-2 py-4">
                         <div className="relative col-span-3 sm:col-span-2">
                           <img
                             src={`${publicFileURL}/${product.variant.product.image}`}
                             alt={product.variant.product.name}
-                            className="object-cover w-20 h-20 rounded-md sm:w-28"
+                            className="object-cover h-20 rounded-md sm:w-28"
                           />
                           <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -bottom-2 -right-2 bg-primary">
                             x{product.quantity}
@@ -122,18 +122,17 @@ export default function CustomerOrderTabsContent({
                             {formatCurrency(product.variant.price * product.quantity)}
                           </div>
                         )}
-                        {/* <div className="flex items-center justify-end col-span-3 text-sm font-semibold sm:col-span-3 sm:text-base">
-                          {formatCurrency(product.variant.price * product.quantity)}
-                        </div> */}
                       </div>
                     ))}
                   </div>
                 </NavLink>
-                <div className="flex flex-col items-center justify-between gap-2 p-4 sm:flex-row bg-gray-50">
-                  <div className="flex items-center gap-2 text-sm sm:text-base">
-                    {t('order.subtotal')}:
-                    <span className="font-bold text-primary">{formatCurrency(orderItem.subtotal)}</span>
-                  </div>
+                <div className="flex items-center justify-between gap-2 py-4 sm:flex-row bg-gray-50">
+                  <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`}>
+                    <Button>
+                      {t('order.viewDetail')}
+                    </Button>
+                  </NavLink>
+
                   {orderItem.status === OrderStatus.PENDING && (
                     <div className="flex gap-2 mt-2 sm:mt-0">
                       <Button variant="outline" onClick={() => handleUpdateOrder(orderItem)}>

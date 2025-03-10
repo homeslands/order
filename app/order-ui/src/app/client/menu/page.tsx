@@ -94,7 +94,7 @@ export default function ClientMenuPage() {
 
             {/* Price filter */}
             <PriceRangeFilter />
-            {minPrice || maxPrice !== 0 && (
+            {minPrice || maxPrice !== PriceRange.MAX_PRICE && (
               <div className="flex justify-center gap-2 px-2 py-2 text-sm border rounded-xl border-primary bg-primary/5 text-primary">
                 <div>
                   {/* {t('menu.priceRange')}

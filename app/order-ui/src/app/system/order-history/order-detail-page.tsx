@@ -30,6 +30,19 @@ export default function OrderDetailPage() {
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
 
+  const orderInfo = orderDetail?.result;
+
+  const originalTotal = orderInfo
+    ? orderInfo.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+    : 0;
+
+  const discount = orderInfo
+    ? orderInfo.orderItems.reduce(
+      (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
+      0
+    )
+    : 0;
+
   return (
     <div className="mb-10">
       <Helmet>
@@ -46,14 +59,14 @@ export default function OrderDetailPage() {
             <SquareMenu />
             {t('order.orderDetail')}{' '}
             <span className="text-muted-foreground">
-              #{orderDetail?.result?.slug}
+              #{orderInfo?.slug}
             </span>
           </span>
         </div>
 
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col w-full gap-4 lg:w-3/4">
+          <div className="flex flex-col w-full gap-4 lg:w-3/5">
             {/* Order info */}
             <div className="flex items-center justify-between p-3 border rounded-sm">
               <div className="">
@@ -62,13 +75,13 @@ export default function OrderDetailPage() {
                     {t('order.order')}{' '}
                   </span>{' '}
                   <span className="text-primary">
-                    #{orderDetail?.result?.slug}
+                    #{orderInfo?.slug}
                   </span>
-                  <OrderStatusBadge order={orderDetail?.result || undefined} />
+                  <OrderStatusBadge order={orderInfo || undefined} />
                 </p>
                 <div className="flex items-center gap-1 text-sm font-thin">
                   <p>
-                    {moment(orderDetail?.result?.createdAt).format(
+                    {moment(orderInfo?.createdAt).format(
                       'hh:mm:ss DD/MM/YYYY',
                     )}
                   </p>{' '}
@@ -78,7 +91,7 @@ export default function OrderDetailPage() {
                       {t('order.cashier')}{' '}
                     </span>
                     <span className="text-muted-foreground">
-                      {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName} - ${orderDetail?.result?.owner?.phonenumber}`}
+                      {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName} - ${orderDetail?.result?.owner?.phonenumber}`}
                     </span>
                   </p>
                 </div>
@@ -92,10 +105,10 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="px-3 py-2 text-xs">
                   <p className="font-bold">
-                    {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName}`}
+                    {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName}`}
                   </p>
                   <p className="text-sm">
-                    {orderDetail?.result?.owner?.phonenumber}
+                    {orderInfo?.owner?.phonenumber}
                   </p>
                 </div>
               </div>
@@ -105,14 +118,14 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
-                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                    {orderInfo?.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
                       : t('order.takeAway')}
                   </p>
                   <p className="flex gap-1">
                     <span className="col-span-2">{t('order.tableNumber')}</span>
                     <span className="col-span-1">
-                      {orderDetail?.result?.table?.name}
+                      {orderInfo?.table?.name}
                     </span>
                   </p>
                 </div>
@@ -127,7 +140,7 @@ export default function OrderDetailPage() {
                     <TableHead className="">{t('order.product')}</TableHead>
                     <TableHead>{t('order.size')}</TableHead>
                     <TableHead>{t('order.quantity')}</TableHead>
-                    <TableHead className="text-right">
+                    <TableHead className="text-start">
                       {t('order.unitPrice')}
                     </TableHead>
                     <TableHead className="text-right">
@@ -136,7 +149,7 @@ export default function OrderDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orderDetail?.result.orderItems?.map((item) => (
+                  {orderInfo?.orderItems?.map((item) => (
                     <TableRow key={item.slug}>
                       <TableCell className="flex items-center gap-1 font-bold">
                         <img
@@ -149,9 +162,24 @@ export default function OrderDetailPage() {
                       <TableCell>{item.variant.size.name}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell className="text-right">
-                        {`${formatCurrency(item.variant.price || 0)}`}
+                        {item.promotion && item.promotion.value > 0 ? (
+                          <div className="flex items-center justify-start gap-1">
+                            <span className="text-sm line-through text-muted-foreground">
+                              {`${formatCurrency(item?.variant?.price || 0)}`}
+                            </span>
+                            <span className="text-sm sm:text-lg text-primary">
+                              {`${formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}`}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start justify-start gap-1">
+                            <span className="text-sm text-muted-foreground">
+                              {`${formatCurrency(item?.variant?.price || 0)}`}
+                            </span>
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-lg font-extrabold text-right text-primary">
                         {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
                       </TableCell>
                     </TableRow>
@@ -162,25 +190,22 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col w-full gap-2 lg:w-1/4">
+          <div className="flex flex-col w-full gap-2 lg:w-2/5">
             {/* Payment method, status */}
             <div className="border rounded-sm">
-              {/* <div className="px-3 py-2 font-bold uppercase">
-                Phương thức thanh toán
-              </div> */}
               <div className="px-3 py-2">
                 <p className="flex flex-col items-start gap-1 pb-2">
                   <span className="col-span-1 text-sm font-bold">
                     {t('paymentMethod.title')}
                   </span>
                   <span className="text-xs">
-                    {orderDetail?.result?.payment?.paymentMethod && (
+                    {orderInfo?.payment?.paymentMethod && (
                       <>
-                        {orderDetail?.result?.payment.paymentMethod ===
+                        {orderInfo?.payment.paymentMethod ===
                           'bank-transfer' && (
                             <span>{t('paymentMethod.bankTransfer')}</span>
                           )}
-                        {orderDetail?.result?.payment.paymentMethod ===
+                        {orderInfo?.payment.paymentMethod ===
                           'cash' && <span>{t('paymentMethod.cash')}</span>}
                       </>
                     )}
@@ -191,9 +216,9 @@ export default function OrderDetailPage() {
                     {t('paymentMethod.status')}
                   </span>
                   <span className="col-span-1 text-xs">
-                    {orderDetail?.result?.payment && (
+                    {orderInfo?.payment && (
                       <PaymentStatusBadge
-                        status={orderDetail?.result?.payment?.statusCode}
+                        status={orderInfo?.payment?.statusCode}
                       />
                     )}
                   </span>
@@ -203,29 +228,29 @@ export default function OrderDetailPage() {
             {/* Total */}
             <div className="flex flex-col gap-2 p-2 border rounded-sm">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {t('order.subtotal')}
                 </p>
-                <p>{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                <p>{`${formatCurrency(originalTotal || 0)}`}</p>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-green-500">
+                <p className="text-sm italic text-green-500">
                   {t('order.discount')}
                 </p>
-                <p className='text-sm text-green-500'>{`${formatCurrency(orderDetail?.result?.voucher?.value || 0)}`}</p>
+                <p className='text-sm italic text-green-500'>{`- ${formatCurrency(discount || 0)}`}</p>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <p className="text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {t('order.totalPayment')}
                 </p>
-                <p className="text-2xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                <p className="text-xl font-bold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  ({orderDetail?.result?.orderItems?.length}{t('order.product')})
-                </p>
-                <p className="text-xs text-muted-foreground/60">({t('order.vat')})</p>
+                {/* <p className="text-sm text-muted-foreground">
+                  ({orderInfo?.orderItems?.length}{' '}{t('order.product')})
+                </p> */}
+                <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p>
               </div>
             </div>
             {/* Return order button */}

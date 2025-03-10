@@ -61,7 +61,9 @@ export default function OverviewDetailPage() {
                 <RefreshCcw />
                 {tCommon('common.refresh')}
               </Button>
-              <BranchSelect onChange={handleSelectBranch} />
+              <div className='w-[14rem]'>
+                <BranchSelect onChange={handleSelectBranch} />
+              </div>
               <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
             </div>
           </div>

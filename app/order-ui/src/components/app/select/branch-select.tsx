@@ -53,7 +53,7 @@ export default function BranchSelect({
 
   return (
     <ReactSelect
-      className="text-sm max-w-[16rem] border-muted-foreground text-muted-foreground"
+      className="w-full text-sm border-muted-foreground text-muted-foreground"
       value={selectedBranch}
       options={allBranches}
       onChange={handleChange}

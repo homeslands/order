@@ -143,7 +143,7 @@
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
     "confirm": "Xác nhận",
     "viewDetail": "Xem chi tiết",
-    "cancelOrder": "Hủy đơn hàng",
+    "cancelOrder": "Hủy",
     "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
     "updateOrder": "Cập nhật",
     "updatePayment": "Cập nhật thanh toán",
@@ -220,6 +220,7 @@
     "completed": "Đã hoàn tất",
     "paid": "Đã thanh toán",
     "canceled": "Đã hủy",
+    "notPaid": "Chưa thanh toán",
     "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Đơn hàng đã hết hạn thanh toán"
   }

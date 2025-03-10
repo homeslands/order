@@ -58,7 +58,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
-        return <div className="text-sm">{order?.slug}</div>
+        return <div className="text-sm">{order?.slug || 'N/A'}</div>
       },
     },
     {
@@ -75,7 +75,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
               {order?.payment &&
-                order?.payment.paymentMethod === PaymentMethod.CASH
+                order?.payment?.paymentMethod === PaymentMethod.CASH
                 ? t('order.cash')
                 : t('order.bankTransfer')}
             </span>
@@ -106,7 +106,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         const order = row.original
         return (
           <div className="text-sm">
-            {order?.owner?.firstName} {order?.owner?.lastName}
+            {order?.owner?.firstName || ''} {order?.owner?.lastName || ''}
           </div>
         )
       },
@@ -118,7 +118,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
-        return <div className="text-sm">{formatCurrency(order?.subtotal)}</div>
+        return <div className="text-sm">{formatCurrency(order?.subtotal || 0)}</div>
       },
     },
     {
@@ -153,19 +153,21 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink
-                  to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}
-                  className="flex items-center justify-start w-full"
-                >
-                  <Button
-                    variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2 text-sm"
+                {order?.slug && (
+                  <NavLink
+                    to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}
+                    className="flex items-center justify-start w-full"
                   >
-                    <SquareMousePointer className="icon" />
-                    {tCommon('common.viewDetail')}
-                  </Button>
-                </NavLink>
-                {!order.payment || order.status === OrderStatus.PENDING && (
+                    <Button
+                      variant="ghost"
+                      className="flex justify-start w-full gap-1 px-2 text-sm"
+                    >
+                      <SquareMousePointer className="icon" />
+                      {tCommon('common.viewDetail')}
+                    </Button>
+                  </NavLink>
+                )}
+                {order?.slug && !order?.payment?.statusCode && order?.status === OrderStatus.PENDING && (
                   <NavLink
                     to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
                     className="flex items-center justify-start w-full"
@@ -181,9 +183,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 )}
 
                 {/* Export payment */}
-                {order.payment && (
+                {order?.payment?.slug && (
                   <Button
-                    onClick={() => handleExportPayment(order.payment?.slug)}
+                    onClick={() => handleExportPayment(order.payment!.slug)}
                     variant="ghost"
                     className="flex justify-start w-full gap-1 px-2"
                   >
@@ -193,7 +195,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 )}
 
                 {/* Export invoice */}
-                {order.payment?.statusCode === paymentStatus.COMPLETED && (
+                {order?.slug && order?.payment?.statusCode === paymentStatus.COMPLETED && (
                   <Button
                     onClick={() => handleExportOrderInvoice(order.slug)}
                     variant="ghost"
@@ -205,7 +207,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 )}
 
                 {/* Cancel order */}
-                <OutlineCancelOrderDialog order={order} />
+                {order && <OutlineCancelOrderDialog order={order} />}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
