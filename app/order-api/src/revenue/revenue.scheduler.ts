@@ -63,10 +63,6 @@ export class RevenueScheduler {
           error.stack,
           context,
         );
-        throw new RevenueException(
-          RevenueValidation.CREATE_REVENUE_ERROR,
-          error.message,
-        );
       },
     );
   }
