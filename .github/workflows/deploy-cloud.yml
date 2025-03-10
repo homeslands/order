@@ -35,6 +35,9 @@ jobs:
           ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
           export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
 
+          # Export env. Docker swarm is not able to read .env file
+          export $(grep -v '^#' .deploy/cloud/.env | xargs)
+
           docker compose -f .deploy/cloud/docker-compose.yml pull
-          docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack
+          docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack --detach=true
           docker image prune -f  # clean up none image after built
