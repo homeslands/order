@@ -112,11 +112,9 @@ export default function OrderHistoryPage() {
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
-                    {orderInfo?.type === OrderTypeEnum.AT_TABLE
-                      ? t('order.dineIn')
+                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                      ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
                       : t('order.takeAway')}{' '}
-                    - {t('order.tableNumber')}{' '}
-                    {orderInfo?.table?.name}
                   </p>
                 </div>
               </div>
@@ -282,14 +280,15 @@ export default function OrderHistoryPage() {
               >
                 {tCommon('common.goBack')}
               </Button>
-              <Button
-                className="w-fit bg-primary"
-                onClick={() => {
-                  navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderInfo?.slug}`)
-                }}
-              >
-                {tCommon('common.checkout')}
-              </Button>
+              {orderDetail?.result?.status === "pending" &&
+                <Button
+                  className="w-fit bg-primary"
+                  onClick={() => {
+                    navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderDetail?.result?.slug}`)
+                  }}
+                >
+                  {tCommon('common.checkout')}
+                </Button>}
             </div>
           </div>
         </div>

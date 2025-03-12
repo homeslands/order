@@ -13,7 +13,7 @@ export default function PromotionPage() {
     const { t: tHelmet } = useTranslation('helmet')
     const { handlePageChange, handlePageSizeChange } = usePagination()
     const { userInfo } = useUserStore()
-    const { data, isLoading } = usePromotions(userInfo?.branch.slug || '')
+    const { data, isLoading } = usePromotions(userInfo?.branch?.slug || '')
 
     return (
         <div className="flex flex-col flex-1 w-full">

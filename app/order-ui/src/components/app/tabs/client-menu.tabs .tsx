@@ -19,9 +19,10 @@ export function ClientMenuTabs({ order, defaultValue, onSuccess }: ClientMenusPr
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
-        <TabsTrigger value="table" className="flex justify-center">
+        {/* Mở cmt này để hiển thị tab chọn bàn hình ảnh */}
+        {/* <TabsTrigger value="table" className="flex justify-center">
           {t('menu.table')}
-        </TabsTrigger>
+        </TabsTrigger> */}
       </TabsList>
       <TabsContent value="menu" className="w-full p-0 mt-6">
         <ClientMenuTabscontent onSuccess={onSuccess} />

@@ -80,7 +80,7 @@ export default function OrderItemDetailSheet({
     size: pagination.pageSize,
     owner: userInfo?.slug,
     order: 'DESC',
-    branchSlug: userInfo?.branch.slug,
+    branchSlug: userInfo?.branch?.slug,
     table: selectedOrder?.result?.table?.slug,
     hasPaging: false,
     enabled: shouldFetchOrders && !!selectedOrder?.result?.table?.slug,

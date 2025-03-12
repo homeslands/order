@@ -17,7 +17,7 @@ export function SystemMenuManagementTabsContent() {
     order: 'DESC',
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
-    branch: userInfo?.branch.slug,
+    branch: userInfo?.branch?.slug,
     isTemplate: tab === 'isTemplate' ? false : true,
   })
 

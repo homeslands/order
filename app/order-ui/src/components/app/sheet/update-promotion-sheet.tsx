@@ -43,7 +43,7 @@ export default function UpdatePromotionSheet({
     resolver: zodResolver(updatePromotionSchema),
     defaultValues: {
       slug: promotion?.slug,
-      branch: userInfo?.branch.slug || '',
+      branch: userInfo?.branch?.slug || '',
       createdAt: promotion.createdAt,
       title: promotion.title,
       description: promotion.description,

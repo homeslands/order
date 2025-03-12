@@ -24,7 +24,7 @@ export function ClientPaymentPage() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('order')
   const navigate = useNavigate()
-  const { data: order, refetch: refetchOrder, isFetching } = useOrderBySlug(slug as string)
+  const { data: order, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: exportPayment, isPending: isPendingExportPayment } = useExportPayment()
   const { qrCode, setQrCode, paymentMethod, setPaymentMethod, clearStore } = usePaymentMethodStore()
@@ -129,8 +129,7 @@ export function ClientPaymentPage() {
       },
     })
   }
-
-  if ((_.isEmpty(order?.result) || isExpired) && !isFetching) {
+  if ((_.isEmpty(order) || isExpired)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
@@ -218,11 +217,11 @@ export function ClientPaymentPage() {
           <div className="w-full lg:w-2/3">
             <div className="grid w-full grid-cols-5 px-4 py-3 mb-2 text-sm font-thin rounded-md bg-muted-foreground/10">
               <span className="col-span-2 text-xs">{t('order.product')}</span>
-              <span className="col-span-1 text-xs">{t('order.unitPrice')}</span>
+              <span className="col-span-1 text-xs ">{t('order.unitPrice')}</span>
               <span className="col-span-1 text-xs text-center">
                 {t('order.quantity')}
               </span>
-              <span className="col-span-1 text-xs text-center">
+              <span className="col-span-1 text-xs text-end">
                 {t('order.grandTotal')}
               </span>
             </div>
@@ -243,16 +242,27 @@ export function ClientPaymentPage() {
                       </div>
                     </div>
                     <div className="flex items-center col-span-1">
-                      <span className="text-sm">
-                        {`${formatCurrency(item.variant.price || 0)}`}
-                      </span>
+                      {item.promotion ?
+                        <div className='flex items-center gap-2'>
+                          <span className="text-xs line-through text-muted-foreground">
+                            {`${formatCurrency(item.variant.price || 0)}`}
+                          </span>
+                          <span className="text-sm text-primary">
+                            {`${formatCurrency(item.variant.price * (1 - item.promotion.value / 100) || 0)}`}
+                          </span>
+                        </div>
+                        :
+                        <span className="text-sm">
+                          {`${formatCurrency(item.variant.price || 0)}`}
+                        </span>}
+
                     </div>
                     <div className="flex justify-center col-span-1">
                       <span className="text-sm">{item.quantity || 0}</span>
                     </div>
                     <div className="col-span-1 text-end">
                       <span className="text-sm">
-                        {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
+                        {`${formatCurrency((item.subtotal || 0))}`}
                       </span>
                     </div>
                   </div>

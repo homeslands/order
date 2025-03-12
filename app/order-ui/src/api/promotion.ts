@@ -4,6 +4,7 @@ import {
   IApplyPromotionRequest,
   ICreatePromotionRequest,
   IPromotion,
+  IRemoveAppliedPromotionRequest,
   IUpdatePromotionRequest,
 } from '@/types'
 
@@ -54,10 +55,10 @@ export async function ApplyPromotion(
 }
 
 export async function RemoveProductPromotion(
-  applicablePromotionSlug: string,
+  data: IRemoveAppliedPromotionRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.delete<IApiResponse<null>>(
-    `/applicable-promotion/${applicablePromotionSlug}`,
+    `/applicable-promotion/`, { data }
   )
   return response.data
 }

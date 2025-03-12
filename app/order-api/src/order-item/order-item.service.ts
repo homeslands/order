@@ -21,6 +21,8 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { Order } from 'src/order/order.entity';
 import _ from 'lodash';
 import { OrderScheduler } from 'src/order/order.scheduler';
+import { OrderException } from 'src/order/order.exception';
+import { OrderValidation } from 'src/order/order.validation';
 
 @Injectable()
 export class OrderItemService {
@@ -95,17 +97,10 @@ export class OrderItemService {
         // Update menu item
         const menuItem = await this.menuItemUtils.getCurrentMenuItem(
           orderItem,
-          // new Date(moment().format('YYYY-MM-DD')),
           date,
           requestData.action,
         );
         await manager.save(menuItem);
-
-        // Update order
-        const { order } = orderItem;
-
-        order.subtotal = await this.orderUtils.getOrderSubtotal(order);
-        await manager.save(order);
       },
       () => {
         this.logger.log(`Order item updated: ${slug}`, context);
@@ -118,6 +113,34 @@ export class OrderItemService {
         );
         throw new OrderItemException(
           OrderItemValidation.UPDATE_ORDER_ITEM_ERROR,
+        );
+      },
+    );
+
+    // Update order subtotal
+    const order = await this.orderUtils.getOrder({
+      where: {
+        id: orderItem.order.id,
+      },
+    });
+
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(order);
+      },
+      () => {
+        this.logger.log(`Order updated: ${order.slug}`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when updating order: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.UPDATE_ORDER_ERROR,
+          error.message,
         );
       },
     );

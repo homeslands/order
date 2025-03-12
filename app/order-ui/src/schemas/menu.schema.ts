@@ -2,14 +2,14 @@ import { z } from 'zod'
 
 export const createMenuSchema = z.object({
   date: z.string(),
-  branchSlug: z.string(),
+  branchSlug: z.string().min(1),
   isTemplate: z.boolean(),
 })
 
 export const updateMenuSchema = z.object({
   slug: z.string(),
   date: z.string(),
-  branchSlug: z.string(),
+  branchSlug: z.string().min(1),
   isTemplate: z.boolean(),
 })
 

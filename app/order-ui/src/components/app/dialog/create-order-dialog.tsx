@@ -42,7 +42,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     const selectedBranch =
       userInfo?.role.name === Role.CUSTOMER
         ? branch?.slug
-        : userInfo?.branch.slug
+        : userInfo?.branch?.slug
 
     if (!selectedBranch) {
       showErrorToast(11000)

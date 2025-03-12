@@ -39,6 +39,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
   const formFields = {
     slug: (
       <FormField
+        disabled={true}
         control={form.control}
         name="slug"
         render={({ field }) => (
@@ -54,6 +55,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     firstName: (
       <FormField
+        disabled={true}
         control={form.control}
         name="firstName"
         render={({ field }) => (
@@ -69,6 +71,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     lastName: (
       <FormField
+        disabled={true}
         control={form.control}
         name="lastName"
         render={({ field }) => (
@@ -84,6 +87,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     dob: (
       <FormField
+        disabled={true}
         control={form.control}
         name="dob"
         render={({ field }) => (
@@ -99,6 +103,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     email: (
       <FormField
+        disabled={true}
         control={form.control}
         name="email"
         render={({ field }) => (
@@ -114,6 +119,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     address: (
       <FormField
+        disabled={true}
         control={form.control}
         name="address"
         render={({ field }) => (
@@ -129,6 +135,7 @@ export const UserInfoForm: React.FC<IFormUserInfoProps> = ({ user }) => {
     ),
     branch: (
       <FormField
+        disabled={true}
         control={form.control}
         name="branch"
         render={({ field }) => (

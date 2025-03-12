@@ -86,46 +86,44 @@ export default function CustomerOrderTabsContent({
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-0 py-4">
-                <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}/${orderItem.slug}`}>
-                  <div className="flex flex-col divide-y">
-                    {orderItem.orderItems.map((product) => (
-                      <div key={product.slug} className="grid grid-cols-12 gap-2 py-4">
-                        <div className="relative col-span-3 sm:col-span-2">
-                          <img
-                            src={`${publicFileURL}/${product.variant.product.image}`}
-                            alt={product.variant.product.name}
-                            className="object-cover h-20 rounded-md sm:w-28"
-                          />
-                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -bottom-2 -right-2 bg-primary">
-                            x{product.quantity}
-                          </div>
+                <div className="flex flex-col divide-y">
+                  {orderItem.orderItems.map((product) => (
+                    <div key={product.slug} className="grid grid-cols-12 gap-2 py-4">
+                      <div className="relative col-span-3 sm:col-span-2">
+                        <img
+                          src={`${publicFileURL}/${product.variant.product.image}`}
+                          alt={product.variant.product.name}
+                          className="object-cover h-20 rounded-md sm:w-28"
+                        />
+                        <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -bottom-2 -right-2 bg-primary">
+                          x{product.quantity}
                         </div>
-                        <div className="flex flex-col col-span-6 sm:col-span-7">
-                          <span className="text-sm font-semibold truncate sm:text-base">
-                            {product.variant.product.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground sm:text-sm">
-                            {product.variant.size.name.toUpperCase()} - {formatCurrency(product.variant.price)}
-                          </span>
-                        </div>
-                        {product?.promotion && product?.promotion?.value > 0 ? (
-                          <div className="flex items-center justify-end col-span-3 gap-2 text-sm font-semibold sm:col-span-3 sm:text-base">
-                            <span className='text-xs line-through text-muted-foreground/60'>
-                              {formatCurrency(product.variant.price)}
-                            </span>
-                            <span className='text-primary text-md'>
-                              {formatCurrency(product.variant.price * (1 - product.promotion.value / 100))}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-end col-span-3 text-sm font-semibold sm:col-span-3 sm:text-base">
-                            {formatCurrency(product.variant.price * product.quantity)}
-                          </div>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                </NavLink>
+                      <div className="flex flex-col col-span-6 sm:col-span-7">
+                        <span className="text-sm font-semibold truncate sm:text-base">
+                          {product.variant.product.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground sm:text-sm">
+                          {product.variant.size.name.toUpperCase()} - {formatCurrency(product.variant.price)}
+                        </span>
+                      </div>
+                      {product?.promotion && product?.promotion?.value > 0 ? (
+                        <div className="flex items-center justify-end col-span-3 gap-2 text-sm font-semibold sm:col-span-3 sm:text-base">
+                          <span className='text-xs line-through text-muted-foreground/60'>
+                            {formatCurrency(product.variant.price)}
+                          </span>
+                          <span className='text-primary text-md'>
+                            {formatCurrency(product.variant.price * (1 - product.promotion.value / 100))}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end col-span-3 text-sm font-semibold sm:col-span-3 sm:text-base">
+                          {formatCurrency(product.variant.price * product.quantity)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 <div className="flex items-center justify-between gap-2 py-4 sm:flex-row bg-gray-50">
                   <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`}>
                     <Button>
@@ -135,10 +133,10 @@ export default function CustomerOrderTabsContent({
 
                   {orderItem.status === OrderStatus.PENDING && (
                     <div className="flex gap-2 mt-2 sm:mt-0">
-                      <Button variant="outline" onClick={() => handleUpdateOrder(orderItem)}>
+                      <CancelOrderDialog onSuccess={refetch} order={orderItem} />
+                      <Button className='text-orange-500 border-orange-500 hover:text-white hover:bg-orange-500' variant="outline" onClick={() => handleUpdateOrder(orderItem)}>
                         {t('order.updateOrder')}
                       </Button>
-                      <CancelOrderDialog onSuccess={refetch} order={orderItem} />
                     </div>
                   )}
 

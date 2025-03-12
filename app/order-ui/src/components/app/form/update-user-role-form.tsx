@@ -52,7 +52,7 @@ export const UpdateUserRoleForm: React.FC<
                     queryKey: ['customers']
                 })
                 queryClient.invalidateQueries({
-                    queryKey: ['user', user.slug]
+                    queryKey: ['users']
                 })
                 onSubmit(false)
                 form.reset()
@@ -68,7 +68,7 @@ export const UpdateUserRoleForm: React.FC<
                 name="slug"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>{t('users.name')}</FormLabel>
+                        <FormLabel>{t('users.id')}</FormLabel>
                         <FormControl>
                             <Input
                                 readOnly

@@ -44,7 +44,7 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
       slug: menu.slug,
       date: menu.date,
       isTemplate: menu.isTemplate,
-      branchSlug: userInfo?.branch.slug,
+      branchSlug: userInfo?.branch?.slug,
     },
   })
 
@@ -133,7 +133,7 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
             <FormLabel>{t('menu.branchSlug')}</FormLabel>
             <FormControl>
               <BranchSelect
-                defaultValue={userInfo?.branch.slug} // Giá trị mặc định
+                defaultValue={userInfo?.branch?.slug} // Giá trị mặc định
                 onChange={field.onChange} // Cập nhật giá trị
               />
             </FormControl>

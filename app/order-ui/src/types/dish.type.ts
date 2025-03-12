@@ -229,6 +229,14 @@ export interface IUpdateOrderTypeRequest {
   table: string | null
 }
 
+export interface IUpdateOrderItemRequest {
+  quantity: number
+  note?: string
+  variant: string | IProductVariant
+  promotion?: string | IPromotion
+  action?: string
+}
+
 export interface IInitiatePaymentRequest {
   paymentMethod: string
   orderSlug: string

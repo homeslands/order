@@ -1,7 +1,7 @@
 {
   "users": {
     "title": "Quản lý người dùng",
-
+    "id": "Mã nhân viên",
     "viewDetail": "Xem chi tiết",
     "detailInfo": "Thông tin chi tiết",
     "detailInfoDescription": "Xem thông tin chi tiết của người dùng",
@@ -16,11 +16,9 @@
     "role": "Chức danh",
     "address": "Địa chỉ",
     "branch": "Chi nhánh",
-
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho người dùng",
     "update": "Cập nhật",
-
     "resetPassword": "Đặt lại mật khẩu",
     "resetPasswordDescription": "Đặt lại mật khẩu cho người dùng",
     "resetPasswordContent": "Bạn có chắc muốn đặt lại mật khẩu cho người dùng ",

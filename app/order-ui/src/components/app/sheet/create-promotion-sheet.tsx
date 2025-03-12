@@ -36,7 +36,7 @@ export default function CreatePromotionSheet() {
   const form = useForm<TCreatePromotionSchema>({
     resolver: zodResolver(createPromotionSchema),
     defaultValues: {
-      branchSlug: userInfo?.branch.slug || '',
+      branchSlug: userInfo?.branch?.slug || '',
       title: '',
       description: '',
       startDate: '',
@@ -65,7 +65,7 @@ export default function CreatePromotionSheet() {
 
   const resetForm = () => {
     form.reset({
-      branchSlug: userInfo?.branch.slug || '',
+      branchSlug: userInfo?.branch?.slug || '',
       title: '',
       description: '',
       startDate: '',

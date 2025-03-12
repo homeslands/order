@@ -39,14 +39,14 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
     order: 'DESC',
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
-    branch: userInfo?.branch.slug,
+    branch: userInfo?.branch?.slug,
   })
 
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),
     defaultValues: {
       date: '',
-      branchSlug: userInfo?.branch.slug,
+      branchSlug: userInfo?.branch?.slug,
       isTemplate: false,
     },
   })

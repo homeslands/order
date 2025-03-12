@@ -17,6 +17,7 @@ import {
   IOrdersQuery,
   IAddNewOrderItemRequest,
   IUpdateOrderTypeRequest,
+  IUpdateOrderItemRequest,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 
@@ -171,6 +172,15 @@ export async function updateOrderType(
   const response = await http.patch<IApiResponse<IOrder>>(
     `/orders/${slug}`,
     params,
+  )
+  return response.data
+}
+export async function updateOrderItem(
+  slug: string,
+  data: IUpdateOrderItemRequest,
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.patch<IApiResponse<IOrder>>(
+    `/order-items/${slug}`, data
   )
   return response.data
 }

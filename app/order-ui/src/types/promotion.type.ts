@@ -32,8 +32,13 @@ export interface IUpdatePromotionRequest {
 }
 
 export interface IApplyPromotionRequest {
-  isApplyFromToday: boolean
   applicableSlugs: string[] //Product slug
   type: string
   promotion: string //Promotion slug
+}
+
+export interface IRemoveAppliedPromotionRequest {
+  promotion: string
+  applicableSlugs: string[]
+  type: string
 }
