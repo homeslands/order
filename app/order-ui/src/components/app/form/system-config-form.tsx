@@ -10,7 +10,6 @@ import { ConfigDropdown } from '@/app/system/config'
 import { showToast } from '@/utils'
 import { ButtonLoading } from '../loading'
 
-// Component con để quản lý hàng mới
 const NewConfigRow = ({
   config,
   onChange,
@@ -29,15 +28,15 @@ const NewConfigRow = ({
       <Input
         value={config.key}
         onChange={(e) => onChange(config.slug, 'key', e.target.value)}
-        placeholder="Enter key"
+        placeholder={t('config.enterKey')}
       />
     </div>
     <div className="flex flex-col w-full gap-2">
-      <Label>Value</Label>
+      <Label>{t('config.value')}</Label>
       <Input
         value={config.value}
         onChange={(e) => onChange(config.slug, 'value', e.target.value)}
-        placeholder="Enter value"
+        placeholder={t('config.enterValue')}
       />
     </div>
   </div>
@@ -45,11 +44,11 @@ const NewConfigRow = ({
 
 // Component con để quản lý hàng đã lưu
 const ConfigRow = ({ config }: { config: ISystemConfig }) => (
-  <div className="flex flex-col gap-2 p-2 bg-white border rounded-md lg:flex-row">
+  <div className="flex flex-col gap-2 p-2 bg-white border rounded-md dark:bg-transparent lg:flex-row">
     {/* Left */}
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="col-span-1 p-2 bg-gray-100 rounded-full h-fit w-fit">
+        <div className="col-span-1 p-2 bg-gray-100 rounded-full dark:bg-gray-800 h-fit w-fit">
           <ChevronsLeftRight size={18} />
         </div>
         <span className="col-span-3 text-sm">{config.key}</span>
@@ -161,9 +160,9 @@ export const SystemConfigForm: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col w-full gap-4">
-      {/* Khu vực thêm mới */}
-      <div className="pb-4 border-b border-gray-300">
+    <div className="flex flex-col w-full gap-4 mt-4">
+      {/* Create new config */}
+      <div className="pb-8 border-b border-gray-300 dark:border-gray-700">
         <h3 className="mb-4 text-lg font-semibold">
           {t('config.addNewConfig')}
         </h3>
@@ -184,7 +183,7 @@ export const SystemConfigForm: React.FC = () => {
         </div>
         <div className="flex justify-between">
           <Button
-            disabled={isPending}
+            disabled={isPending || newConfigs.length === 1}
             onClick={createNewConfigs}
             className="mt-4"
           >
@@ -193,8 +192,8 @@ export const SystemConfigForm: React.FC = () => {
         </div>
       </div>
 
-      {/* Danh sách config */}
-      <div className="mt-6">
+      {/* Config list */}
+      <div>
         <h3 className="mb-4 text-lg font-semibold">
           {t('config.savedConfigs')}
         </h3>

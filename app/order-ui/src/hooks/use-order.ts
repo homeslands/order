@@ -22,7 +22,9 @@ import {
   IOrdersQuery,
   IAddNewOrderItemRequest,
   IUpdateOrderTypeRequest,
+  IUpdateOrderItemRequest,
 } from '@/types'
+import { updateOrderItem } from '../api/order'
 
 export const useOrders = (q: IOrdersQuery) => {
   return useQuery({
@@ -97,6 +99,14 @@ export const useAddNewOrderItem = () => {
   return useMutation({
     mutationFn: async (data: IAddNewOrderItemRequest) => {
       return addNewOrderItem(data)
+    },
+  })
+}
+
+export const useUpdateOrderItem = () => {
+  return useMutation({
+    mutationFn: async ({ slug, data }: { slug: string, data: IUpdateOrderItemRequest }) => {
+      return updateOrderItem(slug, data)
     },
   })
 }

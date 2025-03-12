@@ -16,7 +16,7 @@ export default function OrderWaitListCounting() {
     size: pagination.pageSize,
     owner: userInfo?.slug,
     order: 'DESC',
-    branchSlug: userInfo?.branch.slug,
+    branchSlug: userInfo?.branch?.slug,
     status: [OrderStatus.PENDING].join(','),
   })
 

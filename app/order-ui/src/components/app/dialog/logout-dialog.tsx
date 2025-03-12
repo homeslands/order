@@ -13,7 +13,7 @@ import {
   Button,
   DialogFooter,
 } from '@/components/ui'
-import { useAuthStore, useBranchStore, useCartItemStore, useUserStore } from '@/stores'
+import { useAuthStore, useBranchStore, useCartItemStore, useMenuItemStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
 import { ROUTE } from '@/constants'
 
@@ -24,6 +24,7 @@ export default function LogoutDialog() {
   const { setLogout } = useAuthStore()
   const { removeBranch } = useBranchStore()
   const { clearCart } = useCartItemStore()
+  const { clearMenuItems } = useMenuItemStore()
   const { removeUserInfo } = useUserStore()
   const navigate = useNavigate()
 
@@ -32,6 +33,7 @@ export default function LogoutDialog() {
     removeUserInfo()
     removeBranch()
     clearCart()
+    clearMenuItems()
     navigate(ROUTE.HOME, { replace: true })
     showToast(tToast('toast.logoutSuccess'))
   }

@@ -147,11 +147,23 @@ export class MenuItemUtils {
 
     // limit product
     switch (action) {
-      case 'increment':
-        menuItem.currentStock += entity.quantity;
+      case 'decrement': {
+        const newStock = Math.min(
+          menuItem.currentStock + 1,
+          menuItem.defaultStock,
+        );
+        if (newStock !== menuItem.currentStock) {
+          this.logger.warn(
+            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+            context,
+          );
+        }
+        menuItem.currentStock = newStock;
         break;
-      case 'decrement':
-        if (entity.quantity > menuItem.currentStock) {
+      }
+
+      case 'increment': {
+        if (menuItem.currentStock <= 0) {
           this.logger.warn(
             OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
             context,
@@ -160,8 +172,10 @@ export class MenuItemUtils {
             OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
           );
         }
-        menuItem.currentStock -= entity.quantity;
+        menuItem.currentStock -= 1;
         break;
+      }
+
       default:
         this.logger.warn(MenuItemValidation.INVALID_ACTION.message, context);
         throw new MenuItemException(MenuItemValidation.INVALID_ACTION);

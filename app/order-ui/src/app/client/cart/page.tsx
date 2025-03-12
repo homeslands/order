@@ -188,14 +188,12 @@ export default function ClientCartPage() {
             </div>
           </div>
           {/* Button */}
-          <div className="flex justify-end w-full">
-            <CreateOrderDialog
-              disabled={!!(
-                !cartItems ||
-                (cartItems.type === OrderTypeEnum.TAKE_OUT && !cartItems.table) ||
-                (cartItems.type === OrderTypeEnum.AT_TABLE && cartItems.table)
-              )}
-            />
+          <div className='flex justify-end w-full'>
+            <div className="flex justify-end w-1/6">
+              <CreateOrderDialog
+                disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+              />
+            </div>
           </div>
         </div>
       </div>

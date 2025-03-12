@@ -35,7 +35,7 @@ export default function CreateMultipleTablesSheet() {
   const form = useForm<TCreateMultipleTablesSchema>({
     resolver: zodResolver(createMultipleTablesSchema),
     defaultValues: {
-      branch: userInfo?.branch.slug || '',
+      branch: userInfo?.branch?.slug || '',
       from: 1,
       to: 2,
       step: 1,
@@ -44,7 +44,7 @@ export default function CreateMultipleTablesSheet() {
 
   const resetForm = () => {
     form.reset({
-      branch: userInfo?.branch.slug || '',
+      branch: userInfo?.branch?.slug || '',
       from: 1,
       to: 2,
       step: 1,

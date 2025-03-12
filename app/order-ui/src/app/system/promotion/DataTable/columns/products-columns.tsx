@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
@@ -6,13 +7,19 @@ import { IProduct } from '@/types'
 import { publicFileURL } from '@/constants'
 
 interface ProductColumnsProps {
-  onSelect?: (product: IProduct, isSelected: boolean) => void
+  onSelectionChange?: (selectedSlugs: string[]) => void
 }
 
 export const useProductColumns = ({
-  onSelect,
+  onSelectionChange,
 }: ProductColumnsProps = {}): ColumnDef<IProduct>[] => {
   const { t } = useTranslation(['product'])
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
+
+  const updateSelectedProducts = (updatedSlugs: string[]) => {
+    setSelectedProducts(updatedSlugs)
+    onSelectionChange?.(updatedSlugs) // 🔥 Gọi trực tiếp sau khi cập nhật state
+  }
 
   return [
     {
@@ -23,10 +30,8 @@ export const useProductColumns = ({
           onCheckedChange={(value) => {
             table.toggleAllPageRowsSelected(!!value)
             const rows = table.getRowModel().rows
-            rows.forEach((row) => {
-              const product = row.original
-              onSelect?.(product, !!value)
-            })
+            const updatedSlugs = value ? rows.map((row) => row.original.slug) : []
+            updateSelectedProducts(updatedSlugs)
           }}
           aria-label="Select all"
         />
@@ -38,7 +43,9 @@ export const useProductColumns = ({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => {
               row.toggleSelected(!!value)
-              onSelect?.(product, !!value)
+              updateSelectedProducts(
+                value ? [...selectedProducts, product.slug] : selectedProducts.filter((slug) => slug !== product.slug)
+              )
             }}
             aria-label="Select row"
           />
@@ -76,3 +83,4 @@ export const useProductColumns = ({
     },
   ]
 }
+

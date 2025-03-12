@@ -68,14 +68,14 @@ export class RevenueScheduler {
   }
 
   fillZeroForEmptyDate(revenues: Revenue[]): Revenue[] {
-    if (_.isEmpty(revenues)) return;
+    if (_.isEmpty(revenues)) return [];
 
     // if only have data in current date
     if (
       revenues.length === 1 &&
       _.last(revenues).date.getTime() === new Date().setHours(7, 0, 0, 0)
     )
-      return;
+      return [];
 
     const firstRevenue = _.first(revenues);
     const firstDate = new Date(firstRevenue.date);
@@ -114,16 +114,12 @@ export class RevenueScheduler {
     return results;
   }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_1PM)
-  // @Timeout(5000)
   async refreshRevenueWhenEmpty() {
     const context = `${RevenueScheduler.name}.${this.refreshRevenueWhenEmpty.name}`;
 
-    // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     yesterdayDate.setHours(7, 0, 0, 0);
-    // console.log({yesterdayDate})
     const hasRevenue = await this.revenueRepository.find({
       where: {
         date: yesterdayDate,
@@ -137,11 +133,9 @@ export class RevenueScheduler {
 
     const results: RevenueQueryResponseDto[] =
       await this.revenueRepository.query(getYesterdayRevenueClause);
-    // console.log({results})
     const revenues = results.map((item) => {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
-    // console.log({revenues})
 
     if (_.isEmpty(revenues)) {
       const revenue = new Revenue();
@@ -153,7 +147,6 @@ export class RevenueScheduler {
 
       revenues.push(revenue);
     }
-    // console.log({revenuesNew: revenues})
 
     this.transactionManagerService.execute(
       async (manager) => {
@@ -179,15 +172,12 @@ export class RevenueScheduler {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
-  // @Timeout(5000)
   async refreshRevenueAnyWhen() {
     const context = `${RevenueScheduler.name}.${this.refreshRevenueAnyWhen.name}`;
 
-    // const currentDate1 = new Date(moment().format('YYYY-MM-DD'));
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     yesterdayDate.setHours(7, 0, 0, 0);
-    // console.log({yesterdayDate})
     const hasRevenues = await this.revenueRepository.find({
       where: {
         date: yesterdayDate,
@@ -207,20 +197,17 @@ export class RevenueScheduler {
 
     const results: RevenueQueryResponseDto[] =
       await this.revenueRepository.query(getYesterdayRevenueClause);
-    // console.log({results})
 
     // revenues has only one element
     const revenues = results.map((item) => {
       return this.mapper.map(item, RevenueQueryResponseDto, Revenue);
     });
-    // console.log({revenues})
     const createAndUpdateRevenues: Revenue[] =
       this.revenueService.getCreateAndUpdateRevenues(
         hasRevenues,
         revenues,
         yesterdayDate,
       );
-    // console.log({revenuesNew: createAndUpdateRevenues})
 
     this.transactionManagerService.execute(
       async (manager) => {

@@ -71,7 +71,7 @@
     "addNewOrderItemSuccess": "Item added to order successfully",
     "deleteOrderItemSuccess": "Order item deleted successfully",
     "updateOrderTypeSuccess": "Order type updated successfully",
-
+        
     "createOrderTrackingSuccess": "Robot delivery assigned successfully",
 
     "exportInvoiceSuccess": "Invoice exported successfully",

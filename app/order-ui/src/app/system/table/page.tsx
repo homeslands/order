@@ -16,7 +16,7 @@ export default function TablePage() {
   const { getUserInfo } = useUserStore()
   const [tableName, setTableName] = useState<string>('')
   const [filteredTables, setFilteredTables] = useState<ITable[]>([])
-  const { data: tables, isLoading } = useTables(getUserInfo()?.branch?.slug)
+  const { data: tables, isLoading } = useTables(getUserInfo()?.branch?.slug || '')
 
   useEffect(() => {
     if (!tables?.result) return;

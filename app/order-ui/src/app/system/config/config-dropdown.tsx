@@ -17,8 +17,11 @@ import {
 } from "@/components/ui"
 import { DeleteSystemConfigDialog, UpdateSystemConfigDialog } from "@/components/app/dialog"
 import { ISystemConfig } from "@/types"
+import { useTranslation } from "react-i18next";
 
 export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystemConfig }) {
+    const { t } = useTranslation('config');
+    const { t: tCommon } = useTranslation('common');
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
@@ -30,7 +33,9 @@ export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystem
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                    {tCommon('common.action')}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -40,7 +45,9 @@ export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystem
                         }}
                     >
                         <PenSquare className="mr-2 icon" />
-                        <span>Chỉnh sửa</span>
+                        <span>
+                            {t('config.update')}
+                        </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onSelect={(e) => {
@@ -48,7 +55,9 @@ export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystem
                             setIsDeleteDialogOpen(true); // Mở dialog
                         }}>
                         <Trash className="mr-2 icon" />
-                        <span>Xóa</span>
+                        <span>
+                            {t('config.delete')}
+                        </span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

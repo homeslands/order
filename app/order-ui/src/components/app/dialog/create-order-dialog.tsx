@@ -42,7 +42,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     const selectedBranch =
       userInfo?.role.name === Role.CUSTOMER
         ? branch?.slug
-        : userInfo?.branch.slug
+        : userInfo?.branch?.slug
 
     if (!selectedBranch) {
       showErrorToast(11000)
@@ -83,8 +83,8 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={!disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-1/6"
+          disabled={disabled}
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

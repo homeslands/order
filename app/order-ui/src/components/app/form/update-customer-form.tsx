@@ -44,7 +44,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
       dob: customer.dob,
       email: customer.email,
       address: customer.address,
-      branch: customer.branch.slug || '',
+      branch: customer?.branch?.slug || '',
     },
   })
 
@@ -168,7 +168,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
           <FormItem>
             <FormLabel>{t('customer.branch')}</FormLabel>
             <FormControl>
-              <BranchSelect defaultValue={customer.branch.slug} {...field} />
+              <BranchSelect defaultValue={customer?.branch?.slug} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

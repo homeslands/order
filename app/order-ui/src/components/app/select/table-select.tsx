@@ -16,7 +16,12 @@ import { OrderTypeEnum, ITable } from "@/types"
 import { TableStatus } from "@/constants"
 import { SelectReservedTableDialog } from "../dialog"
 
-export default function TableSelect() {
+interface ITableSelectProps {
+    tableOrder?: ITable | null
+    onTableSelect?: (table: ITable) => void
+}
+
+export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectProps) {
     const { t } = useTranslation('table')
     const { cartItems, addTable } = useCartItemStore()
     const { branch } = useBranchStore()
@@ -29,8 +34,18 @@ export default function TableSelect() {
         const addedTable = cartItems?.table
         setSelectedTableId(addedTable)
     }, [cartItems?.table])
-
-    const tableList = tables?.result || []
+    useEffect(() => {
+        if (tableOrder) {
+            setSelectedTable(tableOrder)
+            setSelectedTableId(tableOrder.slug)
+        }
+    }, [tableOrder])
+    const tableList = tables?.result.sort((a, b) => {
+        if (a.status !== b.status) {
+            return a.status.localeCompare(b.status); // Đảo ngược status (RESERVED trước AVAILABLE)
+        }
+        return Number(a.name) - Number(b.name); // Sắp xếp theo tên nếu status giống nhau
+    }) || [];
 
     if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
         return null
@@ -39,22 +54,25 @@ export default function TableSelect() {
     const handleTableSelect = (tableId: string) => {
         const table = tableList.find((t) => t.slug === tableId)
         if (!table) return
-
         if (table.status === TableStatus.RESERVED) {
             setSelectedTable(table)
         } else {
             addTable(table)
+            setSelectedTableId(tableId)
+            onTableSelect?.(table)
         }
     }
 
     const handleConfirmTable = (table: ITable) => {
         addTable(table)
+        onTableSelect?.(table)
+        setSelectedTableId(table.slug)
         setSelectedTable(null) // Đóng dialog
     }
 
     return (
         <>
-            <Select onValueChange={handleTableSelect} value={selectedTableId}>
+            <Select onValueChange={handleTableSelect} value={selectedTableId} >
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder={t('table.title')} />
                 </SelectTrigger>
@@ -62,7 +80,7 @@ export default function TableSelect() {
                     <SelectGroup>
                         <SelectLabel>{t('table.title')}</SelectLabel>
                         {tableList.map((table) => (
-                            <SelectItem key={table.slug} value={table.slug}>
+                            <SelectItem key={table.slug} value={table.slug} className={table.status === TableStatus.RESERVED ? 'text-red-400' : ''}>
                                 {`${table.name} - ${t(`table.${table.status}`)}`}
                             </SelectItem>
                         ))}
@@ -71,10 +89,9 @@ export default function TableSelect() {
             </Select>
 
             {/* Dialog hiển thị khi chọn bàn đã đặt */}
-            {selectedTable && (
+            {selectedTable && selectedTable.slug !== tableOrder?.slug && (
                 <SelectReservedTableDialog
                     table={selectedTable}
-                    setSelectedTableId={setSelectedTableId}
                     onConfirm={handleConfirmTable}
                     onCancel={() => setSelectedTable(null)}
                 />

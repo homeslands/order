@@ -13,7 +13,7 @@ export default function SystemMenuPage() {
   }
   const { data: specificMenu } = useSpecificMenu({
     date: getCurrentDate(),
-    branch: userInfo?.branch.slug || '',
+    branch: userInfo?.branch?.slug || '',
   })
 
   return (

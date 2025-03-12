@@ -780,7 +780,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}/:slug`,
+        path: `${ROUTE.CLIENT_ORDER_HISTORY}`,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />

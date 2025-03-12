@@ -67,6 +67,7 @@ export interface IOrderItem {
   description: string
   isLimit: boolean
   promotion?: string // promotion slug
+  promotionValue?: number
   // catalog: ICatalog
   note?: string
 }
@@ -226,6 +227,14 @@ export interface IAddNewOrderItemRequest {
 export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
+}
+
+export interface IUpdateOrderItemRequest {
+  quantity: number
+  note?: string
+  variant: string | IProductVariant
+  promotion?: string | IPromotion
+  action?: string
 }
 
 export interface IInitiatePaymentRequest {

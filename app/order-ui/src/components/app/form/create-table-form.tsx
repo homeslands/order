@@ -51,7 +51,7 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
     createTable(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['tables', userInfo?.branch.slug],
+          queryKey: ['tables', userInfo?.branch?.slug],
         })
         onSubmit(false)
         form.reset()

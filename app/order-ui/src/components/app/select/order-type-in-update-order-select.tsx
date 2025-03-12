@@ -1,17 +1,17 @@
 import _ from 'lodash'
-import { useEffect, useState } from 'react'
+import {  useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
-import { IOrder, OrderTypeEnum } from '@/types'
+import { OrderTypeEnum } from '@/types'
 import { useThemeStore } from '@/stores'
 
 interface OrderTypeSelectProps {
-  orderItems?: IOrder | null
+  typeOrder?: string
   onChange?: (orderType: string) => void
 }
 
-export default function OrderTypeSelect({ orderItems, onChange }: OrderTypeSelectProps) {
+export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelectProps) {
   const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
 
@@ -27,27 +27,15 @@ export default function OrderTypeSelect({ orderItems, onChange }: OrderTypeSelec
       },
     ]
   })
-  const [selectedType, setSelectedType] = useState<{
-    value: string
-    label: string
-  } | null>(() => {
-    if (orderItems?.type) {
-      return orderTypes.find((type) => type.value === orderItems.type) || null
-    }
-    if (orderItems?.type) {
-      return orderTypes.find((type) => type.value === orderItems.type) || null
-    }
-    return null
-  })
+  // const [selectedType, setSelectedType] = useState<{
+  //   value: string
+  //   label: string
+  // }>()
 
-  useEffect(() => {
-    if (orderItems?.type) {
-      const result = orderTypes.find((type) => type.value === orderItems.type)
-      if (result) {
-        setSelectedType(result)
-      }
-    }
-  }, [orderItems, orderTypes])
+  // useEffect(() => {
+  //   const result = orderTypes.find((type) => type.value === typeOrder)
+  //   setSelectedType(result)
+  // }, [])
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
@@ -63,7 +51,6 @@ export default function OrderTypeSelect({ orderItems, onChange }: OrderTypeSelec
       }
     }
   }
-
   return (
     <ReactSelect
       placeholder={t('menu.selectOrderType')}
@@ -97,7 +84,7 @@ export default function OrderTypeSelect({ orderItems, onChange }: OrderTypeSelec
           color: getTheme() === 'light' ? 'black' : 'white',
         }),
       }}
-      value={selectedType}
+      value={orderTypes.find((type) => type.value === typeOrder)}
       options={orderTypes}
       onChange={handleChange}
     />

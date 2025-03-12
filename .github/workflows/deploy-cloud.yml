@@ -40,4 +40,9 @@ jobs:
 
           docker compose -f .deploy/cloud/docker-compose.yml pull
           docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack --detach=true
-          docker image prune -f  # clean up none image after built
+
+          # Remove exited containers
+          docker rm $(docker ps -aq -f status=exited)
+
+          # clean up none image after built
+          docker image prune -f
