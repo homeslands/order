@@ -10,6 +10,10 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
+import { ProductAnalysisUtils } from './product-analysis.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('ProductAnalysisService', () => {
   let service: ProductAnalysisService;
@@ -18,6 +22,9 @@ describe('ProductAnalysisService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductAnalysisService,
+        ProductAnalysisUtils,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(ProductAnalysis),
           useFactory: repositoryMockFactory,

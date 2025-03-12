@@ -1,21 +1,25 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsOptional, Max, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { ProductResponseDto } from 'src/product/product.dto';
 
 export class ProductAnalysisQueryDto {
   @AutoMap()
+  @Type(() => String)
   branchId: string;
 
   @AutoMap()
+  @Type(() => Date)
   orderDate: Date;
 
   @AutoMap()
+  @Type(() => String)
   productId: string;
 
   @AutoMap()
+  @Type(() => Number)
   totalProducts: number;
 }
 
@@ -72,4 +76,22 @@ export class ProductAnalysisResponseDto {
 
   @AutoMap(() => ProductResponseDto)
   product: ProductResponseDto;
+}
+
+export class RefreshSpecificRangeProductAnalysisQueryDto {
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-26' })
+  @IsNotEmpty({
+    message: 'Start date is not empty',
+  })
+  @Type(() => Date)
+  startDate: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: true, example: '2024-12-27' })
+  @IsNotEmpty({
+    message: 'End date is not empty',
+  })
+  @Type(() => Date)
+  endDate: Date;
 }
