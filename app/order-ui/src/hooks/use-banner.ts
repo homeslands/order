@@ -9,12 +9,12 @@ import {
   uploadBannerImage,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
-import { ICreateBannerRequest, IUpdateBannerRequest } from '@/types'
+import { IBannerRequest, ICreateBannerRequest, IUpdateBannerRequest } from '@/types'
 
-export const useBanners = () => {
+export const useBanners = (params?: IBannerRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.banners],
-    queryFn: async () => getBanners(),
+    queryKey: [QUERYKEY.banners, params],
+    queryFn: async () => getBanners(params),
   })
 }
 

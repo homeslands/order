@@ -35,15 +35,15 @@ describe('Banner API', () => {
           ],
         },
       }
-      ;(http.get as Mock).mockResolvedValue(mockResponse)
-
-      const result = await getBanners()
-      expect(http.get).toHaveBeenCalledWith('/banner')
+        ; (http.get as Mock).mockResolvedValue(mockResponse)
+      const params = { isActive: true }
+      const result = await getBanners(params)
+      expect(http.get).toHaveBeenCalledWith('/banner', { params })
       expect(result).toEqual(mockResponse.data)
     })
 
     it('should handle server error', async () => {
-      ;(http.get as Mock).mockRejectedValue(SERVER_ERROR)
+      ; (http.get as Mock).mockRejectedValue(SERVER_ERROR)
       await expect(getBanners()).rejects.toEqual(SERVER_ERROR)
     })
   })
@@ -61,7 +61,7 @@ describe('Banner API', () => {
           isActive: true,
         },
       }
-      ;(http.get as Mock).mockResolvedValue(mockResponse)
+        ; (http.get as Mock).mockResolvedValue(mockResponse)
 
       const result = await getSpecificBanner('test-banner')
       expect(http.get).toHaveBeenCalledWith('/banner/test-banner')
@@ -84,7 +84,7 @@ describe('Banner API', () => {
           ...bannerData,
         },
       }
-      ;(http.post as Mock).mockResolvedValue(mockResponse)
+        ; (http.post as Mock).mockResolvedValue(mockResponse)
 
       const result = await createBanner(bannerData)
       expect(http.post).toHaveBeenCalledWith('/banner', bannerData)
@@ -109,7 +109,7 @@ describe('Banner API', () => {
           ...bannerData,
         },
       }
-      ;(http.patch as Mock).mockResolvedValue(mockResponse)
+        ; (http.patch as Mock).mockResolvedValue(mockResponse)
 
       const result = await updateBanner(bannerData)
       expect(http.patch).toHaveBeenCalledWith('/banner/test-banner', bannerData)
@@ -126,7 +126,7 @@ describe('Banner API', () => {
           imageUrl: 'http://example.com/new-image.jpg',
         },
       }
-      ;(http.patch as Mock).mockResolvedValue(mockResponse)
+        ; (http.patch as Mock).mockResolvedValue(mockResponse)
 
       const result = await uploadBannerImage('test-banner', mockFile)
       expect(http.patch).toHaveBeenCalledWith(
@@ -145,7 +145,7 @@ describe('Banner API', () => {
           status: 'deleted',
         },
       }
-      ;(http.delete as Mock).mockResolvedValue(mockResponse)
+        ; (http.delete as Mock).mockResolvedValue(mockResponse)
 
       const result = await deleteBanner('test-banner')
       expect(http.delete).toHaveBeenCalledWith('/banner/test-banner')

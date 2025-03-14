@@ -2,12 +2,13 @@ import { http } from '@/utils'
 import {
   IApiResponse,
   IBanner,
+  IBannerRequest,
   ICreateBannerRequest,
   IUpdateBannerRequest,
 } from '@/types'
 
-export async function getBanners(): Promise<IApiResponse<IBanner[]>> {
-  const response = await http.get<IApiResponse<IBanner[]>>('/banner')
+export async function getBanners(params?: IBannerRequest): Promise<IApiResponse<IBanner[]>> {
+  const response = await http.get<IApiResponse<IBanner[]>>(`/banner`, { params })
   return response.data
 }
 

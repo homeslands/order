@@ -1,8 +1,9 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, Mapper } from '@automapper/core';
+import { createMap, extend, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { Role } from './role.entity';
-import { RoleResponseDto } from './role.dto';
+import { CreateRoleDto, RoleResponseDto } from './role.dto';
+import { baseMapper } from 'src/app/base.mapper';
 
 @Injectable()
 export class RoleProfile extends AutomapperProfile {
@@ -12,7 +13,8 @@ export class RoleProfile extends AutomapperProfile {
 
   override get profile() {
     return (mapper: Mapper) => {
-      createMap(mapper, Role, RoleResponseDto);
+      createMap(mapper, CreateRoleDto, Role);
+      createMap(mapper, Role, RoleResponseDto, extend(baseMapper(mapper)));
     };
   }
 }

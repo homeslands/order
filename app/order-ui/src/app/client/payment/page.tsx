@@ -66,7 +66,6 @@ export function ClientPaymentPage() {
       if (timerInterval) clearInterval(timerInterval)
     }
   }, [timeRemainingInSec, clearStore])
-
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
 
@@ -92,9 +91,6 @@ export function ClientPaymentPage() {
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
-
-    // Reset timer when getting new QR code
-    // setTimeRemainingInSec(600)
     setIsExpired(false)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
@@ -129,7 +125,7 @@ export function ClientPaymentPage() {
       },
     })
   }
-  if ((_.isEmpty(order) || isExpired)) {
+  if (_.isEmpty(order?.result) || isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
@@ -296,8 +292,6 @@ export function ClientPaymentPage() {
         </div>
         {/* Payment method */}
         <ClientPaymentMethodSelect
-          // isExpired={isExpired}
-          // timeRemaining={timeRemainingInSec}
           paymentMethod={paymentMethod}
           qrCode={qrCode}
           total={order?.result ? order?.result.subtotal : 0}
@@ -305,30 +299,26 @@ export function ClientPaymentPage() {
         />
         <div className="flex justify-end py-6">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
-            paymentMethod === PaymentMethod.CASH) && !qrCode && (
-              <div className="flex gap-2">
-                {!paymentSlug && (
-                  <Button
-                    disabled={isPendingInitiatePayment}
-                    className="w-fit"
-                    onClick={handleConfirmPayment}
-                  >
-                    {isPendingInitiatePayment && <ButtonLoading />}
-                    {t('paymentMethod.confirmPayment')}
-                  </Button>
-                )}
-                {paymentSlug && (
-                  <Button
-                    disabled={isPendingExportPayment}
-                    className="w-fit"
-                    onClick={handleExportPayment}
-                  >
-                    {isPendingExportPayment && <ButtonLoading />}
-                    {t('paymentMethod.exportPayment')}
-                  </Button>
-                )}
-              </div>
-            )}
+            paymentMethod === PaymentMethod.CASH) &&
+            <div className="flex gap-2">
+              {paymentSlug ?
+                <Button
+                  disabled={isPendingExportPayment}
+                  className="w-fit"
+                  onClick={handleExportPayment}
+                >
+                  {isPendingExportPayment && <ButtonLoading />}
+                  {t('paymentMethod.exportPayment')}
+                </Button>
+                : <Button
+                  disabled={isPendingInitiatePayment}
+                  className="w-fit"
+                  onClick={handleConfirmPayment}
+                >
+                  {isPendingInitiatePayment && <ButtonLoading />}
+                  {t('paymentMethod.confirmPayment')}
+                </Button>}
+            </div>}
         </div>
       </div>
     </div>

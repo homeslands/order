@@ -121,7 +121,8 @@
     "refreshOrdersInTheSameTable": "Note: You should refresh the page to get the latest data",
     "refresh": "Refresh data",
     "loadOrdersInTheSameTable": "Load orders at same table",
-    "all": "All"
+    "all": "All",
+    "sold": "Sold"
   },
   "order": {
     "title": "Order Management",

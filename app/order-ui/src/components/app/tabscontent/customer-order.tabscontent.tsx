@@ -38,7 +38,6 @@ export default function CustomerOrderTabsContent({
   const {
     data: order,
     isLoading,
-    refetch,
   } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
@@ -47,11 +46,9 @@ export default function CustomerOrderTabsContent({
     hasPaging: true,
     status: status === OrderStatus.ALL ? undefined : status,
   })
-
   if (isLoading) {
     return <OrderHistorySkeleton />
   }
-
   const handleUpdateOrder = (order: IOrder) => {
     if (!getUserInfo()?.slug) return showErrorToast(1042), navigate(ROUTE.LOGIN)
     setOrderItems(order)
@@ -133,7 +130,7 @@ export default function CustomerOrderTabsContent({
 
                   {orderItem.status === OrderStatus.PENDING && (
                     <div className="flex gap-2 mt-2 sm:mt-0">
-                      <CancelOrderDialog onSuccess={refetch} order={orderItem} />
+                      <CancelOrderDialog order={orderItem} />
                       <Button className='text-orange-500 border-orange-500 hover:text-white hover:bg-orange-500' variant="outline" onClick={() => handleUpdateOrder(orderItem)}>
                         {t('order.updateOrder')}
                       </Button>

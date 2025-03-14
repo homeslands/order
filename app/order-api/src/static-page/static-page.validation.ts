@@ -18,7 +18,7 @@ export type TStaticPageErrorCode = Record<
   TErrorCodeValue
 >;
 
-//150000 – 151000
+//150000 – 150500
 export const StaticPageValidation: TStaticPageErrorCode = {
   STATIC_PAGE_KEY_INVALID: createErrorCode(150000, 'Static page key invalid'),
   STATIC_PAGE_CONTENT_INVALID: createErrorCode(
