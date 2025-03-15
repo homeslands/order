@@ -67,6 +67,7 @@ export default function ClientAddToCartDialog({
           name: product.product.name,
           quantity: 1,
           variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
           price: finalPrice, // Use the calculated final price
           description: product.product.description,
           isLimit: product.product.isLimit,

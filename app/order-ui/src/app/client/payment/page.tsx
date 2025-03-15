@@ -33,6 +33,15 @@ export function ClientPaymentPage() {
   const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
   const [isExpired, setIsExpired] = useState<boolean>(false)
 
+  // calculate original total
+  const originalTotal = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
+
+  const discount = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
+
+  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+
   useEffect(() => {
     if (order?.result.createdAt) {
       const createdAt = moment(order.result.createdAt)
@@ -86,7 +95,8 @@ export function ClientPaymentPage() {
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
-    setIsPolling(false) // Stop polling after selecting payment method
+    if (selectedPaymentMethod === PaymentMethod.BANK_TRANSFER && qrCode) setIsPolling(true)
+    else setIsPolling(false) // Stop polling after selecting payment method
   }
 
   const handleConfirmPayment = () => {
@@ -269,7 +279,23 @@ export function ClientPaymentPage() {
                   <div className="flex justify-between w-full pb-4 border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      {`${formatCurrency(order?.result.subtotal || 0)}`}
+                      {`${formatCurrency(originalTotal || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between w-full pb-4 border-b">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      {t('order.discount')}
+                    </h3>
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      - {`${formatCurrency(discount || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between w-full pb-4 border-b">
+                    <h3 className="text-sm italic font-medium text-green-500">
+                      {t('order.voucher')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-green-500">
+                      - {`${formatCurrency(voucherDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
@@ -282,7 +308,7 @@ export function ClientPaymentPage() {
                       </p>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {t('order.vat')}
+                      ({t('order.vat')})
                     </span>
                   </div>
                 </div>

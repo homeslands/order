@@ -24,7 +24,7 @@ export default function OrderTypeSelect() {
   const [selectedType, setSelectedType] = useState<{
     value: string
     label: string
-  } | null>(null)
+  }>(orderTypes[0])
 
   useEffect(() => {
     const cartItems = getCartItems()

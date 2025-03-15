@@ -134,12 +134,11 @@ export class OrderController {
   @Delete(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete order' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @ApiResponse({ status: 200, description: 'Order deleted successully' })
   async deleteOrder(@Param('slug') slug: string) {
     await this.orderService.deleteOrder(slug);
     return {
-      message: 'Order will delete after 10 seconds',
+      message: 'Order deleted successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;

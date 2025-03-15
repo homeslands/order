@@ -42,6 +42,7 @@ export default function OrderHistoryPage() {
     )
     : 0;
 
+  const voucherDiscount = orderInfo?.voucher ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : 0;
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
@@ -175,7 +176,7 @@ export default function OrderHistoryPage() {
 
                       {/* Cột tổng giá */}
                       <TableCell className="w-1/4 font-semibold text-right">
-                        {formatCurrency((item?.variant?.price || 0) * item?.quantity)}
+                        {formatCurrency(item?.subtotal || 0)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -242,16 +243,16 @@ export default function OrderHistoryPage() {
                   <p className="text-sm">{`${formatCurrency(originalTotal || 0)}`}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm italic text-green-500">
+                  <p className="text-sm text-muted-foreground">
                     {t('order.discount')}
                   </p>
-                  <p className="text-sm italic text-green-500">{`- ${formatCurrency(discount || 0)}`}</p>
+                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    {t('order.totalPrice')}
+                  <p className="text-sm italic text-green-500">
+                    {t('order.voucher')}
                   </p>
-                  <p className="text-sm">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
+                  <p className="text-sm italic text-green-500">{`- ${formatCurrency(voucherDiscount || 0)}`}</p>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between">

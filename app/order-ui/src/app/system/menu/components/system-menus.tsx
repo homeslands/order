@@ -6,6 +6,8 @@ import { publicFileURL } from '@/constants'
 import { AddToCartDialog } from '@/components/app/dialog'
 import { Badge, Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
+import { useIsMobile } from '@/hooks'
+import { StaffAddToCartDrawer } from '@/components/app/drawer'
 
 interface IMenuProps {
   menu: ISpecificMenu | undefined
@@ -14,7 +16,7 @@ interface IMenuProps {
 
 export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
-
+  const isMobile = useIsMobile()
   const menuItems = menu?.menuItems
 
   const getPriceRange = (variants: IProduct['variants']) => {
@@ -46,7 +48,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   }
 
   return (
-    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-4`}>
+    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-4 pr-2`}>
       {menuItems.map((item) => (
         <div
           key={item.slug}
@@ -63,15 +65,6 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
             ) : (
               <div className="w-full h-24 rounded-t-md bg-muted/60" />
             )}
-
-            {/* Discount Tag */}
-            {/* {item.discount && (
-              <div className="absolute top-2 left-2">
-                <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full">
-                  Giảm {item.discount}%
-                </span>
-              </div>
-            )} */}
           </div>
 
           {/* Content Section - More compact */}
@@ -140,10 +133,14 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                 </div>
               </div>
             </div>
-
-
             {item.currentStock > 0 ? (
-              <AddToCartDialog product={item} />
+              <div>
+                {isMobile ? (
+                  <StaffAddToCartDrawer product={item} />
+                ) : (
+                  <AddToCartDialog product={item} />
+                )}
+              </div>
             ) : (
               <Button
                 className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"

@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import moment from 'moment'
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
-import moment from 'moment'
 
 import {
   Button,
@@ -20,7 +21,6 @@ import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { OrderTypeEnum } from '@/types'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
-import { Helmet } from 'react-helmet'
 
 export default function OrderDetailPage() {
   const { t } = useTranslation(['menu'])
@@ -32,8 +32,8 @@ export default function OrderDetailPage() {
 
   const orderInfo = orderDetail?.result;
 
-  const originalTotal = orderInfo
-    ? orderInfo.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+  const totalBeforeDiscount = orderInfo
+    ? orderInfo.orderItems.reduce((sum, item) => sum + item.subtotal, 0)
     : 0;
 
   const discount = orderInfo
@@ -180,7 +180,7 @@ export default function OrderDetailPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-lg font-extrabold text-right text-primary">
-                        {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
+                        {`${formatCurrency(item?.subtotal)}`}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -231,7 +231,7 @@ export default function OrderDetailPage() {
                 <p className="text-sm text-muted-foreground">
                   {t('order.subtotal')}
                 </p>
-                <p>{`${formatCurrency(originalTotal || 0)}`}</p>
+                <p className='text-muted-foreground'>{`${formatCurrency(totalBeforeDiscount || 0)}`}</p>
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm italic text-green-500">

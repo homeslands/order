@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
-import { CartNoteInput } from '@/components/app/input'
+import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { CreateOrderDialog } from '@/components/app/dialog'
@@ -20,7 +20,7 @@ export function CartContent() {
 
   const cartItems = getCartItems()
 
-  // Tính tổng tiền
+  // calculate subtotal, discount, total
   const subtotal = useMemo(() => {
     return cartItems?.orderItems?.reduce((acc, orderItem) => {
       return acc + (orderItem.price || 0) * orderItem.quantity
@@ -38,7 +38,6 @@ export function CartContent() {
     return subtotal - discount;
   }, [subtotal, discount]);
 
-
   const handleRemoveCartItem = (id: string) => {
     removeCartItem(id)
   }
@@ -48,15 +47,16 @@ export function CartContent() {
       <div className="px-4 py-2 border-b">
         <h1 className="text-lg font-medium">{t('menu.order')}</h1>
       </div>
-
       {/* Order type selection */}
-      <div className="px-4 mt-4">
+      <div className="flex flex-col gap-2 px-4 py-2">
+        {/* Customer Information */}
+        <CustomerSearchInput />
         <OrderTypeSelect />
       </div>
 
       {/* Selected table */}
       {getCartItems()?.type === OrderTypeEnum.AT_TABLE ? (
-        <div className="flex items-center gap-1 px-4 mt-4 text-sm">
+        <div className="flex items-center gap-1 px-4 text-sm">
           {getCartItems()?.table ? (
             <div className='flex items-center gap-1'>
               <p>{t('menu.selectedTable')} </p>
@@ -65,17 +65,18 @@ export function CartContent() {
               </p>
             </div>
           ) : (
-            <p className="text-muted-foreground">
+            <p className="h-7 text-muted-foreground">
               {t('menu.noSelectedTable')}
             </p>
           )}
         </div>
       ) : (
-        <div className='h-9' />
+        <div className='h-0' />
+        // <div className='h-9' />
       )}
 
       {/* Cart Items - Scrollable area */}
-      <ScrollArea className="mt-4 max-h-[calc(60vh-9rem)] flex-1 px-4">
+      <ScrollArea className="mt-4 max-h-[calc(50vh-11rem)] flex-1 px-4">
         <div className="flex flex-col gap-4">
           {cartItems ? (
             cartItems?.orderItems?.map((item) => (
@@ -95,15 +96,12 @@ export function CartContent() {
                   />
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row items-start justify-between">
-                      <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex flex-col flex-1 min-w-0 gap-1">
                         <span className="text-sm font-bold truncate">{item.name}</span>
                         {item.promotionValue && item.promotionValue > 0 ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs line-through text-muted-foreground">
-                              {`${formatCurrency(item.price)}`}
-                            </span>
-                            <span className="text-sm font-extrabold text-primary">
-                              {`${formatCurrency(item.price * (1 - item.promotionValue / 100))}`}
+                            <span className="text-sm text-muted-foreground">
+                              Size {item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                             </span>
                           </div>
                         ) : (
@@ -137,21 +135,37 @@ export function CartContent() {
       </ScrollArea>
 
       {/* Summary - Fixed at bottom */}
-      {cartItems?.orderItems?.length !== 0 && (
+      {cartItems && cartItems?.orderItems?.length !== 0 && (
         <div className="px-4 border-t">
           <div className='py-1'>
             <VoucherListSheet />
+            <div>
+              {getCartItems()?.voucher && (
+                <div className="flex justify-start w-full">
+                  <div className="flex flex-col items-start">
+                    <div className='flex items-center gap-2 mt-2'>
+                      <span className='text-xs text-muted-foreground'>
+                        {t('order.usedVoucher')}:&nbsp;
+                      </span>
+                      <span className="px-3 py-1 text-xs font-semibold border rounded-full text-primary bg-primary/20 border-primary">
+                        -{`${formatCurrency(discount)}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('menu.total')}</span>
               <span className='text-muted-foreground'>{`${formatCurrency(subtotal || 0)}`}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm italic text-green-500">
+              <span className="text-xs italic text-green-500">
                 {t('menu.discount')}
               </span>
-              <span className="italic text-green-500">
+              <span className="text-xs italic text-green-500">
                 - {`${formatCurrency(discount)}`}
               </span>
             </div>

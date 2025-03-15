@@ -32,11 +32,11 @@ export default function CancelOrderDialog({
   const handleSubmit = (orderSlug: string) => {
     deleteOrder(orderSlug, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['orders'], exact: true });
         setTimeout(() => {
-          setIsOpen(false)
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
           showToast(tToast('toast.handleCancelOrderSuccess'))
-        }, 200)
+          setIsOpen(false)
+        }, 500);
       },
     })
   }

@@ -137,6 +137,7 @@
     "product": "Product",
     "unitPrice": "Unit price",
     "quantity": "Quantity",
+    "voucher": "Voucher",
     "subtotal": "Subtotal",
     "totalPrice": "Total price",
     "orderInformation": "Order details",

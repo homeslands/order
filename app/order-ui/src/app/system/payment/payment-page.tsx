@@ -42,6 +42,8 @@ export default function PaymentPage() {
   const discount = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
+  const voucherDiscount = order?.result.voucher ? order.result.voucher.value : 0;
+
   useEffect(() => {
     if (order?.result.createdAt) {
       const createdAt = moment(order.result.createdAt)
@@ -255,8 +257,13 @@ export default function PaymentPage() {
                           </div>
                         </div>
                         <div className="flex items-center col-span-1">
-                          <span className="text-sm">
-                            {`${formatCurrency(item.variant.price || 0)}`}
+                          <span className="flex items-center gap-2 text-sm">
+                            <span className='line-through text-muted-foreground/70'>
+                              {`${formatCurrency(item.variant.price || 0)}`}
+                            </span>
+                            <span className="text-sm font-bold text-primary">
+                              {`${formatCurrency(item.subtotal / item.quantity || 0)}`}
+                            </span>
                           </span>
                         </div>
                         <div className="flex justify-center col-span-1">
@@ -266,7 +273,7 @@ export default function PaymentPage() {
                         </div>
                         <div className="col-span-1 text-center">
                           <span className="text-sm">
-                            {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
+                            {`${formatCurrency((item.subtotal || 0))}`}
                           </span>
                         </div>
                       </div>
@@ -279,15 +286,23 @@ export default function PaymentPage() {
                           {t('order.total')}
                         </h3>
                         <p className="text-sm font-semibold">
-                          {`${formatCurrency(originalTotal)}`}
+                          {`${formatCurrency(originalTotal || 0)}`}
+                        </p>
+                      </div>
+                      <div className="flex justify-between w-full pb-4 border-b">
+                        <h3 className="text-sm font-medium text-muted-foreground">
+                          {t('order.discount')}
+                        </h3>
+                        <p className="text-sm font-semibold text-muted-foreground">
+                          - {`${formatCurrency(discount || 0)}`}
                         </p>
                       </div>
                       <div className="flex justify-between w-full pb-4 border-b">
                         <h3 className="text-sm italic font-medium text-green-500">
-                          {t('order.discount')}
+                          {t('order.voucher')}
                         </h3>
                         <p className="text-sm italic font-semibold text-green-500">
-                          - {`${formatCurrency(discount || 0)}`}
+                          - {`${formatCurrency(voucherDiscount || 0)}`}
                         </p>
                       </div>
                       <div className="flex flex-col">
@@ -306,7 +321,7 @@ export default function PaymentPage() {
                     </div>
                   </div>
                 </div>
-                {/* Lựa chọn phương thức thanh toán */}
+                {/* Payment method */}
                 <PaymentMethodSelect
                   qrCode={qrCode ? qrCode : ''}
                   total={order.result ? order.result.subtotal : 0}

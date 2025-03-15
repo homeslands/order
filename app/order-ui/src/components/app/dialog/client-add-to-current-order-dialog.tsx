@@ -24,6 +24,7 @@ import { IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 import { useAddNewOrderItem } from '@/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface AddToCurrentOrderDialogProps {
   onSuccess?: () => void
@@ -45,7 +46,7 @@ export default function ClientAddToCurrentOrderDialog({
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
   const { mutate: addNewMenuItem } = useAddNewOrderItem()
-
+  const queryClient = useQueryClient();
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
@@ -59,6 +60,7 @@ export default function ClientAddToCurrentOrderDialog({
     addNewMenuItem(orderItem, {
       onSuccess: () => {
         setIsOpen(false)
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
         onSuccess?.()
         showToast(tToast('toast.addNewOrderItemSuccess'))
       },

@@ -89,6 +89,7 @@ export default function ProductDetailPage() {
           name: productDetail?.product.name || '',
           quantity: quantity,
           variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
           price: finalPrice,
           promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
           description: productDetail?.product.description || '',

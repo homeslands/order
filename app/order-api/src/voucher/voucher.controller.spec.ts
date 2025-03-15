@@ -15,6 +15,8 @@ import { OrderUtils } from 'src/order/order.utils';
 import { Order } from 'src/order/order.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -27,6 +29,11 @@ describe('VoucherController', () => {
         VoucherUtils,
         OrderUtils,
         MenuUtils,
+        MenuItemUtils,
+        {
+          provide: getRepositoryToken(MenuItem),
+          useValue: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Voucher),
           useValue: repositoryMockFactory,

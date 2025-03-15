@@ -201,7 +201,7 @@ export class OrderItemService {
 
     // Delete order if no order items
     if (_.isEmpty(updatedOrder.orderItems)) {
-      this.orderScheduler.addCancelOrderJob(orderSlug, 0);
+      this.orderScheduler.handleDeleteOrder(orderSlug, 0);
     }
   }
 
@@ -282,9 +282,8 @@ export class OrderItemService {
           // Update menu items
           const menuItem = await this.menuItemUtils.getCurrentMenuItem(
             orderItem,
-            // new Date(moment().format('YYYY-MM-DD')),
             date,
-            'decrement',
+            'increment',
           );
           await manager.save(menuItem);
 

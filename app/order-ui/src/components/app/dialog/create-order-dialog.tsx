@@ -53,7 +53,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       type: order.type,
       table: order.table || '',
       branch: selectedBranch,
-      owner: order.owner || '',
+      owner: order.owner || getUserInfo()?.slug || '',
       approvalBy: getUserInfo()?.slug || '',
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
@@ -64,7 +64,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       voucher: order.voucher?.slug || null,
     }
 
-    // Gọi API để tạo đơn hàng.
+    // Call API to create order
     createOrder(createOrderRequest, {
       onSuccess: (data) => {
         const orderPath =

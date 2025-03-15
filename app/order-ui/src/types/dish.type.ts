@@ -62,6 +62,7 @@ export interface IOrderItem {
   image: string
   name: string
   quantity: number
+  size: string
   variant: string
   price: number
   description: string

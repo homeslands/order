@@ -73,8 +73,8 @@ export class OrderService {
    * @param {string} slug
    * @returns {Promise<void>} The deleted order
    */
-  async deleteOrder(slug: string): Promise<void> {
-    this.orderScheduler.addCancelOrderJob(slug, 0); // Delete order immediately
+  async deleteOrder(slug: string): Promise<Order> {
+    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
   }
 
   /**
@@ -189,7 +189,7 @@ export class OrderService {
         );
 
         // Cancel order after 10 minutes
-        this.orderScheduler.addCancelOrderJob(
+        this.orderScheduler.handleDeleteOrder(
           createdOrder.slug,
           10 * 60 * 1000,
         );

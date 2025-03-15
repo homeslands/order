@@ -21,7 +21,7 @@ import {
 } from '@/components/ui';
 
 import { OrderTypeEnum, IProductVariant, IMenuItem } from '@/types';
-import { useCartItemStore, useUserStore } from '@/stores';
+import { useCartItemStore } from '@/stores';
 import { publicFileURL } from '@/constants';
 import { formatCurrency } from '@/utils';
 
@@ -29,14 +29,13 @@ interface AddToCartDialogProps {
   product: IMenuItem;
 }
 
-export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps) {
+export default function StaffAddToCartDrawer({ product }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
   const { addCartItem } = useCartItemStore();
-  const { getUserInfo } = useUserStore();
   const [isOpen, setIsOpen] = useState(false);
 
   const generateCartItemId = () => {
@@ -53,7 +52,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
     const cartItem = {
       id: generateCartItemId(),
       slug: product.slug,
-      owner: getUserInfo()?.slug,
+      owner: '',
       type: OrderTypeEnum.AT_TABLE, // Default value
       orderItems: [
         {
@@ -62,8 +61,8 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
           image: product.product.image,
           name: product.product.name,
           quantity: 1,
-          variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          variant: selectedVariant.slug,
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
