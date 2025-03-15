@@ -16,26 +16,27 @@ import {
 import { IOrder } from '@/types'
 import { useDeleteOrder } from '@/hooks'
 import { showToast } from '@/utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function CancelOrderDialog({
   order,
-  onSuccess,
 }: {
   order: IOrder
-  onSuccess?: () => void
 }) {
   const { t: tToast } = useTranslation('toast')
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
   const { mutate: deleteOrder } = useDeleteOrder()
-
+  const queryClient = useQueryClient();
   const handleSubmit = (orderSlug: string) => {
     deleteOrder(orderSlug, {
       onSuccess: () => {
-        setIsOpen(false)
-        showToast(tToast('toast.handleCancelOrderSuccess'))
-        onSuccess?.()
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['orders'] });
+          showToast(tToast('toast.handleCancelOrderSuccess'))
+          setIsOpen(false)
+        }, 500);
       },
     })
   }

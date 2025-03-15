@@ -3,11 +3,10 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui'
-import { useBanners, useProducts, useSpecificMenu } from '@/hooks'
+import { useBanners, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
 import {
-  SliderMenuPromotion,
-  SliderProduct,
+  SliderMenu,
   StoreCarousel,
   SwiperBanner,
 } from './components'
@@ -15,11 +14,12 @@ import { AdPopup } from '@/components/app/AdPopup'
 import { Helmet } from 'react-helmet'
 import moment from 'moment'
 import { useBranchStore } from '@/stores'
+import { IMenuItem } from '@/types'
 
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tHelmet } = useTranslation('helmet')
-  const { data: banner } = useBanners()
+  const { data: banner } = useBanners({ isActive: true })
   const bannerData = banner?.result || []
   // Animation Variants
   const fadeInVariants = {
@@ -31,17 +31,37 @@ export default function HomePage() {
     },
   }
   const { branch } = useBranchStore()
-  const { data: products, isFetching } = useProducts({})
-  const bestSellerProducts =
-    products?.result?.filter((product) => product.isTopSell) || []
-  const newProducts = products?.result?.filter((product) => product.isNew) || []
   const { data: specificMenu, isFetching: fechMenupromotion } = useSpecificMenu(
     {
       date: moment().format('YYYY-MM-DD'),
       branch: branch ? branch?.slug : '',
-      promotion: true,
     },
   )
+  const sortedMenuItems = specificMenu?.result?.menuItems?.slice().sort(
+    (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory
+  ) || [];
+
+  // Lấy top  sản phẩm có doanh số cao nhất
+  const top15BestSellers = sortedMenuItems.slice(0, 10);
+
+  // Lọc ra các sản phẩm có `isTopSell` chưa có trong `topBestSellers`
+  const topSellProducts = sortedMenuItems.filter(
+    (item) => item.product.isTopSell && !top15BestSellers.includes(item)
+  );
+
+  // Gộp danh sách lại
+  const bestSellerProducts = [...top15BestSellers, ...topSellProducts];
+
+  // Lọc sản phẩm mới và có khuyến mãi
+  const { newsProducts, promotionProducts } = (specificMenu?.result?.menuItems || []).reduce(
+    (acc: { newsProducts: IMenuItem[], promotionProducts: IMenuItem[] }, item: IMenuItem) => {
+      if (item.product.isNew) acc.newsProducts.push(item);
+      if (item.promotion) acc.promotionProducts.push(item);
+      return acc;
+    },
+    { newsProducts: [], promotionProducts: [] }
+  );
+
   return (
     <React.Fragment>
       <AdPopup />
@@ -55,11 +75,37 @@ export default function HomePage() {
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
 
-        {/* Section 2: Top sell */}
+        {/* promotion */}
+        {promotionProducts.length > 0 && (
+          <div className="container">
+            <motion.div
+              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={fadeInVariants}
+            >
+              <div className="flex-between w-full">
+                <div className="primary-highlight">
+                  {t('home.topPromotion')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>{t('home.viewMore')}</Button>
+                </NavLink>
+              </div>
+              <SliderMenu
+                menus={promotionProducts}
+                isFetching={fechMenupromotion}
+              />
+            </motion.div>
+          </div>
+        )}
+
+        {/* Section Top sell */}
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-[20rem] w-full flex-col items-start gap-4"
+              className="flex min-h-[28rem] h-fit w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -71,19 +117,20 @@ export default function HomePage() {
                   <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
-              <SliderProduct
-                products={bestSellerProducts}
-                isFetching={isFetching}
+              <SliderMenu
+                menus={bestSellerProducts}
+                isFetching={fechMenupromotion}
+                type='best-sell'
               />
             </motion.div>
           </div>
         )}
 
-        {/* Section 3: New products */}
-        {newProducts.length > 0 && (
+        {/* Section New products */}
+        {newsProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-[20rem] w-full flex-col items-start gap-4"
+              className="flex h-[28rem] w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -95,38 +142,16 @@ export default function HomePage() {
                   <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
-              <SliderProduct products={newProducts} isFetching={isFetching} />
-            </motion.div>
-          </div>
-        )}
-
-        {/* Section 4: Top promotion */}
-        {newProducts.length > 0 && (
-          <div className="container">
-            <motion.div
-              className="flex h-[28rem] w-full flex-col items-start gap-4"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              variants={fadeInVariants}
-            >
-              <div className="flex-between w-full">
-                <div className="primary-highlight">
-                  {t('home.topPromotion')}
-                </div>
-                <NavLink to={ROUTE.CLIENT_MENU}>
-                  <Button>{t('home.viewMore')}</Button>
-                </NavLink>
-              </div>
-              <SliderMenuPromotion
-                menus={specificMenu?.result?.menuItems}
+              {/* <SliderProduct products={newProducts} isFetching={isFetching} /> */}
+              <SliderMenu
+                menus={newsProducts}
                 isFetching={fechMenupromotion}
               />
             </motion.div>
           </div>
         )}
 
-        {/* Section 5: Info */}
+        {/* Section  Info */}
         <div className="container">
           <motion.div
             className="grid w-full grid-cols-1 items-start gap-4 p-4 sm:grid-cols-5"
@@ -161,7 +186,7 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Section 4: More info */}
+        {/* Section More info */}
         <motion.div
           className="flex h-96 items-center bg-gray-900 px-4 text-white sm:justify-center"
           initial="hidden"

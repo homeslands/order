@@ -17,13 +17,13 @@ export default function SliderProduct({ products, isFetching }: { products: IPro
             }}
             initialSlide={0}
             modules={[Autoplay, Pagination]}
-            className="mySwiper w-full h-full"
+            className="w-full h-full mySwiper"
         >
             {!isFetching ? products?.map((item, index) => {
                 const imageProduct = item?.image ? publicFileURL + "/" + item.image : Com
                 return (
                     <SwiperSlide key={index} className="w-full h-full py-2">
-                        <div className="flex h-full w-full flex-col rounded-xl border shadow-sm bg-white dark:bg-gray-700 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                        <div className="flex flex-col w-full h-full transition-all duration-300 bg-white border shadow-sm rounded-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
                             <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
                             <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                 <div>

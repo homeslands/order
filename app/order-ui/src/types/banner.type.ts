@@ -8,7 +8,9 @@ export interface IBanner extends IBase {
   image: string
   isActive: boolean
 }
-
+export interface IBannerRequest {
+  isActive: boolean
+}
 export interface ICreateBannerRequest {
   title: string
   content: string

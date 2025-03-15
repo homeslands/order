@@ -37,6 +37,7 @@ export const useUpdateOrderStore = create<IUpdateOrderStore>()(
             image: item.variant.product.image,
             name: item.variant.product.name,
             variant: item.variant.slug,
+            size: item.variant.size.name,
             quantity: item.quantity,
             price: item.variant.price,
             description: item.variant.product.description,

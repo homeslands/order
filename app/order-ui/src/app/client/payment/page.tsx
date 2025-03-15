@@ -33,6 +33,15 @@ export function ClientPaymentPage() {
   const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
   const [isExpired, setIsExpired] = useState<boolean>(false)
 
+  // calculate original total
+  const originalTotal = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
+
+  const discount = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
+
+  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+
   useEffect(() => {
     if (order?.result.createdAt) {
       const createdAt = moment(order.result.createdAt)
@@ -66,7 +75,6 @@ export function ClientPaymentPage() {
       if (timerInterval) clearInterval(timerInterval)
     }
   }, [timeRemainingInSec, clearStore])
-
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
 
@@ -87,14 +95,12 @@ export function ClientPaymentPage() {
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
-    setIsPolling(false) // Stop polling after selecting payment method
+    if (selectedPaymentMethod === PaymentMethod.BANK_TRANSFER && qrCode) setIsPolling(true)
+    else setIsPolling(false) // Stop polling after selecting payment method
   }
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
-
-    // Reset timer when getting new QR code
-    // setTimeRemainingInSec(600)
     setIsExpired(false)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
@@ -129,7 +135,7 @@ export function ClientPaymentPage() {
       },
     })
   }
-  if ((_.isEmpty(order) || isExpired)) {
+  if (_.isEmpty(order?.result) || isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
@@ -273,7 +279,23 @@ export function ClientPaymentPage() {
                   <div className="flex justify-between w-full pb-4 border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      {`${formatCurrency(order?.result.subtotal || 0)}`}
+                      {`${formatCurrency(originalTotal || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between w-full pb-4 border-b">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      {t('order.discount')}
+                    </h3>
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      - {`${formatCurrency(discount || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex justify-between w-full pb-4 border-b">
+                    <h3 className="text-sm italic font-medium text-green-500">
+                      {t('order.voucher')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-green-500">
+                      - {`${formatCurrency(voucherDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
@@ -286,7 +308,7 @@ export function ClientPaymentPage() {
                       </p>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {t('order.vat')}
+                      ({t('order.vat')})
                     </span>
                   </div>
                 </div>
@@ -294,10 +316,8 @@ export function ClientPaymentPage() {
             </div>
           </div>
         </div>
-        {/* Lựa chọn phương thức thanh toán */}
+        {/* Payment method */}
         <ClientPaymentMethodSelect
-          // isExpired={isExpired}
-          // timeRemaining={timeRemainingInSec}
           paymentMethod={paymentMethod}
           qrCode={qrCode}
           total={order?.result ? order?.result.subtotal : 0}
@@ -305,30 +325,26 @@ export function ClientPaymentPage() {
         />
         <div className="flex justify-end py-6">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
-            paymentMethod === PaymentMethod.CASH) && !qrCode && (
-              <div className="flex gap-2">
-                {!paymentSlug && (
-                  <Button
-                    disabled={isPendingInitiatePayment}
-                    className="w-fit"
-                    onClick={handleConfirmPayment}
-                  >
-                    {isPendingInitiatePayment && <ButtonLoading />}
-                    {t('paymentMethod.confirmPayment')}
-                  </Button>
-                )}
-                {paymentSlug && (
-                  <Button
-                    disabled={isPendingExportPayment}
-                    className="w-fit"
-                    onClick={handleExportPayment}
-                  >
-                    {isPendingExportPayment && <ButtonLoading />}
-                    {t('paymentMethod.exportPayment')}
-                  </Button>
-                )}
-              </div>
-            )}
+            paymentMethod === PaymentMethod.CASH) &&
+            <div className="flex gap-2">
+              {paymentSlug ?
+                <Button
+                  disabled={isPendingExportPayment}
+                  className="w-fit"
+                  onClick={handleExportPayment}
+                >
+                  {isPendingExportPayment && <ButtonLoading />}
+                  {t('paymentMethod.exportPayment')}
+                </Button>
+                : <Button
+                  disabled={isPendingInitiatePayment}
+                  className="w-fit"
+                  onClick={handleConfirmPayment}
+                >
+                  {isPendingInitiatePayment && <ButtonLoading />}
+                  {t('paymentMethod.confirmPayment')}
+                </Button>}
+            </div>}
         </div>
       </div>
     </div>

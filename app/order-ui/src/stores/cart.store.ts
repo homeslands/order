@@ -36,6 +36,20 @@ export const useCartItemStore = create<ICartItemStore>()(
         }
       },
 
+      removeCustomerInfo: () => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: {
+              ...cartItems,
+              owner: '',
+              ownerFullName: '',
+              ownerPhoneNumber: '',
+            },
+          })
+        }
+      },
+
       addApprovalBy: (approvalBy: string) => {
         const { cartItems } = get()
         if (cartItems) {
@@ -183,12 +197,18 @@ export const useCartItemStore = create<ICartItemStore>()(
             const updatedOrderItems = cartItems.orderItems.filter(
               (orderItem) => orderItem.id !== cartItemId,
             )
-            set({
-              cartItems: {
-                ...cartItems,
-                orderItems: updatedOrderItems,
-              },
-            })
+
+            // If this is the last item, clear the entire cart
+            if (updatedOrderItems.length === 0) {
+              get().clearCart()
+            } else {
+              set({
+                cartItems: {
+                  ...cartItems,
+                  orderItems: updatedOrderItems,
+                },
+              })
+            }
           }
           showToast(i18next.t('toast.removeSuccess'))
         }

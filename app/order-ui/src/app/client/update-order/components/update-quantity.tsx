@@ -2,6 +2,7 @@ import { Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { IOrderDetail, IUpdateOrderItemRequest } from '@/types'
 import { useUpdateOrderItem } from '@/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface QuantitySelectorProps {
   orderItem: IOrderDetail
@@ -10,6 +11,7 @@ interface QuantitySelectorProps {
 
 export default function UpdateOrderQuantity({ orderItem, onSuccess }: QuantitySelectorProps) {
   const { mutate: updateOrderItemQuantity } = useUpdateOrderItem()
+  const queryClient = useQueryClient();
   const handleUpdateQuantity = (action: string) => {
     const quantity = action === "increment" ? +orderItem.quantity + 1 : +orderItem.quantity - 1
     if (quantity <= 0) return
@@ -21,6 +23,7 @@ export default function UpdateOrderQuantity({ orderItem, onSuccess }: QuantitySe
     }
     updateOrderItemQuantity({ slug: orderItem.slug, data: data }, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         onSuccess()
       }
     })

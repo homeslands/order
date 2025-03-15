@@ -20,7 +20,7 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
-import { useCartItemStore, useUserStore } from '@/stores'
+import { useCartItemStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 
@@ -40,7 +40,6 @@ export default function AddToCartDialog({
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants?.[0] || null)
   const { addCartItem } = useCartItemStore()
-  const { getUserInfo } = useUserStore()
 
   const generateCartItemId = () => {
     return Date.now().toString(36)
@@ -49,12 +48,15 @@ export default function AddToCartDialog({
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
+    const finalPrice = product.promotion && product?.promotion?.value > 0
+      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
+      : selectedVariant.price;
+
     const cartItem: ICartItem = {
       id: generateCartItemId(),
       slug: product.slug,
-      owner: getUserInfo()?.slug,
+      owner: '',
       type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-      // branch: getUserInfo()?.branch.slug, // get branch from user info
       orderItems: [
         {
           id: generateCartItemId(),
@@ -62,19 +64,18 @@ export default function AddToCartDialog({
           image: product.product.image,
           name: product.product.name,
           quantity: 1,
+          size: selectedVariant.size.name,
           variant: selectedVariant.slug,
-          price: selectedVariant.price,
+          price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
           promotion: product.promotion ? product.promotion?.slug : '',
           promotionValue: product.promotion ? product.promotion?.value : 0,
-          // catalog: product.catalog,
-          note: note,
+          note,
         },
       ],
       table: '', // will be set later via addTable
     }
-
     addCartItem(cartItem)
     // Reset states
     setNote('')

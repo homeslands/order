@@ -183,7 +183,7 @@ export const SystemConfigForm: React.FC = () => {
         </div>
         <div className="flex justify-between">
           <Button
-            disabled={isPending}
+            disabled={isPending || newConfigs.length === 1}
             onClick={createNewConfigs}
             className="mt-4"
           >

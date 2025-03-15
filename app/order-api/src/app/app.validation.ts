@@ -1,6 +1,7 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
 import { ApplicablePromotionValidation } from 'src/applicable-promotion/applicable-promotion.validation';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { AuthorityValidation } from 'src/authority/authority.validation';
 import BannerValidation from 'src/banner/banner.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
@@ -13,6 +14,7 @@ import { MenuValidation } from 'src/menu/menu.validation';
 import { OrderItemValidation } from 'src/order-item/order-item.validation';
 import { OrderValidation } from 'src/order/order.validation';
 import { PaymentValidation } from 'src/payment/payment.validation';
+import { PermissionValidation } from 'src/permission/permission.validation';
 import { ProductAnalysisValidation } from 'src/product-analysis/product-analysis.validation';
 import ProductValidation from 'src/product/product.validation';
 import { PromotionValidation } from 'src/promotion/promotion.validation';
@@ -74,6 +76,8 @@ export const AppValidation: TErrorCode = {
   ...ApplicablePromotionValidation,
   ...VoucherValidation,
   ...BannerValidation,
+  ...AuthorityValidation,
+  ...PermissionValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

@@ -53,6 +53,9 @@ import { ApplicablePromotionModule } from 'src/applicable-promotion/applicable-p
 import { VoucherModule } from 'src/voucher/voucher.module';
 import { BannerModule } from 'src/banner/banner.module';
 import { LoggerMiddleware } from 'src/logger/logger.middleware';
+import { AuthorityModule } from 'src/authority/authority.module';
+import { AuthorityGroupModule } from 'src/authority-group/authority-group.module';
+import { PermissionModule } from 'src/permission/permission.module';
 
 @Module({
   imports: [
@@ -121,6 +124,9 @@ import { LoggerMiddleware } from 'src/logger/logger.middleware';
     ApplicablePromotionModule,
     VoucherModule,
     BannerModule,
+    AuthorityModule,
+    AuthorityGroupModule,
+    PermissionModule,
   ],
   controllers: [AppController],
   providers: [

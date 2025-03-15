@@ -13,13 +13,14 @@ import { ClientAddToCartDrawer } from "@/components/app/drawer";
 import { ClientAddToCartDialog } from "@/components/app/dialog";
 import { NavLink } from "react-router-dom";
 import { ROUTE } from "@/constants";
-
+import NewTagImage from "@/assets/images/new-product-icon.png";
 interface ISliderMenuPromotionProps {
     menus: IMenuItem[] | undefined
     isFetching: boolean
+    type?: string
 }
 
-export default function SliderMenuPromotion({ menus, isFetching }: ISliderMenuPromotionProps): React.ReactElement {
+export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromotionProps): React.ReactElement {
     const { t } = useTranslation('menu')
     const isMobile = useIsMobile()
     const getPriceRange = (variants: IProduct['variants']) => {
@@ -45,19 +46,26 @@ export default function SliderMenuPromotion({ menus, isFetching }: ISliderMenuPr
             }}
             initialSlide={0}
             modules={[Autoplay, Pagination]}
-            className="mySwiper w-full h-full"
+            className="mySwiper w-full h-full overflow-y-visible"
         >
             {!isFetching ? menus?.map((item, index) => {
                 const imageProduct = item?.product?.image ? publicFileURL + "/" + item.product.image : Com
                 return (
-                    <SwiperSlide key={index} className="w-full h-full py-2">
-                        <div className="flex h-full w-full flex-col rounded-xl border shadow-sm bg-white dark:bg-gray-700 backdrop-blur-md transition-all duration-300 hover:scale-105">
+                    <SwiperSlide key={index} className="w-full h-full py-2 ">
+                        <div className="flex h-full w-full flex-col rounded-xl border shadow-sm bg-white dark:bg-gray-700 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                             <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-                                <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
+                                <>
+                                    <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
+                                    {item.product.isNew &&
+                                        <div className="absolute -top-[3px] -right-[3px] z-50 w-[3.5rem]">
+                                            <img src={NewTagImage} alt="promotion-tag" className="w-full" />
+                                        </div>}
+                                </>
+
                                 <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                     <div>
                                         <h3 className="text-lg font-bold line-clamp-1">{item.product.name}</h3>
-                                        <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden">
+                                        <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
                                             {item?.product?.description || "Hương vị đặc biệt"}
                                         </p>
                                     </div>
@@ -135,6 +143,7 @@ export default function SliderMenuPromotion({ menus, isFetching }: ISliderMenuPr
                                     {t('menu.outOfStock')}
                                 </Button>
                             )}
+                            {type === "best-sell" && <div className="space-y-1.5 p-2 text-[12px] text-yellow-500">{t('menu.sold')} <b>{item?.product.isTopSell ? menus[0].product.saleQuantityHistory : item?.product?.saleQuantityHistory}</b></div>}
                         </div>
                     </SwiperSlide>
                 )

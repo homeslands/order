@@ -698,7 +698,7 @@ describe('OrderService', () => {
         .spyOn(orderUtils, 'getOrderSubtotal')
         .mockResolvedValue(mockOutput.subtotal);
       jest
-        .spyOn(orderScheduler, 'addCancelOrderJob')
+        .spyOn(orderScheduler, 'handleDeleteOrder')
         .mockImplementation(() => {});
       (orderRepositoryMock.create as jest.Mock).mockResolvedValue(mockOutput);
       jest.spyOn(menuItemUtils, 'getCurrentMenuItems').mockResolvedValue([]);

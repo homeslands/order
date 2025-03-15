@@ -5,6 +5,7 @@ export interface ICartItemStore {
   lastModified: number | null
   getCartItems: () => ICartItem | null
   addCustomerInfo: (owner: IUserInfo) => void
+  removeCustomerInfo: () => void
   addApprovalBy: (approvalBy: string) => void
   addCartItem: (item: ICartItem) => void
   updateCartItemQuantity: (id: string, quantity: number) => void

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {  useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
@@ -14,7 +14,6 @@ interface OrderTypeSelectProps {
 export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelectProps) {
   const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
-
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
     return [
       {

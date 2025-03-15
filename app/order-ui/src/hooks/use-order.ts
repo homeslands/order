@@ -28,7 +28,7 @@ import { updateOrderItem } from '../api/order'
 
 export const useOrders = (q: IOrdersQuery) => {
   return useQuery({
-    queryKey: ['orders', JSON.stringify(q)],
+    queryKey: ['orders', q],
     queryFn: () => getAllOrders(q),
     placeholderData: keepPreviousData,
   })

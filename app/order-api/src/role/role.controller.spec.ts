@@ -7,6 +7,9 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('RoleController', () => {
   let controller: RoleController;
@@ -16,6 +19,8 @@ describe('RoleController', () => {
       controllers: [RoleController],
       providers: [
         RoleService,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Role),
           useValue: repositoryMockFactory,

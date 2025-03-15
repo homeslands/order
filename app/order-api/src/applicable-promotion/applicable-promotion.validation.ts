@@ -28,34 +28,34 @@ export type TApplicablePromotionErrorCode = Record<
   TErrorCodeValue
 >;
 
-// 151000 - 151000
+// 151001 - 151500
 export const ApplicablePromotionValidation: TApplicablePromotionErrorCode = {
   APPLICABLE_PROMOTION_NOT_FOUND: createErrorCode(
-    151000,
+    151001,
     'Applicable promotion not found',
   ),
   ERROR_WHEN_DELETE_APPLICABLE_PROMOTION: createErrorCode(
-    151001,
+    151002,
     'Error when delete applicable promotion',
   ),
   ERROR_WHEN_CREATE_APPLICABLE_PROMOTION: createErrorCode(
-    151002,
+    151003,
     'Error when create applicable promotion',
   ),
   APPLICABLE_PROMOTION_ALREADY_EXISTED: createErrorCode(
-    151003,
+    151004,
     'Applicable promotion already existed',
   ),
   ERROR_WHEN_GET_MENU_ITEM_BY_APPLICABLE_PROMOTION: createErrorCode(
-    151004,
+    151005,
     'Error when get menu item by applicable promotion',
   ),
   MUST_HAVE_BOTH_PROMOTION_SLUG_AND_APPLICABLE_SLUG: createErrorCode(
-    151005,
+    151006,
     'Must have both promotion slug and applicable slug',
   ),
   ERROR_WHEN_HANDLE_DATA_TO_DELETE_APPLICABLE_PROMOTION: createErrorCode(
-    151006,
+    151007,
     'Error when handle data to delete applicable promotion',
   ),
 };

@@ -10,7 +10,7 @@ export const useProductNameStore = create<IProductNameStore>()(
       removeProductName: () => set({ productName: undefined }),
     }),
     {
-      name: 'productName-storage',
+      name: 'product-name-store',
     },
   ),
 )

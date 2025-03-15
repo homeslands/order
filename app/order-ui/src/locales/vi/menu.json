@@ -82,7 +82,8 @@
     "deleteMenuItemWarning1": "Bạn có chắc muốn xóa món ",
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",
     "searchProduct": "Tìm kiếm sản phẩm",
-    "all": "Tất cả"
+    "all": "Tất cả",
+    "sold": "Đã bán"
   },
   "order": {
     "orderId": "Đơn hàng",
@@ -93,6 +94,7 @@
     "product": "Sản phẩm",
     "unitPrice": "Đơn giá",
     "quantity": "Số lượng",
+    "voucher": "Mã giảm giá",
     "totalPrice": "Thành tiền",
     "orderInformation": "Thông tin đơn hàng",
     "customerName": "Tên khách hàng",
@@ -155,7 +157,6 @@
     "totalOrders": "Tổng đơn hàng",
     "pendingOrders": "Danh sách chờ",
     "orderList": "Danh sách đơn hàng",
-
     "order": "Đơn hàng: ",
     "cashier": "Thu ngân: ",
     "orderTime": "Thời gian đặt hàng:",

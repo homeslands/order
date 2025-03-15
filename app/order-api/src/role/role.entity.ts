@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
+import { Permission } from 'src/permission/permission.entity';
 import { User } from 'src/user/user.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
@@ -15,4 +16,8 @@ export class Role extends Base {
   @AutoMap()
   @Column({ name: 'description_column', type: 'tinytext' })
   description: string;
+
+  @AutoMap(() => Permission)
+  @OneToMany(() => Permission, (p) => p.role)
+  permissions: Permission[];
 }

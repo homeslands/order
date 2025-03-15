@@ -17,7 +17,7 @@ import { OrderTypeSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency } from '@/utils'
 import { OrderTypeEnum } from '@/types'
-
+import { publicFileURL } from '@/constants/env'
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tHelmet } = useTranslation('helmet')
@@ -57,24 +57,6 @@ export default function ClientCartPage() {
       </Helmet>
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
-        {/* Left content */}
-        {/* <div className="w-full lg:w-1/2">
-          Note
-          <div className="flex items-end justify-between">
-            <div className="flex items-center gap-1">
-              <CircleAlert size={14} className="text-destructive" />
-              <span className="text-xs italic text-destructive">
-                {t('order.selectTableNote')}
-              </span>
-            </div>
-          </div>
-
-          Table select
-
-          <ClientTableSelect />
-        </div> */}
-
-        {/* Right content */}
         <div className="w-full">
           <div className="flex items-center gap-1 pb-4">
             <CircleAlert size={14} className="text-destructive" />
@@ -88,8 +70,8 @@ export default function ClientCartPage() {
           </div>
           {/* Table list order items */}
           <div className="my-4">
-            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted-foreground/15">
-              <span className="col-span-2">{t('order.product')}</span>
+            <div className="grid grid-cols-8 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted-foreground/15">
+              <span className="col-span-3">{t('order.product')}</span>
               <span className="col-span-2 text-center">
                 {t('order.quantity')}
               </span>
@@ -104,37 +86,41 @@ export default function ClientCartPage() {
               {cartItems?.orderItems.map((item) => (
                 <div
                   key={item.slug}
-                  className="grid items-center w-full gap-4 p-4 pb-4 rounded-md"
+                  className="grid items-center w-full gap-4 p-4 pb-4 rounded-md sm:grid-cols-8 grid-cols-7 "
                 >
-                  <div
-                    key={`${item.slug}`}
-                    className="grid flex-row items-center w-full grid-cols-7"
-                  >
-                    <div className="flex w-full col-span-2 gap-2">
-                      <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold truncate sm:text-md">
-                            {item.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground sm:text-sm">
-                            {`${(item.price || 0).toLocaleString('vi-VN')}đ`}
-                          </span>
+                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden sm:block col-span-1 w-full rounded-md" />
+                  <div className='grid flex-row items-center w-full col-span-7 gap-4'>
+                    <div
+                      key={`${item.slug}`}
+                      className="grid flex-row items-center w-full grid-cols-7 gap-4"
+                    >
+                      <div className="flex w-full col-span-2 gap-2">
+                        <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
+                          <div className="flex flex-col w-full">
+                            <span className="text-xs font-bold sm:text-md truncate w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                              {item.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground sm:text-sm">
+                              {`${(item.price || 0).toLocaleString('vi-VN')}đ`}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex justify-center col-span-2">
+                        <QuantitySelector cartItem={item} />
+                      </div>
+                      <div className="col-span-2 text-center">
+                        <span className="text-sm font-semibold text-primary">
+                          {`${((item.price || 0) * item.quantity).toLocaleString('vi-VN')}đ`}
+                        </span>
+                      </div>
+                      <div className="flex justify-center col-span-1">
+                        <DeleteCartItemDialog cartItem={item} />
+                      </div>
                     </div>
-                    <div className="flex justify-center col-span-2">
-                      <QuantitySelector cartItem={item} />
-                    </div>
-                    <div className="col-span-2 text-center">
-                      <span className="text-sm font-semibold text-primary">
-                        {`${((item.price || 0) * item.quantity).toLocaleString('vi-VN')}đ`}
-                      </span>
-                    </div>
-                    <div className="flex justify-center col-span-1">
-                      <DeleteCartItemDialog cartItem={item} />
-                    </div>
+                    <CartNoteInput cartItem={item} />
                   </div>
-                  <CartNoteInput cartItem={item} />
+
                 </div>
               ))}
             </div>
@@ -188,14 +174,12 @@ export default function ClientCartPage() {
             </div>
           </div>
           {/* Button */}
-          <div className="flex justify-end w-full">
-            <CreateOrderDialog
-              disabled={!!(
-                !cartItems ||
-                (cartItems.type === OrderTypeEnum.TAKE_OUT && !cartItems.table) ||
-                (cartItems.type === OrderTypeEnum.AT_TABLE && cartItems.table)
-              )}
-            />
+          <div className='flex justify-end w-full'>
+            <div className="flex justify-end w-1/6">
+              <CreateOrderDialog
+                disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+              />
+            </div>
           </div>
         </div>
       </div>

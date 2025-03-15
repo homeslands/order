@@ -17,6 +17,7 @@ export interface IProduct {
   slug: string
   note?: string
   createdAt: string
+  saleQuantityHistory: number
 }
 
 export interface IProductRequest {
