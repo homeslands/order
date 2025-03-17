@@ -60,7 +60,7 @@ export default function ClientAddToCurrentOrderDialog({
     addNewMenuItem(orderItem, {
       onSuccess: () => {
         setIsOpen(false)
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         onSuccess?.()
         showToast(tToast('toast.addNewOrderItemSuccess'))
       },

@@ -122,6 +122,7 @@ export class MenuItemController {
   }
 
   @Patch(':slug')
+  @Public()
   @ApiOperation({ summary: 'Update menu item' })
   @ApiResponseWithType({
     type: MenuItemResponseDto,

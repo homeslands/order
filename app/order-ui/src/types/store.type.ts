@@ -61,5 +61,7 @@ export interface IPaymentMethodStore {
   setPaymentMethod: (paymentMethod: PaymentMethod) => void
   qrCode: string
   setQrCode: (qrCode: string) => void
+  paymentSlug: string
+  setPaymentSlug: (paymentSlug: string) => void
   clearStore: () => void
 }

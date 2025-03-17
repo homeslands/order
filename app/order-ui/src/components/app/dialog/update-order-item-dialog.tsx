@@ -24,6 +24,7 @@ import { IAddNewOrderItemRequest, IMenuItem, IProductVariant } from '@/types'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 import { useAddNewOrderItem } from '@/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface AddToCartDialogProps {
   onAddNewOrderItemSuccess: () => void
@@ -45,7 +46,8 @@ export default function UpdateOrderItemDialog({
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
   const { mutate: addNewOrderItem } = useAddNewOrderItem()
-
+  const queryClient = useQueryClient()
+  
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
@@ -59,6 +61,7 @@ export default function UpdateOrderItemDialog({
 
     addNewOrderItem(newOrderItem, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         setIsOpen(false)
         onAddNewOrderItemSuccess?.()
         showToast(tToast('toast.addNewOrderItemSuccess'))

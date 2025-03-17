@@ -27,8 +27,8 @@ export function ClientPaymentPage() {
   const { data: order, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: exportPayment, isPending: isPendingExportPayment } = useExportPayment()
-  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, clearStore } = usePaymentMethodStore()
-  const [paymentSlug, setPaymentSlug] = useState<string>('')
+  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug, clearStore } = usePaymentMethodStore()
+  // const [paymentSlug, setPaymentSlug] = useState<string>('')
   const [isPolling, setIsPolling] = useState<boolean>(true) // Start polling initially
   const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
   const [isExpired, setIsExpired] = useState<boolean>(false)
@@ -135,7 +135,7 @@ export function ClientPaymentPage() {
       },
     })
   }
-  if (_.isEmpty(order?.result) || isExpired) {
+  if (isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">

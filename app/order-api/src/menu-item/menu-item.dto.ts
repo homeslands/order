@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 import { ProductResponseDto } from 'src/product/product.dto';
 import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 
@@ -51,6 +51,13 @@ export class UpdateMenuItemDto {
   @IsNumber()
   @ApiProperty({ example: 50 })
   defaultStock: number;
+
+  @AutoMap()
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  @Type(() => Boolean)
+  // @Transform(({ value }) => value === 'true')
+  isLocked: boolean;
 }
 
 export class MenuItemResponseDto {
@@ -61,6 +68,10 @@ export class MenuItemResponseDto {
   @AutoMap()
   @ApiProperty()
   currentStock: number;
+
+  @AutoMap()
+  @ApiProperty()
+  isLocked: boolean;
 
   // @AutoMap()
   // @ApiProperty()

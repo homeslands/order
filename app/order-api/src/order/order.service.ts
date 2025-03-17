@@ -46,6 +46,8 @@ import { Voucher } from 'src/voucher/voucher.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
+import { MenuItemException } from 'src/menu-item/menu-item.exception';
 
 @Injectable()
 export class OrderService {
@@ -320,6 +322,10 @@ export class OrderService {
       },
       relations: ['promotion'],
     });
+    if (menuItem.isLocked) {
+      this.logger.warn(MenuItemValidation.MENU_ITEM_IS_LOCKED.message, context);
+      throw new MenuItemException(MenuItemValidation.MENU_ITEM_IS_LOCKED);
+    }
     //  limit product
     if (item.quantity === Infinity) {
       this.logger.warn(

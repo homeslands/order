@@ -25,11 +25,6 @@ export class MenuItemUtils {
     if (!menuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
 
-    // if (menuItem.defaultStock === null) {
-    //   Object.assign(menuItem, { currentStock: Infinity });
-    //   Object.assign(menuItem, { defaultStock: Infinity });
-    // }
-
     return menuItem;
   }
 

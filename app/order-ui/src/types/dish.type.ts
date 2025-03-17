@@ -237,6 +237,9 @@ export interface IUpdateOrderItemRequest {
   promotion?: string | IPromotion
   action?: string
 }
+export interface IUpdateNoteRequest {
+  note: string
+}
 
 export interface IInitiatePaymentRequest {
   paymentMethod: string

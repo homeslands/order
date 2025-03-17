@@ -10,6 +10,7 @@ import { TableSubscriber } from './table.subscriber';
 import { TableUtils } from './table.utils';
 import { BranchModule } from 'src/branch/branch.module';
 import { DbModule } from 'src/db/db.module';
+import { TableScheduler } from './table.scheduler';
 
 @Module({
   imports: [
@@ -19,7 +20,13 @@ import { DbModule } from 'src/db/db.module';
     DbModule,
   ],
   controllers: [TableController],
-  providers: [TableService, TableProfile, TableSubscriber, TableUtils],
+  providers: [
+    TableService,
+    TableProfile,
+    TableSubscriber,
+    TableUtils,
+    TableScheduler,
+  ],
   exports: [TableService, TableUtils],
 })
 export class TableModule {}

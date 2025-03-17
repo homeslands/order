@@ -14,8 +14,12 @@ export const usePaymentMethodStore = create<IPaymentMethodStore>()(
       setQrCode: (value: string) => {
         set({ qrCode: value })
       },
+      paymentSlug: '',
+      setPaymentSlug: (value: string) => {
+        set({ paymentSlug: value })
+      },
       clearStore: () => {
-        set({ paymentMethod: PaymentMethod.BANK_TRANSFER, qrCode: '' })
+        set({ paymentMethod: PaymentMethod.BANK_TRANSFER, qrCode: '', paymentSlug: '' })
       },
     }),
     {

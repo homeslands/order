@@ -15,6 +15,10 @@ export class MenuItem extends Base {
   @Column({ name: 'current_stock_column', nullable: true })
   currentStock: number;
 
+  @AutoMap()
+  @Column({ name: 'is_locked_column', default: false })
+  isLocked: boolean;
+
   // Many to one with branch
   @AutoMap()
   @ManyToOne(() => Menu, (menu) => menu.menuItems)

@@ -24,6 +24,8 @@ import _ from 'lodash';
 import { OrderScheduler } from 'src/order/order.scheduler';
 import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
+import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
+import { MenuItemException } from 'src/menu-item/menu-item.exception';
 
 @Injectable()
 export class OrderItemService {
@@ -141,6 +143,10 @@ export class OrderItemService {
       },
       relations: ['promotion'],
     });
+    if (menuItem.isLocked) {
+      this.logger.warn(MenuItemValidation.MENU_ITEM_IS_LOCKED.message, context);
+      throw new MenuItemException(MenuItemValidation.MENU_ITEM_IS_LOCKED);
+    }
 
     await this.promotionUtils.validatePromotionWithMenuItem(
       requestData.promotion,
@@ -337,6 +343,10 @@ export class OrderItemService {
       },
       relations: ['promotion'],
     });
+    if (menuItem.isLocked) {
+      this.logger.warn(MenuItemValidation.MENU_ITEM_IS_LOCKED.message, context);
+      throw new MenuItemException(MenuItemValidation.MENU_ITEM_IS_LOCKED);
+    }
 
     await this.promotionUtils.validatePromotionWithMenuItem(
       requestData.promotion,

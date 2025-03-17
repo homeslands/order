@@ -13,7 +13,7 @@ import {
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { VoucherListSheet } from '@/components/app/sheet'
-import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
+import {  useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
@@ -21,8 +21,8 @@ import { formatCurrency, showToast } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
 import { useEffect, useState } from 'react'
 import TableSelect from '@/components/app/select/table-select'
-import { UpdateOrderNoteInput } from '@/components/app/input'
 import UpdateOrderQuantity from './components/update-quantity'
+import { UpdateOrderNoteInput } from './components'
 
 export default function ClientUpdateOrderPage() {
     const { t } = useTranslation('menu')
