@@ -8,6 +8,8 @@ export const PRODUCT_ACTIVE_REQUIRED = 'PRODUCT_ACTIVE_REQUIRED';
 export const PRODUCT_NOT_FOUND_IN_TODAY_MENU =
   'PRODUCT_NOT_FOUND_IN_TODAY_MENU';
 export const CREATE_MANY_PRODUCTS_FAILED = 'CREATE_MANY_PRODUCTS_FAILED';
+export const DEFAULT_QUANTITY_REQUIRED = 'DEFAULT_QUANTITY_REQUIRED';
+export const PRODUCT_NOT_LIMIT = 'PRODUCT_NOT_LIMIT';
 
 export type TProductErrorCodeKey =
   | typeof PRODUCT_NOT_FOUND
@@ -16,6 +18,8 @@ export type TProductErrorCodeKey =
   | typeof PRODUCT_ACTIVE_REQUIRED
   | typeof PRODUCT_NAME_REQUIRED
   | typeof CREATE_MANY_PRODUCTS_FAILED
+  | typeof DEFAULT_QUANTITY_REQUIRED
+  | typeof PRODUCT_NOT_LIMIT
   | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU;
 
 export type TProductErrorCode = Record<TProductErrorCodeKey, TErrorCodeValue>;
@@ -41,6 +45,11 @@ const ProductValidation: TProductErrorCode = {
     115006,
     'Create many product failed',
   ),
+  DEFAULT_QUANTITY_REQUIRED: createErrorCode(
+    115007,
+    'The default quantity of product is required',
+  ),
+  PRODUCT_NOT_LIMIT: createErrorCode(115008, 'The product is not limit'),
 };
 
 export default ProductValidation;

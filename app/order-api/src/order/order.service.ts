@@ -321,14 +321,25 @@ export class OrderService {
       relations: ['promotion'],
     });
     //  limit product
-    if (item.quantity > menuItem.currentStock) {
+    if (item.quantity === Infinity) {
       this.logger.warn(
-        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY.message,
         context,
       );
       throw new OrderException(
-        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY,
       );
+    }
+    if (menuItem.defaultStock !== null) {
+      if (item.quantity > menuItem.currentStock) {
+        this.logger.warn(
+          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+        );
+      }
     }
 
     const promotion: Promotion = menuItem.promotion;

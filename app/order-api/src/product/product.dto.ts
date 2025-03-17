@@ -79,6 +79,14 @@ export class UpdateProductRequestDto {
   isLimit: boolean;
 
   @AutoMap()
+  @ApiProperty({
+    description: 'The quantity of product for default stock of menu item',
+    example: true,
+  })
+  @IsOptional()
+  defaultQuantity?: number;
+
+  @AutoMap()
   @ApiProperty({ description: 'The active of product', example: false })
   @IsNotEmpty({ message: PRODUCT_ACTIVE_REQUIRED })
   @IsBoolean()

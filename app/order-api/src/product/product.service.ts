@@ -295,6 +295,26 @@ export class ProductService {
     if (!product)
       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
 
+    // limit product -> update current, template menu item
+    if (product.isLimit !== requestData.isLimit) {
+      if (requestData.isLimit) {
+        if (!requestData.defaultQuantity) {
+          this.logger.warn(
+            ProductValidation.DEFAULT_QUANTITY_REQUIRED.message,
+            context,
+          );
+          throw new ProductException(
+            ProductValidation.DEFAULT_QUANTITY_REQUIRED,
+          );
+        }
+        // need specific default stock
+        // update current menu item + template menu item
+      } else {
+        // update current menu item + template menu item: infinity
+        // function: params: product, quantity, branch, date
+      }
+    }
+
     const catalog = await this.catalogRepository.findOneBy({
       slug: requestData.catalog,
     });

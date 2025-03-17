@@ -73,11 +73,15 @@ export class MenuItemService {
           product.id,
         );
 
+      if (!product.isLimit) {
+        Object.assign(menuItemDto, { defaultStock: null });
+      }
       const menuItem = this.mapper.map(
         menuItemDto,
         CreateMenuItemDto,
         MenuItem,
       );
+      // limit product
       Object.assign(menuItem, { product, menu, promotion });
 
       menuItems.push(menuItem);
@@ -131,11 +135,17 @@ export class MenuItemService {
       product.id,
     );
 
+    if (!product.isLimit) {
+      Object.assign(createMenuItemDto, { defaultStock: null });
+    }
+
+    // mapper include assign currentStock = defaultStock
     const menuItem = this.mapper.map(
       createMenuItemDto,
       CreateMenuItemDto,
       MenuItem,
     );
+    // limit product
     Object.assign(menuItem, { product, menu, promotion });
 
     this.menuItemRepository.create(menuItem);
@@ -242,14 +252,29 @@ export class MenuItemService {
 
     const menuItem = await this.menuItemRepository.findOne({
       where: { slug },
+      relations: ['product', 'menu.branch'],
     });
     if (!menuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
 
+    if (!menuItem.menu) {
+      this.logger.warn(MenuValidation.MENU_NOT_FOUND.message, context);
+      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
+    }
+
+    if (menuItem.product) {
+      if (!menuItem.product.isLimit) {
+        this.logger.warn(ProductValidation.PRODUCT_NOT_LIMIT.message, context);
+        throw new ProductException(ProductValidation.PRODUCT_NOT_LIMIT);
+      }
+    }
+
+    // limit product
     Object.assign(menuItem, {
       ...updateMenuItemDto,
       currentStock: updateMenuItemDto.defaultStock,
     } as MenuItem);
+
     await this.menuItemRepository.manager.transaction(async (manager) => {
       try {
         await manager.save(menuItem);

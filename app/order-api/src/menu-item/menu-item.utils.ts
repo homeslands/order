@@ -24,6 +24,12 @@ export class MenuItemUtils {
     const menuItem = await this.menuItemRepository.findOne({ ...options });
     if (!menuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
+
+    // if (menuItem.defaultStock === null) {
+    //   Object.assign(menuItem, { currentStock: Infinity });
+    //   Object.assign(menuItem, { defaultStock: Infinity });
+    // }
+
     return menuItem;
   }
 
@@ -77,34 +83,41 @@ export class MenuItemUtils {
       .map((menuItem) => {
         // Increment when canceling order
         if (action === 'increment') {
-          const quantity = uniqueProducts.get(menuItem.product.id);
-          const incomingStock = menuItem.currentStock + quantity;
-          // Ensure incoming stock does not exceed current stock
-          if (incomingStock > menuItem.defaultStock) {
-            this.logger.warn(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-              context,
-            );
-            menuItem.currentStock = menuItem.defaultStock;
-          } else {
-            menuItem.currentStock = incomingStock;
+          if (menuItem.defaultStock !== null) {
+            const quantity = uniqueProducts.get(menuItem.product.id);
+            const incomingStock = menuItem.currentStock + quantity;
+            // Ensure incoming stock does not exceed current stock
+            if (incomingStock > menuItem.defaultStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+              menuItem.currentStock = menuItem.defaultStock;
+            } else {
+              menuItem.currentStock = incomingStock;
+            }
           }
+
           return menuItem;
         }
         if (action === 'decrement') {
-          // Decrement when create order
-          const requestQuantity = uniqueProducts.get(menuItem.product.id);
-          if (requestQuantity > menuItem.currentStock) {
-            this.logger.warn(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-              context,
-            );
-            throw new OrderException(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
-            );
+          // Decrement when create, update order
+          if (menuItem.defaultStock !== null) {
+            const requestQuantity = uniqueProducts.get(menuItem.product.id);
+            if (requestQuantity > menuItem.currentStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+              throw new OrderException(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+              );
+            }
+            menuItem.currentStock -= requestQuantity;
+            return menuItem;
           }
-          menuItem.currentStock -= requestQuantity;
-          return menuItem;
         }
         return menuItem;
       });
@@ -150,32 +163,43 @@ export class MenuItemUtils {
     switch (action) {
       // increment menu item
       case 'increment': {
-        const newStock = Math.min(
-          menuItem.currentStock + requestStock,
-          menuItem.defaultStock,
-        );
-        if (newStock !== menuItem.currentStock) {
-          this.logger.warn(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-            context,
+        if (menuItem.defaultStock !== null) {
+          const newStock = Math.min(
+            menuItem.currentStock + requestStock,
+            menuItem.defaultStock,
           );
+          if (newStock !== menuItem.currentStock) {
+            this.logger.warn(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+              context,
+            );
+            if (newStock !== menuItem.currentStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+            }
+            menuItem.currentStock = newStock;
+          }
         }
-        menuItem.currentStock = newStock;
         break;
       }
 
       // decrement menu item
       case 'decrement': {
-        if (menuItem.currentStock <= 0) {
-          this.logger.warn(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-            context,
-          );
-          throw new OrderException(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
-          );
+        if (menuItem.defaultStock !== null) {
+          if (menuItem.currentStock <= 0) {
+            this.logger.warn(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+              context,
+            );
+            throw new OrderException(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+            );
+          }
+          menuItem.currentStock -= requestStock;
         }
-        menuItem.currentStock -= requestStock;
         break;
       }
 

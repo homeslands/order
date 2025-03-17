@@ -99,6 +99,16 @@ export class OrderItemService {
   ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.updateOrderItem.name}`;
 
+    if (requestData.quantity === Infinity) {
+      this.logger.warn(
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY.message,
+        context,
+      );
+      throw new OrderException(
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY,
+      );
+    }
+
     if (!requestData.action) {
       this.logger.warn('Action is required', context);
       throw new OrderItemException(OrderItemValidation.INVALID_ACTION);
@@ -284,16 +294,22 @@ export class OrderItemService {
   async createOrderItem(
     requestData: CreateOrderItemRequestDto,
   ): Promise<OrderItemResponseDto> {
-    // validate stock
-    // validate promotion
-    // validate voucher
-    // # Time in createdDate of order;
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
     const order = await this.orderUtils.getOrder({
       where: {
         slug: requestData.order,
       },
     });
+
+    if (requestData.quantity === Infinity) {
+      this.logger.warn(
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY.message,
+        context,
+      );
+      throw new OrderException(
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY,
+      );
+    }
 
     const variant = await this.variantUtils.getVariant({
       where: {
