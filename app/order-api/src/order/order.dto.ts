@@ -93,7 +93,12 @@ export class UpdateOrderRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The slug of table' })
   @IsOptional()
-  table: string;
+  table?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  voucher?: string;
 }
 
 export class OwnerResponseDto extends BaseResponseDto {

@@ -1,10 +1,11 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
+import { INVALID_ACTION } from './order-item.validation';
 
 export class CreateOrderItemRequestDto {
   @AutoMap()
@@ -41,6 +42,13 @@ export class CreateOrderItemRequestDto {
   order?: string;
 }
 
+export class updateOrderItemNoteRequestDto {
+  @AutoMap()
+  @ApiProperty({ description: 'The note of order item', example: 'Ghi chú' })
+  @IsOptional()
+  note?: string;
+}
+
 export class UpdateOrderItemRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The quantity of order item', example: 2 })
@@ -71,8 +79,9 @@ export class UpdateOrderItemRequestDto {
 
   @AutoMap()
   @ApiProperty({ description: `increment or decrement`, example: 'increment' })
-  @IsOptional()
-  action?: 'increment' | 'decrement';
+  @IsNotEmpty()
+  @IsIn(['increment', 'decrement'], { message: INVALID_ACTION })
+  action: 'increment' | 'decrement';
 }
 
 export class StatusOrderItemResponseDto {

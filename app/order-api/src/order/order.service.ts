@@ -96,11 +96,33 @@ export class OrderService {
         : null;
     order.type = requestData.type;
     order.table = table;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+
+    const voucher = await this.voucherUtils.getVoucher({
+      where: {
+        slug: requestData.voucher ?? IsNull(),
+      },
+    });
+
+    if (voucher) {
+      await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+      // Update remaining quantity of voucher
+      voucher.remainingUsage -= 1;
+    }
+
+    const previousVoucher = order.voucher;
+    if (previousVoucher) {
+      previousVoucher.remainingUsage += 1;
+    }
+
+    order.voucher = voucher;
+    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        if (previousVoucher) await manager.save(previousVoucher);
         const updatedOrder = await manager.save(order);
         return updatedOrder;
       },

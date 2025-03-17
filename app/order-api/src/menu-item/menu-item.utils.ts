@@ -92,7 +92,7 @@ export class MenuItemUtils {
           return menuItem;
         }
         if (action === 'decrement') {
-          // Decrement when create, update order
+          // Decrement when create order
           const requestQuantity = uniqueProducts.get(menuItem.product.id);
           if (requestQuantity > menuItem.currentStock) {
             this.logger.warn(
@@ -120,6 +120,7 @@ export class MenuItemUtils {
     entity: OrderItem,
     date: Date,
     action: 'increment' | 'decrement',
+    requestStock: number = 1,
   ) {
     const context = `${MenuItemUtils.name}.${this.getCurrentMenuItem.name}`;
     this.logger.log(
@@ -147,9 +148,10 @@ export class MenuItemUtils {
 
     // limit product
     switch (action) {
-      case 'decrement': {
+      // increment menu item
+      case 'increment': {
         const newStock = Math.min(
-          menuItem.currentStock + 1,
+          menuItem.currentStock + requestStock,
           menuItem.defaultStock,
         );
         if (newStock !== menuItem.currentStock) {
@@ -162,7 +164,8 @@ export class MenuItemUtils {
         break;
       }
 
-      case 'increment': {
+      // decrement menu item
+      case 'decrement': {
         if (menuItem.currentStock <= 0) {
           this.logger.warn(
             OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
@@ -172,7 +175,7 @@ export class MenuItemUtils {
             OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
           );
         }
-        menuItem.currentStock -= 1;
+        menuItem.currentStock -= requestStock;
         break;
       }
 
