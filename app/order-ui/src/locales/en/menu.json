@@ -230,6 +230,7 @@
     "customerName": "Customer name",
     "orderDate": "Order date",
     "cashMethodNote": "Note: For cash payments, please proceed to the store's counter to make payment",
-    "paymentNote": "Please verify payment information before proceeding with the transaction"
+    "paymentNote": "Please verify payment information before proceeding with the transaction",
+    "downloadQRCode": "Download QR code"
   }
 }

@@ -15,7 +15,7 @@ interface IClientMenuItemInUpdateOrderProps {
   item: IMenuItem
 }
 
-export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemInUpdateOrderProps) {
+export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItemInUpdateOrderProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
 

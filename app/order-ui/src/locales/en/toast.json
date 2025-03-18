@@ -5,122 +5,104 @@
     "addSuccess": "Successfully added product to cart",
     "itemAlreadyExists": "Product already exists in the cart",
     "removeSuccess": "Successfully removed product from cart",
-
     "loginSuccess": "Login successful",
     "logoutSuccess": "Logout successful",
     "loginFailed": "Login failed",
     "requestFailed": "Request failed",
-
     "registerSuccess": "Account registration successful",
     "copyEmailSuccess": "Email copied successfully",
     "sendVerifyEmailSuccess": "Verification email sent successfully. Please check your email",
-
     "branchRequired": "You haven't selected a branch",
     "orderSuccess": "Order placed successfully",
-
     "createCatalogSuccess": "Catalog created successfully",
     "updateCatalogSuccess": "Catalog updated successfully",
     "deleteCatalogSuccess": "Catalog deleted successfully",
-
     "createSizeSuccess": "Size created successfully",
     "updateSizeSuccess": "Size updated successfully",
     "deleteSizeSuccess": "Size deleted successfully",
-
     "createProductSuccess": "Product created successfully",
     "updateProductSuccess": "Product updated successfully",
     "deleteProductSuccess": "Product deleted successfully",
     "uploadImageSuccess": "Image uploaded successfully",
     "uploadImageError": "Image upload failed",
     "deleteProductImageSuccess": "Product image deleted successfully",
-
     "createProductVariantSuccess": "Product variant created successfully",
     "updateProductVariantSuccess": "Product variant updated successfully",
     "deleteProductVariantSuccess": "Product variant deleted successfully",
-
     "updateProfileSuccess": "Profile updated successfully",
     "deleteProfileSuccess": "Profile deleted successfully",
-
     "updateProfilePictureSuccess": "Profile picture updated successfully",
-
     "createMenuSuccess": "Menu created successfully",
     "updateMenuSuccess": "Menu updated successfully",
     "deleteMenuSuccess": "Menu deleted successfully",
-
     "createBankConnectorSuccess": "Bank connector created successfully",
     "updateBankConnectorSuccess": "Bank connector updated successfully",
     "deleteBankConnectorSuccess": "Bank connector deleted successfully",
-
     "addMenuItemSuccess": "Item added to menu successfully",
     "updateMenuItemSuccess": "Menu item updated successfully",
     "deleteMenuItemSuccess": "Menu item deleted successfully",
-
     "createTableSuccess": "Table created successfully",
     "updateTableSuccess": "Table updated successfully",
     "createMultipleTablesSuccess": "Multiple tables created successfully",
     "updateTableStatusSuccess": "Table status updated successfully",
     "deleteTableSuccess": "Table deleted successfully",
-
     "createBranchSuccess": "Branch created successfully",
     "updateBranchSuccess": "Branch updated successfully",
     "deleteBranchSuccess": "Branch deleted successfully",
-
     "createOrderSuccess": "Order placed successfully",
     "orderItemDeleted": "Order item deleted successfully",
     "handleCancelOrderSuccess": "Order canceled successfully",
-
     "addNewOrderItemSuccess": "Item added to order successfully",
     "deleteOrderItemSuccess": "Order item deleted successfully",
     "updateOrderTypeSuccess": "Order type updated successfully",
-        
-    "createOrderTrackingSuccess": "Robot delivery assigned successfully",
 
+    "createOrderTrackingSuccess": "Robot delivery assigned successfully",
     "exportInvoiceSuccess": "Invoice exported successfully",
     "exportPaymentSuccess": "Payment QR code exported successfully",
-
     "updatePasswordSuccess": "Password updated successfully",
     "forgotPasswordSuccess": "Password reset email sent successfully",
     "resetPasswordSuccess": "Password reset successfully",
-
     "createUserSuccess": "User created successfully",
     "updateUserSuccess": "User updated successfully",
     "deleteUserSuccess": "User deleted successfully",
-
     "updateUserRoleSuccess": "User role updated successfully",
-
     "forbidden": "Access denied",
     "sessionExpired": "Session has expired",
-
     "createSystemConfigSuccess": "System configuration created successfully",
     "updateSystemConfigSuccess": "System configuration updated successfully",
     "deleteSystemConfigSuccess": "System configuration deleted successfully",
-
     "createStaticPageSuccess": "Static page created successfully",
     "updateStaticPageSuccess": "Static page updated successfully",
     "deleteStaticPageSuccess": "Static page deleted successfully",
-
     "refreshRevenueSuccess": "New revenue data retrieved successfully",
     "copyCodeSuccess": "Code copied successfully",
-
     "exportAllProductsTemplateSuccess": "Menu template exported successfully",
     "exportProductImportTemplateSuccess": "Product import template exported successfully",
     "importMultipleProductsSuccess": "Products imported successfully",
-
     "createVoucherSuccess": "Voucher created successfully",
     "updateVoucherSuccess": "Voucher updated successfully",
     "deleteVoucherSuccess": "Voucher deleted successfully",
-
     "createPromotionSuccess": "Promotion created successfully",
     "updatePromotionSuccess": "Promotion updated successfully",
     "deletePromotionSuccess": "Promotion deleted successfully",
     "applyPromotionSuccess": "Promotion applied successfully",
     "removeAppliedPromotionSuccess": "Promotion removed successfully",
-
     "applyVoucherSuccess": "Voucher applied successfully",
     "removeVoucherSuccess": "Voucher removed successfully",
-
     "createBannerSuccess": "Banner created successfully",
     "updateBannerSuccess": "Banner updated successfully",
     "deleteBannerSuccess": "Banner deleted successfully",
+
+    "createRoleSuccess": "Role created successfully",
+    "updateRoleSuccess": "Role updated successfully",
+    "deleteRoleSuccess": "Role deleted successfully",
+
+    "createPermissionSuccess": "Permission created successfully",
+    "updatePermissionSuccess": "Permission updated successfully",
+    "deletePermissionSuccess": "Permission deleted successfully",
+
+    "downloadQrSuccess": "QR code downloaded successfully",
+    "downloadQrError": "QR code download failed",
 
     "unloggedIn": "Please log in",
     "catalogNameInvalid": "Invalid catalog name",
@@ -295,6 +277,7 @@
     "invalidOrderApproval": "Invalid order approval",
     "invalidOrderItems": "Invalid order items",
     "updateOrderError": "Error updating order",
-    "invalidOrderSlug": "Invalid order slug"
+    "invalidOrderSlug": "Invalid order slug",
+    "permissionExists": "Permission already exists"
   }
 }

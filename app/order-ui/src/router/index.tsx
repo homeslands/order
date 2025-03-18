@@ -48,6 +48,8 @@ import {
   PromotionPage,
   BannerPage,
   EmailVerificationPage,
+  RolePage,
+  RoleDetailPage,
   // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
@@ -427,6 +429,44 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={UserListPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_ROLE_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={RolePage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_ROLE_MANAGEMENT}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={RoleDetailPage} />}
               />
             ),
           },

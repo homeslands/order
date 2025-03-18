@@ -11,6 +11,7 @@
     "dishManagement": "Dish Management",
     "customerManagement": "Customer Management",
     "userManagement": "Employee Management",
+    "roleManagement": "Role Management",
     "branchManagement": "Branch Management",
     "revenueManagement": "Revenue Management",
     "logManagement": "Log Management",

@@ -14,6 +14,7 @@ import {
   Store,
   Tag,
   Ticket,
+  UserCog,
   Users,
 } from 'lucide-react'
 
@@ -81,7 +82,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     roles: [Role.MANAGER],
     icon: Store,
   },
-
+  {
+    title: 'sidebar.roleManagement',
+    path: ROUTE.STAFF_ROLE_MANAGEMENT,
+    roles: [Role.MANAGER],
+    icon: UserCog,
+  },
   {
     title: 'sidebar.staticPageManagement',
     path: ROUTE.STAFF_STATIC_PAGE,

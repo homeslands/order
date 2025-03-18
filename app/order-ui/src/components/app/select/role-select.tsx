@@ -10,7 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-import { useRole } from "@/hooks";
+import { useRoles } from "@/hooks";
 
 interface SelectRoleProps {
     defaultValue?: string;
@@ -20,7 +20,7 @@ interface SelectRoleProps {
 export default function RoleSelect({ defaultValue, onChange }: SelectRoleProps) {
     const { t } = useTranslation("role");
     const [allRoles, setAllRoles] = useState<{ value: string; label: string }[]>([]);
-    const { data } = useRole();
+    const { data } = useRoles();
 
     useEffect(() => {
         if (data?.result) {

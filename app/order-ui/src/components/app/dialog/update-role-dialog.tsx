@@ -12,15 +12,15 @@ import {
     DialogTrigger,
 } from '@/components/ui'
 
-import { UpdateBranchForm } from '@/components/app/form'
-import { IBranch } from '@/types'
+import { UpdateRoleForm } from '@/components/app/form'
+import { IRole } from '@/types'
 
-interface IUpdateBranchDialogProps {
-    branch: IBranch
+interface IUpdateRoleDialogProps {
+    role: IRole | null
 }
 
-export default function UpdateBranchDialog({ branch }: IUpdateBranchDialogProps) {
-    const { t } = useTranslation(['branch'])
+export default function UpdateRoleDialog({ role }: IUpdateRoleDialogProps) {
+    const { t } = useTranslation(['role'])
     const [isOpen, setIsOpen] = useState(false)
     const handleSubmit = (isOpen: boolean) => {
         setIsOpen(isOpen)
@@ -30,22 +30,22 @@ export default function UpdateBranchDialog({ branch }: IUpdateBranchDialogProps)
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild className="flex justify-start">
                 <Button
-                    variant="ghost"
-                    className="h-10 gap-1 px-2 text-sm"
+                    variant="outline"
+                    className="h-10 gap-1 px-2 text-sm text-muted-foreground"
                     onClick={() => setIsOpen(true)}
                 >
                     <SquarePen className="icon" />
-                    {t('branch.update')}
+                    {t('role.update')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">
                 <DialogHeader>
-                    <DialogTitle>{t('branch.update')}</DialogTitle>
+                    <DialogTitle>{t('role.update')}</DialogTitle>
                     <DialogDescription>
-                        {t('branch.updateBranchDescription')}
+                        {t('role.updateRoleDescription')}
                     </DialogDescription>
                 </DialogHeader>
-                <UpdateBranchForm branch={branch} onSubmit={handleSubmit} />
+                <UpdateRoleForm role={role ? role : null} onSubmit={handleSubmit} />
             </DialogContent>
         </Dialog>
     )

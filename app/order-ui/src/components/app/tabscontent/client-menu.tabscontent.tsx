@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useBranchStore } from '@/stores'
 import { useSpecificMenu } from '@/hooks'
 import { SkeletonMenuList } from '../skeleton'
-import { ClientMenuItemIUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
+import { ClientMenuItemInUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
 
 interface ClientMenuTabscontentProps {
   onSuccess: () => void
@@ -41,7 +41,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     >
       <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
         {specificMenu?.result.menuItems.map((item) => (
-          <ClientMenuItemIUpdateOrder onSuccess={onSuccess} item={item} key={item.slug} />
+          <ClientMenuItemInUpdateOrder onSuccess={onSuccess} item={item} key={item.slug} />
         ))}
       </div>
     </div>

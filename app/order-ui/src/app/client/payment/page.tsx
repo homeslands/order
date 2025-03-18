@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import moment from 'moment'
 import _ from 'lodash'
@@ -6,16 +6,17 @@ import { useTranslation } from 'react-i18next'
 import { CircleX, SquareMenu } from 'lucide-react'
 
 import { Button } from '@/components/ui'
-import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
+import { useInitiatePayment, useOrderBySlug } from '@/hooks'
 import { PaymentMethod, ROUTE } from '@/constants'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
-import { PaymentCountdown } from '@/components/app/countdown/PaymentCountdown'
 import { OrderStatus } from '@/types'
 import { usePaymentMethodStore } from '@/stores'
 import { Helmet } from 'react-helmet'
+import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
+import PaymentPageSkeleton from './skeleton/page'
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -24,14 +25,12 @@ export function ClientPaymentPage() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('order')
   const navigate = useNavigate()
-  const { data: order, refetch: refetchOrder } = useOrderBySlug(slug as string)
+  const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
-  const { mutate: exportPayment, isPending: isPendingExportPayment } = useExportPayment()
-  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug, clearStore } = usePaymentMethodStore()
-  // const [paymentSlug, setPaymentSlug] = useState<string>('')
-  const [isPolling, setIsPolling] = useState<boolean>(true) // Start polling initially
-  const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
+  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
+  const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
+  const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
 
   // calculate original total
   const originalTotal = order?.result.orderItems ?
@@ -41,40 +40,18 @@ export function ClientPaymentPage() {
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
   const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+  useEffect(() => {
+    if (isExpired) {
+      setIsPolling(false)
+    }
+  }, [isExpired])
 
   useEffect(() => {
-    if (order?.result.createdAt) {
-      const createdAt = moment(order.result.createdAt)
-      const now = moment()
-      const timePassed = now.diff(createdAt, 'seconds')
-      const remainingTime = 600 - timePassed // 10 minutes
-      setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
-      setIsExpired(remainingTime <= 0)
+    if (qrCode && paymentSlug && !isExpired) {
+      setIsPolling(true)
     }
-  }, [order?.result.createdAt])
+  }, [qrCode, paymentSlug, isExpired])
 
-  useEffect(() => {
-    let timerInterval: NodeJS.Timeout | null = null
-
-    if (timeRemainingInSec > 0) {
-      timerInterval = setInterval(() => {
-        setTimeRemainingInSec((prev) => {
-          const newTime = prev - 1
-          if (newTime <= 0) {
-            setIsExpired(true)
-            setIsPolling(false)
-            clearStore()
-            if (timerInterval) clearInterval(timerInterval)
-          }
-          return newTime
-        })
-      }, 1000)
-    }
-
-    return () => {
-      if (timerInterval) clearInterval(timerInterval)
-    }
-  }, [timeRemainingInSec, clearStore])
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
 
@@ -126,15 +103,31 @@ export function ClientPaymentPage() {
     }
   }
 
-  const handleExportPayment = () => {
-    if (!slug) return
-    exportPayment(paymentSlug, {
-      onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportPaymentSuccess'))
-        loadDataToPrinter(data)
-      },
-    })
-  }
+  const handleDownloadQR = () => {
+    if (!qrCode) return;
+
+    fetch(qrCode)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `payment-qr-${slug}.png`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showToast(tToast('toast.downloadQrSuccess'));
+      })
+      .catch(() => {
+        showToast(tToast('toast.downloadQrError'));
+      });
+  };
+
+  const handleExpire = useCallback((value: boolean) => {
+    setIsExpired(value)
+  }, [])
+
   if (isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
@@ -152,6 +145,7 @@ export function ClientPaymentPage() {
       </div>
     )
   }
+  if (isPending) return <PaymentPageSkeleton />
   return (
     <div className="container py-10">
       <Helmet>
@@ -161,7 +155,7 @@ export function ClientPaymentPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.payment.title')} />
       </Helmet>
-      <PaymentCountdown timeRemaining={timeRemainingInSec} />
+      <OrderCountdown createdAt={order?.result.createdAt || timeDefaultExpired} setIsExpired={handleExpire} />
       <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('menu.payment')}
@@ -241,7 +235,7 @@ export function ClientPaymentPage() {
                     <div className="flex w-full col-span-2 gap-2">
                       <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold truncate sm:text-lg">
+                          <span className="text-sm font-bold truncate sm:text-lg overflow-hidden text-ellipsis whitespace-nowrap">
                             {item.variant.product.name}
                           </span>
                         </div>
@@ -329,12 +323,11 @@ export function ClientPaymentPage() {
             <div className="flex gap-2">
               {paymentSlug ?
                 <Button
-                  disabled={isPendingExportPayment}
+                  disabled={!qrCode}
                   className="w-fit"
-                  onClick={handleExportPayment}
+                  onClick={handleDownloadQR}
                 >
-                  {isPendingExportPayment && <ButtonLoading />}
-                  {t('paymentMethod.exportPayment')}
+                  {t('paymentMethod.downloadQRCode')}
                 </Button>
                 : <Button
                   disabled={isPendingInitiatePayment}

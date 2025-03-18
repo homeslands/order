@@ -1,5 +1,25 @@
 {
   "role": {
+    "title": "Quản lý vai trò",
+    "createdAt": "Ngày tạo",
+    "slug": "Mã vai trò",
+    "name": "Tên vai trò",
+    "description": "Mô tả",
+    "authority": "Quyền hạn",
+    "authorityList": "Danh sách quyền hạn",
+    "addPermission": "Thêm quyền hạn",
+    "permissions": "Quyền hạn",
+    "confirmCreatePermission": "Xác nhận tạo quyền hạn",
+
+    "update": "Cập nhật",
+    "updateRoleDescription": "Cập nhật thông tin vai trò",
+    "enterName": "Nhập tên vai trò",
+    "enterDescription": "Nhập mô tả",
+
+    "delete": "Xóa quyền hạn",
+    "deletePermissionWarning1": "Bạn sắp sửa xóa quyền hạn ",
+    "deletePermissionConfirmation": "Bạn có chắc chắn muốn xóa quyền hạn này không?",
+
     "ADMIN": "Quản trị viên",
     "MANAGER": "Quản lý",
     "STAFF": "Nhân viên",

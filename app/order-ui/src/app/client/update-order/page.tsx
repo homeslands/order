@@ -13,16 +13,17 @@ import {
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { VoucherListSheet } from '@/components/app/sheet'
-import {  useOrderBySlug, useUpdateOrderType } from '@/hooks'
+import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderNoteInput } from './components'
+import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 
 export default function ClientUpdateOrderPage() {
     const { t } = useTranslation('menu')
@@ -34,6 +35,7 @@ export default function ClientUpdateOrderPage() {
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [type, setType] = useState<string>("")
     const navigate = useNavigate()
+    const [isExpired, setIsExpired] = useState<boolean>(false)
     useEffect(() => {
         if (order?.result) {
             setSelectedTable(order?.result.table)
@@ -48,12 +50,8 @@ export default function ClientUpdateOrderPage() {
         : 0;
 
     const discount = orderItems
-        ? orderItems.orderItems.reduce(
-            (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
-            0
-        )
+        ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
         : 0;
-
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -62,7 +60,9 @@ export default function ClientUpdateOrderPage() {
     const handleUpdateOrderTypeSuccess = () => {
         refetch()
     }
-
+    const handleExpire = useCallback((value: boolean) => {
+        setIsExpired(value)
+    }, [])
     const handleClickPayment = () => {
         // Update order type
         let params: IUpdateOrderTypeRequest | null = null
@@ -81,7 +81,7 @@ export default function ClientUpdateOrderPage() {
     }
     if (isPending) { return <UpdateOrderSkeleton /> }
 
-    if (_.isEmpty(orderItems?.orderItems)) {
+    if (isExpired) {
         return (
             <div className="container py-20 lg:h-[60vh]">
                 <div className="flex flex-col items-center justify-center gap-5">
@@ -108,6 +108,7 @@ export default function ClientUpdateOrderPage() {
                 </title>
                 <meta name='description' content={tHelmet('helmet.updateOrder.title')} />
             </Helmet>
+            <OrderCountdown createdAt={order?.result.createdAt || "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)"} setIsExpired={handleExpire} />
             {/* Order type selection */}
             {order?.result &&
                 <div className="flex flex-col gap-4 lg:flex-row">
@@ -128,7 +129,7 @@ export default function ClientUpdateOrderPage() {
                     </div>
 
                     {/* Right content */}
-                    <div className="w-full lg:w-2/5">
+                    <div className="w-full lg:w-2/5 mt-8">
                         <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
 
                         {type === OrderTypeEnum.AT_TABLE &&
@@ -166,6 +167,7 @@ export default function ClientUpdateOrderPage() {
                                                     <div className="flex flex-col">
                                                         <span className="text-xs font-bold truncate sm:text-md">
                                                             {item.variant.product.name}
+                                                            <span className='uppercase font-normal'> - {item.variant.size.name}</span>
                                                         </span>
                                                         {item?.promotion ? (
                                                             <div className='flex items-center gap-1'>
