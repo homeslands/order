@@ -22,7 +22,7 @@ import {
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { DataSource, MoreThan, Not, Repository } from 'typeorm';
+import { MoreThan, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { InjectMapper } from '@automapper/nestjs';
@@ -78,7 +78,6 @@ export class AuthService {
     private readonly verifyEmailRepository: Repository<VerifyEmailToken>,
     private readonly fileService: FileService,
     private readonly mailService: MailService,
-    private readonly dataSource: DataSource,
     private readonly systemConfigService: SystemConfigService,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly authUtils: AuthUtils,
@@ -226,22 +225,30 @@ export class AuthService {
 
     const url = `${await this.getFrontendUrl()}/reset-password?token=${token}`;
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(forgotPasswordToken);
+        await this.mailService.sendForgotPasswordToken(user, url);
+      },
+      () => {
+        this.logger.log(
+          `User ${user.firstName} ${user.lastName} created forgot password token`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when create forgot password token`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(
+          AuthValidation.ERROR_CREATE_FORGOT_PASSWORD_TOKEN,
+        );
+      },
+    );
 
-    try {
-      await queryRunner.manager.save(forgotPasswordToken);
-      await this.mailService.sendForgotPasswordToken(user, url);
-      await queryRunner.commitTransaction();
-      this.logger.log(`User ${user.id} created forgot password token`, context);
-      return url;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    return url;
   }
 
   async createVerifyEmail(
@@ -335,22 +342,28 @@ export class AuthService {
 
     const url = `${await this.getFrontendUrl()}/verify-email?token=${token}&email=${requestData.email}`;
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(verifyEmailToken);
+        await this.mailService.sendVerifyEmail(user, url, requestData.email);
+      },
+      () => {
+        this.logger.log(
+          `User ${user.id} created verified email token`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when create verify email token`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+      },
+    );
 
-    try {
-      await queryRunner.manager.save(verifyEmailToken);
-      await this.mailService.sendVerifyEmail(user, url, requestData.email);
-      await queryRunner.commitTransaction();
-      this.logger.log(`User ${user.id} created verified email token`, context);
-      return url;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+    return url;
   }
 
   async confirmEmailVerification(
@@ -402,30 +415,30 @@ export class AuthService {
     // Set token expired after forgot password successfully
     existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(user);
+        await manager.save(existToken);
+      },
+      () => {
+        this.logger.log(
+          `User ${user.id} confirmed email verification token`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when confirm email verification`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(
+          AuthValidation.CONFIRM_EMAIL_VERIFICATION_ERROR,
+        );
+      },
+    );
 
-    try {
-      await queryRunner.manager.save(user);
-      await queryRunner.manager.save(existToken);
-      await queryRunner.commitTransaction();
-      this.logger.log(
-        `User ${user.id} confirmed email verification token`,
-        context,
-      );
-      return true;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.error(
-        `Error when confirm email verification`,
-        error.stack,
-        context,
-      );
-      throw new AuthException(AuthValidation.CONFIRM_EMAIL_VERIFICATION_ERROR);
-    } finally {
-      await queryRunner.release();
-    }
+    return true;
   }
 
   /**

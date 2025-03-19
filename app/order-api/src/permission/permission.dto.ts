@@ -13,7 +13,12 @@ export class CreatePermissionDto {
   @AutoMap()
   @ApiProperty()
   @IsArray()
-  authorities: string[];
+  createAuthorities: string[];
+
+  @AutoMap()
+  @ApiProperty()
+  @IsArray()
+  deleteAuthorities: string[];
 }
 
 export class DeletePermissionDto {}
