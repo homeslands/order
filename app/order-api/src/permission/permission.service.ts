@@ -31,7 +31,19 @@ export class PermissionService {
     private readonly transactionMangerService: TransactionManagerService,
   ) {}
 
-  async bulkCreate(createPermissionDto: CreatePermissionDto) {
+  /**
+   * Bulk create permission. This method will remove all permissions that have the same role and authority in the deleteAuthorities list.
+   * Then, it will create new permissions with the role and authorities in the createAuthorities list.
+   * If the authority is in both createAuthorities and deleteAuthorities, it will be removed from the deleteAuthorities list.
+   * If the permission already exists, it will be removed from the createAuthorities list.
+   * @param {CreatePermissionDto} createPermissionDto
+   * @returns {Promise<PermissionResponseDto[]>}
+   * @memberof PermissionService
+   * @throws {PermissionException} if failed to create permission
+   */
+  async bulkCreate(
+    createPermissionDto: CreatePermissionDto,
+  ): Promise<PermissionResponseDto[]> {
     const context = `${PermissionService.name}.${this.bulkCreate.name}`;
 
     // Get share authorities
@@ -159,7 +171,15 @@ export class PermissionService {
     );
   }
 
-  async remove(slug: string) {
+  /**
+   * Remove permission by slug.
+   * This method will remove the permission by slug.
+   * @param {string} slug
+   * @returns {Promise<PermissionResponseDto>}
+   * @memberof PermissionService
+   * @throws {PermissionException} if permission not found
+   */
+  async remove(slug: string): Promise<PermissionResponseDto> {
     const context = `${PermissionService.name}.${this.remove.name}`;
     const permission = await this.permissionRepository.findOne({
       where: {

@@ -167,7 +167,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     </Button>
                   </NavLink>
                 )}
-                {order?.slug && !order?.payment?.statusCode && order?.status === OrderStatus.PENDING && (
+                {order?.slug && order?.status === OrderStatus.PENDING && (!order?.payment?.statusCode || order?.payment.statusCode === paymentStatus.PENDING) && (
                   <NavLink
                     to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
                     className="flex items-center justify-start w-full"

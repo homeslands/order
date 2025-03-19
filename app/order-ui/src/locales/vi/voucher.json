@@ -1,7 +1,6 @@
 {
   "voucher": {
     "voucherTitle": "Quản lý voucher",
-
     "useVoucher": "Sử dụng voucher",
     "slug": "Slug",
     "createdAt": "Ngày tạo",
@@ -35,17 +34,13 @@
     "active": "Có hiệu lực",
     "inactive": "Không có hiệu lực",
     "bestChoice": "Lựa chọn tốt nhất",
-
     "confirmCreateVoucher": "Xác nhận tạo voucher",
-
     "update": "Cập nhật voucher",
     "updateVoucherDescription": "Cập nhật thông tin voucher",
     "confirmUpdateVoucher": "Xác nhận cập nhật voucher",
-
     "delete": "Xóa voucher",
     "deleteVoucherWarning1": "Bạn sắp sửa xóa voucher ",
     "deleteVoucherConfirmation": "Bạn có chắc chắn muốn xóa voucher này không?",
-
     "list": "Danh sách voucher",
     "search": "Tìm kiếm voucher",
     "enterVoucher": "Nhập mã giảm giá",
@@ -55,6 +50,7 @@
     "maxApply": "Áp dụng tối đa",
     "complete": "Hoàn thành",
     "minOrderNotMet": "Chưa đạt giá trị tối thiểu",
-    "expired": "Voucher đã hết hạn"
+    "expired": "Voucher đã hết hạn",
+    "noVoucher": "Không có mã giảm giá hợp lệ"
   }
 }

@@ -251,6 +251,15 @@ export class AuthService {
     return url;
   }
 
+  /**
+   * Handles the creation of a verify email token.
+   * This method creates a new verify email token for the user and sends an email to the user with the verification link.
+   * @param {EmailVerificationRequestDto} requestData
+   * @returns {Promise<string>} Return URL to help client verify email
+   * @throws {AuthException} throws exception if user not found, token is invalid
+   * @throws {BranchException} throws exception if branch is not found
+   * @memberof AuthService
+   */
   async createVerifyEmail(
     requestData: EmailVerificationRequestDto,
   ): Promise<string> {
@@ -366,6 +375,13 @@ export class AuthService {
     return url;
   }
 
+  /**
+   * Confirm email verification.
+   * This method verifies the email verification token and updates the user's email.
+   * @param {ConFirmEmailVerificationRequestDto} requestData
+   * @returns {Promise<boolean>} Return true if email is verified successfully
+   * @throws {AuthException} throws exception if token is invalid, expired, user not found
+   */
   async confirmEmailVerification(
     requestData: ConFirmEmailVerificationRequestDto,
   ): Promise<boolean> {
@@ -788,7 +804,6 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    // TODO: Generate new access token
     const payload = this.jwtService.decode(requestData.refreshToken);
     this.logger.log(`User ${payload.sub} refreshed token`, context);
 

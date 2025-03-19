@@ -8,7 +8,7 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useOrderBySlug } from '@/hooks'
 import { PaymentMethod, ROUTE } from '@/constants'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
@@ -17,11 +17,11 @@ import { usePaymentMethodStore } from '@/stores'
 import { Helmet } from 'react-helmet'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 import PaymentPageSkeleton from './skeleton/page'
+import DownloadQrCode from '@/components/app/button/download-qr-code'
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
-  const { t: tToast } = useTranslation(['toast'])
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('order')
   const navigate = useNavigate()
@@ -102,27 +102,6 @@ export function ClientPaymentPage() {
       )
     }
   }
-
-  const handleDownloadQR = () => {
-    if (!qrCode) return;
-
-    fetch(qrCode)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `payment-qr-${slug}.png`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        showToast(tToast('toast.downloadQrSuccess'));
-      })
-      .catch(() => {
-        showToast(tToast('toast.downloadQrError'));
-      });
-  };
 
   const handleExpire = useCallback((value: boolean) => {
     setIsExpired(value)
@@ -321,15 +300,8 @@ export function ClientPaymentPage() {
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) &&
             <div className="flex gap-2">
-              {paymentSlug ?
+              {paymentSlug ? <DownloadQrCode qrCode={qrCode} slug={slug} /> :
                 <Button
-                  disabled={!qrCode}
-                  className="w-fit"
-                  onClick={handleDownloadQR}
-                >
-                  {t('paymentMethod.downloadQRCode')}
-                </Button>
-                : <Button
                   disabled={isPendingInitiatePayment}
                   className="w-fit"
                   onClick={handleConfirmPayment}

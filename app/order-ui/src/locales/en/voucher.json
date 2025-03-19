@@ -55,6 +55,7 @@
     "maxApply": "Maximum Apply",
     "complete": "Complete",
     "minOrderNotMet": "Minimum order value not met",
-    "expired": "Voucher has expired"
+    "expired": "Voucher has expired",
+    "noVoucher": "No voucher available"
   }
 }

@@ -82,8 +82,14 @@ export class OrderService {
   /**
    * Handles order updating
    * @param {string} slug
+   * @param {UpdateOrderRequestDto} requestData The data to update order
+   * @returns {Promise<OrderResponseDto>} The updated order
+   * @throws {OrderException} If order is not found
    */
-  async updateOrder(slug: string, requestData: UpdateOrderRequestDto) {
+  async updateOrder(
+    slug: string,
+    requestData: UpdateOrderRequestDto,
+  ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.updateOrder.name}`;
 
     const order = await this.orderUtils.getOrder({ where: { slug } });
@@ -99,34 +105,45 @@ export class OrderService {
     order.type = requestData.type;
     order.table = table;
 
-    const voucher = await this.voucherUtils.getVoucher({
-      where: {
-        slug: requestData.voucher ?? IsNull(),
-      },
-    });
-
-    if (voucher) {
+    // Get new voucher
+    let voucher: Voucher = null;
+    if (requestData.voucher) {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+      });
       await this.voucherUtils.validateVoucher(voucher);
       await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
       await this.voucherUtils.validateMinOrderValue(voucher, order);
-      // Update remaining quantity of voucher
-      voucher.remainingUsage -= 1;
     }
 
+    // Get previous voucher
     const previousVoucher = order.voucher;
-    if (previousVoucher) {
-      previousVoucher.remainingUsage += 1;
-    }
-
-    order.voucher = voucher;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
-        if (previousVoucher) await manager.save(previousVoucher);
-        const updatedOrder = await manager.save(order);
-        return updatedOrder;
+        if (voucher) {
+          // Update remaining quantity of voucher
+          voucher.remainingUsage -= 1;
+
+          // Update order
+          order.voucher = voucher;
+          order.subtotal = await this.orderUtils.getOrderSubtotal(
+            order,
+            voucher,
+          );
+
+          await manager.save(voucher);
+        }
+
+        if (previousVoucher) {
+          previousVoucher.remainingUsage += 1;
+          await manager.save(previousVoucher);
+        }
+
+        return await manager.save(order);
       },
       (result) => {
         this.logger.log(`Order ${result.slug} updated successfully`, context);

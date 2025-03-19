@@ -42,7 +42,6 @@ export default function ClientUpdateOrderPage() {
             setType(order?.result.type)
         }
     }, [order])
-
     const orderItems = order?.result
 
     const originalTotal = orderItems
@@ -67,9 +66,9 @@ export default function ClientUpdateOrderPage() {
         // Update order type
         let params: IUpdateOrderTypeRequest | null = null
         if (type === OrderTypeEnum.AT_TABLE) {
-            params = { type: type, table: selectedTable?.slug || null, }
+            params = { type: type, table: selectedTable?.slug || null }
         } else {
-            params = { type: type, table: null, }
+            params = { type: type, table: null }
         }
         updateOrderType({ slug: slug as string, params }, {
             onSuccess: () => {
@@ -203,7 +202,7 @@ export default function ClientUpdateOrderPage() {
                                     </div>
                                 ))}
                             </div>
-                            <VoucherListSheet defaultValue={orderItems?.voucher && orderItems.voucher.slug} />
+                            <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
                             <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                 <div className="w-2/3 space-y-1">
                                     <div className="grid grid-cols-5">
@@ -221,6 +220,16 @@ export default function ClientUpdateOrderPage() {
                                             {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                         </span>
                                     </div>
+                                    {order?.result.voucher &&
+                                        <div className="flex justify-between w-full pb-4 border-b">
+                                            <h3 className="text-sm italic font-medium text-green-500">
+                                                {t('order.voucher')}
+                                            </h3>
+                                            <p className="text-sm italic font-semibold text-green-500">
+                                                - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                            </p>
+                                        </div>}
+
                                     <div className="grid grid-cols-5 pt-2 mt-4 border-t">
                                         <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
                                         <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
