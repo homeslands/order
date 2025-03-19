@@ -31,7 +31,11 @@ export const useCatalogColumns = (): ColumnDef<ICatalog>[] => {
     },
     {
       accessorKey: 'name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('catalog.name')} />
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('catalog.name')} />,
+      cell: ({ row }) => {
+        const catalog = row.original
+        return catalog ? <span>{catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1)}</span> : ''
+      }
     },
     {
       accessorKey: 'description',

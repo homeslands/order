@@ -14,33 +14,29 @@ import {
 import { ICreatePermissionRequest } from '@/types'
 import { useCreatePermission } from '@/hooks'
 import { showToast } from '@/utils'
+import { useState } from 'react'
 
 interface IConfirmCreatePermissionDialogProps {
-  isOpen: boolean
-  onOpenChange: (isOpen: boolean) => void
   permission: ICreatePermissionRequest | null
-  disabled?: boolean
   onSuccess?: () => void
 }
 
 export default function ConfirmCreatePermissionDialog({
-  isOpen,
-  onOpenChange,
   permission,
-  disabled,
   onSuccess
 }: IConfirmCreatePermissionDialogProps) {
   const { t } = useTranslation(['role'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { mutate: createPermission } = useCreatePermission()
+  const [isOpen, onOpenChange] = useState(false)
 
   const handleSubmit = async () => {
-    if (!permission || !permission.authorities.length) return
-
+    if (!permission) return
     createPermission(permission, {
       onSuccess: () => {
         onSuccess?.()
+        onOpenChange(false)
         showToast(tToast('toast.createPermissionSuccess'))
       },
     })
@@ -50,7 +46,7 @@ export default function ConfirmCreatePermissionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
-          disabled={disabled}
+          disabled={!permission}
           className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
           onClick={() => onOpenChange(true)}
           type="submit"

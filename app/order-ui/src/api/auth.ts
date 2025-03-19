@@ -87,7 +87,10 @@ export async function authorityGroup(
 export async function createPermission(
   params: ICreatePermissionRequest,
 ): Promise<IApiResponse<null>> {
-  const response = await http.post<IApiResponse<null>>('/permission', params)
+  const response = await http.post<IApiResponse<null>>(
+    '/permission/bulk',
+    params,
+  )
   return response.data
 }
 

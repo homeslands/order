@@ -13,6 +13,7 @@
     "checkout": "Checkout",
     "viewDetail": "View details",
     "confirm": "Confirm",
+    "selectAll": "Select all",
     "confirmDelete": "I understand, confirm delete",
     "confirmCancel": "I understand, confirm cancel",
     "noData": "No data",

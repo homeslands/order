@@ -59,7 +59,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       cell: ({ row }) => {
         const createdAt = row.getValue('createdAt')
         return createdAt ? (
-          <div className="text-xs">
+          <div>
             {moment(new Date(createdAt as string)).format('DD/MM/YYYY')}
           </div>
         ) : ''
@@ -67,7 +67,11 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
     },
     {
       accessorKey: 'catalog.name',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('product.catalog')} />
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('product.catalog')} />,
+      cell: ({ row }) => {
+        const product = row.original
+        return product ? <span>{product.catalog.name.charAt(0).toUpperCase() + product.catalog.name.slice(1)}</span> : ''
+      }
     },
     {
       accessorKey: 'highlight',

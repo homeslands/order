@@ -33,5 +33,6 @@ export interface IGetAuthorityGroupsRequest {
 
 export interface ICreatePermissionRequest {
   role: string
-  authorities: string[]
+  createAuthorities: string[]
+  deleteAuthorities: string[]
 }
