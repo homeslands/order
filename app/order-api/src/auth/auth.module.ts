@@ -19,6 +19,7 @@ import { Role } from 'src/role/role.entity';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { DbModule } from 'src/db/db.module';
+import { AuthUtils } from './auth.utils';
 
 @Module({
   imports: [
@@ -39,8 +40,9 @@ import { DbModule } from 'src/db/db.module';
     MailModule,
     SystemConfigModule,
     DbModule,
+    UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, AuthProfile],
+  providers: [AuthService, LocalStrategy, JwtStrategy, AuthProfile, AuthUtils],
 })
 export class AuthModule {}

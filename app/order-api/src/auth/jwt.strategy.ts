@@ -7,12 +7,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { CurrentUserDto } from 'src/user/user.dto';
+import { AuthUtils } from './auth.utils';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly authUtils: AuthUtils,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -27,9 +29,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       where: {
         id: payload.sub,
       },
-      relations: ['role'],
+      relations: ['role.permissions.authority.authorityGroup'],
     });
     if (!user) throw new UnauthorizedException();
-    return { userId: payload.sub, scope: user.role?.name } as CurrentUserDto;
+
+    const scope = this.authUtils.buildScope(user);
+    return {
+      userId: payload.sub,
+      scope: this.authUtils.parseScope(scope),
+    } as CurrentUserDto;
   }
 }

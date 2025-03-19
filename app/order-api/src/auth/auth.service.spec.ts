@@ -17,7 +17,6 @@ import {
   ForgotPasswordRequestDto,
   ForgotPasswordTokenRequestDto,
   LoginAuthRequestDto,
-  LoginAuthResponseDto,
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
 } from './auth.dto';
@@ -42,6 +41,7 @@ import { MailProducer } from 'src/mail/mail.producer';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { AuthUtils } from './auth.utils';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -59,6 +59,7 @@ describe('AuthService', () => {
         FileService,
         SystemConfigService,
         TransactionManagerService,
+        AuthUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         MailProducer,
         {
@@ -511,7 +512,10 @@ describe('AuthService', () => {
   describe('Testing avatar uploading func', () => {
     const mockUserRequest: CurrentUserDto = {
       userId: 'user-id',
-      scope: '[]',
+      scope: {
+        role: '',
+        permissions: [],
+      },
     };
     const mockFileRequest: Express.Multer.File = {
       fieldname: 'file',

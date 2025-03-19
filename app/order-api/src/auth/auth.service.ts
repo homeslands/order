@@ -52,6 +52,7 @@ import { RoleException } from 'src/role/role.exception';
 import { RoleValidation } from 'src/role/role.validation';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { AuthUtils } from './auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -80,6 +81,7 @@ export class AuthService {
     private readonly dataSource: DataSource,
     private readonly systemConfigService: SystemConfigService,
     private readonly transactionManagerService: TransactionManagerService,
+    private readonly authUtils: AuthUtils,
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
     this.duration = this.configService.get<number>('DURATION');
@@ -573,7 +575,7 @@ export class AuthService {
     const context = `${AuthService.name}.${this.validateUser.name}`;
     const user = await this.userRepository.findOne({
       where: { phonenumber },
-      relations: ['role'],
+      relations: ['role.permissions.authority.authorityGroup'],
     });
     if (!user) {
       this.logger.warn(`User ${phonenumber} is not found`, `${context}`);
@@ -631,7 +633,7 @@ export class AuthService {
     const payload: AuthJwtPayload = {
       sub: user.id,
       jti: uuidv4(),
-      scope: user.role?.name,
+      scope: this.authUtils.buildScope(user),
     };
     this.logger.log(
       `User ${user.phonenumber} logged in`,

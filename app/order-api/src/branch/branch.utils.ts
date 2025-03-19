@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Branch } from './branch.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { BranchValidation } from './branch.validation';
 import { BranchException } from './branch.exception';
 
@@ -12,8 +12,8 @@ export class BranchUtils {
     private readonly branchRepository: Repository<Branch>,
   ) {}
 
-  async getBranch(where: FindOptionsWhere<Branch>): Promise<Branch> {
-    const branch = await this.branchRepository.findOne({ where });
+  async getBranch(opts: FindOneOptions<Branch>): Promise<Branch> {
+    const branch = await this.branchRepository.findOne({ ...opts });
     if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
     return branch;
   }

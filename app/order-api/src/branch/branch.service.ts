@@ -6,13 +6,14 @@ import {
 } from './branch.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Branch } from './branch.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { BranchException } from './branch.exception';
 import { BranchValidation } from './branch.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { BranchUtils } from './branch.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class BranchService {
@@ -21,11 +22,22 @@ export class BranchService {
     @InjectMapper() private mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly branchUtil: BranchUtils,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
-  async updateBranch(slug: string, requestData: UpdateBranchDto) {
+  /**
+   * Update branch
+   * @param {string} slug
+   * @param {UpdateBranchDto} requestData
+   * @returns {Promise<BranchResponseDto>} Branch updated successfully
+   * @throws {BranchException} Branch not found
+   */
+  async updateBranch(
+    slug: string,
+    requestData: UpdateBranchDto,
+  ): Promise<BranchResponseDto> {
     const context = `${BranchService.name}.${this.updateBranch.name}`;
-    const branch = await this.branchRepository.findOne({
+    const branch = await this.branchUtil.getBranch({
       where: {
         slug,
       },
@@ -37,16 +49,27 @@ export class BranchService {
       ...requestData,
     });
 
-    try {
-      const updatedBranch = await this.branchRepository.save(branch);
-      return this.mapper.map(updatedBranch, Branch, BranchResponseDto);
-    } catch (error) {
-      this.logger.error(
-        `Error when updating branch: ${error.message}`,
-        error.stack,
-        context,
-      );
-    }
+    const updateBranch = await this.transactionManagerService.execute<Branch>(
+      async (manager) => {
+        return manager.save(branch);
+      },
+      (result) => {
+        this.logger.log(`Branch ${result.name} updated successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when updating branch: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.ERROR_WHEN_UPDATE_BRANCH,
+          error.message,
+        );
+      },
+    );
+
+    return this.mapper.map(updateBranch, Branch, BranchResponseDto);
   }
 
   /**
@@ -55,12 +78,30 @@ export class BranchService {
    * @returns {Promise<BranchResponseDto>} New branch created successfully
    */
   async createBranch(requestData: CreateBranchDto): Promise<BranchResponseDto> {
+    const context = `${BranchService.name}.${this.createBranch.name}`;
     const branch = this.mapper.map(requestData, CreateBranchDto, Branch);
 
-    this.branchRepository.create(branch);
-    const createBranch = await this.branchRepository.save(branch);
+    const createdBranch = await this.transactionManagerService.execute<Branch>(
+      async (manager) => {
+        return manager.save(branch);
+      },
+      (result) => {
+        this.logger.log(`Branch ${result.name} created successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when creating branch: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.ERROR_WHEN_CREATE_BRANCH,
+          error.message,
+        );
+      },
+    );
 
-    return this.mapper.map(createBranch, Branch, BranchResponseDto);
+    return this.mapper.map(createdBranch, Branch, BranchResponseDto);
   }
 
   /**
@@ -68,26 +109,49 @@ export class BranchService {
    * @returns {Promise<BranchResponseDto[]>} All branchs have been retrieved successfully
    */
   async getAllBranches(): Promise<BranchResponseDto[]> {
-    const branches = await this.branchRepository.find();
+    const branches = await this.branchRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
     return this.mapper.mapArray(branches, Branch, BranchResponseDto);
   }
 
-  async deleteBranch(slug: string): Promise<number> {
+  /**
+   * Delete branch
+   * @param {string} slug
+   * @returns {Promise<BranchResponseDto>} Number of branch deleted
+   * @throws {BranchException} Error when delete branch
+   */
+  async deleteBranch(slug: string): Promise<BranchResponseDto> {
     const context = `${BranchService.name}.${this.deleteBranch.name}`;
 
-    const findOptionsWhere: FindOptionsWhere<Branch> = { slug };
-    const branch = await this.branchUtil.getBranch(findOptionsWhere);
+    const branch = await this.branchUtil.getBranch({
+      where: {
+        slug,
+      },
+    });
 
-    try {
-      const removed = await this.branchRepository.delete(branch.id);
-      return removed.affected || 0;
-    } catch (error) {
-      this.logger.error(
-        BranchValidation.ERROR_WHEN_DELETE_BRANCH.message,
-        error.stack,
-        context,
-      );
-      throw new BranchException(BranchValidation.ERROR_WHEN_DELETE_BRANCH);
-    }
+    const deletedBranch = await this.transactionManagerService.execute<Branch>(
+      async (manager) => {
+        return manager.remove(branch);
+      },
+      (result) => {
+        this.logger.log(`Branch ${result.name} deleted successfully`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when deleting branch: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.ERROR_WHEN_DELETE_BRANCH,
+          error.message,
+        );
+      },
+    );
+
+    return this.mapper.map(deletedBranch, Branch, BranchResponseDto);
   }
 }

@@ -45,12 +45,17 @@ export class CreateUserRequestDto {
   role: string;
 }
 
+export class UserScopeDto {
+  role: string;
+  permissions: string[];
+}
+
 export class CurrentUserDto {
   @IsNotEmpty({ message: INVALID_USERID })
   userId: string;
 
   @IsOptional()
-  scope?: string;
+  scope?: UserScopeDto;
 }
 
 export class UserResponseDto extends BaseResponseDto {
