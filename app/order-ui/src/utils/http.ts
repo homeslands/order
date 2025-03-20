@@ -101,7 +101,7 @@ axiosInstance.interceptors.request.use(
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
           await axios.post(`${baseURL}/auth/refresh`, {
             refreshToken,
-            expiredToken: token,
+            accessToken: token,
           })
 
         const newToken = response.data.result.token

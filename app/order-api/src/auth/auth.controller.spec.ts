@@ -26,6 +26,7 @@ import { MailProducer } from 'src/mail/mail.producer';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
+import { UserUtils } from 'src/user/user.utils';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -40,6 +41,7 @@ describe('AuthController', () => {
         MailProducer,
         TransactionManagerService,
         AuthUtils,
+        UserUtils,
         {
           provide: 'BullQueue_mail',
           useValue: {},

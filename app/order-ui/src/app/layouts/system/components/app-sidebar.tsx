@@ -1,6 +1,7 @@
 import { ChevronRight, House, Sparkles } from 'lucide-react'
 import { useLocation, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { jwtDecode } from "jwt-decode";
 import { useSidebar } from '@/components/ui'
 import { useMemo } from 'react'
 
@@ -28,18 +29,20 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from '@/components/ui'
-import { useUserStore } from '@/stores'
+import { useAuthStore } from '@/stores'
 import { sidebarRoutes } from '@/router/routes'
-import { ISidebarRoute } from '@/types'
+import { ISidebarRoute, IToken } from '@/types'
 import { HomelandLogo } from '@/assets/images'
 import { cn } from '@/lib'
 import { ROUTE } from '@/constants'
 
 export function AppSidebar() {
   const { t } = useTranslation('sidebar')
-  const { userInfo } = useUserStore()
   const location = useLocation()
   const { state, toggleSidebar } = useSidebar()
+  const authStore = useAuthStore.getState()
+  const { token } = authStore
+  const decoded: IToken = jwtDecode(token || '');
   const isActive = (path: string) => location.pathname === path
 
   const translatedSidebarRoute = (sidebarRoutes: ISidebarRoute) => ({
@@ -56,13 +59,13 @@ export function AppSidebar() {
 
   // Lọc routes theo role của user
   const filteredRoutes = useMemo(() => {
-    if (!userInfo?.role?.name) return []
+    if (!decoded.scope) return []
 
     return translatedRoutes.filter((route) => {
       // Kiểm tra role cho phép
-      return !route.roles || route.roles.includes(userInfo.role.name)
+      return !route.permission || JSON.stringify(decoded.scope).includes(route.permission)
     })
-  }, [translatedRoutes, userInfo?.role?.name])
+  }, [translatedRoutes, decoded])
 
   return (
     <Sidebar

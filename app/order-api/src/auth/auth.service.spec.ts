@@ -42,6 +42,9 @@ import { CurrentUserDto } from 'src/user/user.dto';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { UserException } from 'src/user/user.exception';
+import { UserValidation } from 'src/user/user.validation';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -51,6 +54,7 @@ describe('AuthService', () => {
   let mapperMock: MockType<Mapper>;
   let systemConfigService: SystemConfigService;
   let mockDataSource: DataSource;
+  let userUtils: UserUtils;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,6 +64,7 @@ describe('AuthService', () => {
         SystemConfigService,
         TransactionManagerService,
         AuthUtils,
+        UserUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         MailProducer,
         {
@@ -138,6 +143,7 @@ describe('AuthService', () => {
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
     systemConfigService = module.get(SystemConfigService);
     mockDataSource = module.get(DataSource);
+    userUtils = module.get(UserUtils);
   });
 
   it('should be defined', () => {
@@ -422,9 +428,11 @@ describe('AuthService', () => {
       forgotPasswordRepositoryMock.findOne.mockReturnValue(mockExistToken);
       jest.spyOn(jwtService, 'verify').mockReturnValue({});
       jest.spyOn(jwtService, 'decode').mockReturnValue(mockAuthJwtPayload);
-      userRepositoryMock.findOne.mockReturnValue(null);
+      jest
+        .spyOn(userUtils, 'getUser')
+        .mockRejectedValue(new UserException(UserValidation.USER_NOT_FOUND));
       expect(service.forgotPassword(mockRequestData)).rejects.toThrow(
-        AuthException,
+        UserException,
       );
     });
 
@@ -482,14 +490,16 @@ describe('AuthService', () => {
     const mockUrl = `${mockFrontendUrl}/reset-password?token=${mockToken}`;
 
     it('Should throw `AuthException` if user is not found', () => {
-      userRepositoryMock.findOne.mockReturnValue(null);
+      jest
+        .spyOn(userUtils, 'getUser')
+        .mockRejectedValue(new UserException(UserValidation.USER_NOT_FOUND));
       expect(
         service.createForgotPasswordToken(mockRequestData),
-      ).rejects.toThrow(AuthException);
+      ).rejects.toThrow(UserException);
     });
 
     it('Should throw `AuthException` if forgot token exists', () => {
-      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      jest.spyOn(userUtils, 'getUser').mockResolvedValue(mockUser);
       forgotPasswordRepositoryMock.findOne.mockReturnValue(mockForgotToken);
       expect(
         service.createForgotPasswordToken(mockRequestData),
@@ -551,14 +561,16 @@ describe('AuthService', () => {
     };
 
     it('Should throw `AuthException` if user is not found', async () => {
-      userRepositoryMock.findOne.mockReturnValue(null);
+      jest
+        .spyOn(userUtils, 'getUser')
+        .mockRejectedValue(new UserException(UserValidation.USER_NOT_FOUND));
       expect(
         service.uploadAvatar(mockUserRequest, mockFileRequest),
-      ).rejects.toThrow(AuthException);
+      ).rejects.toThrow(UserException);
     });
 
     it('Should upload avatar success if user is found', async () => {
-      userRepositoryMock.findOne.mockReturnValue(mockUser);
+      jest.spyOn(userUtils, 'getUser').mockResolvedValue(mockUser);
       mapperMock.map.mockReturnValue(mockUser);
       expect(
         service.uploadAvatar(mockUserRequest, mockFileRequest),

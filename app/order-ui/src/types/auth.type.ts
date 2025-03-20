@@ -33,3 +33,10 @@ export interface IRefreshTokenResponse {
   token: string
   refreshToken: string
 }
+
+export interface IToken {
+  scope: {
+    role: string
+    permissions: string[]
+  }
+}

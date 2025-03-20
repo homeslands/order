@@ -6,10 +6,7 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import {
-  AuthorityGroupResponseDto,
-  GetAllAuthorityGroupsDto,
-} from './authority-group.dto';
+import { AuthorityGroupResponseDto } from './authority-group.dto';
 import { Permission } from 'src/permission/permission.entity';
 
 @Injectable()
@@ -26,31 +23,10 @@ export class AuthorityGroupService {
     private readonly transactionManangerService: TransactionManagerService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async findAll(query: GetAllAuthorityGroupsDto) {
-    // const permissions = await this.permissionRepository.find({
-    //   where: {
-    //     role: {
-    //       slug: query.role,
-    //     },
-    //   },
-    //   relations: ['authority'],
-    // });
-
-    // const authorityIds = permissions.map(
-    //   (permission) => permission.authority.id,
-    // );
-
+  async findAll() {
     const authorityGroups = await this.authorityGroupRepository.find({
       relations: ['authorities'],
     });
-
-    // authorityGroups.map((authorityGroup) => {
-    //   authorityGroup.authorities = authorityGroup.authorities.filter(
-    //     (authority) => authorityIds.includes(authority.id),
-    //   );
-    // })
-
     return this.mapper.mapArray(
       authorityGroups,
       AuthorityGroup,

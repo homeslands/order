@@ -8,7 +8,7 @@ export class AuthUtils {
     const scope: UserScopeDto = { role: user.role?.name, permissions: [] };
 
     const authorityGroupCodes = new Set<string>();
-    user.role.permissions.forEach((permission) => {
+    user.role?.permissions.forEach((permission) => {
       if (!authorityGroupCodes.has(permission.authority.authorityGroup.code)) {
         authorityGroupCodes.add(permission.authority.authorityGroup.code);
       }

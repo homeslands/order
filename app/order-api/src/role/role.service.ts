@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './role.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -107,10 +107,11 @@ export class RoleService {
   async findOne(slug: string) {
     const role = await this.roleRepository.findOne({
       where: {
-        slug,
+        slug: slug ?? IsNull(),
       },
       relations: ['permissions.authority'],
     });
+    if (!role) throw new RoleException(RoleValidation.ROLE_NOT_FOUND);
     return this.mapper.map(role, Role, RoleResponseDto);
   }
 

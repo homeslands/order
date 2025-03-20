@@ -42,7 +42,6 @@ import { BranchException } from 'src/branch/branch.exception';
 import { FileService } from 'src/file/file.service';
 import { MailService } from 'src/mail/mail.service';
 import { ForgotPasswordToken } from './forgot-password-token.entity';
-import { USER_NOT_FOUND } from './auth.validation';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { Role } from 'src/role/role.entity';
 import { RoleEnum } from 'src/role/role.enum';
@@ -53,6 +52,7 @@ import { RoleValidation } from 'src/role/role.validation';
 import { VerifyEmailToken } from './verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
+import { UserUtils } from 'src/user/user.utils';
 
 @Injectable()
 export class AuthService {
@@ -71,7 +71,8 @@ export class AuthService {
     private readonly roleRepository: Repository<Role>,
     @InjectMapper()
     private readonly mapper: Mapper,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
     @InjectRepository(ForgotPasswordToken)
     private readonly forgotPasswordRepository: Repository<ForgotPasswordToken>,
     @InjectRepository(VerifyEmailToken)
@@ -81,6 +82,7 @@ export class AuthService {
     private readonly systemConfigService: SystemConfigService,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly authUtils: AuthUtils,
+    private readonly userUtils: UserUtils,
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
     this.duration = this.configService.get<number>('DURATION');
@@ -147,13 +149,11 @@ export class AuthService {
     const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
     this.logger.log(`Payload: ${JSON.stringify(payload)}`);
 
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: {
         id: payload.sub,
       },
     });
-    if (!user)
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
 
     const hashedPass = await bcrypt.hash(
       requestData.newPassword,
@@ -186,15 +186,11 @@ export class AuthService {
     requestData: ForgotPasswordTokenRequestDto,
   ): Promise<string> {
     const context = `${AuthService.name}.${this.createForgotPasswordToken.name}`;
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: {
         email: requestData.email,
       },
     });
-    if (!user) {
-      this.logger.warn(`User ${requestData.email} not found`, context);
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
-    }
 
     const existingToken = await this.forgotPasswordRepository.findOne({
       where: {
@@ -210,7 +206,7 @@ export class AuthService {
       throw new AuthException(AuthValidation.FORGOT_TOKEN_EXISTS);
     }
 
-    const payload = { sub: user.id, jti: uuidv4() };
+    const payload: AuthJwtPayload = { sub: user.id, jti: uuidv4() };
     const expiresIn = 120; // 2 minutes
     const token = this.jwtService.sign(payload, {
       expiresIn: expiresIn,
@@ -284,15 +280,11 @@ export class AuthService {
     );
     this.logger.log(`Payload: ${JSON.stringify(payload)}`);
 
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: {
         id: payload.sub,
       },
     });
-    if (!user) {
-      this.logger.warn(`User ${payload.sub} not found`, context);
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
-    }
 
     const existingToken = await this.verifyEmailRepository.findOne({
       where: {
@@ -417,13 +409,11 @@ export class AuthService {
     const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
     this.logger.log(`Payload: ${JSON.stringify(payload)}`);
 
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: {
         id: payload.sub,
       },
     });
-    if (!user)
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
 
     user.email = requestData.email;
     user.isVerifiedEmail = true;
@@ -472,11 +462,10 @@ export class AuthService {
     file: Express.Multer.File,
   ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.uploadAvatar.name}`;
-    const userEntity = await this.userRepository.findOne({
+    const userEntity = await this.userUtils.getUser({
       where: { id: user.userId },
-      relations: ['branch', 'role'],
+      relations: ['branch', 'role.permissions.authority.authorityGroup'],
     });
-    if (!userEntity) throw new AuthException(AuthValidation.USER_NOT_FOUND);
 
     // Delete old avatar
     await this.fileService.removeFile(userEntity.image);
@@ -505,13 +494,9 @@ export class AuthService {
     requestData: AuthChangePasswordRequestDto,
   ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.changePassword.name}`;
-    const userEntity = await this.userRepository.findOne({
+    const userEntity = await this.userUtils.getUser({
       where: { id: user.userId },
     });
-    if (!userEntity) {
-      this.logger.warn(`User ${user.userId} not found`, context);
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
-    }
 
     // Validate same old password
     const isMatch = await bcrypt.compare(
@@ -557,13 +542,9 @@ export class AuthService {
   ): Promise<AuthProfileResponseDto> {
     const context = `${AuthService.name}.${this.updateProfile.name}`;
 
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: { id: currentUserDto.userId },
     });
-    if (!user) {
-      this.logger.warn(`User ${user.id} not found`, context);
-      throw new AuthException(AuthValidation.USER_NOT_FOUND, USER_NOT_FOUND);
-    }
 
     Object.assign(user, {
       ...requestData,
@@ -627,12 +608,18 @@ export class AuthService {
    * @returns {Promise<LoginAuthResponseDto>} Access token, refresh token, expire time, refresh expire time
    */
   async generateToken(payload: AuthJwtPayload): Promise<LoginAuthResponseDto> {
+    const refreshPayload: AuthJwtPayload = {
+      sub: payload.sub,
+      jti: payload.jti,
+      exp: Math.floor(Date.now() / 1000) + this.refeshableDuration,
+    };
     return {
-      accessToken: this.jwtService.sign(payload),
-      expireTime: moment().add(this.duration, 'seconds').toString(),
-      refreshToken: this.jwtService.sign(payload, {
-        expiresIn: this.refeshableDuration,
+      accessToken: this.jwtService.sign({
+        ...payload,
+        exp: Math.floor(Date.now() / 1000) + this.duration,
       }),
+      expireTime: moment().add(this.duration, 'seconds').toString(),
+      refreshToken: this.jwtService.sign(refreshPayload),
       expireTimeRefreshToken: moment()
         .add(this.refeshableDuration, 'seconds')
         .toString(),
@@ -754,15 +741,10 @@ export class AuthService {
   }: {
     userId: string;
   }): Promise<AuthProfileResponseDto> {
-    const context = `${AuthService.name}.${this.getProfile.name}`;
-    const user = await this.userRepository.findOne({
+    const user = await this.userUtils.getUser({
       where: { id: userId },
-      relations: ['branch', 'role'],
+      relations: ['branch', 'role.permissions.authority.authorityGroup'],
     });
-    if (!user) {
-      this.logger.error(`User ${userId} not found`, null, context);
-      throw new AuthException(AuthValidation.USER_NOT_FOUND);
-    }
     return this.mapper.map(user, User, AuthProfileResponseDto);
   }
 
@@ -804,8 +786,18 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = this.jwtService.decode(requestData.refreshToken);
-    this.logger.log(`User ${payload.sub} refreshed token`, context);
+    const payload: AuthJwtPayload = this.jwtService.decode(
+      requestData.refreshToken,
+    );
+
+    // Get user
+    const user = await this.userUtils.getUser({
+      where: {
+        id: payload.sub,
+      },
+      relations: ['branch', 'role.permissions.authority.authorityGroup'],
+    });
+    payload.scope = this.authUtils.buildScope(user);
 
     return this.generateToken(payload);
   }
