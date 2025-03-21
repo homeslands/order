@@ -56,6 +56,12 @@ export class UpdateMenuItemDto {
   @ApiProperty({ example: true })
   @IsBoolean()
   @Type(() => Boolean)
+  isResetCurrentStock: boolean;
+
+  @AutoMap()
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  @Type(() => Boolean)
   // @Transform(({ value }) => value === 'true')
   isLocked: boolean;
 }

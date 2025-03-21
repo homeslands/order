@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -7,75 +8,67 @@ import { useGetAuthorityGroup, useRoleBySlug } from '@/hooks'
 import { RoleDetailSkeleton } from '@/components/app/skeleton'
 import { Switch, Label, Badge } from '@/components/ui'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './components'
-import { ICreatePermissionRequest } from '@/types'
-import { useState } from 'react'
+import { IAuthority, IAuthorityGroup, ICreatePermissionRequest, IPermission } from '@/types'
 import { ConfirmCreatePermissionDialog } from '@/components/app/dialog'
-
-interface IAuthority {
-    name: string;
-    description: string | null;
-    createdAt: string;
-    slug: string;
-}
-
-interface IAuthorityGroup {
-    name: string;
-    code: string;
-    description: string | null;
-    authorities: IAuthority[];
-    createdAt: string;
-    slug: string;
-}
-
-interface IPermission {
-    authority: IAuthority;
-    createdAt: string;
-    slug: string;
-}
 
 const AuthorityGroup = ({
     group,
     permissions,
+    groupPermissionData,
     onPermissionChange
 }: {
     group: IAuthorityGroup;
     permissions: IPermission[];
+    groupPermissionData: ICreatePermissionRequest;
     onPermissionChange: (data: ICreatePermissionRequest) => void;
 }) => {
-    const { slug } = useParams()
-    const [permissionData, setPermissionData] = useState<ICreatePermissionRequest>({
-        role: slug as string,
-        createAuthorities: [],
-        deleteAuthorities: []
-    })
-
     const hasPermission = (slug: string) => {
         const initialPermission = permissions?.some(p => p.authority.slug === slug)
-        const isPendingCreate = permissionData.createAuthorities.includes(slug)
-        const isPendingDelete = permissionData.deleteAuthorities.includes(slug)
+        const isPendingCreate = groupPermissionData.createAuthorities.includes(slug)
+        const isPendingDelete = groupPermissionData.deleteAuthorities.includes(slug)
 
         return (initialPermission && !isPendingDelete) || (!initialPermission && isPendingCreate)
     }
 
     const handleClickSwitch = (authority: string) => {
-        setPermissionData(prev => {
-            const isCurrentlyEnabled = hasPermission(authority)
-            const newData = { ...prev }
+        const isCurrentlyEnabled = hasPermission(authority)
+        const newData = { ...groupPermissionData }
 
-            // Remove from both arrays first
-            newData.createAuthorities = newData.createAuthorities.filter(a => a !== authority)
-            newData.deleteAuthorities = newData.deleteAuthorities.filter(a => a !== authority)
+        // Remove from both arrays first
+        newData.createAuthorities = newData.createAuthorities.filter(a => a !== authority)
+        newData.deleteAuthorities = newData.deleteAuthorities.filter(a => a !== authority)
 
-            // Add to appropriate array based on current state
-            if (isCurrentlyEnabled) {
-                newData.deleteAuthorities.push(authority)
+        if (isCurrentlyEnabled) {
+            newData.deleteAuthorities.push(authority)
+        } else {
+            newData.createAuthorities.push(authority)
+        }
+
+        onPermissionChange(newData)
+    }
+
+    const handleClickAll = () => {
+        const isAllSelected = group.authorities.every(authority => hasPermission(authority.slug))
+        const newData = { ...groupPermissionData }
+
+        group.authorities.forEach(authority => {
+            newData.createAuthorities = newData.createAuthorities.filter(a => a !== authority.slug)
+            newData.deleteAuthorities = newData.deleteAuthorities.filter(a => a !== authority.slug)
+
+            const hasInitialPermission = permissions?.some(p => p.authority.slug === authority.slug)
+
+            if (isAllSelected) {
+                if (hasInitialPermission) {
+                    newData.deleteAuthorities.push(authority.slug)
+                }
             } else {
-                newData.createAuthorities.push(authority)
+                if (!hasInitialPermission) {
+                    newData.createAuthorities.push(authority.slug)
+                }
             }
-
-            onPermissionChange(newData)
-            return newData
         })
+
+        onPermissionChange(newData)
     }
 
     const permissionCount = group.authorities.reduce((count, authority) => {
@@ -101,8 +94,7 @@ const AuthorityGroup = ({
                         </Label>
                         <Switch
                             checked={isAllSelected}
-                            disabled
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={() => handleClickAll()}
                             className="ml-4"
                         />
                     </div>
@@ -150,9 +142,34 @@ export default function RoleDetailPage() {
 
     const [selectedPermission, setSelectedPermission] = useState<ICreatePermissionRequest | null>(null)
 
-    const handlePermissionChange = (data: ICreatePermissionRequest) => {
-        setSelectedPermission(data)
+    const [permissionData, setPermissionData] = useState<ICreatePermissionRequest>({
+        role: slug as string,
+        createAuthorities: [],
+        deleteAuthorities: []
+    })
+
+    const handlePermissionChange = (newGroupData: ICreatePermissionRequest) => {
+        setPermissionData(prev => {
+            // Keep permissions from other groups and combine with new group changes
+            const otherGroupsCreate = prev.createAuthorities.filter(
+                a => !newGroupData.createAuthorities.includes(a) && !newGroupData.deleteAuthorities.includes(a)
+            )
+            const otherGroupsDelete = prev.deleteAuthorities.filter(
+                a => !newGroupData.createAuthorities.includes(a) && !newGroupData.deleteAuthorities.includes(a)
+            )
+
+            return {
+                role: slug as string,
+                createAuthorities: [...otherGroupsCreate, ...newGroupData.createAuthorities],
+                deleteAuthorities: [...otherGroupsDelete, ...newGroupData.deleteAuthorities]
+            }
+        })
     }
+
+    // Update selectedPermission whenever permissionData changes
+    useEffect(() => {
+        setSelectedPermission(permissionData)
+    }, [permissionData])
 
     if (isLoading) {
         return <RoleDetailSkeleton />
@@ -197,6 +214,7 @@ export default function RoleDetailPage() {
                             key={group.slug}
                             group={group}
                             permissions={roleDetail?.permissions || []}
+                            groupPermissionData={permissionData}
                             onPermissionChange={handlePermissionChange}
                         />
                     ))}

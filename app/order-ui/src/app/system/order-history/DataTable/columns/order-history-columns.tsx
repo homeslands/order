@@ -23,13 +23,17 @@ import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { OutlineCancelOrderDialog } from '@/components/app/dialog'
+// import { useUserStore } from '@/stores'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
+  // const { userInfo } = useUserStore()
   const { t: tToast } = useTranslation(['toast'])
   const { t: tCommon } = useTranslation(['common'])
   const { mutate: exportOrderInvoice } = useExportOrderInvoice()
   const { mutate: exportPayment } = useExportPayment()
+
+  // const userRole = userInfo?.role?.name
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {

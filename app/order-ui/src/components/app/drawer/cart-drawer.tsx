@@ -125,7 +125,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                                 {item.name}
                               </span>
                               <span className="text-sm text-muted-foreground">
-                                Size {item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
+                                Size {item.size && item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                               </span>
                               {/* <span className="text-xs font-thin text-muted-foreground">
                               {`${formatCurrency(item.price || 0)}`}

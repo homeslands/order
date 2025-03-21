@@ -6,6 +6,7 @@ import BannerValidation from 'src/banner/banner.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
+import ChefAreaValidation from 'src/chef-area/chef-area.validation';
 import { DbValidation } from 'src/db/db.validation';
 import FileValidation from 'src/file/file.validation';
 import { InvoiceValidation } from 'src/invoice/invoice.validation';
@@ -16,6 +17,7 @@ import { OrderValidation } from 'src/order/order.validation';
 import { PaymentValidation } from 'src/payment/payment.validation';
 import { PermissionValidation } from 'src/permission/permission.validation';
 import { ProductAnalysisValidation } from 'src/product-analysis/product-analysis.validation';
+import ProductChefAreaValidation from 'src/product-chef-area/product-chef-area.validation';
 import ProductValidation from 'src/product/product.validation';
 import { PromotionValidation } from 'src/promotion/promotion.validation';
 import { RevenueValidation } from 'src/revenue/revenue.validation';
@@ -78,6 +80,8 @@ export const AppValidation: TErrorCode = {
   ...BannerValidation,
   ...AuthorityValidation,
   ...PermissionValidation,
+  ...ChefAreaValidation,
+  ...ProductChefAreaValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);
