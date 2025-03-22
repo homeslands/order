@@ -32,6 +32,9 @@ export default function OrderDetailPage() {
 
   const orderInfo = orderDetail?.result;
 
+  const originalTotal = orderInfo
+    ? orderInfo?.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+    : 0;
   const totalBeforeDiscount = orderInfo
     ? orderInfo.orderItems.reduce((sum, item) => sum + item.subtotal, 0)
     : 0;
@@ -239,6 +242,15 @@ export default function OrderDetailPage() {
                 </p>
                 <p className='text-sm italic text-green-500'>{`- ${formatCurrency(discount || 0)}`}</p>
               </div>
+              {orderDetail?.result.voucher &&
+                <div className="flex justify-between w-full pb-4 border-b">
+                  <h3 className="text-sm italic font-medium text-green-500">
+                    {t('order.voucher')}
+                  </h3>
+                  <p className="text-sm italic font-semibold text-green-500">
+                    - {`${formatCurrency((originalTotal - discount) * ((orderDetail.result.voucher.value) / 100))}`}
+                  </p>
+                </div>}
               <Separator />
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">

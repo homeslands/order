@@ -9,7 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductAnalysisService } from './product-analysis.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   GetProductAnalysisQueryDto,

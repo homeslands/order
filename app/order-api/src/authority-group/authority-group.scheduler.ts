@@ -2,35 +2,33 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Authority } from './authority.entity';
 import { Timeout } from '@nestjs/schedule';
 import _ from 'lodash';
+import { AuthorityGroup } from 'src/authority-group/authority-group.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { AuthorityGroupJSON } from 'src/authority-group/authority-group.dto';
-import { AuthorityGroup } from 'src/authority-group/authority-group.entity';
+import { AuthorityGroupJSON } from './authority-group.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { AuthorityJSON } from './authority.dto';
+import { Authority } from 'src/authority/authority.entity';
+import { AuthorityJSON } from 'src/authority/authority.dto';
 
 @Injectable()
-export class AuthorityScheduler {
+export class AuthorityGroupScheduler {
   constructor(
-    @InjectRepository(Authority)
-    private readonly authorityRepository: Repository<Authority>,
     @InjectRepository(AuthorityGroup)
     private readonly authorityGroupRepository: Repository<AuthorityGroup>,
-    private readonly transactionManagerService: TransactionManagerService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
     private readonly mapper: Mapper,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
-  @Timeout(5000) // Run this method 5 seconds after the app starts
-  async handleInitAuthority() {
-    const context = `${AuthorityScheduler.name}.${this.handleInitAuthority.name}`;
+  @Timeout(3000) // Run this method 5 seconds after the app starts
+  async handleInitAuthorityGroup() {
+    const context = `${AuthorityGroup.name}.${this.handleInitAuthorityGroup.name}`;
 
     let authorityGroupsJSON: AuthorityGroupJSON[] = [];
 
@@ -53,37 +51,31 @@ export class AuthorityScheduler {
 
     const filterAuthorityGroups = await Promise.all(
       authorityGroupsJSON.map(async (item) => {
-        const authorityGroup = await this.authorityGroupRepository.findOne({
-          where: {
-            code: item.code,
-          },
-          relations: ['authorities'],
-        });
-        if (!authorityGroup) return null;
-
-        const authoritiesJSON = await Promise.all(
-          item.authorities.map(async (item) => {
-            const existedAuthority = await this.authorityRepository.findOne({
-              where: {
-                code: item.code,
-              },
-            });
-            return !existedAuthority ? item : null;
-          }),
-        );
-
-        const filterdAuthoritiesJSON = authoritiesJSON.filter((item) => item);
-        if (_.isEmpty(filterdAuthoritiesJSON)) return null;
-
-        const authorities = filterdAuthoritiesJSON
-          .filter((item) => item)
-          .map((item) => this.mapper.map(item, AuthorityJSON, Authority));
-        authorityGroup.authorities.push(...authorities);
-        return authorityGroup;
+        const existedAuthorityGroup =
+          await this.authorityGroupRepository.findOne({
+            where: {
+              code: item.code,
+            },
+          });
+        return !existedAuthorityGroup ? item : null;
       }),
     );
 
-    const authorityGroups = filterAuthorityGroups.filter((item) => item);
+    const authorityGroups = filterAuthorityGroups
+      .filter((item) => item)
+      .map((item) => {
+        const authorityGroup = this.mapper.map(
+          item,
+          AuthorityGroupJSON,
+          AuthorityGroup,
+        );
+        authorityGroup.authorities = this.mapper.mapArray(
+          item.authorities,
+          AuthorityJSON,
+          Authority,
+        );
+        return authorityGroup;
+      });
 
     await this.transactionManagerService.execute<AuthorityGroup[]>(
       async (manager) => {
@@ -91,7 +83,7 @@ export class AuthorityScheduler {
       },
       (result) => {
         this.logger.log(
-          `Authority groups ${result.map((item) => item.name).join(', ')} saved`,
+          `Authority groups [${result.map((item) => item.name).join(', ')}] saved`,
           context,
         );
       },
@@ -99,7 +91,6 @@ export class AuthorityScheduler {
         this.logger.error(
           `Error while saving authority groups: ${error.message}`,
           error.stack,
-
           context,
         );
       },

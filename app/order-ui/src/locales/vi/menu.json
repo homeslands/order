@@ -72,6 +72,7 @@
     "productName": "Tên món",
     "selectedProducts": "Món đã chọn",
     "defaultStock": "Số lượng",
+    "isLocked": "Khóa món",
     "defaultStockDescription": "Số lượng mặc định",
     "updateMenuItem": "Cập nhật món",
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
@@ -83,7 +84,8 @@
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",
     "searchProduct": "Tìm kiếm sản phẩm",
     "all": "Tất cả",
-    "sold": "Đã bán"
+    "sold": "Đã bán",
+    "noLimit": "Không giới hạn"
   },
   "order": {
     "orderId": "Đơn hàng",

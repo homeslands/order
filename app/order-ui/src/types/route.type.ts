@@ -5,6 +5,6 @@ export interface ISidebarRoute {
   path: string
   icon?: React.ComponentType
   isActive?: boolean
-  permission?: string
+  permission?: string 
   children?: ISidebarRoute[]
 }

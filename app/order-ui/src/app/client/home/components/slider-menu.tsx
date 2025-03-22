@@ -69,7 +69,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                             {item?.product?.description || "Hương vị đặc biệt"}
                                         </p>
                                     </div>
-                                    <div className="flex items-center justify-between gap-1">
+                                    <div className="flex items-center justify-between gap-1 h-[82px]">
                                         <div className="flex flex-col">
                                             {item.product.variants.length > 0 ? (
                                                 <div className="flex flex-col items-start justify-start gap-1">
@@ -113,10 +113,11 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                         )}
 
                                                     </div>
-                                                    <span className="text-[0.7rem] text-muted-foreground">
+                                                    {item?.product?.isLimit &&
+                                                     <span className="text-[0.7rem] text-muted-foreground">
                                                         {t('menu.amount')}
                                                         {item.currentStock}/{item.defaultStock}
-                                                    </span>
+                                                    </span>}
                                                 </div>
                                             ) : (
                                                 <span className="text-sm font-bold text-primary">
@@ -127,7 +128,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                     </div>
                                 </div>
                             </NavLink>
-                            {item.currentStock > 0 ? (
+                            {item.currentStock > 0 || !item?.product?.isLimit ? (
                                 <div className="flex justify-center w-full gap-2 p-2">
                                     {isMobile ? (
                                         <ClientAddToCartDrawer product={item} />
@@ -136,12 +137,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                     )}
                                 </div>
                             ) : (
-                                <Button
-                                    className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
-                                    disabled
-                                >
-                                    {t('menu.outOfStock')}
-                                </Button>
+                                <div className="flex justify-center w-full gap-2 p-2">
+                                    <Button
+                                        className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                                        disabled
+                                    >
+                                        {t('menu.outOfStock')}
+                                    </Button>
+                                </div>
                             )}
                             {type === "best-sell" && <div className="space-y-1.5 p-2 text-[12px] text-yellow-500">{t('menu.sold')} <b>{item?.product.isTopSell ? menus[0].product.saleQuantityHistory : item?.product?.saleQuantityHistory}</b></div>}
                         </div>

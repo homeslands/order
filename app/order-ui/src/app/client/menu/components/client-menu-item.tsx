@@ -51,7 +51,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               {item.product.isTopSell && <PromotionTag />}
             </>
           ) : (
-            <div className="w-full h-24 rounded-t-md bg-muted/60" />
+            <div className="w-full h-36 rounded-t-md bg-muted/60" />
           )}
         </div>
         {/* Content Section */}
@@ -109,10 +109,11 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                     )}
 
                   </div>
-                  <span className="text-[0.7rem] text-muted-foreground">
-                    {t('menu.amount')}
-                    {item.currentStock}/{item.defaultStock}
-                  </span>
+                  {item?.product?.isLimit &&
+                    <span className="text-[0.7rem] text-muted-foreground">
+                      {t('menu.amount')}
+                      {item.currentStock}/{item.defaultStock}
+                    </span>}
                 </div>
               ) : (
                 <span className="text-sm font-bold text-primary">
@@ -124,7 +125,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
         </div>
       </NavLink>
 
-      {item.currentStock > 0 ? (
+      {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
         <div className="flex justify-center w-full gap-2 p-2">
           {isMobile ? (
             <ClientAddToCartDrawer product={item} />
@@ -133,12 +134,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           )}
         </div>
       ) : (
-        <Button
-          className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
-          disabled
-        >
-          {t('menu.outOfStock')}
-        </Button>
+        <div className="flex justify-center w-full gap-2 p-2">
+          <Button
+            className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+            disabled
+          >
+            {t('menu.outOfStock')}
+          </Button>
+        </div>
       )}
     </div>
   )

@@ -256,6 +256,8 @@ describe('Menu API', () => {
       menuSlug: 'menu-1',
       productSlug: 'product-1',
       defaultStock: 15,
+      isLocked: false,
+      isResetCurrentStock: false,
     }
 
     it('should update menu item with correct data', async () => {

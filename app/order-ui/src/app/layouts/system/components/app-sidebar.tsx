@@ -64,7 +64,7 @@ export function AppSidebar() {
     return translatedRoutes.filter((route) => {
       // Check if route has permission and user has that permission
       // return !route.permission || true
-      return !route.permission || JSON.stringify(decoded.scope).includes(route.permission)
+      return route?.permission && JSON.stringify(decoded.scope).includes(route.permission)
     })
   }, [translatedRoutes, decoded])
 

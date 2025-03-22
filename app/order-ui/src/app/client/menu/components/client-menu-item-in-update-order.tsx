@@ -135,12 +135,14 @@ export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItem
           )}
         </div>
       ) : (
-        <Button
-          className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
-          disabled
-        >
-          {t('menu.outOfStock')}
-        </Button>
+        <div className="flex justify-center w-full gap-2 p-2">
+          <Button
+            className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+            disabled
+          >
+            {t('menu.outOfStock')}
+          </Button>
+        </div>
       )}
     </div>
   )

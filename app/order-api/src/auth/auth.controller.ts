@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './public.decorator';
+import { Public } from './decorator/public.decorator';
 import {
   AuthChangePasswordRequestDto,
   AuthProfileResponseDto,

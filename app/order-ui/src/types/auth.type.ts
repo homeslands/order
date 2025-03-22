@@ -30,7 +30,7 @@ export interface IForgotPasswordRequest {
 export interface IRefreshTokenResponse {
   expireTime: string
   expireTimeRefreshToken: string
-  token: string
+  accessToken: string
   refreshToken: string
 }
 

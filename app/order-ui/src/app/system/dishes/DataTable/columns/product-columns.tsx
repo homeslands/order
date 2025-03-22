@@ -19,7 +19,7 @@ import {
   UploadProductImageDialog
 } from '@/components/app/dialog'
 import { publicFileURL, ROUTE } from '@/constants'
-
+import ProductImage from '@/assets/images/ProductImage.png'
 export const useProductColumns = (): ColumnDef<IProduct>[] => {
   const { t } = useTranslation(['product'])
   const { t: tCommon } = useTranslation(['common'])
@@ -28,10 +28,10 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       accessorKey: 'image',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('product.image')} />,
       cell: ({ row }) => {
-        const image = row.getValue('image')
-        return image ? (
-          <img src={`${publicFileURL}/${image}`} className="object-contain w-32 rounded-md" />
-        ) : null
+        const image = row.getValue('image') ? `${publicFileURL}/${row.getValue('image')}` : ProductImage
+        return (
+          <img src={image} alt={row.getValue('image')} className="object-cover w-36 h-28 rounded-md" />
+        )
       }
     },
     {

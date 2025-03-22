@@ -13,6 +13,8 @@ import {
   Input,
   Form,
   Button,
+  Label,
+  Switch,
 } from '@/components/ui'
 import { updateMenuItemSchema, TUpdateMenuItemSchema } from '@/schemas'
 
@@ -23,17 +25,20 @@ import { showToast } from '@/utils'
 
 interface IFormUpdateMenuItemProps {
   menuItem: IMenuItem
+  isTemplate: boolean
   onSubmit: (isOpen: boolean) => void
 }
 
 export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
   menuItem,
+  isTemplate,
   onSubmit,
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['menu'])
   const { slug } = useParams()
   const { mutate: updateMenuItem } = useUpdateMenuItem()
+
   const form = useForm<TUpdateMenuItemSchema>({
     resolver: zodResolver(updateMenuItemSchema),
     defaultValues: {
@@ -41,7 +46,9 @@ export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
       menuSlug: slug,
       productSlug: menuItem.slug,
       productName: menuItem.product.name,
-      defaultStock: menuItem.defaultStock,
+      defaultStock: menuItem?.defaultStock || 0,
+      isLocked: menuItem.isLocked,
+      isResetCurrentStock: isTemplate,
     },
   })
 
@@ -79,7 +86,7 @@ export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
       />
     ),
     defaultStock: (
-      <FormField
+      menuItem?.product?.isLimit && <FormField
         control={form.control}
         name="defaultStock"
         render={({ field }) => (
@@ -88,9 +95,10 @@ export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
             <FormControl>
               <Input
                 type="number"
+                min={form.watch('defaultStock')}
                 {...field}
                 placeholder={t('menu.defaultStockDescription')}
-                onChange={field.onChange}
+                onChange={(e) => { form.setValue("defaultStock", +e.target.value) }}
               />
             </FormControl>
             <FormMessage />
@@ -98,6 +106,25 @@ export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
         )}
       />
     ),
+    isLocked: (
+      !isTemplate && <FormField
+        control={form.control}
+        name="isLocked"
+        render={() => (
+          <FormItem className="flex items-center gap-4">
+            <FormControl className="flex items-center">
+              <div className="flex items-center gap-4 py-2">
+                <Label>{t('menu.isLocked')}</Label>
+                <Switch defaultChecked={form.watch('isLocked')}
+                  onCheckedChange={(checked) => {
+                    form.setValue("isLocked", checked)
+                  }} />
+              </div>
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    )
   }
 
   return (

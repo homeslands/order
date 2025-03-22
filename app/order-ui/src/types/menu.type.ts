@@ -61,6 +61,7 @@ export interface ISpecificMenu extends IBase {
 export interface IMenuItem extends IBase {
   currentStock: number
   defaultStock: number
+  isLocked: boolean
   promotion: IPromotion
   product: IProduct
 }
@@ -81,6 +82,7 @@ export interface IAddMenuItemRequest {
   productName?: string
   productSlug: string
   defaultStock: number
+  isLimit?: boolean
 }
 
 export interface IUpdateMenuItemRequest {
@@ -89,6 +91,9 @@ export interface IUpdateMenuItemRequest {
   productName?: string
   productSlug: string
   defaultStock: number
+  isLocked: boolean
+  isResetCurrentStock: boolean
+
 }
 
 export interface IMenuItemStore {

@@ -34,6 +34,8 @@ export const updateMenuItemSchema = z.object({
   productSlug: z.string(),
   productName: z.string(),
   defaultStock: z.number().min(0),
+  isLocked: z.boolean(),
+  isResetCurrentStock: z.boolean(),
 })
 
 export type TCreateMenuSchema = z.infer<typeof createMenuSchema>

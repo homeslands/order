@@ -71,6 +71,7 @@
     "productName": "Product name",
     "selectedProducts": "Selected products",
     "defaultStock": "Quantity",
+    "isLocked": "Locked",
     "defaultStockDescription": "Default quantity",
     "updateMenuItem": "Update menu item",
     "updateMenuItemDescription": "Modify details to update menu item",
@@ -122,7 +123,8 @@
     "refresh": "Refresh data",
     "loadOrdersInTheSameTable": "Load orders at same table",
     "all": "All",
-    "sold": "Sold"
+    "sold": "Sold",
+    "noLimit": "No limit"
   },
   "order": {
     "title": "Order Management",

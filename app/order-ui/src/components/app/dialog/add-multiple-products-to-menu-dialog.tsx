@@ -26,7 +26,6 @@ export default function AddMenuItemsDialog({
 }: AddMenuItemsDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
-
   const handleSubmit = (isOpen: boolean) => {
     setIsOpen(isOpen)
     onSubmit(isOpen)

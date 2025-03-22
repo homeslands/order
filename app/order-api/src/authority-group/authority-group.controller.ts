@@ -4,7 +4,7 @@ import { AppResponseDto } from 'src/app/app.dto';
 import { AuthorityGroupResponseDto } from './authority-group.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @ApiTags('Authority Group')
 @Controller('authority-group')

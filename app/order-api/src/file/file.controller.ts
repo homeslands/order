@@ -8,7 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/decorator/public.decorator';
 import {
   ApiBearerAuth,
   ApiBody,
