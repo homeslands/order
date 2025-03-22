@@ -11,6 +11,7 @@
     "dishManagement": "Quản lý món",
     "customerManagement": "Quản lý người dùng",
     "userManagement": "Quản lý nhân viên",
+    "roleManagement": "Quản lý vai trò",
     "branchManagement": "Quản lý chi nhánh",
     "revenueManagement": "Quản lý doanh thu",
     "logManagement": "Quản lý log",

@@ -73,11 +73,15 @@ export class MenuItemService {
           product.id,
         );
 
+      if (!product.isLimit) {
+        Object.assign(menuItemDto, { defaultStock: null });
+      }
       const menuItem = this.mapper.map(
         menuItemDto,
         CreateMenuItemDto,
         MenuItem,
       );
+      // limit product
       Object.assign(menuItem, { product, menu, promotion });
 
       menuItems.push(menuItem);
@@ -131,11 +135,17 @@ export class MenuItemService {
       product.id,
     );
 
+    if (!product.isLimit) {
+      Object.assign(createMenuItemDto, { defaultStock: null });
+    }
+
+    // mapper include assign currentStock = defaultStock
     const menuItem = this.mapper.map(
       createMenuItemDto,
       CreateMenuItemDto,
       MenuItem,
     );
+    // limit product
     Object.assign(menuItem, { product, menu, promotion });
 
     this.menuItemRepository.create(menuItem);
@@ -242,14 +252,58 @@ export class MenuItemService {
 
     const menuItem = await this.menuItemRepository.findOne({
       where: { slug },
+      relations: ['product', 'menu.branch'],
     });
     if (!menuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
 
-    Object.assign(menuItem, {
-      ...updateMenuItemDto,
-      currentStock: updateMenuItemDto.defaultStock,
-    } as MenuItem);
+    if (!menuItem.menu) {
+      this.logger.warn(MenuValidation.MENU_NOT_FOUND.message, context);
+      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
+    }
+
+    if (!menuItem.product) {
+      this.logger.warn(ProductValidation.PRODUCT_NOT_FOUND.message, context);
+      throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+    }
+    if (!menuItem.product.isLimit) {
+      Object.assign(menuItem, {
+        isLocked: updateMenuItemDto.isLocked,
+        defaultStock: null,
+        currentStock: null,
+      } as MenuItem);
+    } else {
+      if (updateMenuItemDto.isResetCurrentStock) {
+        Object.assign(menuItem, {
+          isLocked: updateMenuItemDto.isLocked,
+          defaultStock: updateMenuItemDto.defaultStock,
+          currentStock: updateMenuItemDto.defaultStock,
+        } as MenuItem);
+      } else {
+        if (menuItem.currentStock > updateMenuItemDto.defaultStock) {
+          this.logger.warn(
+            MenuItemValidation
+              .UPDATE_CURRENT_STOCK_MUST_LARGER_OR_EQUAL_EXISTED_CURRENT_STOCK
+              .message,
+            context,
+          );
+          throw new MenuItemException(
+            MenuItemValidation.UPDATE_CURRENT_STOCK_MUST_LARGER_OR_EQUAL_EXISTED_CURRENT_STOCK,
+          );
+        }
+
+        Object.assign(menuItem, {
+          isLocked: updateMenuItemDto.isLocked,
+          currentStock:
+            menuItem.currentStock +
+            (updateMenuItemDto.defaultStock - menuItem.defaultStock),
+          defaultStock: updateMenuItemDto.defaultStock,
+        } as MenuItem);
+      }
+    }
+
+    // limit product
+
     await this.menuItemRepository.manager.transaction(async (manager) => {
       try {
         await manager.save(menuItem);

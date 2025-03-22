@@ -88,7 +88,7 @@ export default function ClientCartPage() {
                   key={item.slug}
                   className="grid items-center w-full gap-4 p-4 pb-4 rounded-md sm:grid-cols-8 grid-cols-7 "
                 >
-                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden sm:block col-span-1 w-full rounded-md" />
+                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden sm:block col-span-1 rounded-md w-36 h-24" />
                   <div className='grid flex-row items-center w-full col-span-7 gap-4'>
                     <div
                       key={`${item.slug}`}

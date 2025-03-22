@@ -6,10 +6,19 @@ import { AuthorityGroup } from './authority-group.entity';
 import { AuthorityGroupProfile } from './authority-group.mapper';
 import { DbModule } from 'src/db/db.module';
 import { Permission } from 'src/permission/permission.entity';
+import { AuthorityGroupScheduler } from './authority-group.scheduler';
+import { Authority } from 'src/authority/authority.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AuthorityGroup, Permission]), DbModule],
+  imports: [
+    TypeOrmModule.forFeature([AuthorityGroup, Permission, Authority]),
+    DbModule,
+  ],
   controllers: [AuthorityGroupController],
-  providers: [AuthorityGroupService, AuthorityGroupProfile],
+  providers: [
+    AuthorityGroupService,
+    AuthorityGroupProfile,
+    AuthorityGroupScheduler,
+  ],
 })
 export class AuthorityGroupModule {}

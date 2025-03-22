@@ -46,6 +46,7 @@ export class CreateProductRequestDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true')
   isTopSell?: boolean;
 
   @AutoMap()
@@ -77,6 +78,14 @@ export class UpdateProductRequestDto {
   @IsNotEmpty({ message: PRODUCT_LIMIT_REQUIRED })
   @Type(() => Boolean)
   isLimit: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The quantity of product for default stock of menu item',
+    example: true,
+  })
+  @IsOptional()
+  defaultQuantity?: number;
 
   @AutoMap()
   @ApiProperty({ description: 'The active of product', example: false })

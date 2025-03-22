@@ -119,7 +119,7 @@ export class OrderController {
   })
   async updateOrder(
     @Param('slug') slug: string,
-    @Body(new ValidationPipe({ transform: true }))
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
     requestData: UpdateOrderRequestDto,
   ) {
     const result = await this.orderService.updateOrder(slug, requestData);

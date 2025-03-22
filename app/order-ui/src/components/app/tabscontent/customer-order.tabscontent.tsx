@@ -62,7 +62,7 @@ export default function CustomerOrderTabsContent({
           {order.result.items.map((orderItem) => (
             <AccordionItem key={orderItem.slug} value={orderItem.slug}>
               <AccordionTrigger className="relative flex flex-col items-start gap-4 p-0 mt-2 bg-white border rounded-lg sm:justify-between sm:gap-0 sm:items-center">
-                <div className="flex items-center w-full gap-4 px-4 py-2 border-b bg-muted-foreground/5">
+                <div className="flex items-center w-full gap-4 px-4 py-2 border-b bg-primary/15">
                   <span className="text-xs text-muted-foreground">
                     {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
                   </span>
@@ -101,7 +101,7 @@ export default function CustomerOrderTabsContent({
                           {product.variant.product.name}
                         </span>
                         <span className="text-xs text-muted-foreground sm:text-sm">
-                          {product.variant.size.name.toUpperCase()} - {formatCurrency(product.variant.price)}
+                          {t('order.productClassification')}Size {product.variant.size.name.toUpperCase()}
                         </span>
                       </div>
                       {product?.promotion && product?.promotion?.value > 0 ? (

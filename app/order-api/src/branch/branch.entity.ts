@@ -8,6 +8,7 @@ import { Order } from 'src/order/order.entity';
 import { Workflow } from 'src/workflow/workflow.entity';
 import { ProductAnalysis } from 'src/product-analysis/product-analysis.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ChefArea } from 'src/chef-area/chef-area.entity';
 
 @Entity('branch_tbl')
 export class Branch extends Base {
@@ -45,4 +46,7 @@ export class Branch extends Base {
 
   @OneToMany(() => Promotion, (promotion) => promotion.branch)
   promotions: Promotion[];
+
+  @OneToMany(() => ChefArea, (chefArea) => chefArea.branch)
+  chefAreas: ChefArea[];
 }

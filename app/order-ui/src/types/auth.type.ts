@@ -30,6 +30,13 @@ export interface IForgotPasswordRequest {
 export interface IRefreshTokenResponse {
   expireTime: string
   expireTimeRefreshToken: string
-  token: string
+  accessToken: string
   refreshToken: string
+}
+
+export interface IToken {
+  scope: {
+    role: string
+    permissions: string[]
+  }
 }

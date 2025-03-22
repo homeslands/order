@@ -13,7 +13,7 @@ export default function MenuDetailManagementPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
   const { slug } = useParams()
-  const { data: menuDetail, isLoading } = useSpecificMenu({
+  const { data: menuDetail, isLoading, refetch } = useSpecificMenu({
     slug: slug as string,
   })
 
@@ -22,7 +22,6 @@ export default function MenuDetailManagementPage() {
   if (isLoading) {
     return <ProductDetailSkeleton />
   }
-
   return (
     <div>
       <Helmet>
@@ -51,7 +50,7 @@ export default function MenuDetailManagementPage() {
             className={`grid grid-cols-1 gap-4 md:grid-cols-4`}
           >
             {menuDetailData?.menuItems.map((item) => (
-              <MenuItemCard menuItem={item} />
+              <MenuItemCard onSuccess={refetch} menuItem={item} isTemplate={menuDetailData.isTemplate}/>
             ))}
           </div>
         </div>

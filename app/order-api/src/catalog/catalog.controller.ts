@@ -24,7 +24,7 @@ import {
   UpdateCatalogRequestDto,
 } from './catalog.dto';
 import { CatalogService } from './catalog.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 

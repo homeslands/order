@@ -122,6 +122,17 @@
     "updateBannerSuccess": "Cập nhật banner thành công",
     "deleteBannerSuccess": "Xóa banner thành công",
 
+    "createRoleSuccess": "Tạo vai trò thành công",
+    "updateRoleSuccess": "Cập nhật vai trò thành công",
+    "deleteRoleSuccess": "Xóa vai trò thành công",
+
+    "createPermissionSuccess": "Tạo quyền hạn thành công",
+    "updatePermissionSuccess": "Cập nhật quyền hạn thành công",
+    "deletePermissionSuccess": "Xóa quyền hạn thành công",
+
+    "downloadQrSuccess": "Tải QR code thành công",
+    "downloadQrError": "Tải QR code thất bại",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",
@@ -220,6 +231,7 @@
     "createSystemConfigError": "Lỗi tạo cấu hình hệ thống",
     "systemConfigQueryInvalid": "Truy vấn cấu hình hệ thống không hợp lệ",
     "systemConfigInvalid": "Cấu hình hệ thống không hợp lệ",
-    "errorValidatePromotion": "Lỗi xác thực khuyến mãi"
+    "errorValidatePromotion": "Lỗi xác thực khuyến mãi",
+    "permissionExists": "Quyền đã tồn tại"
   }
 }

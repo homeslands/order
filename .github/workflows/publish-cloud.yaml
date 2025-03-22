@@ -32,9 +32,11 @@ jobs:
         env:
           GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
           FE_ENV: ${{ secrets.FE_ENV_CLOUD }}
+          AUTHORITIES: ${{ secrets.AUTHORITIES }}
         run: |
           mkdir -p app/order-api/public/json
           echo "$GOOGLE_API_CREDENTIALS" > app/order-api/public/json/credentials.json
+          echo "$AUTHORITIES" > app/order-api/public/json/authorities.json
           echo "$FE_ENV" > app/order-ui/.env
 
       # Step 3: Log in to GitHub Container Registry

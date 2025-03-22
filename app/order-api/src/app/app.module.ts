@@ -38,7 +38,7 @@ import { WorkflowModule } from 'src/workflow/workflow.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { DbModule } from 'src/db/db.module';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/passport/jwt/jwt-auth.guard';
 import { RoleModule } from 'src/role/role.module';
 import { RolesGuard } from 'src/role/roles.guard';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
@@ -56,6 +56,8 @@ import { LoggerMiddleware } from 'src/logger/logger.middleware';
 import { AuthorityModule } from 'src/authority/authority.module';
 import { AuthorityGroupModule } from 'src/authority-group/authority-group.module';
 import { PermissionModule } from 'src/permission/permission.module';
+import { ChefAreaModule } from 'src/chef-area/chef-area.module';
+import { ProductChefAreaModule } from 'src/product-chef-area/product-chef-area.module';
 
 @Module({
   imports: [
@@ -127,6 +129,8 @@ import { PermissionModule } from 'src/permission/permission.module';
     AuthorityModule,
     AuthorityGroupModule,
     PermissionModule,
+    ChefAreaModule,
+    ProductChefAreaModule,
   ],
   controllers: [AppController],
   providers: [

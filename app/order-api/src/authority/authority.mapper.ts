@@ -3,7 +3,7 @@ import { createMap, extend, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { baseMapper } from 'src/app/base.mapper';
 import { Authority } from './authority.entity';
-import { AuthorityResponseDto } from './authority.dto';
+import { AuthorityJSON, AuthorityResponseDto } from './authority.dto';
 
 @Injectable()
 export class AuthorityProfile extends AutomapperProfile {
@@ -19,6 +19,7 @@ export class AuthorityProfile extends AutomapperProfile {
         AuthorityResponseDto,
         extend(baseMapper(mapper)),
       );
+      createMap(mapper, AuthorityJSON, Authority);
     };
   }
 }

@@ -24,7 +24,7 @@ import {
 } from './payment.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
 
 @ApiTags('Payment')

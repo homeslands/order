@@ -1,7 +1,7 @@
 import { httpMock } from '../__mocks__/httpMock'
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { http } from '@/utils'
-import { getRole } from '@/api'
+import { getRoles } from '@/api'
 import { SERVER_ERROR } from '../constants'
 
 vi.mock('@/utils', () => ({
@@ -33,14 +33,14 @@ describe('Role API', () => {
       }
       ;(http.get as Mock).mockResolvedValue(mockResponse)
 
-      const result = await getRole()
+      const result = await getRoles()
       expect(http.get).toHaveBeenCalledWith('/role')
       expect(result).toEqual(mockResponse.data)
     })
 
     it('should handle server error', async () => {
       ;(http.get as Mock).mockRejectedValue(SERVER_ERROR)
-      await expect(getRole()).rejects.toEqual(SERVER_ERROR)
+      await expect(getRoles()).rejects.toEqual(SERVER_ERROR)
     })
 
     it('should handle empty roles list', async () => {
@@ -51,14 +51,14 @@ describe('Role API', () => {
       }
       ;(http.get as Mock).mockResolvedValue(mockResponse)
 
-      const result = await getRole()
+      const result = await getRoles()
       expect(result).toEqual(mockResponse.data)
     })
 
     it('should handle network error', async () => {
       const networkError = new Error('Network Error')
       ;(http.get as Mock).mockRejectedValue(networkError)
-      await expect(getRole()).rejects.toThrow('Network Error')
+      await expect(getRoles()).rejects.toThrow('Network Error')
     })
   })
 })

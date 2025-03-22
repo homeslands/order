@@ -1,4 +1,5 @@
 export * from './auth.type'
+export * from './permissions.type'
 export * from './banner.type'
 export * from './base.type'
 export * from './bank.type'
@@ -25,4 +26,3 @@ export * from './table.type'
 export * from './user.type'
 export * from './update-order.type'
 export * from './voucher.type'
-

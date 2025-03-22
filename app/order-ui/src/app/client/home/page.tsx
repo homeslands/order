@@ -37,10 +37,12 @@ export default function HomePage() {
       branch: branch ? branch?.slug : '',
     },
   )
-  const sortedMenuItems = specificMenu?.result?.menuItems?.slice().sort(
-    (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory
-  ) || [];
+  const customMenu = (specificMenu?.result?.menuItems || []).filter((item) => {
+    const isAvailable = item.product.isLimit ? item.currentStock > 0 : true;
+    return !item.isLocked && isAvailable;
+  })
 
+  const sortedMenuItems = customMenu.sort((a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory);
   // Lấy top  sản phẩm có doanh số cao nhất
   const top15BestSellers = sortedMenuItems.slice(0, 10);
 
@@ -53,7 +55,7 @@ export default function HomePage() {
   const bestSellerProducts = [...top15BestSellers, ...topSellProducts];
 
   // Lọc sản phẩm mới và có khuyến mãi
-  const { newsProducts, promotionProducts } = (specificMenu?.result?.menuItems || []).reduce(
+  const { newsProducts, promotionProducts } = customMenu.reduce(
     (acc: { newsProducts: IMenuItem[], promotionProducts: IMenuItem[] }, item: IMenuItem) => {
       if (item.product.isNew) acc.newsProducts.push(item);
       if (item.promotion) acc.promotionProducts.push(item);

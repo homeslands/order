@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight, CircleHelp, Copy, Ticket, TicketPercent } from 'lucide-react'
@@ -24,16 +24,18 @@ import {
   Progress,
 } from '@/components/ui'
 import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
-import { useIsMobile, useValidateVoucher, useVouchers } from '@/hooks'
+import { useIsMobile, useUpdateOrderType, useValidateVoucher, useVouchers } from '@/hooks'
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
-import { IValidateVoucherRequest, IVoucher } from '@/types'
+import { IOrder, IUpdateOrderTypeRequest, IValidateVoucherRequest, IVoucher } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface IVoucherListSheetProps {
-  defaultValue?: string
+  defaultValue?: IOrder | undefined
+  onSuccess?: () => void
 }
 
-export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProps) {
+export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherListSheetProps) {
   const isMobile = useIsMobile()
   const { getTheme } = useThemeStore()
   const { t } = useTranslation(['voucher'])
@@ -41,14 +43,24 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
   const { userInfo } = useUserStore()
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
+  const { mutate: updateOrderType } = useUpdateOrderType()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const queryClient = useQueryClient();
   const { data: voucherList } = useVouchers({
     isActive: true,
     // minOrderValue: cartItems?.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0
   })
-  const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(defaultValue)
+  const [selectedVoucher, setSelectedVoucher] = useState<string | undefined>(defaultValue?.voucher?.slug)
 
   const voucherListData = voucherList?.result || []
+  useEffect(() => {
+    if (defaultValue?.voucher?.slug) {
+      setSelectedVoucher(defaultValue.voucher.slug);
+    } else {
+      setSelectedVoucher(undefined);
+    }
+  }, [defaultValue?.voucher?.slug, sheetOpen]);
+
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -89,28 +101,49 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
   const isVoucherSelected = (voucherSlug: string) => {
     return cartItems?.voucher?.slug === voucherSlug || selectedVoucher === voucherSlug
   }
-
-  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0
+  const subTotal = defaultValue ? defaultValue?.subtotal : cartItems?.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) || 0
 
   const handleToggleVoucher = (voucher: IVoucher) => {
-    if (isVoucherSelected(voucher.slug)) {
-      removeVoucher()
-      setSelectedVoucher(undefined)
-      showToast(tToast('toast.removeVoucherSuccess'))
-    } else {
-      const validateVoucherParam: IValidateVoucherRequest = {
-        voucher: voucher.slug,
-        user: userInfo?.slug || '',
+    if (defaultValue) {
+      let params: IUpdateOrderTypeRequest | null = null
+      let message: string;
+      if (isVoucherSelected(voucher.slug)) {
+        params = { type: defaultValue?.type, table: defaultValue?.table?.slug || null, voucher: null }
+        message = tToast('toast.removeVoucherSuccess')
+      } else {
+        params = { type: defaultValue?.type, table: defaultValue?.table?.slug || null, voucher: voucher.slug }
+        message = tToast('toast.applyVoucherSuccess')
       }
-      validateVoucher(validateVoucherParam, {
+      updateOrderType({ slug: defaultValue.slug as string, params }, {
         onSuccess: () => {
-          addVoucher(voucher)
-          setSelectedVoucher(voucher.slug)
+          queryClient.invalidateQueries({ queryKey: ['orders'] })
           setSheetOpen(false)
-          showToast(tToast('toast.applyVoucherSuccess'))
+          onSuccess?.()
+          showToast(message)
         }
       })
     }
+    else {
+      if (isVoucherSelected(voucher.slug)) {
+        removeVoucher()
+        setSelectedVoucher(undefined)
+        showToast(tToast('toast.removeVoucherSuccess'))
+      } else {
+        const validateVoucherParam: IValidateVoucherRequest = {
+          voucher: voucher.slug,
+          user: userInfo?.slug || '',
+        }
+        validateVoucher(validateVoucherParam, {
+          onSuccess: () => {
+            addVoucher(voucher)
+            setSelectedVoucher(voucher.slug)
+            setSheetOpen(false)
+            showToast(tToast('toast.applyVoucherSuccess'))
+          }
+        })
+      }
+    }
+
   }
 
   const handleApplyVoucher = () => {
@@ -352,9 +385,10 @@ export default function VoucherListSheet({ defaultValue }: IVoucherListSheetProp
                 </span>
               </div>
               <div className='grid grid-cols-1 gap-4'>
-                {voucherListData?.map((voucher) =>
-                  renderVoucherCard(voucher, bestVoucher?.slug === voucher.slug)
-                )}
+                {voucherListData.length > 0 ?
+                  voucherListData?.map((voucher) =>
+                    renderVoucherCard(voucher, bestVoucher?.slug === voucher.slug)
+                  ) : <div>{t('voucher.noVoucher')}</div>}
               </div>
             </div>
           </ScrollArea>

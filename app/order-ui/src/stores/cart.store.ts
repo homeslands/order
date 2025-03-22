@@ -172,45 +172,27 @@ export const useCartItemStore = create<ICartItemStore>()(
           })
         }
       },
-
+      
       removeCartItem: (cartItemId: string) => {
-        const { cartItems } = get()
+        const { cartItems } = get();
         if (cartItems) {
-          const itemToRemove = cartItems.orderItems.find(
-            (item) => item.id === cartItemId,
-          )
-          if (itemToRemove && itemToRemove.quantity > 1) {
-            // If quantity > 1, decrease quantity by 1
-            const updatedOrderItems = cartItems.orderItems.map((orderItem) =>
-              orderItem.id === cartItemId
-                ? { ...orderItem, quantity: orderItem.quantity - 1 }
-                : orderItem,
-            )
+          const updatedOrderItems = cartItems.orderItems.filter(
+            (orderItem) => orderItem.id !== cartItemId // Xóa trực tiếp sản phẩm
+          );
+
+          // Nếu đây là sản phẩm cuối cùng, xóa toàn bộ giỏ hàng
+          if (updatedOrderItems.length === 0) {
+            get().clearCart();
+          } else {
             set({
               cartItems: {
                 ...cartItems,
                 orderItems: updatedOrderItems,
               },
-            })
-          } else {
-            // If quantity is 1, remove the item completely
-            const updatedOrderItems = cartItems.orderItems.filter(
-              (orderItem) => orderItem.id !== cartItemId,
-            )
-
-            // If this is the last item, clear the entire cart
-            if (updatedOrderItems.length === 0) {
-              get().clearCart()
-            } else {
-              set({
-                cartItems: {
-                  ...cartItems,
-                  orderItems: updatedOrderItems,
-                },
-              })
-            }
+            });
           }
-          showToast(i18next.t('toast.removeSuccess'))
+
+          showToast(i18next.t('toast.removeSuccess')); // Hiển thị thông báo thành công
         }
       },
 

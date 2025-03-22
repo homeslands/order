@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { TErrorCode } from './app.validation';
 import { AppResponseDto } from './app.dto';

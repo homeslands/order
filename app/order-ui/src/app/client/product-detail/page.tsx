@@ -133,7 +133,7 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col justify-between col-span-1 gap-4">
+        <div className="flex flex-col justify-between col-span-1 gap-4 w-1/2">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
@@ -203,13 +203,16 @@ export default function ProductDetailPage() {
                   </label>
                   <div className="flex flex-row items-center justify-start gap-2">
                     <NonPropQuantitySelector
-                      currentQuantity={product.result.currentStock}
+                      isLimit={productDetail.product.isLimit}
+                      disabled={productDetail.isLocked}
+                      currentQuantity={product?.result?.currentStock}
                       onChange={handleQuantityChange}
                     />
-                    <div className="text-xs text-muted-foreground">
-                      {product.result.currentStock}/
-                      {product.result.defaultStock}{' '}{t('product.inStock')}
-                    </div>
+                    {productDetail?.product?.isLimit &&
+                      <div className="text-xs text-muted-foreground">
+                        {product.result.currentStock}/
+                        {product.result.defaultStock}{' '}{t('product.inStock')}
+                      </div>}
                   </div>
                 </div>
               )}
@@ -251,10 +254,9 @@ export default function ProductDetailPage() {
           <Button
             onClick={handleAddToCart}
             variant="default"
-            disabled={!size || quantity <= 0}
+            disabled={productDetail?.isLocked || !size || quantity <= 0}
           >
-            <ShoppingCart />
-            {tMenu('menu.addToCart')}
+            <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
           </Button>
         </div>
       </div>

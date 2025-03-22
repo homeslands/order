@@ -228,6 +228,7 @@ export interface IAddNewOrderItemRequest {
 export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
+  voucher?: string | null
 }
 
 export interface IUpdateOrderItemRequest {
@@ -236,6 +237,9 @@ export interface IUpdateOrderItemRequest {
   variant: string | IProductVariant
   promotion?: string | IPromotion
   action?: string
+}
+export interface IUpdateNoteRequest {
+  note: string
 }
 
 export interface IInitiatePaymentRequest {

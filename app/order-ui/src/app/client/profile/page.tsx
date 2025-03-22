@@ -29,7 +29,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container py-10 mx-auto bg-muted-foreground/5">
+    <div className="container py-10 mx-auto">
       <Helmet>
         <meta charSet='utf-8' />
         <title>

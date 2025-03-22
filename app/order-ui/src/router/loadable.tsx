@@ -140,6 +140,20 @@ export const CustomerPage = React.lazy(() =>
   })),
 )
 
+// Role page
+export const RolePage = React.lazy(() =>
+  import('@/app/system/role').then((module) => ({
+    default: module.RolePage,
+  })),
+)
+
+// Role detail page
+export const RoleDetailPage = React.lazy(() =>
+  import('@/app/system/role').then((module) => ({
+    default: module.RoleDetailPage,
+  })),
+)
+
 //Branch page
 export const BranchPage = React.lazy(() =>
   import('@/app/system/branch').then((module) => ({

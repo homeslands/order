@@ -27,7 +27,7 @@ import {
   TrackingResponseDto,
 } from './tracking.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @ApiTags('Tracking')
 @Controller('trackings')

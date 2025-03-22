@@ -21,12 +21,12 @@ export default function CatalogSelect({
   } | null>(null)
   const { data } = useCatalogs()
 
-  // Effect to append new users to the local state when users are fetched
+  // Effect to append new catalogs to the previous catalogs
   useEffect(() => {
     if (data?.result) {
       const newCatalogs = data.result.map((item) => ({
         value: item.slug || '',
-        label: item.name || '',
+        label: (item.name?.[0]?.toUpperCase() + item.name?.slice(1)) || '',
       }))
       // Append new users to the previous users
       setAllCatalogs(newCatalogs)

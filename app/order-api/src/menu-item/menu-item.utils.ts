@@ -24,6 +24,7 @@ export class MenuItemUtils {
     const menuItem = await this.menuItemRepository.findOne({ ...options });
     if (!menuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_NOT_FOUND);
+
     return menuItem;
   }
 
@@ -77,34 +78,41 @@ export class MenuItemUtils {
       .map((menuItem) => {
         // Increment when canceling order
         if (action === 'increment') {
-          const quantity = uniqueProducts.get(menuItem.product.id);
-          const incomingStock = menuItem.currentStock + quantity;
-          // Ensure incoming stock does not exceed current stock
-          if (incomingStock > menuItem.defaultStock) {
-            this.logger.warn(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-              context,
-            );
-            menuItem.currentStock = menuItem.defaultStock;
-          } else {
-            menuItem.currentStock = incomingStock;
+          if (menuItem.defaultStock !== null) {
+            const quantity = uniqueProducts.get(menuItem.product.id);
+            const incomingStock = menuItem.currentStock + quantity;
+            // Ensure incoming stock does not exceed current stock
+            if (incomingStock > menuItem.defaultStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+              menuItem.currentStock = menuItem.defaultStock;
+            } else {
+              menuItem.currentStock = incomingStock;
+            }
           }
+
           return menuItem;
         }
         if (action === 'decrement') {
           // Decrement when create, update order
-          const requestQuantity = uniqueProducts.get(menuItem.product.id);
-          if (requestQuantity > menuItem.currentStock) {
-            this.logger.warn(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-              context,
-            );
-            throw new OrderException(
-              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
-            );
+          if (menuItem.defaultStock !== null) {
+            const requestQuantity = uniqueProducts.get(menuItem.product.id);
+            if (requestQuantity > menuItem.currentStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+              throw new OrderException(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+              );
+            }
+            menuItem.currentStock -= requestQuantity;
+            return menuItem;
           }
-          menuItem.currentStock -= requestQuantity;
-          return menuItem;
         }
         return menuItem;
       });
@@ -120,6 +128,7 @@ export class MenuItemUtils {
     entity: OrderItem,
     date: Date,
     action: 'increment' | 'decrement',
+    requestStock: number = 1,
   ) {
     const context = `${MenuItemUtils.name}.${this.getCurrentMenuItem.name}`;
     this.logger.log(
@@ -147,32 +156,45 @@ export class MenuItemUtils {
 
     // limit product
     switch (action) {
-      case 'decrement': {
-        const newStock = Math.min(
-          menuItem.currentStock + 1,
-          menuItem.defaultStock,
-        );
-        if (newStock !== menuItem.currentStock) {
-          this.logger.warn(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-            context,
+      // increment menu item
+      case 'increment': {
+        if (menuItem.defaultStock !== null) {
+          const newStock = Math.min(
+            menuItem.currentStock + requestStock,
+            menuItem.defaultStock,
           );
+          if (newStock !== menuItem.currentStock) {
+            this.logger.warn(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+              context,
+            );
+            if (newStock !== menuItem.currentStock) {
+              this.logger.warn(
+                OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+                  .message,
+                context,
+              );
+            }
+            menuItem.currentStock = newStock;
+          }
         }
-        menuItem.currentStock = newStock;
         break;
       }
 
-      case 'increment': {
-        if (menuItem.currentStock <= 0) {
-          this.logger.warn(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
-            context,
-          );
-          throw new OrderException(
-            OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
-          );
+      // decrement menu item
+      case 'decrement': {
+        if (menuItem.defaultStock !== null) {
+          if (menuItem.currentStock <= 0) {
+            this.logger.warn(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+              context,
+            );
+            throw new OrderException(
+              OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+            );
+          }
+          menuItem.currentStock -= requestStock;
         }
-        menuItem.currentStock -= 1;
         break;
       }
 

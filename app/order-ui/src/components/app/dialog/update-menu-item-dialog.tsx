@@ -17,10 +17,12 @@ import { UpdateMenuItemForm } from '@/components/app/form'
 
 interface UpdateMenuItemDialogProps {
   menuItem: IMenuItem
+  isTemplate: boolean
 }
 
 export default function UpdateMenuItemDialog({
   menuItem,
+  isTemplate
 }: UpdateMenuItemDialogProps) {
   const { t } = useTranslation(['menu'])
   const [isOpen, setIsOpen] = useState(false)
@@ -48,7 +50,7 @@ export default function UpdateMenuItemDialog({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[24rem]">
-          <UpdateMenuItemForm onSubmit={handleSubmit} menuItem={menuItem} />
+          <UpdateMenuItemForm onSubmit={handleSubmit} menuItem={menuItem} isTemplate={isTemplate} />
         </ScrollArea>
       </DialogContent>
     </Dialog>

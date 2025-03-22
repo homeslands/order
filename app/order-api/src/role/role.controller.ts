@@ -48,7 +48,7 @@ export class RoleController {
     description: 'Role has been retrieved successfully',
     type: RoleResponseDto,
   })
-  async findOne(slug: string) {
+  async findOne(@Param('slug') slug: string) {
     const result = await this.roleService.findOne(slug);
     return {
       message: 'Role has been retrieved successfully',

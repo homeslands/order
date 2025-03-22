@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import moment from 'moment'
 import _ from 'lodash'
 import { CircleX, SquareMenu } from 'lucide-react'
@@ -12,9 +12,11 @@ import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
-import { PaymentCountdown } from '@/components/app/countdown/PaymentCountdown'
 import { Helmet } from 'react-helmet'
-
+import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
+import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
+import { usePaymentMethodStore } from '@/stores'
+import DownloadQrCode from '@/components/app/button/download-qr-code'
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
   const { t } = useTranslation(['menu'])
@@ -22,19 +24,17 @@ export default function PaymentPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const slug = searchParams.get('order')
   const navigate = useNavigate()
-  const [paymentMethod, setPaymentMethod] = useState<string>('')
-  const { data: order, refetch: refetchOrder } = useOrderBySlug(slug as string)
+  const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
   const { mutate: exportPayment, isPending: isPendingExportPayment } =
     useExportPayment()
-  const [qrCode, setQrCode] = useState<string>('')
-  const [paymentSlug, setPaymentSlug] = useState<string>('')
-  const [isPolling, setIsPolling] = useState<boolean>(false)
-  const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
-  const [isExpired, setIsExpired] = useState<boolean>(false)
-  const isDisabled = !paymentMethod || !slug
 
+  const [isPolling, setIsPolling] = useState<boolean>(false)
+  const [isExpired, setIsExpired] = useState<boolean>(false)
+  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
+  const isDisabled = !paymentMethod || !slug
+  const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   // calculate original total
   const originalTotal = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
@@ -45,37 +45,16 @@ export default function PaymentPage() {
   const voucherDiscount = order?.result.voucher ? order.result.voucher.value : 0;
 
   useEffect(() => {
-    if (order?.result.createdAt) {
-      const createdAt = moment(order.result.createdAt)
-      const now = moment()
-      const timePassed = now.diff(createdAt, 'seconds')
-      const remainingTime = 600 - timePassed // 1 minute
-      setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
-      setIsExpired(remainingTime <= 0)
+    if (isExpired) {
+      setIsPolling(false)
     }
-  }, [order?.result.createdAt])
+  }, [isExpired])
 
   useEffect(() => {
-    let timerInterval: NodeJS.Timeout | null = null
-
-    if (timeRemainingInSec > 0) {
-      timerInterval = setInterval(() => {
-        setTimeRemainingInSec((prev) => {
-          const newTime = prev - 1
-          if (newTime <= 0) {
-            setIsExpired(true)
-            setIsPolling(false)
-            if (timerInterval) clearInterval(timerInterval)
-          }
-          return newTime
-        })
-      }, 1000)
+    if (qrCode && paymentSlug && !isExpired) {
+      setIsPolling(true)
     }
-
-    return () => {
-      if (timerInterval) clearInterval(timerInterval)
-    }
-  }, [timeRemainingInSec])
+  }, [qrCode, paymentSlug, isExpired])
 
   //polling order status every 3 seconds
   useEffect(() => {
@@ -97,15 +76,14 @@ export default function PaymentPage() {
     }
   }, [isPolling, refetchOrder, navigate, slug])
 
-  const handleSelectPaymentMethod = (selectedPaymentMethod: string) => {
+  const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
-    setIsPolling(false)
+    if (selectedPaymentMethod === PaymentMethod.BANK_TRANSFER && qrCode) setIsPolling(true)
+    else setIsPolling(false) // Stop polling after selecting payment method
   }
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
-
-    // setTimeRemainingInSec(600) // Reset time remaining
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -140,8 +118,10 @@ export default function PaymentPage() {
       },
     })
   }
-
-  if (_.isEmpty(order?.result) || isExpired) {
+  const handleExpire = useCallback((value: boolean) => {
+    setIsExpired(value)
+  }, [])
+  if (isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col items-center justify-center gap-5">
@@ -149,15 +129,14 @@ export default function PaymentPage() {
           <p className="text-center text-muted-foreground">
             {t('menu.orderExpired')}
           </p>
-          <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button variant="default">
-              {t('menu.goBackToMenu')}
-            </Button>
-          </NavLink>
+          <Button variant="default" onClick={() => navigate(-1)}>
+            {t('menu.goBackToMenu')}
+          </Button>
         </div>
       </div>
     )
   }
+  if (isPending) return <PaymentPageSkeleton />
 
   return (
     <div>
@@ -168,7 +147,7 @@ export default function PaymentPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.bankConfig.title')} />
       </Helmet>
-      <PaymentCountdown timeRemaining={timeRemainingInSec} />
+      <OrderCountdown createdAt={order?.result.createdAt || timeDefaultExpired} setIsExpired={handleExpire} />
       <span className="flex items-center justify-start w-full gap-1 text-lg">
         <SquareMenu />
         {t('menu.payment')}
@@ -329,28 +308,37 @@ export default function PaymentPage() {
                 />
               </div>
             )}
-            <div className="flex justify-end py-6">
+            <div className="flex justify-between py-6">
+              <Button
+                className="w-fit"
+                onClick={() => navigate(-1)}
+              >
+                {t('order.backToMenu')}
+              </Button>
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
-                  <div className="flex gap-2 px-2">
-                    <Button
-                      disabled={isDisabled || isPendingInitiatePayment}
-                      className="w-fit"
-                      onClick={handleConfirmPayment}
-                    >
-                      {isPendingInitiatePayment && <ButtonLoading />}
-                      {t('paymentMethod.confirmPayment')}
-                    </Button>
-                    {paymentSlug && (
+                  <div className="flex gap-2 px-2 justify-end">
+                    {paymentSlug ?
+                      <>
+                        <DownloadQrCode qrCode={qrCode} slug={slug} />
+                        <Button
+                          disabled={isDisabled || isPendingExportPayment}
+                          className="w-fit"
+                          onClick={handleExportPayment}
+                        >
+                          {isPendingExportPayment && <ButtonLoading />}
+                          {t('paymentMethod.exportPayment')}
+                        </Button>
+                      </>
+                      :
                       <Button
-                        disabled={isDisabled || isPendingExportPayment}
+                        disabled={isDisabled || isPendingInitiatePayment}
                         className="w-fit"
-                        onClick={handleExportPayment}
+                        onClick={handleConfirmPayment}
                       >
-                        {isPendingExportPayment && <ButtonLoading />}
-                        {t('paymentMethod.exportPayment')}
-                      </Button>
-                    )}
+                        {isPendingInitiatePayment && <ButtonLoading />}
+                        {t('paymentMethod.confirmPayment')}
+                      </Button>}
                   </div>
                 )}
             </div>

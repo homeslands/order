@@ -72,6 +72,7 @@
     "productName": "Tên món",
     "selectedProducts": "Món đã chọn",
     "defaultStock": "Số lượng",
+    "isLocked": "Khóa món",
     "defaultStockDescription": "Số lượng mặc định",
     "updateMenuItem": "Cập nhật món",
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
@@ -83,7 +84,8 @@
     "deleteMenuItemConfirmation": " khỏi thực đơn không?",
     "searchProduct": "Tìm kiếm sản phẩm",
     "all": "Tất cả",
-    "sold": "Đã bán"
+    "sold": "Đã bán",
+    "noLimit": "Không giới hạn"
   },
   "order": {
     "orderId": "Đơn hàng",
@@ -113,6 +115,7 @@
     "promotion": "Mã giảm giá",
     "enterPromotion": "Nhập mã giảm giá",
     "apply": "Áp dụng",
+    "productClassification": "Phân loại sản phẩm: ",
     "subTotal": "Tạm tính",
     "total": "Tổng tiền hàng",
     "discount": "Giảm giá",
@@ -223,6 +226,7 @@
     "canceled": "Đã hủy",
     "notPaid": "Chưa thanh toán",
     "timeRemaining": "Thời gian thanh toán còn lại: ",
-    "timeExpired": "Đơn hàng đã hết hạn thanh toán"
+    "timeExpired": "Đơn hàng đã hết hạn thanh toán",
+    "downloadQRCode": "Tải QR code"
   }
 }

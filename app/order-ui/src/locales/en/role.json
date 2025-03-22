@@ -1,5 +1,22 @@
 {
   "role": {
+    "title": "Role Management",
+    "createdAt": "Created At",
+    "slug": "Role Code",
+    "name": "Role Name",
+    "description": "Description",
+    "authority": "Authority",
+    "authorityList": "Authority List",
+
+    "addPermission": "Add Permission",
+    "permissions": "Permissions",
+    "confirmCreatePermission": "Confirm Create Permission",
+
+    "update": "Update",
+    "updateRoleDescription": "Update Role Information",
+    "enterName": "Enter Role Name",
+    "enterDescription": "Enter Description",
+
     "ADMIN": "Admin",
     "MANAGER": "Manager",
     "STAFF": "Staff",

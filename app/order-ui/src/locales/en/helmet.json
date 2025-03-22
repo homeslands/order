@@ -35,6 +35,12 @@
       "description": "Manage your employees here",
       "keywords": "employee management, staff, HR management"
     },
+    "role": {
+      "title": "Role Management",
+      "manageRole": "Manage Roles",
+      "description": "Manage your roles here",
+      "keywords": "roles, role management, user roles"
+    },
     "menuManagement": {
       "title": "Menu Management",
       "manageMenuManagement": "Manage Menu",

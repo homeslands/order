@@ -13,6 +13,7 @@ import { Authority } from 'src/authority/authority.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PermissionValidation } from './permission.validation';
 import { PermissionException } from './permission.exception';
+import _ from 'lodash';
 
 @Injectable()
 export class PermissionService {
@@ -27,11 +28,91 @@ export class PermissionService {
     private readonly logger: Logger,
     @InjectMapper()
     private readonly mapper: Mapper,
-    private readonly transactionMaangerService: TransactionManagerService,
+    private readonly transactionMangerService: TransactionManagerService,
   ) {}
 
-  async bulkCreate(createPermissionDto: CreatePermissionDto) {
+  /**
+   * Bulk create permission. This method will remove all permissions that have the same role and authority in the deleteAuthorities list.
+   * Then, it will create new permissions with the role and authorities in the createAuthorities list.
+   * If the authority is in both createAuthorities and deleteAuthorities, it will be removed from the deleteAuthorities list.
+   * If the permission already exists, it will be removed from the createAuthorities list.
+   * @param {CreatePermissionDto} createPermissionDto
+   * @returns {Promise<PermissionResponseDto[]>}
+   * @memberof PermissionService
+   * @throws {PermissionException} if failed to create permission
+   */
+  async bulkCreate(
+    createPermissionDto: CreatePermissionDto,
+  ): Promise<PermissionResponseDto[]> {
     const context = `${PermissionService.name}.${this.bulkCreate.name}`;
+
+    // Get share authorities
+    const shareAuthorities = _.intersection(
+      createPermissionDto.createAuthorities,
+      createPermissionDto.deleteAuthorities,
+    );
+
+    // Remove share authorities in delete authorities request
+    createPermissionDto.deleteAuthorities = _.difference(
+      createPermissionDto.deleteAuthorities,
+      shareAuthorities,
+    );
+
+    // Get all permissions will be deleted
+    const deletePermissions = await this.permissionRepository.find({
+      where: {
+        role: {
+          slug: createPermissionDto.role,
+        },
+        authority: {
+          slug: In([...createPermissionDto.deleteAuthorities]),
+        },
+      },
+      relations: ['role', 'authority'],
+    });
+
+    await this.transactionMangerService.execute<Permission[]>(
+      async (manager) => {
+        return await manager.remove(deletePermissions);
+      },
+      (result) => {
+        this.logger.log(
+          `Permissions ${result.map((item) => `${item.role?.name} - ${item.authority?.name}`).join(', ')} removed successfully`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Failed to remove permission: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new PermissionException(
+          PermissionValidation.PERMISSION_REMOVE_FAILED,
+        );
+      },
+    );
+
+    // Filter existed permissions
+    for (const authority of createPermissionDto.createAuthorities) {
+      const permission = await this.permissionRepository.findOne({
+        where: {
+          role: {
+            slug: createPermissionDto.role,
+          },
+          authority: {
+            slug: authority,
+          },
+        },
+      });
+      if (permission)
+        createPermissionDto.createAuthorities =
+          createPermissionDto.createAuthorities.filter(
+            (item) => item !== authority,
+          );
+    }
+
+    // Get Role
     const role = await this.roleRepository.findOne({
       where: {
         slug: createPermissionDto.role,
@@ -39,24 +120,12 @@ export class PermissionService {
     });
     if (!role) throw new RoleException(RoleValidation.ROLE_NOT_FOUND);
 
-    const authorities = await this.authorityRepository.findBy({
-      slug: In([...createPermissionDto.authorities]),
+    // Get Authorities
+    const authorities = await this.authorityRepository.find({
+      where: {
+        slug: In([...createPermissionDto.createAuthorities]),
+      },
     });
-
-    for (const authority of authorities) {
-      const permission = await this.permissionRepository.findOne({
-        where: {
-          role: {
-            slug: role.slug,
-          },
-          authority: {
-            slug: authority.slug,
-          },
-        },
-      });
-      if (permission)
-        throw new PermissionException(PermissionValidation.PERMISSION_EXISTED);
-    }
 
     const permissions = authorities.map((authority) => {
       const permission = this.mapper.map(
@@ -71,7 +140,7 @@ export class PermissionService {
       return permission;
     });
 
-    const createdPermissions = await this.transactionMaangerService.execute<
+    const createdPermissions = await this.transactionMangerService.execute<
       Permission[]
     >(
       async (manager) => {
@@ -102,7 +171,15 @@ export class PermissionService {
     );
   }
 
-  async remove(slug: string) {
+  /**
+   * Remove permission by slug.
+   * This method will remove the permission by slug.
+   * @param {string} slug
+   * @returns {Promise<PermissionResponseDto>}
+   * @memberof PermissionService
+   * @throws {PermissionException} if permission not found
+   */
+  async remove(slug: string): Promise<PermissionResponseDto> {
     const context = `${PermissionService.name}.${this.remove.name}`;
     const permission = await this.permissionRepository.findOne({
       where: {
@@ -111,7 +188,7 @@ export class PermissionService {
     });
     if (!permission) throw new Error('Permission not found');
 
-    const result = await this.transactionMaangerService.execute<Permission>(
+    const result = await this.transactionMangerService.execute<Permission>(
       async (manager) => {
         return await manager.remove(permission);
       },

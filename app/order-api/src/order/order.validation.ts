@@ -16,6 +16,8 @@ export const CREATE_ORDER_ERROR = 'CREATE_ORDER_ERROR';
 export const ORDER_ID_INVALID = 'ORDER_ID_INVALID';
 export const UPDATE_ORDER_ERROR = 'UPDATE_ORDER_ERROR';
 export const INVALID_ORDER_SLUG = 'INVALID_ORDER_SLUG';
+export const REQUEST_QUANTITY_MUST_OTHER_INFINITY =
+  'REQUEST_QUANTITY_MUST_OTHER_INFINITY';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -32,6 +34,7 @@ export type TOrderErrorCodeKey =
   | typeof INVALID_ORDER_ITEMS
   | typeof UPDATE_ORDER_ERROR
   | typeof INVALID_ORDER_SLUG
+  | typeof REQUEST_QUANTITY_MUST_OTHER_INFINITY
   | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
@@ -51,9 +54,13 @@ export const OrderValidation: TOrderErrorCode = {
   CREATE_ORDER_ERROR: createErrorCode(101007, 'Error when saving order'),
   ORDER_ID_INVALID: createErrorCode(101008, 'Order id invalid'),
   ORDER_INVALID: createErrorCode(101009, 'Order invalid'),
-  INVALID_ORDER_OWNER: createErrorCode(101010, 'Owner invalid'),
-  INVALID_ORDER_APPROVAL_BY: createErrorCode(101011, 'Approval invalid'),
-  INVALID_ORDER_ITEMS: createErrorCode(101012, 'Invalid order items'),
-  UPDATE_ORDER_ERROR: createErrorCode(101013, 'Error when updating order'),
-  INVALID_ORDER_SLUG: createErrorCode(101014, 'Invalid order slug'),
+  INVALID_ORDER_OWNER: createErrorCode(1010010, 'Owner invalid'),
+  INVALID_ORDER_APPROVAL_BY: createErrorCode(1010011, 'Approval invalid'),
+  INVALID_ORDER_ITEMS: createErrorCode(1010012, 'Invalid order items'),
+  UPDATE_ORDER_ERROR: createErrorCode(1010013, 'Error when updating order'),
+  INVALID_ORDER_SLUG: createErrorCode(1010014, 'Invalid order slug'),
+  REQUEST_QUANTITY_MUST_OTHER_INFINITY: createErrorCode(
+    1010015,
+    'Request quantity must other infinity',
+  ),
 };

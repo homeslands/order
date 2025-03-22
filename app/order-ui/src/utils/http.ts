@@ -44,7 +44,6 @@ const axiosInstance: AxiosInstance = axios.create({
   timeout: 10000,
   withCredentials: true,
 })
-
 // Public routes configuration
 const publicRoutes = [
   { path: /^\/auth\/login$/, methods: ['post'] },
@@ -101,10 +100,10 @@ axiosInstance.interceptors.request.use(
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
           await axios.post(`${baseURL}/auth/refresh`, {
             refreshToken,
-            expiredToken: token,
+            accessToken: token,
           })
 
-        const newToken = response.data.result.token
+        const newToken = response.data.result.accessToken
         setToken(newToken)
         setRefreshToken(response.data.result.refreshToken)
         setExpireTime(response.data.result.expireTime)

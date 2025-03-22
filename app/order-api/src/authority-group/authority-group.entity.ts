@@ -9,7 +9,7 @@ export class AuthorityGroup extends Base {
   @AutoMap()
   name: string;
 
-  @Column({ name: 'code_column' })
+  @Column({ name: 'code_column', unique: true })
   @AutoMap()
   code: string;
 

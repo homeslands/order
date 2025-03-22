@@ -28,6 +28,7 @@ export const ROUTE = {
   STAFF_LOG_MANAGEMENT: '/system/log',
   STAFF_USER_MANAGEMENT: '/system/staff',
   STAFF_CUSTOMER_MANAGEMENT: '/system/customers',
+  STAFF_ROLE_MANAGEMENT: '/system/role',
   STAFF_BANK_CONFIG: '/system/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
   STAFF_VOUCHER: '/system/voucher',

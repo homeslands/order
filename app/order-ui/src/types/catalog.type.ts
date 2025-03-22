@@ -1,4 +1,6 @@
-export interface ICatalog {
+import { IBase } from './base.type'
+
+export interface ICatalog extends IBase {
   slug: string
   name: string
   description: string

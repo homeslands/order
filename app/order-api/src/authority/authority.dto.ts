@@ -14,3 +14,14 @@ export class AuthorityResponseDto extends BaseResponseDto {
   @ApiProperty()
   description: string;
 }
+
+export class AuthorityJSON {
+  @AutoMap()
+  name: string;
+
+  @AutoMap()
+  code: string;
+
+  @AutoMap()
+  description: string;
+}

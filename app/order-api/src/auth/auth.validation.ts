@@ -25,6 +25,9 @@ export const CONFIRM_EMAIL_VERIFICATION_ERROR =
   'CONFIRM_EMAIL_VERIFICATION_ERROR';
 export const THIS_EMAIL_ALREADY_VERIFY = 'THIS_EMAIL_ALREADY_VERIFY';
 export const ERROR_REGISTER_USER = 'ERROR_REGISTER_USER';
+export const ERROR_UPDATE_PASSWORD = 'ERROR_UPDATE_PASSWORD';
+export const ERROR_CREATE_FORGOT_PASSWORD_TOKEN =
+  'ERROR_CREATE_FORGOT_PASSWORD_TOKEN';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -49,6 +52,8 @@ export type TAuthErrorCodeKey =
   | typeof CONFIRM_EMAIL_VERIFICATION_ERROR
   | typeof THIS_EMAIL_ALREADY_VERIFY
   | typeof ERROR_REGISTER_USER
+  | typeof ERROR_UPDATE_PASSWORD
+  | typeof ERROR_CREATE_FORGOT_PASSWORD_TOKEN
   | typeof INVALID_FIRSTNAME;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
@@ -93,4 +98,12 @@ export const AuthValidation: TAuthErrorCode = {
     'This email already verified',
   ),
   ERROR_REGISTER_USER: createErrorCode(119022, 'Error when registering user'),
+  ERROR_UPDATE_PASSWORD: createErrorCode(
+    119023,
+    'Error when updating password',
+  ),
+  ERROR_CREATE_FORGOT_PASSWORD_TOKEN: createErrorCode(
+    119024,
+    'Error when creating forgot password token',
+  ),
 };

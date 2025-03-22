@@ -35,6 +35,12 @@
       "description": "Quản lý nhân viên của bạn tại đây",
       "keywords": "quản lý nhân viên, nhân viên, quản lý nhân sự"
     },
+    "role": {
+      "title": "Quản lý vai trò",
+      "manageRole": "Quản lý vai trò",
+      "description": "Quản lý vai trò của bạn tại đây",
+      "keywords": "vai trò, quản lý vai trò, vai trò người dùng"
+    },
     "menuManagement": {
       "title": "Quản lý thực đơn",
       "manageMenuManagement": "Quản lý thực đơn",

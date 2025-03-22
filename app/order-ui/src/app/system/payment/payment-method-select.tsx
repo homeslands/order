@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { PaymentMethodRadioGroup } from '@/components/app/radio'
 import { Label } from '@/components/ui'
 import { formatCurrency } from '@/utils'
+import { PaymentMethod } from '@/constants'
 
 interface PaymentMethodSelectProps {
   qrCode?: string
   total?: number
   defaultValue?: string
-  onSubmit?: (paymentMethod: string) => void
+  onSubmit?: (paymentMethod: PaymentMethod) => void
 }
 
 export default function PaymentMethodSelect({
@@ -20,7 +21,7 @@ export default function PaymentMethodSelect({
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
 
-  const handlePaymentMethodSubmit = (paymentMethod: string) => {
+  const handlePaymentMethodSubmit = (paymentMethod: PaymentMethod) => {
     if (onSubmit) {
       onSubmit(paymentMethod)
     }

@@ -20,9 +20,9 @@ import { AppResponseDto } from 'src/app/app.dto';
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
-  @Post()
+  @Post('/bulk')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create permission' })
+  @ApiOperation({ summary: 'Bulk create permission' })
   @ApiResponseWithType({
     status: HttpStatus.CREATED,
     description: 'Create permission successfully',

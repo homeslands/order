@@ -16,6 +16,7 @@ import {
 import { IOrderDetail } from '@/types'
 import { useDeleteOrderItem } from '@/hooks'
 import { showToast } from '@/utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface DialogDeleteCartItemProps {
   onSubmit: () => void
@@ -31,10 +32,11 @@ export default function RemoveOrderItemInUpdateOrderDialog({
   const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
   const { mutate: deleteOrderItem } = useDeleteOrderItem()
-
+  const queryClient = useQueryClient()
   const handleDelete = (orderItemSlug: string) => {
     deleteOrderItem(orderItemSlug, {
       onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         showToast(tToast('toast.deleteOrderItemSuccess'))
         setIsOpen(false)
         onSubmit()

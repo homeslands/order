@@ -51,7 +51,9 @@ export class TableService {
   ): Promise<TableResponseDto[]> {
     const context = `${TableService.name}.${this.bulkCreateTables.name}`;
     const branch = await this.branchUtils.getBranch({
-      slug: bulkCreateTablesRequestDto.branch || IsNull(),
+      where: {
+        slug: bulkCreateTablesRequestDto.branch || IsNull(),
+      },
     });
     if (bulkCreateTablesRequestDto.from > bulkCreateTablesRequestDto.to) {
       this.logger.warn(
@@ -118,7 +120,9 @@ export class TableService {
   ): Promise<TableResponseDto> {
     const context = `${TableService.name}.${this.create.name}`;
     const branch = await this.branchUtils.getBranch({
-      slug: createTableDto.branch || IsNull(),
+      where: {
+        slug: createTableDto.branch || IsNull(),
+      },
     });
 
     // Validate location if location is provided

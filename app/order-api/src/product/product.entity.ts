@@ -5,6 +5,7 @@ import { Variant } from 'src/variant/variant.entity';
 import { AutoMap } from '@automapper/classes';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { ProductAnalysis } from 'src/product-analysis/product-analysis.entity';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 
 @Entity('product_tbl')
 export class Product extends Base {
@@ -65,4 +66,7 @@ export class Product extends Base {
   @AutoMap()
   @Column({ name: 'sale_quantity_history', default: 0 })
   saleQuantityHistory: number;
+
+  @OneToMany(() => ProductChefArea, (p) => p.product)
+  productChefAreas: ProductChefArea[];
 }

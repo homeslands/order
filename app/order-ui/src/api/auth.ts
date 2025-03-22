@@ -4,6 +4,9 @@ import {
   IForgotPasswordRequest,
   IVerifyEmailRequest,
   IConfirmEmailVerificationRequest,
+  IGetAuthorityGroupsRequest,
+  IAuthorityGroup,
+  ICreatePermissionRequest,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -66,5 +69,34 @@ export async function confirmEmailVerification(
     `/auth/confirm-email-verification`,
     confirmEmailVerificationParams,
   )
+  return response.data
+}
+
+export async function authorityGroup(
+  params: IGetAuthorityGroupsRequest,
+): Promise<IApiResponse<IAuthorityGroup[]>> {
+  const response = await http.get<IApiResponse<IAuthorityGroup[]>>(
+    '/authority-group',
+    {
+      params,
+    },
+  )
+  return response.data
+}
+
+export async function createPermission(
+  params: ICreatePermissionRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    '/permission/bulk',
+    params,
+  )
+  return response.data
+}
+
+export async function deletePermission(
+  slug: string,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(`/permission/${slug}`)
   return response.data
 }

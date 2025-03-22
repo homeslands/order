@@ -84,6 +84,7 @@ export class MenuScheduler {
                 newItem.updatedAt = undefined;
                 newItem.deletedAt = undefined;
                 newItem.promotion = promotion;
+                // limit product
                 newItem.currentStock = newItem.defaultStock;
                 newItem.product = newItem.product;
                 return newItem;

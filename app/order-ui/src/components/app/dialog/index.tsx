@@ -107,3 +107,7 @@ export { default as UploadBannerBannerDialog } from './upload-banner-image-dialo
 export { default as UpdateTableStatusDialog } from './update-table-status-dialog'
 export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'
+
+export { default as UpdateRoleDialog } from './update-role-dialog'
+export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'
+export { default as DeletePermissionDialog } from './delete-permission-dialog'

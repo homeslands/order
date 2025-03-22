@@ -15,11 +15,11 @@ import { useMenuItemStore } from '@/stores'
 import { useProducts } from '@/hooks'
 import { AddMultipleItemsDialog } from '../dialog'
 import { useProductColumns } from '@/app/system/order-history/DataTable/columns'
+import { useState } from 'react'
 
 interface IAddMenuItemSheetProps {
   menuSlug: string | undefined
 }
-
 
 export default function AddMenuItemSheet({ menuSlug }: IAddMenuItemSheetProps) {
   const { t } = useTranslation('menu')
@@ -29,9 +29,16 @@ export default function AddMenuItemSheet({ menuSlug }: IAddMenuItemSheetProps) {
     menu: menuSlug,
     inMenu: false,
   })
-
+  const [isOpen, setIsOpen] = useState(false)
   const productsData = products?.result
   const menuItems = getMenuItems()
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (open) {
+      refetch()
+      clearMenuItems()
+    }
+  }
 
   const handleSubmitSuccess = () => {
     refetch()
@@ -39,7 +46,7 @@ export default function AddMenuItemSheet({ menuSlug }: IAddMenuItemSheetProps) {
   }
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild className='fixed w-full right-4 top-20'>
         <Button className='z-50 w-fit'>
           <PlusCircle className="icon" />
