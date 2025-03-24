@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { Order } from 'src/order/order.entity';
 import { Product } from 'src/product/product.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { ChefOrder } from './chef-order.entity';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 import _ from 'lodash';
@@ -26,6 +26,21 @@ export class ChefOrderUtils {
     private readonly chefOrderItemRepository: Repository<ChefOrderItem>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
+
+  async getChefOrder(options: FindOneOptions<ChefOrder>): Promise<ChefOrder> {
+    const context = `${ChefOrderUtils.name}.${this.getChefOrder.name}`;
+
+    const chefOrder = await this.chefOrderRepository.findOne({ ...options });
+    if (!chefOrder) {
+      this.logger.warn(
+        ChefOrderValidation.CHEF_ORDER_NOT_FOUND.message,
+        context,
+      );
+      throw new ChefOrderException(ChefOrderValidation.CHEF_ORDER_NOT_FOUND);
+    }
+
+    return chefOrder;
+  }
 
   async createChefOrder(orderId: string): Promise<ChefOrder[]> {
     const order = await this.orderRepository.findOne({

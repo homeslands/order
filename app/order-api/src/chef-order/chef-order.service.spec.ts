@@ -19,6 +19,9 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('ChefOrderService', () => {
   let service: ChefOrderService;
@@ -32,6 +35,8 @@ describe('ChefOrderService', () => {
         OrderUtils,
         MenuItemUtils,
         MenuUtils,
+        ChefAreaUtils,
+        BranchUtils,
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
@@ -62,6 +67,10 @@ describe('ChefOrderService', () => {
         },
         {
           provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
           useFactory: repositoryMockFactory,
         },
         {

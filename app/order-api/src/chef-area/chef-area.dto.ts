@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { BranchResponseDto } from 'src/branch/branch.dto';
+import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 
 export class CreateChefAreaRequestDto {
   @AutoMap()
@@ -71,6 +72,9 @@ export class ChefAreaResponseDto extends BaseResponseDto {
 
   @AutoMap(() => BranchResponseDto)
   branch: BranchResponseDto;
+
+  @AutoMap(() => [ChefOrderResponseDto])
+  chefOrders: ChefOrderResponseDto[];
 }
 
 export class QueryGetChefAreaRequestDto {

@@ -1,5 +1,5 @@
 export enum ChefOrderItemStatus {
   PENDING = 'pending',
-  IN_PROGRESS = 'in_progress',
+  IN_PROGRESS = 'in-progress',
   COMPLETED = 'completed',
 }

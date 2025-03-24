@@ -68,8 +68,13 @@ export class ChefAreaController {
     type: ChefAreaResponseDto,
     isArray: true,
   })
-  // @Public()
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
   async getAll(
     @Query(new ValidationPipe({ transform: true }))
     query: QueryGetChefAreaRequestDto,

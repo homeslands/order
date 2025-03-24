@@ -15,6 +15,9 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { ChefOrderProfile } from './chef-order.mapper';
+import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { Branch } from 'src/branch/branch.entity';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { ChefOrderProfile } from './chef-order.mapper';
       ChefOrderItem,
       MenuItem,
       Menu,
+      Branch,
     ]),
     DbModule,
   ],
@@ -37,6 +41,8 @@ import { ChefOrderProfile } from './chef-order.mapper';
     OrderUtils,
     MenuItemUtils,
     MenuUtils,
+    ChefAreaUtils,
+    BranchUtils,
   ],
   exports: [ChefOrderUtils],
 })
