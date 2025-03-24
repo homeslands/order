@@ -34,4 +34,27 @@ export class ProductChefAreaUtils {
 
     return productChefArea;
   }
+
+  async validateProductChefAreaExistInBranch(
+    productId: string,
+    branchId: string,
+  ): Promise<void> {
+    const context = `${ProductChefAreaUtils.name}.${this.validateProductChefAreaExistInBranch.name}`;
+    const productChefAreaExistInBranch =
+      await this.productChefAreaRepository.findOne({
+        where: {
+          product: { id: productId },
+          chefArea: { branch: { id: branchId } },
+        },
+      });
+    if (productChefAreaExistInBranch) {
+      this.logger.warn(
+        `Product ${productId} already exist in one chef are belong to branch ${branchId}`,
+        context,
+      );
+      throw new ProductChefAreaException(
+        ProductChefAreaValidation.PRODUCT_ALREADY_EXISTS_ONE_CHEF_AREA_IN_THIS_BRANCH,
+      );
+    }
+  }
 }

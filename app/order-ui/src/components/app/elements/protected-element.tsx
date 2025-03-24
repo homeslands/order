@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { ROUTE } from '@/constants'
+// import { sidebarRoutes } from '@/router/routes'
 import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role } from '@/constants/role'
 import { showToast } from '@/utils'
@@ -23,20 +24,21 @@ export default function ProtectedElement({
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
 
+  // const userPermissions = userInfo?.role?.permissions || []
+
   const handleLogout = useCallback(() => {
     setLogout()
     removeUserInfo()
     navigate(ROUTE.LOGIN)
   }, [setLogout, removeUserInfo, navigate])
 
-  // const hasRequiredPermissions = useCallback(() => {
-  //   if (!userInfo?.role?.name) return false
+  const hasRequiredPermissions = useCallback(() => {
+    if (!userInfo?.role?.name) return false
 
-  //   // return allowedRoles.includes(userInfo.role.name)
-  // }, [userInfo])
+    // return allowedRoles.includes(userInfo.role.name)
+  }, [userInfo])
 
   useEffect(() => {
-    // console.log('ProtectedElementProps', allowedRoles)
     if (!isAuthenticated()) {
       handleLogout()
       showToast(t('toast.sessionExpired'))
@@ -64,7 +66,7 @@ export default function ProtectedElement({
     isAuthenticated,
     navigate,
     handleLogout,
-    // hasRequiredPermissions,
+    hasRequiredPermissions,
     t,
     userInfo?.role?.name,
     currentUrl,
@@ -72,4 +74,5 @@ export default function ProtectedElement({
   ])
 
   return <>{element}</>
+  // return hasRequiredPermissions() ? <>{element}</> : null
 }

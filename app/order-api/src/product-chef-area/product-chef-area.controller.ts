@@ -21,9 +21,9 @@ import {
 } from '@nestjs/swagger';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
-// import { Public } from 'src/auth/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
+  CreateManyProductChefAreasRequestDto,
   CreateProductChefAreaRequestDto,
   ProductChefAreaResponseDto,
   QueryGetProductChefAreaRequestDto,
@@ -59,6 +59,30 @@ export class ProductChefAreaController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ProductChefAreaResponseDto>;
+  }
+
+  @Post('multi')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  // @Public()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create many product chef area' })
+  @ApiResponseWithType({
+    status: HttpStatus.CREATED,
+    description: 'Many product chef area was created successfully',
+    type: ProductChefAreaResponseDto,
+    isArray: true,
+  })
+  async createMany(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: CreateManyProductChefAreasRequestDto,
+  ) {
+    const result = await this.productChefAreaService.createMany(requestData);
+    return {
+      message: 'Many product chef area was created successfully',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ProductChefAreaResponseDto[]>;
   }
 
   @Get()

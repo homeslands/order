@@ -9,7 +9,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { OrderType } from './order.contants';
+import { OrderType } from './order.constants';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import {

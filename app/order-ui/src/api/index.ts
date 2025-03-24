@@ -1,4 +1,5 @@
 export * from './auth'
+export * from './chef-area'
 export * from './bank'
 export * from './banner'
 export * from './branch'

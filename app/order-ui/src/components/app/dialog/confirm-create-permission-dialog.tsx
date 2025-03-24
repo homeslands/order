@@ -46,8 +46,8 @@ export default function ConfirmCreatePermissionDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
-          disabled={!permission}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
+          disabled={!permission?.createAuthorities?.length && !permission?.deleteAuthorities?.length}
+          className="flex items-center w-full text-sm sm:w-[10rem]"
           onClick={() => onOpenChange(true)}
           type="submit"
           form="permission-form"

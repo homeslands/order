@@ -34,7 +34,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
-import { OrderStatus } from 'src/order/order.contants';
+import { OrderStatus } from 'src/order/order.constants';
 import { PdfService } from 'src/pdf/pdf.service';
 
 @Injectable()

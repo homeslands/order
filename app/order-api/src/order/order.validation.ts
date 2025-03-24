@@ -18,6 +18,8 @@ export const UPDATE_ORDER_ERROR = 'UPDATE_ORDER_ERROR';
 export const INVALID_ORDER_SLUG = 'INVALID_ORDER_SLUG';
 export const REQUEST_QUANTITY_MUST_OTHER_INFINITY =
   'REQUEST_QUANTITY_MUST_OTHER_INFINITY';
+export const ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER =
+  'ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -35,6 +37,7 @@ export type TOrderErrorCodeKey =
   | typeof UPDATE_ORDER_ERROR
   | typeof INVALID_ORDER_SLUG
   | typeof REQUEST_QUANTITY_MUST_OTHER_INFINITY
+  | typeof ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER
   | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
@@ -62,5 +65,9 @@ export const OrderValidation: TOrderErrorCode = {
   REQUEST_QUANTITY_MUST_OTHER_INFINITY: createErrorCode(
     1010015,
     'Request quantity must other infinity',
+  ),
+  ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER: createErrorCode(
+    1010016,
+    'Error when create chef orders from order',
   ),
 };

@@ -111,3 +111,10 @@ export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-di
 export { default as UpdateRoleDialog } from './update-role-dialog'
 export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'
 export { default as DeletePermissionDialog } from './delete-permission-dialog'
+
+export { default as CreateChefAreaDialog } from './create-chef-area-dialog'
+export { default as UpdateChefAreaDialog } from './update-chef-area-dialog'
+export { default as DeleteChefAreaDialog } from './delete-chef-area-dialog'
+
+export { default as ConfirmAddChefAreaProductDialog } from './confirm-add-product-in-chef-area-dialog'
+export { default as RemoveChefAreaProductDialog } from './remove-product-in-chef-area-dialog'

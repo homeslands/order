@@ -16,7 +16,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { OrderType } from './order.contants';
+import { OrderType } from './order.constants';
 import {
   CreateOrderRequestDto,
   GetOrderRequestDto,

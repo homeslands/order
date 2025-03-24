@@ -99,6 +99,12 @@
       "description": "Quản lý khuyến mãi của bạn tại đây",
       "keywords": "khuyến mãi, quản lý khuyến mãi, khuyến mãi giảm giá"
     },
+    "chefArea": {
+      "title": "Khu vực bếp",
+      "manageChefArea": "Khu vực của đầu bếp",
+      "description": "Quản lý khu vực của đầu bếp tại đây",
+      "keywords": "khu vực, quản lý khu vực, khu vực đầu bếp"
+    },
     "banner": {
       "title": "Quản lý banner",
       "manageBanner": "Quản lý banner",

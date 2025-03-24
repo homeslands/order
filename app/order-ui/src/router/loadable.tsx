@@ -229,6 +229,18 @@ export const PromotionPage = React.lazy(() =>
   })),
 )
 
+export const ChefAreaPage = React.lazy(() =>
+  import('@/app/system/chef-area').then((module) => ({
+    default: module.ChefAreaPage,
+  })),
+)
+
+export const ChefAreaDetailPage = React.lazy(() =>
+  import('@/app/system/chef-area').then((module) => ({
+    default: module.ChefAreaDetailPage,
+  })),
+)
+
 export const DocsPage = React.lazy(() =>
   import('@/app/system/docs').then((module) => ({
     default: module.DocsPage,

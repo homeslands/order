@@ -12,7 +12,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ChefAreaService } from './chef-area.service';
-// import { Public } from 'src/auth/public.decorator';
 import {
   ApiBearerAuth,
   ApiOperation,

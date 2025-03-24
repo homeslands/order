@@ -15,7 +15,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
 import { WorkflowStatus } from './tracking.constants';
-import { OrderStatus } from 'src/order/order.contants';
+import { OrderStatus } from 'src/order/order.constants';
 
 describe('TrackingScheduler', () => {
   let trackingScheduler: TrackingScheduler;

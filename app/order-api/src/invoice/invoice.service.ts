@@ -21,7 +21,7 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { InvoiceException } from './invoice.exception';
 import { InvoiceValidation } from './invoice.validation';
-import { OrderType } from 'src/order/order.contants';
+import { OrderType } from 'src/order/order.constants';
 
 @Injectable()
 export class InvoiceService {

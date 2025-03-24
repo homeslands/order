@@ -8,4 +8,6 @@ export const QUERYKEY = {
   banners: ['banners'],
   tables: ['tables'],
   roles: ['roles'],
+  chefAreas: ['chefAreas'],
+  chefAreaProducts: ['chefAreaProducts'],
 }

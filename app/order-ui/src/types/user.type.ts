@@ -1,4 +1,5 @@
 import { Role } from '@/constants/role'
+import { IPermission } from './permissions.type'
 
 export interface IUserInfo {
   slug: string
@@ -19,6 +20,7 @@ export interface IUserInfo {
     slug: string
     createdAt: string
     description: string
+    permissions: IPermission[]
   }
   isVerifiedEmail: boolean
   isVerifiedPhonenumber: boolean

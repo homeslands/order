@@ -50,6 +50,8 @@ import {
   EmailVerificationPage,
   RolePage,
   RoleDetailPage,
+  ChefAreaPage,
+  ChefAreaDetailPage,
   // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
@@ -120,13 +122,6 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                // allowedRoles={[
-                //   Role.CHEF,
-                //   Role.STAFF,
-                //   Role.MANAGER,
-                //   Role.ADMIN,
-                //   Role.SUPER_ADMIN,
-                // ]}
                 element={<SuspenseElement component={OverviewPage} />}
               />
             ),
@@ -256,7 +251,6 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                // allowedRoles={[Role.CHEF]}
                 element={<SuspenseElement component={OrderManagementPage} />}
               />
             ),
@@ -669,6 +663,42 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={PromotionPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CHEF_AREA_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefAreaPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_CHEF_AREA_MANAGEMENT}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefAreaDetailPage} />}
               />
             ),
           },

@@ -9,7 +9,6 @@ import { Branch } from 'src/branch/branch.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import moment from 'moment';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
-import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 
@@ -19,10 +18,6 @@ export class MenuScheduler {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
-    @InjectRepository(Promotion)
-    private readonly promotionRepository: Repository<Promotion>,
-    @InjectRepository(ApplicablePromotion)
-    private readonly applicablePromotionRepository: Repository<ApplicablePromotion>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
     private readonly promotionUtils: PromotionUtils,

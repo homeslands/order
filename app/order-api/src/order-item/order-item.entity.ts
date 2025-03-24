@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
+import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 import { Order } from 'src/order/order.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
@@ -42,4 +43,7 @@ export class OrderItem extends Base {
   })
   @JoinColumn({ name: 'promotion_column' })
   promotion?: Promotion;
+
+  @OneToMany(() => ChefOrderItem, (chefOrderItem) => chefOrderItem.orderItem)
+  chefOrderItems: ChefOrderItem[];
 }

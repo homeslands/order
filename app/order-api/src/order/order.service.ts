@@ -24,7 +24,7 @@ import { Table } from 'src/table/table.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { OrderType } from './order.contants';
+import { OrderType } from './order.constants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';

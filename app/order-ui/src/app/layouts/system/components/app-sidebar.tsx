@@ -43,7 +43,7 @@ export function AppSidebar() {
   const authStore = useAuthStore.getState()
   const { token } = authStore
   const decoded: IToken = jwtDecode(token || '');
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => location.pathname.includes(path)
 
   const translatedSidebarRoute = (sidebarRoutes: ISidebarRoute) => ({
     ...sidebarRoutes,

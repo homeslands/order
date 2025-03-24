@@ -104,6 +104,14 @@
     "downloadQrSuccess": "QR code downloaded successfully",
     "downloadQrError": "QR code download failed",
 
+    "createChefAreaSuccess": "Chef area created successfully",
+    "updateChefAreaSuccess": "Chef area updated successfully",
+    "deleteChefAreaSuccess": "Chef area deleted successfully",
+
+    "addChefAreaProductSuccess": "Product added to chef area successfully",
+    "removeChefAreaProductSuccess": "Product removed from chef area successfully",
+    "updateChefAreaProductSuccess": "Chef area product updated successfully",
+
     "unloggedIn": "Please log in",
     "catalogNameInvalid": "Invalid catalog name",
     "branchSlugInvalid": "Invalid branch slug",
