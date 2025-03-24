@@ -25,6 +25,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   CreateManyProductChefAreasRequestDto,
   CreateProductChefAreaRequestDto,
+  ProductChefAreaGroupByChefAreaResponseDto,
   ProductChefAreaResponseDto,
   QueryGetProductChefAreaRequestDto,
 } from './product-chef-area.dto';
@@ -93,7 +94,7 @@ export class ProductChefAreaController {
   @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Retrieve all product chef areas',
-    type: ProductChefAreaResponseDto,
+    type: ProductChefAreaGroupByChefAreaResponseDto,
     isArray: true,
   })
   async getAll(
@@ -106,7 +107,7 @@ export class ProductChefAreaController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<ProductChefAreaResponseDto[]>;
+    } as AppResponseDto<ProductChefAreaGroupByChefAreaResponseDto[]>;
   }
 
   @Get('specific/:slug')

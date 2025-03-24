@@ -72,7 +72,8 @@ export class ChefOrderService {
           slug: query.branch,
         },
         relations: [
-          'chefAreas.chefOrders.chefOrderItems.orderItem',
+          'chefAreas.chefOrders.chefOrderItems.orderItem.variant.size',
+          'chefAreas.chefOrders.chefOrderItems.orderItem.variant.product',
           'chefAreas.chefOrders.order',
         ],
       });
@@ -102,7 +103,11 @@ export class ChefOrderService {
     if (query.chefArea) {
       const chefArea = await this.chefAreaUtils.getChefArea({
         where: { slug: query.chefArea },
-        relations: ['chefOrders.chefOrderItems.orderItem', 'chefOrders.order'],
+        relations: [
+          'chefOrders.chefOrderItems.orderItem.variant.size',
+          'chefOrders.chefOrderItems.orderItem.variant.product',
+          'chefOrders.order',
+        ],
       });
       chefAreas = [chefArea];
 
@@ -119,7 +124,8 @@ export class ChefOrderService {
     if (!query.branch || !query.chefArea) {
       chefAreas = await this.chefAreaRepository.find({
         relations: [
-          'chefOrders.chefOrderItems.orderItem',
+          'chefOrders.chefOrderItems.orderItem.variant.size',
+          'chefOrders.chefOrderItems.orderItem.variant.product',
           'chefOrders.order',
           'branch',
         ],
@@ -135,6 +141,18 @@ export class ChefOrderService {
       }
     }
     return this.mapper.mapArray(chefAreas, ChefArea, ChefAreaResponseDto);
+  }
+
+  async getSpecific(slug: string): Promise<ChefOrderResponseDto> {
+    const chefOrder = await this.chefOrderUtils.getChefOrder({
+      where: { slug },
+      relations: [
+        'chefOrderItems.orderItem.variant.size',
+        'chefOrderItems.orderItem.variant.product',
+      ],
+    });
+
+    return this.mapper.map(chefOrder, ChefOrder, ChefOrderResponseDto);
   }
 
   async update(

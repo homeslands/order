@@ -81,7 +81,7 @@ export class ChefAreaService {
   async getSpecific(slug: string): Promise<ChefAreaResponseDto> {
     const chefArea = await this.chefAreaUtils.getChefArea({
       where: { slug },
-      relations: ['branch'],
+      relations: ['branch', 'productChefAreas.product'],
     });
     return this.mapper.map(chefArea, ChefArea, ChefAreaResponseDto);
   }

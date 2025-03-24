@@ -11,12 +11,16 @@ import { ProductChefAreaUtils } from './product-chef-area.utils';
 import {
   CreateManyProductChefAreasRequestDto,
   CreateProductChefAreaRequestDto,
+  ProductChefAreaGroupByChefAreaResponseDto,
   ProductChefAreaResponseDto,
   QueryGetProductChefAreaRequestDto,
 } from './product-chef-area.dto';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { ProductChefAreaException } from './product-chef-area.exception';
 import ProductChefAreaValidation from './product-chef-area.validation';
+import { Product } from 'src/product/product.entity';
+import { ProductResponseDto } from 'src/product/product.dto';
+import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
 @Injectable()
 export class ProductChefAreaService {
   constructor(
@@ -162,37 +166,74 @@ export class ProductChefAreaService {
    */
   async getAll(
     query: QueryGetProductChefAreaRequestDto,
-  ): Promise<ProductChefAreaResponseDto[]> {
-    const where: FindOneOptions<ProductChefArea> = {
-      relations: ['chefArea.branch', 'product'],
-    };
+  ): Promise<ProductChefAreaGroupByChefAreaResponseDto[]> {
+    const options: FindOneOptions<ProductChefArea> = {};
+    options.relations = ['chefArea.branch', 'product'];
     if (query.chefArea) {
       const chefArea = await this.chefAreaUtils.getChefArea({
         where: {
           slug: query.chefArea,
         },
       });
-      Object.assign(where, {
-        chefArea,
-      });
+      options.where = { ...options.where, chefArea: { slug: chefArea.slug } };
     }
     if (query.product) {
       const product = await this.productUtils.getProduct({
         where: { slug: query.product },
         relations: ['catalog', 'variants'],
       });
-      Object.assign(where, {
-        product,
-      });
+      options.where = { ...options.where, product: { slug: product.slug } };
     }
     const productChefAreas = await this.productChefAreaRepository.find({
-      ...where,
+      ...options,
     });
-    return this.mapper.mapArray(
-      productChefAreas,
-      ProductChefArea,
-      ProductChefAreaResponseDto,
-    );
+
+    const groupedData = productChefAreas.reduce((acc, item) => {
+      const { chefArea, product } = item;
+
+      const existingGroup = acc.find(
+        (group) => group.chefArea.slug === chefArea.slug,
+      );
+
+      if (existingGroup) {
+        existingGroup.products.push(
+          this.mapper.map(product, Product, ProductResponseDto),
+        );
+      } else {
+        acc.push({
+          chefArea: this.mapper.map(chefArea, ChefArea, ChefAreaResponseDto),
+          products: [this.mapper.map(product, Product, ProductResponseDto)],
+        });
+      }
+
+      return acc;
+    }, []);
+    // const productChefAreaDtos = this.mapper.mapArray(
+    //   productChefAreas,
+    //   ProductChefArea,
+    //   ProductChefAreaResponseDto,
+    // );
+
+    // const groupedData = productChefAreaDtos.reduce((acc, item) => {
+    //   const { chefArea, product } = item;
+
+    //   const existingGroup = acc.find(
+    //     (group) => group.chefArea.slug === chefArea.slug,
+    //   );
+
+    //   if (existingGroup) {
+    //     existingGroup.products.push(product);
+    //   } else {
+    //     acc.push({
+    //       chefArea,
+    //       products: [product],
+    //     });
+    //   }
+
+    //   return acc;
+    // }, []);
+
+    return groupedData;
   }
 
   /**

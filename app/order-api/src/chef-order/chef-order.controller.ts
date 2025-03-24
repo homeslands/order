@@ -92,6 +92,35 @@ export class ChefOrderController {
     } as AppResponseDto<ChefAreaResponseDto[]>;
   }
 
+  @Get('specific/:slug')
+  @HasRoles(
+    RoleEnum.SuperAdmin,
+    RoleEnum.Admin,
+    RoleEnum.Manager,
+    RoleEnum.Chef,
+    RoleEnum.Staff,
+  )
+  // @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get specific chef order',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'The chef order was retrieved successfully',
+    type: ChefAreaResponseDto,
+    isArray: true,
+  })
+  async getSpecific(@Param('slug') slug: string) {
+    const result = await this.chefOrderService.getSpecific(slug);
+    return {
+      message: 'The chef order was retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ChefOrderResponseDto>;
+  }
+
   @Patch(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({

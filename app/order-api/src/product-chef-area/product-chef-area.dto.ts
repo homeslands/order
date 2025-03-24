@@ -105,3 +105,11 @@ export class ProductChefAreaResponseDto {
   @AutoMap(() => ProductResponseDto)
   product: ProductResponseDto;
 }
+
+export class ProductChefAreaGroupByChefAreaResponseDto {
+  @AutoMap(() => ChefAreaResponseDto)
+  chefArea: ChefAreaResponseDto;
+
+  @AutoMap(() => [ProductResponseDto])
+  products: ProductResponseDto[];
+}
