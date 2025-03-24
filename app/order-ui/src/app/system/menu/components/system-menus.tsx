@@ -17,7 +17,23 @@ interface IMenuProps {
 export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
-  const menuItems = menu?.menuItems
+  const menuItems = menu?.menuItems?.sort((a, b) => {
+    // Đưa các mục không bị khóa lên trước
+    if (a.isLocked !== b.isLocked) {
+      return Number(a.isLocked) - Number(b.isLocked);
+    }
+
+    // Coi mục với currentStock = null là "còn hàng" khi isLimit = false
+    const aInStock = (a.currentStock !== 0 && a.currentStock !== null) || !a.product.isLimit;
+    const bInStock = (b.currentStock !== 0 && b.currentStock !== null) || !b.product.isLimit;
+
+    // Đưa các mục còn hàng lên trước
+    if (aInStock !== bInStock) {
+      return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
+    }
+
+    return 0;
+  });
 
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
@@ -120,10 +136,10 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                         )}
 
                       </div>
-                      <span className="text-[0.7rem] text-muted-foreground">
+                      {item?.product?.isLimit && <span className="text-[0.7rem] text-muted-foreground">
                         {t('menu.amount')}
                         {item.currentStock}/{item.defaultStock}
-                      </span>
+                      </span>}
                     </div>
                   ) : (
                     <span className="text-sm font-bold text-primary">
@@ -133,7 +149,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                 </div>
               </div>
             </div>
-            {item.currentStock > 0 ? (
+            {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
               <div>
                 {isMobile ? (
                   <StaffAddToCartDrawer product={item} />

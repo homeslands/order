@@ -160,12 +160,13 @@ export const SystemConfigForm: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 mt-4">
+    <div className="flex flex-col w-full gap-4 mt-2">
       {/* Create new config */}
-      <div className="pb-8 border-b border-gray-300 dark:border-gray-700">
-        <h3 className="mb-4 text-lg font-semibold">
-          {t('config.addNewConfig')}
-        </h3>
+      <h3 className="text-lg font-semibold">
+        {t('config.addNewConfig')}
+      </h3>
+      <div className="p-4 pb-8 border dark:border-gray-700">
+
         <div className="grid w-full gap-2">
           {newConfigs.map((config) => (
             <NewConfigRow
@@ -183,7 +184,7 @@ export const SystemConfigForm: React.FC = () => {
         </div>
         <div className="flex justify-between">
           <Button
-            disabled={isPending || newConfigs.length === 1}
+            disabled={isPending || !newConfigs.some(config => config.key && config.value)}
             onClick={createNewConfigs}
             className="mt-4"
           >

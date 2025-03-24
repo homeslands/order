@@ -8,7 +8,7 @@ import {
   SettingsDropdown,
 } from '@/components/app/dropdown'
 import { useCartItemStore } from '@/stores'
-import { HomelandLogo } from '@/assets/images'
+import { Logo } from '@/assets/images'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { NavigationSheet } from '@/components/app/sheet'
@@ -26,7 +26,7 @@ export function ClientHeader() {
           <div className="flex items-center gap-1">
             {!isMobile && <NavigationSheet />}
             <NavLink to={ROUTE.HOME} className="flex items-center gap-2">
-              {<img src={HomelandLogo} alt="logo" className="h-8 w-fit" />}
+              {<img src={Logo} alt="logo" className="h-8 w-fit" />}
             </NavLink>
           </div>
 

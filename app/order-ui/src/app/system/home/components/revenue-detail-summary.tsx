@@ -4,6 +4,7 @@ import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { useBranchRevenue } from "@/hooks";
 import { RevenueTypeQuery } from '@/constants';
+import { formatCurrency } from '@/utils';
 
 interface RevenueData {
     branch: string;
@@ -60,10 +61,10 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
     const averageOrderValue = totalRevenue / totalOrders || 0;
 
     // Định dạng giá trị trung bình mỗi đơn hàng thành VND
-    const formattedAverageOrderValue = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(averageOrderValue);
+    // const formattedAverageOrderValue = new Intl.NumberFormat('vi-VN', {
+    //     style: 'currency',
+    //     currency: 'VND',
+    // }).format(averageOrderValue);
 
     return (
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -74,7 +75,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{formattedRevenue}</div>
-                    <p className="text-xs">+20.1% from last month</p>
+                    {/* <p className="text-xs">+20.1% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
@@ -84,7 +85,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{totalOrders}</div>
-                    <p className="text-xs text-muted-foreground">+15% from last month</p>
+                    {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
@@ -93,8 +94,8 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{formattedAverageOrderValue}</div>
-                    <p className="text-xs text-muted-foreground">+2.5% from last month</p>
+                    <div className="text-2xl font-bold">{formatCurrency(averageOrderValue)}</div>
+                    {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
@@ -104,7 +105,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{formattedRevenueToday}</div>
-                    <p className="text-xs text-muted-foreground">+8% from last month</p>
+                    {/* <p className="text-xs text-muted-foreground">+8% from last month</p> */}
                 </CardContent>
             </Card>
         </div>

@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,6 +11,7 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { VoucherListSheet } from '@/components/app/sheet'
+import _ from 'lodash'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -20,23 +20,9 @@ export function CartContent() {
 
   const cartItems = getCartItems()
 
-  // calculate subtotal, discount, total
-  const subtotal = useMemo(() => {
-    return cartItems?.orderItems?.reduce((acc, orderItem) => {
-      return acc + (orderItem.price || 0) * orderItem.quantity
-    }, 0) || 0
-  }, [cartItems])
-
-  const discount = useMemo(() => {
-    return cartItems?.orderItems.reduce(
-      (sum, item) => sum + (item.promotionValue ? item.price * item.quantity * item.promotionValue / 100 : 0),
-      0
-    ) || 0;
-  }, [cartItems]);
-
-  const total = useMemo(() => {
-    return subtotal - discount;
-  }, [subtotal, discount]);
+  const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
+  const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
+  const totalAfterDiscount = subTotal - (subTotal * (cartItems?.voucher?.value || 0) / 100)
 
   const handleRemoveCartItem = (id: string) => {
     removeCartItem(id)
@@ -159,7 +145,7 @@ export function CartContent() {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('menu.total')}</span>
-              <span className='text-muted-foreground'>{`${formatCurrency(subtotal || 0)}`}</span>
+              <span className='text-muted-foreground'>{`${formatCurrency(subTotal || 0)}`}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-xs italic text-green-500">
@@ -172,7 +158,7 @@ export function CartContent() {
             <div className="flex justify-between py-4 font-medium border-t">
               <span className="font-semibold">{t('menu.subTotal')}</span>
               <span className="text-2xl font-bold text-primary">
-                {`${formatCurrency(total)}`}
+                {`${formatCurrency(totalAfterDiscount)}`}
               </span>
             </div>
           </div>
