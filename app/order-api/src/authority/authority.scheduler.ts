@@ -91,7 +91,7 @@ export class AuthorityScheduler {
       },
       (result) => {
         this.logger.log(
-          `Authority groups ${result.map((item) => item.name).join(', ')} saved`,
+          `Authority [${result.map((item) => `${item.code} - ${item.authorities?.map((item) => `${item.code}`).join(', ')}`).join(', ')}] saved`,
           context,
         );
       },

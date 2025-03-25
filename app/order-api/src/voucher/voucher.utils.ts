@@ -7,6 +7,8 @@ import { VoucherValidation } from './voucher.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Order } from 'src/order/order.entity';
 import { OrderUtils } from 'src/order/order.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class VoucherUtils {
@@ -16,6 +18,7 @@ export class VoucherUtils {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly orderUtils: OrderUtils,
+    private readonly userUtils: UserUtils,
   ) {}
 
   async getVoucher(options: FindOneOptions<Voucher>): Promise<Voucher> {
@@ -56,24 +59,31 @@ export class VoucherUtils {
   }
 
   async validateVoucherUsage(voucher: Voucher, user: string): Promise<boolean> {
-    let order = null;
     try {
-      order = await this.orderUtils.getOrder({
+      const owner = await this.userUtils.getUser({
+        where: {
+          slug: user,
+        },
+      });
+
+      const order = await this.orderUtils.getOrder({
         where: {
           owner: {
-            slug: user,
+            slug: owner.slug,
           },
           voucher: {
             slug: voucher.slug,
           },
         },
       });
+
+      // We will check customer has already used voucher
+      // If User are employee, admin, ... roles. We don't need to check voucher usage
+      if (order && owner.role.name === RoleEnum.Customer) {
+        throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
+      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {}
-
-    if (order) {
-      throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
-    }
     return true;
   }
 

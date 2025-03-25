@@ -32,6 +32,7 @@ import { Invoice } from 'src/invoice/invoice.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { UserUtils } from 'src/user/user.utils';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -49,9 +50,14 @@ describe('VoucherService', () => {
         OrderUtils,
         MenuUtils,
         MenuItemUtils,
+        UserUtils,
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(MenuItem),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Voucher),
@@ -433,6 +439,11 @@ describe('VoucherService', () => {
 
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(mockVoucherRepo);
       jest.spyOn(orderUtils, 'getOrder').mockResolvedValue(mockOrder);
+      jest
+        .spyOn(voucherUtils, 'validateVoucherUsage')
+        .mockRejectedValue(
+          new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED),
+        );
 
       // Execute
       expect(service.validateVoucher(mockInput)).rejects.toThrow(
