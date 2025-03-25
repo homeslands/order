@@ -9,16 +9,23 @@ import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
 import { ProductUtils } from 'src/product/product.utils';
 import { ProductChefAreaUtils } from './product-chef-area.utils';
 import {
+  CreateManyProductChefAreasRequestDto,
   CreateProductChefAreaRequestDto,
+  ProductChefAreaGroupByChefAreaResponseDto,
   ProductChefAreaResponseDto,
   QueryGetProductChefAreaRequestDto,
 } from './product-chef-area.dto';
-
+import { ChefArea } from 'src/chef-area/chef-area.entity';
+import { ProductChefAreaException } from './product-chef-area.exception';
+import ProductChefAreaValidation from './product-chef-area.validation';
+import { Product } from 'src/product/product.entity';
+import { ProductResponseDto } from 'src/product/product.dto';
+import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
 @Injectable()
 export class ProductChefAreaService {
   constructor(
     @InjectRepository(ProductChefArea)
-    private chefAreaRepository: Repository<ProductChefArea>,
+    private productChefAreaRepository: Repository<ProductChefArea>,
     @InjectMapper() private mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly chefAreaUtils: ChefAreaUtils,
@@ -40,10 +47,19 @@ export class ProductChefAreaService {
       where: {
         slug: requestData.chefArea,
       },
+      relations: ['branch'],
     });
     const product = await this.productUtils.getProduct({
-      slug: requestData.product,
+      where: { slug: requestData.product },
+      relations: ['catalog', 'variants'],
     });
+
+    // a product only belong to one chef area of branch
+    await this.productChefAreaUtils.validateProductChefAreaExistInBranch(
+      product.id,
+      chefArea.branch.id,
+    );
+
     const productChefArea = this.mapper.map(
       requestData,
       CreateProductChefAreaRequestDto,
@@ -54,12 +70,91 @@ export class ProductChefAreaService {
       product,
     });
     const createdProductChefArea =
-      await this.chefAreaRepository.save(productChefArea);
+      await this.productChefAreaRepository.save(productChefArea);
     return this.mapper.map(
       createdProductChefArea,
       ProductChefArea,
       ProductChefAreaResponseDto,
     );
+  }
+
+  /**
+   * Create many product chef areas
+   * @param {CreateManyProductChefAreasRequestDto} requestData
+   * @returns {ProductChefAreaResponseDto[]}
+   * @throws {ProductChefAreaException} if error when creating product chef areas
+   * @throws {ChefAreaException} if chef area not found
+   * @throws {ProductException} if product not found
+   */
+  async createMany(
+    requestData: CreateManyProductChefAreasRequestDto,
+  ): Promise<ProductChefAreaResponseDto[]> {
+    const context = `${ProductChefAreaService.name}.${this.createMany.name}`;
+    const chefArea = await this.chefAreaUtils.getChefArea({
+      where: {
+        slug: requestData.chefArea,
+      },
+      relations: ['branch'],
+    });
+
+    const constructProductChefAreas = await Promise.all(
+      requestData.products.map((productSlug) =>
+        this.constructProductChefArea(chefArea, productSlug),
+      ),
+    );
+
+    const createdProductChefAreas =
+      await this.productChefAreaRepository.manager.transaction(
+        async (manager) => {
+          try {
+            const productChefAreas = await manager.save(
+              constructProductChefAreas,
+            );
+            return productChefAreas;
+          } catch (error) {
+            this.logger.error(
+              `Error when creating product chef areas: ${error}`,
+              error.stack,
+              context,
+            );
+            throw new ProductChefAreaException(
+              ProductChefAreaValidation.ERROR_WHEN_CREATE_MANY_PRODUCT_CHEF_AREAS,
+            );
+          }
+        },
+      );
+    return this.mapper.mapArray(
+      createdProductChefAreas,
+      ProductChefArea,
+      ProductChefAreaResponseDto,
+    );
+  }
+
+  /**
+   *  Construct product chef area
+   * @param {ChefArea} chefArea
+   * @param {string} productSlug
+   * @returns {ProductChefArea} productChefArea
+   * @throws {ProductException} if product not found
+   * @throws {ProductChefAreaException} if product chef area already exist in branch
+   */
+  async constructProductChefArea(
+    chefArea: ChefArea,
+    productSlug: string,
+  ): Promise<ProductChefArea> {
+    const product = await this.productUtils.getProduct({
+      where: { slug: productSlug },
+    });
+    await this.productChefAreaUtils.validateProductChefAreaExistInBranch(
+      product.id,
+      chefArea.branch.id,
+    );
+    const productChefArea = new ProductChefArea();
+    Object.assign(productChefArea, {
+      chefArea,
+      product,
+    });
+    return productChefArea;
   }
 
   /**
@@ -71,36 +166,74 @@ export class ProductChefAreaService {
    */
   async getAll(
     query: QueryGetProductChefAreaRequestDto,
-  ): Promise<ProductChefAreaResponseDto[]> {
-    const where: FindOneOptions<ProductChefArea> = {
-      relations: ['chefArea.branch', 'product'],
-    };
+  ): Promise<ProductChefAreaGroupByChefAreaResponseDto[]> {
+    const options: FindOneOptions<ProductChefArea> = {};
+    options.relations = ['chefArea.branch', 'product'];
     if (query.chefArea) {
       const chefArea = await this.chefAreaUtils.getChefArea({
         where: {
           slug: query.chefArea,
         },
       });
-      Object.assign(where, {
-        chefArea,
-      });
+      options.where = { ...options.where, chefArea: { slug: chefArea.slug } };
     }
     if (query.product) {
       const product = await this.productUtils.getProduct({
-        slug: query.product,
+        where: { slug: query.product },
+        relations: ['catalog', 'variants'],
       });
-      Object.assign(where, {
-        product,
-      });
+      options.where = { ...options.where, product: { slug: product.slug } };
     }
-    const productChefAreas = await this.chefAreaRepository.find({
-      ...where,
+    const productChefAreas = await this.productChefAreaRepository.find({
+      ...options,
     });
-    return this.mapper.mapArray(
-      productChefAreas,
-      ProductChefArea,
-      ProductChefAreaResponseDto,
-    );
+
+    const groupedData = productChefAreas.reduce((acc, item) => {
+      const { chefArea, product } = item;
+
+      const existingGroup = acc.find(
+        (group) => group.chefArea.slug === chefArea.slug,
+      );
+
+      if (existingGroup) {
+        existingGroup.products.push(
+          this.mapper.map(product, Product, ProductResponseDto),
+        );
+      } else {
+        acc.push({
+          chefArea: this.mapper.map(chefArea, ChefArea, ChefAreaResponseDto),
+          products: [this.mapper.map(product, Product, ProductResponseDto)],
+        });
+      }
+
+      return acc;
+    }, []);
+    // const productChefAreaDtos = this.mapper.mapArray(
+    //   productChefAreas,
+    //   ProductChefArea,
+    //   ProductChefAreaResponseDto,
+    // );
+
+    // const groupedData = productChefAreaDtos.reduce((acc, item) => {
+    //   const { chefArea, product } = item;
+
+    //   const existingGroup = acc.find(
+    //     (group) => group.chefArea.slug === chefArea.slug,
+    //   );
+
+    //   if (existingGroup) {
+    //     existingGroup.products.push(product);
+    //   } else {
+    //     acc.push({
+    //       chefArea,
+    //       products: [product],
+    //     });
+    //   }
+
+    //   return acc;
+    // }, []);
+
+    return groupedData;
   }
 
   /**
@@ -140,10 +273,17 @@ export class ProductChefAreaService {
     });
     const chefArea = await this.chefAreaUtils.getChefArea({
       where: { slug: requestData.chefArea },
+      relations: ['branch'],
     });
     const product = await this.productUtils.getProduct({
-      slug: requestData.product,
+      where: { slug: requestData.product },
+      relations: ['catalog', 'variants'],
     });
+    // a product only belong to one chef area of branch
+    await this.productChefAreaUtils.validateProductChefAreaExistInBranch(
+      product.id,
+      chefArea.branch.id,
+    );
     const productChefAreaData = this.mapper.map(
       requestData,
       CreateProductChefAreaRequestDto,
@@ -155,7 +295,7 @@ export class ProductChefAreaService {
       product,
     });
     const updatedProductChefArea =
-      await this.chefAreaRepository.save(productChefArea);
+      await this.productChefAreaRepository.save(productChefArea);
     return this.mapper.map(
       updatedProductChefArea,
       ProductChefArea,
@@ -173,7 +313,9 @@ export class ProductChefAreaService {
     const productChefArea = await this.productChefAreaUtils.getProductChefArea({
       where: { slug },
     });
-    const result = await this.chefAreaRepository.softDelete(productChefArea.id);
+    const result = await this.productChefAreaRepository.softDelete(
+      productChefArea.id,
+    );
     return result.affected || 0;
   }
 }

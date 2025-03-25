@@ -1,4 +1,5 @@
 export * from './auth.type'
+export * from './area.type'
 export * from './permissions.type'
 export * from './banner.type'
 export * from './base.type'

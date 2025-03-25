@@ -32,7 +32,7 @@ import {
 import { useAuthStore } from '@/stores'
 import { sidebarRoutes } from '@/router/routes'
 import { ISidebarRoute, IToken } from '@/types'
-import { HomelandLogo } from '@/assets/images'
+import { Logo } from '@/assets/images'
 import { cn } from '@/lib'
 import { ROUTE } from '@/constants'
 
@@ -43,7 +43,7 @@ export function AppSidebar() {
   const authStore = useAuthStore.getState()
   const { token } = authStore
   const decoded: IToken = jwtDecode(token || '');
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path: string) => location.pathname.includes(path)
 
   const translatedSidebarRoute = (sidebarRoutes: ISidebarRoute) => ({
     ...sidebarRoutes,
@@ -86,7 +86,7 @@ export function AppSidebar() {
                   <House size={20} />
                 </div>
               ) : (
-                <img src={HomelandLogo} alt="logo" className="h-6" />
+                <img src={Logo} alt="logo" className="h-6" />
               )}
             </NavLink>
           </SidebarMenuItem>

@@ -6,7 +6,7 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
 import { Voucher } from 'src/voucher/voucher.entity';
-import { OrderStatus } from './order.contants';
+import { OrderStatus } from './order.constants';
 import moment from 'moment';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
@@ -35,6 +35,7 @@ export class OrderUtils {
         'table',
         'voucher',
         'branch',
+        'chefOrders',
       ],
       ...options,
     });

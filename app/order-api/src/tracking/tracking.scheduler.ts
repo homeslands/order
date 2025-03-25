@@ -7,7 +7,7 @@ import { TrackingCronEnum, WorkflowStatus } from './tracking.constants';
 import { Tracking } from './tracking.entity';
 import { RobotConnectorClient } from 'src/robot-connector/robot-connector.client';
 import * as _ from 'lodash';
-import { OrderStatus } from 'src/order/order.contants';
+import { OrderStatus } from 'src/order/order.constants';
 import { Order } from 'src/order/order.entity';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';

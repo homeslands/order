@@ -14,7 +14,7 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Menu, Branch, ApplicablePromotion, Promotion]),
+    TypeOrmModule.forFeature([Menu, Branch, Promotion, ApplicablePromotion]),
   ],
   controllers: [MenuController],
   providers: [

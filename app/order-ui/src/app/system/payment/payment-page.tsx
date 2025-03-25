@@ -304,6 +304,7 @@ export default function PaymentPage() {
                 <PaymentMethodSelect
                   qrCode={qrCode ? qrCode : ''}
                   total={order.result ? order.result.subtotal : 0}
+                  paymentMethod={paymentMethod}
                   onSubmit={handleSelectPaymentMethod}
                 />
               </div>
@@ -318,7 +319,7 @@ export default function PaymentPage() {
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
                   <div className="flex gap-2 px-2 justify-end">
-                    {paymentSlug ?
+                    {paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER ?
                       <>
                         <DownloadQrCode qrCode={qrCode} slug={slug} />
                         <Button

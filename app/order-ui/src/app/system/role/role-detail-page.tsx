@@ -1,190 +1,83 @@
-import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
+import { SquareMenu } from 'lucide-react';
 
-import { useGetAuthorityGroup, useRoleBySlug } from '@/hooks'
-import { RoleDetailSkeleton } from '@/components/app/skeleton'
-import { Switch, Label, Badge } from '@/components/ui'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './components'
-import { IAuthority, IAuthorityGroup, ICreatePermissionRequest, IPermission } from '@/types'
-import { ConfirmCreatePermissionDialog } from '@/components/app/dialog'
-
-const AuthorityGroup = ({
-    group,
-    permissions,
-    groupPermissionData,
-    onPermissionChange
-}: {
-    group: IAuthorityGroup;
-    permissions: IPermission[];
-    groupPermissionData: ICreatePermissionRequest;
-    onPermissionChange: (data: ICreatePermissionRequest) => void;
-}) => {
-    const hasPermission = (slug: string) => {
-        const initialPermission = permissions?.some(p => p.authority.slug === slug)
-        const isPendingCreate = groupPermissionData.createAuthorities.includes(slug)
-        const isPendingDelete = groupPermissionData.deleteAuthorities.includes(slug)
-
-        return (initialPermission && !isPendingDelete) || (!initialPermission && isPendingCreate)
-    }
-
-    const handleClickSwitch = (authority: string) => {
-        const isCurrentlyEnabled = hasPermission(authority)
-        const newData = { ...groupPermissionData }
-
-        // Remove from both arrays first
-        newData.createAuthorities = newData.createAuthorities.filter(a => a !== authority)
-        newData.deleteAuthorities = newData.deleteAuthorities.filter(a => a !== authority)
-
-        if (isCurrentlyEnabled) {
-            newData.deleteAuthorities.push(authority)
-        } else {
-            newData.createAuthorities.push(authority)
-        }
-
-        onPermissionChange(newData)
-    }
-
-    const handleClickAll = () => {
-        const isAllSelected = group.authorities.every(authority => hasPermission(authority.slug))
-        const newData = { ...groupPermissionData }
-
-        group.authorities.forEach(authority => {
-            newData.createAuthorities = newData.createAuthorities.filter(a => a !== authority.slug)
-            newData.deleteAuthorities = newData.deleteAuthorities.filter(a => a !== authority.slug)
-
-            const hasInitialPermission = permissions?.some(p => p.authority.slug === authority.slug)
-
-            if (isAllSelected) {
-                if (hasInitialPermission) {
-                    newData.deleteAuthorities.push(authority.slug)
-                }
-            } else {
-                if (!hasInitialPermission) {
-                    newData.createAuthorities.push(authority.slug)
-                }
-            }
-        })
-
-        onPermissionChange(newData)
-    }
-
-    const permissionCount = group.authorities.reduce((count, authority) => {
-        return count + (hasPermission(authority.slug) ? 1 : 0)
-    }, 0)
-
-    const isAllSelected = permissionCount === group.authorities.length
-    const { t } = useTranslation(['common'])
-
-    return (
-        <AccordionItem value={group.slug} className="border rounded-lg border-primary/40">
-            <AccordionTrigger className="flex items-center justify-between p-4 hover:no-underline hover:bg-primary/5">
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                        <h3 className="text-md text-muted-foreground">{group.name}</h3>
-                        <span className="px-4 py-1 text-sm rounded-md text-primary bg-primary/20">
-                            {permissionCount}/{group.authorities.length}
-                        </span>
-                    </div>
-                    <div className="flex items-center">
-                        <Label className="text-sm text-muted-foreground">
-                            {t('common.selectAll')}
-                        </Label>
-                        <Switch
-                            checked={isAllSelected}
-                            onClick={() => handleClickAll()}
-                            className="ml-4"
-                        />
-                    </div>
-                </div>
-            </AccordionTrigger>
-            <AccordionContent className='px-4'>
-                <div className="grid gap-3">
-                    {group.authorities.map((authority: IAuthority) => (
-                        <div
-                            key={authority.slug}
-                            className="flex items-center justify-between px-0 py-1 transition-colors rounded-md"
-                        >
-                            <Label
-                                htmlFor={authority.slug}
-                                className="flex-1 cursor-pointer"
-                            >
-                                {authority.name}
-                            </Label>
-                            <Switch
-                                id={authority.slug}
-                                checked={hasPermission(authority.slug)}
-                                onClick={() => handleClickSwitch(authority.slug)}
-                                className="ml-4"
-                            />
-                        </div>
-                    ))}
-                </div>
-            </AccordionContent>
-        </AccordionItem>
-    )
-}
+import { useGetAuthorityGroup, useRoleBySlug } from '@/hooks';
+import { RoleDetailSkeleton } from '@/components/app/skeleton';
+import { Switch, Label, Badge, Button } from '@/components/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './components';
+import { IAuthorityGroup, ICreatePermissionRequest } from '@/types';
+import { ConfirmCreatePermissionDialog } from '@/components/app/dialog';
 
 export default function RoleDetailPage() {
-    const { t } = useTranslation(['role'])
-    const { t: tHelmet } = useTranslation('helmet')
-    const { slug } = useParams()
-    const { data: role, isLoading, refetch } = useRoleBySlug(slug as string)
-    const { data: authority } = useGetAuthorityGroup({
-        role: slug,
-        inRole: true,
-    })
+    const { t } = useTranslation(['role']);
+    const { t: tCommon } = useTranslation('common');
+    const { t: tHelmet } = useTranslation('helmet');
+    const { slug } = useParams();
+    const { data: role, isLoading, refetch } = useRoleBySlug(slug as string);
+    const { data: authority } = useGetAuthorityGroup({ role: slug, inRole: true });
 
-    const roleDetail = role?.result
-    const authorityGroups = authority?.result as IAuthorityGroup[]
+    const roleDetail = role?.result;
+    const authorityGroups = authority?.result as IAuthorityGroup[];
 
-    const [selectedPermission, setSelectedPermission] = useState<ICreatePermissionRequest | null>(null)
-
-    const [permissionData, setPermissionData] = useState<ICreatePermissionRequest>({
+    const [selectedPermissions, setSelectedPermissions] = useState<ICreatePermissionRequest>({
         role: slug as string,
         createAuthorities: [],
         deleteAuthorities: []
-    })
+    });
 
-    const handlePermissionChange = (newGroupData: ICreatePermissionRequest) => {
-        setPermissionData(prev => {
-            // Keep permissions from other groups and combine with new group changes
-            const otherGroupsCreate = prev.createAuthorities.filter(
-                a => !newGroupData.createAuthorities.includes(a) && !newGroupData.deleteAuthorities.includes(a)
-            )
-            const otherGroupsDelete = prev.deleteAuthorities.filter(
-                a => !newGroupData.createAuthorities.includes(a) && !newGroupData.deleteAuthorities.includes(a)
-            )
-
-            return {
-                role: slug as string,
-                createAuthorities: [...otherGroupsCreate, ...newGroupData.createAuthorities],
-                deleteAuthorities: [...otherGroupsDelete, ...newGroupData.deleteAuthorities]
+    const handlePermissionToggle = (authoritySlug: string, isChecked: boolean) => {
+        setSelectedPermissions((prev) => {
+            const newPermissions = { ...prev };
+            if (isChecked) {
+                newPermissions.createAuthorities.push(authoritySlug);
+                newPermissions.deleteAuthorities = newPermissions.deleteAuthorities.filter(a => a !== authoritySlug);
+            } else {
+                newPermissions.deleteAuthorities.push(authoritySlug);
+                newPermissions.createAuthorities = newPermissions.createAuthorities.filter(a => a !== authoritySlug);
             }
-        })
-    }
+            return newPermissions;
+        });
+    };
 
-    // Update selectedPermission whenever permissionData changes
-    useEffect(() => {
-        setSelectedPermission(permissionData)
-    }, [permissionData])
+    const handleToggleAll = (group: IAuthorityGroup, isChecked: boolean) => {
+        setSelectedPermissions((prev) => {
+            const newPermissions = { ...prev };
+            group.authorities.forEach(auth => {
+                if (isChecked) {
+                    if (!newPermissions.createAuthorities.includes(auth.slug)) newPermissions.createAuthorities.push(auth.slug);
+                    newPermissions.deleteAuthorities = newPermissions.deleteAuthorities.filter(a => a !== auth.slug);
+                } else {
+                    if (!newPermissions.deleteAuthorities.includes(auth.slug)) newPermissions.deleteAuthorities.push(auth.slug);
+                    newPermissions.createAuthorities = newPermissions.createAuthorities.filter(a => a !== auth.slug);
+                }
+            });
+            return newPermissions;
+        });
+    };
 
-    if (isLoading) {
-        return <RoleDetailSkeleton />
-    }
+    const isAuthorityActive = (authoritySlug: string) => {
+        const existingPermission = roleDetail?.permissions?.some(p => p.authority.slug === authoritySlug);
+        const isPendingCreate = selectedPermissions.createAuthorities.includes(authoritySlug);
+        const isPendingDelete = selectedPermissions.deleteAuthorities.includes(authoritySlug);
+
+        return (existingPermission && !isPendingDelete) || (!existingPermission && isPendingCreate);
+    };
+
+    const getGroupActiveCount = (group: IAuthorityGroup) => {
+        return group.authorities.reduce((count, auth) =>
+            count + (isAuthorityActive(auth.slug) ? 1 : 0), 0);
+    };
+
+    if (isLoading) return <RoleDetailSkeleton />;
 
     return (
         <div className="flex flex-col gap-3">
             <Helmet>
-                <meta charSet='utf-8' />
-                <title>
-                    {tHelmet('helmet.role.title')}
-                </title>
-                <meta name='description' content={tHelmet('helmet.role.title')} />
+                <title>{tHelmet('helmet.role.title')}</title>
             </Helmet>
-
             {/* Header Section */}
             <div className="flex flex-col gap-4">
                 <div className="flex items-center">
@@ -198,28 +91,64 @@ export default function RoleDetailPage() {
                         <span className='text-sm text-muted-foreground'>{t(`role.name`)}</span>
                         <Badge className='text-sm font-normal'>{t(`role.${roleDetail?.name}`)}</Badge>
                     </div>
-                    <ConfirmCreatePermissionDialog onSuccess={() => refetch()} permission={selectedPermission} />
-                    {/* <Input className='col-span-9 text-primary' value={t(`role.${roleDetail?.name}`)} readOnly /> */}
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="outline" onClick={() => setSelectedPermissions({
+                            role: slug as string,
+                            createAuthorities: [],
+                            deleteAuthorities: []
+                        })}>
+                            {tCommon('common.cancel')}
+                        </Button>
+                        <ConfirmCreatePermissionDialog
+                            onSuccess={refetch}
+                            permission={selectedPermissions}
+                        />
+                    </div>
                 </div>
             </div>
+            <h2 className="text-lg font-semibold">{t('role.authorityList')}</h2>
+            <Accordion type="multiple" className="space-y-4">
+                {authorityGroups?.map(group => {
+                    const activeCount = getGroupActiveCount(group);
+                    const totalCount = group.authorities.length;
 
-            {/* Permissions List */}
-            <h2 className="text-lg font-semibold">
-                {t('role.authorityList')}
-            </h2>
-            <div className="p-4 mb-4 border rounded-md shadow-lg">
-                <Accordion type="multiple" className="space-y-4">
-                    {authorityGroups?.map((group: IAuthorityGroup) => (
-                        <AuthorityGroup
-                            key={group.slug}
-                            group={group}
-                            permissions={roleDetail?.permissions || []}
-                            groupPermissionData={permissionData}
-                            onPermissionChange={handlePermissionChange}
-                        />
-                    ))}
-                </Accordion>
-            </div>
+                    return (
+                        <AccordionItem key={group.slug} value={group.slug} className="border rounded-lg border-primary/40">
+                            <AccordionTrigger className="flex justify-between p-4 border-b rounded-b-none border-primary/40 hover:bg-primary/5">
+                                <div className="flex items-center gap-4">
+                                    <span>{group.name}</span>
+                                    <Badge className="text-xs bg-primary/20 text-primary">
+                                        {activeCount}/{totalCount}
+                                    </Badge>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className='px-4 py-2 space-y-2'>
+                                <div className='flex items-center justify-end gap-2'>
+                                    <Label>
+                                        {tCommon('common.selectAll')}
+                                    </Label>
+                                    <Switch
+                                        checked={activeCount === totalCount}
+                                        onCheckedChange={(checked) => handleToggleAll(group, checked)}
+                                    />
+                                </div>
+                                {group.authorities.map(auth => (
+                                    <div key={auth.slug} className="flex justify-between py-1">
+                                        <Label>{auth.name}</Label>
+                                        <Switch
+                                            checked={isAuthorityActive(auth.slug)}
+                                            onCheckedChange={(checked) =>
+                                                handlePermissionToggle(auth.slug, checked)}
+                                        />
+                                    </div>
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    );
+                })}
+            </Accordion>
+
+
         </div>
-    )
+    );
 }

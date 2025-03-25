@@ -2,6 +2,7 @@ import {
   Banknote,
   Bolt,
   ChartColumn,
+  ChefHat,
   ClipboardList,
   CookingPot,
   FileChartColumnIncreasing,
@@ -88,6 +89,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.ROLE_MANAGEMENT,
   },
   {
+    title: 'sidebar.chefAreaManagement',
+    path: ROUTE.STAFF_CHEF_AREA_MANAGEMENT,
+    icon: ChefHat,
+    permission: Permission.ROLE_MANAGEMENT,
+  },
+  {
     title: 'sidebar.staticPageManagement',
     path: ROUTE.STAFF_STATIC_PAGE,
     icon: FileChartColumnIncreasing,
@@ -127,7 +134,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.promotion',
     path: ROUTE.STAFF_PROMOTION,
     icon: Tag,
-    permission: Permission.PROMOTION_MANAGEMENT
+    permission: Permission.PROMOTION_MANAGEMENT,
   },
   {
     title: 'sidebar.banner',

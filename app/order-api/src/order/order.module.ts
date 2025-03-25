@@ -34,6 +34,12 @@ import { PromotionModule } from 'src/promotion/promotion.module';
 import { InvoiceModule } from 'src/invoice/invoice.module';
 import { PdfModule } from 'src/pdf/pdf.module';
 import { QrCodeModule } from 'src/qr-code/qr-code.module';
+import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
+import { ChefArea } from 'src/chef-area/chef-area.entity';
+import { Product } from 'src/product/product.entity';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
+import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 
 @Module({
   imports: [
@@ -50,6 +56,11 @@ import { QrCodeModule } from 'src/qr-code/qr-code.module';
       Promotion,
       ApplicablePromotion,
       Invoice,
+      ChefArea,
+      Product,
+      ProductChefArea,
+      ChefOrder,
+      ChefOrderItem,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -75,6 +86,7 @@ import { QrCodeModule } from 'src/qr-code/qr-code.module';
     OrderUtils,
     OrderListener,
     OrderItemUtils,
+    ChefOrderUtils,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

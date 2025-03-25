@@ -7,6 +7,7 @@ import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.valid
 import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
 import ChefAreaValidation from 'src/chef-area/chef-area.validation';
+import ChefOrderValidation from 'src/chef-order/chef-order.validation';
 import { DbValidation } from 'src/db/db.validation';
 import FileValidation from 'src/file/file.validation';
 import { InvoiceValidation } from 'src/invoice/invoice.validation';
@@ -82,6 +83,7 @@ export const AppValidation: TErrorCode = {
   ...PermissionValidation,
   ...ChefAreaValidation,
   ...ProductChefAreaValidation,
+  ...ChefOrderValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

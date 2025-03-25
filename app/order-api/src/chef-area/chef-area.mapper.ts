@@ -16,6 +16,10 @@ import {
 } from './chef-area.dto';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { Branch } from 'src/branch/branch.entity';
+import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
+import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { ProductChefAreaResponseDto } from 'src/product-chef-area/product-chef-area.dto';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 
 @Injectable()
 export class ChefAreaProfile extends AutomapperProfile {
@@ -33,6 +37,18 @@ export class ChefAreaProfile extends AutomapperProfile {
         forMember(
           (d) => d.branch,
           mapWith(BranchResponseDto, Branch, (s) => s.branch),
+        ),
+        forMember(
+          (d) => d.chefOrders,
+          mapWith(ChefOrderResponseDto, ChefOrder, (s) => s.chefOrders),
+        ),
+        forMember(
+          (d) => d.productChefAreas,
+          mapWith(
+            ProductChefAreaResponseDto,
+            ProductChefArea,
+            (s) => s.productChefAreas,
+          ),
         ),
         extend(baseMapper(mapper)),
       );

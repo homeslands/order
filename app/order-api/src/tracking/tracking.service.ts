@@ -25,7 +25,7 @@ import { OrderItem } from 'src/order-item/order-item.entity';
 import { TrackingType, WorkflowStatus } from './tracking.constants';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
 import { Table } from 'src/table/table.entity';
-import { OrderType } from 'src/order/order.contants';
+import { OrderType } from 'src/order/order.constants';
 import { RobotConnectorClient } from 'src/robot-connector/robot-connector.client';
 import {
   QRLocationResponseDto,

@@ -364,13 +364,12 @@ export class ApplicablePromotionService {
       let menuItems: MenuItem[] = [];
       const applicablePromotions = await Promise.all(
         requestData.applicableSlugs.map(async (applicableSlug) => {
-          const productFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
-            {
+          const product = await this.productUtils.getProduct({
+            where: {
               slug: applicableSlug,
-            };
-          const product = await this.productUtils.getProduct(
-            productFindOptionsWhere,
-          );
+            },
+            relations: ['catalog', 'variants'],
+          });
 
           const applicablePromotionFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
             {

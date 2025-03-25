@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 
 import GoogleMap from './google-map';
-import { HomelandLogo } from '@/assets/images'
+import { Logo } from '@/assets/images'
 import { ROUTE } from '@/constants'
 
 export function ClientFooter() {
@@ -45,7 +45,7 @@ export function ClientFooter() {
                 <GoogleMap />
               </div>
               <img
-                src={HomelandLogo}
+                src={Logo}
                 alt="logo"
                 className="absolute top-0 left-0 w-auto h-5 m-2" // Đặt Logo ở góc trên trái với margin
               />

@@ -15,7 +15,7 @@ interface MenuItemCardProps {
   onSuccess: () => void
 }
 
-export function MenuItemCard({ menuItem,isTemplate, onSuccess }: MenuItemCardProps) {
+export function MenuItemCard({ menuItem, isTemplate, onSuccess }: MenuItemCardProps) {
   const { t } = useTranslation(['menu'])
 
   const getPriceRange = () => {
@@ -31,7 +31,7 @@ export function MenuItemCard({ menuItem,isTemplate, onSuccess }: MenuItemCardPro
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-start gap-2 p-2 border group rounded-xl">
+    <div className="relative flex flex-col items-center justify-between gap-2 p-2 border group rounded-xl">
       <div className="absolute inset-0 flex items-start justify-end transition-opacity opacity-0 group-hover:opacity-100">
         <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
           <UpdateMenuItemDialog menuItem={menuItem} isTemplate={isTemplate} />
@@ -61,7 +61,7 @@ export function MenuItemCard({ menuItem,isTemplate, onSuccess }: MenuItemCardPro
         )}
       </div>
       {menuItem.isLocked && (
-        <div className="absolute bottom-2 right-2 flex items-center justify-center  w-9 h-9 rounded-full bg-red-500">
+        <div className="absolute flex items-center justify-center bg-red-500 rounded-full bottom-2 right-2 w-9 h-9">
           <KeyRound color="white" size={23} />
         </div>
       )}

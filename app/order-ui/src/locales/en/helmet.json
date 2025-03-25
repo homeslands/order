@@ -99,6 +99,12 @@
       "description": "Manage your promotions here",
       "keywords": "promotion, discount, promotional management"
     },
+    "chefArea": {
+      "title": "Chef Area",
+      "manageChefArea": "Manage Chef Area",
+      "description": "Manage your chef area here",
+      "keywords": "chef area, kitchen, chef management"
+    },
     "banner": {
       "title": "Banner Management",
       "manageBanner": "Manage Banners",

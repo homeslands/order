@@ -1,0 +1,10 @@
+{
+  "chefArea": {
+    "title": "Chef Area",
+    "createdAt": "Created At",
+    "productManagement": "Product Management",
+
+    "edit": "Edit",
+    "delete": "Delete"
+  }
+}

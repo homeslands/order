@@ -12,7 +12,24 @@ interface IClientMenuProps {
 export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
   const { t } = useTranslation('menu')
 
-  const menuItems = menu?.menuItems
+  const menuItems = menu?.menuItems?.sort((a, b) => {
+    // Đưa các mục không bị khóa lên trước
+    if (a.isLocked !== b.isLocked) {
+      return Number(a.isLocked) - Number(b.isLocked);
+    }
+
+    // Coi mục với currentStock = null là "còn hàng" khi isLimit = false
+    const aInStock = (a.currentStock !== 0 && a.currentStock !== null) || !a.product.isLimit;
+    const bInStock = (b.currentStock !== 0 && b.currentStock !== null) || !b.product.isLimit;
+
+    // Đưa các mục còn hàng lên trước
+    if (aInStock !== bInStock) {
+      return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
+    }
+
+    return 0;
+  });
+
 
   if (isLoading) {
     return (

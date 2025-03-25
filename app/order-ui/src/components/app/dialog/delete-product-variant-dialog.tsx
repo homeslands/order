@@ -74,7 +74,7 @@ export default function DeleteProductVariantDialog({
 
           <div className="py-4 text-sm text-muted-foreground">
             {t('productVariant.deleteProductVariantWarning1')}{' '}
-            <span className="font-bold">{productVariant?.size.name}</span>
+            <span className="font-bold">{productVariant?.size.name.toUpperCase()}</span>
             {t('productVariant.deleteProductVariantWarning2')} <br />
             {t('productVariant.deleteProductVariantConfirmation')}
           </div>

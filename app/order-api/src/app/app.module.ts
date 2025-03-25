@@ -58,6 +58,8 @@ import { AuthorityGroupModule } from 'src/authority-group/authority-group.module
 import { PermissionModule } from 'src/permission/permission.module';
 import { ChefAreaModule } from 'src/chef-area/chef-area.module';
 import { ProductChefAreaModule } from 'src/product-chef-area/product-chef-area.module';
+import { ChefOrderModule } from 'src/chef-order/chef-order.module';
+import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module';
 
 @Module({
   imports: [
@@ -131,6 +133,8 @@ import { ProductChefAreaModule } from 'src/product-chef-area/product-chef-area.m
     PermissionModule,
     ChefAreaModule,
     ProductChefAreaModule,
+    ChefOrderModule,
+    ChefOrderItemModule,
   ],
   controllers: [AppController],
   providers: [

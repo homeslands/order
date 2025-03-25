@@ -1,0 +1,31 @@
+{
+  "chefArea": {
+    "title": "Khu vực bếp",
+    "createdAt": "Ngày tạo",
+    "productManagement": "Quản lý món",
+    "currentProduct": "Món hiện tại",
+    "noDescription": "Không có mô tả",
+
+    "create": "Tạo khu vực bếp mới",
+    "createChefAreaDescription": "Tạo khu vực bếp",
+    "branch": "Chi nhánh",
+    "name": "Tên",
+    "enterName": "Nhập tên",
+    "description": "Mô tả",
+    "enterDescription": "Nhập mô tả",
+
+    "addProduct": "Thêm món",
+    "confirmAdChefAreaProduct": "Xác nhận thêm món vào khu vực bếp",
+
+    "update": "Chỉnh sửa",
+    "updateDescription": "Chỉnh sửa khu vực bếp",
+
+    "delete": "Xóa",
+    "deleteChefAreaWarning": "Bạn sắp sửa xóa ",
+    "deleteChefAreaConfirmation": "Bạn có chắc chắn muốn xóa khu vực bếp này không?",
+
+    "deleteChefAreaProductWarning1": "Bạn sắp sửa xóa món ",
+    "deleteChefAreaProductWarning2": " khỏi ",
+    "deleteChefAreaProductConfirmation": "Bạn có chắc chắn muốn xóa món này khỏi khu vực bếp không?"
+  }
+}

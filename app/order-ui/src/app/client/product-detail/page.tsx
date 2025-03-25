@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -44,6 +44,13 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  useEffect(() => {
+    if (productDetail?.product?.image) {
+      setSelectedImage(productDetail?.product?.image)
+    } else {
+      setSelectedImage(null)
+    }
+  }, [productDetail?.product?.image])
 
   const generateCartItemId = () => {
     return Date.now().toString(36)
@@ -104,7 +111,6 @@ export default function ProductDetailPage() {
     setNote('')
     setSelectedVariant(productDetail?.product.variants[0] || null)
   }
-
   return (
     <div className="container flex flex-col items-start gap-10 py-10">
       <Helmet>
@@ -119,7 +125,7 @@ export default function ProductDetailPage() {
         <div className="flex flex-col w-full col-span-1 gap-2 lg:w-1/2">
           {productDetail && (
             <img
-              src={`${publicFileURL}/${selectedImage || productDetail.product.image}`}
+              src={`${publicFileURL}/${selectedImage}`}
               alt={productDetail.product.name}
               className="h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
             />
@@ -133,11 +139,11 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col justify-between col-span-1 gap-4 w-1/2">
+        <div className="flex flex-col justify-between w-1/2 col-span-1 gap-4">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <span className="text-xl font-semibold">
+                <span className="text-3xl font-extrabold">
                   {productDetail.product.name}
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -186,7 +192,7 @@ export default function ProductDetailPage() {
                   <div className="flex flex-row items-center justify-start gap-2">
                     {productDetail.product.variants.map((variant) => (
                       <div
-                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-500 p-2 text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
+                        className={`flex w-fit px-5 py-[4px] cursor-pointer items-center justify-center rounded-full border border-gray-500  text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
                         key={variant.slug}
                         onClick={() => handleSizeChange(variant)}
                       >
@@ -254,7 +260,7 @@ export default function ProductDetailPage() {
           <Button
             onClick={handleAddToCart}
             variant="default"
-            disabled={productDetail?.isLocked || !size || quantity <= 0}
+            disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
           >
             <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
           </Button>
