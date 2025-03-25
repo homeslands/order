@@ -40,6 +40,7 @@ import { Product } from 'src/product/product.entity';
 import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
+import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
     OrderListener,
     OrderItemUtils,
     ChefOrderUtils,
+    ChefOrderItemUtils,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

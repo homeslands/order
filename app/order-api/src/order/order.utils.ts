@@ -27,6 +27,7 @@ export class OrderUtils {
         'payment',
         'owner',
         'approvalBy',
+        'orderItems.chefOrderItems',
         'orderItems.variant.size',
         'orderItems.variant.product',
         'orderItems.promotion',
@@ -35,7 +36,7 @@ export class OrderUtils {
         'table',
         'voucher',
         'branch',
-        'chefOrders',
+        'chefOrders.chefOrderItems',
       ],
       ...options,
     });

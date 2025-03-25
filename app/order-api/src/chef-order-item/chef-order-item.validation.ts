@@ -5,10 +5,13 @@ export const ERROR_WHEN_UPDATE_MULTI_CHEF_ORDER_ITEMS =
   'ERROR_WHEN_UPDATE_MULTI_CHEF_ORDER_ITEMS';
 export const ALL_CHEF_ORDER_ITEMS_MUST_BE_BELONG_TO_AN_CHEF_ORDER =
   'ALL_CHEF_ORDER_ITEMS_MUST_BE_BELONG_TO_AN_CHEF_ORDER';
+export const ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED =
+  'ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED';
 
 export type TChefOrderItemErrorCodeKey =
   | typeof ERROR_WHEN_UPDATE_MULTI_CHEF_ORDER_ITEMS
   | typeof ALL_CHEF_ORDER_ITEMS_MUST_BE_BELONG_TO_AN_CHEF_ORDER
+  | typeof ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED
   | typeof CHEF_ORDER_ITEM_NOT_FOUND;
 
 export type TChefOrderItemErrorCode = Record<
@@ -30,6 +33,11 @@ const ChefOrderItemValidation: TChefOrderItemErrorCode = {
     155003,
     'All chef order items must be belong to an chef order',
   ),
+  ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED:
+    createErrorCode(
+      155004,
+      'Only update chef order item status when chef order status is accepted',
+    ),
 };
 
 export default ChefOrderItemValidation;

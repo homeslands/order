@@ -20,7 +20,7 @@ export class ChefArea extends Base {
   @JoinColumn({ name: 'branch_column' })
   branch: Branch;
 
-  @OneToMany(() => ProductChefArea, (p) => p.product)
+  @OneToMany(() => ProductChefArea, (p) => p.chefArea)
   productChefAreas: ProductChefArea[];
 
   @OneToMany(() => ChefOrder, (chefOrder) => chefOrder.chefArea)

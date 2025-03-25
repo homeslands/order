@@ -28,7 +28,6 @@ export function SystemMenuManagementTabsContent() {
       return newParams
     })
   }, [setSearchParams, tab])
-
   return (
     <div className="grid grid-cols-1 gap-6">
       <DataTable

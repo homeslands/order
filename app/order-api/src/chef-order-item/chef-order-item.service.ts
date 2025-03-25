@@ -14,6 +14,8 @@ import { ChefOrderItemException } from './chef-order-item.exception';
 import ChefOrderItemValidation from './chef-order-item.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import _ from 'lodash';
+import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
+import { ChefOrderStatus } from 'src/chef-order/chef-order.constants';
 
 @Injectable()
 export class ChefOrderItemService {
@@ -21,6 +23,7 @@ export class ChefOrderItemService {
     @InjectRepository(ChefOrderItem)
     private readonly chefOrderItemRepository: Repository<ChefOrderItem>,
     private readonly chefOrderItemUtils: ChefOrderItemUtils,
+    private readonly chefOrderUtils: ChefOrderUtils,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
@@ -29,12 +32,27 @@ export class ChefOrderItemService {
     slug: string,
     requestData: UpdateChefOrderItemRequestDto,
   ): Promise<ChefOrderItemResponseDto> {
+    const context = `${ChefOrderItemService.name}.${this.update.name}`;
+
     const chefOrderItem = await this.chefOrderItemUtils.getChefOrderItem({
       where: { slug },
+      relations: ['chefOrder'],
     });
 
+    if (chefOrderItem.chefOrder?.status !== ChefOrderStatus.ACCEPTED) {
+      this.logger.warn(
+        ChefOrderItemValidation
+          .ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED
+          .message,
+        context,
+      );
+      throw new ChefOrderItemException(
+        ChefOrderItemValidation.ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED,
+      );
+    }
     Object.assign(chefOrderItem, { status: requestData.status });
     const updated = await this.chefOrderItemRepository.save(chefOrderItem);
+    await this.chefOrderUtils.updateChefOrderStatus(chefOrderItem.slug);
     return this.mapper.map(updated, ChefOrderItem, ChefOrderItemResponseDto);
   }
 
@@ -66,6 +84,20 @@ export class ChefOrderItemService {
       );
     }
 
+    if (
+      _.first(chefOrderItems)?.chefOrder?.status !== ChefOrderStatus.ACCEPTED
+    ) {
+      this.logger.warn(
+        ChefOrderItemValidation
+          .ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED
+          .message,
+        context,
+      );
+      throw new ChefOrderItemException(
+        ChefOrderItemValidation.ONLY_UPDATE_CHEF_ORDER_ITEM_STATUS_WHEN_CHEF_ORDER_STATUS_IS_ACCEPTED,
+      );
+    }
+
     const updatedChefOrderItems =
       await this.chefOrderItemRepository.manager.transaction(
         async (manager) => {
@@ -85,6 +117,9 @@ export class ChefOrderItemService {
           }
         },
       );
+    await this.chefOrderUtils.updateChefOrderStatus(
+      _.first(updatedChefOrderItems).slug,
+    );
     return this.mapper.mapArray(
       updatedChefOrderItems,
       ChefOrderItem,

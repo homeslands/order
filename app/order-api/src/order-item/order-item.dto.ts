@@ -6,6 +6,7 @@ import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-order-item.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
 import { INVALID_ACTION } from './order-item.validation';
+import { ChefOrderItemResponseDto } from 'src/chef-order-item/chef-order-item.dto';
 
 export class CreateOrderItemRequestDto {
   @AutoMap()
@@ -119,4 +120,7 @@ export class OrderItemResponseDto extends BaseResponseDto {
 
   @AutoMap(() => PromotionResponseDto)
   promotion: PromotionResponseDto;
+
+  @AutoMap(() => [ChefOrderItemResponseDto])
+  chefOrderItems: ChefOrderItemResponseDto[];
 }

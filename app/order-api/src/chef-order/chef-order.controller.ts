@@ -52,6 +52,12 @@ export class ChefOrderController {
     type: ChefOrderResponseDto,
     isArray: true,
   })
+  @ApiParam({
+    required: true,
+    example: 'order-slug',
+    description: 'The slug of order',
+    name: 'slug',
+  })
   async create(@Param('slug') slug: string) {
     const result = await this.chefOrderService.create(slug);
     return {

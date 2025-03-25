@@ -29,6 +29,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -45,6 +47,7 @@ describe('ProductService', () => {
         FileService,
         PromotionUtils,
         MenuUtils,
+        BranchUtils,
         {
           provide: FileService,
           useValue: {
@@ -57,6 +60,10 @@ describe('ProductService', () => {
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
           useFactory: repositoryMockFactory,
         },
         {

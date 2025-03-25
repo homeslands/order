@@ -434,6 +434,7 @@ export class OrderService {
         'invoice',
         'table',
         'orderItems.promotion',
+        'chefOrders',
       ],
       order: { createdAt: 'DESC' },
     };

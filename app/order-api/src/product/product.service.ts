@@ -32,6 +32,7 @@ import FileValidation from 'src/file/file.validation';
 import { FileException } from 'src/file/file.exception';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
+import { BranchUtils } from 'src/branch/branch.utils';
 
 @Injectable()
 export class ProductService {
@@ -50,6 +51,7 @@ export class ProductService {
     private readonly dataSource: DataSource,
     private readonly promotionUtils: PromotionUtils,
     private readonly menuUtils: MenuUtils,
+    private readonly branchUtils: BranchUtils,
   ) {}
 
   /**
@@ -257,6 +259,27 @@ export class ProductService {
         query.isAppliedPromotion
           ? applicableProductIds.includes(item.id)
           : !applicableProductIds.includes(item.id),
+      );
+    }
+
+    if (query.branch) {
+      const branch = await this.branchUtils.getBranch({
+        where: { slug: query.branch },
+        relations: ['chefAreas.productChefAreas.product'],
+      });
+
+      const branchProductIds = branch.chefAreas.map((chefArea) => {
+        const chefAreaProducts = chefArea.productChefAreas.map(
+          (productChefArea) => productChefArea.product.id,
+        );
+        return chefAreaProducts;
+      });
+      const productIds = _.flatten(branchProductIds);
+
+      products = products.filter((item) =>
+        query.isAppliedBranchForChefArea
+          ? productIds.includes(item.id)
+          : !productIds.includes(item.id),
       );
     }
 

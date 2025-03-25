@@ -201,6 +201,29 @@ export class GetProductRequestDto {
 
   @AutoMap()
   @ApiProperty({
+    description: 'Get products base on branch is applied for chef area',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  branch?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'Get products that are either applied to a chef area of branch or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedBranchForChefArea?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
     description: 'Get products base on menu',
     example: '',
     required: false,

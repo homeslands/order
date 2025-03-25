@@ -25,6 +25,7 @@ import {
 } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
+import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 
 export class CreateOrderRequestDto {
   @AutoMap()
@@ -184,6 +185,9 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap(() => VoucherResponseDto)
   voucher: VoucherResponseDto;
+
+  @AutoMap(() => [ChefOrderResponseDto])
+  chefOrders: ChefOrderResponseDto[];
 }
 
 export class GetOrderRequestDto {

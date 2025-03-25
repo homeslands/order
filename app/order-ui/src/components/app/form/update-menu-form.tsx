@@ -11,7 +11,6 @@ import {
   FormMessage,
   Form,
   Button,
-  Input,
 } from '@/components/ui'
 import { updateMenuSchema, TUpdateMenuSchema } from '@/schemas'
 
@@ -20,10 +19,9 @@ import { IUpdateMenuRequest, IMenu } from '@/types'
 import { useUpdateMenu } from '@/hooks'
 import { showToast } from '@/utils'
 import { BranchSelect } from '@/components/app/select'
-import { cn } from '@/lib'
 import { useUserStore } from '@/stores'
-import moment from 'moment'
 import { IsTemplateSwitch } from '@/components/app/switch'
+import { SimpleDatePicker } from '../picker'
 
 interface IFormUpdateMenuProps {
   menu: IMenu
@@ -70,54 +68,19 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
           <FormItem>
             <FormLabel>{t('menu.date')}</FormLabel>
             <FormControl>
-              <Input
+              {/* <Input
                 {...field}
                 value={moment(field.value).format('DD/MM/YYYY') || ''}
                 className={cn(
                   'w-full justify-start text-left font-normal',
                   !field.value && 'text-muted-foreground',
                 )}
+              /> */}
+              <SimpleDatePicker
+                value={field.value}
+                onChange={(date) => field.onChange(date)}
+              //disabledDates={disabledDates}
               />
-              {/* <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={'outline'}
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !field.value && 'text-muted-foreground',
-                      )}
-                    >
-                      <CalendarIcon className="w-4 h-4 mr-2" />
-                      {field.value ? (
-                        field.value
-                      ) : (
-                        <span>{t('menu.chooseDate')}</span>
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(newDate) => {
-                      if (newDate) {
-                        const formattedDate =
-                          moment(newDate).format('YYYY-MM-DD')
-                        setDate(newDate)
-                        field.onChange(formattedDate)
-                      }
-                    }}
-                    disabled
-                    modifiersClassNames={{
-                      booked:
-                        'relative before:absolute before:bottom-0.5 before:left-1/2 before:-translate-x-1/2 before:w-1.5 before:h-1.5 before:bg-primary before:rounded-full',
-                    }}
-                  />
-                </PopoverContent>
-              </Popover> */}
             </FormControl>
             <FormMessage />
           </FormItem>

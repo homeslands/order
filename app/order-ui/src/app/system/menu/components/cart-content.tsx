@@ -1,11 +1,10 @@
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, ScrollArea } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
-import { publicFileURL } from '@/constants'
 import { CreateOrderDialog } from '@/components/app/dialog'
 import { formatCurrency } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
@@ -29,7 +28,8 @@ export function CartContent() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col fixed right-0 top-14 h-screen w-[25%] shadow-md overflow-y-scroll [&::-webkit-scrollbar]:hidden scrollbar-hiden">
+
       <div className="px-4 py-2 border-b">
         <h1 className="text-lg font-medium">{t('menu.order')}</h1>
       </div>
@@ -41,8 +41,8 @@ export function CartContent() {
       </div>
 
       {/* Selected table */}
-      {getCartItems()?.type === OrderTypeEnum.AT_TABLE ? (
-        <div className="flex items-center gap-1 px-4 text-sm">
+      {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
+        <div className="flex items-center gap-1 px-6 text-sm border-b pb-2">
           {getCartItems()?.table ? (
             <div className='flex items-center gap-1'>
               <p>{t('menu.selectedTable')} </p>
@@ -56,36 +56,22 @@ export function CartContent() {
             </p>
           )}
         </div>
-      ) : (
-        <div className='h-0' />
-        // <div className='h-9' />
       )}
 
       {/* Cart Items - Scrollable area */}
-      <ScrollArea className="mt-4 max-h-[calc(50vh-11rem)] flex-1 px-4">
-        <div className="flex flex-col gap-4">
-          {cartItems ? (
-            cartItems?.orderItems?.map((item) => (
-              <div
-                key={item.slug}
-                className="flex flex-col gap-4 pb-4 border-b"
-              >
-                <div
-                  key={`${item.slug}`}
-                  className="flex flex-row items-center gap-2 rounded-xl"
-                >
-                  {/* Product image */}
-                  <img
-                    src={`${publicFileURL}/${item.image}`}
-                    alt={item.name}
-                    className="object-cover w-20 h-20 rounded-2xl"
-                  />
-                  <div className="flex flex-col flex-1 gap-2">
-                    <div className="flex flex-row items-start justify-between">
-                      <div className="flex flex-col flex-1 min-w-0 gap-1">
-                        <span className="text-sm font-bold truncate">{item.name}</span>
+      {/* <ScrollArea className="mt-4 max-h-[calc(50vh-9rem)] flex-1 px-4 overflow-y-scroll scrollbar-hidden"> */}
+      <div className="flex flex-col gap-4 px-4 mt-4">
+        {cartItems ? (
+          cartItems?.orderItems?.map((item) => (
+            <div key={item.slug} className="flex flex-col pb-4 border-b"              >
+              <div key={`${item.slug}`} className="flex flex-row items-center gap-2 rounded-xl"                >
+                <div className="flex flex-col flex-1 gap-2">
+                  <div className="flex flex-row items-start justify-between">
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="text-sm font-bold truncate">{item.name}</span>
+                      <div className='flex justify-between w-full'>
                         {item.promotionValue && item.promotionValue > 0 ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 w-fit">
                             <span className="text-sm text-muted-foreground">
                               Size {item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                             </span>
@@ -95,30 +81,32 @@ export function CartContent() {
                             {`${formatCurrency(item.price)}`}
                           </span>
                         )}
+                        <div className='flex items-center gap-2'>
+                          <div className="flex items-center justify-between w-fit text-sm font-medium me-5">
+                            <QuantitySelector cartItem={item} />
+                          </div>
+                          <Button
+                            variant="ghost"
+                            onClick={() => handleRemoveCartItem(item.id)}
+                          >
+                            <Trash2 size={25} className="text-muted-foreground" color='red' />
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleRemoveCartItem(item.id)}
-                      >
-                        <Trash2 size={20} className="text-muted-foreground" />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between w-full text-sm font-medium">
-                      <QuantitySelector cartItem={item} />
                     </div>
                   </div>
                 </div>
-                <CartNoteInput cartItem={item} />
               </div>
-            ))
-          ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </div>
-      </ScrollArea>
+              <CartNoteInput cartItem={item} />
+            </div>
+          ))
+        ) : (
+          <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
+            {tCommon('common.noData')}
+          </p>
+        )}
+      </div>
+      {/* </ScrollArea> */}
 
       {/* Summary - Fixed at bottom */}
       {cartItems && cartItems?.orderItems?.length !== 0 && (
@@ -161,17 +149,19 @@ export function CartContent() {
                 {`${formatCurrency(totalAfterDiscount)}`}
               </span>
             </div>
-          </div>
-          {/* Order button */}
-          <div className='flex justify-end w-full'>
-            <div className='flex justify-end w-1/2'>
-              <CreateOrderDialog
-                disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-              />
+            {/* Order button */}
+            <div className='flex justify-end w-full h-40'>
+              <div className='flex justify-end w-1/2'>
+                <CreateOrderDialog
+                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                />
+              </div>
             </div>
           </div>
+
         </div>
       )}
+
     </div>
   )
 }
