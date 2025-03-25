@@ -21,7 +21,8 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   ChefOrderResponseDto,
-  QueryGetChefOrderRequestDto,
+  QueryGetAllChefOrderRequestDto,
+  QueryGetChefOrderGroupByChefAreaRequestDto,
   UpdateChefOrderRequestDto,
 } from './chef-order.dto';
 import { AppResponseDto } from 'src/app/app.dto';
@@ -81,7 +82,7 @@ export class ChefOrderController {
   })
   async getAllGroupByChefArea(
     @Query(new ValidationPipe({ transform: true }))
-    query: QueryGetChefOrderRequestDto,
+    query: QueryGetChefOrderGroupByChefAreaRequestDto,
   ) {
     const result = await this.chefOrderService.getAllGroupByChefArea(query);
     return {
@@ -90,6 +91,37 @@ export class ChefOrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ChefAreaResponseDto[]>;
+  }
+
+  @Get()
+  @HasRoles(
+    RoleEnum.SuperAdmin,
+    RoleEnum.Admin,
+    RoleEnum.Manager,
+    RoleEnum.Chef,
+    RoleEnum.Staff,
+  )
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get all chef orders',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'The chef orders were retrieved successfully',
+    type: ChefOrderResponseDto,
+    isArray: true,
+  })
+  async getAll(
+    @Query(new ValidationPipe({ transform: true }))
+    query: QueryGetAllChefOrderRequestDto,
+  ) {
+    const result = await this.chefOrderService.getAll(query);
+    return {
+      message: 'The chef orders were retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ChefOrderResponseDto[]>;
   }
 
   @Get('specific/:slug')

@@ -6,7 +6,8 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import {
   ChefOrderResponseDto,
-  QueryGetChefOrderRequestDto,
+  QueryGetAllChefOrderRequestDto,
+  QueryGetChefOrderGroupByChefAreaRequestDto,
   UpdateChefOrderRequestDto,
 } from './chef-order.dto';
 import _ from 'lodash';
@@ -61,7 +62,7 @@ export class ChefOrderService {
   }
 
   async getAllGroupByChefArea(
-    query: QueryGetChefOrderRequestDto,
+    query: QueryGetChefOrderGroupByChefAreaRequestDto,
   ): Promise<ChefAreaResponseDto[]> {
     const context = `${ChefOrderService.name}.${this.getAllGroupByChefArea.name}`;
 
@@ -141,6 +142,21 @@ export class ChefOrderService {
       }
     }
     return this.mapper.mapArray(chefAreas, ChefArea, ChefAreaResponseDto);
+  }
+
+  async getAll(
+    query: QueryGetAllChefOrderRequestDto,
+  ): Promise<ChefOrderResponseDto[]> {
+    const chefOrders = await this.chefOrderRepository.find({
+      where: { chefArea: { slug: query.chefArea }, status: query.status },
+      relations: [
+        'chefOrderItems.orderItem.variant.size',
+        'chefOrderItems.orderItem.variant.product',
+        'order',
+      ],
+    });
+
+    return this.mapper.mapArray(chefOrders, ChefOrder, ChefOrderResponseDto);
   }
 
   async getSpecific(slug: string): Promise<ChefOrderResponseDto> {
