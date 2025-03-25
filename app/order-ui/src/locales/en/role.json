@@ -7,16 +7,19 @@
     "description": "Description",
     "authority": "Authority",
     "authorityList": "Authority List",
-
     "addPermission": "Add Permission",
     "permissions": "Permissions",
     "confirmCreatePermission": "Confirm Create Permission",
-
+    "create": "Create",
+    "createRoleDescription": "Create New Role",
     "update": "Update",
     "updateRoleDescription": "Update Role Information",
     "enterName": "Enter Role Name",
     "enterDescription": "Enter Description",
-
+    "delete": "Delete Permission",
+    "deleteRole": "Delete",
+    "deletePermissionWarning1": "You are about to delete permission ",
+    "deletePermissionConfirmation": "Are you sure you want to delete this permission?",
     "ADMIN": "Admin",
     "MANAGER": "Manager",
     "STAFF": "Staff",

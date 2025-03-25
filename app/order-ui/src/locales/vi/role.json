@@ -10,16 +10,16 @@
     "addPermission": "Thêm quyền hạn",
     "permissions": "Quyền hạn",
     "confirmCreatePermission": "Xác nhận tạo quyền hạn",
-
+    "create": "Thêm mới",
+    "createRoleDescription": "Thêm mới vai trò",
     "update": "Cập nhật",
     "updateRoleDescription": "Cập nhật thông tin vai trò",
     "enterName": "Nhập tên vai trò",
     "enterDescription": "Nhập mô tả",
-
+    "deleteRole": "Xóa vai trò",
     "delete": "Xóa quyền hạn",
     "deletePermissionWarning1": "Bạn sắp sửa xóa quyền hạn ",
     "deletePermissionConfirmation": "Bạn có chắc chắn muốn xóa quyền hạn này không?",
-
     "ADMIN": "Quản trị viên",
     "MANAGER": "Quản lý",
     "STAFF": "Nhân viên",

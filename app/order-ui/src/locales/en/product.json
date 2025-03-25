@@ -43,6 +43,8 @@
   "product": {
     "title": "Dish management",
     "create": "Add dish",
+    "btnCreate": "Add dish",
+    "btnCreateAndContinue": "Add and continue",
     "createProductDescription": "Fill in the information to create a dish",
     "productName": "Dish name",
     "enterProductName": "Enter dish name",
@@ -103,7 +105,6 @@
     "dragAndDropOrClick": "Drag and drop file here or click to select a file",
     "supportedFormats": "Supported formats: .xls, .xlsx",
     "importProductsConfirmation": "Are you sure you want to import dishes from an Excel file?",
-
     "specialOffer": "Special offer",
     "discount": "Discount",
     "perEachProduct": "per each product",

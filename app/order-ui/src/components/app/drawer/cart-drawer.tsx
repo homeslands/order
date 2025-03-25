@@ -20,8 +20,8 @@ import { formatCurrency } from '@/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
-import OrderTypeSelect from '../select/order-type-in-update-order-select'
 import { CreateOrderDialog } from '../dialog'
+import { OrderTypeSelect } from '../select'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
@@ -76,14 +76,14 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
             <DrawerDescription>{t('menu.orderDescription')}</DrawerDescription>
           </DrawerHeader>
           {cartItems && cartItems?.orderItems?.length > 0 ? (
-            <div className='overflow-y-auto flex flex-col gap-3 max-h-[55%] min-h-[55%]'>
+            <div className='flex flex-col gap-3 max-h-[55%] min-h-[55%]'>
               {/* Order type selection */}
               <div className="flex flex-col gap-2 py-2">
                 <CustomerSearchInput />
                 <OrderTypeSelect />
               </div>
               {/* Selected table */}
-              {getCartItems()?.type === OrderTypeEnum.AT_TABLE ? (
+              {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
                 <div className="flex items-center text-sm">
                   {getCartItems()?.table ? (
                     <div className='flex items-center gap-1'>
@@ -98,10 +98,8 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                     </p>
                   )}
                 </div>
-              ) : (
-                <div className='h-9' />
               )}
-              <div className="flex flex-col gap-4 py-2 space-y-2">
+              <div className="overflow-y-scroll [&::-webkit-scrollbar]:hidden scrollbar-hiden flex flex-col gap-4 py-2 space-y-2">
                 {cartItems ? (
                   cartItems?.orderItems?.map((item) => (
                     <div

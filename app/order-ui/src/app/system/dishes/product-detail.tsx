@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ScrollArea, DataTable } from '@/components/ui'
 import { useProductBySlug } from '@/hooks'
@@ -11,7 +11,7 @@ import { useProductVariantColumns } from './DataTable/columns'
 import { ProductVariantActionOptions } from './DataTable/actions'
 import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { UploadMultipleProductImagesDialog } from '@/components/app/dialog'
-
+import ProductImage from "@/assets/images/ProductImage.png"
 export default function ProductManagementPage() {
   const { t } = useTranslation(['product'])
   const { slug } = useParams()
@@ -20,7 +20,13 @@ export default function ProductManagementPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const productDetail = product?.result
-
+  useEffect(() => {
+    if (productDetail?.image) {
+      setSelectedImage(productDetail.image)
+    } else {
+      setSelectedImage(null)
+    }
+  }, [productDetail?.image])
   if (isLoading) {
     return <ProductDetailSkeleton />
   }
@@ -43,7 +49,7 @@ export default function ProductManagementPage() {
                   <div className="flex flex-col h-full col-span-1 gap-2">
                     {productDetail && (
                       <img
-                        src={`${publicFileURL}/${selectedImage || productDetail.image}`}
+                        src={selectedImage ? `${publicFileURL}/${selectedImage}` : ProductImage}
                         alt={productDetail.name}
                         className="object-cover w-full h-[20rem] transition-opacity duration-300 ease-in-out rounded-xl"
                       />

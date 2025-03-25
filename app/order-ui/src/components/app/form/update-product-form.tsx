@@ -146,10 +146,7 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
           <FormItem>
             <FormLabel>{t('product.productCatalog')}</FormLabel>
             <FormControl>
-              <CatalogSelect
-                defaultValue={product.catalog.slug}
-                onChange={field.onChange}
-              />
+              <CatalogSelect defaultValue={product.catalog.slug} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -173,7 +170,7 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
           </ScrollArea>
           <div className="flex justify-end">
             <Button className="flex justify-end" type="submit">
-              {t('product.create')}
+              {t('product.update')}
             </Button>
           </div>
         </form>

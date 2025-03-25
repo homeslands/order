@@ -31,7 +31,9 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
     if (aInStock !== bInStock) {
       return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
     }
-
+    if(a.product.catalog.name !== b.product.catalog.name) {
+      return a.product.catalog.name.localeCompare(b.product.catalog.name)
+    }
     return 0;
   });
 

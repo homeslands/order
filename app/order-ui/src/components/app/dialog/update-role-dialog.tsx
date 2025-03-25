@@ -30,8 +30,8 @@ export default function UpdateRoleDialog({ role }: IUpdateRoleDialogProps) {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild className="flex justify-start">
                 <Button
-                    variant="outline"
-                    className="h-10 gap-1 px-2 text-sm text-muted-foreground"
+                    variant="ghost"
+                    className="h-10 w-full gap-1 px-2 text-sm"
                     onClick={() => setIsOpen(true)}
                 >
                     <SquarePen className="icon" />
