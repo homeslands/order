@@ -10,6 +10,9 @@ import _ from 'lodash';
 import { ChefOrderException } from './chef-order.exception';
 import ChefOrderValidation from './chef-order.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
+import { ChefOrderStatus } from './chef-order.constants';
+import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 
 @Injectable()
 export class ChefOrderUtils {
@@ -25,6 +28,7 @@ export class ChefOrderUtils {
     @InjectRepository(ChefOrderItem)
     private readonly chefOrderItemRepository: Repository<ChefOrderItem>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly chefOrderItemUtils: ChefOrderItemUtils,
   ) {}
 
   async getChefOrder(options: FindOneOptions<ChefOrder>): Promise<ChefOrder> {
@@ -104,5 +108,36 @@ export class ChefOrderUtils {
     );
     const createdChefOrders = await this.chefOrderRepository.save(chefOrders);
     return createdChefOrders;
+  }
+
+  async updateChefOrderStatus(chefOrderItemSlug: string) {
+    const context = `${ChefOrderUtils.name}.${this.updateChefOrderStatus.name}`;
+    const chefOrderItem = await this.chefOrderItemUtils.getChefOrderItem({
+      where: { slug: chefOrderItemSlug },
+      relations: ['chefOrder.chefOrderItems'],
+    });
+    const chefOrder = chefOrderItem.chefOrder;
+
+    try {
+      const completedChefOrderItems = chefOrder.chefOrderItems.filter(
+        (item) => item.status === ChefOrderItemStatus.COMPLETED,
+      );
+
+      if (
+        _.size(chefOrder.chefOrderItems) === _.size(completedChefOrderItems)
+      ) {
+        Object.assign(chefOrder, { status: ChefOrderStatus.COMPLETED });
+        await this.chefOrderRepository.save(chefOrder);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error when update status to COMPLETED for chef order: ${chefOrder.slug}`,
+        error.stack,
+        context,
+      );
+      throw new ChefOrderException(
+        ChefOrderValidation.ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER,
+      );
+    }
   }
 }

@@ -31,7 +31,9 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
     if (aInStock !== bInStock) {
       return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
     }
-
+    if (a.product.catalog.name !== b.product.catalog.name) {
+      return a.product.catalog.name.localeCompare(b.product.catalog.name)
+    }
     return 0;
   });
 
@@ -64,7 +66,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   }
 
   return (
-    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-4 pr-2`}>
+    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 pr-2`}>
       {menuItems.map((item) => (
         <div
           key={item.slug}
@@ -79,7 +81,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                 className="object-cover w-full h-28 rounded-t-md"
               />
             ) : (
-              <div className="w-full h-24 rounded-t-md bg-muted/60" />
+              <div className="w-full h-28 rounded-t-md bg-muted/60" />
             )}
           </div>
 
@@ -107,8 +109,8 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                                   ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                               })()}
                             </span>
-                            <div className='flex flex-row items-center gap-3'>
-                              <span className="text-sm line-through text-muted-foreground/70">
+                            <div className='flex flex-row items-center gap-3 w-full'>
+                              <span className="text-sm line-through text-muted-foreground/70 w-[30%]">
                                 {(() => {
                                   const range = getPriceRange(item.product.variants)
                                   if (!range) return formatCurrency(0)
@@ -117,7 +119,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                                 })()}
                               </span>
                               {item?.promotion?.value > 0 && (
-                                <Badge className="text-xs bg-destructive hover:bg-destructive">
+                                <Badge className="text-[10px] bg-destructive hover:bg-destructive">
                                   {t('menu.discount')} {item?.promotion?.value}%
                                 </Badge>
                               )}

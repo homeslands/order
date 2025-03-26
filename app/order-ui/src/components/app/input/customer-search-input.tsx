@@ -72,7 +72,7 @@ export default function CustomerSearchInput() {
                         onChange={(e) => setInputValue(e.target.value)}
                     />
                 </div>
-                {selectedUser ? (
+                {selectedUser && (
                     <div className='flex items-center gap-2'>
                         <span className='px-4 py-1 text-sm border rounded-full border-primary text-primary bg-primary/20 w-fit'>
                             {selectedUser.firstName} {selectedUser.lastName} - {selectedUser.phonenumber}
@@ -92,8 +92,6 @@ export default function CustomerSearchInput() {
                             </Tooltip>
                         </TooltipProvider>
                     </div>
-                ) : (
-                    <p className="h-7 text-muted-foreground" />
                 )}
             </div>
             {/* User list dropdown */}

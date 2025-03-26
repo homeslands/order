@@ -4,11 +4,10 @@ import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    // CarouselNext,
-    // CarouselPrevious,
 } from "@/components/ui";
 import { publicFileURL } from "@/constants";
 import { useState } from "react";
+import ProductImage from "@/assets/images/ProductImage.png";
 
 export default function ProductImageCarousel({
     images,
@@ -46,7 +45,7 @@ export default function ProductImageCarousel({
                                     </div>
                                 </div>
                                 <img
-                                    src={`${publicFileURL}/${image}`}
+                                    src={image ? `${publicFileURL}/${image}`: ProductImage}
                                     alt={`${index + 1}`}
                                     className="object-cover w-full rounded-md h-28"
                                 />

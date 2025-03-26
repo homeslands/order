@@ -16,6 +16,7 @@ import {
 import { useUploadProductImage } from '@/hooks'
 import { IProduct } from '@/types'
 import { showToast } from '@/utils'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ICreateProductDialogProps {
   product: IProduct
@@ -32,12 +33,13 @@ export default function UploadProductImageDialog({ product }: ICreateProductDial
   const triggerFileInput = () => {
     fileInputRef.current?.click()
   }
-
+  const queryClient = useQueryClient();
   const uploadImage = (file: File) => {
     uploadProductImage(
       { slug: product.slug, file },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['products'] })
           showToast(tToast('toast.uploadImageSuccess'))
           setIsOpen(false)
           setPreviewImage(null)

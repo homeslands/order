@@ -6,7 +6,8 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import {
   ChefOrderResponseDto,
-  QueryGetChefOrderRequestDto,
+  QueryGetAllChefOrderRequestDto,
+  QueryGetChefOrderGroupByChefAreaRequestDto,
   UpdateChefOrderRequestDto,
 } from './chef-order.dto';
 import _ from 'lodash';
@@ -22,6 +23,7 @@ import { BranchUtils } from 'src/branch/branch.utils';
 import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
 import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
 import { ChefOrderStatus } from './chef-order.constants';
+import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
 
 @Injectable()
 export class ChefOrderService {
@@ -61,7 +63,7 @@ export class ChefOrderService {
   }
 
   async getAllGroupByChefArea(
-    query: QueryGetChefOrderRequestDto,
+    query: QueryGetChefOrderGroupByChefAreaRequestDto,
   ): Promise<ChefAreaResponseDto[]> {
     const context = `${ChefOrderService.name}.${this.getAllGroupByChefArea.name}`;
 
@@ -143,6 +145,21 @@ export class ChefOrderService {
     return this.mapper.mapArray(chefAreas, ChefArea, ChefAreaResponseDto);
   }
 
+  async getAll(
+    query: QueryGetAllChefOrderRequestDto,
+  ): Promise<ChefOrderResponseDto[]> {
+    const chefOrders = await this.chefOrderRepository.find({
+      where: { chefArea: { slug: query.chefArea }, status: query.status },
+      relations: [
+        'chefOrderItems.orderItem.variant.size',
+        'chefOrderItems.orderItem.variant.product',
+        'order',
+      ],
+    });
+
+    return this.mapper.mapArray(chefOrders, ChefOrder, ChefOrderResponseDto);
+  }
+
   async getSpecific(slug: string): Promise<ChefOrderResponseDto> {
     const chefOrder = await this.chefOrderUtils.getChefOrder({
       where: { slug },
@@ -161,19 +178,30 @@ export class ChefOrderService {
   ): Promise<ChefOrderResponseDto> {
     const context = `${ChefOrderService.name}.${this.update.name}`;
 
-    if (requestData.status === ChefOrderStatus.COMPLETED) {
-      this.logger.warn(
-        ChefOrderValidation.CHEF_ORDER_STATUS_EXCEPT_COMPLETED.message,
-        context,
-      );
-      throw new ChefOrderException(
-        ChefOrderValidation.CHEF_ORDER_STATUS_EXCEPT_COMPLETED,
-      );
-    }
-
     const chefOrder = await this.chefOrderUtils.getChefOrder({
       where: { slug },
+      relations: ['chefOrderItems'],
     });
+
+    if (requestData.status === ChefOrderStatus.COMPLETED) {
+      const completedChefOrderItems = chefOrder.chefOrderItems.filter(
+        (item) => item.status === ChefOrderItemStatus.COMPLETED,
+      );
+
+      if (
+        _.size(chefOrder.chefOrderItems) !== _.size(completedChefOrderItems)
+      ) {
+        this.logger.warn(
+          ChefOrderValidation
+            .ALL_CHEF_ORDER_ITEMS_COMPLETED_TO_UPDATE_CHEF_ORDER_STATUS_COMPLETED
+            .message,
+          context,
+        );
+        throw new ChefOrderException(
+          ChefOrderValidation.ALL_CHEF_ORDER_ITEMS_COMPLETED_TO_UPDATE_CHEF_ORDER_STATUS_COMPLETED,
+        );
+      }
+    }
 
     if (chefOrder.status !== ChefOrderStatus.PENDING) {
       if (requestData.status === ChefOrderStatus.PENDING) {

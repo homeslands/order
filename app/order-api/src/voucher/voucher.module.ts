@@ -9,11 +9,13 @@ import { VoucherUtils } from './voucher.utils';
 import { VoucherScheduler } from './voucher.scheduler';
 import { OrderModule } from 'src/order/order.module';
 import { VoucherSubscriber } from './voucher.subscriber';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Voucher]),
     DbModule,
+    UserModule,
     forwardRef(() => OrderModule),
   ],
   controllers: [VoucherController],

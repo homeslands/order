@@ -189,7 +189,7 @@ export class ProductChefAreaService {
     });
 
     const groupedData = productChefAreas.reduce((acc, item) => {
-      const { chefArea, product } = item;
+      const { chefArea, product, slug } = item;
 
       const existingGroup = acc.find(
         (group) => group.chefArea.slug === chefArea.slug,
@@ -200,9 +200,15 @@ export class ProductChefAreaService {
           this.mapper.map(product, Product, ProductResponseDto),
         );
       } else {
+        const productDto = this.mapper.map(
+          product,
+          Product,
+          ProductResponseDto,
+        );
+        Object.assign(productDto, { productChefArea: slug });
         acc.push({
           chefArea: this.mapper.map(chefArea, ChefArea, ChefAreaResponseDto),
-          products: [this.mapper.map(product, Product, ProductResponseDto)],
+          products: [productDto],
         });
       }
 

@@ -18,6 +18,7 @@ import { ChefOrderProfile } from './chef-order.mapper';
 import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
+import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { Branch } from 'src/branch/branch.entity';
     MenuUtils,
     ChefAreaUtils,
     BranchUtils,
+    ChefOrderItemUtils,
   ],
   exports: [ChefOrderUtils],
 })

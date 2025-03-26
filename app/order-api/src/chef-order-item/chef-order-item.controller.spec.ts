@@ -8,6 +8,11 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
+import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { Product } from 'src/product/product.entity';
+import { ChefArea } from 'src/chef-area/chef-area.entity';
+import { Order } from 'src/order/order.entity';
 
 describe('ChefOrderItemController', () => {
   let controller: ChefOrderItemController;
@@ -18,8 +23,25 @@ describe('ChefOrderItemController', () => {
       providers: [
         ChefOrderItemService,
         ChefOrderItemUtils,
+        ChefOrderUtils,
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChefArea),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(ChefOrderItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChefOrder),
           useFactory: repositoryMockFactory,
         },
         {

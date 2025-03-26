@@ -19,6 +19,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   ChefOrderItemResponseDto,
   UpdateChefOrderItemRequestDto,
+  UpdateMultiChefOrderItemRequestDto,
 } from './chef-order-item.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
@@ -73,5 +74,43 @@ export class ChefOrderItemController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ChefOrderItemResponseDto>;
+  }
+
+  @Patch()
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update multi chef order items successfully',
+    type: ChefOrderItemResponseDto,
+  })
+  @ApiOperation({ summary: 'Update multi chef order items' })
+  @ApiResponse({
+    status: 200,
+    description: 'Update multi chef order items successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @HasRoles(
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  async updateMulti(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
+    updateData: UpdateMultiChefOrderItemRequestDto,
+  ) {
+    const result = await this.chefOrderItemService.updateMulti(updateData);
+
+    return {
+      message: 'Chef order item have been updated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<ChefOrderItemResponseDto[]>;
   }
 }

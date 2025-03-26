@@ -34,3 +34,8 @@ export async function updateRole(
   )
   return response.data
 }
+
+export async function deleteRole(slug: string): Promise<IApiResponse<IRole>> {
+  const response = await http.delete<IApiResponse<IRole>>(`/role/${slug}`)
+  return response.data
+}

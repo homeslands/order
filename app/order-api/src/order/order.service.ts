@@ -377,11 +377,6 @@ export class OrderService {
       menuItem,
     );
 
-    // const promotionWhere: FindOptionsWhere<Promotion> = { id: menuItem.promotionId };
-    // if(menuItem.promotionId) {
-    //   promotion = await this.promotionUtils.getPromotion(promotionWhere);
-    // }
-
     const orderItem = this.mapper.map(
       item,
       CreateOrderItemRequestDto,
@@ -439,6 +434,7 @@ export class OrderService {
         'invoice',
         'table',
         'orderItems.promotion',
+        'chefOrders',
       ],
       order: { createdAt: 'DESC' },
     };

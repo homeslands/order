@@ -21,7 +21,7 @@ export class ChefOrderResponseDto extends BaseResponseDto {
   chefOrderItems: ChefOrderItemResponseDto[];
 }
 
-export class QueryGetChefOrderRequestDto {
+export class QueryGetChefOrderGroupByChefAreaRequestDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of branch',
@@ -31,6 +31,31 @@ export class QueryGetChefOrderRequestDto {
   @IsOptional()
   branch?: string;
 
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'The slug of chef area,  if query have both branch and chef area, it get by chef area',
+    example: 'chef-area-slug',
+    required: false,
+  })
+  @IsOptional()
+  chefArea?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'The slug of chef area,  if query have both branch and chef area, it get by chef area',
+    example: 'accepted',
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(ChefOrderStatus, {
+    message: 'Status must be pending or accepted or rejected or completed',
+  })
+  status?: string;
+}
+
+export class QueryGetAllChefOrderRequestDto {
   @AutoMap()
   @ApiProperty({
     description:

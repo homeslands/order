@@ -6,6 +6,7 @@ import { SquareMenu } from 'lucide-react'
 import { DataTable } from '@/components/ui'
 import { useRoles } from '@/hooks'
 import { useRoleListColumns } from './DataTable/columns'
+import CreateRoleDialog from '@/components/app/dialog/create-role-dialog'
 
 export default function RolePage() {
     const { t: tHelmet } = useTranslation('helmet')
@@ -34,6 +35,7 @@ export default function RolePage() {
                 // actionOptions={EmployeesAction}
                 onPageChange={() => { }}
                 onPageSizeChange={() => { }}
+                actionOptions={CreateRoleDialog}
             />
         </div>
     )

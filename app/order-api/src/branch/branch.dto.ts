@@ -6,6 +6,7 @@ import {
   INVALID_BRANCH_ADDRESS,
   INVALID_BRANCH_NAME,
 } from './branch.validation';
+import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
 
 export class CreateBranchDto {
   @AutoMap()
@@ -39,4 +40,7 @@ export class BranchResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   address: string;
+
+  @AutoMap(() => [ChefAreaResponseDto])
+  chefAreas: ChefAreaResponseDto[];
 }
