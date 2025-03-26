@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
 import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import * as _ from 'lodash';
 import { getDayIndex } from 'src/helper';
 import { Branch } from 'src/branch/branch.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -11,107 +10,122 @@ import moment from 'moment';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { GENERATE_MENU_JOB } from './menu.constants';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class MenuScheduler {
   constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
     private readonly promotionUtils: PromotionUtils,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_2AM)
-  // @Timeout(1000)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: GENERATE_MENU_JOB })
   async generateMenu() {
     const context = `${MenuScheduler.name}.${this.generateMenu.name}`;
-    try {
-      const today = new Date(moment().format('YYYY-MM-DD'));
-      this.logger.log(`Generating menu for today = ${today}`, context);
+    const today = new Date(moment().format('YYYY-MM-DD'));
+    today.setHours(7, 0, 0, 0);
+    this.logger.log(`Generating menu for today = ${today}`, context);
 
-      const dayIndex = getDayIndex(today);
-      this.logger.log(`Today index: ${dayIndex}`, context);
+    const dayIndex = getDayIndex(today);
+    this.logger.log(`Today index: ${dayIndex}`, context);
 
-      const branches = await this.branchRepository.find();
-      this.logger.log(`Branch count = ${branches.length}`, context);
+    const branches = await this.branchRepository.find();
 
-      // Get all template menus base on list of branches
-      const templateMenus = await this.getTemplateMenus(branches, dayIndex);
-
-      const filteredMenus = templateMenus
-        .filter((menu) => menu !== null)
-        .filter((menu) => {
-          // Filter the menu if the menu is for today.
-          const isSame = moment(menu.date).isSame(moment(today));
-          return !isSame;
+    // Get branches is not generated menu
+    const branchSettledResults = await Promise.allSettled(
+      branches.map(async (item) => {
+        const menu = await this.menuRepository.findOne({
+          where: { branch: { id: item.id }, dayIndex, isTemplate: false },
         });
-      this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
+        return !menu ? item : null;
+      }),
+    );
 
-      const date = new Date();
-      date.setHours(7, 0, 0, 0);
+    const filteredBranches = branchSettledResults
+      .filter((item) => item.status === 'fulfilled')
+      .map((item) => item.value)
+      .filter((item) => item);
 
-      const newMenus = await Promise.all(
-        filteredMenus.map(async (menu) => {
-          const newMenu = _.cloneDeep(menu);
-          Object.assign(newMenu, {
-            date: today,
-            isTemplate: false,
-            id: undefined,
-            slug: undefined,
-            createdAt: undefined,
-            updatedAt: undefined,
-            deletedAt: undefined,
-            branch: menu.branch,
-            menuItems: await Promise.all(
-              menu.menuItems.map(async (item: MenuItem) => {
-                const promotion: Promotion =
-                  await this.promotionUtils.getPromotionByProductAndBranch(
-                    date,
-                    menu.branch.id,
-                    item.product.id,
-                  );
-                const newItem = _.cloneDeep(item);
-                newItem.id = undefined;
-                newItem.slug = undefined;
-                newItem.createdAt = undefined;
-                newItem.updatedAt = undefined;
-                newItem.deletedAt = undefined;
-                newItem.promotion = promotion;
-                // limit product
-                newItem.currentStock = newItem.defaultStock;
-                newItem.product = newItem.product;
-                return newItem;
-              }),
-            ),
-          });
-          return newMenu;
-        }),
-      );
+    this.logger.log(
+      `filtered branches count = ${filteredBranches.length}`,
+      context,
+    );
 
-      this.menuRepository.manager.transaction(async (manager) => {
-        try {
-          await manager.save(newMenus);
-          this.logger.log(
-            `Menu generated ${newMenus.map((item) => `${item.slug}, `)}`,
-            context,
-          );
-        } catch (error) {
-          this.logger.error(
-            `Error when generating menu: ${error.message}`,
-            error.stack,
-            context,
-          );
-        }
+    // Get all template menus base on list of branches
+    const templateMenus = await this.getTemplateMenus(
+      filteredBranches,
+      dayIndex,
+    );
+
+    const filteredMenus = templateMenus
+      .filter((menu) => menu)
+      .filter((menu) => {
+        // Filter the menu if the menu is for today.
+        const isSame = moment(menu.date).isSame(moment(today));
+        return !isSame;
       });
-    } catch (error) {
-      this.logger.error(
-        `Error when handle data to generating menu: ${error.message}`,
-        error.stack,
-        context,
-      );
-    }
+    this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
+
+    const newMenus = await Promise.all(
+      filteredMenus.map(async (menu) => {
+        const menuItems = await Promise.all(
+          menu.menuItems.map(async (item: MenuItem) => {
+            const promotion: Promotion =
+              await this.promotionUtils.getPromotionByProductAndBranch(
+                today,
+                menu.branch.id,
+                item.product.id,
+              );
+            const newItem = new MenuItem();
+            newItem.promotion = promotion;
+            newItem.product = item.product;
+
+            // Assign stock if product is limited
+            if (item.product.isLimit) {
+              newItem.defaultStock = item.defaultStock;
+              newItem.currentStock = item.defaultStock;
+            }
+
+            return newItem;
+          }),
+        );
+
+        // Make new menu
+        const newMenu = new Menu();
+        Object.assign(newMenu, {
+          date: today,
+          branch: menu.branch,
+          menuItems,
+        });
+        return newMenu;
+      }),
+    );
+
+    await this.transactionManagerService.execute<Menu[]>(
+      async (manager) => {
+        return await manager.save(newMenus);
+      },
+      (results) => {
+        this.logger.log(
+          `Menu generated [${results.map((item) => `${item.date} - ${item.branch?.name}`).join(', ')}]`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when generating menu: ${error.message}`,
+          error.stack,
+          context,
+        );
+      },
+    );
   }
 
   /**
@@ -124,7 +138,7 @@ export class MenuScheduler {
     branches: Branch[],
     dayIndex: number,
   ): Promise<Menu[]> {
-    const templateMenus = await Promise.all(
+    const menusSettledResults = await Promise.allSettled(
       branches.map(async (branch) => {
         const menu = await this.menuRepository.findOne({
           where: { branch: { id: branch.id }, dayIndex, isTemplate: true },
@@ -134,7 +148,10 @@ export class MenuScheduler {
       }),
     );
 
-    return templateMenus;
+    return menusSettledResults
+      .filter((item) => item.status === 'fulfilled')
+      .map((item) => item.value)
+      .filter((item) => item);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)

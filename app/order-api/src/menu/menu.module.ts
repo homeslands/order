@@ -11,10 +11,12 @@ import { MenuUtils } from './menu.utils';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Menu, Branch, Promotion, ApplicablePromotion]),
+    DbModule,
   ],
   controllers: [MenuController],
   providers: [

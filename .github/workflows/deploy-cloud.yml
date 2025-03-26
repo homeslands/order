@@ -36,7 +36,9 @@ jobs:
           export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
 
           # Export env. Docker swarm is not able to read .env file
-          export $(grep -v '^#' .deploy/cloud/.env | xargs)
+          set -o allexport
+          source .deploy/cloud/.env
+          set +o allexport
 
           docker compose -f .deploy/cloud/docker-compose.yml pull
           docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack --detach=true

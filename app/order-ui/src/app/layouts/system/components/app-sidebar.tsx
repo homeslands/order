@@ -77,7 +77,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="w-full">
-            <NavLink
+            <NavLink            
               to={ROUTE.OVERVIEW}
               className="flex items-center justify-center p-2"
             >

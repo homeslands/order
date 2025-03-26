@@ -111,10 +111,10 @@ export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItem
                     )}
 
                   </div>
-                  <span className="text-[0.7rem] text-muted-foreground">
+                  {item?.product?.isLimit && <span className="text-[0.7rem] text-muted-foreground">
                     {t('menu.amount')}
                     {item.currentStock}/{item.defaultStock}
-                  </span>
+                  </span>}
                 </div>
               ) : (
                 <span className="text-sm font-bold text-primary">
@@ -126,7 +126,7 @@ export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItem
         </div>
       </NavLink>
 
-      {item.currentStock > 0 ? (
+      {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
         <div className="flex justify-center w-full gap-2 p-2">
           {isMobile ? (
             <ClientAddToCartDrawer product={item} />

@@ -1,0 +1,1 @@
+export const GENERATE_MENU_JOB = 'GENERATE_MENU_JOB';

@@ -212,18 +212,16 @@ export function ClientPaymentPage() {
                 >
                   <div className="grid flex-row items-center w-full grid-cols-5">
                     <div className="flex w-full col-span-2 gap-2">
-                      <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-bold truncate sm:text-lg overflow-hidden text-ellipsis whitespace-nowrap">
-                            {item.variant.product.name}
-                          </span>
-                        </div>
+                      <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
+                        <span className="text-sm font-bold truncate sm:text-lg overflow-hidden text-ellipsis whitespace-nowrap w-full">
+                          {item.variant.product.name} 
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center col-span-1">
                       {item.promotion ?
                         <div className='flex items-center gap-2'>
-                          <span className="text-xs line-through text-muted-foreground">
+                          <span className="text-xs line-through text-muted-foreground hidden sm:block">
                             {`${formatCurrency(item.variant.price || 0)}`}
                           </span>
                           <span className="text-sm text-primary">
