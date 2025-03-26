@@ -41,6 +41,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.DELIVERY_MANAGEMENT,
   },
   {
+    title: 'sidebar.chefOrderManagement',
+    path: ROUTE.STAFF_CHEF_ORDER,
+    icon: FileChartColumnIncreasing,
+    permission: Permission.DELIVERY_MANAGEMENT,
+  },
+  {
     title: 'sidebar.orderHistory',
     path: ROUTE.STAFF_ORDER_HISTORY,
     icon: FileText,

@@ -31,7 +31,7 @@ export function MenuItemCard({ menuItem, isTemplate, onSuccess }: MenuItemCardPr
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-between gap-2 p-2 border group rounded-xl">
+    <div className={`relative flex flex-col items-center justify-between gap-2 ${menuItem.isLocked ? 'opacity-50 bg-destructive/10 border-destructive' : ''} p-2 border group rounded-xl`}>
       <div className="absolute inset-0 flex items-start justify-end transition-opacity opacity-0 group-hover:opacity-100">
         <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
           <UpdateMenuItemDialog menuItem={menuItem} isTemplate={isTemplate} />

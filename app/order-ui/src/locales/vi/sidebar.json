@@ -10,6 +10,7 @@
     "menuManagement": "Quản lý thực đơn",
     "dishManagement": "Quản lý món",
     "customerManagement": "Quản lý người dùng",
+    "chefOrderManagement": "Quản lý đơn hàng theo khu vực bếp",
     "userManagement": "Quản lý nhân viên",
     "roleManagement": "Quản lý vai trò",
     "branchManagement": "Quản lý chi nhánh",

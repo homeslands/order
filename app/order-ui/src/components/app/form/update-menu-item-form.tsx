@@ -107,7 +107,7 @@ export const UpdateMenuItemForm: React.FC<IFormUpdateMenuItemProps> = ({
       />
     ),
     isLocked: (
-      !isTemplate && <FormField
+      <FormField
         control={form.control}
         name="isLocked"
         render={() => (

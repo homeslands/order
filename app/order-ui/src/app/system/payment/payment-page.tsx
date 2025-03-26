@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import moment from 'moment'
 import _ from 'lodash'
+import moment from 'moment'
+import { Helmet } from 'react-helmet'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleX, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,11 +13,11 @@ import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
-import { Helmet } from 'react-helmet'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 import { usePaymentMethodStore } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
+
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
   const { t } = useTranslation(['menu'])
@@ -42,8 +43,7 @@ export default function PaymentPage() {
   const discount = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
-  const voucherDiscount = order?.result.voucher ? order.result.voucher.value : 0;
-
+  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
@@ -92,7 +92,7 @@ export default function PaymentPage() {
           onSuccess: (data) => {
             setPaymentSlug(data.result.slug)
             setQrCode(data.result.qrCode)
-            setIsPolling(true) // Bắt đầu polling khi thanh toán qua chuyển khoản ngân hàng
+            setIsPolling(true) // Start polling after initiating payment
           },
         },
       )
@@ -127,10 +127,10 @@ export default function PaymentPage() {
         <div className="flex flex-col items-center justify-center gap-5">
           <CircleX className="w-32 h-32 text-destructive" />
           <p className="text-center text-muted-foreground">
-            {t('menu.orderExpired')}
+            {t('order.orderExpired')}
           </p>
           <Button variant="default" onClick={() => navigate(-1)}>
-            {t('menu.goBackToMenu')}
+            {t('order.goBackToMenu')}
           </Button>
         </div>
       </div>
@@ -318,7 +318,7 @@ export default function PaymentPage() {
               </Button>
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
-                  <div className="flex gap-2 px-2 justify-end">
+                  <div className="flex justify-end gap-2 px-2">
                     {paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER ?
                       <>
                         <DownloadQrCode qrCode={qrCode} slug={slug} />

@@ -14,12 +14,12 @@ import {
   DialogTrigger,
 } from '@/components/ui'
 
-import { IChefAreaProduct } from '@/types'
+import { IProduct } from '@/types'
 import { useIsMobile, useRemoveChefAreaProduct } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
-export default function DeleteProductInChefAreaDialog({ product }: { product: IChefAreaProduct }) {
+export default function DeleteProductInChefAreaDialog({ chefAreaProduct }: { chefAreaProduct: IProduct }) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
@@ -79,9 +79,9 @@ export default function DeleteProductInChefAreaDialog({ product }: { product: IC
 
           <div className="py-4 text-sm text-muted-foreground">
             {t('chefArea.deleteChefAreaProductWarning1')}{' '}
-            <span className="font-bold">{product?.product?.name}</span>
-            {t('chefArea.deleteChefAreaProductWarning2')}{' '}
-            <span className="font-bold">{product?.chefArea.name}</span> <br />
+            <span className="font-bold">{chefAreaProduct?.name}</span>
+            {/* {t('chefArea.deleteChefAreaProductWarning2')}{' '}
+            <span className="font-bold">{chefAreaProduct.name}</span> <br /> */}
             <br />
             {t('chefArea.deleteChefAreaProductConfirmation')}
           </div>
@@ -92,7 +92,7 @@ export default function DeleteProductInChefAreaDialog({ product }: { product: IC
           </Button>
           <Button
             variant="destructive"
-            onClick={() => product && handleSubmit(product.slug || '')}
+            onClick={() => chefAreaProduct && handleSubmit(chefAreaProduct.slug || '')}
           >
             {tCommon('common.confirmDelete')}
           </Button>

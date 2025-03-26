@@ -47,16 +47,16 @@ export default function SwiperBanner({
               onLoad={() => setIsImageLoaded(true)}
             />
 
-            <div className="col-span-1 hidden sm:block" />
+            <div className="hidden col-span-1 sm:block" />
             <motion.div
-              className="col-span-2 mt-12 w-full text-center text-white sm:mt-0"
+              className="w-full col-span-2 mt-12 text-center text-white sm:mt-0"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={isImageLoaded ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               <div className="flex flex-col gap-2">
                 <div className="text-4xl font-extrabold uppercase sm:text-4xl">
-                  {banner?.title ? banner.title : 'HOMELAND Coffee'}
+                  {banner?.title ? banner.title : 'TREND Coffee'}
                 </div>
               </div>
               <p className="mt-4 text-sm sm:text-base">
@@ -65,10 +65,10 @@ export default function SwiperBanner({
                   : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
               </p>
               {banner?.useButtonUrl && isImageLoaded && (
-                <div className="mt-6 flex justify-center gap-4 sm:flex-row">
+                <div className="flex justify-center gap-4 mt-6 sm:flex-row">
                   <Button
                     variant="outline"
-                    className="bg-transparent text-white"
+                    className="text-white bg-transparent"
                     onClick={() => window.open(banner.url)}
                   >
                     {t('banner.viewMore')}
@@ -76,7 +76,7 @@ export default function SwiperBanner({
                 </div>
               )}
             </motion.div>
-            <div className="col-span-1 hidden sm:block" />
+            <div className="hidden col-span-1 sm:block" />
           </SwiperSlide>
         )
       })}

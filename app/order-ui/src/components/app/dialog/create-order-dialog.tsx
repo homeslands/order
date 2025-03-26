@@ -21,9 +21,10 @@ import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
   disabled?: boolean | undefined
+  onSuccessfulOrder?: () => void
 }
 
-export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
+export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlaceOrderDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
@@ -73,6 +74,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
             : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
         navigate(orderPath)
         setIsOpen(false)
+        onSuccessfulOrder?.()
         clearCart()
         showToast(tToast('toast.createOrderSuccess'))
       },

@@ -19,7 +19,7 @@ export default function ChefAreaDetailPage() {
 
     const { data: chefAreaProducts } = useGetChefAreaProducts(chefArea?.slug || '')
 
-    const products = chefAreaProducts?.result || []
+    const chefAreaProductsData = chefAreaProducts?.result || []
 
     return (
         <div className="flex flex-col flex-1 w-full pb-2">
@@ -53,11 +53,12 @@ export default function ChefAreaDetailPage() {
                 <div className='text-lg font-bold'>
                     {t('chefArea.currentProduct')}
                 </div>
-
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
-                    {products.map((product) => (
-                        <ChefAreaProductDetailItem key={product.slug} product={product} />
-                    ))}
+                <div className="grid grid-cols-1 gap-2">
+                    {chefAreaProductsData.map((item) =>
+                        // item.products.map((product) => (
+                        <ChefAreaProductDetailItem key={item.slug} chefAreaProduct={item} />
+                        // ))
+                    )}
                 </div>
             </div>
         </div>

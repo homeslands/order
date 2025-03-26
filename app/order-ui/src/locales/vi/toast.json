@@ -141,6 +141,9 @@
     "removeChefAreaProductSuccess": "Xóa món khỏi khu vực đầu bếp thành công",
     "updateChefAreaProductSuccess": "Cập nhật món trong khu vực đầu bếp thành công",
 
+    "updateChefOrderStatusSuccess": "Cập nhật trạng thái đơn hàng đầu bếp thành công",
+    "updateChefOrderItemStatusSuccess": "Cập nhật trạng thái món đầu bếp thành công",
+
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

@@ -39,7 +39,7 @@ export default function AddProductInChefAreaSheet() {
   const handleSelectionChange = (selectedSlug: string[]) => {
     setAddProductInChefArea({
       chefArea: slug as string,
-      product: selectedSlug,
+      products: selectedSlug,
     })
   }
   return (
@@ -82,7 +82,7 @@ export default function AddProductInChefAreaSheet() {
           <SheetFooter className="p-4">
             <ConfirmAddChefAreaProductDialog
               disabled={
-                !addProductInChefArea || addProductInChefArea.product.length === 0
+                !addProductInChefArea || addProductInChefArea.products.length === 0
               }
               productData={addProductInChefArea}
               isOpen={isOpen}

@@ -1,4 +1,5 @@
 import {
+  addMultipleProductsToChefArea,
   addProductToChefArea,
   createChefArea,
   deleteChefArea,
@@ -6,16 +7,23 @@ import {
   getChefAreaBySlug,
   getChefAreas,
   getChefAreaSpecificProduct,
+  getChefOrders,
+  getSpecificChefOrder,
   removeProductFromChefArea,
   updateChefArea,
+  updateChefOrderItemStatus,
+  updateChefOrderStatus,
   updateProductInChefArea,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
 import {
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
+  IGetChefOrderRequest,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
+  IUpdateChefOrderItemStatusRequest,
+  IUpdateChefOrderStatusRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
@@ -81,6 +89,14 @@ export const useAddChefAreaProduct = () => {
   })
 }
 
+export const useAddMultipleChefAreaProduct = () => {
+  return useMutation({
+    mutationFn: async (data: ICreateChefAreaProductRequest) => {
+      return addMultipleProductsToChefArea(data)
+    },
+  })
+}
+
 export const useUpdateChefAreaProduct = () => {
   return useMutation({
     mutationFn: async (data: IUpdateChefAreaProductRequest) => {
@@ -93,6 +109,36 @@ export const useRemoveChefAreaProduct = () => {
   return useMutation({
     mutationFn: async (chefAreaProduct: string) => {
       return removeProductFromChefArea(chefAreaProduct)
+    },
+  })
+}
+
+export const useGetChefOrders = (params: IGetChefOrderRequest) => {
+  return useQuery({
+    queryKey: [QUERYKEY.chefOrders, params],
+    queryFn: () => getChefOrders(params),
+  })
+}
+
+export const useGetSpecificChefOrder = (slug: string) => {
+  return useQuery({
+    queryKey: [QUERYKEY.chefOrders, { slug }],
+    queryFn: () => getSpecificChefOrder(slug),
+  })
+}
+
+export const useUpdateChefOrderStatus = () => {
+  return useMutation({
+    mutationFn: async (params: IUpdateChefOrderStatusRequest) => {
+      return updateChefOrderStatus(params)
+    },
+  })
+}
+
+export const useUpdateChefOrderItemStatus = () => {
+  return useMutation({
+    mutationFn: async (params: IUpdateChefOrderItemStatusRequest) => {
+      return updateChefOrderItemStatus(params)
     },
   })
 }

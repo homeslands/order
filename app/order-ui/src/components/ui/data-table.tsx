@@ -155,7 +155,7 @@ export function DataTable<TData, TValue>({
       >
         {/* Input search */}
         {!hiddenInput && (
-          <div className="relative w-full lg:w-[30%]">
+          <div className="relative w-1/3 lg:w-[30%]">
             <SearchIcon className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-2 top-1/2" />
             <Input
               placeholder={t('dataTable.search')}

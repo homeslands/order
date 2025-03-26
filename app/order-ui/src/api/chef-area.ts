@@ -2,17 +2,25 @@ import {
   IApiResponse,
   IChefArea,
   IChefAreaProduct,
+  IChefOrders,
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
+  IGetChefOrderRequest,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
+  IUpdateChefOrderItemStatusRequest,
+  IUpdateChefOrderStatusRequest,
 } from '@/types'
 import { http } from '@/utils'
 
 export async function getChefAreas(
   branch: string,
 ): Promise<IApiResponse<IChefArea[]>> {
-  const response = await http.get(`/chef-area/`, { params: { branch } })
+  const response = await http.get(`/chef-area/`, {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+    params: { branch },
+  })
   return response.data
 }
 
@@ -52,7 +60,7 @@ export async function getAllChefAreaProducts(
 
 export async function getChefAreaSpecificProduct(
   chefAreaProduct: string,
-): Promise<IApiResponse<IChefAreaProduct>> {
+): Promise<IApiResponse<IChefAreaProduct[]>> {
   const response = await http.get(
     `/product-chef-area/specific/${chefAreaProduct}`,
   )
@@ -63,6 +71,13 @@ export async function addProductToChefArea(
   data: ICreateChefAreaProductRequest,
 ): Promise<IApiResponse<IChefAreaProduct>> {
   const response = await http.post('/product-chef-area', { data })
+  return response.data
+}
+
+export async function addMultipleProductsToChefArea(
+  data: ICreateChefAreaProductRequest,
+): Promise<IApiResponse<IChefAreaProduct[]>> {
+  const response = await http.post('/product-chef-area/multi', data)
   return response.data
 }
 
@@ -80,4 +95,43 @@ export async function removeProductFromChefArea(
   chefAreaProduct: string,
 ): Promise<void> {
   await http.delete(`/product-chef-area/${chefAreaProduct}`)
+}
+
+export async function getChefOrders(
+  data: IGetChefOrderRequest,
+): Promise<IApiResponse<IChefOrders[]>> {
+  const response = await http.get(`/chef-order`, {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+    params: data,
+  })
+  return response.data
+}
+
+export async function getSpecificChefOrder(
+  slug: string,
+): Promise<IApiResponse<IChefOrders>> {
+  const response = await http.get(`/chef-order/specific/${slug}`, {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+  })
+  return response.data
+}
+
+export async function updateChefOrderStatus(
+  params: IUpdateChefOrderStatusRequest,
+): Promise<IApiResponse<IChefOrders>> {
+  const response = await http.patch(`/chef-order/${params.slug}`, {
+    status: params.status,
+  })
+  return response.data
+}
+
+export async function updateChefOrderItemStatus(
+  params: IUpdateChefOrderItemStatusRequest,
+): Promise<IApiResponse<IChefOrders>> {
+  const response = await http.patch(`/chef-order-item/${params.slug}`, {
+    status: params.status,
+  })
+  return response.data
 }

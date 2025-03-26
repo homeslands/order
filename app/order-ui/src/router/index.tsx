@@ -52,6 +52,7 @@ import {
   RoleDetailPage,
   ChefAreaPage,
   ChefAreaDetailPage,
+  ChefOrderPage,
   // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
@@ -252,6 +253,24 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 element={<SuspenseElement component={OrderManagementPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CHEF_ORDER,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefOrderPage} />}
               />
             ),
           },

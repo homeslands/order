@@ -1,3 +1,5 @@
+import { useEffect, useState, useRef } from 'react'
+import _ from 'lodash'
 import { ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -17,16 +19,20 @@ import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
-import { useEffect, useState } from 'react'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateOrderDialog } from '../dialog'
-import { OrderTypeSelect } from '../select'
-import _ from 'lodash'
+import { OrderTypeSelect, SystemTableSelect } from '../select'
+import { VoucherListSheet } from '../sheet'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
+  const drawerCloseRef = useRef<HTMLButtonElement>(null)
+
+  const handleOrderSuccess = () => {
+    drawerCloseRef.current?.click()
+  }
 
   const [, setSelectedUser] = useState<IUserInfo | null>(null)
   const { getCartItems, removeCartItem } = useCartItemStore()
@@ -66,9 +72,15 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
           {cartItems && cartItems?.orderItems?.length > 0 ? (
             <div className='flex flex-col gap-3  min-h-[55%]'>
               {/* Order type selection */}
-              <div className="flex flex-col gap-2 py-2">
+              <div className="flex flex-col gap-4 py-2">
                 <CustomerSearchInput />
                 <OrderTypeSelect />
+                <div className='flex flex-col gap-1'>
+                  <span className='text-sm text-muted-foreground'>
+                    {t('menu.table')}
+                  </span>
+                  <SystemTableSelect />
+                </div>
               </div>
               {/* Selected table */}
               {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
@@ -131,6 +143,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                         </div>
                       </div>
                       <CartNoteInput cartItem={item} />
+                      <VoucherListSheet />
                     </div>
                   ))
                 ) : (
@@ -171,16 +184,17 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
 
 
                 {/* Order button */}
-                <div className='flex justify-end w-full gap-4 mt-2 h-24'>
-                  <DrawerClose asChild>
+                <div className='flex justify-end w-full h-24 gap-4 mt-2'>
+                  <DrawerClose ref={drawerCloseRef} asChild>
                     <Button
                       variant="outline"
-                      className="w-fit border border-gray-400 rounded-full"
+                      className="border border-gray-400 rounded-full w-fit"
                     >
                       {tCommon('common.close')}
                     </Button>
                   </DrawerClose>
                   <CreateOrderDialog
+                    onSuccessfulOrder={handleOrderSuccess}
                     disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
                   />
                 </div>

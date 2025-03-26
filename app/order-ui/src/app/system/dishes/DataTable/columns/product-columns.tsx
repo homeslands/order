@@ -30,7 +30,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       cell: ({ row }) => {
         const image = row.getValue('image') ? `${publicFileURL}/${row.getValue('image')}` : ProductImage
         return (
-          <img src={image} alt={row.getValue('image')} className="object-cover w-36 h-28 rounded-md" />
+          <img src={image} alt={row.getValue('image')} className="object-cover rounded-md w-36 h-28" />
         )
       }
     },
@@ -44,7 +44,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       cell: ({ row }) => {
         const { name, description } = row.original
         return (
-          <div className="flex flex-col gap-1 w-[20rem]">
+          <div className="flex flex-col gap-1">
             <div className="font-bold">{name}</div>
             <p className="overflow-hidden text-sm text-gray-500 break-words line-clamp-3 text-ellipsis">{description}</p>
           </div>

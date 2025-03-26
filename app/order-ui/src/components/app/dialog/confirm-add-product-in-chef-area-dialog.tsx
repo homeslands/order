@@ -14,7 +14,7 @@ import {
 } from '@/components/ui'
 
 import { ICreateChefAreaProductRequest } from '@/types'
-import { useAddChefAreaProduct } from '@/hooks'
+import { useAddMultipleChefAreaProduct } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
@@ -37,7 +37,7 @@ export default function ConfirmAddProductInChefAreaDialog({
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
-  const { mutate: addChefAreaProduct } = useAddChefAreaProduct()
+  const { mutate: addChefAreaProduct } = useAddMultipleChefAreaProduct()
 
   const handleSubmit = (productData: ICreateChefAreaProductRequest) => {
     if (!productData) return
@@ -67,7 +67,6 @@ export default function ConfirmAddProductInChefAreaDialog({
 
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
-
           <DialogTitle className="pb-4 border-b border-primary text-primary">
             <div className="flex items-center gap-2">
               <TriangleAlert className="w-6 h-6" />

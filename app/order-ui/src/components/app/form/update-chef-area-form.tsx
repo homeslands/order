@@ -35,6 +35,7 @@ export const UpdateChefAreaForm: React.FC<IFormUpdateChefAreaProps> = ({ chefAre
     defaultValues: {
       slug: chefArea.slug,
       name: chefArea.name || '',
+      branch: chefArea.branch.slug || '',
       description: chefArea.description || ''
     }
   })
