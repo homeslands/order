@@ -18,6 +18,7 @@ export const ROUTE = {
   STAFF_CHECKOUT_ORDER: '/checkout-order',
   STAFF_ORDER_PAYMENT: '/system/payment',
   STAFF_ORDER_MANAGEMENT: '/system/order-management',
+  STAFF_CHEF_ORDER: '/system/chef-order',
   STAFF_ORDER_HISTORY: '/system/order-history',
   STAFF_ORDER_PREPARATION: '/order-preparation',
   STAFF_TABLE_MANAGEMENT: '/system/table',

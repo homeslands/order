@@ -27,5 +27,27 @@
     "deleteChefAreaProductWarning1": "Bạn sắp sửa xóa món ",
     "deleteChefAreaProductWarning2": " khỏi ",
     "deleteChefAreaProductConfirmation": "Bạn có chắc chắn muốn xóa món này khỏi khu vực bếp không?"
+  },
+  "chefOrder": {
+    "title": "Quản lý đơn hàng theo khu vực bếp",
+    "slug": "Mã đơn hàng",
+    "createdAt": "Ngày tạo",
+    "productName": "Tên món",
+    "note": "Ghi chú",
+    "noNote": "Không có ghi chú",
+    "status": "Trạng thái",
+    "accepted": "Đã tiếp nhận",
+    "pending": "Chờ làm",
+    "inProgress": "Đang làm",
+    "completed": "Hoàn thành",
+
+    "updateStatus": "Cập nhật trạng thái",
+    "confirmUpdateStatus": "Xác nhận cập nhật trạng thái đơn hàng",
+
+    "startCooking": "Bắt đầu nấu",
+    "complete": "Hoàn thành",
+
+    "selectChefArea": "Chọn khu vực bếp",
+    "chefOrderDetail": "Chi tiết đơn hàng"
   }
 }

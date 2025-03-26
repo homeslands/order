@@ -1,90 +1,101 @@
-import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
-import { useTables } from '@/hooks'
-import { useCartItemStore } from '@/stores'
-import { useUserStore } from '@/stores'
-import { ITable } from '@/types'
-import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
-import { NonResizableTableItem } from '../../../app/system/table'
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui"
+import { useTables } from "@/hooks"
+import { useCartItemStore, useUserStore } from "@/stores"
+import { OrderTypeEnum, ITable } from "@/types"
+import { TableStatus } from "@/constants"
+import { SelectReservedTableDialog } from "../dialog"
 
-export default function SystemTableSelect() {
-  const { t } = useTranslation(['table'])
-  const { getUserInfo } = useUserStore()
-  const { data: tables } = useTables(getUserInfo()?.branch.slug)
-  const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
-    undefined,
-  )
-  const { getCartItems, addTable, removeTable } = useCartItemStore()
-  const cartItems = getCartItems()
-  const [reservedTable, setReservedTable] = useState<ITable | null>(null)
+interface ITableSelectProps {
+    tableOrder?: ITable | null
+    onTableSelect?: (table: ITable) => void
+}
 
-  useEffect(() => {
-    const addedTable = cartItems?.table
-    if (addedTable) {
-      setSelectedTableId(addedTable)
+export default function SystemTableSelect({ tableOrder, onTableSelect }: ITableSelectProps) {
+    const { t } = useTranslation('table')
+    const { cartItems, addTable } = useCartItemStore()
+    const { userInfo } = useUserStore()
+    const { data: tables } = useTables(userInfo?.branch?.slug || '')
+
+    const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
+    const [selectedTableId, setSelectedTableId] = useState<string | undefined>()
+
+    useEffect(() => {
+        const addedTable = cartItems?.table
+        setSelectedTableId(addedTable)
+    }, [cartItems?.table])
+    useEffect(() => {
+        if (tableOrder) {
+            setSelectedTable(tableOrder)
+            setSelectedTableId(tableOrder.slug)
+        }
+    }, [tableOrder])
+    const tableList = tables?.result.sort((a, b) => {
+        if (a.status !== b.status) {
+            return a.status.localeCompare(b.status); // Đảo ngược status (RESERVED trước AVAILABLE)
+        }
+        return Number(a.name) - Number(b.name); // Sắp xếp theo tên nếu status giống nhau
+    }) || [];
+
+    if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
+        return null
     }
-  }, [cartItems?.table])
 
-  const handleTableClick = (table: ITable) => {
-    if (selectedTableId === table.slug) {
-      // Remove table for any status
-      setSelectedTableId(undefined)
-      removeTable()
-    } else {
-      if (table.status === 'reserved') {
-        setReservedTable(table) // Show confirmation dialog
-      } else if (table.status === 'available') {
-        setSelectedTableId(table.slug)
+    const handleTableSelect = (tableId: string) => {
+        const table = tableList.find((t) => t.slug === tableId)
+        if (!table) return
+        if (table.status === TableStatus.RESERVED) {
+            setSelectedTable(table)
+        } else {
+            addTable(table)
+            setSelectedTableId(tableId)
+            onTableSelect?.(table)
+        }
+    }
+
+    const handleConfirmTable = (table: ITable) => {
         addTable(table)
-      }
+        onTableSelect?.(table)
+        setSelectedTableId(table.slug)
+        setSelectedTable(null) // Đóng dialog
     }
-  }
 
-  const confirmAddReservedTable = (table: ITable) => {
-    setSelectedTableId(table.slug)
-    addTable(table)
-    setReservedTable(null) // Close the dialog
-  }
+    return (
+        <>
+            <Select onValueChange={handleTableSelect} value={selectedTableId} >
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t('table.title')} />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel>{t('table.title')}</SelectLabel>
+                        {tableList.map((table) => (
+                            <SelectItem key={table.slug} value={table.slug} className={table.status === TableStatus.RESERVED ? 'text-red-400' : ''}>
+                                {`${table.name} - ${t(`table.${table.status}`)}`}
+                            </SelectItem>
+                        ))}
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
 
-  return (
-    <div className="mt-6 rounded-md border">
-      <div className="flex flex-col items-start justify-between gap-2 bg-muted/60 p-4 sm:flex-row">
-        <span className="text-md font-medium">{t('table.title')}</span>
-        {/* Table status */}
-        <div className="flex gap-2 text-xs sm:flex-row sm:gap-4 sm:px-4">
-          <div className="flex flex-row items-center gap-2">
-            <div className="h-4 w-4 rounded-sm border bg-muted-foreground/10" />
-            <span className="sm:text-sm">{t('table.available')}</span>
-          </div>
-          <div className="flex flex-row items-center gap-2">
-            <div className="h-4 w-4 rounded-sm bg-yellow-500" />
-            <span className="sm:text-sm">{t('table.reserved')}</span>
-          </div>
-          <div className="flex flex-row items-center gap-2">
-            <div className="h-4 w-4 rounded-sm border-2 border-green-500 bg-muted-foreground/10" />
-            <span className="sm:text-sm">{t('table.selected')}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-4 p-4">
-        {tables?.result.map((table) => (
-          <NonResizableTableItem
-            key={table.slug}
-            table={table}
-            isSelected={selectedTableId === table.slug}
-            onClick={() => handleTableClick(table)}
-          />
-        ))}
-      </div>
-      {reservedTable && (
-        <SelectReservedTableDialog
-          table={reservedTable}
-          setSelectedTableId={setSelectedTableId}
-          onConfirm={confirmAddReservedTable}
-          onCancel={() => setReservedTable(null)} // Close dialog on cancel
-        />
-      )}
-    </div>
-  )
+            {/* Dialog hiển thị khi chọn bàn đã đặt */}
+            {selectedTable && selectedTable.slug !== tableOrder?.slug && (
+                <SelectReservedTableDialog
+                    table={selectedTable}
+                    onConfirm={handleConfirmTable}
+                    onCancel={() => setSelectedTable(null)}
+                />
+            )}
+        </>
+    )
 }

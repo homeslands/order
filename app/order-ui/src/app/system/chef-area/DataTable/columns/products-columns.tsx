@@ -17,8 +17,12 @@ export const useProductColumns = ({
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   const updateSelectedProducts = (updatedSlugs: string[]) => {
-    setSelectedProducts(updatedSlugs)
-    onSelectionChange?.(updatedSlugs) // 🔥 Gọi trực tiếp sau khi cập nhật state
+    // Ensure all items are strings
+    const validSlugs = updatedSlugs.filter((slug): slug is string =>
+      typeof slug === 'string' && slug.length > 0
+    );
+    setSelectedProducts(validSlugs);
+    onSelectionChange?.(validSlugs);
   }
 
   return [
@@ -30,7 +34,9 @@ export const useProductColumns = ({
           onCheckedChange={(value) => {
             table.toggleAllPageRowsSelected(!!value)
             const rows = table.getRowModel().rows
-            const updatedSlugs = value ? rows.map((row) => row.original.slug) : []
+            const updatedSlugs = value
+              ? rows.map((row) => String(row.original.slug))
+              : []
             updateSelectedProducts(updatedSlugs)
           }}
           aria-label="Select all"
@@ -43,8 +49,11 @@ export const useProductColumns = ({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => {
               row.toggleSelected(!!value)
+              const productSlug = String(product.slug)
               updateSelectedProducts(
-                value ? [...selectedProducts, product.slug] : selectedProducts.filter((slug) => slug !== product.slug)
+                value
+                  ? [...selectedProducts, productSlug]
+                  : selectedProducts.filter(slug => slug !== productSlug)
               )
             }}
             aria-label="Select row"

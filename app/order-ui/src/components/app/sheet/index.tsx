@@ -1,5 +1,6 @@
 export { default as CheckoutCartSheet } from './checkout-cart-sheet'
 export { default as OrderItemDetailSheet } from './order-item-detail-sheet'
+export { default as ChefOrderItemDetailSheet } from './chef-order-item-detail-sheet'
 export { default as NavigationSheet } from './navigation-sheet'
 export { default as AddMenuItemSheet } from './add-menu-item-sheet'
 export { default as CreateVoucherSheet } from './create-voucher-sheet'

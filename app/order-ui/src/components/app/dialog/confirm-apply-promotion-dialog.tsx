@@ -67,7 +67,6 @@ export default function ConfirmApplyPromotionDialog({
 
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
-
           <DialogTitle className="pb-4 border-b border-primary text-primary">
             <div className="flex items-center gap-2">
               <TriangleAlert className="w-6 h-6" />

@@ -80,6 +80,13 @@ export const OrderManagementPage = React.lazy(() =>
   })),
 )
 
+// Chef order management page
+export const ChefOrderPage = React.lazy(() =>
+  import('@/app/system/chef-order').then((module) => ({
+    default: module.ChefOrderPage,
+  })),
+)
+
 //Order history page
 export const OrderHistoryPage = React.lazy(() =>
   import('@/app/system/order-history').then((module) => ({
