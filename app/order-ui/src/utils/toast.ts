@@ -57,6 +57,7 @@ const errorCodes: { [key: number]: string } = {
   119005: 'toast.userExists',
   119007: 'toast.invalidOldPassword',
   119008: 'toast.forgotTokenExpired',
+  119022: 'toast.invalidEmail',
   121000: 'toast.fileNotFound',
   123000: 'toast.paymentQueryInvalid',
   123001: 'toast.paymentMethodInvalid',

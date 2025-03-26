@@ -18,15 +18,20 @@ import { ICreateChefAreaProductRequest } from '@/types'
 import { useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/chef-area/DataTable/columns'
 import { ConfirmAddChefAreaProductDialog } from '../dialog'
+import { useUserStore } from '@/stores'
 
 export default function AddProductInChefAreaSheet() {
   const { t } = useTranslation(['chefArea'])
   const [isOpen, setIsOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const { userInfo } = useUserStore()
   const { slug } = useParams()
   const [addProductInChefArea, setAddProductInChefArea] =
     useState<ICreateChefAreaProductRequest | null>(null)
-  const { data: products, isLoading } = useProducts()
+  const { data: products, isLoading } = useProducts({
+    branch: userInfo?.branch?.slug,
+    isAppliedBranchForChefArea: false,
+  })
 
   const productsData = products?.result
 
@@ -46,7 +51,7 @@ export default function AddProductInChefAreaSheet() {
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button
-          className="justify-start gap-1 px-2 w-fit"
+          className="gap-1 justify-start px-2 w-fit"
           onClick={handleClick}
         >
           <PlusCircle className="icon" />
@@ -73,8 +78,8 @@ export default function AddProductInChefAreaSheet() {
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={1}
-                  onPageChange={() => { }}
-                  onPageSizeChange={() => { }}
+                  onPageChange={() => {}}
+                  onPageSizeChange={() => {}}
                 />
               </div>
             </div>
@@ -82,7 +87,8 @@ export default function AddProductInChefAreaSheet() {
           <SheetFooter className="p-4">
             <ConfirmAddChefAreaProductDialog
               disabled={
-                !addProductInChefArea || addProductInChefArea.products.length === 0
+                !addProductInChefArea ||
+                addProductInChefArea.products.length === 0
               }
               productData={addProductInChefArea}
               isOpen={isOpen}

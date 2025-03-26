@@ -59,7 +59,7 @@ export default function ChefOrderPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-2">
+    <div className="flex flex-col flex-1 gap-2">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.orderManagement.title')}</title>
@@ -68,11 +68,11 @@ export default function ChefOrderPage() {
           content={tHelmet('helmet.orderManagement.title')}
         />
       </Helmet>
-      <span className="flex w-full items-center justify-start gap-1 text-lg">
+      <span className="flex gap-1 justify-start items-center w-full text-lg">
         <SquareMenu />
         {t('chefOrder.title')}
       </span>
-      <div className="grid h-full grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2 h-full">
         <DataTable
           isLoading={isLoading}
           data={chefOrders?.result || []}

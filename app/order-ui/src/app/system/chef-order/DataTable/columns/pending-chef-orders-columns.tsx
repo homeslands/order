@@ -2,10 +2,21 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
-import { DataTableColumnHeader } from '@/components/ui'
+import {
+  Button,
+  DataTableColumnHeader,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui'
 import { ChefOrderStatus, IChefOrders } from '@/types'
-import { ConfirmUpdateChefOrderStatusDialog } from '@/components/app/dialog'
+import {
+  ConfirmCompleteChefOrderDialog,
+  ConfirmUpdateChefOrderStatusDialog,
+} from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
+import { MoreHorizontal } from 'lucide-react'
 
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
@@ -15,7 +26,10 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
     {
       id: 'select',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={tCommon('common.action')} />
+        <DataTableColumnHeader
+          column={column}
+          title={tCommon('common.action')}
+        />
       ),
       cell: ({ row }) => {
         const chefOrder = row.original
@@ -23,13 +37,11 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
           <>
             {chefOrder.status === ChefOrderStatus.PENDING ? (
               <div onClick={(e) => e.stopPropagation()}>
-                <ConfirmUpdateChefOrderStatusDialog
-                  chefOrder={chefOrder}
-                />
+                <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
               </div>
             ) : (
-              <div className='pl-3'>
-                <span className='italic text-green-500'>
+              <div className="pl-3">
+                <span className="italic text-green-500">
                   {t('chefOrder.accepted')}
                 </span>
               </div>
@@ -53,7 +65,10 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
     {
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('chefOrder.createdAt')} />
+        <DataTableColumnHeader
+          column={column}
+          title={t('chefOrder.createdAt')}
+        />
       ),
       cell: ({ row }) => {
         const createdAt = row.getValue('createdAt')
@@ -71,9 +86,38 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       ),
       cell: ({ row }) => {
         const status = row.original.status
-        return <span className="text-sm text-muted-foreground">
-          <ChefOrderStatusBadge status={status} />
-        </span>
+        return (
+          <span className="text-sm text-muted-foreground">
+            <ChefOrderStatusBadge status={status} />
+          </span>
+        )
+      },
+    },
+    {
+      id: 'actions',
+      header: tCommon('common.action'),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">{tCommon('common.action')}</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {tCommon('common.action')}
+                </DropdownMenuLabel>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
       },
     },
     // {

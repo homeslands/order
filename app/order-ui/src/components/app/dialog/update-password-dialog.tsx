@@ -23,14 +23,12 @@ export default function UpdatePasswordDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className="flex justify-start w-full">
-        <Button
-          variant="ghost"
-          className="gap-1 px-2 text-sm"
-          onClick={() => setIsOpen(true)}
-        >
+      <DialogTrigger asChild className="flex justify-start w-fit">
+        <Button className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
           <KeyRound className="icon" />
-          <span className="text-xs sm:text-sm">{t('profile.updatePassword')}</span>
+          <span className="text-xs sm:text-sm">
+            {t('profile.updatePassword')}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">

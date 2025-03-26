@@ -286,6 +286,7 @@
     "invalidOrderItems": "Invalid order items",
     "updateOrderError": "Error updating order",
     "invalidOrderSlug": "Invalid order slug",
-    "permissionExists": "Permission already exists"
+    "permissionExists": "Permission already exists",
+    "invalidEmail": "Email already exists!"
   }
 }
