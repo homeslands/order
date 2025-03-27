@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal } from 'lucide-react'
 
-import { Input, Card, CardContent, DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger, Button } from '@/components/ui'
+import { Input, Card, CardContent } from '@/components/ui'
 import { ProfilePicture } from '@/components/app/avatar'
 import { useProfile, useUploadProfilePicture } from '@/hooks'
 import { publicFileURL } from '@/constants'
@@ -15,7 +14,6 @@ import { useUserStore } from '@/stores'
 
 export default function UserProfileCard() {
   const { t } = useTranslation(['profile', 'toast'])
-  const { t: tCommon } = useTranslation('common')
   const { data } = useProfile()
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
@@ -78,7 +76,7 @@ export default function UserProfileCard() {
     <div>
       <Card className="bg-transparent border-none shadow-none">
         <CardContent className="flex flex-col gap-6 p-0">
-          <div className="flex flex-row justify-between p-4 bg-white border rounded-md">
+          <div className="flex flex-row justify-between p-4 bg-white rounded-md border">
             <div className='flex items-center'>
               <ProfilePicture
                 height={80}
@@ -97,36 +95,20 @@ export default function UserProfileCard() {
                 <div className="flex items-center text-description"></div>
               </div>
             </div>
-            <div className='p-2'>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-8 h-8 p-0">
-                    <span className="sr-only">{tCommon('common.action')}</span>
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>
-                    {tCommon('common.action')}
-                  </DropdownMenuLabel>
-                  <UpdateProfileDialog userProfile={userProfile} />
-                  <SendVerifyEmailDialog />
-                  <UpdatePasswordDialog />
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 border rounded-md">
+          <div className="grid grid-cols-1 gap-3 rounded-md border">
             <div
               className={
-                'flex w-full items-center justify-between bg-muted-foreground/5 px-6 py-6'
+                'flex justify-between items-center px-6 py-6 w-full bg-muted-foreground/5'
               }
             >
               <span className="font-semibold text-md">
                 {t('profile.profile')}
               </span>
               <div className="flex gap-2">
-
+                <UpdateProfileDialog userProfile={userProfile} />
+                <SendVerifyEmailDialog />
+                <UpdatePasswordDialog />
               </div>
             </div>
             <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2">

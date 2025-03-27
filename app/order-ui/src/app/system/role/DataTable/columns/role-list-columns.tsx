@@ -54,25 +54,25 @@ export const useRoleListColumns = (): ColumnDef<IRole>[] => {
         const user = row.original
         return (
           <div className="text-xs sm:text-sm">
-            {user.name}
+            {t(`role.${user.name}`)}
           </div>
         )
       },
     },
-    {
-      accessorKey: 'description',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('role.description')} />
-      ),
-      cell: ({ row }) => {
-        const user = row.original
-        return (
-          <div className="text-xs sm:text-sm">
-            {user?.description}
-          </div>
-        )
-      },
-    },
+    // {
+    //   accessorKey: 'description',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('role.description')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const user = row.original
+    //     return (
+    //       <div className="text-xs sm:text-sm">
+    //         {user?.description}
+    //       </div>
+    //     )
+    //   },
+    // },
     {
       id: 'actions',
       header: tCommon('common.action'),
@@ -82,7 +82,7 @@ export const useRoleListColumns = (): ColumnDef<IRole>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -93,11 +93,11 @@ export const useRoleListColumns = (): ColumnDef<IRole>[] => {
                 </DropdownMenuLabel>
                 <NavLink
                   to={`${ROUTE.STAFF_ROLE_MANAGEMENT}/${role.slug}`}
-                  className="flex items-center justify-start w-full"
+                  className="flex justify-start items-center w-full"
                 >
                   <Button
                     variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2 text-sm"
+                    className="flex gap-1 justify-start px-2 w-full text-sm"
                   >
                     <SquareMousePointer className="icon" />
                     {tCommon('common.viewDetail')}

@@ -2,14 +2,14 @@ import { useState } from 'react'
 
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
-import { useUserListColumns } from './DataTable/columns'
+import { useEmployeeListColumns } from './DataTable/columns'
 import { Role } from '@/constants'
 import { EmployeeFilterOptions, EmployeesAction } from './DataTable/actions'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
-export default function UserListPage() {
+export default function EmployeeListPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { t } = useTranslation('employee')
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
@@ -36,12 +36,12 @@ export default function UserListPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.employee.title')} />
       </Helmet>
-      <span className="flex items-center gap-1 text-lg">
+      <span className="flex gap-1 items-center text-lg">
         <SquareMenu />
         {t('employee.title')}
       </span>
       <DataTable
-        columns={useUserListColumns()}
+        columns={useEmployeeListColumns()}
         data={data?.result.items || []}
         isLoading={isLoading}
         pages={data?.result.totalPages || 0}

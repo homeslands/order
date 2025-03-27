@@ -126,7 +126,7 @@ export class RoleScheduler {
       },
       (results) => {
         this.logger.log(
-          `Permission: ${results.map((item) => `${item.role?.description} - ${item.authority?.code}`).join(', ')} created`,
+          `Permission [${results.map((item) => `${item.role?.description} - ${item.authority?.code}`).join(', ')}] created`,
           context,
         );
       },

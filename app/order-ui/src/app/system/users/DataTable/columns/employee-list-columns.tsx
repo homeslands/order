@@ -15,7 +15,7 @@ import { IUserInfo } from '@/types'
 import { ResetPasswordDialog, UpdateEmployeeDialog, UserInfoDialog } from '@/components/app/dialog'
 import UpdateUserRoleDialog from '@/components/app/dialog/update-user-role-dialog'
 
-export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
+export const useEmployeeListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['employee', 'common'])
   const { t: tCommon } = useTranslation(['common'])
   return [
@@ -99,8 +99,8 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       cell: ({ row }) => {
         const user = row.original
         return <div className="text-xs sm:text-sm">
-          {user?.role?.name}
-          {/* {t(`employee.${user?.role?.name}`)} */}
+          {/* {user?.role?.name} */}
+          {t(`employee.${user?.role?.name}`)}
         </div>
       },
     },
@@ -113,7 +113,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
