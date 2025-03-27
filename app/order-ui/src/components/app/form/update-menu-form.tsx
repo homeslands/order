@@ -68,14 +68,6 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
           <FormItem>
             <FormLabel>{t('menu.date')}</FormLabel>
             <FormControl>
-              {/* <Input
-                {...field}
-                value={moment(field.value).format('DD/MM/YYYY') || ''}
-                className={cn(
-                  'w-full justify-start text-left font-normal',
-                  !field.value && 'text-muted-foreground',
-                )}
-              /> */}
               <SimpleDatePicker
                 value={field.value}
                 onChange={(date) => field.onChange(date)}

@@ -24,10 +24,12 @@ export interface IProductRequest {
   catalog?: string
   promotion?: string // get all products base on promotion
   isAppliedPromotion?: boolean
+  isAppliedBranchForChefArea?: boolean
   isTopSell?: boolean
   isNew?: boolean
   inMenu?: boolean
   menu?: string //Slug of the menu, get all products in the menu
+  branch?: string //Slug of the branch
 }
 
 export interface ITopProduct {

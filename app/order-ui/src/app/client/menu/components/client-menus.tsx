@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { ISpecificMenu } from '@/types'
 import { ClientMenuItem } from './client-menu-item'
+import { useCatalogs } from '@/hooks'
 
 interface IClientMenuProps {
   menu: ISpecificMenu | undefined
@@ -11,6 +12,7 @@ interface IClientMenuProps {
 
 export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
   const { t } = useTranslation('menu')
+  const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
 
   const menuItems = menu?.menuItems?.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
@@ -31,7 +33,7 @@ export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
   });
 
 
-  if (isLoading) {
+  if (isLoading || isLoadingCatalog) {
     return (
       <div className={`grid grid-cols-2 gap-3 lg:grid-cols-3`}>
         {[...Array(8)].map((_, index) => (
@@ -44,12 +46,23 @@ export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
   if (!menuItems || menuItems.length === 0) {
     return <p className="text-center">{t('menu.noData')}</p>
   }
-
+  const groupedItems = catalogs?.result?.map(catalog => ({
+    catalog,
+    items: menuItems.filter(item => item.product.catalog.slug === catalog.slug),
+  })) || [];
+  groupedItems.sort((a, b) => b.items.length - a.items.length)
   return (
-    <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
-      {menuItems.map((item) => (
-        <ClientMenuItem item={item} key={item.slug} />
-      ))}
-    </div>
-  )
+    <>
+      {groupedItems?.length > 0 ? groupedItems.map((group, index) => (
+        group.items.length > 0 &&
+        <div className='w-full mb-12' key={index}>
+          <div className='primary-highlight uppercase'>{group.catalog.name}</div>
+          <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3 mt-5 ps-4`}>
+            {group.items.map((item) => (
+              <ClientMenuItem item={item} key={item.slug} />
+            ))}
+          </div>
+        </div>
+      )) : <div>không có dữ liệu</div>}
+    </>)
 }

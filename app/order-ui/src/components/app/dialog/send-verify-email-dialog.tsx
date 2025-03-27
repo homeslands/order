@@ -50,7 +50,7 @@ export default function SendVerifyEmailDialog() {
     verifyEmail(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [QUERYKEY.profile]
+          queryKey: [QUERYKEY.profile],
         })
         // get current url and set to store
         setCurrentUrl(window.location.href)
@@ -80,23 +80,17 @@ export default function SendVerifyEmailDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className="flex justify-start w-full">
-        <Button
-          variant="ghost"
-          className="gap-1 px-2 text-sm"
-          onClick={() => setIsOpen(true)}
-        >
+      <DialogTrigger asChild className="flex justify-start w-fit">
+        <Button className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
           <Mail />
-          <span className="text-xs sm:text-sm">
-            {t('profile.verifyEmail')}
-          </span>
+          <span className="text-xs sm:text-sm">{t('profile.verifyEmail')}</span>
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
-            <div className="flex items-center gap-2 text-primary">
+            <div className="flex gap-2 items-center text-primary">
               <ShoppingCart className="w-6 h-6" />
               {t('profile.verifyEmail')}
             </div>
@@ -104,10 +98,12 @@ export default function SendVerifyEmailDialog() {
           <DialogDescription>
             {t('profile.verifyEmailDescription')}
           </DialogDescription>
-
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-1 gap-2">
               {Object.keys(formFields).map((key) => (
                 <React.Fragment key={key}>
@@ -122,7 +118,7 @@ export default function SendVerifyEmailDialog() {
             </div>
           </form>
         </Form>
-        {/* <DialogFooter className="flex flex-row justify-center gap-2">
+        {/* <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}

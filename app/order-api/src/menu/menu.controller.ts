@@ -63,7 +63,8 @@ export class MenuController {
     type: MenuResponseDto,
   })
   async getMenu(
-    @Query(new ValidationPipe({ transform: true })) query: GetMenuRequestDto,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: GetMenuRequestDto,
   ) {
     const result = await this.menuService.getMenu(query);
     return {

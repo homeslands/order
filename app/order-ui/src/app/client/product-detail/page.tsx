@@ -139,7 +139,7 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col justify-between w-1/2 col-span-1 gap-4">
+        <div className="flex flex-col justify-between w-full lg:w-1/2 col-span-1 gap-4">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">

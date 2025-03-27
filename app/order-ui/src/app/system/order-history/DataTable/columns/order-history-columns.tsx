@@ -23,17 +23,13 @@ import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { OutlineCancelOrderDialog } from '@/components/app/dialog'
-// import { useUserStore } from '@/stores'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
-  // const { userInfo } = useUserStore()
   const { t: tToast } = useTranslation(['toast'])
   const { t: tCommon } = useTranslation(['common'])
   const { mutate: exportOrderInvoice } = useExportOrderInvoice()
   const { mutate: exportPayment } = useExportPayment()
-
-  // const userRole = userInfo?.role?.name
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -79,7 +75,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
               {order?.payment &&
-                order?.payment?.paymentMethod === PaymentMethod.CASH
+              order?.payment?.paymentMethod === PaymentMethod.CASH
                 ? t('order.cash')
                 : t('order.bankTransfer')}
             </span>
@@ -122,7 +118,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
-        return <div className="text-sm">{formatCurrency(order?.subtotal || 0)}</div>
+        return (
+          <div className="text-sm">{formatCurrency(order?.subtotal || 0)}</div>
+        )
       },
     },
     {
@@ -148,7 +146,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -160,38 +158,41 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 {order?.slug && (
                   <NavLink
                     to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}
-                    className="flex items-center justify-start w-full"
+                    className="flex justify-start items-center w-full"
                   >
                     <Button
                       variant="ghost"
-                      className="flex justify-start w-full gap-1 px-2 text-sm"
+                      className="flex gap-1 justify-start px-2 w-full text-sm"
                     >
                       <SquareMousePointer className="icon" />
                       {tCommon('common.viewDetail')}
                     </Button>
                   </NavLink>
                 )}
-                {order?.slug && order?.status === OrderStatus.PENDING && (!order?.payment?.statusCode || order?.payment.statusCode === paymentStatus.PENDING) && (
-                  <NavLink
-                    to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
-                    className="flex items-center justify-start w-full"
-                  >
-                    <Button
-                      variant="ghost"
-                      className="flex justify-start w-full gap-1 px-2 text-sm"
+                {order?.slug &&
+                  order?.status === OrderStatus.PENDING &&
+                  (!order?.payment?.statusCode ||
+                    order?.payment.statusCode === paymentStatus.PENDING) && (
+                    <NavLink
+                      to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
+                      className="flex justify-start items-center w-full"
                     >
-                      <CreditCard className="icon" />
-                      {t('order.updatePayment')}
-                    </Button>
-                  </NavLink>
-                )}
+                      <Button
+                        variant="ghost"
+                        className="flex gap-1 justify-start px-2 w-full text-sm"
+                      >
+                        <CreditCard className="icon" />
+                        {t('order.updatePayment')}
+                      </Button>
+                    </NavLink>
+                  )}
 
                 {/* Export payment */}
                 {order?.payment?.slug && (
                   <Button
                     onClick={() => handleExportPayment(order.payment!.slug)}
                     variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2"
+                    className="flex gap-1 justify-start px-2 w-full"
                   >
                     <DownloadIcon />
                     {t('order.exportPayment')}
@@ -199,16 +200,17 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 )}
 
                 {/* Export invoice */}
-                {order?.slug && order?.payment?.statusCode === paymentStatus.COMPLETED && (
-                  <Button
-                    onClick={() => handleExportOrderInvoice(order.slug)}
-                    variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2"
-                  >
-                    <DownloadIcon />
-                    {t('order.exportInvoice')}
-                  </Button>
-                )}
+                {order?.slug &&
+                  order?.payment?.statusCode === paymentStatus.COMPLETED && (
+                    <Button
+                      onClick={() => handleExportOrderInvoice(order.slug)}
+                      variant="ghost"
+                      className="flex gap-1 justify-start px-2 w-full"
+                    >
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  )}
 
                 {/* Cancel order */}
                 {order && <OutlineCancelOrderDialog order={order} />}

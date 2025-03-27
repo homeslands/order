@@ -74,6 +74,7 @@ export class GetAllMenuQueryRequestDto {
 export class GetMenuRequestDto {
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   slug?: string;
 
   @AutoMap()
@@ -83,7 +84,7 @@ export class GetMenuRequestDto {
   date?: Date;
 
   @AutoMap()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   branch?: string;
 
@@ -100,12 +101,14 @@ export class GetMenuRequestDto {
   @AutoMap()
   @ApiProperty({ required: false })
   @Transform(({ value }) => parseInt(value))
-  minPrice: number;
+  @IsOptional()
+  minPrice?: number;
 
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  maxPrice: number;
+  maxPrice?: number;
 
   @AutoMap()
   @ApiProperty({
@@ -116,7 +119,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  promotion: boolean;
+  promotion?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -127,7 +130,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  isNewProduct: boolean;
+  isNewProduct?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -138,7 +141,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  isSortTopSell: boolean;
+  isSortTopSell?: boolean;
 }
 
 export class MenuResponseDto {

@@ -18,9 +18,9 @@ export default function ProductManagementPage() {
       </Helmet>
       <Tabs defaultValue="product" className="w-full">
         <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="catalog">{t('tab.catalog')}</TabsTrigger>
-          <TabsTrigger value="size">{t('tab.size')}</TabsTrigger>
-          <TabsTrigger value="product">{t('tab.product')}</TabsTrigger>
+          <TabsTrigger className='flex justify-center ' value="catalog">{t('tab.catalog')}</TabsTrigger>
+          <TabsTrigger className='flex justify-center' value="size">{t('tab.size')}</TabsTrigger>
+          <TabsTrigger className='flex justify-center ' value="product">{t('tab.product')}</TabsTrigger>
         </TabsList>
         <TabsContent value="catalog" className="w-full">
           <CatalogTab />

@@ -227,17 +227,15 @@ export default function PaymentPage() {
                     >
                       <div className="grid flex-row items-center w-full grid-cols-4">
                         <div className="flex w-full col-span-1 gap-2">
-                          <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
-                            <div className="flex flex-col">
-                              <span className="font-bold truncate">
-                                {item.variant.product.name}
-                              </span>
-                            </div>
+                          <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
+                            <span className="text-sm font-bold truncate sm:text-lg overflow-hidden text-ellipsis whitespace-nowrap w-full">
+                              {item.variant.product.name}
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center col-span-1">
                           <span className="flex items-center gap-2 text-sm">
-                            <span className='line-through text-muted-foreground/70'>
+                            <span className='line-through text-muted-foreground/70 hidden sm:block'>
                               {`${formatCurrency(item.variant.price || 0)}`}
                             </span>
                             <span className="text-sm font-bold text-primary">

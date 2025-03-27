@@ -24,7 +24,7 @@ import { useUserStore } from '@/stores'
 import { getProfile } from '@/api'
 
 interface IFormUpdateProfileProps {
-  userProfile: IUserInfo | null
+  userProfile: IUserInfo | undefined
   onSubmit: (isOpen: boolean) => void
 }
 

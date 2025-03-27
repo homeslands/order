@@ -5,11 +5,7 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui'
 import { useBanners, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
-import {
-  SliderMenu,
-  StoreCarousel,
-  SwiperBanner,
-} from './components'
+import { SliderMenu, StoreCarousel, SwiperBanner } from './components'
 import { AdPopup } from '@/components/app/AdPopup'
 import { Helmet } from 'react-helmet'
 import moment from 'moment'
@@ -38,31 +34,36 @@ export default function HomePage() {
     },
   )
   const customMenu = (specificMenu?.result?.menuItems || []).filter((item) => {
-    const isAvailable = item.product.isLimit ? item.currentStock > 0 : true;
-    return !item.isLocked && isAvailable;
+    const isAvailable = item.product.isLimit ? item.currentStock > 0 : true
+    return !item.isLocked && isAvailable
   })
 
-  const sortedMenuItems = customMenu.sort((a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory);
+  const sortedMenuItems = customMenu.sort(
+    (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory,
+  )
   // Lấy top  sản phẩm có doanh số cao nhất
-  const top15BestSellers = sortedMenuItems.slice(0, 10);
+  const top15BestSellers = sortedMenuItems.slice(0, 10)
 
   // Lọc ra các sản phẩm có `isTopSell` chưa có trong `topBestSellers`
   const topSellProducts = sortedMenuItems.filter(
-    (item) => item.product.isTopSell && !top15BestSellers.includes(item)
-  );
+    (item) => item.product.isTopSell && !top15BestSellers.includes(item),
+  )
 
   // Gộp danh sách lại
-  const bestSellerProducts = [...top15BestSellers, ...topSellProducts];
+  const bestSellerProducts = [...top15BestSellers, ...topSellProducts]
 
   // Lọc sản phẩm mới và có khuyến mãi
   const { newsProducts, promotionProducts } = customMenu.reduce(
-    (acc: { newsProducts: IMenuItem[], promotionProducts: IMenuItem[] }, item: IMenuItem) => {
-      if (item.product.isNew) acc.newsProducts.push(item);
-      if (item.promotion) acc.promotionProducts.push(item);
-      return acc;
+    (
+      acc: { newsProducts: IMenuItem[]; promotionProducts: IMenuItem[] },
+      item: IMenuItem,
+    ) => {
+      if (item.product.isNew) acc.newsProducts.push(item)
+      if (item.promotion) acc.promotionProducts.push(item)
+      return acc
     },
-    { newsProducts: [], promotionProducts: [] }
-  );
+    { newsProducts: [], promotionProducts: [] },
+  )
 
   return (
     <React.Fragment>
@@ -87,7 +88,7 @@ export default function HomePage() {
               viewport={{ once: true, amount: 0.1 }}
               variants={fadeInVariants}
             >
-              <div className="flex-between w-full">
+              <div className="w-full flex-between">
                 <div className="primary-highlight">
                   {t('home.topPromotion')}
                 </div>
@@ -107,13 +108,13 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex min-h-[28rem] h-fit w-full flex-col items-start gap-4"
+              className="flex h-fit min-h-[28rem] w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="flex-between w-full">
+              <div className="w-full flex-between">
                 <div className="primary-highlight">{t('home.bestSeller')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
                   <Button>{t('home.viewMore')}</Button>
@@ -122,7 +123,7 @@ export default function HomePage() {
               <SliderMenu
                 menus={bestSellerProducts}
                 isFetching={fechMenupromotion}
-                type='best-sell'
+                type="best-sell"
               />
             </motion.div>
           </div>
@@ -138,17 +139,14 @@ export default function HomePage() {
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeInVariants}
             >
-              <div className="flex-between w-full">
+              <div className="w-full flex-between">
                 <div className="primary-highlight">{t('home.newProduct')}</div>
                 <NavLink to={ROUTE.CLIENT_MENU}>
                   <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
               {/* <SliderProduct products={newProducts} isFetching={isFetching} /> */}
-              <SliderMenu
-                menus={newsProducts}
-                isFetching={fechMenupromotion}
-              />
+              <SliderMenu menus={newsProducts} isFetching={fechMenupromotion} />
             </motion.div>
           </div>
         )}
@@ -156,25 +154,23 @@ export default function HomePage() {
         {/* Section  Info */}
         <div className="container">
           <motion.div
-            className="grid w-full grid-cols-1 items-start gap-4 p-4 sm:grid-cols-5"
+            className="grid grid-cols-1 gap-4 items-start p-4 w-full sm:grid-cols-5"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             variants={fadeInVariants}
           >
             <div className="flex justify-center sm:col-span-2">
-              <div className="flex flex-col items-start gap-4 sm:w-2/3">
+              <div className="flex flex-col gap-4 items-start sm:w-2/3">
                 <div className="flex flex-col gap-2">
-                  <span className="text-2xl font-extrabold">
-                    HOMELAND Coffee
-                  </span>
+                  <span className="text-2xl font-extrabold">TREND Coffee</span>
                   <span className="text-muted-foreground">
                     {t('home.homeDescription')}
                   </span>
                 </div>
                 <NavLink
                   to={ROUTE.CLIENT_MENU}
-                  className="flex rounded-md text-sm transition-all duration-200 hover:scale-105 hover:bg-primary/20"
+                  className="flex text-sm rounded-md transition-all duration-200 hover:scale-105 hover:bg-primary/20"
                 >
                   <Button>{t('home.learnMore')}</Button>
                 </NavLink>
@@ -190,7 +186,7 @@ export default function HomePage() {
 
         {/* Section More info */}
         <motion.div
-          className="flex h-96 items-center bg-gray-900 px-4 text-white sm:justify-center"
+          className="flex items-center px-4 h-96 text-white bg-gray-900 sm:justify-center"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}

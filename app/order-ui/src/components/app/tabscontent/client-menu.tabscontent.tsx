@@ -20,6 +20,25 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     date: getCurrentDate(),
     branch: branch ? branch?.slug : '',
   })
+  const menuItems = specificMenu?.result.menuItems.sort((a, b) => {
+    // Đưa các mục không bị khóa lên trước
+    if (a.isLocked !== b.isLocked) {
+      return Number(a.isLocked) - Number(b.isLocked);
+    }
+
+    // Coi mục với currentStock = null là "còn hàng" khi isLimit = false
+    const aInStock = (a.currentStock !== 0 && a.currentStock !== null) || !a.product.isLimit;
+    const bInStock = (b.currentStock !== 0 && b.currentStock !== null) || !b.product.isLimit;
+
+    // Đưa các mục còn hàng lên trước
+    if (aInStock !== bInStock) {
+      return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
+    }
+    if (a.product.catalog.name !== b.product.catalog.name) {
+      return a.product.catalog.name.localeCompare(b.product.catalog.name)
+    }
+    return 0;
+  })
 
   if (isLoading) {
     return (
@@ -31,7 +50,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     )
   }
 
-  if (!specificMenu?.result.menuItems || specificMenu?.result.menuItems.length === 0) {
+  if (!menuItems || menuItems.length === 0) {
     return <p className="text-center">{t('menu.noData')}</p>
   }
 

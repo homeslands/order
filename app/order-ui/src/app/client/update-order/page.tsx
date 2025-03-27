@@ -153,18 +153,12 @@ export default function ClientUpdateOrderPage() {
 
                             <div className="flex flex-col border rounded-md">
                                 {orderItems?.orderItems.map((item) => (
-                                    <div
-                                        key={item.slug}
-                                        className="grid items-center w-full gap-4 p-4 pb-4 rounded-md"
-                                    >
-                                        <div
-                                            key={`${item.slug}`}
-                                            className="grid flex-row items-center w-full grid-cols-7"
-                                        >
-                                            <div className="flex w-full col-span-2 gap-2">
+                                    <div key={item.slug} className="grid items-center w-full gap-2 px-4 py-2 mt-1 rounded-md">
+                                        <div key={`${item.slug}`} className="grid flex-row items-center w-full grid-cols-7">
+                                            <div className="flex w-full col-span-2 gap-1">
                                                 <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs font-bold truncate sm:text-md">
+                                                        <span className="text-[14px] font-bold truncate sm:text-md mb-2">
                                                             {item.variant.product.name}
                                                             <span className='uppercase font-normal'> - {item.variant.size.name}</span>
                                                         </span>
@@ -187,14 +181,15 @@ export default function ClientUpdateOrderPage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex justify-center col-span-2">
+                                            <div className="flex justify-center col-span-2 h-full items-end">
                                                 <UpdateOrderQuantity orderItem={item} onSuccess={refetch} />
-                                            </div><div className="col-span-2 text-center">
-                                                <span className="text-sm font-semibold text-primary">
+                                            </div>
+                                            <div className="col-span-2 h-full">
+                                                <span className="flex text-sm font-semibold text-primary h-full items-end justify-center">
                                                     {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
                                                 </span>
                                             </div>
-                                            <div className="flex justify-center col-span-1">
+                                            <div className="flex justify-center col-span-1 h-full items-end" >
                                                 <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
                                             </div>
                                         </div>
