@@ -155,6 +155,9 @@ export class ChefOrderService {
         'chefOrderItems.orderItem.variant.product',
         'order',
       ],
+      order: {
+        createdAt: 'ASC',
+      },
     });
 
     return this.mapper.mapArray(chefOrders, ChefOrder, ChefOrderResponseDto);

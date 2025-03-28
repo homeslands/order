@@ -23,7 +23,7 @@ import {
   OrderManagementPage,
   OrderHistoryPage,
   OrderDetailPage,
-  UserListPage,
+  EmployeeListPage,
   ForgotPasswordPage,
   ConfigPage,
   ForgotPasswordAndResetPasswordPage,
@@ -441,7 +441,7 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
-                element={<SuspenseElement component={UserListPage} />}
+                element={<SuspenseElement component={EmployeeListPage} />}
               />
             ),
           },

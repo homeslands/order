@@ -1,1 +1,1 @@
-export { default as UserListPage } from './page'
+export { default as EmployeeListPage } from './page'

@@ -43,7 +43,15 @@ export function AppSidebar() {
   const authStore = useAuthStore.getState()
   const { token } = authStore
   const decoded: IToken = jwtDecode(token || '');
-  const isActive = (path: string) => location.pathname.includes(path)
+  const isActive = (path: string) => {
+    // If the path is exactly the same, return true
+    if (location.pathname === path) return true;
+
+    // For nested routes, check if the current path starts with the menu path
+    // and the next character is either '/' or the end of the string
+    return location.pathname.startsWith(path) &&
+      (location.pathname[path.length] === '/' || location.pathname.length === path.length);
+  }
 
   const translatedSidebarRoute = (sidebarRoutes: ISidebarRoute) => ({
     ...sidebarRoutes,
@@ -71,7 +79,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       variant="inset"
-      className={`z-50 border-r bg-white shadow-2xl shadow-gray-300 dark:bg-transparent dark:shadow-none`}
+      className={`z-50 bg-white border-r shadow-2xl shadow-gray-300 dark:bg-transparent dark:shadow-none`}
       collapsible="icon"
     >
       <SidebarHeader>
@@ -79,7 +87,7 @@ export function AppSidebar() {
           <SidebarMenuItem className="w-full">
             <NavLink            
               to={ROUTE.OVERVIEW}
-              className="flex items-center justify-center p-2"
+              className="flex justify-center items-center p-2"
             >
               {state === 'collapsed' ? (
                 <div className="transition-colors duration-200 hover:text-primary">
