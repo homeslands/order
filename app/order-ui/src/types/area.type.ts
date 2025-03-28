@@ -56,34 +56,43 @@ export interface IGetChefOrderRequest {
   status?: string
 }
 
-export interface IChefOrderItem extends IBase {
+export interface IChefOrders extends IBase {
+  status: ChefOrderStatus
+  order: IChefOrderInfo
+  chefOrderItems: ISpecificChefOrderItemInfo[]
+}
+
+export interface IChefSpecificOrder extends IBase {
+  chefOrderItems: ISpecificChefOrderItemInfo[]
+  status: ChefOrderStatus
+}
+
+export interface ISpecificChefOrderItemInfo extends IBase {
+  status: ChefOrderItemStatus
+  defaultQuantity: number
+  orderItem: ISpecificChefOrderItemDetail
+  chefOrder: {
+    createdAt: string
+    slug: string
+  }
+}
+
+export interface ISpecificChefOrderItemDetail extends IBase {
   quantity: number
   subtotal: number
   note: string
   variant: IProductVariant
 }
 
-export interface IChefOrderItems {
+export interface IChefOrderItemStatus extends IBase {
   status: ChefOrderItemStatus
   defaultQuantity: number
-  createdAt: string
-  slug: string
-  orderItem: IChefOrderItem
-  chefOrder: {
-    createdAt: string
-    slug: string
-  }
 }
+
 export interface IChefOrderInfo extends IBase {
   subtotal: number
   status: string
   type: string
-}
-
-export interface IChefOrders extends IBase {
-  status: ChefOrderStatus
-  order: IChefOrderInfo
-  chefOrderItems: IChefOrderItems[]
 }
 
 export interface IUpdateChefOrderStatusRequest {

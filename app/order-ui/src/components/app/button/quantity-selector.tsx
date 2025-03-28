@@ -16,7 +16,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const handleIncrement = () => {
     setQuantity((prev) => {
       const newQuantity = prev + 1
-      updateCartItemQuantity(cartItem.id, newQuantity)
+      updateCartItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
@@ -24,7 +24,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const handleDecrement = () => {
     setQuantity((prev) => {
       const newQuantity = Math.max(prev - 1, 1)
-      updateCartItemQuantity(cartItem.id, newQuantity)
+      updateCartItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
@@ -35,7 +35,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
         variant="ghost"
         size="icon"
         onClick={handleDecrement}
-        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
+        className="p-1 rounded-full border h-fit w-fit hover:bg-gray-100"
       >
         <Minus size={12} />
       </Button>
@@ -44,7 +44,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
         variant="ghost"
         size="icon"
         onClick={handleIncrement}
-        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
+        className="p-1 rounded-full border h-fit w-fit hover:bg-gray-100"
       >
         <Plus size={12} />
       </Button>

@@ -106,6 +106,7 @@
     "orderDate": "Ngày đặt hàng",
     "note": "Ghi chú",
     "enterNote": "Nhập ghi chú",
+    "noNote": "Không có ghi chú",
     "deliveryMethod": "Phương thức giao hàng",
     "dineIn": "Tại quán",
     "takeAway": "Mang đi",
@@ -116,6 +117,7 @@
     "enterPromotion": "Nhập mã giảm giá",
     "apply": "Áp dụng",
     "productClassification": "Phân loại sản phẩm: ",
+    "deliveryStatus": "Trạng thái giao hàng",
     "subTotal": "Tạm tính",
     "total": "Tổng tiền hàng",
     "discount": "Giảm giá",
@@ -136,6 +138,7 @@
     "completed": "Đã hoàn tất",
     "shipping": "Đang giao hàng",
     "failed": "Thất bại",
+    "waitingForKitchen": "Chờ phòng bếp",
     "deleteItem": "Xóa sản phẩm",
     "deleteNote": "Lưu ý: Hành động này không thể hoàn tác!",
     "deleteContent": "Bạn có chắc muốn xóa sản phẩm ",
@@ -196,7 +199,11 @@
     "currentOrder": "Đơn hàng chính",
     "refreshOrdersInTheSameTable": "Lưu ý: Bạn nên làm mới trang để lấy dữ liệu mới nhất",
     "refresh": "Làm mới dữ liệu",
-    "loadOrdersInTheSameTable": "Lấy các đơn cùng bàn"
+    "loadOrdersInTheSameTable": "Lấy các đơn cùng bàn",
+    "noCooked": "Chưa làm",
+    "cooking": "Đang làm",
+    "cooked": "Đã làm xong",
+    "delivered": "Đã giao"
   },
   "table": {
     "title": "Danh sách bàn"

@@ -33,7 +33,7 @@ export default function CreateChefAreaDialog() {
         <DialogHeader>
           <DialogTitle>{t('chefArea.create')}</DialogTitle>
           <DialogDescription>
-            {t('chefArea.createDescription')}
+            {t('chefArea.createChefAreaDescription')}
           </DialogDescription>
         </DialogHeader>
         <CreateChefAreaForm onSubmit={handleSubmit} />

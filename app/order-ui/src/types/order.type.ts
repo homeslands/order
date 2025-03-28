@@ -1,4 +1,4 @@
-import { IOrderDetail, IOrder } from './dish.type'
+import { IOrder, IOrderDetail } from './dish.type'
 
 export interface IOrderStore {
   order: IOrder | null

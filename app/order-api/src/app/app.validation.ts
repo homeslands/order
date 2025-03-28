@@ -13,6 +13,7 @@ import FileValidation from 'src/file/file.validation';
 import { InvoiceValidation } from 'src/invoice/invoice.validation';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuValidation } from 'src/menu/menu.validation';
+import { NotificationValidation } from 'src/notification/notification.validation';
 import { OrderItemValidation } from 'src/order-item/order-item.validation';
 import { OrderValidation } from 'src/order/order.validation';
 import { PaymentValidation } from 'src/payment/payment.validation';
@@ -84,6 +85,7 @@ export const AppValidation: TErrorCode = {
   ...ChefAreaValidation,
   ...ProductChefAreaValidation,
   ...ChefOrderValidation,
+  ...NotificationValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

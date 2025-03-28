@@ -6,6 +6,7 @@ import { ISize } from './size.type'
 import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
 import { IPromotion } from './promotion.type'
+import { IChefOrderItemStatus } from './area.type'
 
 export interface IDish {
   id: number
@@ -108,9 +109,26 @@ export interface IOrder {
   isExtend?: boolean
 }
 
+export interface IOrderItems extends IBase {
+  id?: string
+  quantity: number
+  subtotal: number
+  note: string
+  variant: IProductVariant
+  trackingOrderItems: ITrackingOrderItems[]
+  promotion?: IPromotion
+  chefOrderItems?: IChefOrderItemStatus[]
+  status: {
+    PENDING: number
+    COMPLETED: number
+    FAILED: number
+    RUNNING: number
+  }
+}
+
 export interface IOrderDetail extends IBase {
   index?: number
-  id: string
+  id?: string
   note: string
   quantity: number
   status: {
@@ -124,6 +142,7 @@ export interface IOrderDetail extends IBase {
   size: ISize
   trackingOrderItems: ITrackingOrderItems[]
   promotion?: IPromotion
+  chefOrderItems?: IChefOrderItemStatus[]
 }
 
 export interface IOrderDetailForTracking extends IBase {

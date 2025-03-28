@@ -80,6 +80,20 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       },
     },
     {
+      accessorKey: 'quantity',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.quantity')} />
+      ),
+      cell: ({ row }) => {
+        const quantity = row.original.chefOrderItems.length
+        return (
+          <span className="text-sm text-muted-foreground">
+            {quantity} {t('chefOrder.items')}
+          </span>
+        )
+      },
+    },
+    {
       accessorKey: 'status',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('chefOrder.status')} />
@@ -102,9 +116,9 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

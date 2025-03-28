@@ -21,6 +21,7 @@ import { ICreateChefAreaRequest } from '@/types'
 import { showToast } from '@/utils'
 import { useUserStore } from '@/stores'
 import { QUERYKEY } from '@/constants'
+import { BranchSelect } from '../select'
 
 interface IFormCreateChefAreaProps {
     onSubmit: (isOpen: boolean) => void
@@ -68,7 +69,7 @@ export const CreateChefAreaForm: React.FC<IFormCreateChefAreaProps> = ({
                     <FormItem>
                         <FormLabel>{t('chefArea.branch')}</FormLabel>
                         <FormControl>
-                            <Input {...field} disabled />
+                            <BranchSelect {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

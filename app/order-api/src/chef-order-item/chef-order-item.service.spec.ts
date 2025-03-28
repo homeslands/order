@@ -12,6 +12,9 @@ import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
 import { Order } from 'src/order/order.entity';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { Product } from 'src/product/product.entity';
+import { NotificationUtils } from 'src/notification/notification.utils';
+import { User } from 'src/user/user.entity';
+import { NotificationProducer } from 'src/notification/notification.producer';
 
 describe('ChefOrderItemService', () => {
   let service: ChefOrderItemService;
@@ -22,6 +25,16 @@ describe('ChefOrderItemService', () => {
         ChefOrderItemService,
         ChefOrderItemUtils,
         ChefOrderUtils,
+        NotificationUtils,
+        NotificationProducer,
+        {
+          provide: 'BullQueue_notification',
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,

@@ -52,7 +52,7 @@ export default function OrderItemDetailSheet({
   const { getSelectedItems, clearSelectedItems } = useOrderTrackingStore()
   const { mutate: exportOrderInvoice, isPending } = useExportOrderInvoice()
 
-  // Polling: Order chính
+  // Polling: main order
   const { data: selectedOrder, refetch: refetchSelectedOrder } = useOrderBySlug(
     order,
     {
@@ -74,7 +74,7 @@ export default function OrderItemDetailSheet({
     return () => clearInterval(interval) // Cleanup
   }, [order, refetchSelectedOrder])
 
-  // Lấy danh sách orders cùng bàn
+  // Get list of orders in the same table
   const { data: ordersInTheSameTable, refetch: allOrderRefetch } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
@@ -95,7 +95,7 @@ export default function OrderItemDetailSheet({
     setOrderSlugs(slugs)
   }, [ordersInTheSameTable])
 
-  // Fetch từng order từ danh sách orders cùng bàn
+  // Fetch each order from the list of orders in the same table
   const { data: currentOrderDetail } = useOrderBySlug(
     shouldFetchOrders && orderSlugs[currentFetchIndex]
       ? orderSlugs[currentFetchIndex]
@@ -132,7 +132,7 @@ export default function OrderItemDetailSheet({
   }, [currentOrderDetail, orderSlugs.length])
 
   useEffect(() => {
-    // Khi order thay đổi, xóa dữ liệu cũ
+    // When the order changes, clear the old data
     setOrderDetails([])
     setShouldFetchOrders(false)
     setCurrentFetchIndex(0)
@@ -182,7 +182,7 @@ export default function OrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-between mt-8">
+          <SheetTitle className="flex justify-between items-center mt-8">
             {t('order.orderDetail')}
             <div className="flex gap-2">
               {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
@@ -199,7 +199,7 @@ export default function OrderItemDetailSheet({
         <div className="mt-4">
           {order ? (
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
+              <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
                 <div className="flex justify-between font-medium text-primary">
                   {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                   {selectedOrder &&
@@ -210,7 +210,7 @@ export default function OrderItemDetailSheet({
                           handleExportOrderInvoice(selectedOrder.result.slug)
                         }
                         disabled={isPending}
-                        className="flex items-center justify-start px-2 shadow-none"
+                        className="flex justify-start items-center px-2 shadow-none"
                       >
                         {isPending && <ButtonLoading />}
                         <DownloadIcon />
@@ -222,7 +222,7 @@ export default function OrderItemDetailSheet({
                 <OrderItemList orderDetailData={selectedOrder?.result} />
               </div>
               {orderDetails && orderDetails.length > 0 && (
-                <div className="flex items-center gap-1">
+                <div className="flex gap-1 items-center">
                   <CircleAlert size={14} className="text-blue-500" />
                   <span className="text-xs text-muted-foreground sm:text-sm">
                     {t('order.refreshOrdersInTheSameTable')}
@@ -247,7 +247,7 @@ export default function OrderItemDetailSheet({
                     .map((orderDetail) => (
                       <div
                         key={orderDetail.slug}
-                        className="flex flex-col gap-2 p-4 border rounded-lg"
+                        className="flex flex-col gap-2 p-4 rounded-lg border"
                       >
                         <CustomerInformation orderDetailData={orderDetail} />
                         <OrderItemList orderDetailData={orderDetail} />

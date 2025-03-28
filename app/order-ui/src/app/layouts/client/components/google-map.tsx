@@ -1,19 +1,25 @@
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps'
-import { googleMapAPIKey } from '@/constants'
+import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import { googleMapAPIKey } from '@/constants';
 
 export default function GoogleMap() {
+  const mapCenter = { lat: 10.858258, lng: 106.784329 };
+
+  const handleMarkerClick = () => {
+    const destination = `${mapCenter.lat},${mapCenter.lng}`;
+    window.open(`https://www.google.com/maps?q=${destination}`, '_blank');
+  };
+
   return (
     <APIProvider apiKey={googleMapAPIKey}>
       <Map
-        // mapId={}
         className="h-full w-full rounded-md border-2 border-white"
-        defaultCenter={{ lat: 10.858258, lng: 106.784329 }}
+        defaultCenter={mapCenter}
         defaultZoom={17}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
-        <Marker position={{ lat: 10.858258, lng: 106.784329 }} />
+        <Marker position={mapCenter} onClick={handleMarkerClick} />
       </Map>
     </APIProvider>
-  )
+  );
 }

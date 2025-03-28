@@ -13,6 +13,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
 import { ChefOrderStatus } from './chef-order.constants';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 @Injectable()
 export class ChefOrderUtils {
@@ -56,7 +57,7 @@ export class ChefOrderUtils {
       ],
     });
     const orderItems = order.orderItems;
-    const chefAreaGroups = new Map();
+    const chefAreaGroups = new Map<string, OrderItem[]>();
     await Promise.all(
       orderItems.map(async (orderItem) => {
         const product = await this.productRepository.findOne({
