@@ -45,12 +45,13 @@ export default function ProductDetailPage() {
     useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   useEffect(() => {
+    window.scrollTo(0, 0)
     if (productDetail?.product?.image) {
       setSelectedImage(productDetail?.product?.image)
     } else {
       setSelectedImage(null)
     }
-  }, [productDetail?.product?.image])
+  }, [productDetail])
 
   const generateCartItemId = () => {
     return Date.now().toString(36)

@@ -82,7 +82,7 @@ export default function SendVerifyEmailDialog() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild className="flex justify-start w-fit">
         <Button className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
-          <Mail />
+          <Mail className="hidden sm:block" />
           <span className="text-xs sm:text-sm">{t('profile.verifyEmail')}</span>
         </Button>
       </DialogTrigger>

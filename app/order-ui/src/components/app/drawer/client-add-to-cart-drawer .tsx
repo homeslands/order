@@ -20,23 +20,33 @@ import {
   Textarea,
 } from '@/components/ui';
 
-import { OrderTypeEnum, IProductVariant, IMenuItem } from '@/types';
+import { OrderTypeEnum, IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types';
 import { useCartItemStore, useUserStore } from '@/stores';
 import { publicFileURL } from '@/constants';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, showToast } from '@/utils';
+import { useAddNewOrderItem } from '@/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 interface AddToCartDialogProps {
   product: IMenuItem;
+  onSuccess?: () => void;
+  isUpdateOrder?: boolean;
+
 }
 
-export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps) {
+export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrder }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
+  const { t: tToast } = useTranslation('toast')
+  const { slug } = useParams()
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
   const { addCartItem } = useCartItemStore();
   const { getUserInfo } = useUserStore();
+  const { mutate: addNewMenuItem } = useAddNewOrderItem()
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
   const generateCartItemId = () => {
@@ -81,6 +91,30 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
     setIsOpen(false); // Close drawer after adding to cart
   };
 
+  const handleAddToCurrentOrder = () => {
+    if (!selectedVariant) return
+
+    const orderItem: IAddNewOrderItemRequest = {
+      quantity: 1,
+      variant: selectedVariant.slug,
+      order: slug as string,
+      promotion: product.promotion ? product.promotion?.slug : '',
+      note: note,
+    }
+    addNewMenuItem(orderItem, {
+      onSuccess: () => {
+        setIsOpen(false)
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
+        onSuccess?.()
+        showToast(tToast('toast.addNewOrderItemSuccess'))
+      },
+    })
+    // Reset states
+    setNote('')
+    setSelectedVariant(product.product.variants[0] || null)
+    setIsOpen(false)
+  }
+
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
@@ -96,7 +130,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
@@ -158,7 +192,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
                 <DrawerClose asChild>
                   <Button variant="outline">{tCommon('common.cancel')}</Button>
                 </DrawerClose>
-                <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+                <Button onClick={isUpdateOrder ? handleAddToCurrentOrder : handleAddToCart} disabled={!selectedVariant}>
                   {t('menu.addToCart')}
                 </Button>
               </div>

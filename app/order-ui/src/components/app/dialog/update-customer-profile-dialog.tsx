@@ -32,7 +32,7 @@ export default function UpdateCustomerProfileDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild className="flex justify-start w-fit">
         <Button className="gap-1 px-2 text-sm" onClick={() => setIsOpen(true)}>
-          <PencilLine className="icon" />
+          <PencilLine className="icon hidden sm:block" />
           <span className="text-xs sm:text-sm">
             {t('profile.updateProfile')}
           </span>

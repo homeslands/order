@@ -99,13 +99,13 @@ export default function UserProfileCard() {
           <div className="grid grid-cols-1 gap-3 rounded-md border">
             <div
               className={
-                'flex justify-between items-center px-6 py-6 w-full bg-muted-foreground/5'
+                'flex flex-col lg:flex-row justify-start lg:justify-between items-start lg:items-center px-6 py-6 w-full bg-muted-foreground/5'
               }
             >
               <span className="font-semibold text-md">
                 {t('profile.profile')}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 ">
                 <UpdateProfileDialog userProfile={userProfile} />
                 <SendVerifyEmailDialog />
                 <UpdatePasswordDialog />

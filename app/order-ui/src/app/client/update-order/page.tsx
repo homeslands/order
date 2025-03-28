@@ -110,7 +110,7 @@ export default function ClientUpdateOrderPage() {
             <OrderCountdown createdAt={order?.result.createdAt || "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)"} setIsExpired={handleExpire} />
             {/* Order type selection */}
             {order?.result &&
-                <div className="flex flex-col gap-4 lg:flex-row">
+                <div className="flex flex-col-reverse gap-4 lg:flex-row">
                     {/* Left content */}
                     <div className="w-full lg:w-3/5">
                         {/* Note */}

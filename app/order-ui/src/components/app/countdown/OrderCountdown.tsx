@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks'
 import { usePaymentMethodStore } from '@/stores'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
@@ -14,6 +15,11 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     const [minutes, setMinutes] = useState(Math.floor(timeRemainingInSec / 60))
     const [seconds, setSeconds] = useState(timeRemainingInSec % 60)
     const { clearStore } = usePaymentMethodStore()
+    // Trạng thái và vị trí cho kéo thả
+    const [isDragging, setIsDragging] = useState(false)
+    const [position, setPosition] = useState({ x: window.innerWidth - 320, y: 100, })
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+    const isMobile = useIsMobile()
     useEffect(() => {
         if (createdAt) {
             const createTime = moment(createdAt)
@@ -52,8 +58,42 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
         setSeconds(timeRemainingInSec % 60)
     }, [timeRemainingInSec])
 
+    const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+        setIsDragging(true)
+        if (isMobile) document.body.style.overflow = 'hidden'
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+        setDragStart({ x: clientX - position.x, y: clientY - position.y })
+    }
+
+    const handleDrag = (e: React.MouseEvent | React.TouchEvent) => {
+        if (isDragging) {
+            const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+            const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+            // Giới hạn vị trí trong phạm vi màn hình
+            const maxX = window.innerWidth - 300 // 300 là width của box
+            const maxY = window.innerHeight - 40
+            const newX = Math.min(Math.max(clientX - dragStart.x, 0), maxX)
+            const newY = Math.min(Math.max(clientY - dragStart.y, 0), maxY)
+
+            setPosition({ x: newX, y: newY })
+        }
+    }
+
+    const handleDragEnd = () => {
+        setIsDragging(false)
+        document.body.style.overflow = 'auto'
+    }
+
     return (
-        <div className="fixed z-20 px-4 py-2 min-w-[13rem] text-white rounded-md shadow-lg top-20 right-4 bg-primary">
+        <div className="fixed z-20 px-4 py-2 w-[300px] text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
+            style={{ left: position.x, top: position.y }}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDrag}
+            onMouseUp={handleDragEnd}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDrag}
+            onTouchEnd={handleDragEnd}>
             {t('paymentMethod.timeRemaining')}{minutes}:{seconds < 10 ? `0${seconds}` : seconds}
         </div>
     )

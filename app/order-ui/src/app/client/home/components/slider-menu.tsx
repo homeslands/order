@@ -36,14 +36,16 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             isSinglePrice: minPrice === maxPrice,
         }
     }
+    const breakpoints = {
+        320: { slidesPerView: 2, spaceBetween: 10, },
+        560: { slidesPerView: 2, spaceBetween: 30, },
+        768: { slidesPerView: 3, spaceBetween: 30, },
+        1024: { slidesPerView: 4, spaceBetween: 20, },
+        1280: { slidesPerView: 5, spaceBetween: 15, },
+    }
     return (
         <Swiper
-            breakpoints={{
-                320: { slidesPerView: 1, spaceBetween: 10, },
-                560: { slidesPerView: 2, spaceBetween: 30, },
-                1024: { slidesPerView: 4, spaceBetween: 20, },
-                1280: { slidesPerView: 5, spaceBetween: 15, },
-            }}
+            breakpoints={breakpoints}
             initialSlide={0}
             modules={[Autoplay, Pagination]}
             className="mySwiper w-full h-full overflow-y-visible"
@@ -94,7 +96,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                         })()}
                                                                     </span>
                                                                     {item?.promotion?.value > 0 && (
-                                                                        <Badge className="text-xs bg-destructive hover:bg-destructive">
+                                                                        <Badge className="text-[10px] sm:text-xs bg-destructive hover:bg-destructive">
                                                                             {t('menu.discount')} {item?.promotion?.value}%
                                                                         </Badge>
                                                                     )}
@@ -114,10 +116,10 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
 
                                                     </div>
                                                     {item?.product?.isLimit &&
-                                                     <span className="text-[0.7rem] text-muted-foreground">
-                                                        {t('menu.amount')}
-                                                        {item.currentStock}/{item.defaultStock}
-                                                    </span>}
+                                                        <span className="text-[0.7rem] text-muted-foreground">
+                                                            {t('menu.amount')}
+                                                            {item.currentStock}/{item.defaultStock}
+                                                        </span>}
                                                 </div>
                                             ) : (
                                                 <span className="text-sm font-bold text-primary">
