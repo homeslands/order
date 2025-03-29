@@ -1,0 +1,14 @@
+{
+    "notification": {
+        "title": "Notification management",
+        "description": "You have a new notification",
+        "createdAt": "Created at",
+        "message": "Message",
+        "noNotification": "No new notifications",
+        "read": "Read",
+        "unread": "Unread",
+        "type": "Notification type",
+        "order": "New order",
+        "order-needs-processed": "Order needs processed, please process it quickly"
+    }
+}

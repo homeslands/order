@@ -53,7 +53,6 @@ import {
   ChefAreaPage,
   ChefAreaDetailPage,
   ChefOrderPage,
-  // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout } from '@/app/layouts/client'

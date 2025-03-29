@@ -12,7 +12,7 @@ import {
   useOrders,
   usePagination,
 } from '@/hooks'
-import { useOrderTrackingStore, useUserStore } from '@/stores'
+import { useOrderTrackingStore, useSelectedOrderStore, useUserStore } from '@/stores'
 import { IOrder, OrderTypeEnum, OrderStatus } from '@/types'
 import {
   Sheet,
@@ -28,21 +28,26 @@ import {
 import { paymentStatus } from '@/constants'
 import { loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '../loading'
+import { useSearchParams } from 'react-router-dom'
 
 interface IOrderItemDetailSheetProps {
-  order: string
   isOpen: boolean
   onClose: () => void
 }
 
 export default function OrderItemDetailSheet({
-  order,
   isOpen,
   onClose,
 }: IOrderItemDetailSheetProps) {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
   const { t } = useTranslation(['menu'])
+  const [searchParams] = useSearchParams()
+  const slug = searchParams.get('slug') || ''
+  const {
+    setOrderSlug,
+    orderSlug,
+  } = useSelectedOrderStore()
   const { userInfo } = useUserStore()
   const { pagination } = usePagination()
   const [shouldFetchOrders, setShouldFetchOrders] = useState(false)
@@ -54,14 +59,18 @@ export default function OrderItemDetailSheet({
 
   // Polling: main order
   const { data: selectedOrder, refetch: refetchSelectedOrder } = useOrderBySlug(
-    order,
+    orderSlug,
     {
-      enabled: !!order,
+      enabled: !!orderSlug,
     },
   )
 
   useEffect(() => {
-    if (!order) return
+    setOrderSlug(slug)
+  }, [slug, setOrderSlug])
+
+  useEffect(() => {
+    if (!orderSlug) return
     const interval = setInterval(async () => {
       try {
         await refetchSelectedOrder()
@@ -72,7 +81,7 @@ export default function OrderItemDetailSheet({
     }, 5000) // Polling mỗi 5 giây
 
     return () => clearInterval(interval) // Cleanup
-  }, [order, refetchSelectedOrder])
+  }, [orderSlug, refetchSelectedOrder])
 
   // Get list of orders in the same table
   const { data: ordersInTheSameTable, refetch: allOrderRefetch } = useOrders({
@@ -104,7 +113,7 @@ export default function OrderItemDetailSheet({
       enabled:
         shouldFetchOrders &&
         currentFetchIndex < orderSlugs.length &&
-        orderSlugs[currentFetchIndex] !== order,
+        orderSlugs[currentFetchIndex] !== orderSlug,
     },
   )
 
@@ -137,7 +146,7 @@ export default function OrderItemDetailSheet({
     setShouldFetchOrders(false)
     setCurrentFetchIndex(0)
     clearSelectedItems()
-  }, [clearSelectedItems, order])
+  }, [clearSelectedItems, orderSlug])
 
   const handleFetchOrders = () => {
     setShouldFetchOrders(true)
@@ -197,7 +206,7 @@ export default function OrderItemDetailSheet({
           </SheetTitle>
         </SheetHeader>
         <div className="mt-4">
-          {order ? (
+          {orderSlug ? (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
                 <div className="flex justify-between font-medium text-primary">
@@ -243,7 +252,7 @@ export default function OrderItemDetailSheet({
               {shouldFetchOrders && (
                 <div className="flex flex-col gap-4">
                   {orderDetails
-                    .filter((orderDetail) => orderDetail.slug !== order)
+                    .filter((orderDetail) => orderDetail.slug !== orderSlug)
                     .map((orderDetail) => (
                       <div
                         key={orderDetail.slug}

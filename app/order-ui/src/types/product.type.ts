@@ -18,6 +18,7 @@ export interface IProduct {
   note?: string
   createdAt: string
   saleQuantityHistory: number
+  productChefArea: string // Slug of the product in chef area
 }
 
 export interface IProductRequest {

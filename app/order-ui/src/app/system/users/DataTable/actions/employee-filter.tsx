@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { ColumnFiltersState } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
-import { Role } from '@/constants'
 import {
   DataTableFilterOptionsProps,
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui'
@@ -15,47 +16,60 @@ import { IUserInfo } from '@/types'
 
 export default function DataTableFilterOptions({
   setFilterOption,
+  filterConfig,
+  onFilterChange,
 }: DataTableFilterOptionsProps<IUserInfo>) {
   const { t } = useTranslation('common')
-  const { t: tEmployee } = useTranslation('employee')
-  const [filterValue, setFilterValue] = useState<string>('all')
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({})
 
-  const handleFilterChange = (value: string) => {
-    setFilterValue(value)
+  const handleFilterChange = (filterId: string, value: string) => {
+    setFilterValues(prev => ({
+      ...prev,
+      [filterId]: value
+    }))
 
-    let filterConditions: ColumnFiltersState = []
-
-    if (value !== 'all') {
-      filterConditions = [
-        {
-          id: 'role',
-          value: value,
-        },
-      ]
+    if (onFilterChange) {
+      onFilterChange(filterId, value)
     }
+
+    const filterConditions: ColumnFiltersState = Object.entries({
+      ...filterValues,
+      [filterId]: value
+    })
+      .filter(([_, value]) => value !== 'all')
+      .map(([id, value]) => ({
+        id,
+        value,
+      }))
+
     setFilterOption(filterConditions)
   }
 
+  if (!filterConfig?.length) return null
+
   return (
-    <Select value={filterValue} onValueChange={handleFilterChange}>
-      <SelectTrigger className="w-fit text-xs">
-        <SelectValue placeholder={t('dataTable.filter')} />
-      </SelectTrigger>
-      <SelectContent side="top">
-        <SelectItem value="all">{t('dataTable.all')}</SelectItem>
-        <SelectItem value={`${Role.ADMIN}`} className="text-xs">
-          {tEmployee('employee.ADMIN')}
-        </SelectItem>
-        <SelectItem value={`${Role.MANAGER}`} className="text-xs">
-          {tEmployee('employee.MANAGER')}
-        </SelectItem>
-        <SelectItem value={`${Role.STAFF}`} className="text-xs">
-          {tEmployee('employee.STAFF')}
-        </SelectItem>
-        <SelectItem value={`${Role.CHEF}`} className="text-xs">
-          {tEmployee('employee.CHEF')}
-        </SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="flex gap-2">
+      {filterConfig.map((filter) => (
+        <Select
+          key={filter.id}
+          value={filterValues[filter.id] || 'all'}
+          onValueChange={(value) => handleFilterChange(filter.id, value)}
+        >
+          <SelectTrigger className="text-xs w-fit">
+            <SelectValue placeholder={filter.label} />
+          </SelectTrigger>
+          <SelectContent side="top">
+            <SelectGroup>
+              <SelectLabel className="text-xs">{t('dataTable.all')}</SelectLabel>
+              {filter.options.map((option) => (
+                <SelectItem key={String(option.value)} value={String(option.value)} className="text-xs">
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      ))}
+    </div>
   )
 }

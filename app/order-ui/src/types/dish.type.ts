@@ -6,7 +6,7 @@ import { ISize } from './size.type'
 import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
 import { IPromotion } from './promotion.type'
-import { IChefOrderItemStatus } from './area.type'
+import { IChefOrderItemStatus, IChefOrders } from './area.type'
 
 export interface IDish {
   id: number
@@ -93,9 +93,15 @@ export interface IPayment extends IBase {
   statusMessage: string
 }
 
-export interface IOrder {
-  createdAt: string
-  slug: string
+export interface IOrder extends IBase {
+  approvalBy: {
+    createdAt: string
+    slug: string
+    firstName: string
+    lastName: string
+    phonenumber: string
+  }
+  chefOrders: IChefOrders[]
   type: string
   table: ITable
   payment: IPayment
