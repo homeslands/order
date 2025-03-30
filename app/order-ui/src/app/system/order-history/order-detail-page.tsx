@@ -203,7 +203,7 @@ export default function OrderDetailPage() {
                     {t('paymentMethod.title')}
                   </span>
                   <span className="text-xs">
-                    {orderInfo?.payment?.paymentMethod && (
+                    {orderInfo?.payment?.paymentMethod ? (
                       <>
                         {orderInfo?.payment.paymentMethod ===
                           'bank-transfer' && (
@@ -212,6 +212,10 @@ export default function OrderDetailPage() {
                         {orderInfo?.payment.paymentMethod ===
                           'cash' && <span>{t('paymentMethod.cash')}</span>}
                       </>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {t('order.pending')}
+                      </span>
                     )}
                   </span>
                 </p>
@@ -220,10 +224,14 @@ export default function OrderDetailPage() {
                     {t('paymentMethod.status')}
                   </span>
                   <span className="col-span-1 text-xs">
-                    {orderInfo?.payment && (
+                    {orderInfo?.payment ? (
                       <PaymentStatusBadge
                         status={orderInfo?.payment?.statusCode}
                       />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {t('order.pending')}
+                      </span>
                     )}
                   </span>
                 </p>

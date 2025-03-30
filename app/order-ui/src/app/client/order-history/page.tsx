@@ -20,7 +20,8 @@ import { publicFileURL, ROUTE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
-import { OrderTypeEnum } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
+import { ShowInvoiceDialog } from '@/components/app/dialog'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -46,7 +47,7 @@ export default function OrderHistoryPage() {
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
-        <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex flex-col gap-5 justify-center items-center">
           <CircleX className="w-32 h-32 text-destructive" />
           <p className="text-center text-muted-foreground">
             {t('menu.noData')}
@@ -62,8 +63,8 @@ export default function OrderHistoryPage() {
     <div className="container py-5">
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="sticky z-10 flex flex-col items-center gap-2 py-2 bg-white dark:bg-transparent -top-1">
-          <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <div className="flex sticky -top-1 z-10 flex-col gap-2 items-center py-2 bg-white dark:bg-transparent">
+          <span className="flex gap-1 justify-start items-center w-full text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
           </span>
@@ -71,11 +72,11 @@ export default function OrderHistoryPage() {
         <ProgressBar step={orderInfo?.status} />
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col w-full gap-4 lg:w-3/5">
+          <div className="flex flex-col gap-4 w-full lg:w-3/5">
             {/* Order info */}
-            <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
+            <div className="flex justify-between items-center p-3 rounded-sm border border-muted-foreground/30">
               <div className="">
-                <p className="flex items-center gap-2 pb-2">
+                <p className="flex gap-2 items-center pb-2">
                   <span className="font-bold">
                     {t('order.order')}{' '}
                   </span>
@@ -97,7 +98,7 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.customer')}{' '}
                 </div>
@@ -107,7 +108,7 @@ export default function OrderHistoryPage() {
                   </p>
                 </div>
               </div>
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.orderType')}
                 </div>
@@ -138,8 +139,8 @@ export default function OrderHistoryPage() {
                   {orderInfo?.orderItems?.map((item) => (
                     <TableRow key={item.slug}>
                       {/* Cột hình ảnh + thông tin */}
-                      <TableCell className="flex items-center gap-5 font-bold">
-                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex items-center gap-5">
+                      <TableCell className="flex gap-5 items-center font-bold">
+                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex gap-5 items-center">
                           {/* Hình ảnh */}
                           <div className="relative h-[3.5rem] w-[3.5rem] sm:h-[6.5rem] sm:w-[6.5rem] cursor-pointer">
                             <img
@@ -147,7 +148,7 @@ export default function OrderHistoryPage() {
                               alt={item.variant.product.name}
                               className="object-cover w-full h-full rounded-md aspect-square"
                             />
-                            <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-3 left-10 sm:-bottom-3 sm:-right-3 sm:left-auto h-7 w-7 bg-primary">
+                            <div className="flex absolute -bottom-3 left-10 justify-center items-center w-7 h-7 text-sm text-white rounded-full sm:-bottom-3 sm:-right-3 sm:left-auto bg-primary">
                               x{item.quantity}
                             </div>
                           </div>
@@ -156,7 +157,7 @@ export default function OrderHistoryPage() {
                           <div className="flex flex-col items-start">
                             <span className="text-sm font-semibold truncate">{item?.variant?.product?.name}</span>
                             {item?.promotion && item?.promotion?.value > 0 ? (
-                              <div className="flex flex-row items-center gap-1">
+                              <div className="flex flex-row gap-1 items-center">
                                 <span className="text-xs font-normal">Size {item?.variant?.size?.name.toUpperCase()}</span>
                                 <span className="text-xs line-through text-muted-foreground/60">
                                   {formatCurrency(item?.variant?.price || 0)}
@@ -186,9 +187,9 @@ export default function OrderHistoryPage() {
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col w-full gap-2 lg:w-2/5">
+          <div className="flex flex-col gap-2 w-full lg:w-2/5">
             {/* Payment method, status */}
-            <div className="border rounded-sm h-fit border-muted-foreground/30">
+            <div className="rounded-sm border h-fit border-muted-foreground/30">
               <div className="px-3 py-4 font-bold bg-muted-foreground/10">
                 {t('paymentMethod.title')}
               </div>
@@ -231,37 +232,37 @@ export default function OrderHistoryPage() {
               )}
             </div>
             {/* Total */}
-            <div className="border rounded-sm border-muted-foreground/30">
+            <div className="rounded-sm border border-muted-foreground/30">
               <div className="px-3 py-3 font-bold bg-muted-foreground/10">
                 {t('order.paymentInformation')}
               </div>
               <div className="flex flex-col gap-2 px-3 py-2">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     {t('order.subTotal')}
                   </p>
                   <p className="text-sm">{`${formatCurrency(originalTotal || 0)}`}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     {t('order.discount')}
                   </p>
                   <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm italic text-green-500">
                     {t('order.voucher')}
                   </p>
                   <p className="text-sm italic text-green-500">{`- ${formatCurrency(voucherDiscount || 0)}`}</p>
                 </div>
                 <Separator className="my-2" />
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
                   <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     ({orderInfo?.orderItems?.length} {t('order.product')})
                   </p>
@@ -272,7 +273,7 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {/* Return order button */}
-            <div className="flex justify-between gap-2">
+            <div className="flex gap-2 justify-between">
               <Button
                 className="w-fit bg-primary"
                 onClick={() => {
@@ -281,15 +282,17 @@ export default function OrderHistoryPage() {
               >
                 {tCommon('common.goBack')}
               </Button>
-              {orderDetail?.result?.status === "pending" &&
-                <Button
+              {orderDetail?.result?.status === OrderStatus.PENDING ?
+                (<Button
                   className="w-fit bg-primary"
                   onClick={() => {
                     navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderDetail?.result?.slug}`)
                   }}
                 >
                   {tCommon('common.checkout')}
-                </Button>}
+                </Button>) : (
+                  <ShowInvoiceDialog order={orderInfo} />
+                )}
             </div>
           </div>
         </div>

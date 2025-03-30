@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import { Bell } from 'lucide-react'
@@ -14,7 +15,6 @@ import { ROUTE } from '@/constants'
 import { useNotification, useUpdateNotificationStatus } from '@/hooks'
 import { INotification } from '@/types'
 import { useOrderTrackingStore, useSelectedOrderStore } from '@/stores'
-import { useEffect } from 'react'
 
 export default function SystemNotificationPopover() {
   const navigate = useNavigate()

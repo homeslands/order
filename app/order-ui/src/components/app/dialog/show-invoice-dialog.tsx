@@ -60,7 +60,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | undefined
 
         <ScrollArea className="max-h-[400px] pr-2 px-4">
           {/* Customer Info */}
-          <div className="grid grid-cols-2 gap-4 p-3 text-sm rounded-md bg-muted-foreground/10">
+          <div className="grid grid-cols-2 gap-4 p-3 mb-2 text-sm rounded-md bg-muted-foreground/10">
             <div className="flex flex-col gap-1 text-sm font-bold text-left">
               <p>{t('order.customerName')}:</p>
               <p>{t('order.phoneNumber')}:</p>
@@ -78,7 +78,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | undefined
           </div>
 
           {/* Order Items */}
-          <div className="text-sm">
+          <div className="mb-2 text-sm">
             <h3 className="mb-2 font-semibold">{t('order.orderItems')}</h3>
             <div className="overflow-hidden rounded-md border">
               <table className="w-full text-xs">
@@ -104,12 +104,16 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | undefined
 
           {/* Payment Information */}
           <div className="flex flex-col gap-2 p-3 text-sm rounded-md bg-muted-foreground/10">
-            <p><strong>{t('order.paymentMethod')}:</strong> {t(`order.${payment.paymentMethod}`)}</p>
+            {payment ? (
+              <p><strong>{t('order.paymentMethod')}:</strong> {t(`order.${payment?.paymentMethod}`)}</p>
+            ) : (
+              <p><strong>{t('order.paymentMethod')}:</strong> {t('order.pending')}</p>
+            )}
             <p className="flex gap-2 items-center">
               <strong>{t('order.status')}:</strong>
-              <PaymentStatusBadge status={payment.statusCode} />
+              <PaymentStatusBadge status={payment?.statusCode} />
             </p>
-            {voucher && <p><strong>{t('order.voucher')}:</strong> {voucher.title} - {t('order.discount')} {voucher.value}%</p>}
+            {voucher && <p><strong>{t('order.voucher')}:</strong> {voucher?.title} - {t('order.discount')} {voucher.value}%</p>}
           </div>
         </ScrollArea>
 
