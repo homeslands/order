@@ -14,18 +14,24 @@ import { MailService } from 'src/mail/mail.service';
 import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
 import { InvoiceService } from 'src/invoice/invoice.service';
 import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
+import { User } from 'src/user/user.entity';
+import { NotificationUtils } from 'src/notification/notification.utils';
 
 @Injectable()
 export class OrderListener {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly orderUtils: OrderUtils,
     private readonly mailService: MailService,
     private readonly invoiceService: InvoiceService,
     private readonly chefOrderUtils: ChefOrderUtils,
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    // private readonly notificationProducer: NotificationProducer,
+    private readonly notificationUtils: NotificationUtils,
   ) {}
 
   @OnEvent(PaymentAction.PAYMENT_PAID)
@@ -53,19 +59,22 @@ export class OrderListener {
         order.payment?.statusCode === PaymentStatus.COMPLETED &&
         order.status === OrderStatus.PENDING
       ) {
-        // send invoice email
+        // Update order status to PAID
         Object.assign(order, { status: OrderStatus.PAID });
         await this.orderRepository.save(order);
 
-        // create chef order
+        // Send notification to all chef role users in the same branch
+        await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
+
+        // Sperate order to chef orders
         if (_.isEmpty(order.chefOrders)) {
           await this.chefOrderUtils.createChefOrder(requestData.orderId);
         }
 
+        // send invoice email
         const invoice = await this.invoiceService.exportInvoice({
           order: order.slug,
         } as ExportInvoiceDto);
-
         await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
 
         this.logger.log(`Update order status from PENDING to PAID`, context);

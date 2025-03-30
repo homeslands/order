@@ -21,8 +21,9 @@ import {
 
 import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
-import { publicFileURL } from '@/constants'
+import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency } from '@/utils'
+import { useNavigate } from 'react-router-dom'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -33,8 +34,8 @@ export default function ClientAddToCartDialog({
   product,
   trigger,
 }: AddToCartDialogProps) {
+  const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
-  const { t: tCommon } = useTranslation(['common'])
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
@@ -86,11 +87,52 @@ export default function ClientAddToCartDialog({
     setIsOpen(false)
   }
 
+  const handleBuyNow = () => {
+    if (!selectedVariant) return
+
+    const finalPrice = product.promotion && product?.promotion?.value > 0
+      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
+      : selectedVariant.price;
+
+    const cartItem: ICartItem = {
+      id: generateCartItemId(),
+      slug: product.slug,
+      owner: getUserInfo()?.slug,
+      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
+      // branch: getUserInfo()?.branch.slug, // get branch from user info
+      orderItems: [
+        {
+          id: generateCartItemId(),
+          slug: product.slug,
+          image: product.product.image,
+          name: product.product.name,
+          quantity: 1,
+          variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
+          price: finalPrice, // Use the calculated final price
+          description: product.product.description,
+          isLimit: product.product.isLimit,
+          promotion: product.promotion ? product.promotion?.slug : '',
+          // catalog: product.catalog,
+          note: note,
+        },
+      ],
+      table: '', // will be set later via addTable
+    }
+
+    addCartItem(cartItem)
+    // Reset states
+    setNote('')
+    setSelectedVariant(product.product.variants[0] || null)
+    setIsOpen(false)
+    navigate(ROUTE.CLIENT_CART)
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
+          <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white text-xs rounded-full w-full shadow-none">
             <ShoppingCart className='icon' />
             {t('menu.addToCart')}
           </Button>
@@ -179,11 +221,11 @@ export default function ClientAddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
-            {tCommon('common.cancel')}
+        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
+          <Button onClick={handleBuyNow}>
+            {t('menu.buyNow')}
           </Button>
-          <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+          <Button variant='outline' className='border-primary text-primary hover:bg-primary/10 hover:text-primary' onClick={handleAddToCart} disabled={!selectedVariant}>
             {t('menu.addToCart')}
           </Button>
         </DialogFooter>

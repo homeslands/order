@@ -16,16 +16,20 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import _ from 'lodash';
 import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
 import { ChefOrderStatus } from 'src/chef-order/chef-order.constants';
+import { NotificationUtils } from 'src/notification/notification.utils';
 
 @Injectable()
 export class ChefOrderItemService {
   constructor(
     @InjectRepository(ChefOrderItem)
     private readonly chefOrderItemRepository: Repository<ChefOrderItem>,
+    @InjectMapper()
+    private readonly mapper: Mapper,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: Logger,
     private readonly chefOrderItemUtils: ChefOrderItemUtils,
     private readonly chefOrderUtils: ChefOrderUtils,
-    @InjectMapper() private readonly mapper: Mapper,
-    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly notificationUtils: NotificationUtils,
   ) {}
 
   async update(
@@ -36,7 +40,7 @@ export class ChefOrderItemService {
 
     const chefOrderItem = await this.chefOrderItemUtils.getChefOrderItem({
       where: { slug },
-      relations: ['chefOrder'],
+      relations: ['chefOrder.chefArea', 'chefOrder.order.table'],
     });
 
     if (chefOrderItem.chefOrder?.status !== ChefOrderStatus.ACCEPTED) {
@@ -52,7 +56,14 @@ export class ChefOrderItemService {
     }
     Object.assign(chefOrderItem, { status: requestData.status });
     const updated = await this.chefOrderItemRepository.save(chefOrderItem);
+
+    await this.notificationUtils.sendNotificationAfterOrderIsProcessed(
+      chefOrderItem.chefOrder?.order,
+    );
+
+    // Update chef order status
     await this.chefOrderUtils.updateChefOrderStatus(chefOrderItem.slug);
+
     return this.mapper.map(updated, ChefOrderItem, ChefOrderItemResponseDto);
   }
 

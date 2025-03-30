@@ -76,7 +76,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
                                                         ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                                                 })()}
                                             </span>
-                                            <div className='flex flex-row items-center gap-3'>
+                                            <div className='flex flex-row items-end gap-3'>
                                                 <span className="text-sm line-through text-muted-foreground/70">
                                                     {(() => {
                                                         const range = getPriceRange(item.product.variants)
@@ -96,7 +96,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
                                         <span className="text-sm font-bold sm:text-lg text-primary">
                                             {(() => {
                                                 const range = getPriceRange(item.product.variants)
-                                                if (!range) return formatCurrency(0)
+                                                if (!range) return t('menu.contactForPrice')
                                                 return range.isSinglePrice
                                                     ? `${formatCurrency(range.min)}`
                                                     : `${formatCurrency(range.min)}`

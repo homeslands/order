@@ -130,7 +130,7 @@ export function CustomerInfoTabsContent() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-4 justify-end">
+      <div className="flex gap-4 justify-center md:justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
         <SendVerifyEmailDialog />
         <UpdatePasswordDialog />

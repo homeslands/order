@@ -86,7 +86,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
       <DialogTrigger asChild>
         <Button
           disabled={disabled}
-          className="flex items-center w-fit text-sm rounded-full"
+          className="flex items-center text-sm rounded-full w-fit"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}
@@ -96,7 +96,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
-            <div className="flex items-center gap-2 text-primary">
+            <div className="flex gap-2 items-center text-primary">
               <ShoppingCart className="w-6 h-6" />
               {t('order.create')}
             </div>
@@ -107,7 +107,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
             <br />
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}

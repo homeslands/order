@@ -146,6 +146,12 @@
       "manageOrderManagement": "Manage Orders",
       "description": "Manage your orders here",
       "keywords": "order, order management, restaurant orders"
+    },
+    "notification": {
+      "title": "Notification Management",
+      "manageNotification": "Manage Notifications",
+      "description": "Manage your notifications here",
+      "keywords": "notification, notification management, restaurant notifications"
     }
   }
 }

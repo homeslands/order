@@ -34,7 +34,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className={`flex min-h-[22rem] bg-white dark:bg-transparent hover:scale-105 flex-col justify-between rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out`}
+      className={`flex flex-col justify-between bg-white rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out min-h-[22rem] dark:bg-transparent hover:scale-105`}
     >
       <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
         {/* Image Section with Ribbon Discount Tag */}
@@ -65,13 +65,13 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex gap-1 justify-between items-center">
             <div className="flex flex-col">
               {item.product.variants.length > 0 ? (
-                <div className="flex flex-col items-start justify-start gap-1">
-                  <div className='flex flex-row items-center gap-1'>
+                <div className="flex flex-col gap-1 justify-start items-start">
+                  <div className='flex flex-row gap-1 items-center'>
                     {item?.promotion && item?.promotion?.value > 0 ? (
-                      <div className='flex flex-col items-start justify-start gap-1 mt-2'>
+                      <div className='flex flex-col gap-1 justify-start items-start mt-2'>
                         <span className="text-sm sm:text-lg text-primary">
                           {(() => {
                             const range = getPriceRange(item.product.variants)
@@ -80,7 +80,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                               ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                           })()}
                         </span>
-                        <div className='flex flex-row items-center gap-3'>
+                        <div className='flex flex-row gap-3 items-center'>
                           <span className="text-sm line-through text-muted-foreground/70">
                             {(() => {
                               const range = getPriceRange(item.product.variants)
@@ -126,7 +126,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       </NavLink>
 
       {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
-        <div className="flex justify-center w-full gap-2 p-2">
+        <div className="flex gap-2 justify-center p-2 w-full">
           {isMobile ? (
             <ClientAddToCartDrawer product={item} />
           ) : (
@@ -134,9 +134,9 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           )}
         </div>
       ) : (
-        <div className="flex justify-center w-full gap-2 p-2">
+        <div className="flex gap-2 justify-center p-2 w-full">
           <Button
-            className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+            className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
             disabled
           >
             {t('menu.outOfStock')}

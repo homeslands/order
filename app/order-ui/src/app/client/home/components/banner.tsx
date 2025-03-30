@@ -27,7 +27,7 @@ export default function SwiperBanner({
       }}
       initialSlide={1}
       modules={[Autoplay, Pagination, Navigation]}
-      className="relative h-[70vh] w-full"
+      className="relative h-[50vh] sm:h-[70vh] w-full"
     >
       {bannerData?.map((banner, index) => {
         const bgImage = banner.image ? publicFileURL + '/' + banner.image : LandingPageBackground

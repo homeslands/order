@@ -146,6 +146,12 @@
       "manageOrderManagement": "Quản lý đơn hàng",
       "description": "Quản lý đơn hàng của bạn tại đây",
       "keywords": "đơn hàng, quản lý đơn hàng, đơn hàng quán ăn"
+    },
+    "notification": {
+      "title": "Quản lý thông báo",
+      "manageNotification": "Quản lý thông báo",
+      "description": "Quản lý thông báo của bạn tại đây",
+      "keywords": "thông báo, quản lý thông báo, thông báo quán ăn"
     }
   }
 }

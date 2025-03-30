@@ -53,7 +53,6 @@ import {
   ChefAreaPage,
   ChefAreaDetailPage,
   ChefOrderPage,
-  // VoucherAndPromotionPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout } from '@/app/layouts/client'
@@ -844,25 +843,6 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.CUSTOMER]}
                 element={<SuspenseElement component={ClientPaymentPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientOrderHistoryPage} />}
               />
             ),
           },

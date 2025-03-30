@@ -145,7 +145,7 @@ export default function HomePage() {
                   <Button>{t('home.viewMore')}</Button>
                 </NavLink>
               </div>
-              {/* <SliderProduct products={newProducts} isFetching={isFetching} /> */}
+
               <SliderMenu menus={newsProducts} isFetching={fechMenupromotion} />
             </motion.div>
           </div>

@@ -1,0 +1,14 @@
+{
+  "notification": {
+    "title": "Quản lý thông báo",
+    "notificationList": "Thông báo",
+    "createdAt": "Ngày tạo",
+    "message": "Nội dung",
+    "noNotification": "Không có thông báo mới",
+    "read": "Đã đọc",
+    "unread": "Chưa đọc",
+    "type": "Loại thông báo",
+    "order": "Đơn hàng mới",
+    "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm, nếu không thì không kịp mất"
+  }
+}

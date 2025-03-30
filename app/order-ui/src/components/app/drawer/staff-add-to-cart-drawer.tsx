@@ -95,7 +95,7 @@ export default function StaffAddToCartDrawer({ product }: AddToCartDialogProps) 
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img

@@ -204,7 +204,11 @@
     "exportPayment": "Export QR code for payment",
     "exportInvoice": "Export invoice",
     "noOrders": "No orders found!",
-    "backToMenu": "Back to menu"
+    "backToMenu": "Back to menu",
+    "noCooked": "No cooked",
+    "cooking": "Cooking",
+    "cooked": "Cooked",
+    "delivered": "Delivered"
   },
   "table": {
     "title": "Table list"

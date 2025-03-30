@@ -1,10 +1,10 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useGetSpecificChefOrder } from '@/hooks'
 import { IChefOrders } from '@/types'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui'
 import { ChefOrderItemList } from '@/app/system/chef-order/components'
-import { useEffect } from 'react'
 
 interface IChefOrderItemDetailSheetProps {
   chefOrder: IChefOrders | undefined
@@ -22,7 +22,6 @@ export default function ChefOrderItemDetailSheet({
   const { t: tCommon } = useTranslation(['common'])
   const { t } = useTranslation(['chefArea'])
 
-  // console.log('chefOrder', chefOrder)
   const { data, refetch } = useGetSpecificChefOrder(
     enableFetch ? (chefOrder?.slug ?? '') : '',
   )
@@ -41,8 +40,7 @@ export default function ChefOrderItemDetailSheet({
 
     return () => clearInterval(interval) // Cleanup
   }, [data, refetch])
-  const chefOrderDetail = data?.result.chefOrderItems || []
-
+  const specificChefOrderDetail = data?.result.chefOrderItems || []
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
@@ -55,7 +53,7 @@ export default function ChefOrderItemDetailSheet({
           {chefOrder ? (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
-                <ChefOrderItemList chefOrderItemData={chefOrderDetail} />
+                <ChefOrderItemList chefOrderItemData={specificChefOrderDetail} />
               </div>
             </div>
           ) : (

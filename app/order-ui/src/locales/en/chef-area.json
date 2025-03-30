@@ -1,10 +1,46 @@
 {
   "chefArea": {
-    "title": "Chef Area",
-    "createdAt": "Created At",
-    "productManagement": "Product Management",
-
-    "edit": "Edit",
-    "delete": "Delete"
+    "title": "Chef area",
+    "createDescription": "Create chef area",
+    "createdAt": "Created at",
+    "productManagement": "Product management",
+    "currentProduct": "Current product",
+    "noDescription": "No description",
+    "create": "Create new chef area",
+    "createChefAreaDescription": "Create chef area",
+    "branch": "Branch",
+    "name": "Name",
+    "enterName": "Enter name",
+    "description": "Description",
+    "enterDescription": "Enter description",
+    "addProduct": "Add product",
+    "confirmAdChefAreaProduct": "Confirm add product to chef area",
+    "update": "Update",
+    "updateDescription": "Update chef area",
+    "delete": "Delete",
+    "deleteChefAreaWarning": "You are about to delete ",
+    "deleteChefAreaConfirmation": "Are you sure you want to delete this chef area?",
+    "deleteChefAreaProductWarning1": "You are about to delete product ",
+    "deleteChefAreaProductWarning2": " from ",
+    "deleteChefAreaProductConfirmation": "Are you sure you want to delete this product from chef area?"
+  },
+  "chefOrder": {
+    "title": "Chef order management",
+    "slug": "Order code",
+    "createdAt": "Created at",
+    "productName": "Product name",
+    "note": "Note",
+    "noNote": "No note",
+    "status": "Status",
+    "accepted": "Accepted",
+    "pending": "Pending",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "updateStatus": "Update status",
+    "confirmUpdateStatus": "Confirm update order status",
+    "startCooking": "Start cooking",
+    "complete": "Complete",
+    "selectChefArea": "Select chef area",
+    "chefOrderDetail": "Order detail"
   }
 }

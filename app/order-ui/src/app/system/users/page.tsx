@@ -12,16 +12,38 @@ import { SquareMenu } from 'lucide-react'
 export default function EmployeeListPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { t } = useTranslation('employee')
+  const { t: tCommon } = useTranslation('common')
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [phonenumber, setPhoneNumber] = useState<string>('')
+  const [role, setRole] = useState<Role | 'all'>('all')
 
   const { data, isLoading } = useUsers({
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
     phonenumber,
     order: 'DESC',
-    role: [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
+    role: role !== 'all' ? role : [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
   })
+
+  const filterConfig = [
+    {
+      id: 'role',
+      label: t('employee.role'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        { label: t('employee.ADMIN'), value: Role.ADMIN },
+        { label: t('employee.MANAGER'), value: Role.MANAGER },
+        { label: t('employee.STAFF'), value: Role.STAFF },
+        { label: t('employee.CHEF'), value: Role.CHEF },
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'role') {
+      setRole(value as Role | 'all')
+    }
+  }
 
   const handleSearchChange = (value: string) => {
     setPhoneNumber(value)
@@ -48,6 +70,8 @@ export default function EmployeeListPage() {
         hiddenInput={false}
         onInputChange={handleSearchChange}
         filterOptions={EmployeeFilterOptions}
+        filterConfig={filterConfig}
+        onFilterChange={handleFilterChange}
         actionOptions={EmployeesAction}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}

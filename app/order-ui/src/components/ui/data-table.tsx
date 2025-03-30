@@ -62,6 +62,15 @@ interface DataTablePaginationProps<TData> {
 export interface DataTableFilterOptionsProps<TData> {
   setFilterOption: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
   data: TData[]
+  filterConfig?: {
+    id: string
+    label: string
+    options: {
+      label: string
+      value: string | number | boolean
+    }[]
+  }[]
+  onFilterChange?: (filterId: string, value: string) => void
 }
 
 // DataTableColumnHeader Component
@@ -95,6 +104,15 @@ interface DataTableProps<TData, TValue> {
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
   rowClassName?: (row: TData) => string
+  filterConfig?: {
+    id: string
+    label: string
+    options: {
+      label: string
+      value: string | number | boolean
+    }[]
+  }[]
+  onFilterChange?: (filterId: string, value: string) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -110,6 +128,8 @@ export function DataTable<TData, TValue>({
   filterOptions: DataTableFilterOptions,
   actionOptions: DataTableActionOptions,
   rowClassName,
+  filterConfig,
+  onFilterChange,
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation('common')
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
@@ -156,7 +176,7 @@ export function DataTable<TData, TValue>({
         {/* Input search */}
         {!hiddenInput && (
           <div className="relative w-1/3 lg:w-[30%]">
-            <SearchIcon className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-2 top-1/2" />
+            <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
             <Input
               placeholder={t('dataTable.search')}
               value={inputValue}
@@ -165,7 +185,7 @@ export function DataTable<TData, TValue>({
             />
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           {/* Actions */}
           {DataTableActionOptions && <DataTableActionOptions table={table} />}
           {/* Filter */}
@@ -173,6 +193,8 @@ export function DataTable<TData, TValue>({
             <DataTableFilterOptions
               setFilterOption={setColumnFilters}
               data={data}
+              filterConfig={filterConfig}
+              onFilterChange={onFilterChange}
             />
           )}
           {/* View options */}
@@ -181,7 +203,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="mt-3 border rounded-md">
+      <div className="mt-3 rounded-md border">
         <Table>
           <TableHeader className="bg-muted-foreground/5">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -206,9 +228,9 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="w-full h-full mx-auto text-center"
+                  className="mx-auto w-full h-full text-center"
                 >
-                  <Loader2Icon className="w-6 h-6 mx-auto animate-spin text-primary" />
+                  <Loader2Icon className="mx-auto w-6 h-6 animate-spin text-primary" />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length ? (
@@ -251,7 +273,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end py-4 space-x-2">
+      <div className="flex justify-end items-center py-4 space-x-2">
         <DataTablePagination
           table={table}
           onPageChange={onPageChange}
@@ -289,26 +311,26 @@ export function DataTableColumnHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{t(title)}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -343,26 +365,26 @@ export function DataTableColumnAddressHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -397,26 +419,26 @@ export function DataTableColumnActionHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -431,7 +453,7 @@ export function DataTablePagination<TData>({
   onPageSizeChange,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex flex-wrap items-center justify-between px-2">
+    <div className="flex flex-wrap justify-between items-center px-2">
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium sr-only">Rows per page</p>
@@ -461,7 +483,7 @@ export function DataTablePagination<TData>({
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            className="hidden w-8 h-8 p-0 lg:flex"
+            className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
               table.setPageIndex(0)
               onPageChange?.(1)
@@ -473,7 +495,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="w-8 h-8 p-0"
+            className="p-0 w-8 h-8"
             onClick={() => {
               onPageChange(table.getState().pagination.pageIndex)
               table.previousPage()
@@ -485,7 +507,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="w-8 h-8 p-0"
+            className="p-0 w-8 h-8"
             onClick={() => {
               onPageChange(table.getState().pagination.pageIndex + 2)
               table.nextPage()
@@ -497,7 +519,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="hidden w-8 h-8 p-0 lg:flex"
+            className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
               onPageChange(table.getPageCount())
               table.setPageIndex(table.getPageCount() - 1)
@@ -522,9 +544,9 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="outline"
           size="sm"
-          className="items-center h-10 gap-1 lg:flex"
+          className="gap-1 items-center h-10 lg:flex"
         >
-          <MixerHorizontalIcon className="w-4 h-4 mr-2" />
+          <MixerHorizontalIcon className="mr-2 w-4 h-4" />
           Hiển thị
         </Button>
       </DropdownMenuTrigger>

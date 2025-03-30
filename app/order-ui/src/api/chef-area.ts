@@ -3,6 +3,7 @@ import {
   IChefArea,
   IChefAreaProduct,
   IChefOrders,
+  IChefSpecificOrder,
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
   IGetChefOrderRequest,
@@ -110,7 +111,7 @@ export async function getChefOrders(
 
 export async function getSpecificChefOrder(
   slug: string,
-): Promise<IApiResponse<IChefOrders>> {
+): Promise<IApiResponse<IChefSpecificOrder>> {
   const response = await http.get(`/chef-order/specific/${slug}`, {
     // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
     doNotShowLoading: true,

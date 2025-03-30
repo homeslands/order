@@ -42,7 +42,7 @@ export class MenuScheduler {
     const branchSettledResults = await Promise.allSettled(
       branches.map(async (item) => {
         const menu = await this.menuRepository.findOne({
-          where: { branch: { id: item.id }, dayIndex, isTemplate: false },
+          where: { branch: { id: item.id }, isTemplate: false, date: today },
         });
         return !menu ? item : null;
       }),

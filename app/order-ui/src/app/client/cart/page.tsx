@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { CircleAlert, ShoppingCartIcon, Trash2 } from 'lucide-react'
+import { CircleAlert, Info, ShoppingCartIcon, Trash2 } from 'lucide-react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
@@ -9,6 +9,7 @@ import { useCartItemStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import {
   CreateOrderDialog,
+  DeleteAllCartDialog,
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
@@ -31,7 +32,7 @@ export default function ClientCartPage() {
   if (_.isEmpty(cartItems?.orderItems)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
-        <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex flex-col gap-5 justify-center items-center">
           <ShoppingCartIcon className="w-32 h-32 text-primary" />
           <p className="text-center text-[13px]">
             {t('order.noOrders')}
@@ -58,7 +59,7 @@ export default function ClientCartPage() {
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full">
-          <div className="flex items-center gap-1 pb-4">
+          <div className="flex gap-1 items-center pb-4">
             <CircleAlert size={14} className="text-destructive" />
             <span className="text-xs italic text-destructive">
               {t('order.selectTableNote')}
@@ -67,6 +68,7 @@ export default function ClientCartPage() {
           <div className='flex gap-1'>
             <OrderTypeSelect />
             <TableInCartSelect />
+            <DeleteAllCartDialog />
           </div>
           {/* Table list order items */}
           <div className="my-4">
@@ -78,26 +80,26 @@ export default function ClientCartPage() {
               <span className="col-span-2 text-center">
                 {t('order.grandTotal')}
               </span>
-              <span className="flex justify-center col-span-1">
+              <span className="flex col-span-1 justify-center">
                 <Trash2 size={18} />
               </span>
             </div>
-            <div className="flex flex-col border rounded-md">
+            <div className="flex flex-col rounded-md border">
               {cartItems?.orderItems.map((item) => (
                 <div
                   key={item.slug}
-                  className="grid items-center w-full gap-4 p-4 pb-4 rounded-md sm:grid-cols-8 grid-cols-7 "
+                  className="grid grid-cols-7 gap-4 items-center p-4 pb-4 w-full rounded-md sm:grid-cols-8"
                 >
-                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden sm:block col-span-1 rounded-md w-36 h-24" />
-                  <div className='grid flex-row items-center w-full col-span-7 gap-4'>
+                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden col-span-1 w-36 h-24 rounded-md sm:block" />
+                  <div className='grid flex-row col-span-7 gap-4 items-center w-full'>
                     <div
                       key={`${item.slug}`}
-                      className="grid flex-row items-center w-full grid-cols-7 gap-4"
+                      className="grid flex-row grid-cols-7 gap-4 items-center w-full"
                     >
-                      <div className="flex w-full col-span-2 gap-2">
-                        <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
+                      <div className="flex col-span-2 gap-2 w-full">
+                        <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
                           <div className="flex flex-col w-full">
-                            <span className="text-xs font-bold sm:text-md truncate w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                            <span className="overflow-hidden w-full text-xs font-bold truncate whitespace-nowrap sm:text-md text-ellipsis">
                               {item.name}
                             </span>
                             <span className="text-xs text-muted-foreground sm:text-sm">
@@ -106,7 +108,7 @@ export default function ClientCartPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-center col-span-2">
+                      <div className="flex col-span-2 justify-center">
                         <QuantitySelector cartItem={item} />
                       </div>
                       <div className="col-span-2 text-center">
@@ -114,7 +116,7 @@ export default function ClientCartPage() {
                           {`${((item.price || 0) * item.quantity).toLocaleString('vi-VN')}đ`}
                         </span>
                       </div>
-                      <div className="flex justify-center col-span-1">
+                      <div className="flex col-span-1 justify-center">
                         <DeleteCartItemDialog cartItem={item} />
                       </div>
                     </div>
@@ -129,11 +131,11 @@ export default function ClientCartPage() {
               {getCartItems()?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
-                    <div className='flex items-center gap-2 mt-2'>
+                    <div className='flex gap-2 items-center mt-2'>
                       <span className='text-xs text-muted-foreground'>
                         {t('order.usedVoucher')}:&nbsp;
                       </span>
-                      <span className="px-3 py-1 text-xs font-semibold border rounded-full text-primary bg-primary/20 border-primary">
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full border text-primary bg-primary/20 border-primary">
                         -{`${formatCurrency(discount)}`}
                       </span>
                     </div>
@@ -141,16 +143,16 @@ export default function ClientCartPage() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col items-end justify-between p-2 pt-4 mt-4 border rounded-md">
-              <div className="flex flex-col items-start justify-between w-full">
-                <div className='flex flex-col items-start justify-start w-full gap-1'>
-                  <div className='flex items-center justify-between w-full gap-2 text-sm text-muted-foreground'>
+            <div className="flex flex-col justify-between items-end p-2 pt-4 mt-4 rounded-md border">
+              <div className="flex flex-col justify-between items-start w-full">
+                <div className='flex flex-col gap-1 justify-start items-start w-full'>
+                  <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
                     {t('order.subtotal')}:&nbsp;
                     <span>
                       {`${formatCurrency(subTotal)}`}
                     </span>
                   </div>
-                  <div className='flex items-center justify-between w-full gap-2 text-sm text-muted-foreground'>
+                  <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
                     <span>
                       {t('order.discount')}:&nbsp;
                     </span>
@@ -158,7 +160,7 @@ export default function ClientCartPage() {
                       -{`${formatCurrency(discount)}`}
                     </span>
                   </div>
-                  <div className='flex items-center justify-between w-full gap-2 pt-2 mt-4 font-semibold border-t text-md'>
+                  <div className='flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md'>
                     <span>
                       {t('order.totalPayment')}:&nbsp;
                     </span>
@@ -175,6 +177,12 @@ export default function ClientCartPage() {
           </div>
           {/* Button */}
           <div className='flex justify-end w-full'>
+            {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+              <span className='flex gap-2 justify-end items-center text-xs text-muted-foreground'>
+                <Info />
+                {t('menu.noSelectedTable')}
+              </span>
+            )}
             <div className="flex justify-end w-1/6">
               <CreateOrderDialog
                 disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}

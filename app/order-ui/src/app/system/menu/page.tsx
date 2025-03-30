@@ -31,9 +31,6 @@ export default function SystemMenuPage() {
 
       {/* CartContent cố định bên phải */}
       {!isMobile &&  <CartContent />}
-      {/* // <div className={`fixed right-0 top-14 h-screen w-[25%] shadow-md overflow-y-auto`}>
-       
-      // </div>} */}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { publicFileURL } from "@/constants";
-import { IChefAreaProduct, IProduct } from "@/types";
+import { IChefAreaProduct } from "@/types";
 import { RemoveChefAreaProductDialog } from "@/components/app/dialog";
 import { useIsMobile } from "@/hooks";
 
@@ -11,39 +11,39 @@ export default function ChefAreaProductDetailItem({ chefAreaProduct }: { chefAre
 
     return (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
-            {chefAreaProduct.products.map((product: IProduct) => (
-                <div className="relative flex flex-col items-center justify-between gap-2 border group rounded-xl">
+            {chefAreaProduct.products.map((item) => (
+                <div className="flex relative flex-col gap-2 justify-between items-center rounded-xl border group">
                     {!isMobile && (
-                        <div className="absolute inset-0 flex items-start justify-end transition-opacity opacity-0 group-hover:opacity-100">
+                        <div className="flex absolute inset-0 justify-end items-start opacity-0 transition-opacity group-hover:opacity-100">
                             <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
-                                <RemoveChefAreaProductDialog chefAreaProduct={product} />
+                                <RemoveChefAreaProductDialog chefAreaProduct={item} />
                             </div>
                         </div>
                     )}
 
-                    {product?.image ? (
-                        <div className="w-full p-2">
+                    {item?.image ? (
+                        <div className="p-2 w-full">
                             <img
-                                src={`${publicFileURL}/${product.image}`}
-                                alt={product.name || ''}
+                                src={`${publicFileURL}/${item.image}`}
+                                alt={item.name || ''}
                                 className="object-cover w-full h-40 rounded-md"
                             />
                         </div>
                     ) : (
-                        <div className="w-full h-40 p-2 rounded-md bg-muted/50" />
+                        <div className="p-2 w-full h-40 rounded-md bg-muted/50" />
                     )}
 
-                    <div className='flex flex-col justify-start w-full gap-2 p-2'>
+                    <div className='flex flex-col gap-2 justify-start p-2 w-full'>
                         <h3 className="flex justify-start w-full text-lg font-bold">
-                            {product?.name || ''}
+                            {item?.name || ''}
                         </h3>
                         <p className="flex justify-start w-full text-sm text-muted-foreground">
-                            {product?.description || t('chefArea.noDescription')}
+                            {item?.description || t('chefArea.noDescription')}
                         </p>
                     </div>
                     {isMobile && (
-                        <div className="flex justify-end w-full px-4 py-2 border-t bg-muted-foreground/10">
-                            <RemoveChefAreaProductDialog chefAreaProduct={product} />
+                        <div className="flex justify-end px-4 py-2 w-full border-t bg-muted-foreground/10">
+                            <RemoveChefAreaProductDialog chefAreaProduct={item} />
                         </div>
                     )}
                 </div>

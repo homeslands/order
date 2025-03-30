@@ -2,7 +2,6 @@ import { NavLink } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
 import {
   MoreHorizontal,
-  SquareMousePointer,
   CreditCard,
   DownloadIcon,
 } from 'lucide-react'
@@ -75,7 +74,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
               {order?.payment &&
-              order?.payment?.paymentMethod === PaymentMethod.CASH
+                order?.payment?.paymentMethod === PaymentMethod.CASH
                 ? t('order.cash')
                 : t('order.bankTransfer')}
             </span>
@@ -155,20 +154,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                {order?.slug && (
-                  <NavLink
-                    to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}
-                    className="flex justify-start items-center w-full"
-                  >
-                    <Button
-                      variant="ghost"
-                      className="flex gap-1 justify-start px-2 w-full text-sm"
-                    >
-                      <SquareMousePointer className="icon" />
-                      {tCommon('common.viewDetail')}
-                    </Button>
-                  </NavLink>
-                )}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
                   (!order?.payment?.statusCode ||
@@ -213,7 +198,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   )}
 
                 {/* Cancel order */}
-                {order && <OutlineCancelOrderDialog order={order} />}
+                {!(order && order.status === OrderStatus.PAID && order.payment.statusCode === paymentStatus.COMPLETED) && <OutlineCancelOrderDialog order={order} />}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

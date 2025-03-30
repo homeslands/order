@@ -20,6 +20,7 @@ import { IChefArea, IUpdateChefAreaRequest } from '@/types'
 import { useUpdateChefArea } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
+import { BranchSelect } from '../select'
 
 interface IFormUpdateChefAreaProps {
   chefArea: IChefArea
@@ -56,6 +57,21 @@ export const UpdateChefAreaForm: React.FC<IFormUpdateChefAreaProps> = ({ chefAre
   }
 
   const formFields = {
+    branch: (
+      <FormField
+        control={form.control}
+        name="branch"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('chefArea.branch')}</FormLabel>
+            <FormControl>
+              <BranchSelect defaultValue={chefArea?.branch.slug} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     name: (
       <FormField
         control={form.control}

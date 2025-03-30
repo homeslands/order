@@ -26,7 +26,8 @@
     "promotion": "Promotion",
     "chefAreaManagement": "Chef Area",
     "banner": "Banner",
-    "docs": "Documents"
+    "docs": "Documents",
+    "notification": "Notification"
   },
   "header": {
     "search": "Search",

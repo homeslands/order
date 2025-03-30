@@ -60,6 +60,7 @@ import { ChefAreaModule } from 'src/chef-area/chef-area.module';
 import { ProductChefAreaModule } from 'src/product-chef-area/product-chef-area.module';
 import { ChefOrderModule } from 'src/chef-order/chef-order.module';
 import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -135,6 +136,7 @@ import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module'
     ProductChefAreaModule,
     ChefOrderModule,
     ChefOrderItemModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

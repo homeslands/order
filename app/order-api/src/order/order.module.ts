@@ -41,6 +41,7 @@ import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity'
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
     InvoiceModule,
     PdfModule,
     QrCodeModule,
+    NotificationModule,
   ],
   controllers: [OrderController],
   providers: [

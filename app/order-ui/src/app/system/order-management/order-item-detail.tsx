@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-// import { ChevronDown, ChevronUp } from 'lucide-react'
 import { CheckedState } from '@radix-ui/react-checkbox'
+import { Clock, AlertCircle, CheckCircle2, Truck } from 'lucide-react'
 
-import { IOrderDetail, OrderItemStatus } from '@/types'
-import { Checkbox } from '@/components/ui'
+import { ChefOrderItemStatus, IOrderDetail, OrderItemStatus } from '@/types'
+import { Badge, Checkbox } from '@/components/ui'
 import { useOrderTrackingStore } from '@/stores'
 import OrderItemStatusBadge from '@/components/app/badge/order-item-status-badge'
 import { formatCurrency } from '@/utils'
@@ -12,6 +12,7 @@ import { formatCurrency } from '@/utils'
 interface OrderItemDetailProps {
   order: IOrderDetail
 }
+
 export default function OrderItemDetail({ order }: OrderItemDetailProps) {
   const { t } = useTranslation(['menu'])
   const { addSelectedItem, removeSelectedItem, getSelectedItems } =
@@ -48,6 +49,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
         subtotal: orderItem.promotion && orderItem.promotion.value ? orderItem.variant.price * (1 - orderItem.promotion.value / 100) : orderItem.variant.price,
         slug: orderItem.slug,
         index: itemIndex,
+        id: orderItem.id!,
       }
       addSelectedItem(singleItem)
     } else {
@@ -71,102 +73,191 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     ? order.variant.price * (1 - order.promotion.value / 100)
     : order.variant.price
 
-  const renderOrderItem = (orderItem: IOrderDetail) => {
-    const totalProcessedItems = orderItem.status.COMPLETED
-
-    const items = Array(orderItem.quantity)
-      .fill(null)
-      .map((_, index) => {
-        if (index < orderItem.status.COMPLETED) {
-          return { status: OrderItemStatus.COMPLETED, index }
-        }
-        if (index < orderItem.status.COMPLETED + orderItem.status.RUNNING) {
-          return { status: OrderItemStatus.RUNNING, index }
-        }
-        if (index < orderItem.status.COMPLETED + orderItem.status.RUNNING + orderItem.status.FAILED) {
-          return { status: OrderItemStatus.FAILED, index }
-        }
-        return { status: OrderItemStatus.PENDING, index }
-      })
+  const renderDeliveryTimeline = (orderItem: IOrderDetail) => {
+    const noCompletedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.PENDING).length || 0
+    const cookingItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.IN_PROGRESS).length || 0
+    const cookedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.COMPLETED).length || 0
+    const deliveredItems = orderItem.trackingOrderItems.filter(item => item.tracking.status === 'COMPLETED').length
 
     return (
-      <div key={orderItem.id} className="mt-4 space-y-2">
-        <div className="font-medium">
-          {orderItem.variant.product.name}{' '}
-          {orderItem.note && `(${orderItem.note})`}
-          <span className="ml-2 text-sm text-gray-500">
-            ({totalProcessedItems}/{orderItem.quantity})
-          </span>
+      <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
+        <div className="flex justify-between items-center">
+          <h3 className="text-sm font-semibold text-gray-700">{t('order.deliveryStatus')}</h3>
         </div>
 
-        <div className="space-y-2">
-          {items.map((item) => (
-            <div
-              key={item.index}
-              className="grid flex-row items-center grid-cols-9 gap-3 py-4 rounded-md"
-            >
-              {item.status === OrderItemStatus.PENDING ||
-                item.status === OrderItemStatus.FAILED ? (
-                <div className="flex flex-row items-center col-span-4 gap-2">
-                  <Checkbox
-                    className="w-5 h-5 shadow-none"
-                    checked={isChecked(orderItem, item.index)}
-                    onCheckedChange={(checked) =>
-                      handleSelectOrderItem(checked, orderItem, item.index)
-                    }
-                  />
-                  <p className="text-xs sm:text-sm">{orderItem.variant.product.name}</p>
-                  <p className="text-xs sm:text-sm">
-                    {t('order.size')}
-                    {orderItem.variant.size?.name.toUpperCase()}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-row items-center justify-start col-span-4 gap-3">
-                  <div
-                    className={`h-3 w-3 rounded-full ${item.status === OrderItemStatus.COMPLETED
-                      ? 'bg-green-500'
-                      : item.status === OrderItemStatus.RUNNING
-                        ? 'bg-blue-500'
-                        : 'bg-gray-300'
-                      }`}
-                  />
-                  <p className="text-xs sm:text-sm">{orderItem.variant.product.name}</p>
-                  {'-'}
-                  <p className="text-xs sm:text-sm">
-                    {t('order.size')}
-                    {orderItem.variant.size?.name.toUpperCase()}
-                  </p>
-                </div>
-              )}
-
-              {orderItem.promotion && orderItem.promotion.value > 0 ? (
-                <div className="flex items-center col-span-2 gap-3 text-xs text-center sm:text-sm">
-                  <span className='text-xs line-through text-muted-foreground'>
-                    {formatCurrency(originalPrice)}
-                  </span>
-                  <span className='text-primary text-extrabold'>
-                    {formatCurrency(priceAfterDiscount)}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center col-span-2 gap-3 text-xs text-center sm:text-sm">
-                  <span className="text-muted-foreground text-extrabold">
-                    {formatCurrency(originalPrice)}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-end col-span-3">
-                <OrderItemStatusBadge status={item.status} />
+        <div className="relative">
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
+          <div className="flex relative justify-between">
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${noCompletedItems > 0 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                <Clock className={`w-4 h-4 ${noCompletedItems > 0 ? 'text-yellow-500' : 'text-gray-400'}`} />
               </div>
+              <span className="mt-1 text-xs font-medium text-gray-600">{t('order.pending')}</span>
+              <span className="text-xs text-gray-500">{noCompletedItems} {t('order.items')}</span>
             </div>
-          ))}
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookingItems > 0 ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                <AlertCircle className={`w-4 h-4 ${cookingItems > 0 ? 'text-blue-500' : 'text-gray-400'}`} />
+              </div>
+              <span className="mt-1 text-xs font-medium text-gray-600">{t('order.cooking')}</span>
+              <span className="text-xs text-gray-500">{cookingItems} {t('order.items')}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookedItems > 0 ? 'bg-green-100' : 'bg-gray-100'}`}>
+                <CheckCircle2 className={`w-4 h-4 ${cookedItems > 0 ? 'text-green-500' : 'text-gray-400'}`} />
+              </div>
+              <span className="mt-1 text-xs font-medium text-gray-600">{t('order.ready')}</span>
+              <span className="text-xs text-gray-500">{cookedItems} {t('order.items')}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${deliveredItems > 0 ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                <Truck className={`w-4 h-4 ${deliveredItems > 0 ? 'text-purple-500' : 'text-gray-400'}`} />
+              </div>
+              <span className="mt-1 text-xs font-medium text-gray-600">{t('order.delivered')}</span>
+              <span className="text-xs text-gray-500">{deliveredItems} {t('order.items')}</span>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
+  const renderOrderItem = (orderItem: IOrderDetail) => {
+    const items = Array(orderItem.quantity)
+      .fill(null)
+      .map((_, index) => {
+        // Get current status
+        let currentStatus = OrderItemStatus.PENDING
+        if (index < orderItem.status.COMPLETED) {
+          currentStatus = OrderItemStatus.COMPLETED
+        } else if (index < orderItem.status.COMPLETED + orderItem.status.RUNNING) {
+          currentStatus = OrderItemStatus.RUNNING
+        } else if (index < orderItem.status.COMPLETED + orderItem.status.RUNNING + orderItem.status.FAILED) {
+          currentStatus = OrderItemStatus.FAILED
+        }
 
+        // Get chefOrderItems status
+        const chefOrderItem = orderItem.chefOrderItems?.[index]
+        let chefStatus = OrderItemStatus.PENDING
+        if (chefOrderItem) {
+          chefStatus = chefOrderItem.status === ChefOrderItemStatus.COMPLETED
+            ? OrderItemStatus.COMPLETED
+            : chefOrderItem.status === ChefOrderItemStatus.IN_PROGRESS
+              ? OrderItemStatus.RUNNING
+              : OrderItemStatus.PENDING
+        }
+
+        return {
+          status: currentStatus,
+          chefStatus,
+          index
+        }
+      })
+
+    return (
+      <div key={orderItem.id} className="mt-4 space-y-4">
+        {/* Delivery Timeline */}
+        {renderDeliveryTimeline(orderItem)}
+
+        {/* Product Information */}
+        <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2 items-center">
+              <Badge className="h-9 text-md bg-primary/10 text-primary">
+                {orderItem.variant.product.name}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {orderItem.variant.size?.name.toUpperCase()}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Order Note */}
+          {orderItem.note && (
+            <div className="flex gap-2 items-center p-2 bg-gray-50 rounded-md">
+              <span className="text-sm font-semibold text-gray-600">
+                {t('order.note')}:
+              </span>
+              <span className="text-sm text-gray-600">
+                {orderItem.note}
+              </span>
+            </div>
+          )}
+
+          {/* Order Items List */}
+          <div className="space-y-2">
+            {items.map((item) => (
+              <div
+                key={item.index}
+                className="grid grid-cols-12 gap-4 items-center px-4 py-3 bg-gray-50 rounded-md"
+              >
+                <div className="flex col-span-4 gap-3 items-center">
+                  {item.chefStatus === OrderItemStatus.COMPLETED ? (
+                    item.status === OrderItemStatus.PENDING || item.status === OrderItemStatus.FAILED ? (
+                      <Checkbox
+                        className="w-5 h-5 shadow-none"
+                        checked={isChecked(orderItem, item.index)}
+                        onCheckedChange={(checked) =>
+                          handleSelectOrderItem(checked, orderItem, item.index)
+                        }
+                      />
+                    ) : (
+                      <div
+                        className={`h-3 w-3 rounded-full ${item.status === OrderItemStatus.COMPLETED
+                          ? 'bg-green-500'
+                          : item.status === OrderItemStatus.RUNNING
+                            ? 'bg-blue-500'
+                            : 'bg-gray-300'
+                          }`}
+                      />
+                    )
+                  ) : (
+                    <div
+                      className={`h-3 w-3 rounded-full ${item.status === OrderItemStatus.COMPLETED
+                        ? 'bg-green-500'
+                        : item.status === OrderItemStatus.RUNNING
+                          ? 'bg-blue-500'
+                          : 'bg-gray-300'
+                        }`}
+                    />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {orderItem.variant.product.name}
+                  </span>
+                </div>
+
+                <div className="flex col-span-3 justify-center items-center">
+                  {orderItem.promotion && orderItem.promotion.value > 0 ? (
+                    <div className="flex gap-2 items-center">
+                      <span className="text-sm text-gray-400 line-through">
+                        {formatCurrency(originalPrice)}
+                      </span>
+                      <span className="text-sm font-semibold text-primary">
+                        {formatCurrency(priceAfterDiscount)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-semibold text-gray-700">
+                      {formatCurrency(originalPrice)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex col-span-5 gap-2 justify-end items-center">
+                  <OrderItemStatusBadge status={item.status} />
+                  {item.chefStatus === OrderItemStatus.PENDING && (
+                    <Badge variant="secondary" className="text-xs">
+                      {t('order.waitingForKitchen')}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     order.trackingOrderItems.forEach((trackingItem, index) => {
@@ -181,8 +272,8 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
   }, [order])
 
   return (
-    <div className="flex flex-col w-full gap-2 rounded-lg">
-      <div className="flex flex-col gap-2">{renderOrderItem(order)}</div>
+    <div className="flex flex-col gap-4 w-full">
+      {renderOrderItem(order)}
     </div>
   )
 }

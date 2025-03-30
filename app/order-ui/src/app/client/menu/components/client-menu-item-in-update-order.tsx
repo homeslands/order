@@ -129,7 +129,7 @@ export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItem
       {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
         <div className="flex justify-center w-full gap-2 p-2">
           {isMobile ? (
-            <ClientAddToCartDrawer product={item} />
+            <ClientAddToCartDrawer product={item} onSuccess={onSuccess} isUpdateOrder={true} />
           ) : (
             <AddNewOrderItemDialog product={item} onSuccess={onSuccess} />
           )}

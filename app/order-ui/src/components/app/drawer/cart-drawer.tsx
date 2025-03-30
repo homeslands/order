@@ -22,8 +22,9 @@ import { formatCurrency } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateOrderDialog } from '../dialog'
-import { OrderTypeSelect, SystemTableSelect } from '../select'
+import { OrderTypeSelect } from '../select'
 import { VoucherListSheet } from '../sheet'
+import TableSelect from '../select/table-select'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
@@ -79,7 +80,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                   <span className='text-sm text-muted-foreground'>
                     {t('menu.table')}
                   </span>
-                  <SystemTableSelect />
+                  <TableSelect />
                 </div>
               </div>
               {/* Selected table */}

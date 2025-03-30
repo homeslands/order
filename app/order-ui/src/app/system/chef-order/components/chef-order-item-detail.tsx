@@ -1,24 +1,25 @@
 import { useTranslation } from 'react-i18next'
-import { NotepadText, PlayCircle, CheckCircle2 } from 'lucide-react'
+import { PlayCircle, CheckCircle2 } from 'lucide-react'
 
-import { ChefOrderItemStatus, IChefOrderItems, IUpdateChefOrderItemStatusRequest } from '@/types'
+import { ChefOrderItemStatus, ISpecificChefOrderItemInfo, IUpdateChefOrderItemStatusRequest } from '@/types'
 import { Badge, Button } from '@/components/ui'
-import { ChefOrderItemStatusBadge } from '@/components/app/badge'
 import { useUpdateChefOrderItemStatus } from '@/hooks'
 import { showToast } from '@/utils'
+import { ChefOrderItemStatusBadge } from '@/components/app/badge'
 
 interface ChefOrderItemDetailProps {
-  chefOrderItem: IChefOrderItems
+  chefOrderItem: ISpecificChefOrderItemInfo
 }
+
 export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDetailProps) {
   const { t } = useTranslation(['chefArea'])
   const { t: tToast } = useTranslation('toast')
   const { mutate: updateChefOrderItemStatus } = useUpdateChefOrderItemStatus()
 
-  const handleStatusChange = (orderItem: IChefOrderItems, status: string) => {
-    if (!orderItem) return
+  const handleStatusChange = (slug: string, status: string) => {
+    if (!slug) return
     const params: IUpdateChefOrderItemStatusRequest = {
-      slug: orderItem.slug,
+      slug,
       status,
     }
     updateChefOrderItemStatus(params, {
@@ -28,47 +29,75 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
     })
   }
 
-  const renderOrderItem = (orderItem: IChefOrderItems) => {
+  const renderOrderItem = (orderItem: ISpecificChefOrderItemInfo) => {
     const isPending = orderItem.status === ChefOrderItemStatus.PENDING
     const isInProgress = orderItem.status === ChefOrderItemStatus.IN_PROGRESS
 
     return (
       <div key={orderItem.slug} className="mt-4">
-        <div className="flex flex-col gap-3">
-          {/* Header with name and status */}
-          <div className='flex items-center justify-between w-full'>
-            <span className='flex items-center gap-2'>
-              <span className="text-lg font-semibold">
+        {/* Product Information */}
+        <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2 items-center">
+              <Badge className="h-9 text-md">
                 {orderItem.orderItem.variant.product.name}
-              </span>
-              {orderItem.orderItem.variant?.size && (
-                <Badge>
-                  Size {orderItem.orderItem.variant.size.name.toUpperCase()}
-                </Badge>
-              )}
-            </span>
-            <ChefOrderItemStatusBadge status={orderItem.status} />
+              </Badge>
+              <Badge variant="outline" className="h-9 text-sm">
+                Size {orderItem.orderItem.variant.size?.name.toUpperCase()}
+              </Badge>
+            </div>
           </div>
 
-          {/* Note section */}
-          {orderItem.orderItem.note ? (
-            <div className='flex items-start gap-2 p-3 border rounded-md'>
-              <NotepadText className='text-primary' />
-              <p className="text-sm text-muted-foreground">{orderItem.orderItem.note}</p>
-            </div>
-          ) : (
-            <div className='flex items-center gap-2 p-3 border rounded-md'>
-              <NotepadText className='text-primary' />
-              <p className="text-sm text-muted-foreground">{t('chefOrder.noNote')}</p>
+          {/* Order Note */}
+          {orderItem.orderItem.note && (
+            <div className="flex gap-2 items-center p-2 bg-gray-50 rounded-md">
+              <span className="text-sm font-semibold text-gray-600">
+                {t('chefOrder.note')}:
+              </span>
+              <span className="text-sm text-gray-600">
+                {orderItem.orderItem.note}
+              </span>
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="flex justify-end gap-3 mt-2">
+          {/* Item Details */}
+          <div className="grid grid-cols-12 gap-4 items-center px-4 py-3 bg-gray-50 rounded-md">
+            <div className="flex col-span-8 gap-3 items-center">
+              <div
+                className={`h-3 w-3 rounded-full ${isPending
+                  ? 'bg-yellow-500'
+                  : isInProgress
+                    ? 'bg-blue-500'
+                    : 'bg-green-500'
+                  }`}
+              />
+              <span className="text-sm font-medium text-gray-700">
+                {orderItem.orderItem.variant.product.name}
+              </span>
+            </div>
+
+            {/* <div className="flex col-span-4 justify-center items-center">
+              <span className="text-sm font-semibold text-gray-700">
+                {orderItem.orderItem.variant.size?.name.toUpperCase()}
+              </span>
+            </div> */}
+
+            <div className="flex col-span-4 gap-2 justify-end items-center">
+              <ChefOrderItemStatusBadge status={orderItem.status} />
+              {isPending && (
+                <Badge variant="secondary" className="text-xs">
+                  {t('chefOrder.waitingToStart')}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end mt-2">
             {isPending && (
               <Button
-                className="flex items-center gap-2"
-                onClick={() => handleStatusChange(orderItem, ChefOrderItemStatus.IN_PROGRESS)}
+                className="flex gap-2 items-center text-white bg-blue-500 hover:bg-blue-600"
+                onClick={() => handleStatusChange(orderItem.slug, ChefOrderItemStatus.IN_PROGRESS)}
               >
                 <PlayCircle className="w-4 h-4" />
                 {t('chefOrder.startCooking')}
@@ -76,8 +105,8 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
             )}
             {isInProgress && (
               <Button
-                className="flex items-center gap-2"
-                onClick={() => handleStatusChange(orderItem, ChefOrderItemStatus.COMPLETED)}
+                className="flex gap-2 items-center text-white bg-green-500 hover:bg-green-600"
+                onClick={() => handleStatusChange(orderItem.slug, ChefOrderItemStatus.COMPLETED)}
               >
                 <CheckCircle2 className="w-4 h-4" />
                 {t('chefOrder.complete')}
@@ -90,7 +119,7 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
   }
 
   return (
-    <div className="flex flex-col w-full gap-4">
+    <div className="flex flex-col gap-4 w-full">
       {Array.isArray(chefOrderItem)
         ? chefOrderItem.map((item) => renderOrderItem(item))
         : chefOrderItem && renderOrderItem(chefOrderItem)}

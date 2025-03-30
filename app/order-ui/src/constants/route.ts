@@ -34,7 +34,7 @@ export const ROUTE = {
   STAFF_STATIC_PAGE: '/system/static-page',
   STAFF_VOUCHER: '/system/voucher',
   STAFF_PROMOTION: '/system/promotion',
-  STAFF_CHEF_AREA_MANAGEMENT: '/system/chef-area-management',
+  STAFF_CHEF_AREA_MANAGEMENT: '/system/area',
   STAFF_BANNER: '/system/banner',
   STAFF_CONFIG: '/system/config',
 

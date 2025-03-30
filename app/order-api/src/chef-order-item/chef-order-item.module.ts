@@ -10,6 +10,8 @@ import { Order } from 'src/order/order.entity';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { Product } from 'src/product/product.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { NotificationModule } from 'src/notification/notification.module';
+import { User } from 'src/user/user.entity';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { ChefOrder } from 'src/chef-order/chef-order.entity';
       ChefArea,
       Product,
       ChefOrder,
+      User,
     ]),
+    NotificationModule,
   ],
   controllers: [ChefOrderItemController],
   providers: [

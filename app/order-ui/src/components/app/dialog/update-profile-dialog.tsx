@@ -35,7 +35,7 @@ export default function UpdateProfileDialog({
           className="gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
-          <PencilLine className="icon" />
+          <PencilLine className="icon hidden sm:block" />
           <span className="">{t('profile.updateProfile')}</span>
         </Button>
       </DialogTrigger>

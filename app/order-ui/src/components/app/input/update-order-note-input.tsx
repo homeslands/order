@@ -16,12 +16,12 @@ export default function UpdateOrderNoteInput({ orderItem }: CartNoteInputProps) 
 
   const handleNoteChange = (e: ChangeEvent<HTMLInputElement>) => {
     const note = e.target.value
-    addNote(orderItem.id, note)
+    addNote(orderItem.id!, note)
   }
 
   return (
     <div className="flex w-full flex-row items-center justify-center gap-2.5">
-      <div className="flex flex-row items-center justify-between flex-1 w-full gap-2">
+      <div className="flex flex-row flex-1 gap-2 justify-between items-center w-full">
         <NotepadText className="text-muted-foreground" />
         <Input
           defaultValue={orderItem?.note || ''}

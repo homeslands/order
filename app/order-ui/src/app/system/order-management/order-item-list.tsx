@@ -14,14 +14,14 @@ export default function OrderItemList({
   const { t } = useTranslation(['menu'])
   return (
     <div className="flex flex-col gap-1">
-      <span className="flex items-center justify-between py-1 font-semibold text-md">
+      <span className="flex justify-between items-center py-1 font-semibold text-md">
         {t('order.orderDetail')}
       </span>
 
       <div className="flex flex-col w-full">
-        <ScrollArea className="">
+        <ScrollArea>
           {orderDetailData?.orderItems?.map((item) => (
-            <div key={item.slug} className="grid items-center w-full gap-4">
+            <div key={item.slug} className="grid gap-4 items-center w-full">
               <OrderItemDetail order={item} />
             </div>
           ))}
