@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import {
   AuthorityJSON,
@@ -21,7 +21,22 @@ export class GetAllAuthorityGroupsDto {
 
 export class CreateAuthorityGroupDto {}
 
-export class UpdateAuthorityGroupDto {}
+export class UpdateAuthorityGroupDto {
+  @ApiProperty({})
+  @AutoMap()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({})
+  @AutoMap()
+  @IsNotEmpty()
+  code: string;
+
+  @ApiProperty({ required: false })
+  @AutoMap()
+  @IsOptional()
+  description?: string;
+}
 
 export class AuthorityGroupResponseDto extends BaseResponseDto {
   @ApiProperty()
