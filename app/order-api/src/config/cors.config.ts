@@ -3,6 +3,7 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 export const corsOptions: CorsOptions = {
   origin: [
     'http://localhost:5173',
+    'http://localhost:4200',
     'https://sandbox.order.cmsiot.net',
     'https://trendcoffee.net',
     'https://coffee.homeslands.net',
