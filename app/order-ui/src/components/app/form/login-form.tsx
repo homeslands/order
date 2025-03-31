@@ -136,7 +136,7 @@ export const LoginForm: React.FC = () => {
               </React.Fragment>
             ))}
           </div>
-          <div className="flex items-center justify-between w-full">
+          <div className="flex justify-between items-center w-full">
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? <ButtonLoading /> : t('login.title')}
             </Button>

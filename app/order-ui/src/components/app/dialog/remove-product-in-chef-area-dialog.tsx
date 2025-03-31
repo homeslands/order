@@ -19,7 +19,7 @@ import { useIsMobile, useRemoveChefAreaProduct } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
-export default function DeleteProductInChefAreaDialog({ chefAreaProduct }: { chefAreaProduct: IProduct }) {
+export default function DeleteProductInChefAreaDialog({ chefAreaProduct, onSuccess }: { chefAreaProduct: IProduct, onSuccess: () => void }) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
@@ -37,6 +37,7 @@ export default function DeleteProductInChefAreaDialog({ chefAreaProduct }: { che
           refetchType: 'all'
         })
         setIsOpen(false)
+        onSuccess()
         showToast(tToast('toast.removeChefAreaProductSuccess'))
       },
     })

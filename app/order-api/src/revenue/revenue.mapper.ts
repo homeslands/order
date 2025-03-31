@@ -9,6 +9,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import {
   AggregateRevenueResponseDto,
+  AggregateRevenueResponseDtoFromBranchRevenue,
   RevenueQueryResponseDto,
   RevenueResponseDto,
 } from './revenue.dto';
@@ -60,6 +61,11 @@ export class RevenueProfile extends AutomapperProfile {
         mapper,
         AggregateRevenueResponseDto,
         AggregateRevenueResponseDto,
+      );
+      createMap(
+        mapper,
+        AggregateRevenueResponseDtoFromBranchRevenue,
+        AggregateRevenueResponseDtoFromBranchRevenue,
       );
     };
   }

@@ -9,6 +9,7 @@ import { DataTable } from '@/components/ui'
 import { usePendingChefOrdersColumns } from './DataTable/columns'
 import { ChefOrderItemDetailSheet } from '@/components/app/sheet'
 import { ChefOrderActionOptions } from './DataTable/actions'
+import { useSearchParams } from 'react-router-dom'
 
 export default function ChefOrderPage() {
   const { t } = useTranslation(['chefArea'])
@@ -17,6 +18,22 @@ export default function ChefOrderPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [selectedRow, setSelectedRow] = useState<IChefOrders>()
   const [enableFetch, setEnableFetch] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [slug, setSlug] = useState(searchParams.get('slug') || selectedRow)
+
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev)
+      if (slug === '') {
+        newParams.delete('slug')
+        newParams.set('slug', selectedRow?.slug || '')
+      }
+      return newParams
+    })
+
+    setIsSheetOpen(slug !== '')
+
+  }, [slug, setSearchParams, setIsSheetOpen, selectedRow])
 
   const { handlePageChange, handlePageSizeChange } = usePagination()
 
@@ -54,6 +71,7 @@ export default function ChefOrderPage() {
 
   const handleChefOrderClick = (chefOrder: IChefOrders) => {
     setSelectedRow(chefOrder)
+    setSlug(chefOrder.slug)
     setEnableFetch(true)
     setIsSheetOpen(true)
   }

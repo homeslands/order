@@ -209,7 +209,12 @@ export class OrderService {
     }
 
     order.voucher = voucher;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    const subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    order.subtotal = subtotal;
+    order.originalSubtotal = order.orderItems.reduce(
+      (previous, current) => previous + current.originalSubtotal,
+      0,
+    );
 
     const createdOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
@@ -392,9 +397,11 @@ export class OrderService {
       orderItem,
       promotion,
     );
+    const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
     Object.assign(orderItem, {
       subtotal,
+      originalSubtotal,
     });
     return orderItem;
   }

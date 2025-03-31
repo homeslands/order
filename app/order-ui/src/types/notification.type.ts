@@ -4,6 +4,8 @@ export interface IAllNotificationRequest {
   receiver?: string
   isRead?: boolean
   type?: string
+  page?: number
+  size?: number
 }
 
 export interface INotificationMetadata {

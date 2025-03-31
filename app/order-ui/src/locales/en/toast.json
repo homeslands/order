@@ -55,7 +55,6 @@
     "addNewOrderItemSuccess": "Item added to order successfully",
     "deleteOrderItemSuccess": "Order item deleted successfully",
     "updateOrderTypeSuccess": "Order type updated successfully",
-
     "createOrderTrackingSuccess": "Robot delivery assigned successfully",
     "exportInvoiceSuccess": "Invoice exported successfully",
     "exportPaymentSuccess": "Payment QR code exported successfully",
@@ -92,26 +91,20 @@
     "createBannerSuccess": "Banner created successfully",
     "updateBannerSuccess": "Banner updated successfully",
     "deleteBannerSuccess": "Banner deleted successfully",
-
     "createRoleSuccess": "Role created successfully",
     "updateRoleSuccess": "Role updated successfully",
     "deleteRoleSuccess": "Role deleted successfully",
-
     "createPermissionSuccess": "Permission created successfully",
     "updatePermissionSuccess": "Permission updated successfully",
     "deletePermissionSuccess": "Permission deleted successfully",
-
     "downloadQrSuccess": "QR code downloaded successfully",
     "downloadQrError": "QR code download failed",
-
     "createChefAreaSuccess": "Chef area created successfully",
     "updateChefAreaSuccess": "Chef area updated successfully",
     "deleteChefAreaSuccess": "Chef area deleted successfully",
-
     "addChefAreaProductSuccess": "Product added to chef area successfully",
     "removeChefAreaProductSuccess": "Product removed from chef area successfully",
     "updateChefAreaProductSuccess": "Chef area product updated successfully",
-
     "unloggedIn": "Please log in",
     "catalogNameInvalid": "Invalid catalog name",
     "branchSlugInvalid": "Invalid branch slug",
@@ -287,6 +280,7 @@
     "updateOrderError": "Error updating order",
     "invalidOrderSlug": "Invalid order slug",
     "permissionExists": "Permission already exists",
-    "invalidEmail": "Email already exists!"
+    "invalidEmail": "Email already exists!",
+    "chefAreaProductExists": "Product already exists in the chef area"
   }
 }

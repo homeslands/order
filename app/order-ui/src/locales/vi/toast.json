@@ -5,145 +5,108 @@
     "addSuccess": "Thêm sản phẩm vào giỏ hàng thành công",
     "itemAlreadyExists": "Sản phẩm đã tồn tại trong giỏ hàng",
     "removeSuccess": "Xóa sản phẩm khỏi giỏ hàng thành công",
-
     "loginSuccess": "Đăng nhập thành công",
     "logoutSuccess": "Đăng xuất thành công",
     "loginFailed": "Đăng nhập thất bại",
     "requestFailed": "Yêu cầu thất bại",
-
     "registerSuccess": "Đăng ký tài khoản thành công",
     "copyEmailSuccess": "Sao chép email thành công",
     "sendVerifyEmailSuccess": "Gửi email xác minh thành công! Vui lòng kiểm tra email của bạn",
-
     "branchRequired": "Bạn chưa chọn chi nhánh",
     "orderSuccess": "Đặt hàng thành công",
-
     "createCatalogSuccess": "Tạo danh mục thành công",
     "updateCatalogSuccess": "Cập nhật danh mục thành công",
     "deleteCatalogSuccess": "Xóa danh mục thành công",
-
     "createSizeSuccess": "Tạo kích thước thành công",
     "updateSizeSuccess": "Cập nhật kích thước thành công",
     "deleteSizeSuccess": "Xóa kích thước thành công",
-
     "createProductSuccess": "Tạo món ăn thành công",
     "updateProductSuccess": "Cập nhật món ăn thành công",
     "deleteProductSuccess": "Xóa món ăn thành công",
     "uploadImageSuccess": "Tải hình ảnh thành công",
     "uploadImageError": "Tải hình ảnh thất bại",
     "deleteProductImageSuccess": "Xóa hình ảnh món ăn thành công",
-
     "createProductVariantSuccess": "Tạo phân loại món ăn thành công",
     "updateProductVariantSuccess": "Cập nhật phân loại món ăn thành công",
     "deleteProductVariantSuccess": "Xóa phân loại món ăn thành công",
-
     "updateProfileSuccess": "Cập nhật thông tin cá nhân thành công",
     "deleteProfileSuccess": "Xóa thông tin cá nhân thành công",
-
     "updateProfilePictureSuccess": "Cập nhật ảnh đại diện thành công",
-
     "createMenuSuccess": "Tạo thực đơn thành công",
     "updateMenuSuccess": "Cập nhật thực đơn thành công",
     "deleteMenuSuccess": "Xóa thực đơn thành công",
-
     "createBankConnectorSuccess": "Tạo kết nối ngân hàng thành công",
     "updateBankConnectorSuccess": "Cập nhật kết nối ngân hàng thành công",
     "deleteBankConnectorSuccess": "Xóa kết nối ngân hàng thành công",
-
     "addMenuItemSuccess": "Thêm món vào thực đơn thành công",
     "updateMenuItemSuccess": "Cập nhật món trong thực đơn thành công",
     "deleteMenuItemSuccess": "Xóa món khỏi thực đơn thành công",
-
     "createTableSuccess": "Tạo bàn thành công",
     "updateTableSuccess": "Cập nhật bàn thành công",
     "createMultipleTablesSuccess": "Tạo nhiều bàn thành công",
     "updateTableStatusSuccess": "Cập nhật trạng thái bàn thành công",
     "deleteTableSuccess": "Xóa bàn thành công",
-
     "createBranchSuccess": "Tạo chi nhánh thành công",
     "updateBranchSuccess": "Cập nhật chi nhánh thành công",
     "deleteBranchSuccess": "Xóa chi nhánh thành công",
-
     "createOrderSuccess": "Đặt hàng thành công",
     "orderItemDeleted": "Xóa món thành công",
     "handleCancelOrderSuccess": "Hủy đơn hàng thành công",
-
     "addNewOrderItemSuccess": "Thêm món vào đơn hàng thành công",
     "deleteOrderItemSuccess": "Xóa món khỏi đơn hàng thành công",
     "updateOrderTypeSuccess": "Cập nhật loại đơn hàng thành công",
-
     "createOrderTrackingSuccess": "Phân robot giao hàng thành công",
-
     "exportInvoiceSuccess": "Xuất hóa đơn thành công",
     "exportPaymentSuccess": "Xuất QR code thanh toán thành công",
-
     "updatePasswordSuccess": "Cập nhật mật khẩu thành công",
     "forgotPasswordSuccess": "Gửi email đặt lại mật khẩu thành công",
     "resetPasswordSuccess": "Đặt lại mật khẩu thành công",
-
     "createUserSuccess": "Tạo người dùng thành công",
     "updateUserSuccess": "Cập nhật người dùng thành công",
     "deleteUserSuccess": "Xóa người dùng thành công",
-
     "updateUserRoleSuccess": "Cập nhật chức danh người dùng thành công",
-
     "forbidden": "Không có quyền truy cập",
     "sessionExpired": "Phiên làm việc đã hết hạn",
-
     "createSystemConfigSuccess": "Tạo cấu hình hệ thống thành công",
     "updateSystemConfigSuccess": "Cập nhật cấu hình hệ thống thành công",
     "deleteSystemConfigSuccess": "Xóa cấu hình hệ thống thành công",
-
     "createStaticPageSuccess": "Tạo trang tĩnh thành công",
     "updateStaticPageSuccess": "Cập nhật trang tĩnh thành công",
     "deleteStaticPageSuccess": "Xóa trang tĩnh thành công",
-
     "refreshRevenueSuccess": "Lấy dữ liệu doanh thu mới thành công",
     "copyCodeSuccess": "Sao chép mã thành công",
-
     "exportAllProductsTemplateSuccess": "Xuất mẫu thực đơn thành công",
     "exportProductImportTemplateSuccess": "Xuất mẫu nhập sản phẩm thành công",
     "importMultipleProductsSuccess": "Import sản phẩm thành công",
-
     "createVoucherSuccess": "Tạo voucher thành công",
     "updateVoucherSuccess": "Cập nhật voucher thành công",
     "deleteVoucherSuccess": "Xóa voucher thành công",
-
     "createPromotionSuccess": "Tạo khuyến mãi thành công",
     "updatePromotionSuccess": "Cập nhật khuyến mãi thành công",
     "deletePromotionSuccess": "Xóa khuyến mãi thành công",
     "applyPromotionSuccess": "Áp dụng khuyến mãi thành công",
     "removeAppliedPromotionSuccess": "Hủy khuyến mãi thành công",
-
     "applyVoucherSuccess": "Áp dụng voucher thành công",
     "removeVoucherSuccess": "Hủy voucher thành công",
-
     "createBannerSuccess": "Tạo banner thành công",
     "updateBannerSuccess": "Cập nhật banner thành công",
     "deleteBannerSuccess": "Xóa banner thành công",
-
     "createRoleSuccess": "Tạo vai trò thành công",
     "updateRoleSuccess": "Cập nhật vai trò thành công",
     "deleteRoleSuccess": "Xóa vai trò thành công",
-
     "createPermissionSuccess": "Tạo quyền hạn thành công",
     "updatePermissionSuccess": "Cập nhật quyền hạn thành công",
     "deletePermissionSuccess": "Xóa quyền hạn thành công",
-
     "downloadQrSuccess": "Tải QR code thành công",
     "downloadQrError": "Tải QR code thất bại",
-
     "createChefAreaSuccess": "Tạo khu vực đầu bếp thành công",
     "updateChefAreaSuccess": "Cập nhật khu vực đầu bếp thành công",
     "deleteChefAreaSuccess": "Xóa khu vực đầu bếp thành công",
-
     "addChefAreaProductSuccess": "Thêm món vào khu vực đầu bếp thành công",
     "removeChefAreaProductSuccess": "Xóa món khỏi khu vực đầu bếp thành công",
     "updateChefAreaProductSuccess": "Cập nhật món trong khu vực đầu bếp thành công",
-
     "updateChefOrderStatusSuccess": "Cập nhật trạng thái đơn hàng đầu bếp thành công",
     "updateChefOrderItemStatusSuccess": "Cập nhật trạng thái món đầu bếp thành công",
-
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",
@@ -244,6 +207,7 @@
     "systemConfigInvalid": "Cấu hình hệ thống không hợp lệ",
     "errorValidatePromotion": "Lỗi xác thực khuyến mãi",
     "permissionExists": "Quyền đã tồn tại",
-    "invalidEmail": "Email đã tồn tại!"
+    "invalidEmail": "Email đã tồn tại!",
+    "chefAreaProductExists": "Món đã tồn tại trong khu vực đầu bếp"
   }
 }

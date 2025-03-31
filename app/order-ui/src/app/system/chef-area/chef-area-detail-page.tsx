@@ -8,21 +8,34 @@ import { useGetChefAreaBySlug, useGetChefAreaProducts } from '@/hooks'
 import { ChefAreaProductDetailItem } from './components'
 import { Badge } from '@/components/ui'
 import { AddProductInChefAreaSheet } from '@/components/app/sheet'
+import { useState } from 'react'
 
 export default function ChefAreaDetailPage() {
     const { t } = useTranslation(['chefArea'])
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
-    const { data } = useGetChefAreaBySlug(slug as string)
+    const { data, refetch: refetchChefArea } = useGetChefAreaBySlug(slug as string)
+    const [shouldRefetch, setShouldRefetch] = useState(false)
 
     const chefArea = data?.result
+    const chefAreaBranch = data?.result?.branch.slug || ''
 
-    const { data: chefAreaProducts } = useGetChefAreaProducts(chefArea?.slug || '')
+    const { data: chefAreaProducts, refetch: refetchChefAreaProducts } = useGetChefAreaProducts(chefArea?.slug || '')
 
     const chefAreaProductsData = chefAreaProducts?.result || []
 
+    const handleSuccess = () => {
+        refetchChefArea()
+        refetchChefAreaProducts()
+        setShouldRefetch(true)
+        // Reset the refetch state after a short delay
+        setTimeout(() => {
+            setShouldRefetch(false)
+        }, 100)
+    }
+
     return (
-        <div className="flex flex-col flex-1 w-full pb-2">
+        <div className="flex flex-col flex-1 pb-2 w-full">
             <Helmet>
                 <meta charSet='utf-8' />
                 <title>
@@ -30,16 +43,16 @@ export default function ChefAreaDetailPage() {
                 </title>
                 <meta name='description' content={tHelmet('helmet.chefArea.title')} />
             </Helmet>
-            <span className="flex items-center justify-between text-lg">
-                <div className='flex items-center gap-2'>
+            <span className="flex justify-between items-center text-lg">
+                <div className='flex gap-2 items-center'>
                     <SquareMenu />
                     {t('chefArea.title')}
                 </div>
-                <AddProductInChefAreaSheet />
+                <AddProductInChefAreaSheet branch={chefAreaBranch} onSuccess={() => handleSuccess()} onRefetch={shouldRefetch} />
             </span>
-            <div className="grid h-full grid-cols-1 gap-2">
-                <div className='flex flex-col gap-2 p-4 mt-4 border rounded-md'>
-                    <div className='flex items-center justify-between'>
+            <div className="grid grid-cols-1 gap-2 h-full">
+                <div className='flex flex-col gap-2 p-4 mt-4 rounded-md border'>
+                    <div className='flex justify-between items-center'>
                         <span className='text-xl font-extrabold'>{chefArea?.name}</span>
                         <Badge className='text-sm font-normal'>{chefArea?.branch.name}</Badge>
                     </div>
@@ -56,7 +69,7 @@ export default function ChefAreaDetailPage() {
                 <div className="grid grid-cols-1 gap-2">
                     {chefAreaProductsData.map((item) =>
                         // item.products.map((product) => (
-                        <ChefAreaProductDetailItem key={item.slug} chefAreaProduct={item} />
+                        <ChefAreaProductDetailItem key={item.slug} onSuccess={() => handleSuccess()} chefAreaProduct={item} />
                         // ))
                     )}
                 </div>

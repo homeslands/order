@@ -17,6 +17,18 @@ export class BranchRevenueQueryResponseDto {
   totalAmount: string;
 
   @AutoMap()
+  totalFinalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalOrderItemAmount: string;
+
+  @AutoMap()
+  totalFinalOrderItemAmount: string;
+
+  @AutoMap()
   totalOrder: string;
 }
 
@@ -69,6 +81,18 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalOrder: number;
+
+  @AutoMap()
+  @ApiProperty()
+  originalAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  voucherAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  promotionAmount: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {

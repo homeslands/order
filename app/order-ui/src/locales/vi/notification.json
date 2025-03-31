@@ -9,6 +9,20 @@
     "unread": "Chưa đọc",
     "type": "Loại thông báo",
     "order": "Đơn hàng mới",
-    "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm, nếu không thì không kịp mất"
+    "timeAgo": "{{time}}",
+    "new": "Mới",
+    "loadMore": "Tải thêm",
+    "loadingMore": "Đang tải thêm...",
+    "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm!",
+    "order-needs-delivered": "Đơn hàng cần giao hàng, vui lòng giao hàng sớm!",
+    "time": {
+      "justNow": "Vừa nãy",
+      "minutesAgo": "{{minutes}} phút trước",
+      "hoursAgo": "{{hours}} giờ trước",
+      "daysAgo": "{{days}} ngày trước",
+      "weeksAgo": "{{weeks}} tuần trước",
+      "monthsAgo": "{{months}} tháng trước",
+      "yearsAgo": "{{years}} năm trước"
+    }
   }
 }

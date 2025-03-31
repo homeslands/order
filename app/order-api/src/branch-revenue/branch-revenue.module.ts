@@ -16,5 +16,6 @@ import { DbModule } from 'src/db/db.module';
     BranchRevenueScheduler,
     BranchRevenueProfile,
   ],
+  exports: [BranchRevenueService],
 })
 export class BranchRevenueModule {}

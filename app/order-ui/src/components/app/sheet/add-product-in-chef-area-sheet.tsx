@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PlusCircle } from 'lucide-react'
@@ -18,22 +18,34 @@ import { ICreateChefAreaProductRequest } from '@/types'
 import { useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/chef-area/DataTable/columns'
 import { ConfirmAddChefAreaProductDialog } from '../dialog'
-import { useUserStore } from '@/stores'
 
-export default function AddProductInChefAreaSheet() {
+export default function AddProductInChefAreaSheet({ onSuccess, onRefetch, branch }: { onSuccess: () => void, onRefetch: boolean, branch: string }) {
   const { t } = useTranslation(['chefArea'])
   const [isOpen, setIsOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const { userInfo } = useUserStore()
+  const [resetKey, setResetKey] = useState(0)
   const { slug } = useParams()
   const [addProductInChefArea, setAddProductInChefArea] =
     useState<ICreateChefAreaProductRequest | null>(null)
-  const { data: products, isLoading } = useProducts({
-    branch: userInfo?.branch?.slug,
+  const { data: products, isLoading, refetch } = useProducts({
+    branch: branch,
     isAppliedBranchForChefArea: false,
   })
 
+  useEffect(() => {
+    if (sheetOpen) {
+      setAddProductInChefArea(null)
+      setResetKey(prev => prev + 1)
+    }
+  }, [sheetOpen])
+
   const productsData = products?.result
+
+  useEffect(() => {
+    if (onRefetch) {
+      refetch()
+    }
+  }, [onRefetch, refetch])
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -47,6 +59,14 @@ export default function AddProductInChefAreaSheet() {
       products: selectedSlug,
     })
   }
+
+  const handleSuccess = () => {
+    setAddProductInChefArea(null)
+    onSuccess()
+    refetch()
+    setSheetOpen(false)
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
@@ -74,12 +94,13 @@ export default function AddProductInChefAreaSheet() {
                 <DataTable
                   columns={useProductColumns({
                     onSelectionChange: handleSelectionChange,
+                    resetKey,
                   })}
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={1}
-                  onPageChange={() => {}}
-                  onPageSizeChange={() => {}}
+                  onPageChange={() => { }}
+                  onPageSizeChange={() => { }}
                 />
               </div>
             </div>
@@ -92,6 +113,7 @@ export default function AddProductInChefAreaSheet() {
               }
               productData={addProductInChefArea}
               isOpen={isOpen}
+              onSuccess={handleSuccess}
               onOpenChange={setIsOpen}
               onCloseSheet={() => setSheetOpen(false)}
             />

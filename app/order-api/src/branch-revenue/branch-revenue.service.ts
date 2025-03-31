@@ -167,10 +167,16 @@ export class BranchRevenueService {
             date: date.toDate(),
             totalAmount: 0,
             totalOrder: 0,
+            originalAmount: 0,
+            voucherAmount: 0,
+            promotionAmount: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
         acc[index].totalOrder += item.totalOrder;
+        acc[index].originalAmount += item.originalAmount;
+        acc[index].voucherAmount += item.voucherAmount;
+        acc[index].promotionAmount += item.promotionAmount;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -194,10 +200,16 @@ export class BranchRevenueService {
             date: date.toDate(),
             totalAmount: 0,
             totalOrder: 0,
+            originalAmount: 0,
+            voucherAmount: 0,
+            promotionAmount: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
         acc[index].totalOrder += item.totalOrder;
+        acc[index].originalAmount += item.originalAmount;
+        acc[index].voucherAmount += item.voucherAmount;
+        acc[index].promotionAmount += item.promotionAmount;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -302,7 +314,13 @@ export class BranchRevenueService {
         if (existedInNewData) {
           if (
             existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
-            existedInNewData.totalOrder !== existedBranchRevenue.totalOrder
+            existedInNewData.totalOrder !== existedBranchRevenue.totalOrder ||
+            existedInNewData.originalAmount !==
+              existedBranchRevenue.originalAmount ||
+            existedInNewData.voucherAmount !==
+              existedBranchRevenue.voucherAmount ||
+            existedInNewData.promotionAmount !==
+              existedBranchRevenue.promotionAmount
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -324,6 +342,9 @@ export class BranchRevenueService {
           Object.assign(newRevenue, {
             totalAmount: 0,
             totalOrder: 0,
+            originalAmount: 0,
+            voucherAmount: 0,
+            promotionAmount: 0,
             date,
             branchId: branch.id,
           });
@@ -496,6 +517,9 @@ export class BranchRevenueService {
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          originalAmount: 0,
+          voucherAmount: 0,
+          promotionAmount: 0,
           date: dateFull,
           branchId,
         });
@@ -543,7 +567,13 @@ export class BranchRevenueService {
       if (existedBranchRevenue) {
         if (
           existedBranchRevenue.totalAmount !== newBranchRevenue.totalAmount ||
-          existedBranchRevenue.totalOrder !== newBranchRevenue.totalOrder
+          existedBranchRevenue.totalOrder !== newBranchRevenue.totalOrder ||
+          existedBranchRevenue.originalAmount !==
+            newBranchRevenue.originalAmount ||
+          existedBranchRevenue.voucherAmount !==
+            newBranchRevenue.voucherAmount ||
+          existedBranchRevenue.promotionAmount !==
+            newBranchRevenue.promotionAmount
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);

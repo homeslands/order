@@ -17,11 +17,12 @@ import { http } from '@/utils'
 export async function getChefAreas(
   branch: string,
 ): Promise<IApiResponse<IChefArea[]>> {
-  const response = await http.get(`/chef-area/`, {
+  const response = await http.get<IApiResponse<IChefArea[]>>(`/chef-area/`, {
     // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
     doNotShowLoading: true,
     params: { branch },
   })
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
   return response.data
 }
 

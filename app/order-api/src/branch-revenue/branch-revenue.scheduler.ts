@@ -48,8 +48,7 @@ export class BranchRevenueScheduler {
     // handle the date have not payment
     const results: BranchRevenueQueryResponseDto[] =
       await this.branchRevenueRepository.query(getAllBranchRevenueClause);
-
-    // console.log({results})
+    // console.log({ results });
     const branchRevenues = results.map((item) => {
       return this.mapper.map(
         item,
@@ -57,18 +56,16 @@ export class BranchRevenueScheduler {
         BranchRevenue,
       );
     });
+    // console.log({ branchRevenues });
 
     const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
-    // console.log({groupedDatasByBranch})
 
     let revenuesFillZero: BranchRevenue[] = [];
     for (const groupedDataByBranch of groupedDatasByBranch) {
-      // console.log({groupedDataByBranch})
       const revenueFillZero: BranchRevenue[] =
         this.fillZeroForEmptyDate(groupedDataByBranch);
       revenuesFillZero = revenuesFillZero.concat(revenueFillZero);
     }
-    // console.log({revenuesFillZero});
 
     this.transactionManagerService.execute(
       async (manager) => {
@@ -148,6 +145,9 @@ export class BranchRevenueScheduler {
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          originalAmount: 0,
+          voucherAmount: 0,
+          promotionAmount: 0,
           date: dateFull,
           branchId: firstBranchRevenue.branchId,
         });

@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
-    Badge, Button, Tooltip,
+    Button, Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
@@ -17,11 +17,10 @@ export default function ChefAreaCard({ chefArea }: { chefArea: IChefArea }) {
     const { t: tCommon } = useTranslation('common')
 
     return (
-        <div className='flex flex-col gap-2 border rounded-md' key={chefArea.slug}>
+        <div className='flex flex-col gap-2 rounded-md border' key={chefArea.slug}>
             <div className='p-4'>
-                <div className='flex items-center justify-between gap-2'>
+                <div className='flex gap-2 justify-between items-center'>
                     <span className='text-xl font-extrabold'>{chefArea.name}</span>
-                    <Badge className='text-sm font-normal'>{chefArea.branch.name}</Badge>
                 </div>
                 <div className='text-sm text-muted-foreground'>
                     {chefArea.description}
@@ -30,7 +29,7 @@ export default function ChefAreaCard({ chefArea }: { chefArea: IChefArea }) {
                     {t('chefArea.createdAt')}: {moment(chefArea.createdAt).format('DD/MM/YYYY')}
                 </div>
             </div>
-            <div className='flex items-center justify-between p-4 border-t bg-muted-foreground/5'>
+            <div className='flex justify-between items-center p-4 border-t bg-muted-foreground/5'>
                 <NavLink to={`${ROUTE.STAFF_CHEF_AREA_MANAGEMENT}/${chefArea.slug}`}>
                     <Button>
                         {tCommon('common.viewDetail')}

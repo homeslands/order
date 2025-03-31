@@ -35,19 +35,23 @@ export default function OrderManagementPage() {
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [slug, setSlug] = useState(searchParams.get('slug') || '')
+  const [slug, setSlug] = useState(searchParams.get('slug') || selectedRow)
 
   useEffect(() => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev)
-      newParams.set('slug', slug)
+      if (slug === '') {
+        newParams.delete('slug')
+        newParams.set('slug', selectedRow)
+      }
       return newParams
     })
+
     setIsSheetOpen(slug !== '')
     if (slug !== '') {
       setOrderSlug(slug)
     }
-  }, [setSearchParams, slug, setIsSheetOpen, setOrderSlug])
+  }, [setSearchParams, slug, setIsSheetOpen, setOrderSlug, selectedRow])
 
   const handleCloseSheet = () => {
     setIsSheetOpen(false)

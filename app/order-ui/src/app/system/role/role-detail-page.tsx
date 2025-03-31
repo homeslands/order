@@ -81,17 +81,17 @@ export default function RoleDetailPage() {
             {/* Header Section */}
             <div className="flex flex-col gap-4">
                 <div className="flex items-center">
-                    <div className="flex items-center gap-2 text-lg font-semibold">
+                    <div className="flex gap-2 items-center text-lg font-semibold">
                         <SquareMenu className="w-6 h-6" />
                         <p>{t('role.title')}</p>
                     </div>
                 </div>
-                <div className="flex items-center justify-between gap-4">
-                    <div className='flex items-center gap-2'>
+                <div className="flex gap-4 justify-between items-center">
+                    <div className='flex gap-2 items-center'>
                         <span className='text-sm text-muted-foreground'>{t(`role.name`)}</span>
                         <Badge className='text-sm font-normal'>{roleDetail?.name}</Badge>
                     </div>
-                    <div className="flex justify-end gap-2 mt-4">
+                    <div className="flex gap-2 justify-end mt-4">
                         <Button variant="outline" onClick={() => setSelectedPermissions({
                             role: slug as string,
                             createAuthorities: [],
@@ -105,6 +105,7 @@ export default function RoleDetailPage() {
                         />
                     </div>
                 </div>
+                <span className='text-sm text-destructive'>{t('role.needLoginAgain')}</span>
             </div>
             <h2 className="text-lg font-semibold">{t('role.authorityList')}</h2>
             <Accordion type="multiple" className="space-y-4">
@@ -113,9 +114,9 @@ export default function RoleDetailPage() {
                     const totalCount = group.authorities.length;
 
                     return (
-                        <AccordionItem key={group.slug} value={group.slug} className="border rounded-lg border-primary/40">
-                            <AccordionTrigger className="flex justify-between p-4 border-b rounded-b-none border-primary/40 hover:bg-primary/5">
-                                <div className="flex items-center gap-4">
+                        <AccordionItem key={group.slug} value={group.slug} className="rounded-lg border border-primary/40">
+                            <AccordionTrigger className="flex justify-between p-4 rounded-b-none border-b border-primary/40 hover:bg-primary/5">
+                                <div className="flex gap-4 items-center">
                                     <span>{group.name}</span>
                                     <Badge className="text-xs bg-primary/20 text-primary">
                                         {activeCount}/{totalCount}
@@ -123,7 +124,7 @@ export default function RoleDetailPage() {
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className='px-4 py-2 space-y-2'>
-                                <div className='flex items-center justify-end gap-2'>
+                                <div className='flex gap-2 justify-end items-center'>
                                     <Label>
                                         {tCommon('common.selectAll')}
                                     </Label>

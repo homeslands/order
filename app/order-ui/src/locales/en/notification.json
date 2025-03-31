@@ -9,6 +9,16 @@
         "unread": "Unread",
         "type": "Notification type",
         "order": "New order",
-        "order-needs-processed": "Order needs processed, please process it quickly"
+        "order-needs-processed": "Order needs processed, please process it quickly",
+        "order-needs-delivered": "Order needs delivered, please deliver it quickly",
+        "time": {
+            "justNow": "Just now",
+            "minutesAgo": "{{minutes}} minutes ago",
+            "hoursAgo": "{{hours}} hours ago",
+            "daysAgo": "{{days}} days ago",
+            "weeksAgo": "{{weeks}} weeks ago",
+            "monthsAgo": "{{months}} months ago",
+            "yearsAgo": "{{years}} years ago"
+        }
     }
 }

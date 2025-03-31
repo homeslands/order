@@ -24,6 +24,11 @@ import { ChefOrder } from 'src/chef-order/chef-order.entity';
 export class Order extends Base {
   @IsNumber()
   @AutoMap()
+  @Column({ name: 'original_subtotal_column', default: 0 })
+  originalSubtotal: number;
+
+  @IsNumber()
+  @AutoMap()
   @Column({ name: 'subtotal_column' })
   subtotal: number;
 

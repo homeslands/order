@@ -14,6 +14,10 @@ export class OrderItem extends Base {
   quantity: number;
 
   @AutoMap()
+  @Column({ name: 'original_subtotal_column', default: 0 })
+  originalSubtotal: number;
+
+  @AutoMap()
   @Column({ name: 'subtotal_column' })
   subtotal: number;
 

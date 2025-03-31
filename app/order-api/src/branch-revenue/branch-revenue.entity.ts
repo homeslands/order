@@ -8,6 +8,18 @@ export class BranchRevenue extends Base {
   @AutoMap()
   totalAmount: number;
 
+  @Column({ name: 'original_amount_column', default: 0 })
+  @AutoMap()
+  originalAmount: number;
+
+  @Column({ name: 'voucher_amount_column', default: 0 })
+  @AutoMap()
+  voucherAmount: number;
+
+  @Column({ name: 'promotion_amount_column', default: 0 })
+  @AutoMap()
+  promotionAmount: number;
+
   @AutoMap()
   @Column({ name: 'branch_id_column' })
   branchId: string;

@@ -37,10 +37,10 @@ export function SystemMenuManagementTabs() {
           {t('menu.noTemplate')}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="isTemplate" className="w-full p-0">
+      <TabsContent value="isTemplate" className="p-0 w-full">
         <SystemMenuManagementTabsContent />
       </TabsContent>
-      <TabsContent value="notTemplate" className="w-full p-0">
+      <TabsContent value="notTemplate" className="p-0 w-full">
         <SystemMenuManagementTabsContent />
       </TabsContent>
     </Tabs>

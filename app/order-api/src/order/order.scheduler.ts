@@ -2,6 +2,9 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { OrderUtils } from './order.utils';
+import { Order } from './order.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OrderScheduler {
@@ -9,6 +12,8 @@ export class OrderScheduler {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly orderUtils: OrderUtils,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
   ) {}
 
   handleDeleteOrder(orderSlug: string, delay: number) {
@@ -35,4 +40,25 @@ export class OrderScheduler {
 
     this.schedulerRegistry.addTimeout(jobName, job);
   }
+
+  // @Timeout(60000)
+  // async initOriginalSubtotal() {
+  //   const context = `${OrderScheduler.name}.${this.initOriginalSubtotal.name}`;
+  //   const orders = await this.orderRepository.find({
+  //     relations: ['orderItems'],
+  //   });
+  //   const updatedOrders: Order[] = [];
+  //   for (const order of orders) {
+  //     order.originalSubtotal = order.orderItems.reduce(
+  //       (acc, item) => acc + item.originalSubtotal,
+  //       0,
+  //     );
+  //     updatedOrders.push(order);
+  //   }
+  //   await this.orderRepository.save(updatedOrders);
+  //   this.logger.log(
+  //     `Init original subtotal for ${orders.length} orders`,
+  //     context,
+  //   );
+  // }
 }
