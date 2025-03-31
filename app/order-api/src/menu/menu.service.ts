@@ -277,7 +277,7 @@ export class MenuService {
   /**
    *
    * @param {any} query
-   * @returns {Promise<MenuResponseDto[]>} All menus retrieved successfully
+   * @returns {Promise<AppPaginatedResponseDto<MenuResponseDto>>} All menus retrieved successfully
    */
   async getAllMenus(
     query: GetAllMenuQueryRequestDto,

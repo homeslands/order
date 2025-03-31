@@ -7,10 +7,9 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
-  Min,
   ValidateNested,
 } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
   CreateTrackingOrderItemRequestDto,
   TrackingOrderItemResponseDto,
@@ -48,7 +47,7 @@ export class TrackingResponseDto extends BaseResponseDto {
   trackingOrderItems: TrackingOrderItemResponseDto[];
 }
 
-export class ChangeStatusRequestDto {
+export class ChangeStatusRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({ description: 'The status of tracking', example: 'PENDING' })
   @IsNotEmpty({ message: 'Invalid status of tracking' })
@@ -56,7 +55,7 @@ export class ChangeStatusRequestDto {
   status: string;
 }
 
-export class GetTrackingRequestDto {
+export class GetTrackingRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'Tracking status',
@@ -80,26 +79,4 @@ export class GetTrackingRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 1,
-    description: 'Page number',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
 }

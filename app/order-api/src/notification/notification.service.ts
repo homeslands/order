@@ -3,7 +3,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import {
   CreateNotificationDto,
   GetAllNotificationDto,
@@ -14,6 +14,7 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { UserUtils } from 'src/user/user.utils';
 import { NotificationException } from './notification.exception';
 import { NotificationValidation } from './notification.validation';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class NotificationService {
@@ -35,7 +36,7 @@ export class NotificationService {
    */
   async readNotification(slug: string): Promise<NotificationResponseDto> {
     const notification = await this.notificationRepository.findOne({
-      where: { slug },
+      where: { slug: slug ?? IsNull() },
     });
 
     if (!notification) {
@@ -83,13 +84,16 @@ export class NotificationService {
   /**
    * Get all notifications
    * @param {GetAllNotificationDto} options - The options for the query
-   * @returns {Promise<NotificationResponseDto[]>} The notifications
+   * @returns {Promise<AppPaginatedResponseDto<NotificationResponseDto>>} The notifications
    */
   async findAll(
     options: GetAllNotificationDto,
-  ): Promise<NotificationResponseDto[]> {
-    const query =
-      this.notificationRepository.createQueryBuilder('notification');
+  ): Promise<AppPaginatedResponseDto<NotificationResponseDto>> {
+    const query = this.notificationRepository
+      .createQueryBuilder('notification')
+      .orderBy('notification.createdAt', 'DESC')
+      .limit(options.size)
+      .offset((options.page - 1) * options.size);
 
     if (options.receiver) {
       const receiver = await this.userUtils.getUser({
@@ -114,10 +118,23 @@ export class NotificationService {
 
     const notifications = await query.getMany();
 
-    return this.mapper.mapArray(
-      notifications,
-      Notification,
-      NotificationResponseDto,
-    );
+    const total = await query.getCount();
+    const totalPages = Math.ceil(total / options.size);
+    const hasNext = options.page < totalPages;
+    const hasPrevious = options.page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: this.mapper.mapArray(
+        notifications,
+        Notification,
+        NotificationResponseDto,
+      ),
+      total,
+      page: options.page,
+      pageSize: options.size,
+      totalPages,
+    } as AppPaginatedResponseDto<NotificationResponseDto>;
   }
 }

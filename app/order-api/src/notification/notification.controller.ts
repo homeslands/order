@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -13,7 +14,7 @@ import {
   GetAllNotificationDto,
   NotificationResponseDto,
 } from './notification.dto';
-import { AppResponseDto } from 'src/app/app.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('notification')
@@ -26,14 +27,17 @@ export class NotificationController {
   @ApiOperation({ summary: 'Get all notifications' })
   @Public()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() options: GetAllNotificationDto) {
+  async findAll(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    options: GetAllNotificationDto,
+  ) {
     const result = await this.notificationService.findAll(options);
     return {
       message: 'Get all notifications successfully',
       statusCode: HttpStatus.OK,
       result,
       timestamp: new Date().toISOString(),
-    } as AppResponseDto<NotificationResponseDto[]>;
+    } as AppResponseDto<AppPaginatedResponseDto<NotificationResponseDto>>;
   }
 
   @Patch(':slug/read')

@@ -196,9 +196,13 @@ export class ProductChefAreaService {
       );
 
       if (existingGroup) {
-        existingGroup.products.push(
-          this.mapper.map(product, Product, ProductResponseDto),
+        const productDto = this.mapper.map(
+          product,
+          Product,
+          ProductResponseDto,
         );
+        Object.assign(productDto, { productChefArea: slug });
+        existingGroup.products.push(productDto);
       } else {
         const productDto = this.mapper.map(
           product,
