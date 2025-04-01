@@ -76,7 +76,7 @@ export class ChefOrderService {
         relations: [
           'chefAreas.chefOrders.chefOrderItems.orderItem.variant.size',
           'chefAreas.chefOrders.chefOrderItems.orderItem.variant.product',
-          'chefAreas.chefOrders.order',
+          'chefAreas.chefOrders.order.table',
         ],
       });
 
