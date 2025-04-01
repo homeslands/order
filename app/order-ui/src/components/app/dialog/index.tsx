@@ -124,3 +124,5 @@ export { default as ConfirmUpdateChefOrderStatusDialog } from './confirm-update-
 export { default as ConfirmCompleteChefOrderDialog } from './confirm-complete-chef-order-dialog'
 
 export { default as ShowInvoiceDialog } from './show-invoice-dialog'
+
+export { default as ConfirmLeavingRoleDetailPageDialog } from './confirm-leaving-role-detail-page'

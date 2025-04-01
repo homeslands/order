@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useBlocker } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 import { SquareMenu } from 'lucide-react';
@@ -9,7 +9,7 @@ import { RoleDetailSkeleton } from '@/components/app/skeleton';
 import { Switch, Label, Badge, Button } from '@/components/ui';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './components';
 import { IAuthorityGroup, ICreatePermissionRequest } from '@/types';
-import { ConfirmCreatePermissionDialog } from '@/components/app/dialog';
+import { ConfirmCreatePermissionDialog, ConfirmLeavingRoleDetailPageDialog } from '@/components/app/dialog';
 
 export default function RoleDetailPage() {
     const { t } = useTranslation(['role']);
@@ -18,16 +18,47 @@ export default function RoleDetailPage() {
     const { slug } = useParams();
     const { data: role, isLoading, refetch } = useRoleBySlug(slug as string);
     const { data: authority } = useGetAuthorityGroup({ role: slug, inRole: true });
-
     const roleDetail = role?.result;
     const authorityGroups = authority?.result as IAuthorityGroup[];
-
+    const [isOpenConfirmLeavingRoleDetailPageDialog, setIsOpenConfirmLeavingRoleDetailPageDialog] = useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState<ICreatePermissionRequest>({
         role: slug as string,
         createAuthorities: [],
         deleteAuthorities: []
     });
 
+    const hasUnsavedChanges = selectedPermissions.createAuthorities.length > 0 || selectedPermissions.deleteAuthorities.length > 0;
+
+    const blocker = useBlocker(() => hasUnsavedChanges);
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges) {
+                event.preventDefault();
+                event.returnValue = ""
+            }
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [hasUnsavedChanges]);
+
+    useEffect(() => {
+        if (blocker.state === "blocked") {
+            setIsOpenConfirmLeavingRoleDetailPageDialog(true);
+        }
+    }, [blocker]);
+
+    const handleConfirmLeave = () => {
+        setSelectedPermissions({
+            role: slug as string,
+            createAuthorities: [],
+            deleteAuthorities: []
+        });
+        if (blocker.proceed) {
+            blocker.proceed();
+        }
+    };
     const handlePermissionToggle = (authoritySlug: string, isChecked: boolean) => {
         setSelectedPermissions((prev) => {
             const newPermissions = { ...prev };
@@ -75,6 +106,11 @@ export default function RoleDetailPage() {
 
     return (
         <div className="flex flex-col gap-3">
+            <ConfirmLeavingRoleDetailPageDialog
+                isOpen={isOpenConfirmLeavingRoleDetailPageDialog}
+                onOpenChange={setIsOpenConfirmLeavingRoleDetailPageDialog}
+                onConfirm={handleConfirmLeave}
+            />
             <Helmet>
                 <title>{tHelmet('helmet.role.title')}</title>
             </Helmet>

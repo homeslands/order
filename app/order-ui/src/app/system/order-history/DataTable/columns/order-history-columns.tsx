@@ -16,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder, OrderStatus } from '@/types'
+import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
 import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
 import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
@@ -51,6 +51,20 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   }
   return [
     {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue('createdAt')
+        return (
+          <div className="text-sm">
+            {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'slug',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.slug')} />
@@ -83,20 +97,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
-      accessorKey: 'paymentStatus',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('order.orderStatus')} />
-      ),
-      cell: ({ row }) => {
-        const order = row.original
-        return (
-          <div className="flex flex-col">
-            <OrderStatusBadge order={order} />
-          </div>
-        )
-      },
-    },
-    {
       accessorKey: 'owner',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.owner')} />
@@ -111,6 +111,30 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
+      accessorKey: 'table',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.table')} />
+      ),
+      cell: ({ row }) => {
+        const location = row.original.type === OrderTypeEnum.AT_TABLE ? t('order.at-table') + " " + row.original.table?.name || "" : t('order.take-out')
+        return <div className="text-sm">{location}</div>
+      },
+    },
+    {
+      accessorKey: 'paymentStatus',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.orderStatus')} />
+      ),
+      cell: ({ row }) => {
+        const order = row.original
+        return (
+          <div className="flex flex-col">
+            <OrderStatusBadge order={order} />
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'subtotal',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.subtotal')} />
@@ -119,20 +143,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         const order = row.original
         return (
           <div className="text-sm">{formatCurrency(order?.subtotal || 0)}</div>
-        )
-      },
-    },
-    {
-      accessorKey: 'createdAt',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
-      ),
-      cell: ({ row }) => {
-        const createdAt = row.getValue('createdAt')
-        return (
-          <div className="text-sm">
-            {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
-          </div>
         )
       },
     },

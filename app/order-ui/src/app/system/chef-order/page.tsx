@@ -36,13 +36,14 @@ export default function ChefOrderPage() {
   }, [slug, setSearchParams, setIsSheetOpen, selectedRow])
 
   const { handlePageChange, handlePageSizeChange } = usePagination()
-
+  const [selectedChefOrderStatus, setSelectedChefOrderStatus] = useState<string>('all')
   const handleCloseSheet = () => {
     setIsSheetOpen(false)
   }
 
   const chefOrderParams: IGetChefOrderRequest = {
     chefArea: chefOrderSlug,
+    ...(selectedChefOrderStatus !== 'all' && { status: selectedChefOrderStatus })
   }
 
   const {
@@ -75,6 +76,9 @@ export default function ChefOrderPage() {
     setEnableFetch(true)
     setIsSheetOpen(true)
   }
+  const handleSelectStatus = (status: string) => {
+    setSelectedChefOrderStatus(status)
+  }
 
   return (
     <div className="flex flex-col flex-1 gap-2">
@@ -96,7 +100,7 @@ export default function ChefOrderPage() {
           data={chefOrders?.result || []}
           columns={usePendingChefOrdersColumns()}
           pages={1}
-          actionOptions={ChefOrderActionOptions({ onSelect: handleSelect })}
+          actionOptions={ChefOrderActionOptions({ onSelect: handleSelect, onSelectStatus: handleSelectStatus })}
           onRowClick={handleChefOrderClick}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}

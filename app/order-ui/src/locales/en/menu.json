@@ -20,6 +20,8 @@
     "enterNote": "Enter note",
     "menu": "Menu",
     "table": "Table list",
+    "take-out": "Take out",
+    "at-table": "Table",
     "tableNote": "Table note",
     "selectTable": "Select table",
     "selectedTable": "Selected table",
@@ -179,7 +181,6 @@
     "completed": "Completed",
     "shipping": "Shipping",
     "failed": "Failed",
-
     "orderDetail": "Order details",
     "order": "Order",
     "cashier": "Cashier",

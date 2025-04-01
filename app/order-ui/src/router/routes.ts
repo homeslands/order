@@ -32,7 +32,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.menu',
     path: ROUTE.STAFF_MENU,
     icon: LayoutGrid,
-    permission: Permission.MENU_MANAGEMENT,
+    permission: Permission.STAFF_MENU,
   },
   {
     title: 'sidebar.orderManagement',
@@ -44,7 +44,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.chefOrderManagement',
     path: ROUTE.STAFF_CHEF_ORDER,
     icon: FileChartColumnIncreasing,
-    permission: Permission.DELIVERY_MANAGEMENT,
+    permission: Permission.CHEF_ORDER_MANAGEMENT,
   },
   {
     title: 'sidebar.orderHistory',
@@ -98,7 +98,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.chefAreaManagement',
     path: ROUTE.STAFF_CHEF_AREA_MANAGEMENT,
     icon: ChefHat,
-    permission: Permission.ROLE_MANAGEMENT,
+    permission: Permission.CHEF_AREA_MANAGEMENT,
   },
   {
     title: 'sidebar.staticPageManagement',

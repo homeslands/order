@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
@@ -8,39 +8,29 @@ import CustomerOrderTabs from './customer-order.tabs'
 
 export function CustomerProfileTabs() {
   const { t } = useTranslation(['profile'])
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState(searchParams.get('tab') || 'info')
 
   useEffect(() => {
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev)
-      newParams.set('tab', tab)
-      return newParams
-    })
-  }, [setSearchParams, tab])
+    setTab(searchParams.get('tab') || 'info')
+  }, [searchParams, location])
+
+  const handleTabChange = (newTab: string) => {
+    setTab(newTab)
+    setSearchParams({ tab: newTab }) // Cập nhật URL khi thay đổi tab
+  }
 
   return (
-    <Tabs defaultValue={tab} className="w-full">
+    <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
       <TabsList className="grid grid-cols-3 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
-        <TabsTrigger
-          value="info"
-          className="flex justify-center"
-          onClick={() => setTab('info')}
-        >
+        <TabsTrigger value="info" className="flex justify-center">
           {t('profile.generalInfo')}
         </TabsTrigger>
-        <TabsTrigger
-          value="notification"
-          className="flex justify-center"
-          onClick={() => setTab('notification')}
-        >
+        <TabsTrigger value="notification" className="flex justify-center">
           {t('profile.notification')}
         </TabsTrigger>
-        <TabsTrigger
-          value="history"
-          className="flex justify-center"
-          onClick={() => setTab('history')}
-        >
+        <TabsTrigger value="history" className="flex justify-center">
           {t('profile.history')}
         </TabsTrigger>
       </TabsList>

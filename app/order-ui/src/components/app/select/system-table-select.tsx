@@ -67,7 +67,7 @@ export default function SystemTableSelect() {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-wrap gap-4 p-4">
+            <div className="flex flex-wrap justify-center gap-4 p-4">
                 {tables?.result.map((table) => (
                     <NonResizableTableItem
                         key={table.slug}

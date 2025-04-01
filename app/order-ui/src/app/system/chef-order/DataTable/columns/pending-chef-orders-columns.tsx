@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ChefOrderStatus, IChefOrders } from '@/types'
+import { ChefOrderStatus, IChefOrders, OrderTypeEnum } from '@/types'
 import {
   ConfirmCompleteChefOrderDialog,
   ConfirmUpdateChefOrderStatusDialog,
@@ -58,7 +58,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         <DataTableColumnHeader column={column} title={t('chefOrder.slug')} />
       ),
       cell: ({ row }) => {
-        const slug = row.original.slug
+        const slug = row.original.order.slug
         return <span className="text-sm text-muted-foreground">{slug}</span>
       },
     },
@@ -77,6 +77,16 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
           </span>
         )
+      },
+    },
+    {
+      accessorKey: 'location',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.location')} />
+      ),
+      cell: ({ row }) => {
+        const location = row.original.order.type === OrderTypeEnum.AT_TABLE ? t('chefOrder.table') : t('chefOrder.take-out')
+        return <span className="text-sm text-muted-foreground">{location}</span>
       },
     },
     {
@@ -101,7 +111,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       cell: ({ row }) => {
         const status = row.original.status
         return (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground">
             <ChefOrderStatusBadge status={status} />
           </span>
         )

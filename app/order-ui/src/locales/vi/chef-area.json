@@ -30,11 +30,15 @@
     "slug": "Mã đơn hàng",
     "createdAt": "Ngày tạo",
     "productName": "Tên món",
+    "quantity": "Số lượng",
+    "location": "Vị trí",
     "note": "Ghi chú",
     "noNote": "Không có ghi chú",
     "status": "Trạng thái",
+    "all": "Tất cả",
     "accepted": "Đã tiếp nhận",
     "pending": "Chờ làm",
+    "rejected": "Từ chối",
     "inProgress": "Đang làm",
     "completed": "Hoàn thành",
     "items": "món",
@@ -46,6 +50,9 @@
     "startCooking": "Bắt đầu nấu",
     "complete": "Hoàn thành",
     "selectChefArea": "Chọn khu vực bếp",
-    "chefOrderDetail": "Chi tiết đơn hàng"
+    "selectChefOrderStatus": "Chọn trạng thái đơn hàng",
+    "chefOrderDetail": "Chi tiết đơn hàng",
+    "table": "Bàn",
+    "take-out": "Mang đi"
   }
 }

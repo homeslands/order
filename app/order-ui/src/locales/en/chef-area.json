@@ -29,18 +29,25 @@
     "slug": "Order code",
     "createdAt": "Created at",
     "productName": "Product name",
+    "quantity": "Quantity",
+    "location": "Location",
     "note": "Note",
     "noNote": "No note",
     "status": "Status",
     "accepted": "Accepted",
+    "all": "All",
     "pending": "Pending",
     "inProgress": "In progress",
     "completed": "Completed",
+    "rejected": "Rejected",
     "updateStatus": "Update status",
     "confirmUpdateStatus": "Confirm update order status",
     "startCooking": "Start cooking",
     "complete": "Complete",
     "selectChefArea": "Select chef area",
-    "chefOrderDetail": "Order detail"
+    "selectChefOrderStatus": "Select chef order status",
+    "chefOrderDetail": "Order detail",
+    "take-out": "Take out",
+    "table": "Table"
   }
 }

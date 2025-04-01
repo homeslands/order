@@ -1,6 +1,7 @@
 import { IBase } from './base.type'
 import { IBranch } from './branch.type'
 import { IProduct, IProductVariant } from './product.type'
+import { ITable } from './table.type'
 
 export enum ChefOrderStatus {
   PENDING = 'pending',
@@ -93,6 +94,7 @@ export interface IChefOrderInfo extends IBase {
   subtotal: number
   status: string
   type: string
+  table: ITable
 }
 
 export interface IUpdateChefOrderStatusRequest {
