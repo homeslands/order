@@ -123,7 +123,7 @@ export default function SystemNotificationPopover() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 px-0 py-0 border-primary text-center text-xs lg:min-w-[30%]">
+      <PopoverContent className="w-96 px-0 py-0 text-center text-xs lg:min-w-[30%]">
         {notificationList.length > 0 ? (
           <div>
             <div className="flex justify-between items-center px-4 py-3 border-b border-muted-foreground/30">

@@ -8,7 +8,7 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui'
 import { ChefOrderStatus } from '@/types'
 
 interface ChefOrderStatusSelectProps {
@@ -17,7 +17,7 @@ interface ChefOrderStatusSelectProps {
 }
 export default function ChefOrderStatusSelect({
     onSelect,
-    value,
+    value = 'all',
 }: ChefOrderStatusSelectProps) {
     const { t } = useTranslation(['chefArea'])
     const chefOrderStatus = Object.values(ChefOrderStatus).map((status) => ({
@@ -36,7 +36,7 @@ export default function ChefOrderStatusSelect({
 
     return (
         <Select onValueChange={handleSelect} value={value}>
-            <SelectTrigger className="min-w-32 w-fit sm:min-w-36 h-10">
+            <SelectTrigger className="h-10 min-w-32 w-fit sm:min-w-36">
                 <SelectValue placeholder={t('chefOrder.selectChefOrderStatus')} />
             </SelectTrigger>
             <SelectContent>

@@ -167,7 +167,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                 {orderItem.variant.product.name}
               </Badge>
               <Badge variant="outline" className="text-xs">
-                {orderItem.variant.size?.name.toUpperCase()}
+                Size {orderItem.variant.size?.name.toUpperCase()}
               </Badge>
             </div>
           </div>

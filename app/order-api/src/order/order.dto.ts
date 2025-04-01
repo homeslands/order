@@ -240,4 +240,16 @@ export class GetOrderRequestDto extends BaseQueryDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-26' })
+  @Type(() => Date)
+  @IsOptional()
+  startDate?: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-27' })
+  @Type(() => Date)
+  @IsOptional()
+  endDate?: Date;
 }

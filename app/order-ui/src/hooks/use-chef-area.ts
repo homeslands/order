@@ -120,10 +120,14 @@ export const useGetChefOrders = (params: IGetChefOrderRequest) => {
   })
 }
 
-export const useGetSpecificChefOrder = (slug: string) => {
+export const useGetSpecificChefOrder = (
+  slug: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [QUERYKEY.chefOrders, { slug }],
     queryFn: () => getSpecificChefOrder(slug),
+    enabled: options?.enabled,
   })
 }
 

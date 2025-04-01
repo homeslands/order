@@ -45,7 +45,6 @@ export class GetBranchRevenueQueryDto {
 
   @AutoMap()
   @ApiProperty({ required: false, example: 'day' })
-  // @IsNotEmpty({ message: 'Invalid type of revenue query' })
   @IsOptional()
   @IsEnum(RevenueTypeQuery, { message: 'Invalid type of branch revenue query' })
   type: string = 'day';

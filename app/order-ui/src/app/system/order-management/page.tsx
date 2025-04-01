@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
@@ -15,7 +16,7 @@ import { IOrder, OrderStatus } from '@/types'
 import { usePendingOrdersColumns } from './DataTable/columns'
 import { OrderItemDetailSheet } from '@/components/app/sheet'
 import { OrderFilter } from './DataTable/filters'
-import { useSearchParams } from 'react-router-dom'
+
 export default function OrderManagementPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
@@ -40,14 +41,11 @@ export default function OrderManagementPage() {
   useEffect(() => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev)
-      if (slug === '') {
-        newParams.delete('slug')
-        newParams.set('slug', selectedRow)
-      }
+      newParams.set('slug', slug)
       return newParams
     })
 
-    setIsSheetOpen(slug !== '')
+    // setIsSheetOpen(slug !== '')
     if (slug !== '') {
       setOrderSlug(slug)
     }
