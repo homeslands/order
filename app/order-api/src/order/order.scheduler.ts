@@ -40,25 +40,4 @@ export class OrderScheduler {
 
     this.schedulerRegistry.addTimeout(jobName, job);
   }
-
-  // @Timeout(60000)
-  // async initOriginalSubtotal() {
-  //   const context = `${OrderScheduler.name}.${this.initOriginalSubtotal.name}`;
-  //   const orders = await this.orderRepository.find({
-  //     relations: ['orderItems'],
-  //   });
-  //   const updatedOrders: Order[] = [];
-  //   for (const order of orders) {
-  //     order.originalSubtotal = order.orderItems.reduce(
-  //       (acc, item) => acc + item.originalSubtotal,
-  //       0,
-  //     );
-  //     updatedOrders.push(order);
-  //   }
-  //   await this.orderRepository.save(updatedOrders);
-  //   this.logger.log(
-  //     `Init original subtotal for ${orders.length} orders`,
-  //     context,
-  //   );
-  // }
 }
