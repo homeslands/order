@@ -2,9 +2,9 @@ export const getCurrentBranchRevenueClause = `
     SELECT 
         order_tbl.branch_column AS branchId,
         DATE(order_tbl.created_at_column) AS date,
-        SUM(payment_tbl.amount_column) AS totalAmount,
-        SUM(order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
+        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
+        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
+        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
         SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
         SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
         COUNT(DISTINCT order_tbl.id_column) AS totalOrder
@@ -33,9 +33,9 @@ export const getYesterdayBranchRevenueClause = `
     SELECT 
         order_tbl.branch_column AS branchId,
         DATE(order_tbl.created_at_column) AS date,
-        SUM(payment_tbl.amount_column) AS totalAmount,
-        SUM(order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
+        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
+        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
+        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
         SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
         SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
         COUNT(DISTINCT order_tbl.id_column) AS totalOrder
@@ -62,11 +62,11 @@ export const getYesterdayBranchRevenueClause = `
 
 export const getAllBranchRevenueClause = `
     SELECT 
-        order_tbl.branch_column AS branchId,
+        order_tbl.branch_column AS branchId, 
         DATE(order_tbl.created_at_column) AS date,
-        SUM(payment_tbl.amount_column) AS totalAmount,
-        SUM(order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
+        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
+        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
+        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
         SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
         SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
         COUNT(DISTINCT order_tbl.id_column) AS totalOrder
@@ -94,9 +94,9 @@ export const getSpecificRangeBranchRevenueClause = `
     SELECT 
         order_tbl.branch_column AS branchId,
         DATE(order_tbl.created_at_column) AS date,
-        SUM(payment_tbl.amount_column) AS totalAmount,
-        SUM(order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
+        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
+        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
+        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
         SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
         SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
         COUNT(DISTINCT order_tbl.id_column) AS totalOrder

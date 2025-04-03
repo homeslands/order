@@ -450,11 +450,6 @@ export class BranchRevenueService {
         );
       }
 
-      // if(branch.id === '8ba67f04-0f1e-492d-b7d3-a301faad7de6') {
-      //   console.log({branchRevenue: branchRevenue.items[0]})
-      //   console.log({branchRevenue: branchRevenue.items[1]})
-      // }
-
       const createAndUpdateBranchRevenue: BranchRevenue[] =
         this.getCreateAndUpdateRevenuesInRangeDays(
           hasBranchRevenues,
