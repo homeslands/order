@@ -32,7 +32,7 @@ export default function BranchSelect({ defaultValue, onChange }: SelectBranchPro
   }, [data]);
 
   return (
-    <Select onValueChange={onChange} defaultValue={defaultValue}>
+    <Select onValueChange={onChange} value={defaultValue}>
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Chọn chi nhánh" />
       </SelectTrigger>

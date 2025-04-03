@@ -6,6 +6,7 @@ import {
   IChefSpecificOrder,
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
+  ICreateChefOrderRequest,
   IGetChefOrderRequest,
   IPaginationResponse,
   IUpdateChefAreaProductRequest,
@@ -121,6 +122,13 @@ export async function getSpecificChefOrder(
     // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
     doNotShowLoading: true,
   })
+  return response.data
+}
+
+export async function createChefOrder(
+  data: ICreateChefOrderRequest,
+): Promise<IApiResponse<IChefOrders>> {
+  const response = await http.post('/chef-order', data)
   return response.data
 }
 

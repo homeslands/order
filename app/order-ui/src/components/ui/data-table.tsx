@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -21,6 +21,7 @@ import {
   ChevronRightIcon,
   Loader2Icon,
   MoveRight,
+  RefreshCcw,
   SearchIcon,
 } from 'lucide-react'
 import {
@@ -100,10 +101,12 @@ interface DataTableProps<TData, TValue> {
   pages: number
   hiddenInput?: boolean
   hiddenDatePicker?: boolean
+  onRefresh?: () => void
   onPageChange: (pageIndex: number) => void
   onPageSizeChange: (pageSize: number) => void
   onRowClick?: (row: TData) => void
   onInputChange?: (value: string) => void
+  periodOfTime?: string
   onDateChange?: (startDate: string | null, endDate: string | null) => void
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
@@ -126,10 +129,12 @@ export function DataTable<TData, TValue>({
   pages,
   hiddenInput = true,
   hiddenDatePicker = true,
+  onRefresh,
   onPageChange,
   onPageSizeChange,
   onRowClick,
   onInputChange,
+  periodOfTime,
   onDateChange,
   filterOptions: DataTableFilterOptions,
   actionOptions: DataTableActionOptions,
@@ -139,10 +144,14 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation('common')
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
-  const today = new Date()
+  const today = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }, []);
   today.setHours(0, 0, 0, 0)
-  const [startDate, setStartDate] = useState<string | null>(() => moment(today).format('YYYY-MM-DD'))
-  const [endDate, setEndDate] = useState<string | null>(() => moment(today).format('YYYY-MM-DD'))
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   // Add effect to call onInputChange when debounced value changes
   useEffect(() => {
@@ -185,7 +194,7 @@ export function DataTable<TData, TValue>({
     debugTable: true,
   })
 
-  const handlePeriodOfTimeChange = (periodOfTime: string) => {
+  const handlePeriodOfTimeChange = useCallback((periodOfTime: string) => {
     if (periodOfTime === 'today') {
       setStartDate(moment(today).format('YYYY-MM-DD'))
       setEndDate(moment(today).format('YYYY-MM-DD'))
@@ -199,14 +208,18 @@ export function DataTable<TData, TValue>({
       setStartDate(moment(today).subtract(1, 'year').format('YYYY-MM-DD'))
       setEndDate(moment(today).format('YYYY-MM-DD'))
     }
+  }, [today])
+
+  const handleRefresh = () => {
+    onRefresh?.()
   }
 
   return (
     <div className="w-full">
       <div
-        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} items-end flex-wrap gap-2`}
+        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-between'} items-end flex-wrap gap-2`}
       >
-        <div className="flex flex-col gap-2 items-start justify-start ">
+        <div className="flex gap-2 justify-start items-start">
           {/* Input search */}
           {!hiddenInput && (
             <div className="relative w-[350px]">
@@ -220,8 +233,8 @@ export function DataTable<TData, TValue>({
             </div>
           )}
           {!hiddenDatePicker && (
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2 w-[350px]">
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex gap-2 items-center w-fit">
                 <div className="flex-1">
                   <SimpleDatePicker
                     value={startDate || undefined}
@@ -244,11 +257,19 @@ export function DataTable<TData, TValue>({
                   />
                 </div>
               </div>
-              <PeriodOfTimeSelect onChange={handlePeriodOfTimeChange} />
+              <PeriodOfTimeSelect periodOfTime={periodOfTime} onChange={handlePeriodOfTimeChange} />
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 items-center">
+        <div className="flex gap-2 items-center w-fit">
+          {onRefresh && (
+            <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCcw className="w-4 h-4 text-muted-foreground" />
+              <span className='text-muted-foreground'>
+                {t('dataTable.refresh')}
+              </span>
+            </Button>
+          )}
           {/* Actions */}
           {DataTableActionOptions && <DataTableActionOptions table={table} />}
           {/* Filter */}

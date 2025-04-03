@@ -2,6 +2,7 @@ import {
   addMultipleProductsToChefArea,
   addProductToChefArea,
   createChefArea,
+  createChefOrder,
   deleteChefArea,
   getAllChefAreaProducts,
   getChefAreaBySlug,
@@ -19,6 +20,7 @@ import { QUERYKEY } from '@/constants'
 import {
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
+  ICreateChefOrderRequest,
   IGetChefOrderRequest,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
@@ -118,6 +120,14 @@ export const useGetChefOrders = (params: IGetChefOrderRequest) => {
     queryKey: [QUERYKEY.chefOrders, params, params.order],
     queryFn: () => getChefOrders(params),
     select: (data) => data.result,
+  })
+}
+
+export const useCreateChefOrder = () => {
+  return useMutation({
+    mutationFn: async (data: ICreateChefOrderRequest) => {
+      return createChefOrder(data)
+    },
   })
 }
 

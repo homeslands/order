@@ -6,6 +6,13 @@
     "dateRangeDescription": "Chọn khoảng ngày để xem doanh thu",
     "fromDate": "Từ ngày",
     "toDate": "Đến ngày",
-    "apply": "Áp dụng"
+    "apply": "Áp dụng",
+    "date": "Ngày",
+    "originalAmount": "Tiền gốc",
+    "promotionAmount": "Tiền khuyến mãi",
+    "totalAmount": "Tổng tiền",
+    "totalOrder": "Tổng đơn hàng",
+    "voucherAmount": "Tiền voucher",
+    "tableRevenue": "Bảng thống kê doanh thu"
   }
 }

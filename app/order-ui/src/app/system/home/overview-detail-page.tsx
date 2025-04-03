@@ -1,31 +1,46 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
-import { RevenueDetailChart, TopProductsDetail, RevenueDetailComparison, RevenueDetailSummary } from './components'
+import { RevenueDetailChart, TopProductsDetail, RevenueDetailComparison, RevenueDetailSummary, RevenueTable } from './components'
 import { BranchSelect } from '@/components/app/select'
 import { TimeRangeRevenueFilter } from '@/components/app/popover'
 import { Button } from '@/components/ui'
 import { useLatestRevenue } from '@/hooks'
 import { showToast } from '@/utils'
+import { useUserStore } from '@/stores'
 
 export default function OverviewDetailPage() {
   const { t } = useTranslation(['dashboard'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const [trigger, setTrigger] = useState(0)
-  // Get first and last day of current month as default values
-  // const [startDate, setStartDate] = useState<string>(
-  //   moment().startOf('month').toISOString()
-  // )
-  // const [endDate, setEndDate] = useState<string>(
-  //   moment().endOf('day').toISOString()
-  // )
+  const { userInfo } = useUserStore()
   const [startDate, setStartDate] = useState<string>(moment().toISOString())
   const [endDate, setEndDate] = useState<string>(moment().toISOString())
   const [branch, setBranch] = useState<string>('')
   const { mutate: refreshRevenue } = useLatestRevenue()
+
+  useEffect(() => {
+    if (userInfo?.branch.slug) {
+      setBranch(userInfo?.branch.slug)
+    }
+  }, [userInfo])
+
+  const handleRefreshRevenue = useCallback(() => {
+    refreshRevenue(undefined, {
+      onSuccess: () => {
+        showToast(tToast('toast.refreshRevenueSuccess'))
+        setTrigger(prev => prev + 1) // Increment trigger to cause refresh
+      }
+    })
+  }, [refreshRevenue, tToast])
+
+  useEffect(() => {
+    handleRefreshRevenue()
+  }, [startDate, endDate, branch, handleRefreshRevenue])
+
 
   const handleSelectBranch = (branch: string) => {
     setBranch(branch)
@@ -34,15 +49,6 @@ export default function OverviewDetailPage() {
   const handleSelectDateRange = (start: string, end: string) => {
     setStartDate(start)
     setEndDate(end)
-  }
-
-  const handleRefreshRevenue = () => {
-    refreshRevenue(undefined, {
-      onSuccess: () => {
-        showToast(tToast('toast.refreshRevenueSuccess'))
-        setTrigger(prev => prev + 1) // Increment trigger to cause refresh
-      }
-    })
   }
 
   return (
@@ -64,7 +70,7 @@ export default function OverviewDetailPage() {
                 {tCommon('common.refresh')}
               </Button>
               <div className='w-[14rem]'>
-                <BranchSelect onChange={handleSelectBranch} />
+                <BranchSelect defaultValue={branch} onChange={handleSelectBranch} />
               </div>
               <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
             </div>
@@ -78,6 +84,7 @@ export default function OverviewDetailPage() {
           <TopProductsDetail branch={branch} />
         </div>
         <RevenueDetailComparison trigger={trigger} branch={branch} />
+        <RevenueTable branch={branch} key={trigger} />
       </main>
     </div>
   )

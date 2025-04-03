@@ -17,6 +17,9 @@ export interface IBranchRevenue {
   slug: string
   branchId: string
   date: string
+  originalAmount: number
+  promotionAmount: number
+  voucherAmount: number
   totalAmount: number
   totalOrder: number
 }

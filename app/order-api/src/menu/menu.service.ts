@@ -1,14 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
-import {
-  Between,
-  FindOptionsWhere,
-  IsNull,
-  Like,
-  Not,
-  Repository,
-} from 'typeorm';
+import { FindOptionsWhere, IsNull, Like, Not, Repository } from 'typeorm';
 import {
   CreateMenuDto,
   GetAllMenuQueryRequestDto,
@@ -114,16 +107,6 @@ export class MenuService {
       };
     }
 
-    if (query.minPrice && query.maxPrice) {
-      findOptionsWhere.menuItems = {
-        product: {
-          variants: {
-            price: Between(query.minPrice, query.maxPrice),
-          },
-        },
-      };
-    }
-
     if (_.isBoolean(query.promotion)) {
       findOptionsWhere.menuItems = {
         promotion: query.promotion ? Not(IsNull()) : IsNull(),
@@ -162,6 +145,16 @@ export class MenuService {
           );
         });
       }
+    }
+
+    if (_.isNumber(query.minPrice) && _.isNumber(query.maxPrice)) {
+      menu.menuItems = menu.menuItems.filter((item) => {
+        return item.product.variants.some((variant) => {
+          return (
+            variant.price >= query.minPrice && variant.price <= query.maxPrice
+          );
+        });
+      });
     }
 
     return this.mapper.map(menu, Menu, MenuResponseDto);

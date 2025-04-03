@@ -24,10 +24,6 @@ export class CreatePermissionDto {
 export class DeletePermissionDto {}
 
 export class PermissionResponseDto extends BaseResponseDto {
-  // @AutoMap()
-  // @ApiProperty()
-  // role: RoleResponseDto;
-
   @AutoMap()
   @ApiProperty()
   authority: AuthorityResponseDto;

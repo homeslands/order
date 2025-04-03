@@ -6,6 +6,13 @@
     "dateRangeDescription": "Select a date range to view revenue",
     "fromDate": "From date",
     "toDate": "To date",
-    "apply": "Apply"
+    "apply": "Apply",
+    "date": "Date",
+    "originalAmount": "Original amount",
+    "promotionAmount": "Promotion amount",
+    "totalAmount": "Total amount",
+    "totalOrder": "Total order",
+    "voucherAmount": "Voucher amount",
+    "tableRevenue": "Revenue statistics table"
   }
 }

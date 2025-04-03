@@ -21,7 +21,7 @@ import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
 import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
-import { OutlineCancelOrderDialog } from '@/components/app/dialog'
+import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -181,7 +181,18 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                         {t('order.updatePayment')}
                       </Button>
                     </NavLink>
-                  )}
+                  )
+                }
+
+                {/* Create chef order */}
+                {order.chefOrders.length === 0 && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CreateChefOrderDialog
+                      order={order}
+                    // onOpenChange={onDialogOpenChange}
+                    />
+                  </div>
+                )}
 
                 {/* Export payment */}
                 {order?.payment?.slug && (

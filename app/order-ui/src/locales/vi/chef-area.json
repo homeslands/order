@@ -53,6 +53,9 @@
     "selectChefOrderStatus": "Chọn trạng thái đơn hàng",
     "chefOrderDetail": "Chi tiết đơn hàng",
     "table": "Bàn",
-    "take-out": "Mang đi"
+    "take-out": "Mang đi",
+    "create": "Thông báo cho bếp",
+    "createChefOrderWarning": "Bạn sắp sửa thông báo cho bếp đơn hàng ",
+    "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?"
   }
 }

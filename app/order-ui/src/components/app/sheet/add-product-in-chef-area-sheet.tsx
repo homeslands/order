@@ -15,7 +15,7 @@ import {
   DataTable,
 } from '@/components/ui'
 import { ICreateChefAreaProductRequest } from '@/types'
-import { useProducts } from '@/hooks'
+import { usePagination, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/chef-area/DataTable/columns'
 import { ConfirmAddChefAreaProductDialog } from '../dialog'
 
@@ -27,9 +27,13 @@ export default function AddProductInChefAreaSheet({ onSuccess, onRefetch, branch
   const { slug } = useParams()
   const [addProductInChefArea, setAddProductInChefArea] =
     useState<ICreateChefAreaProductRequest | null>(null)
+  const { pagination } = usePagination()
   const { data: products, isLoading, refetch } = useProducts({
     branch: branch,
     isAppliedBranchForChefArea: false,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    hasPaging: true,
   })
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export default function AddProductInChefAreaSheet({ onSuccess, onRefetch, branch
     }
   }, [sheetOpen])
 
-  const productsData = products?.result
+  const productsData = products?.result.items
 
   useEffect(() => {
     if (onRefetch) {

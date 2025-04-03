@@ -120,6 +120,7 @@ export { default as DeleteChefAreaDialog } from './delete-chef-area-dialog'
 export { default as ConfirmAddChefAreaProductDialog } from './confirm-add-product-in-chef-area-dialog'
 export { default as RemoveChefAreaProductDialog } from './remove-product-in-chef-area-dialog'
 
+export { default as CreateChefOrderDialog } from './create-chef-order-dialog'
 export { default as ConfirmUpdateChefOrderStatusDialog } from './confirm-update-chef-order-status-dialog'
 export { default as ConfirmCompleteChefOrderDialog } from './confirm-complete-chef-order-dialog'
 

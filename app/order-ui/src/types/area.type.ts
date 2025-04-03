@@ -62,6 +62,10 @@ export interface IGetChefOrderRequest {
   size?: number
 }
 
+export interface ICreateChefOrderRequest {
+  order: string // slug of order
+}
+
 export interface IChefOrders extends IBase {
   status: ChefOrderStatus
   order: IChefOrderInfo

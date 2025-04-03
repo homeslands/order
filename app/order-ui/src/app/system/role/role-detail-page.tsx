@@ -72,7 +72,14 @@ export default function RoleDetailPage() {
             return newPermissions;
         });
     };
-
+    const handleSuccess = () => {
+        setSelectedPermissions({
+            role: slug as string,
+            createAuthorities: [],
+            deleteAuthorities: []
+        });
+        refetch()
+    }
     const handleToggleAll = (group: IAuthorityGroup, isChecked: boolean) => {
         setSelectedPermissions((prev) => {
             const newPermissions = { ...prev };
@@ -136,7 +143,7 @@ export default function RoleDetailPage() {
                             {tCommon('common.cancel')}
                         </Button>
                         <ConfirmCreatePermissionDialog
-                            onSuccess={refetch}
+                            onSuccess={handleSuccess}
                             permission={selectedPermissions}
                         />
                     </div>

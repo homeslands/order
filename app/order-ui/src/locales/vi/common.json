@@ -51,7 +51,8 @@
     "error": "Error",
     "debug": "Debug",
     "isTemplate": "Mẫu thực đơn",
-    "noTemplate": "Không phải mẫu thực đơn"
+    "noTemplate": "Không phải mẫu thực đơn",
+    "refresh": "Làm mới"
   },
   "dayOfWeek": {
     "selectTimeRange": "Chọn thời gian",

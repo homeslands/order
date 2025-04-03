@@ -1,3 +1,6 @@
+import { AxiosRequestConfig } from 'axios'
+import { saveAs } from 'file-saver'
+
 import { http } from '@/utils'
 import {
   IApiResponse,
@@ -14,14 +17,15 @@ import {
   IProductRequest,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
-import { AxiosRequestConfig } from 'axios'
-import { saveAs } from 'file-saver'
 import { useAuthStore } from '@/stores'
 
 export async function getAllProducts(
   params?: IProductRequest,
-): Promise<IApiResponse<IProduct[]>> {
-  const response = await http.get<IApiResponse<IProduct[]>>('/products', { params })
+): Promise<IApiResponse<IPaginationResponse<IProduct>>> {
+  const response = await http.get<IApiResponse<IPaginationResponse<IProduct>>>(
+    '/products',
+    { params },
+  )
   return response.data
 }
 

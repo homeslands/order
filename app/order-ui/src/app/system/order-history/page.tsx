@@ -10,10 +10,12 @@ import { useOrderHistoryColumns } from './DataTable/columns'
 import { IOrder, OrderStatus } from '@/types'
 import OrderFilter from './DataTable/actions/order-filter'
 import { OrderHistoryDetailSheet } from '@/components/app/sheet'
+import { showToast } from '@/utils'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
+  const { t: tToast } = useTranslation('toast')
   const { t: tHelmet } = useTranslation('helmet')
   const { userInfo } = useUserStore()
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
@@ -22,7 +24,7 @@ export default function OrderHistoryPage() {
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
-  
+
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
@@ -42,13 +44,21 @@ export default function OrderHistoryPage() {
     }))
   }, [startDate, endDate, status, setPagination])
 
-  // polling useOrders every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch()
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [refetch])
+  // handle refresh and show toast when success
+  const handleRefresh = () => {
+    refetch()
+    showToast(tToast('toast.refreshSuccess'))
+  }
+
+  // polling useOrders every 5 seconds, but only when dialog is not open
+  // useEffect(() => {
+  //   if (isDialogOpen) return // Skip polling when dialog is open
+
+  //   const interval = setInterval(() => {
+  //     refetch()
+  //   }, 5000)
+  //   return () => clearInterval(interval)
+  // }, [refetch, isDialogOpen])
 
   const filterConfig = [
     {
@@ -84,11 +94,6 @@ export default function OrderHistoryPage() {
     setSelectedOrder(order)
   }
 
-
-  // const handleOrderClick = (order: IOrder) => {
-  //   navigate(`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`)
-  // }
-
   return (
     <div className="flex flex-col">
       <Helmet>
@@ -119,6 +124,7 @@ export default function OrderHistoryPage() {
           onFilterChange={handleFilterChange}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
+          onRefresh={handleRefresh}
           rowClassName={(row) =>
             row.slug === selectedOrder?.slug
               ? 'bg-primary/20 border border-primary'

@@ -100,6 +100,8 @@ const errorCodes: { [key: number]: string } = {
   140005: 'toast.systemConfigInvalid',
   143202: 'toast.newRevenueNotFound',
   143407: 'toast.voucherAlreadyUsed',
+  // Error data duplicate product and branch in product chef area
+  154501: 'toast.duplicateProductAndBranch',
 
   // client error
   1000: 'toast.voucherNotFound',

@@ -48,6 +48,7 @@ export class ChefOrderUtils {
   }
 
   async createChefOrder(orderId: string): Promise<ChefOrder[]> {
+    const context = `${ChefOrderUtils.name}.${this.createChefOrder.name}`;
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
       relations: [
@@ -79,7 +80,9 @@ export class ChefOrderUtils {
           chefAreaGroups.get(chefArea.id).push(orderItem);
         } else {
           this.logger.error(
-            `Error data, product ${product.slug} is be long to more one chef area in branch ${order.branch.slug}`,
+            `Product ${product.name} is be long to more one chef area in branch ${order.branch.name}`,
+            null,
+            context,
           );
           throw new ChefOrderException(
             ChefOrderValidation.ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA,

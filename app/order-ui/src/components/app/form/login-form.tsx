@@ -1,5 +1,4 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
@@ -19,10 +18,8 @@ import { loginSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import { useLogin, useProfile } from '@/hooks'
-import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
-import { Role, ROUTE } from '@/constants'
+import { useAuthStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
-
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
   const {
@@ -31,12 +28,9 @@ export const LoginForm: React.FC = () => {
     setExpireTime,
     setExpireTimeRefreshToken,
   } = useAuthStore()
-  const navigate = useNavigate()
   const { setUserInfo } = useUserStore()
-  const { currentUrl, clearUrl } = useCurrentUrlStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
-
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -44,31 +38,6 @@ export const LoginForm: React.FC = () => {
       password: '',
     },
   })
-
-  const navigateBasedOnRole = (roleName: string) => {
-    switch (roleName) {
-      case Role.STAFF:
-      case Role.MANAGER:
-      case Role.ADMIN:
-      case Role.SUPER_ADMIN:
-        navigate(currentUrl || ROUTE.OVERVIEW)
-        clearUrl()
-        break
-      case Role.CHEF:
-        navigate(currentUrl || ROUTE.STAFF_ORDER_MANAGEMENT)
-        clearUrl()
-        break
-      case Role.CUSTOMER:
-        // navigate(ROUTE.CLIENT_HOME)
-        navigate(currentUrl || ROUTE.CLIENT_HOME)
-        clearUrl()
-        break
-      default:
-        navigate(currentUrl || ROUTE.HOME)
-        clearUrl()
-        break
-    }
-  }
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     login(data, {
@@ -81,8 +50,6 @@ export const LoginForm: React.FC = () => {
         const profile = await refetchProfile()
         if (profile.data) {
           setUserInfo(profile.data.result)
-          const roleName = profile.data.result.role.name
-          navigateBasedOnRole(roleName) // Direct user to the correct page based on their role
         }
         showToast(t('toast.loginSuccess'))
       },

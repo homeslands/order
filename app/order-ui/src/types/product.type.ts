@@ -22,6 +22,8 @@ export interface IProduct {
 }
 
 export interface IProductRequest {
+  page?: number
+  size?: number
   catalog?: string
   promotion?: string // get all products base on promotion
   isAppliedPromotion?: boolean
@@ -31,6 +33,7 @@ export interface IProductRequest {
   inMenu?: boolean
   menu?: string //Slug of the menu, get all products in the menu
   branch?: string //Slug of the branch
+  hasPaging?: boolean
 }
 
 export interface ITopProduct {
