@@ -16,12 +16,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder, OrderStatus } from '@/types'
+import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
 import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
 import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
-import { OutlineCancelOrderDialog } from '@/components/app/dialog'
+import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -50,6 +50,20 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     })
   }
   return [
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue('createdAt')
+        return (
+          <div className="text-sm">
+            {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
+          </div>
+        )
+      },
+    },
     {
       accessorKey: 'slug',
       header: ({ column }) => (
@@ -83,20 +97,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
-      accessorKey: 'paymentStatus',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('order.orderStatus')} />
-      ),
-      cell: ({ row }) => {
-        const order = row.original
-        return (
-          <div className="flex flex-col">
-            <OrderStatusBadge order={order} />
-          </div>
-        )
-      },
-    },
-    {
       accessorKey: 'owner',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.owner')} />
@@ -111,6 +111,30 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
+      accessorKey: 'table',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.table')} />
+      ),
+      cell: ({ row }) => {
+        const location = row.original.type === OrderTypeEnum.AT_TABLE ? t('order.at-table') + " " + row.original.table?.name || "" : t('order.take-out')
+        return <div className="text-sm">{location}</div>
+      },
+    },
+    {
+      accessorKey: 'paymentStatus',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.orderStatus')} />
+      ),
+      cell: ({ row }) => {
+        const order = row.original
+        return (
+          <div className="flex flex-col">
+            <OrderStatusBadge order={order} />
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'subtotal',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.subtotal')} />
@@ -119,20 +143,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         const order = row.original
         return (
           <div className="text-sm">{formatCurrency(order?.subtotal || 0)}</div>
-        )
-      },
-    },
-    {
-      accessorKey: 'createdAt',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
-      ),
-      cell: ({ row }) => {
-        const createdAt = row.getValue('createdAt')
-        return (
-          <div className="text-sm">
-            {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
-          </div>
         )
       },
     },
@@ -161,6 +171,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     <NavLink
                       to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
                       className="flex justify-start items-center w-full"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Button
                         variant="ghost"
@@ -170,12 +181,26 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                         {t('order.updatePayment')}
                       </Button>
                     </NavLink>
-                  )}
+                  )
+                }
+
+                {/* Create chef order */}
+                {order.chefOrders.length === 0 && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CreateChefOrderDialog
+                      order={order}
+                    // onOpenChange={onDialogOpenChange}
+                    />
+                  </div>
+                )}
 
                 {/* Export payment */}
                 {order?.payment?.slug && (
                   <Button
-                    onClick={() => handleExportPayment(order.payment!.slug)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExportPayment(order.payment!.slug);
+                    }}
                     variant="ghost"
                     className="flex gap-1 justify-start px-2 w-full"
                   >
@@ -188,7 +213,10 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 {order?.slug &&
                   order?.payment?.statusCode === paymentStatus.COMPLETED && (
                     <Button
-                      onClick={() => handleExportOrderInvoice(order.slug)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportOrderInvoice(order.slug);
+                      }}
                       variant="ghost"
                       className="flex gap-1 justify-start px-2 w-full"
                     >
@@ -198,7 +226,11 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   )}
 
                 {/* Cancel order */}
-                {!(order && order.status === OrderStatus.PAID && order.payment.statusCode === paymentStatus.COMPLETED) && <OutlineCancelOrderDialog order={order} />}
+                {!(order && order.status === OrderStatus.PAID && order.payment.statusCode === paymentStatus.COMPLETED) && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <OutlineCancelOrderDialog order={order} />
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

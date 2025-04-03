@@ -11,6 +11,8 @@ export const CHEF_ORDER_STATUS_CAN_NOT_CHANGE_TO_PENDING =
   'CHEF_ORDER_STATUS_CAN_NOT_CHANGE_TO_PENDING';
 export const ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER =
   'ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER';
+export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
+export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
 
 export type TChefOrderErrorCodeKey =
   | typeof ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA
@@ -18,7 +20,9 @@ export type TChefOrderErrorCodeKey =
   | typeof ALL_CHEF_ORDER_ITEMS_COMPLETED_TO_UPDATE_CHEF_ORDER_STATUS_COMPLETED
   | typeof CHEF_ORDER_STATUS_CAN_NOT_CHANGE_TO_PENDING
   | typeof ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER
-  | typeof CHEF_ORDERS_ALREADY_EXIST_FROM_THIS_ORDER;
+  | typeof CHEF_ORDERS_ALREADY_EXIST_FROM_THIS_ORDER
+  | typeof START_DATE_CAN_NOT_BE_EMPTY
+  | typeof END_DATE_CAN_NOT_BE_EMPTY;
 
 export type TChefOrderErrorCode = Record<
   TChefOrderErrorCodeKey,
@@ -48,6 +52,14 @@ const ChefOrderValidation: TChefOrderErrorCode = {
   ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER: createErrorCode(
     154506,
     'Error when update status to COMPLETED for chef order ',
+  ),
+  START_DATE_CAN_NOT_BE_EMPTY: createErrorCode(
+    154507,
+    'Start date can not be empty',
+  ),
+  END_DATE_CAN_NOT_BE_EMPTY: createErrorCode(
+    154508,
+    'End date can not be empty',
   ),
 };
 

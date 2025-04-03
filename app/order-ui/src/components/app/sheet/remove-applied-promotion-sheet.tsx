@@ -15,7 +15,7 @@ import {
 } from '@/components/ui'
 import { RemoveAppliedPromotionDialog } from '@/components/app/dialog'
 import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { useProducts } from '@/hooks'
+import { usePagination, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
 
 interface IApplyPromotionSheetProps {
@@ -30,9 +30,15 @@ export default function RemoveAppliedPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts({ promotion: promotion?.slug, isAppliedPromotion: true })
+  const { pagination } = usePagination()
+  const { data: products, isLoading } = useProducts({
+    promotion: promotion?.slug, isAppliedPromotion: true,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    hasPaging: true,
+  })
 
-  const productsData = products?.result
+  const productsData = products?.result.items
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -51,7 +57,7 @@ export default function RemoveAppliedPromotionSheet({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="justify-start w-full gap-1 px-2 bg-destructive/10 text-destructive"
+          className="gap-1 justify-start px-2 w-full bg-destructive/10 text-destructive"
           onClick={handleClick}
         >
           <Trash2 className="icon" />
@@ -68,7 +74,7 @@ export default function RemoveAppliedPromotionSheet({
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4">
             {/* Product List */}
             <div
-              className={`rounded-md border bg-white p-4 dark:bg-transparent`}
+              className={`p-4 bg-white rounded-md border dark:bg-transparent`}
             >
               <div className="grid grid-cols-1 gap-2">
                 <DataTable

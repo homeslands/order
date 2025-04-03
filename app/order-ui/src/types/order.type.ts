@@ -29,6 +29,8 @@ export interface IOrderTrackingStore {
 export interface IOrdersQuery {
   owner?: string
   branchSlug?: string
+  startDate?: string
+  endDate?: string
   page: number | 1
   size: number | 10
   order: 'ASC' | 'DESC'

@@ -2,7 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 
 export class CreateNotificationDto {
   @AutoMap()
@@ -69,7 +69,7 @@ export class NotificationResponseDto extends BaseResponseDto {
   metadata: any;
 }
 
-export class GetAllNotificationDto {
+export class GetAllNotificationDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({ required: false })
   @IsOptional()

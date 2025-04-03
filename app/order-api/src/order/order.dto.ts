@@ -6,11 +6,10 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
-  Min,
   ValidateNested,
 } from 'class-validator';
 import { OrderType } from './order.constants';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import {
   CreateOrderItemRequestDto,
@@ -190,7 +189,7 @@ export class OrderResponseDto extends BaseResponseDto {
   chefOrders: ChefOrderResponseDto[];
 }
 
-export class GetOrderRequestDto {
+export class GetOrderRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of branch',
@@ -220,28 +219,6 @@ export class GetOrderRequestDto {
 
   @AutoMap()
   @ApiProperty({
-    example: 1,
-    description: 'Page number',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
-
-  @AutoMap()
-  @ApiProperty({
     description: 'Order status',
     required: false,
   })
@@ -263,4 +240,16 @@ export class GetOrderRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-26' })
+  @Type(() => Date)
+  @IsOptional()
+  startDate?: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-27' })
+  @Type(() => Date)
+  @IsOptional()
+  endDate?: Date;
 }

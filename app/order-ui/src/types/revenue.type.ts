@@ -17,13 +17,22 @@ export interface IBranchRevenue {
   slug: string
   branchId: string
   date: string
+  originalAmount: number
+  promotionAmount: number
+  voucherAmount: number
   totalAmount: number
   totalOrder: number
+}
+
+export interface IAllRevenueQuery {
+  startDate?: string
+  endDate?: string
+  type?: RevenueTypeQuery
 }
 
 export interface IBranchRevenueQuery {
   branch: string
   startDate?: string
   endDate?: string
-  type: RevenueTypeQuery
+  type?: RevenueTypeQuery
 }

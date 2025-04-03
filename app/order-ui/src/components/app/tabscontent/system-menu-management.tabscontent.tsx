@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { DataTable } from '@/components/ui'
@@ -11,14 +11,14 @@ import { MenusActionOptions } from '@/app/system/menu-management/DataTable/actio
 export function SystemMenuManagementTabsContent() {
   const { userInfo } = useUserStore()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [tab,] = useState(searchParams.get('tab'))
+  const tab = searchParams.get('tab')
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const { data, isLoading } = useAllMenus({
     order: 'DESC',
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
     branch: userInfo?.branch?.slug,
-    isTemplate: tab === 'isTemplate' ? false : true,
+    isTemplate: tab === 'isTemplate' ? true : false,
   })
 
   useEffect(() => {

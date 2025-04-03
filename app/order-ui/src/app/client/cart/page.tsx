@@ -176,14 +176,14 @@ export default function ClientCartPage() {
             </div>
           </div>
           {/* Button */}
-          <div className='flex justify-end w-full'>
+          <div className='flex gap-2 justify-end w-full'>
             {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
-              <span className='flex gap-2 justify-end items-center text-xs text-muted-foreground'>
-                <Info />
+              <span className='flex gap-2 justify-end items-center text-xs text-destructive'>
+                <Info size={18} />
                 {t('menu.noSelectedTable')}
               </span>
             )}
-            <div className="flex justify-end w-1/6">
+            <div className="flex justify-end w-fit">
               <CreateOrderDialog
                 disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
               />

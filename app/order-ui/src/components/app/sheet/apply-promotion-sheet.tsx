@@ -15,7 +15,7 @@ import {
 } from '@/components/ui'
 import { ConfirmApplyPromotionDialog } from '@/components/app/dialog'
 import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { useProducts } from '@/hooks'
+import { usePagination, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
 
 interface IApplyPromotionSheetProps {
@@ -30,9 +30,15 @@ export default function ApplyPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts({ promotion: promotion?.slug, isAppliedPromotion: false })
+  const { pagination } = usePagination()
+  const { data: products, isLoading } = useProducts({
+    promotion: promotion?.slug, isAppliedPromotion: false,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    hasPaging: true,
+  })
 
-  const productsData = products?.result
+  const productsData = products?.result.items
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -52,7 +58,7 @@ export default function ApplyPromotionSheet({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="justify-start w-full gap-1 px-2"
+          className="gap-1 justify-start px-2 w-full"
           onClick={handleClick}
         >
           <PenLine className="icon" />

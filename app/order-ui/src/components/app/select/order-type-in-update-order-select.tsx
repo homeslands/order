@@ -52,6 +52,7 @@ export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelect
   }
   return (
     <ReactSelect
+      isSearchable={false}
       placeholder={t('menu.selectOrderType')}
       className="w-full text-sm border-muted-foreground text-muted-foreground"
       styles={{

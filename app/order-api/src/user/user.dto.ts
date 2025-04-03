@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, Min } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsOptional } from 'class-validator';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
   INVALID_ADDRESS,
   INVALID_DOB,
@@ -132,7 +132,7 @@ export class UpdateUserRequestDto {
   branch?: string;
 }
 
-export class GetAllUserQueryRequestDto {
+export class GetAllUserQueryRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of branch',
@@ -155,28 +155,6 @@ export class GetAllUserQueryRequestDto {
     typeof value === 'string' ? value.split(',') : [value],
   )
   role: string[] = [];
-
-  @AutoMap()
-  @ApiProperty({
-    example: 1,
-    description: 'Page number',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
 
   @AutoMap()
   @ApiProperty({

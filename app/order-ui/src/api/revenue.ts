@@ -1,5 +1,6 @@
 import { http } from '@/utils'
 import {
+  IAllRevenueQuery,
   IApiResponse,
   IBranchRevenue,
   IBranchRevenueQuery,
@@ -16,6 +17,18 @@ export async function getRevenue(
   return response.data
 }
 
+export async function getAllRevenue(
+  params: IAllRevenueQuery,
+): Promise<IApiResponse<IBranchRevenue[]>> {
+  const response = await http.get<IApiResponse<IBranchRevenue[]>>(
+    `/revenue/from-branch-revenue`,
+    {
+      params,
+    },
+  )
+  return response.data
+}
+
 export async function getBranchRevenue(
   params: IBranchRevenueQuery,
 ): Promise<IApiResponse<IBranchRevenue[]>> {
@@ -28,10 +41,10 @@ export async function getBranchRevenue(
   return response.data
 }
 
-export async function getLatestRevenue(): Promise<IApiResponse<IRevenue[]>> {
-  const response = await http.patch<IApiResponse<IRevenue[]>>('/revenue/latest')
-  return response.data
-}
+// export async function getLatestRevenue(): Promise<IApiResponse<IRevenue[]>> {
+//   const response = await http.patch<IApiResponse<IRevenue[]>>('/revenue/latest')
+//   return response.data
+// }
 
 export async function getLatestRevenueForARange(
   params: IRevenueQuery,
@@ -42,23 +55,20 @@ export async function getLatestRevenueForARange(
   return response.data
 }
 
-export async function getLatestBranchRevenue(
-  q: string,
-): Promise<IApiResponse<IBranchRevenue[]>> {
-  const response = await http.patch<IApiResponse<IBranchRevenue[]>>(
+// use for both revenue and branch revenue
+export async function getLatestRevenue(): Promise<IApiResponse<void>> {
+  const response = await http.patch<IApiResponse<void>>(
     `/revenue/branch/latest`,
-    {
-      params: q,
-    },
   )
   return response.data
 }
 
+// use for both revenue and branch revenue
 export async function getLatestBranchRevenueForARange(
   params: IBranchRevenueQuery,
 ): Promise<IApiResponse<IBranchRevenue[]>> {
   const response = await http.patch<IApiResponse<IBranchRevenue[]>>(
-    `/revenue/branch/date/${params.branch}`,
+    `/revenue/branch/date`,
     {
       params,
     },

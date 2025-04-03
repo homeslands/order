@@ -2,20 +2,24 @@ import { useEffect } from 'react';
 import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { useRevenue } from "@/hooks";
+import { useAllRevenue } from "@/hooks";
 import { formatCurrency } from '@/utils';
+import { RevenueTypeQuery } from '@/constants';
 
 interface RevenueData {
     startDate: string;
     endDate: string;
-    trigger?: number; // Add trigger prop
+    trigger?: number;
 }
 
 export default function RevenueSummary({ startDate, endDate, trigger }: RevenueData) {
-    const { data: revenueData, refetch } = useRevenue({
-        startDate,
-        endDate,
-    });
+    const { data: revenueData, refetch } = useAllRevenue(
+        {
+            startDate,
+            endDate,
+            type: RevenueTypeQuery.DAILY,
+        }
+    );
 
     // Refetch when trigger changes
     useEffect(() => {
@@ -45,7 +49,7 @@ export default function RevenueSummary({ startDate, endDate, trigger }: RevenueD
     return (
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <Card className="text-white shadow-none bg-primary">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">Tổng doanh thu</CardTitle>
                     <DollarSign className="w-4 h-4" />
                 </CardHeader>
@@ -55,7 +59,7 @@ export default function RevenueSummary({ startDate, endDate, trigger }: RevenueD
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
                     <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -65,7 +69,7 @@ export default function RevenueSummary({ startDate, endDate, trigger }: RevenueD
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Giá trị đơn hàng trung bình</CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -75,7 +79,7 @@ export default function RevenueSummary({ startDate, endDate, trigger }: RevenueD
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Doanh thu hôm nay</CardTitle>
                     <Users className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>

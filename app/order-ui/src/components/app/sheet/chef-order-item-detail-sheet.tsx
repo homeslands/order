@@ -5,6 +5,7 @@ import { useGetSpecificChefOrder } from '@/hooks'
 import { IChefOrders } from '@/types'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui'
 import { ChefOrderItemList } from '@/app/system/chef-order/components'
+import { useSearchParams } from 'react-router-dom'
 
 interface IChefOrderItemDetailSheetProps {
   chefOrder: IChefOrders | undefined
@@ -21,9 +22,11 @@ export default function ChefOrderItemDetailSheet({
 }: IChefOrderItemDetailSheetProps) {
   const { t: tCommon } = useTranslation(['common'])
   const { t } = useTranslation(['chefArea'])
+  const [searchParams] = useSearchParams()
+  const slug = searchParams.get('slug') || ''
 
   const { data, refetch } = useGetSpecificChefOrder(
-    enableFetch ? (chefOrder?.slug ?? '') : '',
+    enableFetch ? (chefOrder?.slug ?? '') : slug,
   )
 
   // polling useGetSpecificChefOrder every 5 seconds
@@ -45,14 +48,14 @@ export default function ChefOrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[90%] overflow-y-auto p-2">
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-between mt-8">
+          <SheetTitle className="flex justify-between items-center mt-8">
             {t('chefOrder.chefOrderDetail')}
           </SheetTitle>
         </SheetHeader>
         <div className="mt-4">
           {chefOrder ? (
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4">
+              <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
                 <ChefOrderItemList chefOrderItemData={specificChefOrderDetail} />
               </div>
             </div>

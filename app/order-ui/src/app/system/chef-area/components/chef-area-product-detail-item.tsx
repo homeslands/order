@@ -5,7 +5,7 @@ import { IChefAreaProduct } from "@/types";
 import { RemoveChefAreaProductDialog } from "@/components/app/dialog";
 import { useIsMobile } from "@/hooks";
 
-export default function ChefAreaProductDetailItem({ chefAreaProduct }: { chefAreaProduct: IChefAreaProduct }) {
+export default function ChefAreaProductDetailItem({ chefAreaProduct, onSuccess }: { chefAreaProduct: IChefAreaProduct, onSuccess: () => void }) {
     const { t } = useTranslation(['chefArea'])
     const isMobile = useIsMobile()
 
@@ -16,7 +16,7 @@ export default function ChefAreaProductDetailItem({ chefAreaProduct }: { chefAre
                     {!isMobile && (
                         <div className="flex absolute inset-0 justify-end items-start opacity-0 transition-opacity group-hover:opacity-100">
                             <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
-                                <RemoveChefAreaProductDialog chefAreaProduct={item} />
+                                <RemoveChefAreaProductDialog onSuccess={onSuccess} chefAreaProduct={item} />
                             </div>
                         </div>
                     )}
@@ -43,7 +43,7 @@ export default function ChefAreaProductDetailItem({ chefAreaProduct }: { chefAre
                     </div>
                     {isMobile && (
                         <div className="flex justify-end px-4 py-2 w-full border-t bg-muted-foreground/10">
-                            <RemoveChefAreaProductDialog chefAreaProduct={item} />
+                            <RemoveChefAreaProductDialog onSuccess={onSuccess} chefAreaProduct={item} />
                         </div>
                     )}
                 </div>

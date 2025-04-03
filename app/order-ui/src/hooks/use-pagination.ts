@@ -46,5 +46,5 @@ export const usePagination = ({
     }
   }, [page, pageSize, isSearchParams])
 
-  return { pagination, handlePageChange, handlePageSizeChange }
+  return { pagination, setPagination, handlePageChange, handlePageSizeChange }
 }

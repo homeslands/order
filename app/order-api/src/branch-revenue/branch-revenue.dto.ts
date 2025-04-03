@@ -17,6 +17,18 @@ export class BranchRevenueQueryResponseDto {
   totalAmount: string;
 
   @AutoMap()
+  totalFinalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalOrderItemAmount: string;
+
+  @AutoMap()
+  totalFinalOrderItemAmount: string;
+
+  @AutoMap()
   totalOrder: string;
 }
 
@@ -33,7 +45,6 @@ export class GetBranchRevenueQueryDto {
 
   @AutoMap()
   @ApiProperty({ required: false, example: 'day' })
-  // @IsNotEmpty({ message: 'Invalid type of revenue query' })
   @IsOptional()
   @IsEnum(RevenueTypeQuery, { message: 'Invalid type of branch revenue query' })
   type: string = 'day';
@@ -69,6 +80,18 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalOrder: number;
+
+  @AutoMap()
+  @ApiProperty()
+  originalAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  voucherAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  promotionAmount: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {

@@ -21,11 +21,11 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   ChefOrderResponseDto,
+  CreateChefOrderRequestDto,
   QueryGetAllChefOrderRequestDto,
-  QueryGetChefOrderGroupByChefAreaRequestDto,
   UpdateChefOrderRequestDto,
 } from './chef-order.dto';
-import { AppResponseDto } from 'src/app/app.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
@@ -36,7 +36,7 @@ import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
 export class ChefOrderController {
   constructor(private readonly chefOrderService: ChefOrderService) {}
 
-  @Post('order/:slug')
+  @Post()
   @HasRoles(
     RoleEnum.SuperAdmin,
     RoleEnum.Admin,
@@ -52,51 +52,17 @@ export class ChefOrderController {
     type: ChefOrderResponseDto,
     isArray: true,
   })
-  @ApiParam({
-    required: true,
-    example: 'order-slug',
-    description: 'The slug of order',
-    name: 'slug',
-  })
-  async create(@Param('slug') slug: string) {
-    const result = await this.chefOrderService.create(slug);
+  async create(
+    @Body(new ValidationPipe({ whitelist: true, transform: true }))
+    requestData: CreateChefOrderRequestDto,
+  ) {
+    const result = await this.chefOrderService.create(requestData);
     return {
       message: 'The chef orders were created successfully',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ChefOrderResponseDto[]>;
-  }
-
-  @Get('group-by-chef-area')
-  @HasRoles(
-    RoleEnum.SuperAdmin,
-    RoleEnum.Admin,
-    RoleEnum.Manager,
-    RoleEnum.Chef,
-    RoleEnum.Staff,
-  )
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Get all chef orders group by chef area',
-  })
-  @ApiResponseWithType({
-    status: HttpStatus.OK,
-    description: 'The chef orders were retrieved successfully',
-    type: ChefAreaResponseDto,
-    isArray: true,
-  })
-  async getAllGroupByChefArea(
-    @Query(new ValidationPipe({ transform: true }))
-    query: QueryGetChefOrderGroupByChefAreaRequestDto,
-  ) {
-    const result = await this.chefOrderService.getAllGroupByChefArea(query);
-    return {
-      message: 'The chef orders were retrieved successfully',
-      statusCode: HttpStatus.OK,
-      timestamp: new Date().toISOString(),
-      result,
-    } as AppResponseDto<ChefAreaResponseDto[]>;
   }
 
   @Get()
@@ -118,16 +84,16 @@ export class ChefOrderController {
     isArray: true,
   })
   async getAll(
-    @Query(new ValidationPipe({ transform: true }))
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: QueryGetAllChefOrderRequestDto,
   ) {
-    const result = await this.chefOrderService.getAll(query);
+    const result = await this.chefOrderService.getAllChefOrders(query);
     return {
       message: 'The chef orders were retrieved successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<ChefOrderResponseDto[]>;
+    } as AppResponseDto<AppPaginatedResponseDto<ChefOrderResponseDto>>;
   }
 
   @Get('specific/:slug')
@@ -138,7 +104,6 @@ export class ChefOrderController {
     RoleEnum.Chef,
     RoleEnum.Staff,
   )
-  // @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get specific chef order',

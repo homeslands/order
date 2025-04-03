@@ -12,6 +12,7 @@ export default function ChefOrderItemList({
   chefOrderItemData,
 }: IChefOrderItemListProps) {
   const { t } = useTranslation(['chefArea'])
+  // console.log(chefOrderItemData)
 
   const getStatusCounts = () => {
     if (!chefOrderItemData) return { pending: 0, inProgress: 0, completed: 0 }

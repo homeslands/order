@@ -3,29 +3,38 @@ import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
-import { useGetChefOrders, usePagination } from '@/hooks'
+import { useDebouncedInput, useGetChefOrders, usePagination } from '@/hooks'
 import { IChefOrders, IGetChefOrderRequest } from '@/types'
 import { DataTable } from '@/components/ui'
 import { usePendingChefOrdersColumns } from './DataTable/columns'
 import { ChefOrderItemDetailSheet } from '@/components/app/sheet'
 import { ChefOrderActionOptions } from './DataTable/actions'
+import { useSelectedChefOrderStore } from '@/stores'
 
 export default function ChefOrderPage() {
   const { t } = useTranslation(['chefArea'])
   const { t: tHelmet } = useTranslation('helmet')
-  const [chefOrderSlug, setChefOrderSlug] = useState<string>('')
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<IChefOrders>()
-  const [enableFetch, setEnableFetch] = useState(false)
-
-  const { handlePageChange, handlePageSizeChange } = usePagination()
+  const { isSheetOpen, setIsSheetOpen, selectedRow, setSelectedRow, chefOrderStatus, chefOrderByChefAreaSlug, chefOrder, setChefOrder } = useSelectedChefOrderStore()
+  const { setInputValue, debouncedInputValue } = useDebouncedInput()
+  const { pagination, setPagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   const handleCloseSheet = () => {
     setIsSheetOpen(false)
   }
-
   const chefOrderParams: IGetChefOrderRequest = {
-    chefArea: chefOrderSlug,
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    order: debouncedInputValue || undefined,
+    ...(debouncedInputValue ? {} :
+      {
+        chefArea: chefOrderByChefAreaSlug,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        ...(chefOrderStatus !== 'all' && { status: chefOrderStatus })
+      }
+    )
   }
 
   const {
@@ -33,6 +42,14 @@ export default function ChefOrderPage() {
     isLoading,
     refetch,
   } = useGetChefOrders(chefOrderParams)
+
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      pageIndex: 1
+    }))
+  }, [debouncedInputValue, chefOrderStatus, chefOrderByChefAreaSlug, startDate, endDate, setPagination])
+
   //polling useOrders every 5 seconds
   useEffect(() => {
     if (!chefOrders) return
@@ -48,13 +65,9 @@ export default function ChefOrderPage() {
     return () => clearInterval(interval) // Cleanup
   }, [chefOrders, refetch])
 
-  const handleSelect = (slug: string) => {
-    setChefOrderSlug(slug)
-  }
-
   const handleChefOrderClick = (chefOrder: IChefOrders) => {
-    setSelectedRow(chefOrder)
-    setEnableFetch(true)
+    setSelectedRow(chefOrder.slug)
+    setChefOrder(chefOrder)
     setIsSheetOpen(true)
   }
 
@@ -75,22 +88,29 @@ export default function ChefOrderPage() {
       <div className="grid grid-cols-1 gap-2 h-full">
         <DataTable
           isLoading={isLoading}
-          data={chefOrders?.result || []}
+          data={chefOrders?.items || []}
           columns={usePendingChefOrdersColumns()}
-          pages={1}
-          actionOptions={ChefOrderActionOptions({ onSelect: handleSelect })}
+          pages={chefOrders?.totalPages || 1}
+          actionOptions={ChefOrderActionOptions()}
+          hiddenInput={false}
+          hiddenDatePicker={false}
+          onInputChange={setInputValue}
+          onDateChange={(start, end) => {
+            setStartDate(start)
+            setEndDate(end)
+          }}
           onRowClick={handleChefOrderClick}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           rowClassName={(row) =>
-            row.slug === selectedRow?.slug
+            row.slug === selectedRow
               ? 'bg-primary/20 border border-primary'
               : ''
           }
         />
         <ChefOrderItemDetailSheet
-          chefOrder={selectedRow}
-          enableFetch={enableFetch}
+          chefOrder={chefOrder}
+          enableFetch={true}
           isOpen={isSheetOpen}
           onClose={handleCloseSheet}
         />

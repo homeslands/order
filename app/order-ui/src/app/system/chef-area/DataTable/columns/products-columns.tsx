@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
@@ -8,21 +8,29 @@ import { publicFileURL } from '@/constants'
 
 interface ProductColumnsProps {
   onSelectionChange?: (selectedSlugs: string[]) => void
+  resetKey?: number
 }
 
 export const useProductColumns = ({
   onSelectionChange,
+  resetKey = 0,
 }: ProductColumnsProps = {}): ColumnDef<IProduct>[] => {
   const { t } = useTranslation(['product'])
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
+  useEffect(() => {
+    setSelectedProducts([])
+  }, [resetKey])
+
   const updateSelectedProducts = (updatedSlugs: string[]) => {
-    // Ensure all items are strings
-    const validSlugs = updatedSlugs.filter((slug): slug is string =>
-      typeof slug === 'string' && slug.length > 0
-    );
-    setSelectedProducts(validSlugs);
-    onSelectionChange?.(validSlugs);
+    // clear selectedProducts
+    setSelectedProducts([])
+    // Ensure all items are strings and remove duplicates
+    // const validSlugs = [...new Set(updatedSlugs.filter((slug): slug is string =>
+    //   typeof slug === 'string' && slug.length > 0
+    // ))]
+    setSelectedProducts(updatedSlugs)
+    onSelectionChange?.(updatedSlugs)
   }
 
   return [
@@ -49,11 +57,8 @@ export const useProductColumns = ({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => {
               row.toggleSelected(!!value)
-              const productSlug = String(product.slug)
               updateSelectedProducts(
-                value
-                  ? [...selectedProducts, productSlug]
-                  : selectedProducts.filter(slug => slug !== productSlug)
+                value ? [...selectedProducts, product.slug] : selectedProducts.filter((slug) => slug !== product.slug)
               )
             }}
             aria-label="Select row"

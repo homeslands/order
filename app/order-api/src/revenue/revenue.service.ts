@@ -12,6 +12,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import {
   AggregateRevenueResponseDto,
+  AggregateRevenueResponseDtoFromBranchRevenue,
   GetRevenueQueryDto,
   RefreshSpecificRangeRevenueQueryDto,
   RevenueQueryResponseDto,
@@ -25,12 +26,15 @@ import { RevenueValidation } from './revenue.validation';
 import { RevenueException } from './revenue.exception';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import moment from 'moment';
+import { BranchRevenue } from 'src/branch-revenue/branch-revenue.entity';
 
 @Injectable()
 export class RevenueService {
   constructor(
     @InjectRepository(Revenue)
     private readonly revenueRepository: Repository<Revenue>,
+    @InjectRepository(BranchRevenue)
+    private readonly branchRevenueRepository: Repository<BranchRevenue>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
@@ -104,6 +108,207 @@ export class RevenueService {
 
     return this.queryRevenueCases(query.type, revenues);
     // return this.mapper.mapArray(revenues, Revenue, RevenueResponseDto);
+  }
+
+  async findAllFromBranchRevenue(query: GetRevenueQueryDto) {
+    const context = `${Revenue.name}.${this.findAll.name}`;
+    const findOptionsWhere: FindOptionsWhere<Revenue> = {};
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (!query.startDate && !query.endDate) {
+      findOptionsWhere.date = null;
+    } else {
+      // Query from start date to current date
+      if (query.startDate && !query.endDate) {
+        const currentDate = new Date();
+        startDate = query.startDate;
+        endDate = currentDate;
+        // findOptionsWhere.date = Between(query.startDate, currentDate);
+      }
+
+      // Query from start date to end date
+      if (query.startDate && query.endDate) {
+        startDate = query.startDate;
+        endDate = query.endDate;
+        // findOptionsWhere.date = Between(query.startDate, query.endDate);
+      }
+
+      // Throw exception if start date is not provided
+      if (!query.startDate && query.endDate) {
+        this.logger.error(`Start date is not provided`, null, context);
+        throw new BadRequestException(`Start date must be provided`);
+      }
+
+      switch (query.type) {
+        case 'day':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('days').add(7, 'hours').toDate(),
+            moment(endDate).endOf('days').add(7, 'hours').toDate(),
+          );
+          break;
+        case 'month':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('months').add(7, 'hours').toDate(),
+            moment(endDate).endOf('months').add(7, 'hours').toDate(),
+          );
+          break;
+        case 'year':
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('years').add(7, 'hours').toDate(),
+            moment(endDate).endOf('years').add(7, 'hours').toDate(),
+          );
+          break;
+        default:
+          findOptionsWhere.date = Between(
+            moment(startDate).startOf('days').add(7, 'hours').toDate(),
+            moment(endDate).endOf('days').add(7, 'hours').toDate(),
+          );
+          break;
+      }
+    }
+
+    const branchRevenues = await this.branchRevenueRepository.find({
+      where: findOptionsWhere,
+      order: { date: 'ASC' },
+    });
+
+    const aggregatedRevenues = _.groupBy(branchRevenues, (revenue) =>
+      moment(revenue.date).format('YYYY-MM-DD'),
+    );
+
+    const revenues: AggregateRevenueResponseDtoFromBranchRevenue[] =
+      Object.entries(aggregatedRevenues).map(([date, revenues]) => {
+        const totalAmount = revenues.reduce(
+          (sum, rev) => sum + Number(rev.totalAmount),
+          0,
+        );
+        const totalOrder = revenues.reduce(
+          (sum, rev) => sum + Number(rev.totalOrder),
+          0,
+        );
+        const originalAmount = revenues.reduce(
+          (sum, rev) => sum + Number(rev.originalAmount),
+          0,
+        );
+        const voucherAmount = revenues.reduce(
+          (sum, rev) => sum + Number(rev.voucherAmount),
+          0,
+        );
+        const promotionAmount = revenues.reduce(
+          (sum, rev) => sum + Number(rev.promotionAmount),
+          0,
+        );
+
+        return {
+          date: new Date(date),
+          totalAmount,
+          totalOrder,
+          originalAmount,
+          voucherAmount,
+          promotionAmount,
+        };
+      });
+
+    return this.queryRevenueCasesFromBranchRevenue(query.type, revenues);
+    // return this.mapper.mapArray(revenues, Revenue, RevenueResponseDto);
+  }
+
+  queryRevenueCasesFromBranchRevenue(
+    type: string,
+    revenues: AggregateRevenueResponseDtoFromBranchRevenue[],
+  ) {
+    switch (type) {
+      case 'day':
+        return this.aggregateByDayFromBranchRevenue(revenues);
+      case 'month':
+        return this.aggregateByMonthFromBranchRevenue(revenues);
+      case 'year':
+        return this.aggregateByYearFromBranchRevenue(revenues);
+      default:
+        return [];
+    }
+  }
+
+  private aggregateByDayFromBranchRevenue(
+    revenues: AggregateRevenueResponseDtoFromBranchRevenue[],
+  ): AggregateRevenueResponseDtoFromBranchRevenue[] {
+    return this.mapper.mapArray(
+      revenues,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+    );
+  }
+
+  private aggregateByMonthFromBranchRevenue(
+    revenues: AggregateRevenueResponseDtoFromBranchRevenue[],
+  ): AggregateRevenueResponseDtoFromBranchRevenue[] {
+    const result = revenues.reduce(
+      (acc, item) => {
+        const date = moment(item.date).startOf('months').add(7, 'hours');
+        const index = date.toISOString();
+        if (!acc[index]) {
+          acc[index] = {
+            date: date.toDate(),
+            totalAmount: 0,
+            totalOrder: 0,
+            originalAmount: 0,
+            voucherAmount: 0,
+            promotionAmount: 0,
+          };
+        }
+        acc[index].totalAmount += item.totalAmount;
+        acc[index].totalOrder += item.totalOrder;
+        acc[index].originalAmount += item.originalAmount;
+        acc[index].voucherAmount += item.voucherAmount;
+        acc[index].promotionAmount += item.promotionAmount;
+        return acc;
+      },
+      {} as Record<string, AggregateRevenueResponseDtoFromBranchRevenue>,
+    );
+
+    const data = Object.values(result);
+    return this.mapper.mapArray(
+      data,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+    );
+  }
+
+  private aggregateByYearFromBranchRevenue(
+    revenues: AggregateRevenueResponseDtoFromBranchRevenue[],
+  ) {
+    const result = revenues.reduce(
+      (acc, item) => {
+        const date = moment(item.date).startOf('years').add(7, 'hours');
+        const index = date.toISOString();
+        if (!acc[index]) {
+          acc[index] = {
+            date: date.toDate(),
+            totalAmount: 0,
+            totalOrder: 0,
+            originalAmount: 0,
+            voucherAmount: 0,
+            promotionAmount: 0,
+          };
+        }
+        acc[index].totalAmount += item.totalAmount;
+        acc[index].totalOrder += item.totalOrder;
+        acc[index].originalAmount += item.originalAmount;
+        acc[index].voucherAmount += item.voucherAmount;
+        acc[index].promotionAmount += item.promotionAmount;
+        return acc;
+      },
+      {} as Record<string, AggregateRevenueResponseDtoFromBranchRevenue>,
+    );
+
+    const data = Object.values(result);
+    return this.mapper.mapArray(
+      data,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+      AggregateRevenueResponseDtoFromBranchRevenue,
+    );
   }
 
   queryRevenueCases(type: string, revenues: Revenue[]) {

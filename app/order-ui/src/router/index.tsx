@@ -37,7 +37,6 @@ import {
   RevenuePage,
   StaticPageManagementPage,
   CustomerPage,
-  OverviewPage,
   OverviewDetailPage,
   ClientUpdateOrderPage,
   ClientAboutPage,
@@ -122,37 +121,37 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                element={<SuspenseElement component={OverviewPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: ROUTE.OVERVIEW_DETAIL,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[
-                //   Role.CHEF,
-                //   Role.STAFF,
-                //   Role.MANAGER,
-                //   Role.ADMIN,
-                //   Role.SUPER_ADMIN,
-                // ]}
                 element={<SuspenseElement component={OverviewDetailPage} />}
               />
             ),
           },
         ],
       },
+      // {
+      //   path: ROUTE.OVERVIEW_DETAIL,
+      //   element: (
+      //     <Suspense fallback={<SkeletonCart />}>
+      //       <SuspenseElement component={SystemLayout} />
+      //     </Suspense>
+      //   ),
+      //   children: [
+      //     {
+      //       index: true,
+      //       element: (
+      //         <ProtectedElement
+      //           // allowedRoles={[
+      //           //   Role.CHEF,
+      //           //   Role.STAFF,
+      //           //   Role.MANAGER,
+      //           //   Role.ADMIN,
+      //           //   Role.SUPER_ADMIN,
+      //           // ]}
+      //           element={<SuspenseElement component={OverviewDetailPage} />}
+      //         />
+      //       ),
+      //     },
+      //   ],
+      // },
       {
         path: ROUTE.STAFF_MENU,
         element: (
@@ -822,7 +821,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
+                currentUrl={ROUTE.CLIENT_CART}
                 element={<SuspenseElement component={ClientCartPage} />}
               />
             ),

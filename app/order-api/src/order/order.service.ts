@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './order.entity';
 import {
+  Between,
   FindManyOptions,
   FindOptionsWhere,
   In,
@@ -209,7 +210,12 @@ export class OrderService {
     }
 
     order.voucher = voucher;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    const subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    order.subtotal = subtotal;
+    order.originalSubtotal = order.orderItems.reduce(
+      (previous, current) => previous + current.originalSubtotal,
+      0,
+    );
 
     const createdOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
@@ -392,9 +398,11 @@ export class OrderService {
       orderItem,
       promotion,
     );
+    const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
     Object.assign(orderItem, {
       subtotal,
+      originalSubtotal,
     });
     return orderItem;
   }
@@ -421,6 +429,20 @@ export class OrderService {
 
     if (!_.isEmpty(options.status)) {
       findOptionsWhere.status = In(options.status);
+    }
+
+    if (options.startDate && !options.endDate) {
+      throw new OrderException(OrderValidation.END_DATE_CAN_NOT_BE_EMPTY);
+    }
+
+    if (options.endDate && !options.startDate) {
+      throw new OrderException(OrderValidation.START_DATE_CAN_NOT_BE_EMPTY);
+    }
+
+    if (options.startDate && options.endDate) {
+      options.startDate = moment(options.startDate).startOf('day').toDate();
+      options.endDate = moment(options.endDate).endOf('day').toDate();
+      findOptionsWhere.createdAt = Between(options.startDate, options.endDate);
     }
 
     const findManyOptions: FindManyOptions<Order> = {

@@ -38,6 +38,9 @@ export class OrderUtils {
         'branch',
         'chefOrders.chefOrderItems',
       ],
+      order: {
+        createdAt: 'ASC',
+      },
       ...options,
     });
     if (!order) {

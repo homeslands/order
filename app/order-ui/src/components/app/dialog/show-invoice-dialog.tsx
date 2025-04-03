@@ -18,7 +18,7 @@ import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { PaymentStatusBadge } from '../badge'
 import { useExportOrderInvoice } from '@/hooks'
 
-export default function ShowInvoiceDialog({ order }: { order: IOrder | undefined }) {
+export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
   const [isOpen, setIsOpen] = useState(false)
@@ -49,7 +49,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | undefined
 
       <DialogContent className="px-0 rounded-lg shadow-lg sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex justify-between items-center px-4 pb-3 border-b">
+          <DialogTitle className="flex justify-between items-center px-4 pb-3 mt-4 border-b">
             <div className="flex gap-2 items-center">
               <Receipt className="w-5 h-5 text-primary" />
               {t('order.invoice')}

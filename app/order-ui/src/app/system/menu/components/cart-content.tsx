@@ -1,4 +1,5 @@
-import { Trash2 } from 'lucide-react'
+import _ from 'lodash'
+import { Info, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
@@ -10,7 +11,6 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { VoucherListSheet } from '@/components/app/sheet'
-import _ from 'lodash'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -42,9 +42,9 @@ export function CartContent() {
 
       {/* Selected table */}
       {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
-        <div className="flex items-center gap-1 px-6 text-sm border-b pb-2">
+        <div className="flex gap-1 items-center px-6 pb-2 text-sm border-b">
           {getCartItems()?.table ? (
-            <div className='flex items-center gap-1'>
+            <div className='flex gap-1 items-center'>
               <p>{t('menu.selectedTable')} </p>
               <p className="px-3 py-1 text-white rounded bg-primary">
                 {t('menu.tableName')} {getCartItems()?.tableName}
@@ -64,14 +64,14 @@ export function CartContent() {
         {cartItems ? (
           cartItems?.orderItems?.map((item) => (
             <div key={item.slug} className="flex flex-col pb-4 border-b"              >
-              <div key={`${item.slug}`} className="flex flex-row items-center gap-2 rounded-xl"                >
+              <div key={`${item.slug}`} className="flex flex-row gap-2 items-center rounded-xl"                >
                 <div className="flex flex-col flex-1 gap-2">
-                  <div className="flex flex-row items-start justify-between">
+                  <div className="flex flex-row justify-between items-start">
                     <div className="flex flex-col flex-1 min-w-0">
                       <span className="text-sm font-bold truncate">{item.name}</span>
                       <div className='flex justify-between w-full'>
                         {item.promotionValue && item.promotionValue > 0 ? (
-                          <div className="flex items-center gap-2 w-fit">
+                          <div className="flex gap-2 items-center w-fit">
                             <span className="text-sm text-muted-foreground">
                               Size {item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                             </span>
@@ -81,8 +81,8 @@ export function CartContent() {
                             {`${formatCurrency(item.price)}`}
                           </span>
                         )}
-                        <div className='flex items-center gap-2'>
-                          <div className="flex items-center justify-between w-fit text-sm font-medium me-5">
+                        <div className='flex gap-2 items-center'>
+                          <div className="flex justify-between items-center text-sm font-medium w-fit me-5">
                             <QuantitySelector cartItem={item} />
                           </div>
                           <Button
@@ -117,11 +117,11 @@ export function CartContent() {
               {getCartItems()?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
-                    <div className='flex items-center gap-2 mt-2'>
+                    <div className='flex gap-2 items-center mt-2'>
                       <span className='text-xs text-muted-foreground'>
                         {t('order.usedVoucher')}:&nbsp;
                       </span>
-                      <span className="px-3 py-1 text-xs font-semibold border rounded-full text-primary bg-primary/20 border-primary">
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full border text-primary bg-primary/20 border-primary">
                         -{`${formatCurrency(discount)}`}
                       </span>
                     </div>
@@ -151,14 +151,21 @@ export function CartContent() {
             </div>
             {/* Order button */}
             <div className='flex justify-end w-full h-40'>
-              <div className='flex justify-end w-1/2'>
-                <CreateOrderDialog
-                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-                />
+              <div className='flex justify-end items-center w-full h-fit'>
+                {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+                  <span className='flex gap-1 items-center text-xs text-destructive'>
+                    <Info size={18} />
+                    {t('menu.noSelectedTable')}
+                  </span>
+                )}
+                <div className='flex justify-end w-1/2'>
+                  <CreateOrderDialog
+                    disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                  />
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       )}
 

@@ -21,7 +21,7 @@ export default function SystemMenuPage() {
     <div className="flex flex-col w-full h-screen">
       {/* Menu chiếm phần lớn màn hình */}
       <div className={`flex ${isMobile ? 'w-full' : 'w-[70%]'} flex-col gap-2 py-3`}>
-        <div className='flex items-center justify-betweens'>
+        <div className='flex gap-4 items-center'>
           <CurrentDateInput menu={specificMenu?.result} />
           {/* {!isMobile && <CartContentSheet />} */}
         </div>
@@ -30,7 +30,7 @@ export default function SystemMenuPage() {
 
 
       {/* CartContent cố định bên phải */}
-      {!isMobile &&  <CartContent />}
+      {!isMobile && <CartContent />}
     </div>
   )
 }

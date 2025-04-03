@@ -21,6 +21,7 @@ import { QUERYKEY } from '@/constants'
 interface IConfirmAddProductInChefAreaDialogProps {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
+  onSuccess: () => void
   onCloseSheet: () => void
   productData: ICreateChefAreaProductRequest | null
   disabled?: boolean
@@ -29,6 +30,7 @@ interface IConfirmAddProductInChefAreaDialogProps {
 export default function ConfirmAddProductInChefAreaDialog({
   isOpen,
   onOpenChange,
+  onSuccess,
   onCloseSheet,
   productData,
   disabled,
@@ -44,12 +46,13 @@ export default function ConfirmAddProductInChefAreaDialog({
     addChefAreaProduct(productData, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [QUERYKEY.chefAreaProducts]
+          queryKey: [QUERYKEY.products]
         })
         onOpenChange(false)
-        onCloseSheet() // Close the sheet after success
+        onCloseSheet()
+        onSuccess()
         showToast(tToast('toast.addChefAreaProductSuccess'))
-      },
+      }
     })
   }
 
@@ -68,7 +71,7 @@ export default function ConfirmAddProductInChefAreaDialog({
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b border-primary text-primary">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
               {t('chefArea.addProduct')}
             </div>
@@ -82,7 +85,7 @@ export default function ConfirmAddProductInChefAreaDialog({
             <br />
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

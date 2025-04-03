@@ -51,7 +51,8 @@
     "error": "Error",
     "debug": "Debug",
     "isTemplate": "Mẫu thực đơn",
-    "noTemplate": "Không phải mẫu thực đơn"
+    "noTemplate": "Không phải mẫu thực đơn",
+    "refresh": "Làm mới"
   },
   "dayOfWeek": {
     "selectTimeRange": "Chọn thời gian",
@@ -65,6 +66,10 @@
     "4": "Thứ sáu",
     "5": "Thứ bảy",
     "6": "Chủ nhật",
-    "noDayOfWeek": "Không có"
+    "noDayOfWeek": "Không có",
+    "today": "Hôm nay",
+    "inWeek": "Trong tuần",
+    "inMonth": "Trong tháng",
+    "inYear": "Trong năm"
   }
 }

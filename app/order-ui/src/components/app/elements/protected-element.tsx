@@ -10,17 +10,19 @@ import { Role } from '@/constants/role'
 import { showToast } from '@/utils'
 
 interface ProtectedElementProps {
-  element: ReactNode
+  element: ReactNode,
+  currentUrl?: string,
   allowedRoles?: Role[] // Keep original array type for roles
 }
 
 export default function ProtectedElement({
   element,
+  currentUrl,
   // allowedRoles,
 }: ProtectedElementProps) {
   const { isAuthenticated, setLogout } = useAuthStore()
   const { t } = useTranslation('auth')
-  const { currentUrl, clearUrl } = useCurrentUrlStore()
+  const { setCurrentUrl } = useCurrentUrlStore()
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
 
@@ -40,6 +42,7 @@ export default function ProtectedElement({
 
   useEffect(() => {
     if (!isAuthenticated()) {
+      setCurrentUrl(currentUrl || '')
       handleLogout()
       showToast(t('toast.sessionExpired'))
 
@@ -70,7 +73,7 @@ export default function ProtectedElement({
     t,
     userInfo?.role?.name,
     currentUrl,
-    clearUrl,
+    setCurrentUrl,
   ])
 
   return <>{element}</>

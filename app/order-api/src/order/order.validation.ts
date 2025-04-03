@@ -20,6 +20,8 @@ export const REQUEST_QUANTITY_MUST_OTHER_INFINITY =
   'REQUEST_QUANTITY_MUST_OTHER_INFINITY';
 export const ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER =
   'ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER';
+export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
+export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -38,7 +40,9 @@ export type TOrderErrorCodeKey =
   | typeof INVALID_ORDER_SLUG
   | typeof REQUEST_QUANTITY_MUST_OTHER_INFINITY
   | typeof ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER
-  | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY;
+  | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
+  | typeof START_DATE_CAN_NOT_BE_EMPTY
+  | typeof END_DATE_CAN_NOT_BE_EMPTY;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -69,5 +73,13 @@ export const OrderValidation: TOrderErrorCode = {
   ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER: createErrorCode(
     1010016,
     'Error when create chef orders from order',
+  ),
+  START_DATE_CAN_NOT_BE_EMPTY: createErrorCode(
+    1010017,
+    'Start date can not be empty',
+  ),
+  END_DATE_CAN_NOT_BE_EMPTY: createErrorCode(
+    1010018,
+    'End date can not be empty',
   ),
 };

@@ -46,7 +46,6 @@ export default function DataTableFilterOptions({
     }
 
     if (!filterConfig?.length) return null
-
     return (
         <div className="flex gap-2">
             {filterConfig.map((filter) => (

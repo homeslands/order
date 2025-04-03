@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LogIn, User } from 'lucide-react'
+import { Inbox, LogIn, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -21,7 +21,6 @@ export default function ClientHeaderDropdown() {
   const { t } = useTranslation(['sidebar'])
   const { isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
-
   if (!isAuthenticated())
     return (
       <Button
@@ -48,7 +47,7 @@ export default function ClientHeaderDropdown() {
         <DropdownMenuGroup>
           <DropdownMenuItem className="h-9 px-0">
             <NavLink
-              to={`${ROUTE.CLIENT_PROFILE}`}
+              to={`${ROUTE.CLIENT_PROFILE}?tab=info`}
               className="flex h-9 w-full justify-start"
             >
               <Button
@@ -57,6 +56,20 @@ export default function ClientHeaderDropdown() {
               >
                 <User className="icon" />
                 {t('header.profile')}
+              </Button>
+            </NavLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="h-9 px-0">
+            <NavLink
+              to={`${ROUTE.CLIENT_PROFILE}?tab=history`}
+              className="flex h-9 w-full justify-start"
+            >
+              <Button
+                variant="ghost"
+                className="flex w-full justify-start gap-1 text-sm"
+              >
+                <Inbox className="icon" />
+                {t('header.myOrders')}
               </Button>
             </NavLink>
           </DropdownMenuItem>

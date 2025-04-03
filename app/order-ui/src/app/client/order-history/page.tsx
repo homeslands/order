@@ -291,7 +291,7 @@ export default function OrderHistoryPage() {
                 >
                   {tCommon('common.checkout')}
                 </Button>) : (
-                  <ShowInvoiceDialog order={orderInfo} />
+                  <ShowInvoiceDialog order={orderInfo || null} />
                 )}
             </div>
           </div>

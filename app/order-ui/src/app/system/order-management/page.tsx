@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
@@ -15,7 +16,7 @@ import { IOrder, OrderStatus } from '@/types'
 import { usePendingOrdersColumns } from './DataTable/columns'
 import { OrderItemDetailSheet } from '@/components/app/sheet'
 import { OrderFilter } from './DataTable/filters'
-import { useSearchParams } from 'react-router-dom'
+
 export default function OrderManagementPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
@@ -32,10 +33,12 @@ export default function OrderManagementPage() {
   const { addOrder } = useOrderStore()
   const { clearSelectedItems } = useOrderTrackingStore()
   const { data: orderDetail } = useOrderBySlug(orderSlug)
-  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [slug, setSlug] = useState(searchParams.get('slug') || '')
+  const [slug, setSlug] = useState(searchParams.get('slug') || selectedRow)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   useEffect(() => {
     setSearchParams((prev) => {
@@ -43,11 +46,12 @@ export default function OrderManagementPage() {
       newParams.set('slug', slug)
       return newParams
     })
-    setIsSheetOpen(slug !== '')
+
+    // setIsSheetOpen(slug !== '')
     if (slug !== '') {
       setOrderSlug(slug)
     }
-  }, [setSearchParams, slug, setIsSheetOpen, setOrderSlug])
+  }, [setSearchParams, slug, setIsSheetOpen, setOrderSlug, selectedRow])
 
   const handleCloseSheet = () => {
     setIsSheetOpen(false)
@@ -59,9 +63,17 @@ export default function OrderManagementPage() {
     size: pagination.pageSize,
     order: 'DESC',
     branchSlug: userInfo?.branch?.slug,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     status: status !== 'all' ? status : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
   })
 
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      pageIndex: 1
+    }))
+  }, [startDate, endDate, status, setPagination])
   useEffect(() => {
     if (orderDetail?.result) {
       addOrder(orderDetail.result)
@@ -123,9 +135,14 @@ export default function OrderManagementPage() {
           data={data?.result.items || []}
           columns={usePendingOrdersColumns()}
           pages={data?.result?.totalPages || 1}
+          hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
+          onDateChange={(start, end) => {
+            setStartDate(start)
+            setEndDate(end)
+          }}
           filterConfig={filterConfig}
           filterOptions={OrderFilter}
           onFilterChange={handleFilterChange}

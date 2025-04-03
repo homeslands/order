@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import _ from 'lodash'
-import { ShoppingCart, Trash2 } from 'lucide-react'
+import { Info, ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -31,10 +31,6 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t: tCommon } = useTranslation(['common'])
   const drawerCloseRef = useRef<HTMLButtonElement>(null)
 
-  const handleOrderSuccess = () => {
-    drawerCloseRef.current?.click()
-  }
-
   const [, setSelectedUser] = useState<IUserInfo | null>(null)
   const { getCartItems, removeCartItem } = useCartItemStore()
   const cartItems = getCartItems()
@@ -55,7 +51,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
       <DrawerTrigger asChild className={cn(className)}>
         <div className="relative">
           {cartItems?.orderItems && cartItems.orderItems.length > 0 && (
-            <span className="absolute flex items-center justify-center w-5 h-5 p-2 text-xs font-semibold bg-white border border-gray-300 rounded-full -right-2 -top-2 text-primary">
+            <span className="flex absolute -top-2 -right-2 justify-center items-center p-2 w-5 h-5 text-xs font-semibold bg-white rounded-full border border-gray-300 text-primary">
               {cartItems?.orderItems.length}
             </span>
           )}
@@ -87,7 +83,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
               {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
                 <div className="flex items-center text-sm">
                   {getCartItems()?.table ? (
-                    <div className='flex items-center gap-1'>
+                    <div className='flex gap-1 items-center'>
                       <p>{t('menu.selectedTable')} </p>
                       <p className="px-3 py-1 text-white rounded bg-primary">
                         {t('menu.tableName')} {getCartItems()?.tableName}
@@ -109,7 +105,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                     >
                       <div
                         key={`${item.slug}`}
-                        className="flex flex-row items-center gap-2 rounded-xl"
+                        className="flex flex-row gap-2 items-center rounded-xl"
                       >
                         {/* Product image */}
                         <img
@@ -118,8 +114,8 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                           className="object-cover w-20 h-20 rounded-2xl"
                         />
                         <div className="flex flex-col flex-1 gap-2">
-                          <div className="flex flex-row items-start justify-between">
-                            <div className="flex flex-col flex-1 min-w-0 gap-1">
+                          <div className="flex flex-row justify-between items-start">
+                            <div className="flex flex-col flex-1 gap-1 min-w-0">
                               <span className="font-bold truncate">
                                 {item.name}
                               </span>
@@ -138,7 +134,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                             </Button>
                           </div>
 
-                          <div className="flex items-center justify-between w-full text-sm font-medium">
+                          <div className="flex justify-between items-center w-full text-sm font-medium">
                             <QuantitySelector cartItem={item} />
                           </div>
                         </div>
@@ -185,19 +181,29 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
 
 
                 {/* Order button */}
-                <div className='flex justify-end w-full h-24 gap-4 mt-2'>
-                  <DrawerClose ref={drawerCloseRef} asChild>
-                    <Button
-                      variant="outline"
-                      className="border border-gray-400 rounded-full w-fit"
-                    >
-                      {tCommon('common.close')}
-                    </Button>
-                  </DrawerClose>
-                  <CreateOrderDialog
-                    onSuccessfulOrder={handleOrderSuccess}
-                    disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-                  />
+                <div className='flex gap-4 justify-end mt-2 w-full h-24'>
+
+                  <div className='flex gap-2 justify-end items-center w-full h-fit'>
+                    {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+                      <span className='flex gap-1 items-center text-xs text-destructive'>
+                        <Info size={18} />
+                        {t('menu.noSelectedTable')}
+                      </span>
+                    )}
+                    <DrawerClose ref={drawerCloseRef} asChild>
+                      <Button
+                        variant="outline"
+                        className="rounded-full border border-gray-400 w-fit"
+                      >
+                        {tCommon('common.close')}
+                      </Button>
+                    </DrawerClose>
+                    <div className='flex justify-end w-fit'>
+                      <CreateOrderDialog
+                        disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

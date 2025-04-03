@@ -6,7 +6,7 @@ import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
 import { IsNull, Repository } from 'typeorm';
 import { OrderUtils } from './order.utils';
-import { OrderStatus } from './order.constants';
+import { OrderAction, OrderStatus } from './order.constants';
 import { Order } from './order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
@@ -86,5 +86,26 @@ export class OrderListener {
         context,
       );
     }
+  }
+
+  @OnEvent(OrderAction.INIT_ORDER_ITEM_SUCCESS)
+  async initOriginalSubtotal() {
+    const context = `${OrderListener.name}.${this.initOriginalSubtotal.name}`;
+    const orders = await this.orderRepository.find({
+      relations: ['orderItems'],
+    });
+    const updatedOrders: Order[] = [];
+    for (const order of orders) {
+      order.originalSubtotal = order.orderItems.reduce(
+        (acc, item) => acc + item.originalSubtotal,
+        0,
+      );
+      updatedOrders.push(order);
+    }
+    await this.orderRepository.save(updatedOrders);
+    this.logger.log(
+      `Init original subtotal for ${orders.length} orders`,
+      context,
+    );
   }
 }

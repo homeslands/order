@@ -19,6 +19,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   AggregateRevenueResponseDto,
+  AggregateRevenueResponseDtoFromBranchRevenue,
   GetRevenueQueryDto,
   RefreshSpecificRangeRevenueQueryDto,
 } from './revenue.dto';
@@ -55,6 +56,33 @@ export class RevenueController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<AggregateRevenueResponseDto[]>;
+  }
+
+  @Get('from-branch-revenue')
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiOperation({ summary: 'Get all revenues' })
+  @ApiResponseWithType({
+    type: AggregateRevenueResponseDto,
+    isArray: true,
+    status: HttpStatus.OK,
+    description: 'The revenues retrieved successfully',
+  })
+  async findAllFromBranchRevenue(
+    @Query(new ValidationPipe({ transform: true })) query: GetRevenueQueryDto,
+  ) {
+    const result = await this.revenueService.findAllFromBranchRevenue(query);
+    return {
+      message: 'Revenues have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<AggregateRevenueResponseDtoFromBranchRevenue[]>;
   }
 
   @Patch('latest')

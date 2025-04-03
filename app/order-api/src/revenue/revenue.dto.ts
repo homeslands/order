@@ -71,6 +71,32 @@ export class AggregateRevenueResponseDto {
   totalOrder: number;
 }
 
+export class AggregateRevenueResponseDtoFromBranchRevenue {
+  @AutoMap()
+  @ApiProperty()
+  date: Date;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalOrder: number;
+
+  @AutoMap()
+  @ApiProperty()
+  originalAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  voucherAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  promotionAmount: number;
+}
+
 export class RefreshSpecificRangeRevenueQueryDto {
   @AutoMap()
   @ApiProperty({ required: true, example: '2024-12-26' })

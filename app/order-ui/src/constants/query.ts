@@ -3,6 +3,7 @@ export const QUERYKEY = {
   branches: ['branches'],
   catalog: ['catalog'],
   productVariants: ['productVariants'],
+  products: ['products'],
   vouchers: ['vouchers'],
   promotions: ['promotions'],
   banners: ['banners'],

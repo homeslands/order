@@ -214,6 +214,8 @@ describe('ProductService', () => {
     it('should get all product success and return product array', async () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
+        page: 0,
+        size: 0,
       };
       const product = {
         name: 'Mock product name',
@@ -276,7 +278,12 @@ describe('ProductService', () => {
         updatedAt: new Date(),
       } as Product;
 
-      (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => product,
+      );
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => null,
+      );
       (catalogRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
       await expect(
         service.updateProduct(productSlug, mockInput),
@@ -312,8 +319,11 @@ describe('ProductService', () => {
         updatedAt: new Date(),
       } as Catalog;
 
-      (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(
-        mockOutput,
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => mockOutput,
+      );
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => null,
       );
       (catalogRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(catalog);
       (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);

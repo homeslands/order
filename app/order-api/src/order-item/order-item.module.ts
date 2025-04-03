@@ -15,6 +15,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { OrderItemScheduler } from './order-item.scheduler';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { Menu } from 'src/menu/menu.entity';
     OrderItemUtils,
     PromotionUtils,
     MenuUtils,
+    OrderItemScheduler,
   ],
   exports: [OrderItemService, OrderItemUtils],
 })

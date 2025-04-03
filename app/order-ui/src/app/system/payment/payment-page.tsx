@@ -124,7 +124,7 @@ export default function PaymentPage() {
   if (isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
-        <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex flex-col gap-5 justify-center items-center">
           <CircleX className="w-32 h-32 text-destructive" />
           <p className="text-center text-muted-foreground">
             {t('order.orderExpired')}
@@ -148,18 +148,18 @@ export default function PaymentPage() {
         <meta name='description' content={tHelmet('helmet.bankConfig.title')} />
       </Helmet>
       <OrderCountdown createdAt={order?.result.createdAt || timeDefaultExpired} setIsExpired={handleExpire} />
-      <span className="flex items-center justify-start w-full gap-1 text-lg">
+      <span className="flex gap-1 justify-start items-center w-full text-lg">
         <SquareMenu />
         {t('menu.payment')}
         <span className="text-muted-foreground">#{slug}</span>
       </span>
       <div>
-        <div className="sticky top-0 z-10 flex flex-col items-center gap-2">
-          <div className="flex flex-col w-full gap-3">
+        <div className="flex sticky top-0 z-10 flex-col gap-2 items-center">
+          <div className="flex flex-col gap-3 w-full">
             {order && (
-              <div className="w-full space-y-2">
+              <div className="space-y-2 w-full">
                 {/* Customer Information */}
-                <div className="grid items-center justify-between grid-cols-1 p-4 rounded-sm bg-background sm:grid-cols-2">
+                <div className="grid grid-cols-1 justify-between items-center p-4 rounded-sm bg-background sm:grid-cols-2">
                   <div className="flex flex-col col-span-1 gap-1 sm:border-r sm:px-4">
                     <div className="grid grid-cols-2 gap-2">
                       <h3 className="col-span-1 text-sm font-medium">
@@ -209,7 +209,7 @@ export default function PaymentPage() {
                   </div>
                 </div>
                 {/* Order Information */}
-                <div className="grid w-full grid-cols-4 px-4 py-3 mb-2 text-sm font-thin rounded-md bg-muted-foreground/10">
+                <div className="grid grid-cols-4 px-4 py-3 mb-2 w-full text-sm font-thin rounded-md bg-muted-foreground/10">
                   <span className="col-span-1">{t('order.product')}</span>
                   <span className="col-span-1">{t('order.unitPrice')}</span>
                   <span className="col-span-1 text-center">
@@ -223,18 +223,18 @@ export default function PaymentPage() {
                   {order?.result.orderItems.map((item) => (
                     <div
                       key={item.slug}
-                      className="grid items-center w-full gap-4 p-4 pb-4 border-b rounded-t-md"
+                      className="grid gap-4 items-center p-4 pb-4 w-full rounded-t-md border-b"
                     >
-                      <div className="grid flex-row items-center w-full grid-cols-4">
-                        <div className="flex w-full col-span-1 gap-2">
-                          <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
+                      <div className="grid flex-row grid-cols-4 items-center w-full">
+                        <div className="flex col-span-1 gap-2 w-full">
+                          <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
                             <span className="text-[12px] sm:text-sm lg:text-base font-bold truncate text-wrap w-full">
                               {item.variant.product.name}
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center col-span-1">
-                          <span className="flex items-center gap-2 text-sm">
+                        <div className="flex col-span-1 items-center">
+                          <span className="flex gap-2 items-center text-sm">
                             {item?.promotion?.value &&
                               <span className='line-through text-muted-foreground/70 sm:block'>
                                 {`${formatCurrency(item.variant.price || 0)}`}
@@ -244,7 +244,7 @@ export default function PaymentPage() {
                             </span>
                           </span>
                         </div>
-                        <div className="flex justify-center col-span-1">
+                        <div className="flex col-span-1 justify-center">
                           <span className="text-sm">
                             {item.quantity || 0}
                           </span>
@@ -257,9 +257,9 @@ export default function PaymentPage() {
                       </div>
                     </div>
                   ))}
-                  <div className="flex flex-col items-end w-full gap-2 p-4 pr-10">
+                  <div className="flex flex-col gap-2 items-end p-4 pr-10 w-full">
                     <div className="flex w-[20rem] flex-col gap-2">
-                      <div className="flex justify-between w-full pb-4 border-b">
+                      <div className="flex justify-between pb-4 w-full border-b">
                         <h3 className="text-sm font-medium">
                           {t('order.total')}
                         </h3>
@@ -267,7 +267,7 @@ export default function PaymentPage() {
                           {`${formatCurrency(originalTotal || 0)}`}
                         </p>
                       </div>
-                      <div className="flex justify-between w-full pb-4 border-b">
+                      <div className="flex justify-between pb-4 w-full border-b">
                         <h3 className="text-sm font-medium text-muted-foreground">
                           {t('order.discount')}
                         </h3>
@@ -275,7 +275,7 @@ export default function PaymentPage() {
                           - {`${formatCurrency(discount || 0)}`}
                         </p>
                       </div>
-                      <div className="flex justify-between w-full pb-4 border-b">
+                      <div className="flex justify-between pb-4 w-full border-b">
                         <h3 className="text-sm italic font-medium text-green-500">
                           {t('order.voucher')}
                         </h3>
@@ -293,7 +293,7 @@ export default function PaymentPage() {
                           </p>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {t('order.vat')}
+                          ({t('order.vat')})
                         </span>
                       </div>
                     </div>
@@ -317,7 +317,7 @@ export default function PaymentPage() {
               </Button>
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
-                  <div className="flex justify-end gap-2 px-2">
+                  <div className="flex gap-2 justify-end px-2">
                     {paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER ?
                       <>
                         <DownloadQrCode qrCode={qrCode} slug={slug} />
