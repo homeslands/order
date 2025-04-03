@@ -24,8 +24,9 @@ export class OrderItemScheduler {
     });
     const updatedOrderItems: OrderItem[] = [];
     for (const orderItem of orderItems) {
-      orderItem.originalSubtotal =
-        (orderItem.subtotal * 100) / (orderItem.promotion?.value ?? 100);
+      let subNumber = 100 - (orderItem.promotion?.value ?? 100);
+      if (subNumber === 0) subNumber = 100;
+      orderItem.originalSubtotal = (orderItem.subtotal * 100) / subNumber;
       updatedOrderItems.push(orderItem);
     }
     await this.orderItemRepository.save(updatedOrderItems);
