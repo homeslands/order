@@ -36,9 +36,9 @@ export default function OrderDetailPage() {
   const originalTotal = orderInfo
     ? orderInfo?.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
     : 0;
-  const totalBeforeDiscount = orderInfo
-    ? orderInfo.orderItems.reduce((sum, item) => sum + item.subtotal, 0)
-    : 0;
+  // const totalBeforeDiscount = orderInfo
+  //   ? orderInfo.orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+  //   : 0;
 
   const discount = orderInfo
     ? orderInfo.orderItems.reduce(
@@ -243,7 +243,7 @@ export default function OrderDetailPage() {
                 <p className="text-sm text-muted-foreground">
                   {t('order.subtotal')}
                 </p>
-                <p className='text-muted-foreground'>{`${formatCurrency(totalBeforeDiscount || 0)}`}</p>
+                <p className='text-muted-foreground'>{`${formatCurrency(originalTotal || 0)}`}</p>
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-sm italic text-green-500">
@@ -285,7 +285,7 @@ export default function OrderDetailPage() {
               >
                 {tCommon('common.goBack')}
               </Button>
-              <ShowInvoiceDialog order={orderInfo} />
+              <ShowInvoiceDialog order={orderInfo || null} />
             </div>
           </div>
         </div>

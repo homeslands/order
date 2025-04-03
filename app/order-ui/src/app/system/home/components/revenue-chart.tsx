@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
-import { useRevenue } from '@/hooks'
+import { useAllRevenue } from '@/hooks'
 import { formatCurrency, formatShortCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
 import { DateSelect } from '@/components/app/select'
@@ -28,10 +28,10 @@ export default function RevenueChart({
   const chartRef = useRef<HTMLDivElement>(null)
   const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
 
-  const { data: revenueData, refetch } = useRevenue({
+  const { data: revenueData, refetch } = useAllRevenue({
     startDate,
     endDate,
-    type: revenueType, // Sử dụng state thay vì hardcode
+    type: revenueType,
   })
 
   // Refetch when trigger changes
@@ -42,7 +42,7 @@ export default function RevenueChart({
   }, [trigger, refetch])
 
   const handleSelectTimeRange = (timeRange: string) => {
-    // Cập nhật type dựa vào timeRange
+    // update revenue type
     if (timeRange === RevenueTypeQuery.DAILY) {
       setRevenueType(RevenueTypeQuery.DAILY)
     } else if (timeRange === RevenueTypeQuery.MONTHLY) {
@@ -75,8 +75,8 @@ export default function RevenueChart({
       // Ensure we're working with an array and sort it
       const sortedData = Array.isArray(revenueData.result)
         ? [...revenueData.result].sort(
-            (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
-          )
+          (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
+        )
         : []
 
       const option = {
@@ -188,13 +188,13 @@ export default function RevenueChart({
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex justify-between items-center">
           Doanh thu toàn hệ thống
           {/* <TimeRangeRevenueFilter onApply={handleSelectTimeRange} /> */}
           <DateSelect onChange={handleSelectTimeRange} />
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex items-center justify-center p-2">
+      <CardContent className="flex justify-center items-center p-2">
         <div ref={chartRef} className="h-[26rem] w-full" />
       </CardContent>
     </Card>

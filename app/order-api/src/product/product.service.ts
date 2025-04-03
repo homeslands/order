@@ -5,7 +5,15 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Product } from './product.entity';
-import { DataSource, In, IsNull, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindManyOptions,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  Not,
+  Repository,
+} from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,6 +41,7 @@ import { FileException } from 'src/file/file.exception';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { BranchUtils } from 'src/branch/branch.utils';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class ProductService {
@@ -298,7 +307,99 @@ export class ProductService {
       );
     }
 
-    return this.mapper.mapArray(products, Product, ProductResponseDto);
+    const productsDto = this.mapper.mapArray(
+      products,
+      Product,
+      ProductResponseDto,
+    );
+
+    return productsDto;
+  }
+
+  async getAllProductsPagination(
+    query: GetProductRequestDto,
+  ): Promise<AppPaginatedResponseDto<ProductResponseDto>> {
+    const findOptionsWhere: FindOptionsWhere<Product> = {
+      catalog: {
+        slug: query.catalog,
+      },
+      isTopSell: query.isTopSell,
+      isNew: query.isNew,
+    };
+
+    if (query.promotion) {
+      const promotion = await this.promotionUtils.getPromotion({
+        where: { slug: query.promotion },
+      });
+      const applicableProductIds = promotion.applicablePromotions.map(
+        (item) => item.applicableId,
+      );
+      findOptionsWhere.id = query.isAppliedPromotion
+        ? In(applicableProductIds)
+        : Not(In(applicableProductIds));
+    }
+
+    if (query.branch) {
+      const branch = await this.branchUtils.getBranch({
+        where: { slug: query.branch },
+        relations: ['chefAreas.productChefAreas.product'],
+      });
+
+      const branchProductIds = branch.chefAreas.flatMap((chefArea) =>
+        chefArea.productChefAreas.map(
+          (productChefArea) => productChefArea.product.id,
+        ),
+      );
+
+      findOptionsWhere.id = query.isAppliedBranchForChefArea
+        ? In(branchProductIds)
+        : Not(In(branchProductIds));
+    }
+
+    if (query.menu) {
+      const menu = await this.menuUtils.getMenu({
+        where: { slug: query.menu ?? IsNull() },
+      });
+      const productIdsInMenu = menu.menuItems.map((item) => item.product.id);
+      findOptionsWhere.id = query.inMenu
+        ? In(productIdsInMenu)
+        : Not(In(productIdsInMenu));
+    }
+
+    const findManyOptions: FindManyOptions<Product> = {
+      where: findOptionsWhere,
+      relations: ['catalog', 'variants.size'],
+      order: { createdAt: 'DESC' },
+    };
+
+    if (query.hasPaging) {
+      Object.assign(findManyOptions, {
+        skip: (query.page - 1) * query.size,
+        take: query.size,
+      });
+    }
+
+    const [products, total] =
+      await this.productRepository.findAndCount(findManyOptions);
+    const totalPages = Math.ceil(total / query.size);
+    const hasNext = query.page < totalPages;
+    const hasPrevious = query.page > 1;
+
+    const productsDto = this.mapper.mapArray(
+      products,
+      Product,
+      ProductResponseDto,
+    );
+
+    return {
+      hasNext,
+      hasPrevios: hasPrevious,
+      items: productsDto,
+      total,
+      page: query.hasPaging ? query.page : 1,
+      pageSize: query.hasPaging ? query.size : total,
+      totalPages,
+    } as AppPaginatedResponseDto<ProductResponseDto>;
   }
 
   /**
@@ -317,6 +418,14 @@ export class ProductService {
     const product = await this.productRepository.findOneBy({ slug });
     if (!product)
       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+
+    const existProductName = await this.productRepository.findOneBy({
+      name: requestData.name,
+    });
+    if (existProductName) {
+      this.logger.warn(ProductValidation.PRODUCT_NAME_EXIST.message, context);
+      throw new ProductException(ProductValidation.PRODUCT_NAME_EXIST);
+    }
 
     // limit product -> update current, template menu item
     if (product.isLimit !== requestData.isLimit) {
@@ -405,172 +514,203 @@ export class ProductService {
 
   async createManyProducts(file?: Express.Multer.File) {
     const context = `${ProductService.name}.${this.createManyProducts.name}`;
+    const workbook = new Workbook();
+    if (!file?.buffer) throw new BadRequestException('File not found');
+
+    await workbook.xlsx.load(file.buffer);
+
+    if (_.isEmpty(workbook.worksheets))
+      throw new BadRequestException('File not any sheets');
+
+    const worksheet = workbook.getWorksheet(1);
+
+    const validationData = await this.validateDataFromExcel(worksheet);
+    if (!_.isEmpty(validationData.errors)) {
+      const formattedErrors = this.convertErrorsToExcelFormat(
+        validationData.errors,
+      );
+      const ws = reader.utils.json_to_sheet(formattedErrors);
+      const validationWorkbook = reader.utils.book_new();
+      reader.utils.book_append_sheet(
+        validationWorkbook,
+        ws,
+        'ValidationErrors',
+      );
+
+      const excelBuffer = reader.write(validationWorkbook, {
+        type: 'buffer',
+        bookType: 'xlsx',
+      });
+
+      return { errors: true, excelBuffer };
+    }
+
+    const normalizedData = this.dataStandardization(validationData.data);
+    // check duplicate product name
+    const duplicateNames = normalizedData
+      .map((item) => item[1])
+      .filter((name, index, array) => array.indexOf(name) !== index);
+
+    if (duplicateNames.length > 0) {
+      this.logger.warn(
+        ProductValidation.DUPLICATE_PRODUCT_NAME.message,
+        context,
+      );
+      throw new ProductException(
+        ProductValidation.DUPLICATE_PRODUCT_NAME,
+        `Duplicate product names: ${duplicateNames.join(', ')}`,
+      );
+    }
+
+    const createdCatalogsAndSizes =
+      await this.getListCreatedCatalogsAndSizes(normalizedData);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const workbook = new Workbook();
-      if (!file?.buffer) throw new BadRequestException('File not found');
+      // code
+      const createdCatalogs = await queryRunner.manager.save(
+        createdCatalogsAndSizes.setCreatedCatalogs,
+      );
 
-      await workbook.xlsx.load(file.buffer);
+      const createdSizes = await queryRunner.manager.save(
+        createdCatalogsAndSizes.setCreatedSizes,
+      );
 
-      if (_.isEmpty(workbook.worksheets))
-        throw new BadRequestException('File not any sheets');
-
-      const worksheet = workbook.getWorksheet(1);
-
-      const validationData = this.validateDataFromExcel(worksheet);
-      if (!_.isEmpty(validationData.errors)) {
-        const formattedErrors = this.convertErrorsToExcelFormat(
-          validationData.errors,
-        );
-        const ws = reader.utils.json_to_sheet(formattedErrors);
-        const validationWorkbook = reader.utils.book_new();
-        reader.utils.book_append_sheet(
-          validationWorkbook,
-          ws,
-          'ValidationErrors',
-        );
-
-        const excelBuffer = reader.write(validationWorkbook, {
-          type: 'buffer',
-          bookType: 'xlsx',
+      for (const productData of normalizedData) {
+        const existProductName = await this.productRepository.findOneBy({
+          name: productData[1],
         });
-
-        return { errors: true, excelBuffer };
-      }
-
-      const normalizedData = this.dataStandardization(validationData.data);
-
-      const createdCatalogsAndSizes =
-        await this.getListCreatedCatalogsAndSizes(normalizedData);
-
-      const queryRunner = this.dataSource.createQueryRunner();
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-
-      try {
-        // code
-        const createdCatalogs = await queryRunner.manager.save(
-          createdCatalogsAndSizes.setCreatedCatalogs,
-        );
-
-        const createdSizes = await queryRunner.manager.save(
-          createdCatalogsAndSizes.setCreatedSizes,
-        );
-
-        for (const productData of normalizedData) {
-          let catalog = await this.catalogRepository.findOneBy({
-            name: productData[2],
-          });
-          if (!catalog) {
-            catalog = createdCatalogs.find(
-              (item) => item.name === productData[2],
-            );
-          }
-          const newProduct = new Product();
-          Object.assign(newProduct, {
-            name: productData[1],
-            description: productData[3],
-            catalog,
-          });
-
-          const createdProduct = await queryRunner.manager.save(newProduct);
-
-          const newVariants: Variant[] = [];
-          if (productData[6]) {
-            let size = await this.sizeRepository.findOneBy({
-              name: productData[6],
-            });
-            if (!size) {
-              size = createdSizes.find((item) => item.name === productData[6]);
-            }
-            const newVariant = new Variant();
-            Object.assign(newVariant, {
-              product: createdProduct,
-              size,
-              price: productData[7],
-            });
-            newVariants.push(newVariant);
-          }
-
-          if (productData[8]) {
-            let size = await this.sizeRepository.findOneBy({
-              name: productData[8],
-            });
-            if (!size) {
-              size = createdSizes.find((item) => item.name === productData[8]);
-            }
-            const newVariant = new Variant();
-            Object.assign(newVariant, {
-              product: createdProduct,
-              size,
-              price: productData[9],
-            });
-            newVariants.push(newVariant);
-          }
-
-          if (productData[10]) {
-            let size = await this.sizeRepository.findOneBy({
-              name: productData[10],
-            });
-            if (!size) {
-              size = createdSizes.find((item) => item.name === productData[10]);
-            }
-            const newVariant = new Variant();
-            Object.assign(newVariant, {
-              product: createdProduct,
-              size,
-              price: productData[11],
-            });
-            newVariants.push(newVariant);
-          }
-
-          await queryRunner.manager.save(newVariants);
+        if (existProductName) {
+          this.logger.warn(
+            ProductValidation.PRODUCT_NAME_EXIST.message,
+            context,
+          );
+          throw new ProductException(ProductValidation.PRODUCT_NAME_EXIST);
         }
 
-        await queryRunner.commitTransaction();
-        this.logger.log(`Created ${normalizedData.length} successfully`);
-        return { errors: false, countCreated: normalizedData.length };
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        await queryRunner.rollbackTransaction();
-        this.logger.warn(
-          ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
-          context,
-        );
-        throw new ProductException(
-          ProductValidation.CREATE_MANY_PRODUCTS_FAILED,
-        );
-      } finally {
-        await queryRunner.release();
+        let catalog = await this.catalogRepository.findOneBy({
+          name: productData[2],
+        });
+        if (!catalog) {
+          catalog = createdCatalogs.find(
+            (item) => item.name === productData[2],
+          );
+        }
+        const newProduct = new Product();
+        Object.assign(newProduct, {
+          name: productData[1],
+          description: productData[3],
+          catalog,
+          isTopSell: productData[5] ?? false,
+          isNew: productData[4] ?? false,
+        });
+
+        const createdProduct = await queryRunner.manager.save(newProduct);
+
+        const newVariants: Variant[] = [];
+        if (productData[6]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[6],
+          });
+          if (!size) {
+            size = createdSizes.find((item) => item.name === productData[6]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[7],
+          });
+          newVariants.push(newVariant);
+        }
+
+        if (productData[8]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[8],
+          });
+          if (!size) {
+            size = createdSizes.find((item) => item.name === productData[8]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[9],
+          });
+          newVariants.push(newVariant);
+        }
+
+        if (productData[10]) {
+          let size = await this.sizeRepository.findOneBy({
+            name: productData[10],
+          });
+          if (!size) {
+            size = createdSizes.find((item) => item.name === productData[10]);
+          }
+          const newVariant = new Variant();
+          Object.assign(newVariant, {
+            product: createdProduct,
+            size,
+            price: productData[11],
+          });
+          newVariants.push(newVariant);
+        }
+
+        await queryRunner.manager.save(newVariants);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+      await queryRunner.commitTransaction();
+      this.logger.log(`Created ${normalizedData.length} successfully`);
+      return { errors: false, countCreated: normalizedData.length };
     } catch (error) {
-      throw new FileException(FileValidation.ERROR_WHEN_UPLOAD_FILE);
+      await queryRunner.rollbackTransaction();
+      // product exception
+      if (error instanceof ProductException) {
+        this.logger.warn(error.message, context);
+        throw error;
+      }
+
+      // other error
+      this.logger.warn(
+        ProductValidation.CREATE_MANY_PRODUCTS_FAILED.message,
+        context,
+      );
+      throw new ProductException(ProductValidation.CREATE_MANY_PRODUCTS_FAILED);
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  validateDataFromExcel(worksheet: Worksheet) {
+  async validateDataFromExcel(worksheet: Worksheet) {
     const context = `${ProductService.name}.${this.validateDataFromExcel.name}`;
 
     const validateDataType = {
-      2: 'string',
-      3: 'string',
-      4: 'string',
-      5: 'string',
-      6: 'string',
-      7: 'string',
-      8: 'number',
-      9: 'string',
-      10: 'number',
-      11: 'string',
-      12: 'number',
+      2: 'string', // Tên sản phẩm
+      3: 'string', // Nhóm hàng
+      4: 'string', // Mô tả
+      5: 'boolean', // Là sản phẩm mới
+      6: 'boolean', // Là sản phẩm bán chạy
+      7: 'string', // Hình ảnh chín (url)
+      8: 'string', // Hình ảnh thêm (url1, url2, ...)
+      9: 'string', // Kích thước 1
+      10: 'number', // Giá kích thước 1
+      11: 'string', // Kích thước 2
+      12: 'number', // Giá kích thước 2
+      13: 'string', // Kích thước 3
+      14: 'number', // Giá kích thước 3
     };
 
     const headerRowValidation = [
       undefined,
       'Stt',
       'Tên sản phẩm',
-      'Nhóm hàng',
+      'Nhóm hàng (Đồ ăn, nước uống,…)',
       'Mô tả',
+      'Là sản phẩm mới',
+      'Là sản phẩm bán chạy',
       'Hình ảnh chín (url)',
       'Hình ảnh thêm (url1, url2, …)',
       'Kích thước 1',
@@ -584,7 +724,7 @@ export class ProductService {
     const requiredColumns = [2, 3];
 
     const errors = [];
-    // [string, string, string, string, string, string, number, string, number, string, number]
+    // [string, string, string, boolean, boolean, string, string, string, number, string, number, string, number]
     const data = [];
     const headerRow = worksheet.getRow(1);
 
@@ -596,11 +736,14 @@ export class ProductService {
       this.logger.warn(FileValidation.EXCEL_FILE_WRONG_HEADER.message, context);
       throw new FileException(FileValidation.EXCEL_FILE_WRONG_HEADER);
     }
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber > 1) {
+
+    const rows = worksheet.getRows(2, worksheet.rowCount) || [];
+    for (const row of rows) {
+      if (row.number > 1) {
         if (!(row.values && Array.isArray(row.values))) {
-          return;
+          break;
         }
+        if (_.isEmpty(row.values)) break;
 
         const rowLength = row.values.length;
         // let rowErrors: { [key: string]: string } = {};
@@ -609,6 +752,16 @@ export class ProductService {
           const expectedType = validateDataType[colNumber];
           const value = row.values[colNumber];
           const isRequired = requiredColumns.includes(colNumber);
+
+          if (colNumber === 2) {
+            const existProductName = await this.productRepository.findOneBy({
+              name: value.toString(),
+            });
+            if (existProductName) {
+              rowErrors[colNumber] = rowErrors[colNumber] || [];
+              rowErrors[colNumber].push(`Tên sản phẩm "${value}" đã tồn tại.`);
+            }
+          }
 
           if (isRequired) {
             if (
@@ -650,11 +803,14 @@ export class ProductService {
           }
         }
         if (Object.keys(rowErrors).length > 0) {
-          errors.push({ row: rowNumber, errors: rowErrors });
+          errors.push({ row: row.number, errors: rowErrors });
         }
         data.push(row.values.slice(1));
       }
-    });
+    }
+    // worksheet.eachRow(async (row, rowNumber) => {
+
+    // });
 
     return {
       errors,
@@ -670,14 +826,14 @@ export class ProductService {
         if (index === 2) {
           normalizedRowData[2] = itemData.toLocaleLowerCase();
         }
-        if (index === 6) {
-          normalizedRowData[6] = itemData.toLocaleLowerCase();
-        }
         if (index === 8) {
           normalizedRowData[8] = itemData.toLocaleLowerCase();
         }
         if (index === 10) {
           normalizedRowData[10] = itemData.toLocaleLowerCase();
+        }
+        if (index === 12) {
+          normalizedRowData[12] = itemData.toLocaleLowerCase();
         }
       });
 
@@ -696,13 +852,13 @@ export class ProductService {
         if (index === 2) {
           setCatalogs.add(itemData);
         }
-        if (index === 6) {
-          setSizes.add(itemData);
-        }
         if (index === 8) {
           setSizes.add(itemData);
         }
         if (index === 10) {
+          setSizes.add(itemData);
+        }
+        if (index === 12) {
           setSizes.add(itemData);
         }
       });

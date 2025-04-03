@@ -10,6 +10,7 @@ export const PRODUCT_NOT_FOUND_IN_TODAY_MENU =
 export const CREATE_MANY_PRODUCTS_FAILED = 'CREATE_MANY_PRODUCTS_FAILED';
 export const DEFAULT_QUANTITY_REQUIRED = 'DEFAULT_QUANTITY_REQUIRED';
 export const PRODUCT_NOT_LIMIT = 'PRODUCT_NOT_LIMIT';
+export const DUPLICATE_PRODUCT_NAME = 'DUPLICATE_PRODUCT_NAME';
 
 export type TProductErrorCodeKey =
   | typeof PRODUCT_NOT_FOUND
@@ -20,7 +21,8 @@ export type TProductErrorCodeKey =
   | typeof CREATE_MANY_PRODUCTS_FAILED
   | typeof DEFAULT_QUANTITY_REQUIRED
   | typeof PRODUCT_NOT_LIMIT
-  | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU;
+  | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU
+  | typeof DUPLICATE_PRODUCT_NAME;
 
 export type TProductErrorCode = Record<TProductErrorCodeKey, TErrorCodeValue>;
 
@@ -50,6 +52,10 @@ const ProductValidation: TProductErrorCode = {
     'The default quantity of product is required',
   ),
   PRODUCT_NOT_LIMIT: createErrorCode(115008, 'The product is not limit'),
+  DUPLICATE_PRODUCT_NAME: createErrorCode(
+    115009,
+    'The product name is duplicate',
+  ),
 };
 
 export default ProductValidation;

@@ -16,14 +16,16 @@ export default function ChefOrderPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { isSheetOpen, setIsSheetOpen, selectedRow, setSelectedRow, chefOrderStatus, chefOrderByChefAreaSlug, chefOrder, setChefOrder } = useSelectedChefOrderStore()
 
-  const { handlePageChange, handlePageSizeChange } = usePagination()
+  const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
   const handleCloseSheet = () => {
     setIsSheetOpen(false)
   }
 
   const chefOrderParams: IGetChefOrderRequest = {
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
     chefArea: chefOrderByChefAreaSlug,
-    ...(chefOrderStatus !== 'all' && { status: chefOrderStatus })
+    ...(chefOrderStatus !== 'all' ? { status: chefOrderStatus } : {})
   }
 
   const {
@@ -69,9 +71,9 @@ export default function ChefOrderPage() {
       <div className="grid grid-cols-1 gap-2 h-full">
         <DataTable
           isLoading={isLoading}
-          data={chefOrders?.result || []}
+          data={chefOrders?.result.items || []}
           columns={usePendingChefOrdersColumns()}
-          pages={1}
+          pages={chefOrders?.result.totalPages || 0}
           actionOptions={ChefOrderActionOptions()}
           onRowClick={handleChefOrderClick}
           onPageChange={handlePageChange}

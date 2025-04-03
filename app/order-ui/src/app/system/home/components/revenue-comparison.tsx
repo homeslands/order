@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
-import { useRevenue } from '@/hooks'
+import { useAllRevenue } from '@/hooks'
 import { formatCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
 
@@ -15,14 +15,14 @@ export default function RevenueComparison({ trigger }: IRevenueComparisonProps) 
     const chartRef = useRef<HTMLDivElement>(null)
 
     // Get current month data
-    const { data: currentMonthData, refetch: refreshCurrentMonthRevenue } = useRevenue({
+    const { data: currentMonthData, refetch: refreshCurrentMonthRevenue } = useAllRevenue({
         startDate: moment().startOf('month').toISOString(),
         endDate: moment().endOf('month').toISOString(),
         type: RevenueTypeQuery.MONTHLY
     })
 
     // Get last month data
-    const { data: lastMonthData, refetch: refreshLastMonthRevenue } = useRevenue({
+    const { data: lastMonthData, refetch: refreshLastMonthRevenue } = useAllRevenue({
         startDate: moment().subtract(1, 'month').startOf('month').toISOString(),
         endDate: moment().subtract(1, 'month').endOf('month').toISOString(),
         type: RevenueTypeQuery.MONTHLY

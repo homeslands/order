@@ -21,9 +21,15 @@ export interface IBranchRevenue {
   totalOrder: number
 }
 
+export interface IAllRevenueQuery {
+  startDate?: string
+  endDate?: string
+  type?: RevenueTypeQuery
+}
+
 export interface IBranchRevenueQuery {
   branch: string
   startDate?: string
   endDate?: string
-  type: RevenueTypeQuery
+  type?: RevenueTypeQuery
 }

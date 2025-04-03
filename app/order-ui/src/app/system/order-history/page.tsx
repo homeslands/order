@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { DataTable } from '@/components/ui'
 import { useOrders, usePagination } from '@/hooks'
@@ -9,19 +9,19 @@ import { useUserStore } from '@/stores'
 import { useOrderHistoryColumns } from './DataTable/columns'
 import { IOrder, OrderStatus } from '@/types'
 import OrderFilter from './DataTable/actions/order-filter'
-import { useNavigate } from 'react-router-dom'
-import { ROUTE } from '@/constants'
+import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 
 export default function OrderHistoryPage() {
-  const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tHelmet } = useTranslation('helmet')
   const { userInfo } = useUserStore()
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
+  const [isSelected, setIsSelected] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
 
-  const { data, isLoading } = useOrders({
+  const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
@@ -29,6 +29,14 @@ export default function OrderHistoryPage() {
     hasPaging: true,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
+
+  // polling useOrders every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [refetch])
 
   const filterConfig = [
     {
@@ -60,8 +68,14 @@ export default function OrderHistoryPage() {
   }
 
   const handleOrderClick = (order: IOrder) => {
-    navigate(`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`)
+    setIsSelected(true)
+    setSelectedOrder(order)
   }
+
+
+  // const handleOrderClick = (order: IOrder) => {
+  //   navigate(`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`)
+  // }
 
   return (
     <div className="flex flex-col">
@@ -88,6 +102,16 @@ export default function OrderHistoryPage() {
           onFilterChange={handleFilterChange}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
+          rowClassName={(row) =>
+            row.slug === selectedOrder?.slug
+              ? 'bg-primary/20 border border-primary'
+              : ''
+          }
+        />
+        <OrderHistoryDetailSheet
+          order={selectedOrder}
+          isOpen={isSelected}
+          onClose={() => setIsSelected(false)}
         />
       </div>
     </div>

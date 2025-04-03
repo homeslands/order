@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { CatalogResponseDto } from 'src/catalog/catalog.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
 import {
@@ -167,7 +167,7 @@ export class ValidationError {
   errors: { [key: string]: string };
 }
 
-export class GetProductRequestDto {
+export class GetProductRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of catalog',
@@ -271,4 +271,18 @@ export class GetProductRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   isNew?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option has paging or not',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  hasPaging?: boolean;
 }

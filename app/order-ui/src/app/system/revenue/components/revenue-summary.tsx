@@ -2,40 +2,43 @@ import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { useRevenue } from "@/hooks"
+import moment from 'moment'
 
 interface RevenueData {
-    startDate: string
-    endDate: string
+    startDate?: string
+    endDate?: string
 }
 
 export default function RevenueSummary({ startDate, endDate }: RevenueData) {
-    //Lấy startDate và endDate là ngày hiện tại
-    const today = '2024-12-27';
+    // Set default dates to today if not provided
+    const today = moment().toISOString()
+    const defaultStartDate = startDate || today
+    const defaultEndDate = endDate || today
 
     const { data: revenueData } = useRevenue({
-        startDate,
-        endDate,
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
     })
 
-    const { data: CurrentRevenueData } = useRevenue({
-        startDate: today,
-        endDate: today,
-    })
+    // Calculate total revenue for today
+    const todayRevenue = revenueData?.result?.find((item) =>
+        item.date && moment(item.date).isSame(moment(), 'day')
+    );
+    const totalRevenueToday = todayRevenue?.totalAmount || 0;
 
-    //Tính tổng doanh thu ngày hiện tại
-    const totalRevenueToday = CurrentRevenueData?.result?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
-
-    //Định dạng revenue thành VND
+    // Format revenue to VND
     const formattedRevenueToday = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenueToday);
 
-    // Tính tổng revenue
-    const totalRevenue = revenueData?.result?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
+    // Calculate total revenue
+    const totalRevenue = revenueData?.result?.reduce((sum: number, item: { totalAmount: number }) =>
+        sum + (item.totalAmount || 0), 0) || 0;
 
-    // Định dạng revenue thành VND
+    // Format revenue to VND
     const formattedRevenue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
 
-    //Tính tổng đơn hàng
-    const totalOrders = revenueData?.result?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
+    // Calculate total orders
+    const totalOrders = revenueData?.result?.reduce((sum: number, item: { totalOrder: number }) =>
+        sum + (item.totalOrder || 0), 0) || 0;
 
     const averageOrderValue = totalRevenue / totalOrders || 0;
 
@@ -44,7 +47,7 @@ export default function RevenueSummary({ startDate, endDate }: RevenueData) {
     return (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
             <Card className="text-white shadow-none bg-primary">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">Tổng doanh thu</CardTitle>
                     <DollarSign className="w-4 h-4" />
                 </CardHeader>
@@ -54,7 +57,7 @@ export default function RevenueSummary({ startDate, endDate }: RevenueData) {
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
                     <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -64,7 +67,7 @@ export default function RevenueSummary({ startDate, endDate }: RevenueData) {
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Giá trị đơn hàng trung bình</CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -74,7 +77,7 @@ export default function RevenueSummary({ startDate, endDate }: RevenueData) {
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Doanh thu hôm nay</CardTitle>
                     <Users className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>

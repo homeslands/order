@@ -14,15 +14,12 @@ import { TimeRangeRevenueFilter } from '@/components/app/popover'
 
 export default function RevenuePage() {
   const { t } = useTranslation(['revenue'])
-  // Get first and last day of current month as default values
-  const [startDate, setStartDate] = useState<string>(
-    moment().startOf('month').toISOString(),
-  )
-  const [endDate, setEndDate] = useState<string>(
-    moment().endOf('day').toISOString(),
-  )
 
-  const handleSelectBranch = (_branch: string) => {}
+  // Set default values to today's date
+  const [startDate, setStartDate] = useState<string>(moment().toISOString())
+  const [endDate, setEndDate] = useState<string>(moment().toISOString())
+
+  const handleSelectBranch = (_branch: string) => { }
 
   const handleSelectDateRange = (start: string, end: string) => {
     setStartDate(start)
@@ -32,18 +29,18 @@ export default function RevenuePage() {
   return (
     <div className="min-h-screen">
       <main className="flex flex-col gap-2 pb-4">
-        <span className="flex w-full items-center justify-between gap-1 text-lg">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-1">
+        <span className="flex gap-1 justify-between items-center w-full text-lg">
+          <div className="flex gap-6 items-center">
+            <div className="flex gap-1 items-center">
               <SquareMenu />
               {t('revenue.title')}
             </div>
-            <span className="rounded-full border border-primary bg-primary/10 px-4 py-1 text-xs text-primary">
+            <span className="px-4 py-1 text-xs rounded-full border border-primary bg-primary/10 text-primary">
               {startDate && moment(startDate).format('DD/MM/YYYY')} -{' '}
               {endDate && moment(endDate).format('DD/MM/YYYY')}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center">
             <BranchSelect onChange={handleSelectBranch} />
             <TimeRangeRevenueFilter onApply={handleSelectDateRange} />
           </div>

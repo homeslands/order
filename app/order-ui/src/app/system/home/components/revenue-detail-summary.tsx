@@ -69,7 +69,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
     return (
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <Card className="text-white shadow-none bg-primary">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">Tổng doanh thu</CardTitle>
                     <DollarSign className="w-4 h-4" />
                 </CardHeader>
@@ -79,7 +79,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
                     <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -89,7 +89,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Giá trị đơn hàng trung bình</CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
@@ -99,7 +99,7 @@ export default function RevenueDetailSummary({ branch, startDate, endDate, trigg
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">Doanh thu hôm nay</CardTitle>
                     <Users className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>

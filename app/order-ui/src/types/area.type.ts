@@ -55,6 +55,8 @@ export interface IUpdateChefAreaProductRequest {
 export interface IGetChefOrderRequest {
   chefArea?: string
   status?: string
+  page?: number
+  size?: number
 }
 
 export interface IChefOrders extends IBase {

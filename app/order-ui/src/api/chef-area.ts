@@ -7,6 +7,7 @@ import {
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
   IGetChefOrderRequest,
+  IPaginationResponse,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
   IUpdateChefOrderItemStatusRequest,
@@ -101,12 +102,15 @@ export async function removeProductFromChefArea(
 
 export async function getChefOrders(
   data: IGetChefOrderRequest,
-): Promise<IApiResponse<IChefOrders[]>> {
-  const response = await http.get(`/chef-order`, {
+): Promise<IApiResponse<IPaginationResponse<IChefOrders>>> {
+  const response = await http.get<
+    IApiResponse<IPaginationResponse<IChefOrders>>
+  >(`/chef-order`, {
     // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
     doNotShowLoading: true,
     params: data,
   })
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
   return response.data
 }
 
