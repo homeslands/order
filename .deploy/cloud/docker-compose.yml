@@ -152,11 +152,11 @@ services:
   otel-lgtm:
     image: grafana/otel-lgtm:latest
     environment:
-      ENABLE_LOGS_LOKI: true
-      GF_SERVER_ROOT_URL: https://trendcoffee.net/grafana
-      GF_SERVER_SERVE_FROM_SUB_PATH: true
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      - ENABLE_LOGS_LOKI=true
+      - GF_SERVER_ROOT_URL=https://trendcoffee.net/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
 
     restart: unless-stopped
     healthcheck:
