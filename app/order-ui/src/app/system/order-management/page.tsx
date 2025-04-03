@@ -33,10 +33,12 @@ export default function OrderManagementPage() {
   const { addOrder } = useOrderStore()
   const { clearSelectedItems } = useOrderTrackingStore()
   const { data: orderDetail } = useOrderBySlug(orderSlug)
-  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [searchParams, setSearchParams] = useSearchParams()
   const [slug, setSlug] = useState(searchParams.get('slug') || selectedRow)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   useEffect(() => {
     setSearchParams((prev) => {
@@ -61,9 +63,17 @@ export default function OrderManagementPage() {
     size: pagination.pageSize,
     order: 'DESC',
     branchSlug: userInfo?.branch?.slug,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     status: status !== 'all' ? status : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
   })
 
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      pageIndex: 1
+    }))
+  }, [startDate, endDate, status, setPagination])
   useEffect(() => {
     if (orderDetail?.result) {
       addOrder(orderDetail.result)
@@ -125,9 +135,14 @@ export default function OrderManagementPage() {
           data={data?.result.items || []}
           columns={usePendingOrdersColumns()}
           pages={data?.result?.totalPages || 1}
+          hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
+          onDateChange={(start, end) => {
+            setStartDate(start)
+            setEndDate(end)
+          }}
           filterConfig={filterConfig}
           filterOptions={OrderFilter}
           onFilterChange={handleFilterChange}

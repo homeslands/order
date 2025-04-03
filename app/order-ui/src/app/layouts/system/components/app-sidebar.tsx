@@ -69,11 +69,12 @@ export function AppSidebar() {
   // Filter routes by permission
   const filteredRoutes = useMemo(() => {
     if (!decoded.scope) return []
+    const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
+    const permissions = scope.permissions || [];
 
     return translatedRoutes.filter((route) => {
       // Check if route has permission and user has that permission
-      // return !route.permission || true
-      return route?.permission && JSON.stringify(decoded.scope).includes(route.permission) || route.permission === Permission.OVERVIEW  
+      return route?.permission && permissions.includes(route.permission) || route.permission === Permission.OVERVIEW
     })
   }, [translatedRoutes, decoded])
 
@@ -86,7 +87,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="w-full">
-            <NavLink            
+            <NavLink
               to={ROUTE.OVERVIEW}
               className="flex justify-center items-center p-2"
             >

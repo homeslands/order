@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
-import { format } from 'date-fns'
+import { format, isToday, isSameDay } from 'date-fns'
 import { vi } from 'date-fns/locale' // Thêm locale tiếng Việt
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -31,12 +31,18 @@ interface DatePickerProps {
   date: string | null
   onSelect: (date: string | null) => void
   validateDate: (date: Date) => boolean
+  disabled?: boolean
+  today?: boolean
+  disabledDates?: Date[]
 }
 
 export default function DatePicker({
   date,
   onSelect,
   validateDate,
+  disabled,
+  today,
+  disabledDates = [],
 }: DatePickerProps) {
   const [month, setMonth] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
   const [year, setYear] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getFullYear() : new Date().getFullYear())
@@ -55,6 +61,17 @@ export default function DatePicker({
     }
   }
 
+  const handleTodayClick = () => {
+    const today = new Date()
+    if (validateDate(today)) {
+      onSelect(format(today, 'dd/MM/yyyy'))
+    }
+  }
+
+  const isDateDisabled = (date: Date) => {
+    return disabledDates.some(disabledDate => isSameDay(date, disabledDate))
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -63,7 +80,9 @@ export default function DatePicker({
           className={cn(
             'w-full justify-start text-left font-normal',
             !date && 'text-muted-foreground',
+            disabled && 'opacity-50 cursor-not-allowed'
           )}
+          disabled={disabled}
         >
           <CalendarIcon className="w-4 h-4 mr-2" />
           {date ? (
@@ -110,6 +129,17 @@ export default function DatePicker({
           </Select>
         </div>
 
+        {/* Today Button */}
+        {today && (
+          <Button
+            variant="outline"
+            className="w-full mb-4"
+            onClick={handleTodayClick}
+          >
+            Hôm nay
+          </Button>
+        )}
+
         {/* Calendar */}
         <Calendar
           mode="single"
@@ -118,6 +148,16 @@ export default function DatePicker({
           month={new Date(year, month)}
           initialFocus
           locale={vi} // Chuyển đổi lịch sang tiếng Việt
+          disabled={isDateDisabled}
+          modifiers={{
+            today: (date) => isToday(date),
+          }}
+          modifiersStyles={{
+            today: {
+              fontWeight: 'bold',
+              color: 'var(--primary)',
+            },
+          }}
         />
       </PopoverContent>
     </Popover>

@@ -36,7 +36,7 @@ export default function ChefOrderStatusSelect({
 
     return (
         <Select onValueChange={handleSelect} value={value}>
-            <SelectTrigger className="h-10 min-w-32 w-fit sm:min-w-36">
+            <SelectTrigger className="h-10 min-w-36 w-fit">
                 <SelectValue placeholder={t('chefOrder.selectChefOrderStatus')} />
             </SelectTrigger>
             <SelectContent>

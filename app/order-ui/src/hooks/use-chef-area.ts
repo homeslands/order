@@ -115,8 +115,9 @@ export const useRemoveChefAreaProduct = () => {
 
 export const useGetChefOrders = (params: IGetChefOrderRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.chefOrders, params],
+    queryKey: [QUERYKEY.chefOrders, params, params.order],
     queryFn: () => getChefOrders(params),
+    select: (data) => data.result,
   })
 }
 

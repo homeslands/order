@@ -65,6 +65,10 @@
     "4": "Thứ sáu",
     "5": "Thứ bảy",
     "6": "Chủ nhật",
-    "noDayOfWeek": "Không có"
+    "noDayOfWeek": "Không có",
+    "today": "Hôm nay",
+    "inWeek": "Trong tuần",
+    "inMonth": "Trong tháng",
+    "inYear": "Trong năm"
   }
 }

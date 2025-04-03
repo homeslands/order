@@ -20,6 +20,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
+  MoveRight,
   SearchIcon,
 } from 'lucide-react'
 import {
@@ -27,6 +28,7 @@ import {
   DoubleArrowRightIcon,
   MixerHorizontalIcon,
 } from '@radix-ui/react-icons'
+import moment from 'moment'
 
 import {
   Table,
@@ -52,6 +54,8 @@ import {
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useDebouncedInput } from '@/hooks'
+import { SimpleDatePicker } from '../app/picker'
+import { PeriodOfTimeSelect } from '../app/select'
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
@@ -94,13 +98,13 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pages: number
-  // inputValue?: string
   hiddenInput?: boolean
+  hiddenDatePicker?: boolean
   onPageChange: (pageIndex: number) => void
   onPageSizeChange: (pageSize: number) => void
   onRowClick?: (row: TData) => void
-  // onInputChange?: Dispatch<SetStateAction<string>>
   onInputChange?: (value: string) => void
+  onDateChange?: (startDate: string | null, endDate: string | null) => void
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
   rowClassName?: (row: TData) => string
@@ -121,10 +125,12 @@ export function DataTable<TData, TValue>({
   data,
   pages,
   hiddenInput = true,
+  hiddenDatePicker = true,
   onPageChange,
   onPageSizeChange,
   onRowClick,
   onInputChange,
+  onDateChange,
   filterOptions: DataTableFilterOptions,
   actionOptions: DataTableActionOptions,
   rowClassName,
@@ -133,6 +139,10 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation('common')
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const [startDate, setStartDate] = useState<string | null>(() => moment(today).format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState<string | null>(() => moment(today).format('YYYY-MM-DD'))
 
   // Add effect to call onInputChange when debounced value changes
   useEffect(() => {
@@ -140,6 +150,13 @@ export function DataTable<TData, TValue>({
       onInputChange(debouncedInputValue)
     }
   }, [debouncedInputValue, onInputChange])
+
+  // Add effect to call onDateChange when dates change
+  useEffect(() => {
+    if (onDateChange) {
+      onDateChange(startDate, endDate)
+    }
+  }, [startDate, endDate, onDateChange])
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -168,24 +185,70 @@ export function DataTable<TData, TValue>({
     debugTable: true,
   })
 
+  const handlePeriodOfTimeChange = (periodOfTime: string) => {
+    if (periodOfTime === 'today') {
+      setStartDate(moment(today).format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inWeek') {
+      setStartDate(moment(today).subtract(1, 'week').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inMonth') {
+      setStartDate(moment(today).subtract(1, 'month').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inYear') {
+      setStartDate(moment(today).subtract(1, 'year').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    }
+  }
+
   return (
     <div className="w-full">
       <div
-        className={`flex ${hiddenInput ? 'justify-end' : 'justify-between'} flex-wrap gap-2`}
+        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} items-end flex-wrap gap-2`}
       >
-        {/* Input search */}
-        {!hiddenInput && (
-          <div className="relative w-1/3 lg:w-[30%]">
-            <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
-            <Input
-              placeholder={t('dataTable.search')}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="pl-8 text-sm border placeholder:hidden sm:h-10 sm:w-full sm:pr-2 placeholder:sm:inline md:w-full"
-            />
-          </div>
-        )}
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col gap-2 items-start justify-start ">
+          {/* Input search */}
+          {!hiddenInput && (
+            <div className="relative w-[350px]">
+              <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
+              <Input
+                placeholder={t('dataTable.search')}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="pl-8 text-sm border placeholder:hidden sm:w-full sm:pr-2 placeholder:sm:inline md:w-full"
+              />
+            </div>
+          )}
+          {!hiddenDatePicker && (
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 w-[350px]">
+                <div className="flex-1">
+                  <SimpleDatePicker
+                    value={startDate || undefined}
+                    onChange={setStartDate}
+                    disabledDates={endDate ? (date: Date) => {
+                      const endDateObj = new Date(endDate.split('/').reverse().join('-'))
+                      return date > endDateObj
+                    } : undefined}
+                  />
+                </div>
+                <MoveRight className="icon" />
+                <div className="flex-1">
+                  <SimpleDatePicker
+                    value={endDate || undefined}
+                    onChange={setEndDate}
+                    disabledDates={startDate ? (date: Date) => {
+                      const startDateObj = new Date(startDate.split('/').reverse().join('-'))
+                      return date < startDateObj
+                    } : undefined}
+                  />
+                </div>
+              </div>
+              <PeriodOfTimeSelect onChange={handlePeriodOfTimeChange} />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2 items-center">
           {/* Actions */}
           {DataTableActionOptions && <DataTableActionOptions table={table} />}
           {/* Filter */}

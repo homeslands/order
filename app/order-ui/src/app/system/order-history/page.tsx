@@ -16,19 +16,31 @@ export default function OrderHistoryPage() {
   const { t: tCommon } = useTranslation('common')
   const { t: tHelmet } = useTranslation('helmet')
   const { userInfo } = useUserStore()
-  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [isSelected, setIsSelected] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
-
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
+  
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
     branchSlug: userInfo?.branch?.slug || '',
     hasPaging: true,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      pageIndex: 1
+    }))
+  }, [startDate, endDate, status, setPagination])
 
   // polling useOrders every 5 seconds
   useEffect(() => {
@@ -96,9 +108,14 @@ export default function OrderHistoryPage() {
           data={data?.result?.items || []}
           isLoading={isLoading}
           pages={data?.result?.totalPages || 0}
+          hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           filterOptions={OrderFilter}
           filterConfig={filterConfig}
+          onDateChange={(start, end) => {
+            setStartDate(start)
+            setEndDate(end)
+          }}
           onFilterChange={handleFilterChange}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}

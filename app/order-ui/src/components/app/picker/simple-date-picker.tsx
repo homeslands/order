@@ -24,7 +24,13 @@ export default function SimpleDatePicker({
     disabledDates,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
-    const [date, setDate] = React.useState<Date | undefined>(undefined)
+    const [date, setDate] = React.useState<Date | undefined>(() => {
+        if (value) {
+            const momentDate = moment(value, ['YYYY-MM-DD', 'DD/MM/YYYY'])
+            return momentDate.isValid() ? momentDate.toDate() : new Date()
+        }
+        return new Date()
+    })
 
     // Update internal date when value prop changes
     React.useEffect(() => {
@@ -34,7 +40,7 @@ export default function SimpleDatePicker({
                 setDate(momentDate.toDate())
             }
         } else {
-            setDate(undefined)
+            setDate(new Date())
         }
     }, [value])
 
@@ -50,6 +56,18 @@ export default function SimpleDatePicker({
     const formatDisplayDate = (date?: Date) => {
         if (!date) return ''
         return moment(date).format('DD/MM/YYYY')
+    }
+
+    const isDateDisabled = (date: Date) => {
+        // Không cho phép chọn ngày sau ngày hiện tại
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        if (date > today) return true
+
+        // Áp dụng các điều kiện disabled khác nếu có
+        if (disabledDates) return disabledDates(date)
+
+        return false
     }
 
     return (
@@ -71,7 +89,7 @@ export default function SimpleDatePicker({
                     mode="single"
                     selected={date}
                     onSelect={handleDateChange}
-                    disabled={disabledDates}
+                    disabled={isDateDisabled}
                     initialFocus
                 />
             </PopoverContent>

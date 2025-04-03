@@ -42,7 +42,7 @@ export default function ChefAreaSelect({
 
     return (
         <Select onValueChange={handleSelect} value={value ?? chefAreas[0]?.slug}>
-            <SelectTrigger className="w-32 h-10 sm:w-48">
+            <SelectTrigger className="h-10 w-48">
                 <SelectValue placeholder={t('chefOrder.selectChefArea')} />
             </SelectTrigger>
             <SelectContent>

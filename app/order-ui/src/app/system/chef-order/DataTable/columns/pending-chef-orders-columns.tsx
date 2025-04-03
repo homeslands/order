@@ -85,7 +85,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         <DataTableColumnHeader column={column} title={t('chefOrder.location')} />
       ),
       cell: ({ row }) => {
-        const location = row.original.order.type === OrderTypeEnum.AT_TABLE ? t('chefOrder.table') : t('chefOrder.take-out')
+        const location = row.original.order.type === OrderTypeEnum.AT_TABLE ? t('chefOrder.table') + " " + row.original.order.table.name : t('chefOrder.take-out')
         return <span className="text-sm text-muted-foreground">{location}</span>
       },
     },

@@ -64,6 +64,10 @@
     "4": "Friday",
     "5": "Saturday",
     "6": "Sunday",
-    "noDayOfWeek": "None"
+    "noDayOfWeek": "None",
+    "today": "Today",
+    "inWeek": "In week",
+    "inMonth": "In month",
+    "inYear": "In year"
   }
 }
