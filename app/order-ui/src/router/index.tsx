@@ -821,7 +821,6 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                currentUrl={ROUTE.CLIENT_CART}
                 element={<SuspenseElement component={ClientCartPage} />}
               />
             ),

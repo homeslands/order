@@ -10,6 +10,9 @@ import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 import { DataSource } from 'typeorm';
+import { Payment } from 'src/payment/payment.entity';
+import { Order } from 'src/order/order.entity';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 describe('BranchRevenueService', () => {
   let service: BranchRevenueService;
@@ -30,6 +33,18 @@ describe('BranchRevenueService', () => {
         },
         {
           provide: getRepositoryToken(Branch),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(OrderItem),
           useValue: repositoryMockFactory,
         },
         {

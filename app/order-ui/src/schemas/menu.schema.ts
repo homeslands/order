@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const createMenuSchema = z.object({
-  date: z.string(),
+  date: z.string().min(1),
   branchSlug: z.string().min(1),
   isTemplate: z.boolean(),
 })

@@ -35,7 +35,6 @@ import { ISidebarRoute, IToken } from '@/types'
 import { Logo } from '@/assets/images'
 import { cn } from '@/lib'
 import { ROUTE } from '@/constants'
-import { Permission } from '@/constants/sidebar-permission';
 
 export function AppSidebar() {
   const { t } = useTranslation('sidebar')
@@ -74,7 +73,7 @@ export function AppSidebar() {
 
     return translatedRoutes.filter((route) => {
       // Check if route has permission and user has that permission
-      return route?.permission && permissions.includes(route.permission) || route.permission === Permission.OVERVIEW
+      return route?.permission && permissions.includes(route.permission)
     })
   }, [translatedRoutes, decoded])
 

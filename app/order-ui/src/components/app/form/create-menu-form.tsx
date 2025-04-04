@@ -21,6 +21,7 @@ import { BranchSelect } from '@/components/app/select'
 import { IsTemplateSwitch } from '@/components/app/switch'
 import { useUserStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
+import moment from 'moment'
 
 interface IFormCreateMenuProps {
   onSubmit: (isOpen: boolean) => void
@@ -44,7 +45,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),
     defaultValues: {
-      date: '',
+      date: moment().format('YYYY-MM-DD'),
       branchSlug: userInfo?.branch?.slug,
       isTemplate: false,
     },
@@ -88,7 +89,6 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
               <SimpleDatePicker
                 value={field.value}
                 onChange={(date) => field.onChange(date)}
-              //disabledDates={disabledDates}
               />
             </FormControl>
             <FormMessage />
@@ -104,7 +104,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
           <FormItem>
             <FormLabel>{t('menu.branchSlug')}</FormLabel>
             <FormControl>
-              <BranchSelect {...field} />
+              <BranchSelect defaultValue={userInfo?.branch?.slug} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

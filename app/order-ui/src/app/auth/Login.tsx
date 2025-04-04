@@ -15,70 +15,57 @@ import { LoginBackground } from '@/assets/images'
 import { LoginForm } from '@/components/app/form'
 import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role, ROUTE } from '@/constants'
-//import { sidebarRoutes } from '@/router/routes'
+import { sidebarRoutes } from '@/router/routes'
+import { jwtDecode } from 'jwt-decode'
+import { IToken } from '@/types'
 
 export default function Login() {
   const { t } = useTranslation(['auth'])
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, token } = useAuthStore()
   const { userInfo } = useUserStore()
   const { currentUrl, clearUrl } = useCurrentUrlStore()
-
   const navigate = useNavigate()
 
-  // Redirect if the user is already authenticated
   useEffect(() => {
-    if (isAuthenticated() && !_.isEmpty(userInfo)) {
+    if (isAuthenticated() && !_.isEmpty(userInfo) && token) {
       let urlNavigate = ROUTE.HOME;
-      // if (currentUrl) {
-      //   if (!currentUrl.includes('/system')) {
-      //     urlNavigate = userInfo.role.name === Role.CUSTOMER ? currentUrl : ROUTE.HOME
-      //   }else{
-      //     // kiểm tra xem route có trong sidebarRoutes không? >nếu có thì kiểm tra xem route có thuộc về userInfo.role.name không? >nếu có thì urlNavigate = currentUrl >nếu không thì urlNavigate = ROUTE.OVERVIEW
-      //     const route = sidebarRoutes.find(route => route.path === currentUrl)
-      //     if (route) {
-      //       // if (route.permission.includes(userInfo.role.permissions)) {
-      //       //   urlNavigate = currentUrl
-      //       // }
-      //     }
-      //   }
-      // }
-      switch (userInfo.role.name) {
-        case Role.MANAGER:
-        case Role.ADMIN:
-        case Role.SUPER_ADMIN:
-          if (currentUrl && currentUrl.includes('/system')) {
-            urlNavigate = currentUrl
-          } else {
-            urlNavigate = ROUTE.OVERVIEW
-          }
-          break
-        case Role.CHEF:
-          if (currentUrl && currentUrl.includes('/system')) {
-            urlNavigate = currentUrl
-          } else {
-            urlNavigate = ROUTE.STAFF_CHEF_ORDER
-          }
-          break
-        case Role.STAFF:
-          if (currentUrl && currentUrl.includes('/system')) {
-            urlNavigate = currentUrl
-          } else {
-            urlNavigate = ROUTE.STAFF_ORDER_MANAGEMENT
-          }
-          break
-        default:
-          if (currentUrl && !currentUrl.includes('/system')) {
-            urlNavigate = currentUrl
-          }
-          break
-      }
-      navigate(urlNavigate, { replace: true })
-      setTimeout(() => {
-        clearUrl()
-      }, 1000)
-    }
+      const decoded: IToken = jwtDecode(token);
+      if (!decoded.scope) return;
 
-  }, [isAuthenticated, navigate, userInfo, currentUrl, clearUrl])
+      const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
+      const permissions = scope.permissions || [];
+
+      if (currentUrl) {
+        // Kiểm tra quyền truy cập currentUrl
+        if (userInfo.role.name === Role.CUSTOMER) {
+          // Customer không được phép truy cập route /system
+          urlNavigate = !currentUrl.includes('/system') ? currentUrl : ROUTE.HOME;
+        } else {
+          const route = sidebarRoutes.find(route => currentUrl.includes(route.path));
+          if (route && permissions.includes(route.permission)) {
+            urlNavigate = currentUrl;
+          } else {
+            // Tìm route đầu tiên mà user có quyền truy cập trong sidebarRoutes
+            const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
+            urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+          }
+        }
+      } else {
+        // Nếu không có currentUrl, tìm route đầu tiên mà user có quyền truy cập
+        if (userInfo.role.name === Role.CUSTOMER) {
+          urlNavigate = ROUTE.HOME;
+        } else {
+          const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
+          urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+        }
+      }
+
+      navigate(urlNavigate, { replace: true });
+      setTimeout(() => {
+        clearUrl();
+      }, 1000);
+    }
+  }, [isAuthenticated, navigate, userInfo, currentUrl, clearUrl, token])
 
   return (
     <div className="relative flex min-h-screen items-center justify-center">

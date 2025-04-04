@@ -1,125 +1,135 @@
 export const getCurrentBranchRevenueClause = `
+    WITH 
+        OrderItemSummary AS (
+            SELECT 
+                order_column AS order_id,
+                SUM(original_subtotal_column) AS totalOriginalOrderItemAmount,
+                SUM(subtotal_column) AS totalFinalOrderItemAmount
+            FROM order_db.order_item_tbl
+            GROUP BY order_column
+        )
     SELECT 
-        order_tbl.branch_column AS branchId,
-        DATE(order_tbl.created_at_column) AS date,
-        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
-        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
-        SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
-        SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
-        COUNT(DISTINCT order_tbl.id_column) AS totalOrder
+        o.branch_column AS branchId,
+        DATE(o.created_at_column) AS date,
+        SUM(p.amount_column) AS totalAmount,
+        SUM(o.subtotal_column) AS totalFinalAmountOrder,
+        SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
+        SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
+        SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
+        COUNT(DISTINCT o.id_column) AS totalOrder
     FROM 
-        order_db.payment_tbl AS payment_tbl
-    INNER JOIN 
-        order_db.order_tbl AS order_tbl 
-    ON 
-        payment_tbl.id_column = order_tbl.payment_column
-    INNER JOIN
-        order_db.order_item_tbl AS order_item_tbl
-    ON
-        order_tbl.id_column = order_item_tbl.order_column
+        order_db.order_tbl AS o
+    LEFT JOIN 
+        order_db.payment_tbl AS p ON o.payment_column = p.id_column
+    LEFT JOIN 
+        OrderItemSummary AS oi ON o.id_column = oi.order_id
     WHERE 
-        payment_tbl.status_code_column = 'completed'
-    AND
-        order_tbl.created_at_column >= CURRENT_DATE()
-    AND
-        order_tbl.created_at_column < CURRENT_DATE() + INTERVAL 1 DAY
+        o.created_at_column >= CURRENT_DATE()
+    AND 
+        o.created_at_column < CURRENT_DATE() + INTERVAL 1 DAY
     GROUP BY 
-        order_tbl.branch_column,
-        DATE(order_tbl.created_at_column)
+        o.branch_column, DATE(o.created_at_column)
+    ORDER BY 
+        o.branch_column, DATE(o.created_at_column) ASC;
 `;
 
 export const getYesterdayBranchRevenueClause = `
+    WITH 
+        OrderItemSummary AS (
+            SELECT 
+                order_column AS order_id,
+                SUM(original_subtotal_column) AS totalOriginalOrderItemAmount,
+                SUM(subtotal_column) AS totalFinalOrderItemAmount
+            FROM order_db.order_item_tbl
+            GROUP BY order_column
+        )
     SELECT 
-        order_tbl.branch_column AS branchId,
-        DATE(order_tbl.created_at_column) AS date,
-        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
-        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
-        SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
-        SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
-        COUNT(DISTINCT order_tbl.id_column) AS totalOrder
+        o.branch_column AS branchId,
+        DATE(o.created_at_column) AS date,
+        SUM(p.amount_column) AS totalAmount,
+        SUM(o.subtotal_column) AS totalFinalAmountOrder,
+        SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
+        SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
+        SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
+        COUNT(DISTINCT o.id_column) AS totalOrder
     FROM 
-        order_db.payment_tbl AS payment_tbl
-    INNER JOIN 
-        order_db.order_tbl AS order_tbl 
-    ON 
-        payment_tbl.id_column = order_tbl.payment_column
-    INNER JOIN
-        order_db.order_item_tbl AS order_item_tbl
-    ON
-        order_tbl.id_column = order_item_tbl.order_column
+        order_db.order_tbl AS o
+    LEFT JOIN 
+        order_db.payment_tbl AS p ON o.payment_column = p.id_column
+    LEFT JOIN 
+        OrderItemSummary AS oi ON o.id_column = oi.order_id
     WHERE 
-        payment_tbl.status_code_column = 'completed'
-    AND
-        order_tbl.created_at_column >= CURRENT_DATE() - INTERVAL 1 DAY
-    AND
-        order_tbl.created_at_column < CURRENT_DATE()
+        o.created_at_column >= CURRENT_DATE() - INTERVAL 1 DAY
+    AND 
+        o.created_at_column < CURRENT_DATE()
     GROUP BY 
-        order_tbl.branch_column,
-        DATE(order_tbl.created_at_column)
+        o.branch_column, DATE(o.created_at_column)
+    ORDER BY 
+        o.branch_column, DATE(o.created_at_column) ASC;
 `;
 
 export const getAllBranchRevenueClause = `
+    WITH 
+        OrderItemSummary AS (
+            SELECT 
+                order_column AS order_id,
+                SUM(original_subtotal_column) AS totalOriginalOrderItemAmount,
+                SUM(subtotal_column) AS totalFinalOrderItemAmount
+            FROM order_db.order_item_tbl
+            GROUP BY order_column
+        )
     SELECT 
-        order_tbl.branch_column AS branchId, 
-        DATE(order_tbl.created_at_column) AS date,
-        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
-        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
-        SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
-        SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
-        COUNT(DISTINCT order_tbl.id_column) AS totalOrder
+        o.branch_column AS branchId,
+        DATE(o.created_at_column) AS date,
+        SUM(p.amount_column) AS totalAmount,
+        SUM(o.subtotal_column) AS totalFinalAmountOrder,
+        SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
+        SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
+        SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
+        COUNT(DISTINCT o.id_column) AS totalOrder
     FROM 
-        order_db.payment_tbl AS payment_tbl
-    INNER JOIN 
-        order_db.order_tbl AS order_tbl 
-    ON 
-        payment_tbl.id_column = order_tbl.payment_column
-    INNER JOIN
-        order_db.order_item_tbl AS order_item_tbl
-    ON
-        order_tbl.id_column = order_item_tbl.order_column
-    WHERE 
-        payment_tbl.status_code_column = 'completed'
+        order_db.order_tbl AS o
+    LEFT JOIN 
+        order_db.payment_tbl AS p ON o.payment_column = p.id_column
+    LEFT JOIN 
+        OrderItemSummary AS oi ON o.id_column = oi.order_id
     GROUP BY 
-        order_tbl.branch_column,
-        DATE(order_tbl.created_at_column)
-    ORDER BY
-        order_tbl.branch_column,
-        DATE(order_tbl.created_at_column) ASC
+        o.branch_column, DATE(o.created_at_column)
+    ORDER BY 
+        o.branch_column, DATE(o.created_at_column) ASC;
 `;
 
 export const getSpecificRangeBranchRevenueClause = `
+    WITH 
+        OrderItemSummary AS (
+            SELECT 
+                order_column AS order_id,
+                SUM(original_subtotal_column) AS totalOriginalOrderItemAmount,
+                SUM(subtotal_column) AS totalFinalOrderItemAmount
+            FROM order_db.order_item_tbl
+            GROUP BY order_column
+        )
     SELECT 
-        order_tbl.branch_column AS branchId,
-        DATE(order_tbl.created_at_column) AS date,
-        SUM(DISTINCT payment_tbl.amount_column) AS totalAmount,
-        SUM(DISTINCT order_tbl.subtotal_column) AS totalFinalAmountOrder, -- final order
-        SUM(DISTINCT order_tbl.original_subtotal_column) AS totalOriginalAmountOrder, -- original order
-        SUM(order_item_tbl.original_subtotal_column) AS totalOriginalOrderItemAmount, -- original order item
-        SUM(order_item_tbl.subtotal_column) AS totalFinalOrderItemAmount, -- final order item
-        COUNT(DISTINCT order_tbl.id_column) AS totalOrder
+        o.branch_column AS branchId,
+        DATE(o.created_at_column) AS date,
+        SUM(p.amount_column) AS totalAmount,
+        SUM(o.subtotal_column) AS totalFinalAmountOrder,
+        SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
+        SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
+        SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
+        COUNT(DISTINCT o.id_column) AS totalOrder
     FROM 
-        order_db.payment_tbl AS payment_tbl
-    INNER JOIN 
-        order_db.order_tbl AS order_tbl 
-    ON 
-        payment_tbl.id_column = order_tbl.payment_column
-    INNER JOIN
-        order_db.order_item_tbl AS order_item_tbl
-    ON
-        order_tbl.id_column = order_item_tbl.order_column
+        order_db.order_tbl AS o
+    LEFT JOIN 
+        order_db.payment_tbl AS p ON o.payment_column = p.id_column
+    LEFT JOIN 
+        OrderItemSummary AS oi ON o.id_column = oi.order_id
     WHERE 
-        payment_tbl.status_code_column = 'completed'
-    AND
-        order_tbl.created_at_column >= ?
-    AND
-        order_tbl.created_at_column < ?
+        o.created_at_column >= ?
+    AND 
+        o.created_at_column < ?
     GROUP BY 
-        order_tbl.branch_column,
-        DATE(order_tbl.created_at_column)
-    ORDER BY
-        order_tbl.branch_column,
-        DATE(date) ASC
+        o.branch_column, DATE(o.created_at_column)
+    ORDER BY 
+        o.branch_column, DATE(o.created_at_column) ASC;
 `;

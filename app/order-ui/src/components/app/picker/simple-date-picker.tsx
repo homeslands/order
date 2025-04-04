@@ -16,12 +16,14 @@ interface ISimpleDatePickerProps {
     value?: string
     onChange: (date: string) => void
     disabledDates?: (date: Date) => boolean
+    disableFutureDates?: boolean
 }
 
 export default function SimpleDatePicker({
     value,
     onChange,
     disabledDates,
+    disableFutureDates,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
     const [date, setDate] = React.useState<Date | undefined>(() => {
@@ -62,7 +64,7 @@ export default function SimpleDatePicker({
         // Không cho phép chọn ngày sau ngày hiện tại
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        if (date > today) return true
+        if (disableFutureDates && date > today) return true
 
         // Áp dụng các điều kiện disabled khác nếu có
         if (disabledDates) return disabledDates(date)

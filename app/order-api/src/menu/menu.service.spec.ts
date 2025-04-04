@@ -7,7 +7,7 @@ import {
   MockType,
   repositoryMockFactory,
 } from 'src/test-utils/repository-mock.factory';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { Mapper } from '@automapper/core';
 import { MenuException } from './menu.exception';
@@ -16,18 +16,26 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GetAllMenuQueryRequestDto } from './menu.dto';
 import { BranchException } from 'src/branch/branch.exception';
 import { MenuUtils } from './menu.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('MenuService', () => {
   let service: MenuService;
   let menuRepositoryMock: MockType<Repository<Menu>>;
   let branchRepositoryMock: MockType<Repository<Branch>>;
   let mapperMock: MockType<Mapper>;
+  let dataSourceMock: MockType<DataSource>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MenuService,
         MenuUtils,
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
         {
           provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
@@ -51,6 +59,7 @@ describe('MenuService', () => {
     menuRepositoryMock = module.get(getRepositoryToken(Menu));
     branchRepositoryMock = module.get(getRepositoryToken(Branch));
     mapperMock = module.get(MAPPER_MODULE_PROVIDER);
+    dataSourceMock = module.get(DataSource);
   });
 
   afterEach(() => {
@@ -169,9 +178,15 @@ describe('MenuService', () => {
       } as Menu;
 
       // Mock implementation
-      menuRepositoryMock.create.mockReturnValue(menu);
-      menuRepositoryMock.save.mockReturnValue(menu);
       mapperMock.map.mockReturnValue(menu);
+
+      const queryRunner = dataSourceMock.createQueryRunner();
+      dataSourceMock.createQueryRunner = jest.fn().mockReturnValue({
+        ...queryRunner,
+        manager: {
+          save: jest.fn().mockResolvedValue(menu),
+        },
+      });
 
       // Assertions
       expect(await service.createMenu(mockMenu)).toEqual(menu);

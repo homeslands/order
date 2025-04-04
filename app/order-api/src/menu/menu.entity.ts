@@ -23,7 +23,7 @@ export class Menu extends Base {
   date: Date;
 
   // Many to one with branch
-  @AutoMap()
+  @AutoMap(() => Branch)
   @ManyToOne(() => Branch, (branch) => branch.menus)
   @JoinColumn({ name: 'branch_id_column' })
   branch: Branch;

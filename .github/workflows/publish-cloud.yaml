@@ -23,6 +23,12 @@ jobs:
       # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # This ensures all tags are fetched
+
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       # Step 2: Set up Docker Buildx (optional for multi-arch support)
       - name: Set up Docker Buildx
@@ -52,7 +58,9 @@ jobs:
         with:
           context: ./app/order-api
           file: ./.build/order-api/Dockerfile
-          tags: ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-api:cloud
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-api:latest
+            ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-api:${{ env.VERSION }}
           labels: ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-api
           push: true
 
@@ -61,6 +69,8 @@ jobs:
         with:
           context: ./app/order-ui
           file: ./.build/order-ui/Dockerfile
-          tags: ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-ui:cloud
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-ui:latest
+            ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-ui:${{ env.VERSION }}
           labels: ${{ env.REGISTRY }}/${{ env.REPOSITORY_OWNER }}/order-ui
           push: true

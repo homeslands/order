@@ -6,6 +6,7 @@ import { Transform, Type } from 'class-transformer';
 import { MenuItemResponseDto } from 'src/menu-item/menu-item.dto';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { BaseQueryDto } from 'src/app/base.dto';
+import { BranchResponseDto } from 'src/branch/branch.dto';
 
 export class CreateMenuDto {
   @AutoMap()
@@ -129,6 +130,7 @@ export class MenuResponseDto {
   date: string;
 
   @AutoMap(() => MenuItemResponseDto)
+  @ApiProperty()
   menuItems: MenuItemResponseDto[];
 
   @AutoMap()
@@ -138,4 +140,8 @@ export class MenuResponseDto {
   @AutoMap()
   @ApiProperty()
   isTemplate: boolean;
+
+  @AutoMap(() => BranchResponseDto)
+  @ApiProperty()
+  branch: BranchResponseDto;
 }

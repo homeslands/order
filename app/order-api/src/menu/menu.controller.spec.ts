@@ -9,6 +9,9 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MenuUtils } from './menu.utils';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('MenuController', () => {
   let controller: MenuController;
@@ -19,6 +22,11 @@ describe('MenuController', () => {
       providers: [
         MenuService,
         MenuUtils,
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
         {
           provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
