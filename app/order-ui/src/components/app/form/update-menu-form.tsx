@@ -19,7 +19,6 @@ import { IUpdateMenuRequest, IMenu } from '@/types'
 import { useUpdateMenu } from '@/hooks'
 import { showToast } from '@/utils'
 import { BranchSelect } from '@/components/app/select'
-import { useUserStore } from '@/stores'
 import { IsTemplateSwitch } from '@/components/app/switch'
 import { SimpleDatePicker } from '../picker'
 
@@ -34,7 +33,6 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['menu'])
-  const { userInfo } = useUserStore()
   const { mutate: updateMenu } = useUpdateMenu()
   const form = useForm<TUpdateMenuSchema>({
     resolver: zodResolver(updateMenuSchema),
@@ -42,10 +40,9 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
       slug: menu.slug,
       date: menu.date,
       isTemplate: menu.isTemplate,
-      branchSlug: userInfo?.branch?.slug,
+      branchSlug: menu.branchSlug,
     },
   })
-
   const handleSubmit = (data: IUpdateMenuRequest) => {
     updateMenu(data, {
       onSuccess: () => {
@@ -71,7 +68,6 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
               <SimpleDatePicker
                 value={field.value}
                 onChange={(date) => field.onChange(date)}
-              //disabledDates={disabledDates}
               />
             </FormControl>
             <FormMessage />
@@ -88,7 +84,7 @@ export const UpdateMenuForm: React.FC<IFormUpdateMenuProps> = ({
             <FormLabel>{t('menu.branchSlug')}</FormLabel>
             <FormControl>
               <BranchSelect
-                defaultValue={userInfo?.branch?.slug} // Giá trị mặc định
+                defaultValue={menu.branchSlug} // Giá trị mặc định
                 onChange={field.onChange} // Cập nhật giá trị
               />
             </FormControl>

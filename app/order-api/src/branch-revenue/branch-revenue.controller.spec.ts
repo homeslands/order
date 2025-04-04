@@ -10,6 +10,9 @@ import { Branch } from 'src/branch/branch.entity';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Order } from 'src/order/order.entity';
+import { Payment } from 'src/payment/payment.entity';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
@@ -31,6 +34,18 @@ describe('BranchRevenueController', () => {
         },
         {
           provide: getRepositoryToken(Branch),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(OrderItem),
           useValue: repositoryMockFactory,
         },
         {

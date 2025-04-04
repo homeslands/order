@@ -41,7 +41,7 @@ export class MenuController {
     isArray: true,
   })
   async getAllMenus(
-    @Query(new ValidationPipe({ transform: true }))
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: GetAllMenuQueryRequestDto,
   ) {
     const result = await this.menuService.getAllMenus(query);
@@ -84,7 +84,8 @@ export class MenuController {
     type: MenuResponseDto,
   })
   async createMenu(
-    @Body(new ValidationPipe({ transform: true })) requestData: CreateMenuDto,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: CreateMenuDto,
   ) {
     const result = await this.menuService.createMenu(requestData);
     return {

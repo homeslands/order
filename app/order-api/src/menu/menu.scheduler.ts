@@ -26,7 +26,7 @@ export class MenuScheduler {
     private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: GENERATE_MENU_JOB })
+  @Cron(CronExpression.EVERY_DAY_AT_1AM, { name: GENERATE_MENU_JOB })
   async generateMenu() {
     const context = `${MenuScheduler.name}.${this.generateMenu.name}`;
     const today = new Date(moment().format('YYYY-MM-DD'));

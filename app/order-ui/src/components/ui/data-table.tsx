@@ -217,9 +217,9 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div
-        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-between'} items-end flex-wrap gap-2`}
+        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} items-end flex-wrap gap-2`}
       >
-        <div className="flex gap-2 justify-start items-start">
+        <div className="flex flex-col gap-2 justify-start items-start">
           {/* Input search */}
           {!hiddenInput && (
             <div className="relative w-[350px]">
@@ -234,7 +234,7 @@ export function DataTable<TData, TValue>({
           )}
           {!hiddenDatePicker && (
             <div className="flex flex-wrap gap-2 items-center">
-              <div className="flex gap-2 items-center w-fit">
+              <div className="flex gap-2 items-center w-[355px]">
                 <div className="flex-1">
                   <SimpleDatePicker
                     value={startDate || undefined}
@@ -243,6 +243,7 @@ export function DataTable<TData, TValue>({
                       const endDateObj = new Date(endDate.split('/').reverse().join('-'))
                       return date > endDateObj
                     } : undefined}
+                    disableFutureDates={true}
                   />
                 </div>
                 <MoveRight className="icon" />
@@ -254,6 +255,7 @@ export function DataTable<TData, TValue>({
                       const startDateObj = new Date(startDate.split('/').reverse().join('-'))
                       return date < startDateObj
                     } : undefined}
+                    disableFutureDates={true}
                   />
                 </div>
               </div>
@@ -261,7 +263,7 @@ export function DataTable<TData, TValue>({
             </div>
           )}
         </div>
-        <div className="flex gap-2 items-center w-fit">
+        <div className="flex flex-wrap gap-2 items-center w-fit">
           {onRefresh && (
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />

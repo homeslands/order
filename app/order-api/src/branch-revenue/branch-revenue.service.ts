@@ -29,6 +29,9 @@ import { BranchRevenueException } from './branch-revenue.exception';
 import { BranchRevenueValidation } from './branch-revenue.validation';
 import moment from 'moment';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Payment } from 'src/payment/payment.entity';
+import { Order } from 'src/order/order.entity';
+import { OrderItem } from 'src/order-item/order-item.entity';
 
 @Injectable()
 export class BranchRevenueService {
@@ -37,6 +40,12 @@ export class BranchRevenueService {
     private readonly branchRevenueRepository: Repository<BranchRevenue>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
     private readonly dataSource: DataSource,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
@@ -379,7 +388,7 @@ export class BranchRevenueService {
   ) {
     const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
 
-    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+    // this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
     if (query.startDate.getTime() > query.endDate.getTime()) {
       this.logger.warn(
@@ -399,6 +408,9 @@ export class BranchRevenueService {
     startDate.setHours(7, 0, 0, 0);
     const endDate = new Date(query.endDate);
     endDate.setHours(30, 59, 59, 99);
+    this.logger.log('refreshBranchRevenueForSpecificDay', context);
+    this.logger.log('startQuery: ', startQuery, context);
+    this.logger.log('endQuery: ', endQuery, context);
 
     const params = [startQuery, endQuery];
     const results: BranchRevenueQueryResponseDto[] =
