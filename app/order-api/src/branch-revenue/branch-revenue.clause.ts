@@ -27,6 +27,8 @@ export const getCurrentBranchRevenueClause = `
         o.created_at_column >= CURRENT_DATE()
     AND 
         o.created_at_column < CURRENT_DATE() + INTERVAL 1 DAY
+    AND
+        p.status_code_column = 'completed'
     GROUP BY 
         o.branch_column, DATE(o.created_at_column)
     ORDER BY 
@@ -62,6 +64,8 @@ export const getYesterdayBranchRevenueClause = `
         o.created_at_column >= CURRENT_DATE() - INTERVAL 1 DAY
     AND 
         o.created_at_column < CURRENT_DATE()
+    AND
+        p.status_code_column = 'completed'
     GROUP BY 
         o.branch_column, DATE(o.created_at_column)
     ORDER BY 
@@ -93,6 +97,8 @@ export const getAllBranchRevenueClause = `
         order_db.payment_tbl AS p ON o.payment_column = p.id_column
     LEFT JOIN 
         OrderItemSummary AS oi ON o.id_column = oi.order_id
+    WHERE
+        p.status_code_column = 'completed'
     GROUP BY 
         o.branch_column, DATE(o.created_at_column)
     ORDER BY 
@@ -128,6 +134,8 @@ export const getSpecificRangeBranchRevenueClause = `
         o.created_at_column >= ?
     AND 
         o.created_at_column < ?
+    AND
+        p.status_code_column = 'completed'
     GROUP BY 
         o.branch_column, DATE(o.created_at_column)
     ORDER BY 

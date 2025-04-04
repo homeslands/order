@@ -124,12 +124,6 @@ export const sidebarRoutes: ISidebarRoute[] = [
     icon: Bolt,
     permission: Permission.CONFIG_MANAGEMENT,
   },
-  // {
-  //   title: 'sidebar.myOrders',
-  //   path: ROUTE.CLIENT_ORDER_HISTORY,
-  //   icon: ShoppingBag,
-
-  // },
   {
     title: 'sidebar.voucher',
     path: ROUTE.STAFF_VOUCHER,
@@ -148,10 +142,4 @@ export const sidebarRoutes: ISidebarRoute[] = [
     icon: Newspaper,
     permission: Permission.BANNER_MANAGEMENT,
   },
-  // {
-  //   title: 'sidebar.docs',
-  //   path: ROUTE.DOCS,
-  //   roles: [Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN],
-  //   icon: BookText,
-  // },
 ]
