@@ -102,6 +102,7 @@ export class BranchRevenueService {
         query.startDate,
         query.endDate,
       );
+      this.logger.log('Get branch revenue by hour success', context);
       return this.mapper.mapArray(
         fullData,
         BranchRevenue,
