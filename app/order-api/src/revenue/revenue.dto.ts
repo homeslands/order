@@ -82,6 +82,18 @@ export class AggregateRevenueResponseDtoFromBranchRevenue {
 
   @AutoMap()
   @ApiProperty()
+  totalAmountBank: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountCash: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountInternal: number;
+
+  @AutoMap()
+  @ApiProperty()
   totalOrder: number;
 
   @AutoMap()

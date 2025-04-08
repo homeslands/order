@@ -7,6 +7,7 @@ import {
   Patch,
   Query,
   ValidationPipe,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,14 +23,54 @@ import {
   AggregateBranchRevenueResponseDto,
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
+  ExportBranchRevenueQueryDto,
 } from './branch-revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
+import { Response } from 'express';
 
 @Controller('revenue/branch')
 @ApiTags('Branch Revenue')
 @ApiBearerAuth()
 export class BranchRevenueController {
   constructor(private readonly branchRevenueService: BranchRevenueService) {}
+
+  @Get('export')
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiOperation({ summary: 'Export branch revenue to Excel' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The branch revenue has been exported successfully',
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async exportToExcel(
+    @Query(new ValidationPipe({ transform: true }))
+    query: ExportBranchRevenueQueryDto,
+    @Res() res: Response,
+  ) {
+    const fileResponse =
+      await this.branchRevenueService.exportBranchRevenueToExcel(query);
+
+    res.set({
+      'Content-Type': fileResponse.mimetype,
+      'Content-Disposition': `attachment; filename="${fileResponse.name}.${fileResponse.extension}"`,
+      'Content-Length': fileResponse.size,
+    });
+
+    res.send(fileResponse.data);
+  }
 
   @Get(':branch')
   @HasRoles(

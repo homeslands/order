@@ -3,7 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
-import { RevenueTypeQuery } from 'src/revenue/revenue.constant';
+import {
+  RevenueTypeExport,
+  RevenueTypeQuery,
+} from 'src/revenue/revenue.constant';
 import { BranchRevenueValidation } from './branch-revenue.validation';
 
 export class BranchRevenueQueryResponseDto {
@@ -15,6 +18,15 @@ export class BranchRevenueQueryResponseDto {
 
   @AutoMap()
   totalAmount: string;
+
+  @AutoMap()
+  totalAmountBank: string;
+
+  @AutoMap()
+  totalAmountCash: string;
+
+  @AutoMap()
+  totalAmountInternal: string;
 
   @AutoMap()
   totalFinalAmountOrder: string;
@@ -34,12 +46,22 @@ export class BranchRevenueQueryResponseDto {
 
 export class GetBranchRevenueQueryDto {
   @AutoMap()
-  @ApiProperty({ required: false, example: '2024-12-26' })
+  @ApiProperty({
+    required: false,
+    example: '2024-12-26',
+    description:
+      'If type is hour, please provide date with format YYYY-MM-DD HH:00:00',
+  })
   @Type(() => Date)
   startDate: Date;
 
   @AutoMap()
-  @ApiProperty({ required: false, example: '2024-12-27' })
+  @ApiProperty({
+    required: false,
+    example: '2024-12-27',
+    description:
+      'If type is hour, please provide date with format YYYY-MM-DD HH:00:00',
+  })
   @Type(() => Date)
   endDate: Date;
 
@@ -79,6 +101,18 @@ export class AggregateBranchRevenueResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  totalAmountBank: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountCash: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountInternal: number;
+
+  @AutoMap()
+  @ApiProperty()
   totalOrder: number;
 
   @AutoMap()
@@ -110,4 +144,50 @@ export class RefreshSpecificRangeBranchRevenueQueryDto {
   })
   @Type(() => Date)
   endDate: Date;
+}
+export class ExportBranchRevenueQueryDto {
+  @AutoMap()
+  @ApiProperty({
+    required: true,
+    example: 'branch-slug',
+  })
+  @IsNotEmpty({
+    message: BranchRevenueValidation.BRANCH_SLUG_IS_NOT_EMPTY.message,
+  })
+  @Type(() => String)
+  branch: string;
+
+  @AutoMap()
+  @ApiProperty({
+    required: true,
+    example: '2025-04-05',
+    description:
+      'If type is hour, please provide date with format YYYY-MM-DD HH:00:00',
+  })
+  @IsNotEmpty({
+    message: BranchRevenueValidation.START_DATE_IS_NOT_EMPTY.message,
+  })
+  @Type(() => Date)
+  startDate: Date;
+
+  @AutoMap()
+  @ApiProperty({
+    required: true,
+    example: '2025-04-06',
+    description:
+      'If type is hour, please provide date with format YYYY-MM-DD HH:00:00',
+  })
+  @IsNotEmpty({
+    message: BranchRevenueValidation.END_DATE_IS_NOT_EMPTY.message,
+  })
+  @Type(() => Date)
+  endDate: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: 'day' })
+  @IsOptional()
+  @IsEnum(RevenueTypeExport, {
+    message: 'Invalid type of branch revenue query',
+  })
+  type: string = 'day';
 }

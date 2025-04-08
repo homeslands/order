@@ -7,26 +7,18 @@ import { BranchRevenue } from './branch-revenue.entity';
 import { BranchRevenueScheduler } from './branch-revenue.scheduler';
 import { BranchRevenueProfile } from './branch-revenue.mapper';
 import { DbModule } from 'src/db/db.module';
-import { Payment } from 'src/payment/payment.entity';
-import { Order } from 'src/order/order.entity';
-import { OrderItem } from 'src/order-item/order-item.entity';
-
+import { BranchUtils } from 'src/branch/branch.utils';
+import { FileService } from 'src/file/file.service';
+import { File } from 'src/file/file.entity';
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Branch,
-      BranchRevenue,
-      Payment,
-      Order,
-      OrderItem,
-    ]),
-    DbModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Branch, BranchRevenue, File]), DbModule],
   controllers: [BranchRevenueController],
   providers: [
     BranchRevenueService,
     BranchRevenueScheduler,
     BranchRevenueProfile,
+    BranchUtils,
+    FileService,
   ],
   exports: [BranchRevenueService],
 })

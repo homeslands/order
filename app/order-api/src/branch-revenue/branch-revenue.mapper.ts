@@ -33,6 +33,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom((source) => +source.totalAmount),
         ),
         forMember(
+          (destination) => destination.totalAmountBank,
+          mapFrom((source) => +source.totalAmountBank),
+        ),
+        forMember(
+          (destination) => destination.totalAmountCash,
+          mapFrom((source) => +source.totalAmountCash),
+        ),
+        forMember(
+          (destination) => destination.totalAmountInternal,
+          mapFrom((source) => +source.totalAmountInternal),
+        ),
+        forMember(
           (destination) => destination.originalAmount,
           mapFrom((source) => +source.totalOriginalAmountOrder),
         ),

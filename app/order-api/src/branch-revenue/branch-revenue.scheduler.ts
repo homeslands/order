@@ -144,6 +144,9 @@ export class BranchRevenueScheduler {
         const revenue = new BranchRevenue();
         Object.assign(revenue, {
           totalAmount: 0,
+          totalAmountBank: 0,
+          totalAmountCash: 0,
+          totalAmountInternal: 0,
           totalOrder: 0,
           originalAmount: 0,
           voucherAmount: 0,
@@ -264,6 +267,12 @@ export class BranchRevenueScheduler {
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          totalAmountBank: 0,
+          totalAmountCash: 0,
+          totalAmountInternal: 0,
+          originalAmount: 0,
+          voucherAmount: 0,
+          promotionAmount: 0,
           date: yesterdayDate,
           branchId: branch.id,
         });

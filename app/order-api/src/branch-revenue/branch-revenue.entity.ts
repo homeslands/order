@@ -8,6 +8,18 @@ export class BranchRevenue extends Base {
   @AutoMap()
   totalAmount: number;
 
+  @Column({ name: 'total_amount_bank_column', default: 0 })
+  @AutoMap()
+  totalAmountBank: number;
+
+  @Column({ name: 'total_amount_cash_column', default: 0 })
+  @AutoMap()
+  totalAmountCash: number;
+
+  @Column({ name: 'total_amount_internal_column', default: 0 })
+  @AutoMap()
+  totalAmountInternal: number;
+
   @Column({ name: 'original_amount_column', default: 0 })
   @AutoMap()
   originalAmount: number;

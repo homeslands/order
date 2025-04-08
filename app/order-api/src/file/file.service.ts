@@ -12,7 +12,7 @@ import path from 'path';
 import { Workbook } from 'exceljs';
 import { generateFileName } from './file.util';
 import { Extension } from './file.constant';
-
+import ExcelJS from 'exceljs';
 @Injectable()
 export class FileService {
   constructor(
@@ -109,7 +109,12 @@ export class FileService {
     cellData,
   }: {
     filename: string;
-    cellData: { cellPosition: string; value: string; type: string }[];
+    cellData: {
+      cellPosition: string;
+      value: string | number;
+      type: string;
+      style?: Partial<ExcelJS.Style>;
+    }[];
   }): Promise<FileResponseDto> {
     // Read file
     const templatePath = path.resolve('public/templates/excel', filename);
@@ -125,7 +130,7 @@ export class FileService {
       if (item.type === 'data') {
         worksheet.getCell(item.cellPosition).value = item.value;
       } else if (item.type === 'image') {
-        const imageUrl = item.value;
+        const imageUrl = item.value as string;
         const response = await fetch(imageUrl);
         const buffer = await response.arrayBuffer();
 
@@ -142,6 +147,10 @@ export class FileService {
             editAs: 'oneCell', // Optional: can be "oneCell" or "absolute"
           });
         }
+      }
+
+      if (item.style) {
+        worksheet.getCell(item.cellPosition).style = item.style;
       }
     }
     // Generate buffer of the Excel file in memory
