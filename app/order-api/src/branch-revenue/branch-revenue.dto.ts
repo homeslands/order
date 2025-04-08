@@ -44,6 +44,8 @@ export class BranchRevenueQueryResponseDto {
   totalOrder: string;
 }
 
+export class BranchRevenueQueryResponseForHourDto extends BranchRevenueQueryResponseDto {}
+
 export class GetBranchRevenueQueryDto {
   @AutoMap()
   @ApiProperty({

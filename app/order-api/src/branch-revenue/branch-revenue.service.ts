@@ -14,6 +14,7 @@ import { Mapper } from '@automapper/core';
 import {
   AggregateBranchRevenueResponseDto,
   BranchRevenueQueryResponseDto,
+  BranchRevenueQueryResponseForHourDto,
   ExportBranchRevenueQueryDto,
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
@@ -90,7 +91,7 @@ export class BranchRevenueService {
 
       this.logger.log('startDateQuery', startDateQuery);
       this.logger.log('endDateQuery', endDateQuery);
-      const results: BranchRevenueQueryResponseDto[] =
+      const results: BranchRevenueQueryResponseForHourDto[] =
         await this.branchRevenueRepository.query(
           getSpecificRangeBranchRevenueByHourClause,
           [startDateQuery, endDateQuery, branch.id],
@@ -194,7 +195,7 @@ export class BranchRevenueService {
   }
 
   fillMissingDataByHours(
-    data: BranchRevenueQueryResponseDto[],
+    data: BranchRevenueQueryResponseForHourDto[],
     startTime: Date,
     endTime: Date,
   ): BranchRevenue[] {
@@ -215,11 +216,11 @@ export class BranchRevenueService {
       if (dataMap.has(hour)) {
         return this.mapper.map(
           dataMap.get(hour),
-          BranchRevenueQueryResponseDto,
+          BranchRevenueQueryResponseForHourDto,
           BranchRevenue,
         );
       } else {
-        const item: BranchRevenueQueryResponseDto = {
+        const item: BranchRevenueQueryResponseForHourDto = {
           date: hour,
           branchId: _.first(data)?.branchId || '',
           totalAmount: '0',
@@ -234,7 +235,7 @@ export class BranchRevenueService {
         };
         return this.mapper.map(
           item,
-          BranchRevenueQueryResponseDto,
+          BranchRevenueQueryResponseForHourDto,
           BranchRevenue,
         );
       }
@@ -754,9 +755,11 @@ export class BranchRevenueService {
           'YYYY-MM-DD HH:mm:ss',
         );
 
+        this.logger.log('requestData.startDate', requestData.startDate);
+        this.logger.log('requestData.endDate', requestData.endDate);
         this.logger.log('startDateQuery', startDateQuery);
         this.logger.log('endDateQuery', endDateQuery);
-        const results: BranchRevenueQueryResponseDto[] =
+        const results: BranchRevenueQueryResponseForHourDto[] =
           await this.branchRevenueRepository.query(
             getSpecificRangeBranchRevenueByHourClause,
             [startDateQuery, endDateQuery, branch.id],
@@ -842,9 +845,7 @@ export class BranchRevenueService {
           {
             cellPosition: `B${currentRow}`,
             value: isFormatDateHaveHour
-              ? moment(revenue.date)
-                  .subtract(7, 'hours')
-                  .format('DD/MM/YYYY HH:mm:ss')
+              ? moment(revenue.date).format('DD/MM/YYYY HH:mm:ss')
               : moment(revenue.date).format('DD/MM/YYYY'),
             type: 'data',
             style: cellStyle,
