@@ -36,8 +36,8 @@ export default function CreateVoucherSheet() {
     defaultValues: {
       title: '',
       description: '',
-      startDate: '',
-      endDate: '',
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
       code: '',
       value: 0,
       isActive: false,
@@ -74,8 +74,8 @@ export default function CreateVoucherSheet() {
     form.reset({
       title: '',
       description: '',
-      startDate: '',
-      endDate: '',
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
       code: '',
       value: 0,
       isActive: false,
@@ -189,7 +189,7 @@ export default function CreateVoucherSheet() {
         control={form.control}
         name="value"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className='flex flex-col justify-between'>
             <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
@@ -263,7 +263,6 @@ export default function CreateVoucherSheet() {
                   {...field}
                   placeholder={t('voucher.enterMinOrderValue')}
                   onChange={(e) => field.onChange(Number(e.target.value))}
-                  min={0}
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   ₫

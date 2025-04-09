@@ -86,7 +86,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     }
 
     return (
-        <div className="fixed z-20 px-4 py-2 w-[360px] flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
+        <div className="fixed z-20 px-4 py-2 min-w-[320px] w-fit flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
             style={{ left: position.x, top: position.y }}
             onMouseDown={handleDragStart}
             onMouseMove={handleDrag}

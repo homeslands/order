@@ -189,10 +189,9 @@ export default function OrderItemDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[90%] overflow-y-auto p-2">
-        <SheetHeader>
-          <SheetTitle className="flex justify-between items-center mt-8">
-            {t('order.orderDetail')}
+      <SheetContent className="w-[90%] p-0 flex flex-col max-h-screen">
+        <SheetHeader className="px-2">
+          <SheetTitle className="flex flex-wrap justify-start items-center mt-8">
             <div className="flex gap-2">
               {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
                 <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
@@ -205,72 +204,72 @@ export default function OrderItemDetailSheet({
             </div>
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-4">
-          {orderSlug ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
-                <div className="flex justify-between font-medium text-primary">
-                  {t('order.currentOrder')} #{selectedOrder?.result?.slug}
-                  {selectedOrder &&
-                    selectedOrder.result.payment?.statusCode ===
-                    paymentStatus.COMPLETED && (
-                      <Button
-                        onClick={() =>
-                          handleExportOrderInvoice(selectedOrder.result.slug)
-                        }
-                        disabled={isPending}
-                        className="flex justify-start items-center px-2 shadow-none"
-                      >
-                        {isPending && <ButtonLoading />}
-                        <DownloadIcon />
-                        {t('order.exportInvoice')}
-                      </Button>
-                    )}
-                </div>
-                <CustomerInformation orderDetailData={selectedOrder?.result} />
-                <OrderItemList orderDetailData={selectedOrder?.result} />
+
+        {orderSlug ? (
+          <div className="flex flex-col gap-4 px-2 flex-1 overflow-y-auto">
+            <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
+              <div className="flex justify-between font-medium text-primary">
+                {t('order.currentOrder')} #{selectedOrder?.result?.slug}
+                {selectedOrder &&
+                  selectedOrder.result.payment?.statusCode ===
+                  paymentStatus.COMPLETED && (
+                    <Button
+                      onClick={() =>
+                        handleExportOrderInvoice(selectedOrder.result.slug)
+                      }
+                      disabled={isPending}
+                      className="flex justify-start items-center px-2 shadow-none"
+                    >
+                      {isPending && <ButtonLoading />}
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  )}
               </div>
-              {orderDetails && orderDetails.length > 0 && (
-                <div className="flex gap-1 items-center">
-                  <CircleAlert size={14} className="text-blue-500" />
-                  <span className="text-xs text-muted-foreground sm:text-sm">
-                    {t('order.refreshOrdersInTheSameTable')}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-start">
-                <Button
-                  onClick={
-                    shouldFetchOrders ? handleRefetchAll : handleFetchOrders
-                  }
-                >
-                  {shouldFetchOrders
-                    ? t('order.refresh')
-                    : t('order.loadOrdersInTheSameTable')}
-                </Button>
-              </div>
-              {shouldFetchOrders && (
-                <div className="flex flex-col gap-4">
-                  {orderDetails
-                    .filter((orderDetail) => orderDetail.slug !== orderSlug)
-                    .map((orderDetail) => (
-                      <div
-                        key={orderDetail.slug}
-                        className="flex flex-col gap-2 p-4 rounded-lg border"
-                      >
-                        <CustomerInformation orderDetailData={orderDetail} />
-                        <OrderItemList orderDetailData={orderDetail} />
-                      </div>
-                    ))}
-                </div>
-              )}
+              <CustomerInformation orderDetailData={selectedOrder?.result} />
+              <OrderItemList orderDetailData={selectedOrder?.result} />
             </div>
-          ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </div>
+            {orderDetails && orderDetails.length > 0 && (
+              <div className="flex gap-1 items-center">
+                <CircleAlert size={14} className="text-blue-500" />
+                <span className="text-xs text-muted-foreground sm:text-sm">
+                  {t('order.refreshOrdersInTheSameTable')}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-start">
+              <Button
+                onClick={
+                  shouldFetchOrders ? handleRefetchAll : handleFetchOrders
+                }
+              >
+                {shouldFetchOrders
+                  ? t('order.refresh')
+                  : t('order.loadOrdersInTheSameTable')}
+              </Button>
+            </div>
+            {shouldFetchOrders && (
+              <div className="flex flex-col gap-4">
+                {orderDetails
+                  .filter((orderDetail) => orderDetail.slug !== orderSlug)
+                  .map((orderDetail) => (
+                    <div
+                      key={orderDetail.slug}
+                      className="flex flex-col gap-2 p-4 rounded-lg border"
+                    >
+                      <CustomerInformation orderDetailData={orderDetail} />
+                      <OrderItemList orderDetailData={orderDetail} />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
+            {tCommon('common.noData')}
+          </p>
+        )}
+
       </SheetContent>
     </Sheet>
   )

@@ -35,11 +35,8 @@ export default function DateSelect({ onChange }: DateSelectProps) {
           <SelectItem value={RevenueTypeQuery.DAILY}>
             {t('dayOfWeek.day')}
           </SelectItem>
-          <SelectItem value={RevenueTypeQuery.MONTHLY}>
-            {t('dayOfWeek.month')}
-          </SelectItem>
-          <SelectItem value={RevenueTypeQuery.YEARLY}>
-            {t('dayOfWeek.year')}
+          <SelectItem value={RevenueTypeQuery.HOURLY}>
+            {t('dayOfWeek.hour')}
           </SelectItem>
         </SelectGroup>
       </SelectContent>

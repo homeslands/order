@@ -7,12 +7,14 @@ import {
   getLatestRevenueForARange,
   getRevenue,
   getBranchRevenue,
+  exportRevenue,
 } from '@/api'
 import { IAllRevenueQuery, IBranchRevenueQuery, IRevenueQuery } from '@/types'
+import { QUERYKEY } from '@/constants'
 
 export const useRevenue = (q: IRevenueQuery) => {
   return useQuery({
-    queryKey: ['revenue', JSON.stringify(q)],
+    queryKey: [QUERYKEY.revenue, JSON.stringify(q)],
     queryFn: () => getRevenue(q),
     placeholderData: keepPreviousData,
   })
@@ -54,6 +56,14 @@ export const useLatestBranchRevenueForARange = (q: IBranchRevenueQuery) => {
   return useMutation({
     mutationFn: async () => {
       return getLatestBranchRevenueForARange(q)
+    },
+  })
+}
+
+export const useExportRevenue = () => {
+  return useMutation({
+    mutationFn: async (q: IRevenueQuery) => {
+      return exportRevenue(q)
     },
   })
 }

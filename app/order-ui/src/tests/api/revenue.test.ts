@@ -117,7 +117,7 @@ describe('Revenue API', () => {
     const queryParams = {
       startDate: '2024-01-01',
       endDate: '2024-01-31',
-      type: RevenueTypeQuery.MONTHLY,
+      type: RevenueTypeQuery.HOURLY,
     }
 
     it('should fetch latest revenue range correctly', async () => {
@@ -148,7 +148,7 @@ describe('Revenue API', () => {
       branch: 'branch-1',
       startDate: '2024-01-01',
       endDate: '2024-01-31',
-      type: RevenueTypeQuery.MONTHLY,
+      type: RevenueTypeQuery.HOURLY,
     }
 
     it('should fetch latest branch revenue range correctly', async () => {

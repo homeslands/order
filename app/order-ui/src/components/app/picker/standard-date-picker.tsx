@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Clock } from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { TimePickerInput } from '@/components/ui'
+import { useTranslation } from 'react-i18next'
+
+import { TimePickerInput, Label } from '@/components/ui'
 
 interface DateTimePickerProps {
   date: Date | undefined
@@ -9,15 +10,16 @@ interface DateTimePickerProps {
 }
 
 export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
+  const { t } = useTranslation(['common'])
   const minuteRef = React.useRef<HTMLInputElement>(null)
   const hourRef = React.useRef<HTMLInputElement>(null)
   const secondRef = React.useRef<HTMLInputElement>(null)
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex gap-2 items-end">
       <div className="grid gap-1 text-center">
         <Label htmlFor="hours" className="text-xs">
-          Hours
+          {t('common.hours')}
         </Label>
         <TimePickerInput
           picker="hours"
@@ -29,7 +31,7 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
       </div>
       <div className="grid gap-1 text-center">
         <Label htmlFor="minutes" className="text-xs">
-          Minutes
+          {t('common.minutes')}
         </Label>
         <TimePickerInput
           picker="minutes"
@@ -42,7 +44,7 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
       </div>
       <div className="grid gap-1 text-center">
         <Label htmlFor="seconds" className="text-xs">
-          Seconds
+          {t('common.seconds')}
         </Label>
         <TimePickerInput
           picker="seconds"
@@ -52,8 +54,8 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
           onLeftFocus={() => minuteRef.current?.focus()}
         />
       </div>
-      <div className="flex h-10 items-center">
-        <Clock className="ml-2 h-4 w-4" />
+      <div className="flex items-center h-10">
+        <Clock className="ml-2 w-4 h-4" />
       </div>
     </div>
   )

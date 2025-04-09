@@ -13,4 +13,5 @@ export const QUERYKEY = {
   chefOrders: ['chefOrders'],
   chefAreaProducts: ['chefAreaProducts'],
   notifications: ['notifications'],
+  revenue: ['revenue'],
 }

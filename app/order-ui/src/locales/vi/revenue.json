@@ -13,6 +13,21 @@
     "totalAmount": "Tổng tiền",
     "totalOrder": "Tổng đơn hàng",
     "voucherAmount": "Tiền voucher",
-    "tableRevenue": "Bảng thống kê doanh thu"
+    "tableRevenue": "Bảng thống kê doanh thu",
+    "export": "Xuất doanh thu",
+    "exportRevenue": "Xuất file doanh thu",
+    "exportRevenueDescription": "Xuất doanh thu theo loại doanh thu và khoảng ngày",
+    "type": "Loại doanh thu",
+    "hourly": "Theo giờ",
+    "daily": "Theo ngày",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "revenueSystem": "Doanh thu toàn hệ thống",
+    "order": "Đơn hàng",
+    "orderUnit": "đơn",
+    "cash": "Tiền mặt",
+    "bank": "Chuyển khoản",
+    "internal": "Nội bộ",
+    "revenue": "Doanh thu (nghìn đồng)"
   }
 }

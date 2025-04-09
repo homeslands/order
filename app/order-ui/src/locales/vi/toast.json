@@ -110,6 +110,7 @@
     "createChefOrderSuccess": "Tạo đơn hàng đầu bếp thành công",
     "duplicateProductAndBranch": "Sản phẩm và chi nhánh đã tồn tại trong khu vực bếp",
     "refreshSuccess": "Làm mới dữ liệu thành công",
+    "exportRevenueSuccess": "Xuất doanh thu thành công",
     "unloggedIn": "Vui lòng đăng nhập",
     "catalogNameInvalid": "Tên danh mục không hợp lệ",
     "branchSlugInvalid": "Slug chi nhánh không hợp lệ",

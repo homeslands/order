@@ -33,7 +33,7 @@ export default function SizeSelect({
     if (data?.result) {
       const newSizes = data.result.map((item) => ({
         value: item.slug || '',
-        label: item.name || '',
+        label: item.name ? item.name.toUpperCase() : '',
       }))
       // Append new users to the previous users
       setAllSizes(newSizes)
@@ -62,7 +62,7 @@ export default function SizeSelect({
   return (
     <ReactSelect
       value={selectedSize}
-      onMenuScrollToBottom={() => {}}
+      onMenuScrollToBottom={() => { }}
       options={allSizes}
       onChange={handleChange}
       defaultValue={selectedSize}

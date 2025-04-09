@@ -10,6 +10,7 @@ import { usePendingChefOrdersColumns } from './DataTable/columns'
 import { ChefOrderItemDetailSheet } from '@/components/app/sheet'
 import { ChefOrderActionOptions } from './DataTable/actions'
 import { useSelectedChefOrderStore } from '@/stores'
+import moment from 'moment'
 
 export default function ChefOrderPage() {
   const { t } = useTranslation(['chefArea'])
@@ -17,8 +18,8 @@ export default function ChefOrderPage() {
   const { isSheetOpen, setIsSheetOpen, selectedRow, setSelectedRow, chefOrderStatus, chefOrderByChefAreaSlug, chefOrder, setChefOrder } = useSelectedChefOrderStore()
   const { setInputValue, debouncedInputValue } = useDebouncedInput()
   const { pagination, setPagination, handlePageChange, handlePageSizeChange } = usePagination()
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
 
   const handleCloseSheet = () => {
     setIsSheetOpen(false)
@@ -30,8 +31,8 @@ export default function ChefOrderPage() {
     ...(debouncedInputValue ? {} :
       {
         chefArea: chefOrderByChefAreaSlug,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
+        startDate: startDate,
+        endDate: endDate,
         ...(chefOrderStatus !== 'all' && { status: chefOrderStatus })
       }
     )

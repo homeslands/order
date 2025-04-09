@@ -11,6 +11,7 @@ import { IOrder, OrderStatus } from '@/types'
 import OrderFilter from './DataTable/actions/order-filter'
 import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 import { showToast } from '@/utils'
+import moment from 'moment'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -22,8 +23,8 @@ export default function OrderHistoryPage() {
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [isSelected, setIsSelected] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -31,8 +32,8 @@ export default function OrderHistoryPage() {
     order: 'DESC',
     branchSlug: userInfo?.branch?.slug || '',
     hasPaging: true,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
+    startDate: startDate,
+    endDate: endDate,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
 

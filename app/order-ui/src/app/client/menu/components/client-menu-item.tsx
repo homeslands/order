@@ -90,7 +90,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                             })()}
                           </span>
                           {item?.promotion?.value > 0 && (
-                            <Badge className="text-xs bg-destructive hover:bg-destructive">
+                            <Badge className="text-[8px] md:text-xs bg-destructive hover:bg-destructive">
                               {t('menu.discount')} {item?.promotion?.value}%
                             </Badge>
                           )}

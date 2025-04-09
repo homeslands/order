@@ -5,7 +5,7 @@ import moment from 'moment'
 
 import { RevenueDetailChart, TopProductsDetail, RevenueDetailComparison, RevenueDetailSummary, RevenueTable } from './components'
 import { BranchSelect } from '@/components/app/select'
-import { TimeRangeRevenueFilter } from '@/components/app/popover'
+import { ExportRevenuePopover, TimeRangeRevenueFilter } from '@/components/app/popover'
 import { Button } from '@/components/ui'
 import { useLatestRevenue } from '@/hooks'
 import { showToast } from '@/utils'
@@ -58,7 +58,7 @@ export default function OverviewDetailPage() {
           <div className='flex flex-col gap-2 items-center w-full sm:justify-between sm:flex-row'>
             <div className='flex gap-1 justify-start items-center px-1 w-full sm:w-fit'>
               <SquareMenu />
-              {t('dashboard.titleDetail')}
+              {t('dashboard.title')}
               <span className='px-4 py-1 ml-4 text-xs rounded-full border border-primary text-primary bg-primary/10'>
                 {startDate === endDate ? moment(startDate).format('DD/MM/YYYY') : `${moment(startDate).format('DD/MM/YYYY')} - ${moment(endDate).format('DD/MM/YYYY')}`}
               </span>
@@ -69,6 +69,7 @@ export default function OverviewDetailPage() {
                 <RefreshCcw />
                 {tCommon('common.refresh')}
               </Button>
+              <ExportRevenuePopover />
               <div className='w-[14rem]'>
                 <BranchSelect defaultValue={branch} onChange={handleSelectBranch} />
               </div>

@@ -108,6 +108,7 @@
     "createChefOrderSuccess": "Chef order created successfully",
     "refreshSuccess": "Refresh data successfully",
     "duplicateProductAndBranch": "Product and branch already exist in chef area",
+    "exportRevenueSuccess": "Revenue exported successfully",
     "unloggedIn": "Please log in",
     "catalogNameInvalid": "Invalid catalog name",
     "branchSlugInvalid": "Invalid branch slug",

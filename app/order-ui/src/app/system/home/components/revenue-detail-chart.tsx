@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react' // Thêm useState
+import { useCallback, useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
+import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
@@ -27,6 +28,7 @@ export default function RevenueDetailChart({
   startDate,
   endDate,
 }: RevenueData) {
+  const { t } = useTranslation('revenue')
   const chartRef = useRef<HTMLDivElement>(null)
   const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
 
@@ -48,10 +50,8 @@ export default function RevenueDetailChart({
     // update revenue type
     if (timeRange === RevenueTypeQuery.DAILY) {
       setRevenueType(RevenueTypeQuery.DAILY)
-    } else if (timeRange === RevenueTypeQuery.MONTHLY) {
-      setRevenueType(RevenueTypeQuery.MONTHLY)
-    } else if (timeRange === RevenueTypeQuery.YEARLY) {
-      setRevenueType(RevenueTypeQuery.YEARLY)
+    } else if (timeRange === RevenueTypeQuery.HOURLY) {
+      setRevenueType(RevenueTypeQuery.HOURLY)
     }
   }
 
@@ -60,10 +60,8 @@ export default function RevenueDetailChart({
       switch (revenueType) {
         case RevenueTypeQuery.DAILY:
           return moment(date).format('DD/MM')
-        case RevenueTypeQuery.MONTHLY:
-          return moment(date).format('MM/YYYY')
-        case RevenueTypeQuery.YEARLY:
-          return moment(date).format('YYYY')
+        case RevenueTypeQuery.HOURLY:
+          return moment(date).format('DD/MM/YYYY HH:mm')
         default:
           return moment(date).format('DD/MM')
       }
@@ -87,13 +85,13 @@ export default function RevenueDetailChart({
           trigger: 'axis' as const,
           formatter: function (params: TooltipParams[]) {
             const date = params[0].name
-            const revenue = formatCurrency(params[0].value)
-            const orders = params[1].value
-            return `${date}<br/>${params[0].seriesName}: ${revenue}<br/>${params[1].seriesName}: ${orders}`
+            const revenue = formatCurrency(params[1].value)
+            const orders = params[0].value
+            return `${date}<br/>${params[1].seriesName}: ${revenue}<br/>${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}`
           },
         },
         legend: {
-          data: ['Doanh thu', 'Đơn hàng'],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internal')],
         },
         xAxis: {
           type: 'category',
@@ -105,7 +103,7 @@ export default function RevenueDetailChart({
         yAxis: [
           {
             type: 'value',
-            name: 'Doanh thu (nghìn đồng)',
+            name: t('revenue.revenue'),
             position: 'left',
             nameTextStyle: {
               padding: [0, -50, 0, 0], // Tăng padding bên trái
@@ -129,7 +127,7 @@ export default function RevenueDetailChart({
           },
           {
             type: 'value',
-            name: 'Đơn hàng',
+            name: t('revenue.order'),
             position: 'right',
             // nameTextStyle: {
             //     padding: [0, 0, 0, 0], // Tăng padding bên phải
@@ -150,23 +148,42 @@ export default function RevenueDetailChart({
         ],
         series: [
           {
-            name: 'Doanh thu',
+            name: t('revenue.order'),
             type: 'line',
             smooth: true,
-            data: sortedData.map((item) => item.totalAmount),
-            itemStyle: {
-              color: '#09c10c',
-            },
-          },
-          {
-            name: 'Đơn hàng',
-            type: 'bar',
             yAxisIndex: 1,
-            barWidth: sortedData.length === 1 ? 40 : '50%', // Add this line
             data: sortedData.map((item) => item.totalOrder),
             itemStyle: {
               color: '#f89209',
-              opacity: 0.5,
+            },
+          },
+          {
+            name: t('revenue.cash'),
+            type: 'bar',
+            stack: 'revenue',
+            data: sortedData.map((item) => item.totalAmountCash),
+            itemStyle: {
+              color: '#4169E1',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
+          {
+            name: t('revenue.bank'),
+            type: 'bar',
+            stack: 'revenue',
+            data: sortedData.map((item) => item.totalAmountBank),
+            itemStyle: {
+              color: '#FF4500',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
+          {
+            name: t('revenue.internal'),
+            type: 'bar',
+            stack: 'revenue',
+            data: sortedData.map((item) => item.totalAmountInternal),
+            itemStyle: {
+              color: '#32CD32',
               borderRadius: [5, 5, 0, 0],
             },
           },
@@ -186,13 +203,13 @@ export default function RevenueDetailChart({
         window.removeEventListener('resize', handleResize)
       }
     }
-  }, [formatDate, revenueData, revenueType]) // Add revenueType to dependencies
+  }, [formatDate, revenueData, revenueType, t]) // Add revenueType to dependencies
 
   return (
     <Card className="shadow-none">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          Doanh thu toàn hệ thống
+          {t('revenue.revenueSystem')}
           {/* <TimeRangeRevenueFilter onApply={handleSelectTimeRange} /> */}
           <DateSelect onChange={handleSelectTimeRange} />
         </CardTitle>

@@ -4,10 +4,11 @@ import { OrderItemStatus } from '@/types'
 
 interface IOrderItemStatusBadgeProps {
   status: OrderItemStatus
+  rounded?: string
 }
 
 export default function OrderItemStatusBadge({
-  status,
+  status, rounded
 }: IOrderItemStatusBadgeProps) {
   const { t } = useTranslation(['menu'])
 
@@ -41,7 +42,7 @@ export default function OrderItemStatusBadge({
     <span
       className={`inline-block w-fit px-2 py-1 text-center text-[0.5rem] ${getBadgeColor(
         status,
-      )} rounded-full`}
+      )} ${rounded === 'md' ? 'rounded-md' : 'rounded-full'} `}
     >
       {getBadgeText(status)}
     </span>

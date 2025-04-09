@@ -39,6 +39,7 @@ export default function PeriodOfTimeSelect({ periodOfTime, onChange }: PeriodOfT
             <SelectContent>
                 <SelectGroup>
                     <SelectItem value='today'>{t('dayOfWeek.today')}</SelectItem>
+                    <SelectItem value='yesterday'>{t('dayOfWeek.yesterday')}</SelectItem>
                     <SelectItem value='inWeek'>{t('dayOfWeek.inWeek')}</SelectItem>
                     <SelectItem value='inMonth'>{t('dayOfWeek.inMonth')}</SelectItem>
                     <SelectItem value='inYear'>{t('dayOfWeek.inYear')}</SelectItem>

@@ -214,7 +214,7 @@ export function ClientPaymentPage() {
                     <div className="flex w-full col-span-2 gap-2">
                       <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center w-full">
                         <span className="text-sm font-bold truncate sm:text-lg overflow-hidden text-ellipsis whitespace-nowrap w-full">
-                          {item.variant.product.name} 
+                          {item.variant.product.name}
                         </span>
                       </div>
                     </div>
@@ -294,7 +294,7 @@ export function ClientPaymentPage() {
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
         />
-        <div className="flex justify-end py-6">
+        <div className="flex flex-wrap-reverse gap-2 justify-end py-6 px-2">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) &&
             <div className="flex gap-2">

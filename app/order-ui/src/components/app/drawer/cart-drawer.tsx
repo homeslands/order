@@ -140,8 +140,8 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                         </div>
                       </div>
                       <CartNoteInput cartItem={item} />
-                      <VoucherListSheet />
                     </div>
+
                   ))
                 ) : (
                   <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
@@ -149,12 +149,14 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                   </p>
                 )}
               </div>
+              <VoucherListSheet />
             </div>
           ) : (
             <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
               {tCommon('common.noData')}
             </p>
           )}
+
           <DrawerFooter>
             {cartItems && cartItems?.orderItems?.length > 0 && (
               <div>
