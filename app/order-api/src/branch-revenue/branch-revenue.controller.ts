@@ -8,6 +8,9 @@ import {
   Query,
   ValidationPipe,
   Res,
+  Post,
+  Body,
+  StreamableFile,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -24,6 +27,7 @@ import {
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
   ExportBranchRevenueQueryDto,
+  ExportHandOverTicketRequestDto,
 } from './branch-revenue.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Response } from 'express';
@@ -70,6 +74,23 @@ export class BranchRevenueController {
     });
 
     res.send(fileResponse.data);
+  }
+
+  @Post('export-pdf')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @ApiOperation({ summary: 'Export invoice' })
+  @HttpCode(HttpStatus.OK)
+  async exportInvoice(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ExportHandOverTicketRequestDto,
+  ): Promise<StreamableFile> {
+    const result =
+      await this.branchRevenueService.exportHandOverTicket(requestData);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="hand-over-ticket-${new Date().toISOString()}.pdf"`,
+    });
   }
 
   @Get(':branch')

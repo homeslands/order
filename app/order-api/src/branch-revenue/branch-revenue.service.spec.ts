@@ -16,6 +16,7 @@ import { FileService } from 'src/file/file.service';
 // import { BranchRevenueException } from './branch-revenue.exception';
 // import { MockType } from 'src/test-utils/repository-mock.factory';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
+import { PdfService } from 'src/pdf/pdf.service';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -67,6 +68,7 @@ describe('BranchRevenueService', () => {
         TransactionManagerService,
         BranchUtils,
         FileService,
+        PdfService,
         {
           provide: FileService,
           useValue: {

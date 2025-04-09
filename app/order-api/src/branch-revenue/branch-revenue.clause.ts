@@ -22,7 +22,10 @@ export const getCurrentBranchRevenueClause = `
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
-        COUNT(DISTINCT o.id_column) AS totalOrder
+        COUNT(DISTINCT o.id_column) AS totalOrder,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'internal' THEN o.id_column ELSE NULL END) AS totalOrderInternal
     FROM 
         order_db.order_tbl AS o
     LEFT JOIN 
@@ -65,7 +68,11 @@ export const getYesterdayBranchRevenueClause = `
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
-        COUNT(DISTINCT o.id_column) AS totalOrder
+        COUNT(DISTINCT o.id_column) AS totalOrder,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'internal' THEN o.id_column ELSE NULL END) AS totalOrderInternal
+
     FROM 
         order_db.order_tbl AS o
     LEFT JOIN 
@@ -108,7 +115,10 @@ export const getAllBranchRevenueClause = `
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
-        COUNT(DISTINCT o.id_column) AS totalOrder
+        COUNT(DISTINCT o.id_column) AS totalOrder,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'internal' THEN o.id_column ELSE NULL END) AS totalOrderInternal
     FROM 
         order_db.order_tbl AS o
     LEFT JOIN 
@@ -147,7 +157,10 @@ export const getSpecificRangeBranchRevenueClause = `
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
-        COUNT(DISTINCT o.id_column) AS totalOrder
+        COUNT(DISTINCT o.id_column) AS totalOrder,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'internal' THEN o.id_column ELSE NULL END) AS totalOrderInternal
     FROM 
         order_db.order_tbl AS o
     LEFT JOIN 
@@ -189,7 +202,10 @@ export const getSpecificRangeBranchRevenueByHourClause = `
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
-        COUNT(DISTINCT o.id_column) AS totalOrder
+        COUNT(DISTINCT o.id_column) AS totalOrder,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
+        COUNT(DISTINCT CASE WHEN p.payment_method_column = 'internal' THEN o.id_column ELSE NULL END) AS totalOrderInternal
     FROM 
         order_db.order_tbl AS o
     LEFT JOIN 

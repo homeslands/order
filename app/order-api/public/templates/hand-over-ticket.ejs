@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phiếu bàn giao</title>
+    <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+    <style>
+      .text-xxs {
+        font-size: 0.65rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="p-2">
+      <div class="mb-1">
+        <div class="flex items-center justify-center">
+          <img
+            src="data:image/png;base64,<%= logoString %>"
+            alt=""
+            class="w-52"
+          />
+        </div>
+      </div>
+      <!-- Header -->
+      <div class="text-center">
+        <h1 class="font-bold"><%= branchName %></h1>
+        <p class="text-xxs"><%= branchAddress %></p>
+      </div>
+
+      <div class="text-center mt-2">
+        <h2 class="font-bold">Phiếu bàn giao</h2>
+      </div>
+
+      <!-- Shift Info -->
+      <div class="mt-2">
+        <h3 class="font-bold">Phiên làm việc</h3>
+        <div class="text-xxs">
+          <p>
+            Bắt đầu ca: <%= formatDate(shiftStartTime, 'HH:mm:ss DD/MM/YYYY') %>
+          </p>
+          <p>
+            Kết thúc: <%= formatDate(shiftEndTime, 'HH:mm:ss DD/MM/YYYY') %>
+          </p>
+          <p>Nhân viên: ...</p>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="mt-2">
+        <h3 class="font-bold">Tổng quan</h3>
+        <div class="text-xxs">
+          <div class="flex justify-between">
+            <span>Số lượng hóa đơn:</span>
+            <span><%= totalOrder %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Số thứ tự hóa đơn:</span>
+            <span>...</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tổng doanh thu (Gross):</span>
+            <span><%= formatCurrency(originalAmount) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tổng tiền khuyến mãi:</span>
+            <span><%= formatCurrency(totalPromotion) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tổng tiền giảm giá:</span>
+            <span><%= formatCurrency(totalVoucher) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tổng xu:</span>
+            <span><%= formatCurrency(totalCoin) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Doanh thu tiền mặt:</span>
+            <span><%= formatCurrency(totalRevenueCash) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Doanh thu chuyển khoản:</span>
+            <span><%= formatCurrency(totalRevenueBank) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tổng doanh thu sau khấu trừ (NET):</span>
+            <span><%= formatCurrency(totalRevenue) %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="mt-2">
+        <h3 class="font-bold">Chi tiết</h3>
+        <div class="text-xxs">
+          <h4 class="text-center font-bold text-xxs">Phương thức tiền mặt</h4>
+          <div class="flex justify-between">
+            <span>Số lượng hóa đơn:</span>
+            <span><%= totalOrderCash %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền mặt đầu ca:</span>
+            <span>...</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền mặt cuối ca:</span>
+            <span>...</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền mặt thực tế:</span>
+            <span>...</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền mặt hệ thống:</span>
+            <span><%= formatCurrency(totalRevenueCash) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Chênh lệch:</span>
+            <span>...</span>
+          </div>
+
+          <h4 class="text-center font-bold text-xxs">
+            Phương thức chuyển khoản
+          </h4>
+          <div class="flex justify-between">
+            <span>Số lượng hóa đơn:</span>
+            <span><%= totalOrderBank %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền chuyển khoản:</span>
+            <span><%= formatCurrency(totalRevenueBank) %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div class="mt-4 text-xxs">
+        <p class="text-center">Ngày ... Tháng ... Năm ....</p>
+        <div class="flex justify-between mt-2">
+          <div class="text-center">
+            <p>NV bàn giao</p>
+            <p>(ký, ghi rõ họ tên)</p>
+          </div>
+          <div class="text-center">
+            <p>NV nhận bàn giao</p>
+            <p>(ký, ghi rõ họ tên)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timestamp -->
+      <div class="text-xxs text-center mt-4">
+        <p>Printed at:</p>
+        <p><%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></p>
+      </div>
+    </div>
+  </body>
+</html>

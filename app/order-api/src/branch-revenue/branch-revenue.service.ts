@@ -16,6 +16,7 @@ import {
   BranchRevenueQueryResponseDto,
   BranchRevenueQueryResponseForHourDto,
   ExportBranchRevenueQueryDto,
+  ExportHandOverTicketRequestDto,
   GetBranchRevenueQueryDto,
   RefreshSpecificRangeBranchRevenueQueryDto,
 } from './branch-revenue.dto';
@@ -40,6 +41,9 @@ import {
   RevenueTypeExport,
   RevenueTypeQuery,
 } from 'src/revenue/revenue.constant';
+import { PdfService } from 'src/pdf/pdf.service';
+import { resolve } from 'path';
+import { readFileSync } from 'fs';
 
 @Injectable()
 export class BranchRevenueService {
@@ -56,6 +60,7 @@ export class BranchRevenueService {
     private readonly transactionManagerService: TransactionManagerService,
     private readonly branchUtils: BranchUtils,
     private readonly fileService: FileService,
+    private readonly pdfService: PdfService,
   ) {}
 
   async findAll(
@@ -63,9 +68,9 @@ export class BranchRevenueService {
     query: GetBranchRevenueQueryDto,
   ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
-    this.logger.log('query', JSON.stringify(query));
+    this.logger.log('query', JSON.stringify(query), context);
     if (query.type === RevenueTypeQuery.HOUR) {
-      this.logger.log('Get branch revenue by hour');
+      this.logger.log('Get branch revenue by hour', context);
       if (!query.startDate || !query.endDate) {
         this.logger.error(
           BranchRevenueValidation.START_DATE_AND_END_DATE_MUST_BE_PROVIDED
@@ -89,8 +94,8 @@ export class BranchRevenueService {
       );
       const endDateQuery = moment(query.endDate).format('YYYY-MM-DD HH:mm:ss');
 
-      this.logger.log('startDateQuery', startDateQuery);
-      this.logger.log('endDateQuery', endDateQuery);
+      this.logger.log('startDateQuery', startDateQuery, context);
+      this.logger.log('endDateQuery', endDateQuery, context);
       const results: BranchRevenueQueryResponseForHourDto[] =
         await this.branchRevenueRepository.query(
           getSpecificRangeBranchRevenueByHourClause,
@@ -233,6 +238,9 @@ export class BranchRevenueService {
           totalOriginalOrderItemAmount: '0',
           totalFinalOrderItemAmount: '0',
           totalOrder: '0',
+          totalOrderCash: '0',
+          totalOrderBank: '0',
+          totalOrderInternal: '0',
         };
         return this.mapper.map(
           item,
@@ -282,6 +290,9 @@ export class BranchRevenueService {
             totalAmountCash: 0,
             totalAmountInternal: 0,
             totalOrder: 0,
+            totalOrderCash: 0,
+            totalOrderBank: 0,
+            totalOrderInternal: 0,
             originalAmount: 0,
             voucherAmount: 0,
             promotionAmount: 0,
@@ -289,6 +300,9 @@ export class BranchRevenueService {
         }
         acc[index].totalAmount += item.totalAmount;
         acc[index].totalOrder += item.totalOrder;
+        acc[index].totalOrderCash += item.totalOrderCash;
+        acc[index].totalOrderBank += item.totalOrderBank;
+        acc[index].totalOrderInternal += item.totalOrderInternal;
         acc[index].originalAmount += item.originalAmount;
         acc[index].voucherAmount += item.voucherAmount;
         acc[index].promotionAmount += item.promotionAmount;
@@ -321,6 +335,9 @@ export class BranchRevenueService {
             totalAmountCash: 0,
             totalAmountInternal: 0,
             totalOrder: 0,
+            totalOrderCash: 0,
+            totalOrderBank: 0,
+            totalOrderInternal: 0,
             originalAmount: 0,
             voucherAmount: 0,
             promotionAmount: 0,
@@ -328,6 +345,9 @@ export class BranchRevenueService {
         }
         acc[index].totalAmount += item.totalAmount;
         acc[index].totalOrder += item.totalOrder;
+        acc[index].totalOrderCash += item.totalOrderCash;
+        acc[index].totalOrderBank += item.totalOrderBank;
+        acc[index].totalOrderInternal += item.totalOrderInternal;
         acc[index].originalAmount += item.originalAmount;
         acc[index].voucherAmount += item.voucherAmount;
         acc[index].promotionAmount += item.promotionAmount;
@@ -439,6 +459,12 @@ export class BranchRevenueService {
           if (
             existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
             existedInNewData.totalOrder !== existedBranchRevenue.totalOrder ||
+            existedInNewData.totalOrderCash !==
+              existedBranchRevenue.totalOrderCash ||
+            existedInNewData.totalOrderBank !==
+              existedBranchRevenue.totalOrderBank ||
+            existedInNewData.totalOrderInternal !==
+              existedBranchRevenue.totalOrderInternal ||
             existedInNewData.originalAmount !==
               existedBranchRevenue.originalAmount ||
             existedInNewData.voucherAmount !==
@@ -472,6 +498,9 @@ export class BranchRevenueService {
           Object.assign(newRevenue, {
             totalAmount: 0,
             totalOrder: 0,
+            totalOrderCash: 0,
+            totalOrderBank: 0,
+            totalOrderInternal: 0,
             originalAmount: 0,
             totalAmountBank: 0,
             totalAmountCash: 0,
@@ -648,6 +677,9 @@ export class BranchRevenueService {
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          totalOrderCash: 0,
+          totalOrderBank: 0,
+          totalOrderInternal: 0,
           originalAmount: 0,
           totalAmountBank: 0,
           totalAmountCash: 0,
@@ -697,6 +729,12 @@ export class BranchRevenueService {
         if (
           existedBranchRevenue.totalAmount !== newBranchRevenue.totalAmount ||
           existedBranchRevenue.totalOrder !== newBranchRevenue.totalOrder ||
+          existedBranchRevenue.totalOrderCash !==
+            newBranchRevenue.totalOrderCash ||
+          existedBranchRevenue.totalOrderBank !==
+            newBranchRevenue.totalOrderBank ||
+          existedBranchRevenue.totalOrderInternal !==
+            newBranchRevenue.totalOrderInternal ||
           existedBranchRevenue.originalAmount !==
             newBranchRevenue.originalAmount ||
           existedBranchRevenue.voucherAmount !==
@@ -1011,5 +1049,100 @@ export class BranchRevenueService {
         error.message,
       );
     }
+  }
+
+  async exportHandOverTicket(requestData: ExportHandOverTicketRequestDto) {
+    const context = `${BranchRevenueService.name}.${this.exportHandOverTicket.name}`;
+    this.logger.log('Start exporting hand over ticket', context);
+    const { branch, startDate, endDate } = requestData;
+
+    const branchData = await this.branchUtils.getBranch({
+      where: { slug: branch },
+    });
+
+    const startDateQuery = moment(requestData.startDate).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+    const endDateQuery = moment(requestData.endDate).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
+
+    this.logger.log('startDateQuery', startDateQuery);
+    this.logger.log('endDateQuery', endDateQuery);
+    const results: BranchRevenueQueryResponseForHourDto[] =
+      await this.branchRevenueRepository.query(
+        getSpecificRangeBranchRevenueByHourClause,
+        [startDateQuery, endDateQuery, branchData.id],
+      );
+    // console.log('results', results);
+    const branchRevenues = this.mapper.mapArray(
+      results,
+      BranchRevenueQueryResponseForHourDto,
+      BranchRevenue,
+    );
+    // console.log('branchRevenues', branchRevenues);
+    let totalOriginalAmount = 0;
+    let totalPromotionAmount = 0;
+    let totalVoucherAmount = 0;
+    let totalAmount = 0;
+    let totalOrder = 0;
+    let totalOrderCash = 0;
+    let totalOrderBank = 0;
+    let totalOrderInternal = 0;
+    let totalAmountBank = 0;
+    let totalAmountCash = 0;
+    let totalAmountInternal = 0;
+
+    branchRevenues.forEach((revenue) => {
+      totalOriginalAmount += revenue.originalAmount;
+      totalPromotionAmount += revenue.promotionAmount;
+      totalVoucherAmount += revenue.voucherAmount;
+      totalAmount += revenue.totalAmount;
+      totalOrder += revenue.totalOrder;
+      totalOrderCash += revenue.totalOrderCash;
+      totalOrderBank += revenue.totalOrderBank;
+      totalOrderInternal += revenue.totalOrderInternal;
+      totalAmountBank += revenue.totalAmountBank;
+      totalAmountCash += revenue.totalAmountCash;
+      totalAmountInternal += revenue.totalAmountInternal;
+    });
+    // console.log('totalOrderBank', totalOrderBank);
+
+    const logoPath = resolve('public/images/logo.png');
+    const logoBuffer = readFileSync(logoPath);
+
+    // Convert the buffer to a Base64 string
+    const logoString = logoBuffer.toString('base64');
+
+    // Prepare template data
+    const templateData = {
+      branchName: branchData.name,
+      branchAddress: branchData.address,
+      shiftStartTime: startDate,
+      shiftEndTime: endDate,
+      totalOrder,
+      originalAmount: totalOriginalAmount,
+      totalRevenueCash: totalAmountCash,
+      totalOrderCash: totalOrderCash,
+      totalRevenueBank: totalAmountBank,
+      totalOrderBank: totalOrderBank,
+      totalPromotion: totalPromotionAmount,
+      totalVoucher: totalVoucherAmount,
+      totalCoin: 0,
+      totalRevenue: totalAmount,
+      totalOrderInternal,
+      totalAmountInternal,
+      createdAt: new Date(),
+    };
+
+    const data = await this.pdfService.generatePdf(
+      'hand-over-ticket',
+      { ...templateData, logoString },
+      {
+        width: '80mm',
+      },
+    );
+
+    return data;
   }
 }

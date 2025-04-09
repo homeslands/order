@@ -10,6 +10,7 @@ import { DbModule } from 'src/db/db.module';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
+import { PdfService } from 'src/pdf/pdf.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Branch, BranchRevenue, File]), DbModule],
   controllers: [BranchRevenueController],
@@ -19,6 +20,7 @@ import { File } from 'src/file/file.entity';
     BranchRevenueProfile,
     BranchUtils,
     FileService,
+    PdfService,
   ],
   exports: [BranchRevenueService],
 })

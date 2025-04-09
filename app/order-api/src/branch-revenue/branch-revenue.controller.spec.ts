@@ -13,6 +13,7 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
+import { PdfService } from 'src/pdf/pdf.service';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -24,6 +25,7 @@ describe('BranchRevenueController', () => {
         TransactionManagerService,
         BranchUtils,
         FileService,
+        PdfService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: MAPPER_MODULE_PROVIDER,

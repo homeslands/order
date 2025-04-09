@@ -43,4 +43,16 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_order_column' })
   totalOrder: number;
+
+  @AutoMap()
+  @Column({ name: 'total_order_cash_column', default: 0 })
+  totalOrderCash: number;
+
+  @AutoMap()
+  @Column({ name: 'total_order_bank_column', default: 0 })
+  totalOrderBank: number;
+
+  @AutoMap()
+  @Column({ name: 'total_order_internal_column', default: 0 })
+  totalOrderInternal: number;
 }

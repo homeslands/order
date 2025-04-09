@@ -73,6 +73,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom((source) => +source.totalOrder),
         ),
         forMember(
+          (destination) => destination.totalOrderCash,
+          mapFrom((source) => +source.totalOrderCash),
+        ),
+        forMember(
+          (destination) => destination.totalOrderBank,
+          mapFrom((source) => +source.totalOrderBank),
+        ),
+        forMember(
+          (destination) => destination.totalOrderInternal,
+          mapFrom((source) => +source.totalOrderInternal),
+        ),
+        forMember(
           (destination) => destination.date,
           mapFrom((source) => {
             // Date format: YYYY-MM-DDT00:00:00Z
@@ -129,6 +141,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalOrder,
           mapFrom((source) => +source.totalOrder),
+        ),
+        forMember(
+          (destination) => destination.totalOrderCash,
+          mapFrom((source) => +source.totalOrderCash),
+        ),
+        forMember(
+          (destination) => destination.totalOrderBank,
+          mapFrom((source) => +source.totalOrderBank),
+        ),
+        forMember(
+          (destination) => destination.totalOrderInternal,
+          mapFrom((source) => +source.totalOrderInternal),
         ),
         forMember(
           (destination) => destination.date,
