@@ -61,6 +61,10 @@ export class OrderScheduler {
       const updatedOrders: Order[] = [];
       for (const branch of branches) {
         // console.log({ branch });
+        this.logger.log(
+          `Update reference number for branch ${branch.name}`,
+          context,
+        );
         let firstReferenceNumber = 1;
         const orders = await this.orderRepository.find({
           where: {
@@ -74,7 +78,15 @@ export class OrderScheduler {
           },
           relations: ['invoice'],
         });
+        this.logger.log(
+          `Update reference number for branch, number of order: ${orders.length}`,
+          context,
+        );
         for (const order of orders) {
+          this.logger.log(
+            `Update reference number for branch, order: ${order.id} ${order.invoice.id}`,
+            context,
+          );
           Object.assign(order, {
             referenceNumber: firstReferenceNumber,
           });
