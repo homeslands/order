@@ -84,7 +84,11 @@ export class OrderScheduler {
         );
         for (const order of orders) {
           this.logger.log(
-            `Update reference number for branch, order: ${order.id} ${order.invoice.id}`,
+            `Update reference number for branch, order: ${order.id}`,
+            context,
+          );
+          this.logger.log(
+            `Update reference number for branch, invoice: ${order.invoice?.id}`,
             context,
           );
           Object.assign(order, {
