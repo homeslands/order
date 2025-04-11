@@ -48,10 +48,14 @@ export class OrderScheduler {
     this.schedulerRegistry.addTimeout(jobName, job);
   }
 
-  @Timeout(1000)
+  @Timeout(10000)
   async updateReferenceNumberForPaidOrdersAndInvoices() {
     const context = `${OrderScheduler.name}.${this.updateReferenceNumberForPaidOrdersAndInvoices.name}`;
 
+    this.logger.log(
+      `Start update reference number for paid orders and invoices`,
+      context,
+    );
     const branches = await this.branchRepository.find();
     const updatedOrders: Order[] = [];
     for (const branch of branches) {
