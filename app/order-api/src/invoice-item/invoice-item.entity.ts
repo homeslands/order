@@ -25,6 +25,14 @@ export class InvoiceItem extends Base {
   @Column({ name: 'total_column' })
   total: number;
 
+  @AutoMap()
+  @Column({ name: 'promotion_value_column', default: 0 })
+  promotionValue: number;
+
+  @AutoMap()
+  @Column({ name: 'promotion_id_column', nullable: true })
+  promotionId?: string;
+
   // if there is a new Invoice instance set
   // on this relation, InvoiceItems will be inserted automatically to the db when you save this Invoice entity
   @ManyToOne(() => Invoice, (invoice) => invoice.invoiceItems)

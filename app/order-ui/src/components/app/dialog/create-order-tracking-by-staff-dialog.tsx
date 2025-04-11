@@ -23,7 +23,7 @@ export default function CreateOrderTrackingByStaffDialog({ disabled }: ICreateOr
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex justify-start" asChild>
-        <Button disabled={disabled} className="gap-1 text-sm" onClick={() => setIsOpen(true)}>
+        <Button disabled={disabled} className="gap-1 text-xs sm:text-sm" onClick={() => setIsOpen(true)}>
           {t('order.createOrderTrackingByStaff')}
         </Button>
       </DialogTrigger>

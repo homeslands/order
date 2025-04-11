@@ -154,24 +154,12 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
       })
 
     return (
-      <div key={orderItem.id} className="mt-4 space-y-4">
+      <div key={orderItem.id} className="px-2 space-y-4 sm:px-0">
         {/* Delivery Timeline */}
         {/* {renderDeliveryTimeline(orderItem)} */}
 
         {/* Product Information */}
-        <div className="flex flex-col gap-3 px-2 py-4 bg-white rounded-lg border shadow-sm sm:px-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2 items-center">
-              <Badge className="h-9 text-md bg-primary/10 text-primary hover:bg-primary/10">
-                <span className='overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px] sm:max-w-[400px] md:max-w-[600px] lg:max-w-[800px]'>
-                  {orderItem.variant.product.name}</span>
-              </Badge>
-              <Badge variant="outline" className="h-10 text-sm">
-                Size {orderItem.variant.size?.name.toUpperCase()}
-              </Badge>
-            </div>
-          </div>
-
+        <div className="flex flex-col gap-3 py-4 bg-transparent border-b border-muted-foreground/60">
           {/* Order Note */}
           {orderItem.note && (
             <div className="flex gap-2 items-center p-2 rounded-md border">
@@ -189,7 +177,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
             {items.map((item) => (
               <div
                 key={item.index}
-                className="flex flex-wrap items-center px-1 py-3 rounded-md border"
+                className="flex flex-wrap items-center py-3"
               >
                 <div className='flex justify-between w-full sm:w-1/2'>
                   <div className="flex gap-3 items-center">
@@ -223,9 +211,14 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                         }`}
                       />
                       )}
-                    <span className="text-sm font-medium text-gray-700 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
-                      {orderItem.variant.product.name}
-                    </span>
+                    <div className='flex flex-col gap-1'>
+                      <span className="text-sm font-medium text-gray-700 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
+                        {orderItem.variant.product.name}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        Size {orderItem.variant.size?.name.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex justify-center items-center">
                     {orderItem.promotion && orderItem.promotion.value > 0 ? (
@@ -278,7 +271,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
   }, [order])
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full h-full">
       {renderOrderItem(order)}
     </div>
   )

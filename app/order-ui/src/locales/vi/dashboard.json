@@ -8,6 +8,7 @@
     "tool": "Công cụ",
     "chooseTool": "Chọn công cụ",
     "exportExcel": "Xuất doanh thu Excel",
-    "exportPDF": "Xuất doanh thu PDF"
+    "exportPDF": "Xuất doanh thu PDF",
+    "referenceNumberOrder": "Số thứ tự hóa đơn"
   }
 }

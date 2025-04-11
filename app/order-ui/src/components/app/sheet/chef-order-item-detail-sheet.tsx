@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useGetSpecificChefOrder } from '@/hooks'
 import { IChefOrders } from '@/types'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui'
+import { Button, Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui'
 import { ChefOrderItemList } from '@/app/system/chef-order/components'
 import { useSearchParams } from 'react-router-dom'
 
@@ -46,26 +46,27 @@ export default function ChefOrderItemDetailSheet({
   const specificChefOrderDetail = data?.result.chefOrderItems || []
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[90%] overflow-y-auto p-2">
-        <SheetHeader>
+      <SheetContent className="w-[100%] p-0 flex flex-col gap-0 max-h-screen">
+        <SheetHeader className="px-2">
           <SheetTitle className="flex justify-between items-center mt-8">
             {t('chefOrder.chefOrderDetail')}
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-4">
-          {chefOrder ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
-                <ChefOrderItemList chefOrderItemData={specificChefOrderDetail} />
-              </div>
-            </div>
-          ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </div>
+        {chefOrder ? (
+          <div className="h-[calc(100vh-11rem)] flex-1 px-2 pt-2">
+            <ChefOrderItemList chefOrderItemData={specificChefOrderDetail} />
+          </div>
+        ) : (
+          <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
+            {tCommon('common.noData')}
+          </p>
+        )}
+        <SheetFooter className="p-2">
+          <Button onClick={onClose}>
+            {tCommon('common.close')}
+          </Button>
+        </SheetFooter>
       </SheetContent>
-    </Sheet>
+    </Sheet >
   )
 }

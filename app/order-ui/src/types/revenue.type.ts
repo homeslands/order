@@ -16,6 +16,8 @@ export interface IRevenueQuery {
 
 export interface IBranchRevenue extends IBase {
   date: string
+  maxReferenceNumberOrder: number
+  minReferenceNumberOrder: number
   totalAmountBank: number
   totalAmountCash: number
   totalAmountInternal: number

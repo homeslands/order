@@ -69,9 +69,11 @@ export class InvoiceService {
         'owner',
         'branch',
         'orderItems.variant.product',
+        'orderItems.promotion',
         'orderItems.variant.size',
         'approvalBy',
         'table',
+        'voucher',
       ],
     });
     if (!order) {
@@ -85,6 +87,11 @@ export class InvoiceService {
         `Invoice for order ${orderSlug} already exists`,
         context,
       );
+      Object.assign(order.invoice, {
+        subtotalBeforeVoucher:
+          (order.invoice.amount * 100) /
+          (order.invoice.voucherValue !== 0 ? order.invoice.voucherValue : 100),
+      });
       return order.invoice;
     }
 
@@ -96,6 +103,8 @@ export class InvoiceService {
         price: item.variant.price,
         total: item.subtotal,
         size: item.variant.size.name,
+        promotionValue: item.promotion?.value ?? 0,
+        promotionId: item.promotion?.id ?? null,
       });
       return invoiceItem;
     });
@@ -116,6 +125,8 @@ export class InvoiceService {
       invoiceItems,
       qrcode,
       referenceNumber: order.referenceNumber,
+      voucherValue: order.voucher?.value ?? 0,
+      voucherId: order.voucher?.id ?? null,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -133,6 +144,12 @@ export class InvoiceService {
       `Invoice ${invoice.id} created for order ${order.id}`,
       context,
     );
+
+    Object.assign(invoice, {
+      subtotalBeforeVoucher:
+        (invoice.amount * 100) /
+        (invoice.voucherValue !== 0 ? invoice.voucherValue : 100),
+    });
 
     return invoice;
   }

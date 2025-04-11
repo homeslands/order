@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { CircleX, RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -39,6 +39,15 @@ export default function OverviewDetailPage() {
     date: revenueType === RevenueTypeQuery.DAILY ? moment(item.date).format('YYYY-MM-DD') : moment(item.date).format('YYYY-MM-DD HH:mm')
   }))
 
+  const referenceNumbers = adjustedRevenueData?.flatMap(item => [
+    item.maxReferenceNumberOrder,
+    item.minReferenceNumberOrder,
+  ]).filter(num => num !== 0)
+
+  const maxReferenceNumberOrder = referenceNumbers?.length ? Math.max(...referenceNumbers) : null
+  const minReferenceNumberOrder = referenceNumbers?.length ? Math.min(...referenceNumbers) : null
+
+
   const handleRefreshRevenue = useCallback(() => {
     refreshRevenue(undefined, {
       onSuccess: () => {
@@ -48,9 +57,9 @@ export default function OverviewDetailPage() {
     })
   }, [refreshRevenue, tToast, refetchRevenue])
 
-  useEffect(() => {
-    handleRefreshRevenue()
-  }, [startDate, endDate, branch, handleRefreshRevenue])
+  // useEffect(() => {
+  //   handleRefreshRevenue()
+  // }, [startDate, endDate, branch, handleRefreshRevenue])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     setStartDate(data.startDate || '')
@@ -99,6 +108,9 @@ export default function OverviewDetailPage() {
                   <span className='cursor-pointer' onClick={() => setRevenueType(RevenueTypeQuery.DAILY)}>
                     <CircleX className='w-4 h-4' />
                   </span>
+                </Badge>
+                <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
+                  {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
                 </Badge>
               </div>
             )}

@@ -24,6 +24,14 @@
       <div class="flex items-center justify-center">
         <img src="<%= qrcode %>" alt="qrcode" class="w-44 block mt-0 pt-0" />
       </div>
+      <p class="text-center text-xs">
+        <span class="">
+          Mã đơn:
+        </span>
+        <span class="">
+          <%= referenceNumber %>
+        </span>
+      </p>
     </div>
 
     <!-- Invoive info -->
@@ -31,7 +39,8 @@
       <p class="text-xs"><span class="font-bold">Thời gian:</span>
         <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
       </p>
-      <p class="text-xs"> <span class="font-bold">
+      <p class="text-xs"> 
+        <span class="font-bold">
           Bàn:
         </span>
         <span class="capitalize">
@@ -52,12 +61,14 @@
     </div>
 
     <!-- Invoice items -->
+     
     <table class="min-w-full table-auto border-collapse mt-4 text-sm">
       <thead>
         <tr class="bg-white-100 border-b border-black">
           <th class="py-2 text-left w-2/3">Món</th>
           <th class="py-2 text-left px-1">SL</th>
           <th class="py-2 text-left px-2">Đ.Giá</th>
+          <th class="py-2 text-left px-2">K.Mãi(%) </th>
           <th class="py-2 text-left px-2">T.Tiền</th>
         </tr>
       </thead>
@@ -75,6 +86,9 @@
             <td class="py-2 px-2 text-xs">
               <%= formatCurrency(item.price) %>
             </td>
+            <td class="py-2 px-2 text-center text-xs">
+              <%= item.promotionValue %>
+            </td>
             <td class="py-2 px-2 text-xs">
               <%= formatCurrency(item.total) %>
             </td>
@@ -82,13 +96,25 @@
           <% }); %>
             <tr class="border-t border-black">
               <td class="py-2 text-left">PPTT</td>
-              <td class="py-2 font-bold text-right text-xs" colspan="3">
+              <td class="py-2 font-bold text-right text-xs" colspan="4">
                 <%= formatPaymentMethod(paymentMethod) %>
               </td>
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left">Tổng cộng</td>
-              <td class="py-2 font-bold text-xl text-right" colspan="3">
+              <td class="py-2 text-right" colspan="4">
+                <%= formatCurrency(subtotalBeforeVoucher) %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Giảm giá(%)</td>
+              <td class="py-2 text-right" colspan="4">
+                <%= voucherValue %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Thành tiền</td>
+              <td class="py-2 font-bold text-xl text-right" colspan="4">
                 <%= formatCurrency(amount) %>
               </td>
             </tr>

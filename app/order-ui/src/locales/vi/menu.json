@@ -134,11 +134,15 @@
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
     "pending": "Chờ thanh toán",
-    "deliveryPending": "Chờ giao hàng",
+    "deliveryPending": "Chờ giao",
+    "deliveryPendingMobile": "Chờ",
     "paid": "Đã thanh toán",
-    "completed": "Đã hoàn tất",
-    "shipping": "Đang giao hàng",
+    "completed": "Hoàn tất",
+    "completedMobile": "Xong",
+    "shipping": "Đang giao",
+    "shippingMobile": "Giao",
     "failed": "Thất bại",
+    "failedMobile": "Thất bại",
     "waitingForKitchen": "Chờ phòng bếp",
     "deleteAll": "Xóa tất cả",
     "deleteAllWarning": "Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng không?",
@@ -210,7 +214,8 @@
     "noCooked": "Chưa làm",
     "cooking": "Đang làm",
     "cooked": "Đã làm xong",
-    "delivered": "Đã giao"
+    "delivered": "Đã giao",
+    "close": "Đóng"
   },
   "table": {
     "title": "Danh sách bàn"

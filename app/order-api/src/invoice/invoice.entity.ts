@@ -21,6 +21,14 @@ export class Invoice extends Base {
   amount: number;
 
   @AutoMap()
+  @Column({ name: 'voucher_value_column', default: 0 })
+  voucherValue: number;
+
+  @AutoMap()
+  @Column({ name: 'voucher_id_column', nullable: true })
+  voucherId?: string;
+
+  @AutoMap()
   @Column({ name: 'status_column' })
   status: string;
 

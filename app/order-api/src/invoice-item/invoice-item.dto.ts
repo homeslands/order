@@ -21,5 +21,9 @@ export class InvoiceItemResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  promotionValue: number;
+
+  @AutoMap()
+  @ApiProperty()
   size: string;
 }
