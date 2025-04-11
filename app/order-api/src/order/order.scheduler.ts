@@ -56,42 +56,52 @@ export class OrderScheduler {
       `Start update reference number for paid orders and invoices`,
       context,
     );
-    const branches = await this.branchRepository.find();
-    const updatedOrders: Order[] = [];
-    for (const branch of branches) {
-      // console.log({ branch });
-      let firstReferenceNumber = 1;
-      const orders = await this.orderRepository.find({
-        where: {
-          branch: { id: branch.id },
-          payment: {
-            statusCode: PaymentStatus.COMPLETED,
+    try {
+      const branches = await this.branchRepository.find();
+      const updatedOrders: Order[] = [];
+      for (const branch of branches) {
+        // console.log({ branch });
+        let firstReferenceNumber = 1;
+        const orders = await this.orderRepository.find({
+          where: {
+            branch: { id: branch.id },
+            payment: {
+              statusCode: PaymentStatus.COMPLETED,
+            },
           },
-        },
-        order: {
-          createdAt: 'ASC',
-        },
-        relations: ['invoice'],
-      });
-      for (const order of orders) {
-        Object.assign(order, {
-          referenceNumber: firstReferenceNumber,
+          order: {
+            createdAt: 'ASC',
+          },
+          relations: ['invoice'],
         });
-        Object.assign(order.invoice, {
-          referenceNumber: firstReferenceNumber,
-        });
-        firstReferenceNumber++;
+        for (const order of orders) {
+          Object.assign(order, {
+            referenceNumber: firstReferenceNumber,
+          });
+          if (order.invoice) {
+            Object.assign(order.invoice, {
+              referenceNumber: firstReferenceNumber,
+            });
+          }
+          firstReferenceNumber++;
+        }
+        // console.log({ orders });
+        // console.log('length', orders.length);
+        updatedOrders.push(...orders);
       }
-      // console.log({ orders });
-      // console.log('length', orders.length);
-      updatedOrders.push(...orders);
+      // console.log({ length: updatedOrders.length });
+      // console.log({ updatedOrders });
+      await this.orderRepository.save(updatedOrders);
+      this.logger.log(
+        `Update reference number for orders: ${updatedOrders.length}`,
+        context,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error when update reference number for paid orders and invoices: ${error.message}`,
+        error.stack,
+        context,
+      );
     }
-    // console.log({ length: updatedOrders.length });
-    // console.log({ updatedOrders });
-    await this.orderRepository.save(updatedOrders);
-    this.logger.log(
-      `Update reference number for orders: ${updatedOrders.length}`,
-      context,
-    );
   }
 }
