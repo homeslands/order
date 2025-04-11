@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckedState } from '@radix-ui/react-checkbox'
-import { Clock, AlertCircle, CheckCircle2, Truck } from 'lucide-react'
 
 import { ChefOrderItemStatus, IOrderDetail, OrderItemStatus } from '@/types'
 import { Badge, Checkbox } from '@/components/ui'
@@ -73,54 +72,54 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     ? order.variant.price * (1 - order.promotion.value / 100)
     : order.variant.price
 
-  const renderDeliveryTimeline = (orderItem: IOrderDetail) => {
-    const noCompletedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.PENDING).length || 0
-    const cookingItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.IN_PROGRESS).length || 0
-    const cookedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.COMPLETED).length || 0
-    const deliveredItems = orderItem.trackingOrderItems.filter(item => item.tracking.status === 'COMPLETED').length
+  // const renderDeliveryTimeline = (orderItem: IOrderDetail) => {
+  //   const noCompletedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.PENDING).length || 0
+  //   const cookingItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.IN_PROGRESS).length || 0
+  //   const cookedItems = orderItem.chefOrderItems?.filter(item => item.status === ChefOrderItemStatus.COMPLETED).length || 0
+  //   const deliveredItems = orderItem.trackingOrderItems.filter(item => item.tracking.status === 'COMPLETED').length
 
-    return (
-      <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
-        <div className="flex justify-between items-center">
-          <h3 className="text-sm font-semibold text-gray-700">{t('order.deliveryStatus')}</h3>
-        </div>
+  //   return (
+  //     <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
+  //       <div className="flex justify-between items-center">
+  //         <h3 className="text-sm font-semibold text-gray-700">{t('order.deliveryStatus')}</h3>
+  //       </div>
 
-        <div className="relative">
-          <div className="absolute top-[34px] left-0 w-full h-0.5 bg-gray-200 "></div>
-          <div className="flex relative justify-between">
-            <div className="flex flex-col items-center text-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${noCompletedItems > 0 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                <Clock className={`w-4 h-4 ${noCompletedItems > 0 ? 'text-yellow-500' : 'text-gray-400'}`} />
-              </div>
-              <span className="mt-2 text-xs font-medium text-gray-600">{t('order.pending')}</span>
-              <span className="text-xs text-gray-500">{noCompletedItems} {t('order.items')}</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookingItems > 0 ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                <AlertCircle className={`w-4 h-4 ${cookingItems > 0 ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <span className="mt-2 text-xs font-medium text-gray-600">{t('order.cooking')}</span>
-              <span className="text-xs text-gray-500">{cookingItems} {t('order.items')}</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookedItems > 0 ? 'bg-green-100' : 'bg-gray-100'}`}>
-                <CheckCircle2 className={`w-4 h-4 ${cookedItems > 0 ? 'text-green-500' : 'text-gray-400'}`} />
-              </div>
-              <span className="mt-2 text-xs font-medium text-gray-600">{t('order.ready')}</span>
-              <span className="text-xs text-gray-500">{cookedItems} {t('order.items')}</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${deliveredItems > 0 ? 'bg-purple-100' : 'bg-gray-100'}`}>
-                <Truck className={`w-4 h-4 ${deliveredItems > 0 ? 'text-purple-500' : 'text-gray-400'}`} />
-              </div>
-              <span className="mt-2 text-xs font-medium text-gray-600">{t('order.delivered')}</span>
-              <span className="text-xs text-gray-500">{deliveredItems} {t('order.items')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  //       <div className="relative">
+  //         <div className="absolute top-[34px] left-0 w-full h-0.5 bg-gray-200 "></div>
+  //         <div className="flex relative justify-between">
+  //           <div className="flex flex-col items-center text-center">
+  //             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${noCompletedItems > 0 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+  //               <Clock className={`w-4 h-4 ${noCompletedItems > 0 ? 'text-yellow-500' : 'text-gray-400'}`} />
+  //             </div>
+  //             <span className="mt-2 text-xs font-medium text-gray-600">{t('order.pending')}</span>
+  //             <span className="text-xs text-gray-500">{noCompletedItems} {t('order.items')}</span>
+  //           </div>
+  //           <div className="flex flex-col items-center text-center">
+  //             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookingItems > 0 ? 'bg-blue-100' : 'bg-gray-100'}`}>
+  //               <AlertCircle className={`w-4 h-4 ${cookingItems > 0 ? 'text-blue-500' : 'text-gray-400'}`} />
+  //             </div>
+  //             <span className="mt-2 text-xs font-medium text-gray-600">{t('order.cooking')}</span>
+  //             <span className="text-xs text-gray-500">{cookingItems} {t('order.items')}</span>
+  //           </div>
+  //           <div className="flex flex-col items-center text-center">
+  //             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${cookedItems > 0 ? 'bg-green-100' : 'bg-gray-100'}`}>
+  //               <CheckCircle2 className={`w-4 h-4 ${cookedItems > 0 ? 'text-green-500' : 'text-gray-400'}`} />
+  //             </div>
+  //             <span className="mt-2 text-xs font-medium text-gray-600">{t('order.ready')}</span>
+  //             <span className="text-xs text-gray-500">{cookedItems} {t('order.items')}</span>
+  //           </div>
+  //           <div className="flex flex-col items-center text-center">
+  //             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${deliveredItems > 0 ? 'bg-purple-100' : 'bg-gray-100'}`}>
+  //               <Truck className={`w-4 h-4 ${deliveredItems > 0 ? 'text-purple-500' : 'text-gray-400'}`} />
+  //             </div>
+  //             <span className="mt-2 text-xs font-medium text-gray-600">{t('order.delivered')}</span>
+  //             <span className="text-xs text-gray-500">{deliveredItems} {t('order.items')}</span>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   const renderOrderItem = (orderItem: IOrderDetail) => {
     const items = Array(orderItem.quantity)
@@ -157,17 +156,17 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     return (
       <div key={orderItem.id} className="mt-4 space-y-4">
         {/* Delivery Timeline */}
-        {renderDeliveryTimeline(orderItem)}
+        {/* {renderDeliveryTimeline(orderItem)} */}
 
         {/* Product Information */}
-        <div className="flex flex-col gap-3 py-4 px-2 sm:px-4 bg-white rounded-lg border shadow-sm">
+        <div className="flex flex-col gap-3 px-2 py-4 bg-white rounded-lg border shadow-sm sm:px-4">
           <div className="flex justify-between items-center">
             <div className="flex gap-2 items-center">
               <Badge className="h-9 text-md bg-primary/10 text-primary hover:bg-primary/10">
                 <span className='overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px] sm:max-w-[400px] md:max-w-[600px] lg:max-w-[800px]'>
                   {orderItem.variant.product.name}</span>
               </Badge>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="h-10 text-sm">
                 Size {orderItem.variant.size?.name.toUpperCase()}
               </Badge>
             </div>
@@ -175,11 +174,11 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
 
           {/* Order Note */}
           {orderItem.note && (
-            <div className="flex gap-2 items-center p-2 bg-gray-50 rounded-md">
-              <span className="text-sm font-semibold text-gray-600">
+            <div className="flex gap-2 items-center p-2 rounded-md border">
+              <span className="text-sm font-semibold text-muted-foreground">
                 {t('order.note')}:
               </span>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 {orderItem.note}
               </span>
             </div>
@@ -190,9 +189,9 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
             {items.map((item) => (
               <div
                 key={item.index}
-                className="flex flex-wrap items-center px-1 py-3 bg-gray-50 border-b-2 border-gray-200 last:border-b-0 sm:border-b-0"
+                className="flex flex-wrap items-center px-1 py-3 rounded-md border"
               >
-                <div className='w-full sm:w-1/2 flex justify-between'>
+                <div className='flex justify-between w-full sm:w-1/2'>
                   <div className="flex gap-3 items-center">
                     {item.chefStatus === OrderItemStatus.COMPLETED ?
                       (item.status === OrderItemStatus.PENDING || item.status === OrderItemStatus.FAILED ? (
@@ -246,13 +245,17 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                   </div>
                 </div>
 
-                <div className="flex gap-2 justify-end items-center w-full sm:w-1/2 mt-2 sm:mt-0">
-                  <OrderItemStatusBadge status={item.status} rounded='md' />
-                  {item.chefStatus === OrderItemStatus.PENDING && (
-                    <Badge className="text-xs bg-gray-200 text-gray-700">
+                <div className="flex gap-2 justify-end items-center mt-2 w-full sm:w-1/2 sm:mt-0">
+                  {item.chefStatus === OrderItemStatus.PENDING && item.status === OrderItemStatus.PENDING ? (
+                    <Badge className="h-7 text-xs border text-muted-foreground bg-muted-foreground/10 border-muted-foreground/60">
                       {t('order.waitingForKitchen')}
                     </Badge>
+                  ) : item.chefStatus === OrderItemStatus.COMPLETED && item.status === OrderItemStatus.PENDING ? (
+                    <OrderItemStatusBadge status={item.status} rounded="md" />
+                  ) : (
+                    <OrderItemStatusBadge status={item.chefStatus} rounded="md" />
                   )}
+
                 </div>
               </div>
             ))}

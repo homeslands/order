@@ -11,8 +11,25 @@ import { BranchUtils } from 'src/branch/branch.utils';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
 import { PdfService } from 'src/pdf/pdf.service';
+import { Order } from 'src/order/order.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { OrderUtils } from 'src/order/order.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Branch, BranchRevenue, File]), DbModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Branch,
+      BranchRevenue,
+      File,
+      Order,
+      MenuItem,
+      Menu,
+    ]),
+    DbModule,
+  ],
   controllers: [BranchRevenueController],
   providers: [
     BranchRevenueService,
@@ -21,6 +38,10 @@ import { PdfService } from 'src/pdf/pdf.service';
     BranchUtils,
     FileService,
     PdfService,
+    QrCodeService,
+    OrderUtils,
+    MenuItemUtils,
+    MenuUtils,
   ],
   exports: [BranchRevenueService],
 })

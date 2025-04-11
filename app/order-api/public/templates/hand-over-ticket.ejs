@@ -30,6 +30,14 @@
       <div class="text-center">
         <h1 class="font-bold"><%= branchName %></h1>
         <p class="text-xxs"><%= branchAddress %></p>
+        <div class="flex items-center justify-center">
+          <img
+            src="<%= qrcodeBranch %>"
+            alt="qrcodeBranch"
+            class="w-16 block mt-0 pt-0"
+          />
+        </div>
+        <p class="text-xxs"><%= branchSlug %></p>
       </div>
 
       <div class="text-center mt-2">
@@ -60,7 +68,10 @@
           </div>
           <div class="flex justify-between">
             <span>Số thứ tự hóa đơn:</span>
-            <span>...</span>
+            <span
+              ><%= minReferenceNumberOrder %> - <%= maxReferenceNumberOrder
+              %></span
+            >
           </div>
           <div class="flex justify-between">
             <span>Tổng doanh thu (Gross):</span>
@@ -87,7 +98,7 @@
             <span><%= formatCurrency(totalRevenueBank) %></span>
           </div>
           <div class="flex justify-between">
-            <span>Tổng doanh thu sau khấu trừ (NET):</span>
+            <span>Tổng doanh thu sau khấu trừ (Net):</span>
             <span><%= formatCurrency(totalRevenue) %></span>
           </div>
         </div>

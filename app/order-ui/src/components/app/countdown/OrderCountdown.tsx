@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react'
+import moment from 'moment'
+import { useTranslation } from 'react-i18next'
+
 import { useIsMobile } from '@/hooks'
 import { usePaymentMethodStore } from '@/stores'
-import moment from 'moment'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 interface OrderCountdownProps {
     createdAt: string | undefined
@@ -86,7 +87,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     }
 
     return (
-        <div className="fixed z-20 px-4 py-2 min-w-[320px] w-fit flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
+        <div className="fixed z-20 py-2 min-w-[400px] w-fit flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
             style={{ left: position.x, top: position.y }}
             onMouseDown={handleDragStart}
             onMouseMove={handleDrag}

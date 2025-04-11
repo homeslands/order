@@ -1,111 +1,92 @@
-import { useEffect } from 'react';
-import { DollarSign, CoffeeIcon, TrendingUp, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { DollarSign, CoffeeIcon, TrendingUp } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
-import { useBranchRevenue } from "@/hooks";
-import { RevenueTypeQuery } from '@/constants';
 import { formatCurrency } from '@/utils';
+import { IBranchRevenue } from '@/types';
 
 interface RevenueData {
-    branch: string;
-    startDate: string;
-    endDate: string;
-    trigger?: number; // Add trigger prop
+    revenueData: IBranchRevenue[] | undefined
 }
 
-export default function RevenueDetailSummary({ branch, startDate, endDate, trigger }: RevenueData) {
-    const { data: revenueData, refetch } = useBranchRevenue({
-        branch,
-        startDate,
-        endDate,
-        type: RevenueTypeQuery.DAILY
-    });
+export default function RevenueDetailSummary({ revenueData }: RevenueData) {
+    const { t } = useTranslation(['revenue'])
 
-    // Refetch when trigger changes
-    useEffect(() => {
-        if (trigger) {
-            refetch();
-        }
-    }, [trigger, refetch]);
+    // get totalAmount
+    const totalAmount = revenueData?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
 
+    // get totalAmountCash
+    const totalAmountCash = revenueData?.reduce((sum, item) => sum + (item.totalAmountCash || 0), 0) || 0;
 
-    const today = new Date();
+    // get totalAmountBank
+    const totalAmountBank = revenueData?.reduce((sum, item) => sum + (item.totalAmountBank || 0), 0) || 0;
 
-    // Lọc doanh thu hôm nay
-    const todayRevenue = revenueData?.result?.find((item) =>
-        item.date && new Date(item.date).toDateString() === today.toDateString()
-    );
-
-    // Tính tổng doanh thu hôm nay
-    const totalRevenueToday = todayRevenue?.totalAmount || 0;
-
-    // Định dạng doanh thu hôm nay thành VND
-    const formattedRevenueToday = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(totalRevenueToday);
-
-    // Tính tổng doanh thu
-    const totalRevenue = revenueData?.result?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
-
-    // Định dạng tổng doanh thu thành VND
-    const formattedRevenue = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(totalRevenue);
+    // get totalAmountInternal
+    const totalAmountInternal = revenueData?.reduce((sum, item) => sum + (item.totalAmountInternal || 0), 0) || 0;
 
     // Tính tổng số đơn hàng
-    const totalOrders = revenueData?.result?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
-
-    // Tính giá trị trung bình mỗi đơn hàng
-    const averageOrderValue = totalRevenue / totalOrders || 0;
-
-    // Định dạng giá trị trung bình mỗi đơn hàng thành VND
-    // const formattedAverageOrderValue = new Intl.NumberFormat('vi-VN', {
-    //     style: 'currency',
-    //     currency: 'VND',
-    // }).format(averageOrderValue);
+    const totalOrders = revenueData?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
 
     return (
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
             <Card className="text-white shadow-none bg-primary">
-                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
-                    <CardTitle className="text-sm font-bold">Tổng doanh thu</CardTitle>
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-bold">
+                        {t('revenue.totalRevenue')}
+                    </CardTitle>
                     <DollarSign className="w-4 h-4" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{formattedRevenue}</div>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmount)}</div>
                     {/* <p className="text-xs">+20.1% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalOrders')}
+                    </CardTitle>
                     <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{totalOrders}</div>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{totalOrders}</div>
                     {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium">Giá trị đơn hàng trung bình</CardTitle>
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalAmountCash')}
+                    </CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(averageOrderValue)}</div>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountCash)}</div>
                     {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
                 </CardContent>
             </Card>
             <Card className="shadow-none">
-                <CardHeader className="flex flex-row justify-between items-center pb-2 space-y-0">
-                    <CardTitle className="text-sm font-medium">Doanh thu hôm nay</CardTitle>
-                    <Users className="w-4 h-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalAmountBank')}
+                    </CardTitle>
+                    <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{formattedRevenueToday}</div>
-                    {/* <p className="text-xs text-muted-foreground">+8% from last month</p> */}
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountBank)}</div>
+                    {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
+                </CardContent>
+            </Card>
+            <Card className="shadow-none">
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalAmountInternal')}
+                    </CardTitle>
+                    <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountInternal)}</div>
+                    {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
                 </CardContent>
             </Card>
         </div>

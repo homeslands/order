@@ -1,3 +1,4 @@
+import { CircleX } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useCartItemStore } from '@/stores'
@@ -10,7 +11,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui'
-import { CircleX } from 'lucide-react'
 
 export default function CustomerSearchInput() {
     const { t } = useTranslation(['menu'])
@@ -73,14 +73,19 @@ export default function CustomerSearchInput() {
                     />
                 </div>
                 {selectedUser && (
-                    <div className='flex items-center gap-2'>
-                        <span className='px-4 py-1 text-sm border rounded-full border-primary text-primary bg-primary/20 w-fit'>
-                            {selectedUser.firstName} {selectedUser.lastName} - {selectedUser.phonenumber}
-                        </span>
+                    <div className='flex gap-2 justify-between items-center p-2 w-full rounded-md border'>
+                        <div className='flex flex-col gap-1 justify-center items-start py-1 text-sm w-fit'>
+                            <span className='font-bold text-md'>
+                                {selectedUser.firstName} {selectedUser.lastName}
+                            </span>
+                            <span className='text-sm text-muted-foreground'>
+                                {selectedUser.phonenumber}
+                            </span>
+                        </div>
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button variant="ghost"
+                                    <Button variant="outline"
                                         onClick={() => handleRemoveOwner()}
                                     >
                                         <CircleX />
@@ -96,7 +101,7 @@ export default function CustomerSearchInput() {
             </div>
             {/* User list dropdown */}
             {users.length > 0 && (
-                <div className="absolute z-10 w-full p-2 mt-16 bg-white border rounded-md shadow-lg dark:bg-transparent">
+                <div className="absolute z-10 p-2 mt-16 w-full bg-white rounded-md border shadow-lg dark:bg-transparent">
                     {users.map((user, index) => (
                         <div
                             key={user.slug}

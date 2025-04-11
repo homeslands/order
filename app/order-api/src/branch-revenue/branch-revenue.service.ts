@@ -44,6 +44,9 @@ import {
 import { PdfService } from 'src/pdf/pdf.service';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import { Order } from 'src/order/order.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { OrderUtils } from 'src/order/order.utils';
 
 @Injectable()
 export class BranchRevenueService {
@@ -52,6 +55,8 @@ export class BranchRevenueService {
     private readonly branchRevenueRepository: Repository<BranchRevenue>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly dataSource: DataSource,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
@@ -61,6 +66,8 @@ export class BranchRevenueService {
     private readonly branchUtils: BranchUtils,
     private readonly fileService: FileService,
     private readonly pdfService: PdfService,
+    private readonly qrCodeService: QrCodeService,
+    private readonly orderUtils: OrderUtils,
   ) {}
 
   async findAll(
@@ -102,17 +109,19 @@ export class BranchRevenueService {
           [startDateQuery, endDateQuery, branch.id],
         );
 
-      const fullData = this.fillMissingDataByHours(
+      const fullData = await this.fillMissingDataByHours(
         results,
         query.startDate,
         query.endDate,
       );
+
       this.logger.log('Get branch revenue by hour success', context);
-      return this.mapper.mapArray(
+      const fullDataDto = this.mapper.mapArray(
         fullData,
         BranchRevenue,
         AggregateBranchRevenueResponseDto,
       );
+      return fullDataDto;
     } else {
       const findOptionsWhere: FindOptionsWhere<BranchRevenue> = {};
 
@@ -200,11 +209,11 @@ export class BranchRevenueService {
     }
   }
 
-  fillMissingDataByHours(
+  async fillMissingDataByHours(
     data: BranchRevenueQueryResponseForHourDto[],
     startTime: Date,
     endTime: Date,
-  ): BranchRevenue[] {
+  ): Promise<BranchRevenue[]> {
     const start = moment(startTime);
     const end = moment(endTime);
 
@@ -218,13 +227,28 @@ export class BranchRevenueService {
 
     const dataMap = new Map(data.map((item) => [item.date, item]));
 
-    const fullData = hoursInRange.map((hour) => {
-      if (dataMap.has(hour)) {
-        return this.mapper.map(
-          dataMap.get(hour),
+    const fullData: BranchRevenue[] = [];
+    for (const hour of hoursInRange) {
+      const dataItem: BranchRevenueQueryResponseForHourDto = dataMap.get(hour);
+      if (dataItem) {
+        const startDate = moment(hour).startOf('hours').toDate();
+        const endDate = moment(hour).endOf('hours').toDate();
+        const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+          await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+            dataItem.branchId,
+            startDate,
+            endDate,
+          );
+        const returnData = this.mapper.map(
+          dataItem,
           BranchRevenueQueryResponseForHourDto,
           BranchRevenue,
         );
+        Object.assign(returnData, {
+          minReferenceNumberOrder,
+          maxReferenceNumberOrder,
+        });
+        fullData.push(returnData);
       } else {
         const item: BranchRevenueQueryResponseForHourDto = {
           date: hour,
@@ -242,13 +266,18 @@ export class BranchRevenueService {
           totalOrderBank: '0',
           totalOrderInternal: '0',
         };
-        return this.mapper.map(
+        const returnData = this.mapper.map(
           item,
           BranchRevenueQueryResponseForHourDto,
           BranchRevenue,
         );
+        Object.assign(returnData, {
+          minReferenceNumberOrder: 0,
+          maxReferenceNumberOrder: 0,
+        });
+        fullData.push(returnData);
       }
-    });
+    }
     return fullData;
   }
 
@@ -290,6 +319,8 @@ export class BranchRevenueService {
             totalAmountCash: 0,
             totalAmountInternal: 0,
             totalOrder: 0,
+            minReferenceNumberOrder: 0,
+            maxReferenceNumberOrder: 0,
             totalOrderCash: 0,
             totalOrderBank: 0,
             totalOrderInternal: 0,
@@ -341,6 +372,8 @@ export class BranchRevenueService {
             originalAmount: 0,
             voucherAmount: 0,
             promotionAmount: 0,
+            minReferenceNumberOrder: 0,
+            maxReferenceNumberOrder: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -442,7 +475,7 @@ export class BranchRevenueService {
     const newBranchRevenues: BranchRevenue[] = [];
     const branches = await this.branchRepository.find();
     // console.log({branches})
-    branches.forEach((branch) => {
+    for (const branch of branches) {
       const existedBranchRevenue = hasBranchRevenues.find(
         (item) => item.branchId === branch.id,
       );
@@ -463,6 +496,10 @@ export class BranchRevenueService {
               existedBranchRevenue.totalOrderCash ||
             existedInNewData.totalOrderBank !==
               existedBranchRevenue.totalOrderBank ||
+            existedInNewData.minReferenceNumberOrder !==
+              existedBranchRevenue.minReferenceNumberOrder ||
+            existedInNewData.maxReferenceNumberOrder !==
+              existedBranchRevenue.maxReferenceNumberOrder ||
             existedInNewData.totalOrderInternal !==
               existedBranchRevenue.totalOrderInternal ||
             existedInNewData.originalAmount !==
@@ -491,6 +528,20 @@ export class BranchRevenueService {
         );
 
         if (existedInNewData) {
+          const startDate = moment(existedInNewData.date)
+            .startOf('days')
+            .toDate();
+          const endDate = moment(existedInNewData.date).endOf('day').toDate();
+          const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+            await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+              existedInNewData.branchId,
+              startDate,
+              endDate,
+            );
+          Object.assign(existedInNewData, {
+            minReferenceNumberOrder,
+            maxReferenceNumberOrder,
+          });
           newBranchRevenues.push(existedInNewData);
         } else {
           // do not find in new data
@@ -498,6 +549,8 @@ export class BranchRevenueService {
           Object.assign(newRevenue, {
             totalAmount: 0,
             totalOrder: 0,
+            minReferenceNumberOrder: 0,
+            maxReferenceNumberOrder: 0,
             totalOrderCash: 0,
             totalOrderBank: 0,
             totalOrderInternal: 0,
@@ -513,7 +566,7 @@ export class BranchRevenueService {
           newBranchRevenues.push(newRevenue);
         }
       }
-    });
+    }
 
     return newBranchRevenues;
   }
@@ -560,7 +613,8 @@ export class BranchRevenueService {
     const startDate = new Date(query.startDate);
     startDate.setHours(7, 0, 0, 0);
     const endDate = new Date(query.endDate);
-    endDate.setHours(30, 59, 59, 99);
+    // note
+    endDate.setHours(23, 59, 59, 99);
     this.logger.log('refreshBranchRevenueForSpecificDay', context);
     this.logger.log('startQuery: ', startQuery, context);
     this.logger.log('endQuery: ', endQuery, context);
@@ -600,14 +654,14 @@ export class BranchRevenueService {
 
       let branchRevenueFillZero: BranchRevenue[] = [];
       if (branchRevenue) {
-        branchRevenueFillZero = this.fillZeroForEmptyDate(
+        branchRevenueFillZero = await this.fillZeroForEmptyDate(
           branch.id,
           branchRevenue.items,
           startDate,
           endDate,
         );
       } else {
-        branchRevenueFillZero = this.fillZeroForEmptyDate(
+        branchRevenueFillZero = await this.fillZeroForEmptyDate(
           branch.id,
           [],
           startDate,
@@ -649,12 +703,12 @@ export class BranchRevenueService {
     );
   }
 
-  fillZeroForEmptyDate(
+  async fillZeroForEmptyDate(
     branchId: string,
     revenues: BranchRevenue[],
     firstDate: Date,
     lastDate: Date,
-  ): BranchRevenue[] {
+  ): Promise<BranchRevenue[]> {
     const datesInRange: Date[] = [];
     const currentDate = new Date(firstDate);
 
@@ -665,18 +719,32 @@ export class BranchRevenueService {
 
     const results: BranchRevenue[] = [];
 
-    datesInRange.forEach((dateFull) => {
+    for (const dateFull of datesInRange) {
       const matchingElement = revenues.find(
         (item) => item.date.getTime() === dateFull.getTime(),
       );
 
       if (matchingElement) {
+        const startDate = moment(matchingElement.date).startOf('days').toDate();
+        const endDate = moment(matchingElement.date).endOf('day').toDate();
+        const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+          await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+            matchingElement.branchId,
+            startDate,
+            endDate,
+          );
+        Object.assign(matchingElement, {
+          minReferenceNumberOrder,
+          maxReferenceNumberOrder,
+        });
         results.push(matchingElement);
       } else {
         const revenue = new BranchRevenue();
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          minReferenceNumberOrder: 0,
+          maxReferenceNumberOrder: 0,
           totalOrderCash: 0,
           totalOrderBank: 0,
           totalOrderInternal: 0,
@@ -691,7 +759,7 @@ export class BranchRevenueService {
         });
         results.push(revenue);
       }
-    });
+    }
 
     return results;
   }
@@ -729,6 +797,10 @@ export class BranchRevenueService {
         if (
           existedBranchRevenue.totalAmount !== newBranchRevenue.totalAmount ||
           existedBranchRevenue.totalOrder !== newBranchRevenue.totalOrder ||
+          existedBranchRevenue.minReferenceNumberOrder !==
+            newBranchRevenue.minReferenceNumberOrder ||
+          existedBranchRevenue.maxReferenceNumberOrder !==
+            newBranchRevenue.maxReferenceNumberOrder ||
           existedBranchRevenue.totalOrderCash !==
             newBranchRevenue.totalOrderCash ||
           existedBranchRevenue.totalOrderBank !==
@@ -804,7 +876,7 @@ export class BranchRevenueService {
             [startDateQuery, endDateQuery, branch.id],
           );
 
-        branchRevenues = this.fillMissingDataByHours(
+        branchRevenues = await this.fillMissingDataByHours(
           results,
           requestData.startDate,
           requestData.endDate,
@@ -1067,6 +1139,13 @@ export class BranchRevenueService {
       'YYYY-MM-DD HH:mm:ss',
     );
 
+    const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+      await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+        branchData.id,
+        startDate,
+        endDate,
+      );
+
     this.logger.log('startDateQuery', startDateQuery);
     this.logger.log('endDateQuery', endDateQuery);
     const results: BranchRevenueQueryResponseForHourDto[] =
@@ -1106,6 +1185,17 @@ export class BranchRevenueService {
       totalAmountCash += revenue.totalAmountCash;
       totalAmountInternal += revenue.totalAmountInternal;
     });
+
+    if (maxReferenceNumberOrder - minReferenceNumberOrder + 1 !== totalOrder) {
+      this.logger.error(
+        `Number of orders not match: ${maxReferenceNumberOrder} - ${minReferenceNumberOrder} + 1 !== ${totalOrder} (maxReferenceNumberOrder - minReferenceNumberOrder + 1 !== totalOrder)`,
+        null,
+        context,
+      );
+      throw new BranchRevenueException(
+        BranchRevenueValidation.NUMBER_OF_ORDERS_NOT_MATCH,
+      );
+    }
     // console.log('totalOrderBank', totalOrderBank);
 
     const logoPath = resolve('public/images/logo.png');
@@ -1114,6 +1204,8 @@ export class BranchRevenueService {
     // Convert the buffer to a Base64 string
     const logoString = logoBuffer.toString('base64');
 
+    const qrcodeBranch = await this.qrCodeService.generateQRCode(branch);
+
     // Prepare template data
     const templateData = {
       branchName: branchData.name,
@@ -1121,6 +1213,8 @@ export class BranchRevenueService {
       shiftStartTime: startDate,
       shiftEndTime: endDate,
       totalOrder,
+      minReferenceNumberOrder,
+      maxReferenceNumberOrder,
       originalAmount: totalOriginalAmount,
       totalRevenueCash: totalAmountCash,
       totalOrderCash: totalOrderCash,
@@ -1133,6 +1227,8 @@ export class BranchRevenueService {
       totalOrderInternal,
       totalAmountInternal,
       createdAt: new Date(),
+      qrcodeBranch,
+      branchSlug: branch,
     };
 
     const data = await this.pdfService.generatePdf(

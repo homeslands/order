@@ -73,11 +73,16 @@ export class ChefOrderUtils {
             .map((pca) => pca.chefArea)
             .filter((chefArea) => chefArea.branch?.id === order.branch.id) ||
           [];
-        this.logger.log(
-          `Chef area list of ${order?.orderItems[0]?.variant?.product?.name}: ${JSON.stringify(chefAreaList)}`,
-          context,
-        );
-        if (_.size(chefAreaList) === 1) {
+        if (_.size(chefAreaList) < 1) {
+          this.logger.error(
+            `Product ${product.name} is not belong to any chef area in branch ${order.branch.name}`,
+            null,
+            context,
+          );
+          throw new ChefOrderException(
+            ChefOrderValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA,
+          );
+        } else if (_.size(chefAreaList) === 1) {
           const chefArea = _.first(chefAreaList);
           if (!chefAreaGroups.has(chefArea.id)) {
             chefAreaGroups.set(chefArea.id, []);

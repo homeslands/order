@@ -29,6 +29,11 @@ export class Order extends Base {
 
   @IsNumber()
   @AutoMap()
+  @Column({ name: 'reference_number_column', nullable: true })
+  referenceNumber: number;
+
+  @IsNumber()
+  @AutoMap()
   @Column({ name: 'subtotal_column' })
   subtotal: number;
 

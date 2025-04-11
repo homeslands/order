@@ -436,6 +436,7 @@ describe('VoucherService', () => {
         updatedAt: new Date(),
         chefOrders: [],
         originalSubtotal: 100,
+        referenceNumber: 1,
       } as Order;
 
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(mockVoucherRepo);

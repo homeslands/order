@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
 import { ChefOrderItemStatus } from '@/types'
+import { Badge } from '@/components/ui'
 
 interface IChefOrderItemStatusBadgeProps {
   status: ChefOrderItemStatus
@@ -34,12 +35,12 @@ export default function ChefOrderItemStatusBadge({
   }
   // Ensure the component returns valid JSX
   return (
-    <span
-      className={`inline-block w-fit px-2 py-1 text-center text-[0.5rem] ${getBadgeColor(
+    <Badge
+      className={`w-fit px-2 h-7 text-center text-xs ${getBadgeColor(
         status,
-      )} rounded-full`}
+      )}`}
     >
       {getBadgeText(status)}
-    </span>
+    </Badge>
   )
 }

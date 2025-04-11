@@ -110,7 +110,7 @@ export default function DateAndTimePicker({
       momentDate.hours(hour)
       momentDate.minutes(0)
       momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:00:00'))
+      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
 
@@ -122,7 +122,7 @@ export default function DateAndTimePicker({
       momentDate.hours(newHour)
       momentDate.minutes(0)
       momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:00:00'))
+      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
 
@@ -133,7 +133,7 @@ export default function DateAndTimePicker({
       momentDate.hours(hour)
       momentDate.minutes(0)
       momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:00:00'))
+      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
 
@@ -147,7 +147,7 @@ export default function DateAndTimePicker({
     momentDate.hours(hour)
     momentDate.minutes(0)
     momentDate.seconds(0)
-    return momentDate.format('YYYY-MM-DD HH:00:00')
+    return momentDate.format('YYYY-MM-DD HH:mm:ss')
   }
 
   // validate if end date is greater than or equal to start date

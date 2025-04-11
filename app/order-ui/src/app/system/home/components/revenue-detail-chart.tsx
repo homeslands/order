@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
-import { useBranchRevenue } from '@/hooks'
 import { formatCurrency, formatShortCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
-import { DateSelect } from '@/components/app/select'
+import { IBranchRevenue } from '@/types'
 
 interface RevenueData {
-  branch: string
-  startDate: string
-  endDate: string
-  trigger?: number
+  revenueData: IBranchRevenue[] | undefined
+  revenueType: RevenueTypeQuery
 }
 
 interface TooltipParams {
@@ -23,59 +20,34 @@ interface TooltipParams {
 }
 
 export default function RevenueDetailChart({
-  trigger,
-  branch,
-  startDate,
-  endDate,
+  revenueData,
+  revenueType,
 }: RevenueData) {
   const { t } = useTranslation('revenue')
   const chartRef = useRef<HTMLDivElement>(null)
-  const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
-
-  const { data: revenueData, refetch } = useBranchRevenue({
-    branch,
-    startDate,
-    endDate,
-    type: revenueType,
-  })
-
-  // Refetch when trigger changes
-  useEffect(() => {
-    if (trigger) {
-      refetch()
-    }
-  }, [trigger, refetch])
-
-  const handleSelectTimeRange = (timeRange: string) => {
-    // update revenue type
-    if (timeRange === RevenueTypeQuery.DAILY) {
-      setRevenueType(RevenueTypeQuery.DAILY)
-    } else if (timeRange === RevenueTypeQuery.HOURLY) {
-      setRevenueType(RevenueTypeQuery.HOURLY)
-    }
-  }
 
   const formatDate = useCallback(
     (date: string) => {
+      const parsed = moment(date, 'YYYY-MM-DD', true)
       switch (revenueType) {
         case RevenueTypeQuery.DAILY:
-          return moment(date).format('DD/MM')
+          return parsed.format('DD/MM')
         case RevenueTypeQuery.HOURLY:
-          return moment(date).format('DD/MM/YYYY HH:mm')
+          return parsed.format('DD/MM HH:mm')
         default:
-          return moment(date).format('DD/MM')
+          return parsed.format('DD/MM')
       }
     },
     [revenueType],
   )
 
   useEffect(() => {
-    if (chartRef.current && revenueData?.result) {
+    if (chartRef.current && revenueData) {
       const chart = echarts.init(chartRef.current)
 
       // Ensure we're working with an array and sort it
-      const sortedData = Array.isArray(revenueData.result)
-        ? [...revenueData.result].sort(
+      const sortedData = Array.isArray(revenueData)
+        ? [...revenueData].sort(
           (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
         )
         : []
@@ -84,11 +56,12 @@ export default function RevenueDetailChart({
         tooltip: {
           trigger: 'axis' as const,
           formatter: function (params: TooltipParams[]) {
-            const date = params[0].name
+            const date = (params[0].name as string)
             const revenue = formatCurrency(params[1].value)
             const orders = params[0].value
             return `${date}<br/>${params[1].seriesName}: ${revenue}<br/>${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}`
           },
+
         },
         legend: {
           data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internal')],
@@ -210,8 +183,6 @@ export default function RevenueDetailChart({
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           {t('revenue.revenueSystem')}
-          {/* <TimeRangeRevenueFilter onApply={handleSelectTimeRange} /> */}
-          <DateSelect onChange={handleSelectTimeRange} />
         </CardTitle>
       </CardHeader>
       <CardContent className="flex justify-center items-center p-2">

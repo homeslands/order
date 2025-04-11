@@ -40,11 +40,11 @@ export default function ChefOrderItemList({
       {/* Cooking Timeline */}
       <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border shadow-sm">
         <div className="flex justify-between items-center">
-          <h3 className="text-sm font-semibold text-gray-700">{t('chefOrder.cookingStatus')}</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{t('chefOrder.cookingStatus')}</h3>
         </div>
 
         <div className="relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-muted-foreground/20 -translate-y-1/2"></div>
           <div className="flex relative justify-between">
             <div className="flex flex-col items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${pending > 0 ? 'bg-yellow-100' : 'bg-gray-100'}`}>

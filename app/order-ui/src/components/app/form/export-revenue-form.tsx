@@ -57,7 +57,6 @@ export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
 
 
     const handleSubmit = (data: IRevenueQuery) => {
-        // console.log('data', data)
         onSubmit(data)
     }
 
@@ -122,7 +121,8 @@ export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
     return (
         <div className="mt-3">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(handleSubmit)}
+                    className="space-y-6">
                     <div className="grid grid-cols-2 gap-2">
                         {Object.keys(formFields).map((key) => (
                             <React.Fragment key={key}>
@@ -132,7 +132,7 @@ export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
                     </div>
                     <div className="flex justify-end">
                         <Button className="flex justify-end" type="submit">
-                            {t('revenue.export')}
+                            {t('revenue.apply')}
                         </Button>
                     </div>
                 </form>

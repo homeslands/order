@@ -115,6 +115,7 @@ export class InvoiceService {
       cashier: `${order.approvalBy?.firstName} ${order.approvalBy?.lastName}`,
       invoiceItems,
       qrcode,
+      referenceNumber: order.referenceNumber,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {

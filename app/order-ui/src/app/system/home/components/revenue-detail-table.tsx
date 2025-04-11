@@ -1,33 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle, DataTable } from "@/components/ui"
-import { useBranchRevenue } from "@/hooks"
-import { useRevenueListColumns } from "./DataTable/revenue-column"
-import { RevenueTypeQuery } from "@/constants"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
+
+import { Card, CardContent, CardHeader, CardTitle, DataTable } from "@/components/ui"
+import { useRevenueListColumns } from "./DataTable/revenue-column"
 import { IBranchRevenue } from "@/types"
 
-interface RevenueTableProps {
-  branch: string
-}
-
-export default function RevenueTable({ branch }: RevenueTableProps) {
+export default function RevenueTable({ revenueData, isLoading }: { revenueData: IBranchRevenue[] | undefined, isLoading: boolean }) {
   const { t } = useTranslation('revenue')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const { data: revenueData, refetch, isLoading } = useBranchRevenue({
-    branch,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-    type: RevenueTypeQuery.DAILY,
-  })
-  const revenueList = (revenueData?.result || []).filter(item => item.totalOrder !== 0)
-
-  useEffect(() => {
-    refetch()
-    setPage(1)
-  }, [startDate, endDate, branch, refetch])
+  const revenueList = (revenueData || []).filter(item => item.totalOrder !== 0)
 
   const getPaginatedData = (data: IBranchRevenue[], page: number, pageSize: number) => {
     const start = (page - 1) * pageSize;
@@ -56,9 +38,9 @@ export default function RevenueTable({ branch }: RevenueTableProps) {
   };
 
   return (
-    <Card className='shadow-none mt-4'>
+    <Card className='mt-4 shadow-none'>
       <CardHeader >
-        <CardTitle className='flex items-center justify-between'>
+        <CardTitle className='flex justify-between items-center'>
           {t('revenue.tableRevenue')}
         </CardTitle>
       </CardHeader>
@@ -70,12 +52,8 @@ export default function RevenueTable({ branch }: RevenueTableProps) {
           pages={Math.ceil(revenueList.length / pageSize)}
           onPageChange={onPageChange}
           onPageSizeChange={onPageSizeChange}
-          hiddenDatePicker={false}
+          hiddenDatePicker={true}
           periodOfTime="inWeek"
-          onDateChange={(start, end) => {
-            setStartDate(start)
-            setEndDate(end)
-          }}
         />
       </CardContent>
     </Card>

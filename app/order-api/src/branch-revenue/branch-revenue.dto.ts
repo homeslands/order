@@ -128,6 +128,14 @@ export class AggregateBranchRevenueResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  minReferenceNumberOrder: number;
+
+  @AutoMap()
+  @ApiProperty()
+  maxReferenceNumberOrder: number;
+
+  @AutoMap()
+  @ApiProperty()
   totalOrderCash: number;
 
   @AutoMap()

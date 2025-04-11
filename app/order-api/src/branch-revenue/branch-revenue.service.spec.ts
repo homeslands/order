@@ -17,6 +17,13 @@ import { FileService } from 'src/file/file.service';
 // import { MockType } from 'src/test-utils/repository-mock.factory';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { PdfService } from 'src/pdf/pdf.service';
+import { OrderUtils } from 'src/order/order.utils';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { Order } from 'src/order/order.entity';
+import { Menu } from 'src/menu/menu.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -69,6 +76,10 @@ describe('BranchRevenueService', () => {
         BranchUtils,
         FileService,
         PdfService,
+        QrCodeService,
+        OrderUtils,
+        MenuItemUtils,
+        MenuUtils,
         {
           provide: FileService,
           useValue: {
@@ -85,6 +96,18 @@ describe('BranchRevenueService', () => {
         },
         {
           provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,
         },
         {

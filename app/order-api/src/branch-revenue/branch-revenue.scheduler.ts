@@ -18,7 +18,8 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import * as _ from 'lodash';
 import { Branch } from 'src/branch/branch.entity';
 import { BranchRevenueService } from './branch-revenue.service';
-
+import moment from 'moment';
+import { OrderUtils } from 'src/order/order.utils';
 @Injectable()
 export class BranchRevenueScheduler {
   constructor(
@@ -33,6 +34,7 @@ export class BranchRevenueScheduler {
     private readonly dataSource: DataSource,
     private readonly branchRevenueService: BranchRevenueService,
     private readonly transactionManagerService: TransactionManagerService,
+    private readonly orderUtils: OrderUtils,
   ) {}
 
   @Timeout(5000)
@@ -63,7 +65,7 @@ export class BranchRevenueScheduler {
     let revenuesFillZero: BranchRevenue[] = [];
     for (const groupedDataByBranch of groupedDatasByBranch) {
       const revenueFillZero: BranchRevenue[] =
-        this.fillZeroForEmptyDate(groupedDataByBranch);
+        await this.fillZeroForEmptyDate(groupedDataByBranch);
       revenuesFillZero = revenuesFillZero.concat(revenueFillZero);
     }
 
@@ -105,8 +107,10 @@ export class BranchRevenueScheduler {
     return result;
   }
 
-  fillZeroForEmptyDate(branchRevenues: BranchRevenue[]): BranchRevenue[] {
-    if (_.isEmpty(branchRevenues)) return;
+  async fillZeroForEmptyDate(
+    branchRevenues: BranchRevenue[],
+  ): Promise<BranchRevenue[]> {
+    if (_.isEmpty(branchRevenues)) return [];
 
     // if only have data in current date
     if (
@@ -121,7 +125,8 @@ export class BranchRevenueScheduler {
     const firstDate = new Date(firstRevenue.date);
     const lastDate = new Date();
     lastDate.setDate(lastDate.getDate() - 1);
-    lastDate.setHours(30, 59, 59, 999);
+    // note
+    lastDate.setHours(23, 59, 59, 999);
 
     const datesInRange: Date[] = [];
     const currentDate = new Date(firstDate);
@@ -133,12 +138,24 @@ export class BranchRevenueScheduler {
 
     const results: BranchRevenue[] = [];
 
-    datesInRange.forEach((dateFull) => {
+    for (const dateFull of datesInRange) {
       const matchingDate = branchRevenues.find(
         (item) => item.date.getTime() === dateFull.getTime(),
       );
 
       if (matchingDate) {
+        const startDate = moment(matchingDate.date).startOf('days').toDate();
+        const endDate = moment(matchingDate.date).endOf('day').toDate();
+        const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+          await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+            matchingDate.branchId,
+            startDate,
+            endDate,
+          );
+        Object.assign(matchingDate, {
+          minReferenceNumberOrder,
+          maxReferenceNumberOrder,
+        });
         results.push(matchingDate);
       } else {
         const revenue = new BranchRevenue();
@@ -148,6 +165,8 @@ export class BranchRevenueScheduler {
           totalAmountCash: 0,
           totalAmountInternal: 0,
           totalOrder: 0,
+          minReferenceNumberOrder: 0,
+          maxReferenceNumberOrder: 0,
           totalOrderCash: 0,
           totalOrderBank: 0,
           totalOrderInternal: 0,
@@ -159,7 +178,7 @@ export class BranchRevenueScheduler {
         });
         results.push(revenue);
       }
-    });
+    }
 
     return results;
   }
@@ -220,11 +239,12 @@ export class BranchRevenueScheduler {
     });
     // console.log({revenues})
 
-    const newBranchRevenues: BranchRevenue[] = this.getBranchRevenuesToCreate(
-      branchesDoNotExistBranchRevenues,
-      revenues,
-      yesterdayDate,
-    );
+    const newBranchRevenues: BranchRevenue[] =
+      await this.getBranchRevenuesToCreate(
+        branchesDoNotExistBranchRevenues,
+        revenues,
+        yesterdayDate,
+      );
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -253,23 +273,37 @@ export class BranchRevenueScheduler {
     }
   }
 
-  getBranchRevenuesToCreate(
+  async getBranchRevenuesToCreate(
     branchesDoNotExistBranchRevenues: Branch[],
     revenues: BranchRevenue[],
     yesterdayDate: Date,
-  ): BranchRevenue[] {
+  ): Promise<BranchRevenue[]> {
     const newBranchRevenues: BranchRevenue[] = [];
 
-    branchesDoNotExistBranchRevenues.forEach((branch) => {
+    for (const branch of branchesDoNotExistBranchRevenues) {
       const matchRevenue = revenues.find((item) => item.branchId === branch.id);
 
       if (matchRevenue) {
+        const startDate = moment(matchRevenue.date).startOf('days').toDate();
+        const endDate = moment(matchRevenue.date).endOf('day').toDate();
+        const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+          await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+            matchRevenue.branchId,
+            startDate,
+            endDate,
+          );
+        Object.assign(matchRevenue, {
+          minReferenceNumberOrder,
+          maxReferenceNumberOrder,
+        });
         newBranchRevenues.push(matchRevenue);
       } else {
         const revenue = new BranchRevenue();
         Object.assign(revenue, {
           totalAmount: 0,
           totalOrder: 0,
+          minReferenceNumberOrder: 0,
+          maxReferenceNumberOrder: 0,
           totalOrderCash: 0,
           totalOrderBank: 0,
           totalOrderInternal: 0,
@@ -284,7 +318,7 @@ export class BranchRevenueScheduler {
         });
         newBranchRevenues.push(revenue);
       }
-    });
+    }
 
     // console.log({newBranchRevenues});
     return newBranchRevenues;

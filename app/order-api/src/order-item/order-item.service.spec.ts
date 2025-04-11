@@ -23,6 +23,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { OrderScheduler } from 'src/order/order.scheduler';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { Branch } from 'src/branch/branch.entity';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('OrderItemService', () => {
   let service: OrderItemService;
@@ -40,6 +42,14 @@ describe('OrderItemService', () => {
         PromotionUtils,
         OrderScheduler,
         SchedulerRegistry,
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,

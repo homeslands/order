@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { CircleCheckBig, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 
 import {
   Button,
@@ -12,10 +12,6 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
 } from '@/components/ui'
 
 import { ChefOrderStatus, IChefOrders, IUpdateChefOrderStatusRequest } from '@/types'
@@ -48,6 +44,7 @@ export default function ConfirmUpdateChefOrderStatusDialog({
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.chefOrders]
         })
+        onOpenChange(false)
         showToast(tToast('toast.updateChefOrderStatusSuccess'))
       },
     })
@@ -56,31 +53,17 @@ export default function ConfirmUpdateChefOrderStatusDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                className="flex items-center text-sm rounded-full w-fit"
-                onClick={() => onOpenChange(true)}
-              >
-                <CircleCheckBig />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                {t('chefOrder.updateStatus')}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
+        <Button
+          className="flex items-center text-sm w-fit"
+          onClick={() => onOpenChange(true)}
+        >
+          {t('chefOrder.reception')}
+        </Button>
       </DialogTrigger>
-
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b border-primary text-primary">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
               {t('chefOrder.updateStatus')}
             </div>
@@ -94,7 +77,7 @@ export default function ConfirmUpdateChefOrderStatusDialog({
             <br />
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

@@ -182,7 +182,7 @@ export default function OrderItemDetailSheet({
       } catch (error) {
         /* empty */
       }
-    }, 5000)
+    }, 3000)
 
     return () => clearInterval(interval)
   }, [shouldFetchOrders, allOrderRefetch])
@@ -206,7 +206,7 @@ export default function OrderItemDetailSheet({
         </SheetHeader>
 
         {orderSlug ? (
-          <div className="flex flex-col gap-4 px-2 flex-1 overflow-y-auto">
+          <div className="flex overflow-y-auto flex-col flex-1 gap-4 px-2">
             <div className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
               <div className="flex justify-between font-medium text-primary">
                 {t('order.currentOrder')} #{selectedOrder?.result?.slug}

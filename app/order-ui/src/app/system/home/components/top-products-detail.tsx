@@ -3,16 +3,14 @@ import * as echarts from 'echarts'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { usePagination, useTopBranchProducts } from '@/hooks'
+import { useBranchStore } from '@/stores'
 
-interface TopProductData {
-    branch: string
-}
-
-export default function TopProductsDetail({ branch }: TopProductData) {
+export default function TopProductsDetail() {
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
+    const { branch } = useBranchStore()
     const { data: topBranchProducts } = useTopBranchProducts({
-        branch,
+        branch: branch?.slug || '',
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
@@ -78,7 +76,7 @@ export default function TopProductsDetail({ branch }: TopProductData) {
     return (
         <Card className='shadow-none'>
             <CardHeader >
-                <CardTitle className='flex items-center justify-between'>Top Products
+                <CardTitle className='flex justify-between items-center'>Top Products
                     {/* <DateSelect onChange={handleSelectTimeRange} /> */}
                 </CardTitle>
             </CardHeader>

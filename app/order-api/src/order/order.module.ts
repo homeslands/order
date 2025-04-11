@@ -42,7 +42,8 @@ import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { NotificationModule } from 'src/notification/notification.module';
-
+import { Mutex } from 'async-mutex';
+import { Payment } from 'src/payment/payment.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -63,6 +64,7 @@ import { NotificationModule } from 'src/notification/notification.module';
       ProductChefArea,
       ChefOrder,
       ChefOrderItem,
+      Payment,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -91,6 +93,7 @@ import { NotificationModule } from 'src/notification/notification.module';
     OrderItemUtils,
     ChefOrderUtils,
     ChefOrderItemUtils,
+    Mutex,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

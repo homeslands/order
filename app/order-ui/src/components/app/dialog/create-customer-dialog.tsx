@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PlusCircledIcon } from '@radix-ui/react-icons'
 
 import {
   Button,
@@ -24,13 +23,12 @@ export default function CreateCustomerDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-1 text-xs" onClick={() => setIsOpen(true)}>
-          <PlusCircledIcon className="icon" />
+        <Button className="gap-1" onClick={() => setIsOpen(true)}>
           {t('customer.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] rounded-md px-6 sm:max-w-[50%]">
-        <DialogHeader>
+      <DialogContent className="max-w-[90%] rounded-md p-0 sm:max-w-[50%]">
+        <DialogHeader className="p-4">
           <DialogTitle>{t('customer.create')}</DialogTitle>
           <DialogDescription>
             {t('customer.createDescription')}

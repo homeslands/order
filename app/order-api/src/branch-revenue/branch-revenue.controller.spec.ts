@@ -14,6 +14,13 @@ import { BranchUtils } from 'src/branch/branch.utils';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
 import { PdfService } from 'src/pdf/pdf.service';
+import { Menu } from 'src/menu/menu.entity';
+import { Order } from 'src/order/order.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { OrderUtils } from 'src/order/order.utils';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -26,10 +33,30 @@ describe('BranchRevenueController', () => {
         BranchUtils,
         FileService,
         PdfService,
+        QrCodeService,
+        OrderUtils,
+        MenuItemUtils,
+        MenuUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(BranchRevenue),

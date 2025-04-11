@@ -32,6 +32,8 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
   const renderOrderItem = (orderItem: ISpecificChefOrderItemInfo) => {
     const isPending = orderItem.status === ChefOrderItemStatus.PENDING
     const isInProgress = orderItem.status === ChefOrderItemStatus.IN_PROGRESS
+    const isCompleted = orderItem.status === ChefOrderItemStatus.COMPLETED
+
 
     return (
       <div key={orderItem.slug} className="mt-4">
@@ -83,11 +85,15 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
             </div> */}
 
             <div className="flex col-span-4 gap-2 justify-end items-center">
-              <ChefOrderItemStatusBadge status={orderItem.status} />
+              {/* <ChefOrderItemStatusBadge status={orderItem.status} /> */}
               {isPending && (
-                <Badge variant="secondary" className="text-xs">
-                  {t('chefOrder.waitingToStart')}
-                </Badge>
+                <ChefOrderItemStatusBadge status={orderItem.status} />
+              )}
+              {isInProgress && (
+                <ChefOrderItemStatusBadge status={orderItem.status} />
+              )}
+              {isCompleted && (
+                <ChefOrderItemStatusBadge status={orderItem.status} />
               )}
             </div>
           </div>

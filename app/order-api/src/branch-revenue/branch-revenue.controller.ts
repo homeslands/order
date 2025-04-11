@@ -78,9 +78,9 @@ export class BranchRevenueController {
 
   @Post('export-pdf')
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
-  @ApiOperation({ summary: 'Export invoice' })
+  @ApiOperation({ summary: 'Export hand over ticket' })
   @HttpCode(HttpStatus.OK)
-  async exportInvoice(
+  async exportHandOverTicket(
     @Body(new ValidationPipe({ transform: true }))
     requestData: ExportHandOverTicketRequestDto,
   ): Promise<StreamableFile> {

@@ -16,6 +16,7 @@ import { InvoiceService } from 'src/invoice/invoice.service';
 import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
 import { User } from 'src/user/user.entity';
 import { NotificationUtils } from 'src/notification/notification.utils';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class OrderListener {
@@ -32,6 +33,7 @@ export class OrderListener {
     private readonly chefOrderUtils: ChefOrderUtils,
     // private readonly notificationProducer: NotificationProducer,
     private readonly notificationUtils: NotificationUtils,
+    private readonly mutex: Mutex,
   ) {}
 
   @OnEvent(PaymentAction.PAYMENT_PAID)
@@ -39,54 +41,129 @@ export class OrderListener {
     const context = `${OrderListener.name}.${this.handleUpdateOrderStatus.name}`;
     this.logger.log(`Update order status after payment process`, context);
     let orderSlug = null;
-    try {
-      if (_.isEmpty(requestData)) {
-        this.logger.error(`Request data is empty`, null, context);
-        throw new OrderException(OrderValidation.ORDER_ID_INVALID);
-      }
 
-      this.logger.log(`Request data: ${JSON.stringify(requestData)}`, context);
-      const order = await this.orderUtils.getOrder({
-        where: {
-          id: requestData.orderId ?? IsNull(),
-        },
-      });
-      orderSlug = order.slug;
-
-      this.logger.log(`Current order: ${JSON.stringify(order)}`, context);
-
-      if (
-        order.payment?.statusCode === PaymentStatus.COMPLETED &&
-        order.status === OrderStatus.PENDING
-      ) {
-        // Update order status to PAID
-        Object.assign(order, { status: OrderStatus.PAID });
-        await this.orderRepository.save(order);
-
-        // Send notification to all chef role users in the same branch
-        await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
-
-        // Sperate order to chef orders
-        if (_.isEmpty(order.chefOrders)) {
-          await this.chefOrderUtils.createChefOrder(requestData.orderId);
+    // Lock bắt đầu từ đây
+    await this.mutex.runExclusive(async () => {
+      try {
+        if (_.isEmpty(requestData)) {
+          this.logger.error(`Request data is empty`, null, context);
+          throw new OrderException(OrderValidation.ORDER_ID_INVALID);
         }
 
-        // send invoice email
-        const invoice = await this.invoiceService.exportInvoice({
-          order: order.slug,
-        } as ExportInvoiceDto);
-        await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
+        this.logger.log(
+          `Request data: ${JSON.stringify(requestData)}`,
+          context,
+        );
+        const order = await this.orderUtils.getOrder({
+          where: {
+            id: requestData.orderId ?? IsNull(),
+          },
+        });
+        orderSlug = order.slug;
 
-        this.logger.log(`Update order status from PENDING to PAID`, context);
+        this.logger.log(`Current order: ${JSON.stringify(order)}`, context);
+
+        if (
+          order.payment?.statusCode === PaymentStatus.COMPLETED &&
+          order.status === OrderStatus.PENDING
+        ) {
+          const lastOrderWithNumber = await this.orderRepository.findOne({
+            where: {
+              branch: { id: order.branch.id },
+              payment: { statusCode: PaymentStatus.COMPLETED },
+            },
+            order: {
+              referenceNumber: 'DESC',
+            },
+          });
+
+          const nextReferenceNumber =
+            (lastOrderWithNumber?.referenceNumber ?? 0) + 1;
+
+          Object.assign(order, {
+            status: OrderStatus.PAID,
+            referenceNumber: nextReferenceNumber,
+          });
+          await this.orderRepository.save(order);
+
+          await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
+
+          if (_.isEmpty(order.chefOrders)) {
+            await this.chefOrderUtils.createChefOrder(requestData.orderId);
+          }
+
+          // Send invoice email
+          const invoice = await this.invoiceService.exportInvoice({
+            order: order.slug,
+          } as ExportInvoiceDto);
+          await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
+
+          this.logger.log(`Update order status from PENDING to PAID`, context);
+        }
+      } catch (error) {
+        this.logger.error(
+          `Error when create chef orders from order ${orderSlug}`,
+          error.stack,
+          context,
+        );
       }
-    } catch (error) {
-      this.logger.error(
-        `Error when create chef orders from order ${orderSlug}`,
-        error.stack,
-        context,
-      );
-    }
+    });
   }
+  // @OnEvent(PaymentAction.PAYMENT_PAID)
+  // async handleUpdateOrderStatus(requestData: { orderId: string }) {
+  //   const context = `${OrderListener.name}.${this.handleUpdateOrderStatus.name}`;
+  //   this.logger.log(`Update order status after payment process`, context);
+  //   let orderSlug = null;
+  //   try {
+  //     if (_.isEmpty(requestData)) {
+  //       this.logger.error(`Request data is empty`, null, context);
+  //       throw new OrderException(OrderValidation.ORDER_ID_INVALID);
+  //     }
+
+  //     this.logger.log(`Request data: ${JSON.stringify(requestData)}`, context);
+  //     const order = await this.orderUtils.getOrder({
+  //       where: {
+  //         id: requestData.orderId ?? IsNull(),
+  //       },
+  //     });
+  //     orderSlug = order.slug;
+
+  //     this.logger.log(`Current order: ${JSON.stringify(order)}`, context);
+
+  //     if (
+  //       order.payment?.statusCode === PaymentStatus.COMPLETED &&
+  //       order.status === OrderStatus.PENDING
+  //     ) {
+  //       // Update order status to PAID
+  //       Object.assign(order, { status: OrderStatus.PAID });
+  //       await this.orderRepository.save(order);
+  //       console.log('order', order);
+
+  //       // Send notification to all chef role users in the same branch
+  //       await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
+
+  //       // Sperate order to chef orders
+  //       if (_.isEmpty(order.chefOrders)) {
+  //         await this.chefOrderUtils.createChefOrder(requestData.orderId);
+  //       }
+
+  //       // send invoice email
+  //       const invoice = await this.invoiceService.exportInvoice({
+  //         order: order.slug,
+  //       } as ExportInvoiceDto);
+  //       console.log('invoice', invoice);
+  //       await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
+
+  //       this.logger.log(`Update order status from PENDING to PAID`, context);
+  //     }
+  //   } catch (error) {
+  //     this.logger.error(
+  //       `Error when create chef orders from order ${orderSlug}`,
+  //       error.stack,
+  //       context,
+  //     );
+  //   }
+  // }
 
   @OnEvent(OrderAction.INIT_ORDER_ITEM_SUCCESS)
   async initOriginalSubtotal() {

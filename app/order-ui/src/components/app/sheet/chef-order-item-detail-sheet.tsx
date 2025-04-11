@@ -39,7 +39,7 @@ export default function ChefOrderItemDetailSheet({
       } catch (error) {
         /* empty */
       }
-    }, 3000) // Polling every 5 seconds
+    }, 3000) // Polling every 3 seconds
 
     return () => clearInterval(interval) // Cleanup
   }, [data, refetch])

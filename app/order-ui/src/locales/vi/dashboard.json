@@ -1,6 +1,13 @@
 {
   "dashboard": {
     "title": "Tổng quan",
-    "titleDetail": "Tổng quan các chi nhánh"
+    "titleDetail": "Tổng quan các chi nhánh",
+    "filter": "Đang lọc theo",
+    "daily": "Theo ngày",
+    "hourly": "Theo giờ",
+    "tool": "Công cụ",
+    "chooseTool": "Chọn công cụ",
+    "exportExcel": "Xuất doanh thu Excel",
+    "exportPDF": "Xuất doanh thu PDF"
   }
 }

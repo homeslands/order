@@ -7,7 +7,8 @@ import {
   getLatestRevenueForARange,
   getRevenue,
   getBranchRevenue,
-  exportRevenue,
+  exportExcelRevenue,
+  exportPDFRevenue,
 } from '@/api'
 import { IAllRevenueQuery, IBranchRevenueQuery, IRevenueQuery } from '@/types'
 import { QUERYKEY } from '@/constants'
@@ -60,10 +61,18 @@ export const useLatestBranchRevenueForARange = (q: IBranchRevenueQuery) => {
   })
 }
 
-export const useExportRevenue = () => {
+export const useExportExcelRevenue = () => {
   return useMutation({
     mutationFn: async (q: IRevenueQuery) => {
-      return exportRevenue(q)
+      return exportExcelRevenue(q)
+    },
+  })
+}
+
+export const useExportPDFRevenue = () => {
+  return useMutation({
+    mutationFn: async (q: IRevenueQuery) => {
+      return exportPDFRevenue(q)
     },
   })
 }

@@ -20,6 +20,7 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import ProductValidation from 'src/product/product.validation';
 import { ProductException } from 'src/product/product.exception';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('SizeController', () => {
   let controller: OrderController;
@@ -41,6 +42,10 @@ describe('SizeController', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,
         },
         {

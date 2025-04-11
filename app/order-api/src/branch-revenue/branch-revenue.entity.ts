@@ -45,6 +45,14 @@ export class BranchRevenue extends Base {
   totalOrder: number;
 
   @AutoMap()
+  @Column({ name: 'min_reference_number_order_column', default: 0 })
+  minReferenceNumberOrder: number;
+
+  @AutoMap()
+  @Column({ name: 'max_reference_number_order_column', default: 0 })
+  maxReferenceNumberOrder: number;
+
+  @AutoMap()
   @Column({ name: 'total_order_cash_column', default: 0 })
   totalOrderCash: number;
 

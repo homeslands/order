@@ -1,4 +1,5 @@
 import { AutoMap } from '@automapper/classes';
+import { IsNumber } from 'class-validator';
 import { Base } from 'src/app/base.entity';
 import { InvoiceItem } from 'src/invoice-item/invoice-item.entity';
 import { Order } from 'src/order/order.entity';
@@ -6,6 +7,11 @@ import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 @Entity('invoice_tbl')
 export class Invoice extends Base {
+  @IsNumber()
+  @AutoMap()
+  @Column({ name: 'reference_number_column', nullable: true })
+  referenceNumber: number;
+
   @AutoMap()
   @Column({ name: 'payment_method_column' })
   paymentMethod: string;

@@ -153,6 +153,9 @@ export class OrderTableResponseDto extends BaseResponseDto {
 
 export class OrderResponseDto extends BaseResponseDto {
   @AutoMap()
+  referenceNumber: number;
+
+  @AutoMap()
   subtotal: number;
 
   @AutoMap()

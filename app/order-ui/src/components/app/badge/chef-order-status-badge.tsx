@@ -14,11 +14,11 @@ export default function ChefOrderStatusBadge({
   const getBadgeColor = (status: ChefOrderStatus) => {
     switch (status) {
       case ChefOrderStatus.PENDING:
-        return 'border-yellow-500 bg-yellow-50 border text-yellow-500 font-semibold'
+        return 'border-yellow-500 bg-yellow-500 border text-white font-semibold'
       case ChefOrderStatus.COMPLETED:
-        return 'border-green-500 bg-green-50 border text-green-500 font-semibold'
+        return 'border-green-500 bg-green-500 border text-white font-semibold'
       case ChefOrderStatus.ACCEPTED:
-        return 'border-blue-500 bg-blue-50 border text-blue-500 font-semibold'
+        return 'border-blue-500 bg-blue-500 border text-white font-semibold'
       case ChefOrderStatus.REJECTED:
         return 'border-destructive bg-destructive/20 border text-destructive'
     }
@@ -39,7 +39,7 @@ export default function ChefOrderStatusBadge({
   // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block w-fit px-2 py-1 text-center text-[9px] md:text-[10px] lg:text-[12px] lg:px-4  ${getBadgeColor(
+      className={`inline-block w-fit px-2 py-1 text-center text-[9px] md:text-[10px] lg:text-sm lg:px-4  ${getBadgeColor(
         status,
       )} rounded-full`}
     >

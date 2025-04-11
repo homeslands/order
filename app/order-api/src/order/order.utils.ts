@@ -2,7 +2,7 @@ import { Order } from './order.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Between, FindOneOptions, IsNull, Not, Repository } from 'typeorm';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
 import { Voucher } from 'src/voucher/voucher.entity';
@@ -10,6 +10,8 @@ import { OrderStatus } from './order.constants';
 import moment from 'moment';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { PaymentStatus } from 'src/payment/payment.constants';
+import * as _ from 'lodash';
 
 @Injectable()
 export class OrderUtils {
@@ -140,5 +142,30 @@ export class OrderUtils {
       },
     );
     return removedOrder;
+  }
+
+  async getMinAndMaxReferenceNumberForBranch(
+    branchId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
+    minReferenceNumberOrder: number;
+    maxReferenceNumberOrder: number;
+  }> {
+    const orders = await this.orderRepository.find({
+      where: {
+        branch: { id: branchId },
+        createdAt: Between(startDate, endDate),
+        payment: { statusCode: PaymentStatus.COMPLETED },
+        referenceNumber: Not(IsNull()),
+      },
+      order: {
+        referenceNumber: 'ASC',
+      },
+    });
+    return {
+      minReferenceNumberOrder: _.first(orders)?.referenceNumber ?? 0,
+      maxReferenceNumberOrder: _.last(orders)?.referenceNumber ?? 0,
+    };
   }
 }

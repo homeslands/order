@@ -61,7 +61,7 @@ export default function ChefOrderPage() {
       } catch (error) {
         /* empty */
       }
-    }, 5000) // Polling every 5 seconds
+    }, 3000) // Polling every 3 seconds
 
     return () => clearInterval(interval) // Cleanup
   }, [chefOrders, refetch])
