@@ -444,6 +444,16 @@ export class BranchRevenueService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
+    this.logger.log(
+      `Updating branch revenue for ${new Date().toISOString()}`,
+      context,
+    );
+    this.logger.log(`New branch revenue: ${newBranchRevenues.length}`, context);
+    this.logger.log(
+      `Has branch revenue: ${JSON.stringify(newBranchRevenues)}`,
+      context,
+    );
+
     try {
       await queryRunner.manager.save(newBranchRevenues);
       await queryRunner.commitTransaction();
