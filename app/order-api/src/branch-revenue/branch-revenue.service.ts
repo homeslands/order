@@ -47,6 +47,7 @@ import { readFileSync } from 'fs';
 import { Order } from 'src/order/order.entity';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { OrderUtils } from 'src/order/order.utils';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class BranchRevenueService {
@@ -68,6 +69,7 @@ export class BranchRevenueService {
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
     private readonly orderUtils: OrderUtils,
+    private readonly mutex: Mutex,
   ) {}
 
   async findAll(
@@ -401,80 +403,85 @@ export class BranchRevenueService {
   }
 
   async updateLatestBranchRevenueInCurrentDate() {
-    const context = `${BranchRevenue.name}.${this.updateLatestBranchRevenueInCurrentDate.name}`;
+    await this.mutex.runExclusive(async () => {
+      const context = `${BranchRevenue.name}.${this.updateLatestBranchRevenueInCurrentDate.name}`;
 
-    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+      this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
-    const currentDate = new Date();
-    currentDate.setHours(7, 0, 0, 0);
+      const currentDate = new Date();
+      currentDate.setHours(7, 0, 0, 0);
 
-    const hasBranchRevenues = await this.branchRevenueRepository.find({
-      where: {
-        date: currentDate,
-      },
-    });
-    // console.log({hasBranchRevenues});
-    const results: BranchRevenueQueryResponseDto[] =
-      await this.branchRevenueRepository.query(getCurrentBranchRevenueClause);
+      const hasBranchRevenues = await this.branchRevenueRepository.find({
+        where: {
+          date: currentDate,
+        },
+      });
+      // console.log({hasBranchRevenues});
+      const results: BranchRevenueQueryResponseDto[] =
+        await this.branchRevenueRepository.query(getCurrentBranchRevenueClause);
 
-    const branchRevenueQueryResponseDtos = plainToInstance(
-      BranchRevenueQueryResponseDto,
-      results,
-    );
-
-    const revenues = branchRevenueQueryResponseDtos.map((item) => {
-      return this.mapper.map(
-        item,
+      const branchRevenueQueryResponseDtos = plainToInstance(
         BranchRevenueQueryResponseDto,
-        BranchRevenue,
-      );
-    });
-    // console.log({revenues})
-
-    const newBranchRevenues: BranchRevenue[] =
-      await this.getBranchRevenueDataToCreateAndUpdate(
-        hasBranchRevenues,
-        revenues,
-        currentDate,
+        results,
       );
 
-    // console.log({newBranchRevenues})
+      const revenues = branchRevenueQueryResponseDtos.map((item) => {
+        return this.mapper.map(
+          item,
+          BranchRevenueQueryResponseDto,
+          BranchRevenue,
+        );
+      });
+      // console.log({revenues})
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+      const newBranchRevenues: BranchRevenue[] =
+        await this.getBranchRevenueDataToCreateAndUpdate(
+          hasBranchRevenues,
+          revenues,
+          currentDate,
+        );
 
-    this.logger.log(
-      `Updating branch revenue for ${new Date().toISOString()}`,
-      context,
-    );
-    this.logger.log(`New branch revenue: ${newBranchRevenues.length}`, context);
-    this.logger.log(
-      `Has branch revenue: ${JSON.stringify(newBranchRevenues)}`,
-      context,
-    );
+      // console.log({newBranchRevenues})
 
-    try {
-      await queryRunner.manager.save(newBranchRevenues);
-      await queryRunner.commitTransaction();
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
       this.logger.log(
-        `Branch revenue ${new Date().toISOString()} refreshed successfully`,
+        `Updating branch revenue for ${new Date().toISOString()}`,
         context,
       );
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.error(
-        `Error when refresh branch revenues: ${JSON.stringify(error)}`,
-        error.stack,
+      this.logger.log(
+        `New branch revenue: ${newBranchRevenues.length}`,
         context,
       );
-      throw new BranchRevenueException(
-        BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
-        error.message,
+      this.logger.log(
+        `Has branch revenue: ${JSON.stringify(newBranchRevenues)}`,
+        context,
       );
-    } finally {
-      await queryRunner.release();
-    }
+
+      try {
+        await queryRunner.manager.save(newBranchRevenues);
+        await queryRunner.commitTransaction();
+        this.logger.log(
+          `Branch revenue ${new Date().toISOString()} refreshed successfully`,
+          context,
+        );
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        this.logger.error(
+          `Error when refresh branch revenues: ${JSON.stringify(error)}`,
+          error.stack,
+          context,
+        );
+        throw new BranchRevenueException(
+          BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
+          error.message,
+        );
+      } finally {
+        await queryRunner.release();
+      }
+    });
   }
 
   async getBranchRevenueDataToCreateAndUpdate(
@@ -602,115 +609,119 @@ export class BranchRevenueService {
   async refreshBranchRevenueForSpecificDay(
     query: RefreshSpecificRangeBranchRevenueQueryDto,
   ) {
-    const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
+    await this.mutex.runExclusive(async () => {
+      const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
 
-    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+      this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
-    if (query.startDate.getTime() > query.endDate.getTime()) {
-      this.logger.warn(
-        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
-          .message,
-        context,
-      );
-      throw new BranchRevenueException(
-        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
-      );
-    }
-
-    const startQuery = moment(query.startDate).format('YYYY-MM-DD');
-    const endQuery = moment(query.endDate).add(1, 'days').format('YYYY-MM-DD');
-
-    const startDate = new Date(query.startDate);
-    startDate.setHours(7, 0, 0, 0);
-    const endDate = new Date(query.endDate);
-    // note
-    endDate.setHours(23, 59, 59, 99);
-    this.logger.log('refreshBranchRevenueForSpecificDay', context);
-    this.logger.log('startQuery: ', startQuery, context);
-    this.logger.log('endQuery: ', endQuery, context);
-
-    const params = [startQuery, endQuery];
-    const results: BranchRevenueQueryResponseDto[] =
-      await this.branchRevenueRepository.query(
-        getSpecificRangeBranchRevenueClause,
-        params,
-      );
-
-    const branchRevenues = results.map((item) => {
-      return this.mapper.map(
-        item,
-        BranchRevenueQueryResponseDto,
-        BranchRevenue,
-      );
-    });
-
-    const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
-
-    const branches = await this.branchRepository.find();
-
-    let createAndUpdateBranchRevenues: BranchRevenue[] = [];
-
-    for (const branch of branches) {
-      const hasBranchRevenues = await this.branchRevenueRepository.find({
-        where: {
-          branchId: branch.id,
-          date: Between(startDate, endDate),
-        },
-      });
-
-      const branchRevenue = groupedDatasByBranch.find(
-        (groupedData) => groupedData.branchId === branch.id,
-      );
-
-      let branchRevenueFillZero: BranchRevenue[] = [];
-      if (branchRevenue) {
-        branchRevenueFillZero = await this.fillZeroForEmptyDate(
-          branch.id,
-          branchRevenue.items,
-          startDate,
-          endDate,
-        );
-      } else {
-        branchRevenueFillZero = await this.fillZeroForEmptyDate(
-          branch.id,
-          [],
-          startDate,
-          endDate,
-        );
-      }
-
-      const createAndUpdateBranchRevenue: BranchRevenue[] =
-        this.getCreateAndUpdateRevenuesInRangeDays(
-          hasBranchRevenues,
-          branchRevenueFillZero,
-        );
-      createAndUpdateBranchRevenues = createAndUpdateBranchRevenues.concat(
-        createAndUpdateBranchRevenue,
-      );
-    }
-
-    this.transactionManagerService.execute(
-      async (manager) => {
-        await manager.save(createAndUpdateBranchRevenues);
-      },
-      () =>
-        this.logger.log(
-          `${createAndUpdateBranchRevenues.length} branch revenues from ${moment(query.startDate).format('YYYY-MM-DD')} 
-            to ${moment(query.endDate).format('YYYY-MM-DD')} updated successfully`,
-          context,
-        ),
-      (error) => {
-        this.logger.error(
-          `Error when update revenues: ${JSON.stringify(error)}`,
-          error.stack,
+      if (query.startDate.getTime() > query.endDate.getTime()) {
+        this.logger.warn(
+          BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
+            .message,
           context,
         );
         throw new BranchRevenueException(
-          BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
-          error.message,
+          BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
         );
-      },
-    );
+      }
+
+      const startQuery = moment(query.startDate).format('YYYY-MM-DD');
+      const endQuery = moment(query.endDate)
+        .add(1, 'days')
+        .format('YYYY-MM-DD');
+
+      const startDate = new Date(query.startDate);
+      startDate.setHours(7, 0, 0, 0);
+      const endDate = new Date(query.endDate);
+      // note
+      endDate.setHours(23, 59, 59, 99);
+      this.logger.log('refreshBranchRevenueForSpecificDay', context);
+      this.logger.log('startQuery: ', startQuery, context);
+      this.logger.log('endQuery: ', endQuery, context);
+
+      const params = [startQuery, endQuery];
+      const results: BranchRevenueQueryResponseDto[] =
+        await this.branchRevenueRepository.query(
+          getSpecificRangeBranchRevenueClause,
+          params,
+        );
+
+      const branchRevenues = results.map((item) => {
+        return this.mapper.map(
+          item,
+          BranchRevenueQueryResponseDto,
+          BranchRevenue,
+        );
+      });
+
+      const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
+
+      const branches = await this.branchRepository.find();
+
+      let createAndUpdateBranchRevenues: BranchRevenue[] = [];
+
+      for (const branch of branches) {
+        const hasBranchRevenues = await this.branchRevenueRepository.find({
+          where: {
+            branchId: branch.id,
+            date: Between(startDate, endDate),
+          },
+        });
+
+        const branchRevenue = groupedDatasByBranch.find(
+          (groupedData) => groupedData.branchId === branch.id,
+        );
+
+        let branchRevenueFillZero: BranchRevenue[] = [];
+        if (branchRevenue) {
+          branchRevenueFillZero = await this.fillZeroForEmptyDate(
+            branch.id,
+            branchRevenue.items,
+            startDate,
+            endDate,
+          );
+        } else {
+          branchRevenueFillZero = await this.fillZeroForEmptyDate(
+            branch.id,
+            [],
+            startDate,
+            endDate,
+          );
+        }
+
+        const createAndUpdateBranchRevenue: BranchRevenue[] =
+          this.getCreateAndUpdateRevenuesInRangeDays(
+            hasBranchRevenues,
+            branchRevenueFillZero,
+          );
+        createAndUpdateBranchRevenues = createAndUpdateBranchRevenues.concat(
+          createAndUpdateBranchRevenue,
+        );
+      }
+
+      this.transactionManagerService.execute(
+        async (manager) => {
+          await manager.save(createAndUpdateBranchRevenues);
+        },
+        () =>
+          this.logger.log(
+            `${createAndUpdateBranchRevenues.length} branch revenues from ${moment(query.startDate).format('YYYY-MM-DD')} 
+            to ${moment(query.endDate).format('YYYY-MM-DD')} updated successfully`,
+            context,
+          ),
+        (error) => {
+          this.logger.error(
+            `Error when update revenues: ${JSON.stringify(error)}`,
+            error.stack,
+            context,
+          );
+          throw new BranchRevenueException(
+            BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
+            error.message,
+          );
+        },
+      );
+    });
   }
 
   async fillZeroForEmptyDate(

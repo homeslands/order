@@ -21,6 +21,7 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { OrderUtils } from 'src/order/order.utils';
+import { Mutex } from 'async-mutex';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -38,6 +39,13 @@ describe('BranchRevenueController', () => {
         MenuItemUtils,
         MenuUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        {
+          provide: Mutex,
+          useValue: {
+            acquire: jest.fn(),
+            runExclusive: jest.fn(),
+          },
+        },
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},

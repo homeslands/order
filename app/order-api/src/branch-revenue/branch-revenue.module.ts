@@ -18,6 +18,7 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { Mutex } from 'async-mutex';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -42,6 +43,7 @@ import { Menu } from 'src/menu/menu.entity';
     OrderUtils,
     MenuItemUtils,
     MenuUtils,
+    Mutex,
   ],
   exports: [BranchRevenueService],
 })

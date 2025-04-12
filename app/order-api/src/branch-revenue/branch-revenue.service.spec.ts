@@ -24,6 +24,7 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { Order } from 'src/order/order.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Mutex } from 'async-mutex';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -87,6 +88,13 @@ describe('BranchRevenueService', () => {
             uploadFile: jest.fn(),
             uploadFiles: jest.fn(),
             handleDuplicateFilesName: jest.fn(),
+          },
+        },
+        {
+          provide: Mutex,
+          useValue: {
+            acquire: jest.fn(),
+            runExclusive: jest.fn(),
           },
         },
         { provide: DataSource, useFactory: dataSourceMockFactory },
