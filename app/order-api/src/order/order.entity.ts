@@ -15,7 +15,7 @@ import { OrderStatus } from './order.constants';
 import { Payment } from 'src/payment/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { Table } from 'src/table/table.entity';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { ORDER_STATUS_INVALID } from './order.validation';
 import { Voucher } from 'src/voucher/voucher.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
@@ -27,10 +27,11 @@ export class Order extends Base {
   @Column({ name: 'original_subtotal_column', default: 0 })
   originalSubtotal: number;
 
+  @IsOptional()
   @IsNumber()
   @AutoMap()
   @Column({ name: 'reference_number_column', nullable: true })
-  referenceNumber: number;
+  referenceNumber?: number;
 
   @IsNumber()
   @AutoMap()
