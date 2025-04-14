@@ -14,9 +14,9 @@ export default function PaymentStatusBadge({
   const getBadgeColor = (status: paymentStatus) => {
     switch (status) {
       case paymentStatus.PENDING:
-        return 'bg-yellow-500 text-white'
+        return 'bg-yellow-400 text-white'
       case paymentStatus.COMPLETED:
-        return 'bg-green-500 text-white'
+        return 'bg-emerald-500 text-white'
       case paymentStatus.CANCELLED:
         return 'bg-destructive text-white'
     }
@@ -35,7 +35,7 @@ export default function PaymentStatusBadge({
   // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block w-fit rounded-full bg-green-500 px-2 py-1 text-center text-xs ${getBadgeColor(
+      className={`inline-block min-w-fit w-[80%] rounded-full px-2 py-1 text-center text-xs ${getBadgeColor(
         status || paymentStatus.PENDING,
       )}`}
     >

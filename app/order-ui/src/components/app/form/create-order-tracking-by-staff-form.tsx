@@ -107,6 +107,7 @@ export const CreateOrderTrackingByStaffForm: React.FC<
                         className="flex-1"
                         disabled
                         value={name}
+                        readOnly={true}
                         onChange={(e) => {
                           const updatedNames = [
                             ...form.getValues('productName'),

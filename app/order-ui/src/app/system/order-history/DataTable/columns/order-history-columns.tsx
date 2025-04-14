@@ -22,6 +22,7 @@ import { useExportOrderInvoice, useExportPayment } from '@/hooks'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
+import { PaymentStatusBadge } from '@/components/app/badge'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -122,6 +123,19 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     },
     {
       accessorKey: 'paymentStatus',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex flex-col">
+            <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'orderStatus',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.orderStatus')} />
       ),

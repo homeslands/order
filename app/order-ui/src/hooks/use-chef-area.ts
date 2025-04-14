@@ -154,6 +154,6 @@ export const useUpdateChefOrderItemStatus = () => {
   return useMutation({
     mutationFn: async (params: IUpdateChefOrderItemStatusRequest) => {
       return updateChefOrderItemStatus(params)
-    },
+    }
   })
 }

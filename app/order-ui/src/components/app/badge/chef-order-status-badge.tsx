@@ -39,7 +39,7 @@ export default function ChefOrderStatusBadge({
   // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block w-fit px-2 py-1 text-center text-[9px] md:text-[10px] lg:text-sm lg:px-4  ${getBadgeColor(
+      className={`inline-block min-w-fit w-[80%] py-0.5 px-2 text-center text-[9px] md:text-[10px] lg:text-[12px] lg:px-3  ${getBadgeColor(
         status,
       )} rounded-full`}
     >

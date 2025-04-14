@@ -212,6 +212,7 @@
     "errorValidatePromotion": "Lỗi xác thực khuyến mãi",
     "permissionExists": "Quyền đã tồn tại",
     "invalidEmail": "Email đã tồn tại!",
-    "chefAreaProductExists": "Món đã tồn tại trong khu vực đầu bếp"
+    "chefAreaProductExists": "Món đã tồn tại trong khu vực đầu bếp",
+    "onlyUpdateChefOrderItemStatusWhenChefOrderStatusIsAccepted": "Vui lòng nhấn chấp nhận đơn hàng để cập nhật trạng thái món"
   }
 }

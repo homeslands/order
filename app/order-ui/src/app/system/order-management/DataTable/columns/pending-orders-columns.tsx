@@ -118,25 +118,5 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
-    // {
-    //   accessorKey: 'paymentMethod',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.paymentMethod')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const order = row.original
-    //     return (
-
-    //       <div className='flex flex-col'>
-    //         <span className='text-xs'>
-    //           {order?.payment && order?.payment.paymentMethod === PaymentMethod.CASH ? t('order.cash') : t('order.bankTransfer')}
-    //         </span>
-    //         <PaymentStatusBadge
-    //           status={order?.invoice?.status}
-    //         />
-    //       </div>
-    //     )
-    //   },
-    // },
   ]
 }

@@ -13,13 +13,13 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
   const getBadgeColor = (status: OrderStatus) => {
     switch (status) {
       case OrderStatus.PENDING:
-        return 'bg-yellow-500 bg-yellow-50 text-white'
+        return 'bg-yellow-500  text-white'
       case OrderStatus.SHIPPING:
-        return 'bg-blue-500 bg-blue-50 text-white '
+        return 'bg-indigo-700 text-white '
       case OrderStatus.COMPLETED:
-        return 'bg-green-500 bg-green-50 text-white '
+        return 'bg-blue-500 text-white '
       case OrderStatus.PAID:
-        return 'bg-green-500 bg-green-50 text-white'
+        return 'bg-green-500 text-white'
       case OrderStatus.FAILED:
         return 'bg-destructive bg-destructive/20 text-white'
     }

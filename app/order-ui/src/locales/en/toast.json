@@ -285,6 +285,7 @@
     "invalidOrderSlug": "Invalid order slug",
     "permissionExists": "Permission already exists",
     "invalidEmail": "Email already exists!",
-    "chefAreaProductExists": "Product already exists in the chef area"
+    "chefAreaProductExists": "Product already exists in the chef area",
+    "onlyUpdateChefOrderItemStatusWhenChefOrderStatusIsAccepted": "Please accept the order to update the item status"
   }
 }
