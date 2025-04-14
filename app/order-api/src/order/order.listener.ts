@@ -42,7 +42,7 @@ export class OrderListener {
     this.logger.log(`Update order status after payment process`, context);
     let orderSlug = null;
 
-    // Lock bắt đầu từ đây
+    // Lock code
     await this.mutex.runExclusive(async () => {
       try {
         if (_.isEmpty(requestData)) {

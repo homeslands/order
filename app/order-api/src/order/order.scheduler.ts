@@ -74,7 +74,8 @@ export class OrderScheduler {
             },
           },
           order: {
-            createdAt: 'ASC',
+            // createdAt: 'ASC',
+            payment: { updatedAt: 'ASC' },
           },
           relations: ['invoice'],
         });
@@ -91,7 +92,7 @@ export class OrderScheduler {
         }
         updatedOrders.push(...orders);
       }
-      await this.orderRepository.save(updatedOrders);
+      // await this.orderRepository.save(updatedOrders);
       this.logger.log(
         `Update reference number for orders: ${updatedOrders.length}`,
         context,
