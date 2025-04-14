@@ -72,6 +72,10 @@ export default function ChefOrderPage() {
     setIsSheetOpen(true)
   }
 
+  const handleUpdateChefOrderStatusSuccess = () => {
+    refetch()
+  }
+
   return (
     <div className="flex flex-col flex-1 gap-2">
       <Helmet>
@@ -110,6 +114,7 @@ export default function ChefOrderPage() {
           }
         />
         <ChefOrderItemDetailSheet
+          onSuccess={handleUpdateChefOrderStatusSuccess}
           chefOrder={chefOrder}
           enableFetch={true}
           isOpen={isSheetOpen}

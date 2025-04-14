@@ -24,11 +24,11 @@ export default function PromotionPage() {
                 </title>
                 <meta name='description' content={tHelmet('helmet.promotion.title')} />
             </Helmet>
-            <span className="flex items-center gap-1 text-lg">
+            <span className="flex gap-1 items-center text-lg">
                 <SquareMenu />
                 {t('promotion.promotionTitle')}
             </span>
-            <div className="grid h-full grid-cols-1 gap-2 mt-4">
+            <div className="grid grid-cols-1 gap-2 mt-4 h-full">
                 <DataTable
                     columns={usePromotionColumns()}
                     data={data?.result || []}

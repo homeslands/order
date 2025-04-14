@@ -560,7 +560,10 @@ export class ApplicablePromotionService {
         (p) => p !== null && p.id !== deletedApplicablePromotion.promotion.id,
       );
 
-      if (_.isEmpty(successfulPromotionsNotNull)) return null;
+      if (_.isEmpty(successfulPromotionsNotNull)) {
+        Object.assign(menuItem, { promotion: null });
+        return menuItem;
+      }
 
       const maxPromotion = successfulPromotionsNotNull.reduce(
         (max, obj) => (obj.value > max.value ? obj : max),

@@ -4,22 +4,40 @@ export const createPromotionSchema = z
   .object({
     title: z.string().min(1),
     branchSlug: z.string(),
-    description: z.optional(z.string()),
+    description: z.string().optional(),
     type: z.string(),
     value: z.number().int().positive(),
-    startDate: z.string().refine((date) => {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      return new Date(date) >= today
-    }, 'Start date must be today or later'),
-    endDate: z.string(),
+    startDate: z.string().refine(
+      (date) => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const start = new Date(date)
+        return start >= today
+      },
+      {
+        message: 'Start date must be today or later',
+      },
+    ),
+    endDate: z.string().refine(
+      (date) => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const end = new Date(date)
+        return end >= today
+      },
+      {
+        message: 'End date must be today or later',
+      },
+    ),
   })
   .refine(
     (data) => {
-      return new Date(data.endDate) >= new Date(data.startDate)
+      const start = new Date(data.startDate)
+      const end = new Date(data.endDate)
+      return end >= start
     },
     {
-      message: 'End date must be after start date',
+      message: 'End date must be after or equal to start date',
       path: ['endDate'],
     },
   )

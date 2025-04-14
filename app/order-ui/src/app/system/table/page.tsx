@@ -45,11 +45,11 @@ export default function TablePage() {
         </title>
         <meta name='description' content={tHelmet('helmet.table.title')} />
       </Helmet>
-      <span className="flex items-center gap-1 text-lg">
+      <span className="flex gap-1 items-center text-lg">
         <SquareMenu />
         {t('table.tableTitle')}
       </span>
-      <div className="grid h-full grid-cols-1 gap-2 mt-4">
+      <div className="grid grid-cols-1 gap-2 mt-4 h-full">
         <DataTable
           columns={useTableColumns()}
           data={filteredTables || []}
@@ -64,13 +64,13 @@ export default function TablePage() {
       </div>
     </div>
     // <div className="pb-4">
-    //   <div className="flex items-center justify-end gap-2 py-4">
+    //   <div className="flex gap-2 justify-end items-center py-4">
     //     <CreateTableDialog />
     //   </div>
-    //   <div className="border rounded-md">
+    //   <div className="rounded-md border">
     //     <div className="flex gap-4 p-4">
     //       <div className="gap-2 flex-center">
-    //         <div className="w-4 h-4 border rounded-sm bg-muted-foreground/10" />
+    //         <div className="w-4 h-4 rounded-sm border bg-muted-foreground/10" />
     //         <span className="text-sm">{t('table.available')}</span>
     //       </div>
     //       <div className="gap-2 flex-center">
@@ -78,7 +78,7 @@ export default function TablePage() {
     //         <span className="text-sm">{t('table.reserved')}</span>
     //       </div>
     //     </div>
-    //     <div className="flex flex-row flex-wrap w-full h-full gap-4 p-4">
+    //     <div className="flex flex-row flex-wrap gap-4 p-4 w-full h-full">
     //       {tables?.result.map((table) => (
     //         <TableItem key={table.slug} table={table} />
     //       ))}

@@ -10,9 +10,10 @@ import { showToast } from '@/utils'
 interface ChefOrderItemDetailProps {
   chefOrderItem: ISpecificChefOrderItemInfo
   chefOrderStatus: ChefOrderStatus
+  onSuccess: () => void
 }
 
-export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus }: ChefOrderItemDetailProps) {
+export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus, onSuccess }: ChefOrderItemDetailProps) {
   const { t } = useTranslation(['chefArea'])
   const { t: tToast } = useTranslation('toast')
   const { t: tCommon } = useTranslation('common')
@@ -29,6 +30,7 @@ export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus }: 
       onSuccess: () => {
         showToast(tToast('toast.updateChefOrderItemStatusSuccess'))
         setActiveTab(status as ChefOrderItemStatus)
+        onSuccess()
       }
     })
   }

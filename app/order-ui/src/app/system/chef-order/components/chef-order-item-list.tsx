@@ -7,6 +7,7 @@ import ChefOrderItemDetail from './chef-order-item-detail'
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area'
 
 interface IChefOrderItemListProps {
+  onSuccess: () => void
   chefOrderStatus: ChefOrderStatus | undefined
   chefOrderItemData?: ISpecificChefOrderItemInfo[]
 }
@@ -14,6 +15,7 @@ interface IChefOrderItemListProps {
 export default function ChefOrderItemList({
   chefOrderStatus,
   chefOrderItemData,
+  onSuccess,
 }: IChefOrderItemListProps) {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
@@ -96,7 +98,7 @@ export default function ChefOrderItemList({
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <div key={item.slug} className="grid gap-4 items-center w-full">
-                  <ChefOrderItemDetail chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
+                  <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
                 </div>
               ))
             ) : (
@@ -110,7 +112,7 @@ export default function ChefOrderItemList({
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail chefOrderItem={item} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} />
+                <ChefOrderItemDetail onSuccess={onSuccess} chefOrderItem={item} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} />
               </div>
             ))
           ) : (
@@ -123,7 +125,7 @@ export default function ChefOrderItemList({
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
+                <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
               </div>
             ))
           ) : (

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PenLine } from 'lucide-react'
 
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui'
 import { ConfirmApplyPromotionDialog } from '@/components/app/dialog'
 import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { usePagination, useProducts } from '@/hooks'
+import { useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
 
 interface IApplyPromotionSheetProps {
@@ -30,31 +30,57 @@ export default function ApplyPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { pagination } = usePagination()
+
+  // Separate pagination state for sheet
+  const [sheetPagination, setSheetPagination] = useState({
+    pageIndex: 1,
+    pageSize: 10
+  })
+
   const { data: products, isLoading } = useProducts({
-    promotion: promotion?.slug, isAppliedPromotion: false,
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
+    promotion: promotion?.slug,
+    isAppliedPromotion: false,
+    page: sheetPagination.pageIndex,
+    size: sheetPagination.pageSize,
     hasPaging: true,
   })
 
   const productsData = products?.result.items
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
-  }
+  }, [])
 
-  const handleSelectionChange = (selectedSlugs: string[]) => {
+  const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
     setApplyPromotionRequest({
       applicableSlugs: selectedSlugs,
       promotion: promotion?.slug,
       type: 'product',
     })
-  }
+  }, [promotion?.slug])
+
+  const handleSheetPageChange = useCallback((page: number) => {
+    setSheetPagination(prev => ({
+      ...prev,
+      pageIndex: page
+    }))
+  }, [])
+
+  const handleSheetPageSizeChange = useCallback((size: number) => {
+    setSheetPagination(() => ({
+      pageIndex: 1, // Reset to first page when changing page size
+      pageSize: size
+    }))
+  }, [])
+
+  const handleSheetOpenChange = useCallback((open: boolean) => {
+    setSheetOpen(open)
+  }, [])
+
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -84,9 +110,9 @@ export default function ApplyPromotionSheet({
                   })}
                   data={productsData || []}
                   isLoading={isLoading}
-                  pages={1}
-                  onPageChange={() => { }}
-                  onPageSizeChange={() => { }}
+                  pages={products?.result.totalPages || 1}
+                  onPageChange={handleSheetPageChange}
+                  onPageSizeChange={handleSheetPageSizeChange}
                 />
               </div>
             </div>

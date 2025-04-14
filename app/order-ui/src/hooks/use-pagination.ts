@@ -10,7 +10,7 @@ export const usePagination = ({
     ? parseInt(searchParams.get('page') || '1', 10)
     : 1
   const pageSize = isSearchParams
-    ? parseInt(searchParams.get('pageSize') || '10', 10)
+    ? parseInt(searchParams.get('size') || '10', 10)
     : 10
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: page,
@@ -30,7 +30,7 @@ export const usePagination = ({
     setPagination((prev) => ({ ...prev, pageSize, pageIndex: 1 }))
     if (isSearchParams) {
       const newParams = new URLSearchParams(searchParams)
-      newParams.set('pageSize', pageSize.toString())
+      newParams.set('size', pageSize.toString())
       newParams.set('page', '1')
       setSearchParams(newParams)
     }
