@@ -28,7 +28,10 @@ export default function RevenueDetailChart({
 
   const formatDate = useCallback(
     (date: string) => {
-      const parsed = moment(date, 'YYYY-MM-DD', true)
+      const parsed = moment(date)
+
+      if (!parsed.isValid()) return date
+
       switch (revenueType) {
         case RevenueTypeQuery.DAILY:
           return parsed.format('DD/MM')
@@ -40,6 +43,7 @@ export default function RevenueDetailChart({
     },
     [revenueType],
   )
+
 
   useEffect(() => {
     if (chartRef.current && revenueData) {
@@ -56,12 +60,12 @@ export default function RevenueDetailChart({
         tooltip: {
           trigger: 'axis' as const,
           formatter: function (params: TooltipParams[]) {
+            // console.log("check params", params)
             const date = (params[0].name as string)
             const revenue = formatCurrency(params[1].value)
             const orders = params[0].value
             return `${date}<br/>${params[1].seriesName}: ${revenue}<br/>${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}`
           },
-
         },
         legend: {
           data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internal')],

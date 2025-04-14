@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CircleX, RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -19,8 +19,13 @@ export default function OverviewDetailPage() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const { branch } = useBranchStore()
-  const [startDate, setStartDate] = useState<string>(moment().toISOString())
-  const [endDate, setEndDate] = useState<string>(moment().toISOString())
+  const [startDate, setStartDate] = useState<string>(
+    moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+  )
+
+  const [endDate, setEndDate] = useState<string>(
+    moment().format('YYYY-MM-DD HH:mm:ss')
+  )
   const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY)
   const { mutate: refreshRevenue } = useLatestRevenue()
 
@@ -47,7 +52,6 @@ export default function OverviewDetailPage() {
   const maxReferenceNumberOrder = referenceNumbers?.length ? Math.max(...referenceNumbers) : null
   const minReferenceNumberOrder = referenceNumbers?.length ? Math.min(...referenceNumbers) : null
 
-
   const handleRefreshRevenue = useCallback(() => {
     refreshRevenue(undefined, {
       onSuccess: () => {
@@ -57,9 +61,9 @@ export default function OverviewDetailPage() {
     })
   }, [refreshRevenue, tToast, refetchRevenue])
 
-  // useEffect(() => {
-  //   handleRefreshRevenue()
-  // }, [startDate, endDate, branch, handleRefreshRevenue])
+  useEffect(() => {
+    handleRefreshRevenue()
+  }, [startDate, endDate, branch, handleRefreshRevenue])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     setStartDate(data.startDate || '')

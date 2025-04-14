@@ -76,7 +76,7 @@ export const CreateOrderTrackingByRobotForm: React.FC<
 
           form.reset()
           clearSelectedItems()
-          showToast(t('toast.createOrderTrackingSuccess'))
+          showToast(t('toast.createOrderTrackingByRobotSuccess'))
           onSubmit(true) // Trigger refetching
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
@@ -101,11 +101,11 @@ export const CreateOrderTrackingByRobotForm: React.FC<
                     key={`product-row-${index}`}
                     className="grid grid-cols-5 gap-4 text-sm text-muted-foreground"
                   >
-                    <div className="col-span-3 flex flex-col gap-1">
+                    <div className="flex flex-col col-span-3 gap-1">
                       <Label>{t('order.productName')}</Label>
                       <Input
                         readOnly
-                        className="flex-1 border-none px-1 font-semibold shadow-none"
+                        className="flex-1 px-1 font-semibold border-none shadow-none"
                         value={name}
                         onChange={(e) => {
                           const updatedNames = [
@@ -117,11 +117,11 @@ export const CreateOrderTrackingByRobotForm: React.FC<
                         placeholder={`Product Name ${index + 1}`}
                       />
                     </div>
-                    <div className="col-span-2 flex w-full flex-col gap-1">
+                    <div className="flex flex-col col-span-2 gap-1 w-full">
                       <Label>{t('order.quantity')}</Label>
                       <Input
                         readOnly
-                        className="flex-1 border-none px-1 font-semibold shadow-none"
+                        className="flex-1 px-1 font-semibold border-none shadow-none"
                         value={form.getValues('productQuantity')[index]}
                         placeholder="Quantity"
                         type="number"

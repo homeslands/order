@@ -36,23 +36,27 @@ export default function OrderManagementPage() {
   const { data: orderDetail } = useOrderBySlug(orderSlug)
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [slug, setSlug] = useState(searchParams.get('slug') || selectedRow)
+  const [searchParams] = useSearchParams()
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [slug, setSlug] = useState(searchParams.get('slug') || '')
 
   useEffect(() => {
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev)
-      newParams.set('slug', slug)
-      return newParams
-    })
-
-    // setIsSheetOpen(slug !== '')
-    if (slug !== '') {
-      setOrderSlug(slug)
+    const urlSlug = searchParams.get('slug')
+    if (urlSlug && urlSlug !== slug) {
+      setSlug(urlSlug)
+      setOrderSlug(urlSlug)
+      setIsSheetOpen(true)
+      setSelectedRow(urlSlug)
     }
-  }, [setSearchParams, slug, setIsSheetOpen, setOrderSlug, selectedRow])
+  }, [searchParams, slug, setOrderSlug, setIsSheetOpen, setSelectedRow])
+
+  useEffect(() => {
+    if (slug) {
+      setOrderSlug(slug)
+      setIsSheetOpen(true)
+    }
+  }, [slug, setOrderSlug, setIsSheetOpen])
 
   const { data, isLoading, refetch } = useOrders({
     hasPaging: true,
@@ -87,10 +91,7 @@ export default function OrderManagementPage() {
 
   const handleOrderClick = (order: IOrder) => {
     clearSelectedItems()
-    setOrderSlug(order.slug)
     setSlug(order.slug)
-    setSelectedRow(order.slug)
-    setIsSheetOpen(true)
   }
 
   const filterConfig = [

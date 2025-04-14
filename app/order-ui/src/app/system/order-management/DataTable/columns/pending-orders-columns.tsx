@@ -21,14 +21,24 @@ export const usePendingOrdersColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
+    // {
+    //   accessorKey: 'slug',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('order.slug')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const slug = row.original.slug
+    //     return <span className="text-sm text-muted-foreground">{slug}</span>
+    //   },
+    // },
     {
-      accessorKey: 'slug',
+      accessorKey: 'orderReferenceNumber',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('order.slug')} />
+        <DataTableColumnHeader column={column} title={t('order.orderReferenceNumber')} />
       ),
       cell: ({ row }) => {
-        const slug = row.original.slug
-        return <span className="text-sm text-muted-foreground">{slug}</span>
+        const order = row.original
+        return <div className="text-sm">{order?.referenceNumber || 'N/A'}</div>
       },
     },
     {

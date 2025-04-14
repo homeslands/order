@@ -192,7 +192,33 @@ export default function OrderItemDetailSheet({
           <SheetTitle className="flex flex-wrap justify-start items-center mt-8">
             <div className="flex gap-2 w-full">
               {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
-                <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
+                <div className='flex flex-col gap-2 mt-2 w-full'>
+                  <div className='flex gap-2 justify-between items-center'>
+                    <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
+                    <div className='flex gap-2'>
+                      {selectedOrder &&
+                        selectedOrder.result.payment?.statusCode ===
+                        paymentStatus.COMPLETED && (
+                          <Button
+                            onClick={() =>
+                              handleExportOrderInvoice(selectedOrder.result.slug)
+                            }
+                            disabled={isPending}
+                            className="flex justify-start items-center px-2 text-xs shadow-none sm:text-sm"
+                          >
+                            {isPending && <ButtonLoading />}
+                            {t('order.exportInvoice')}
+                          </Button>
+                        )}
+                    </div>
+                  </div>
+                  <div className='flex flex-col gap-2 p-2 w-full rounded-lg border-2 border-primary bg-primary/5 sm:p-4'>
+                    <div className="text-sm font-medium text-primary">
+                      {t('order.currentOrder')} #{selectedOrder?.result?.slug}
+                    </div>
+                    <CustomerInformation orderDetailData={selectedOrder?.result} />
+                  </div>
+                </div>
               ) : (
                 <div className='flex flex-col gap-3 w-full'>
                   <div className="flex gap-2 justify-between mt-2">

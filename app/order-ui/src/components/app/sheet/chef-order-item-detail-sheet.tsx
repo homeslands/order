@@ -44,6 +44,7 @@ export default function ChefOrderItemDetailSheet({
     return () => clearInterval(interval) // Cleanup
   }, [data, refetch])
   const specificChefOrderDetail = data?.result.chefOrderItems || []
+  const chefOrderStatus = data?.result.status
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[100%] p-0 flex flex-col gap-0 max-h-screen">
@@ -54,7 +55,7 @@ export default function ChefOrderItemDetailSheet({
         </SheetHeader>
         {chefOrder ? (
           <div className="h-[calc(100vh-11rem)] flex-1 px-2 pt-2">
-            <ChefOrderItemList chefOrderItemData={specificChefOrderDetail} />
+            <ChefOrderItemList chefOrderStatus={chefOrderStatus} chefOrderItemData={specificChefOrderDetail} />
           </div>
         ) : (
           <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">

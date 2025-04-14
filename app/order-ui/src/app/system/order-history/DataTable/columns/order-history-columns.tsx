@@ -65,14 +65,24 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
+    // {
+    //   accessorKey: 'slug',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('order.slug')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const order = row.original
+    //     return <div className="text-sm">{order?.slug || 'N/A'}</div>
+    //   },
+    // },
     {
-      accessorKey: 'slug',
+      accessorKey: 'orderReferenceNumber',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('order.slug')} />
+        <DataTableColumnHeader column={column} title={t('order.orderReferenceNumber')} />
       ),
       cell: ({ row }) => {
         const order = row.original
-        return <div className="text-sm">{order?.slug || 'N/A'}</div>
+        return <div className="text-sm">{order?.referenceNumber || 'N/A'}</div>
       },
     },
     {

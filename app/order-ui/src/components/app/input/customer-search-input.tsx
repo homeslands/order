@@ -1,8 +1,8 @@
-import { CircleX } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { CircleX, User2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useCartItemStore } from '@/stores'
-import { useEffect, useState } from 'react'
 import { IUserInfo } from '@/types'
 import { useDebouncedInput, usePagination, useUsers } from '@/hooks'
 import {
@@ -62,7 +62,7 @@ export default function CustomerSearchInput() {
         removeCustomerInfo()
     }
     return (
-        <div className='flex flex-col gap-3'>
+        <div className='flex relative flex-col gap-3'>
             {/* Customer Information */}
             <div className="flex flex-col gap-3">
                 <div className="relative">
@@ -85,9 +85,7 @@ export default function CustomerSearchInput() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button variant="outline"
-                                        onClick={() => handleRemoveOwner()}
-                                    >
+                                    <Button variant="outline" onClick={() => handleRemoveOwner()}>
                                         <CircleX />
                                     </Button>
                                 </TooltipTrigger>
@@ -99,26 +97,32 @@ export default function CustomerSearchInput() {
                     </div>
                 )}
             </div>
+
             {/* User list dropdown */}
             {users.length > 0 && (
-                <div className="absolute z-10 p-2 mt-16 w-full bg-white rounded-md border shadow-lg dark:bg-transparent">
+                <div className="overflow-y-auto absolute z-50 p-2 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-transparent">
                     {users.map((user, index) => (
                         <div
                             key={user.slug}
                             onClick={handleAddOwner(user)}
-                            className={`cursor-pointer p-2 hover:bg-primary/30 ${index < users.length - 1 ? 'border-b' : ''
-                                }`}
+                            className={`flex gap-2 items-center cursor-pointer p-2 rounded-md transition-all duration-300 hover:bg-primary/20 ${index < users.length - 1 ? 'border-b' : ''}`}
                         >
-                            <div className="font-medium">
-                                {user.firstName} {user.lastName}
+                            <div className='flex justify-center items-center p-2 rounded-full bg-primary/10'>
+                                <User2Icon className='w-4 h-4 text-primary' />
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                                {user.phonenumber}
+                            <div className='flex flex-col'>
+                                <div className="font-bold text-muted-foreground">
+                                    {user.firstName} {user.lastName}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                    {user.phonenumber}
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
         </div>
+
     )
 }

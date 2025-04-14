@@ -35,7 +35,7 @@ export default function PaymentStatusBadge({
   // Ensure the component returns valid JSX
   return (
     <span
-      className={`inline-block min-w-fit w-[80%] rounded-full px-2 py-1 text-center text-xs ${getBadgeColor(
+      className={`inline-block w-fit rounded-full bg-green-500 px-3 py-1 text-center text-xs ${getBadgeColor(
         status || paymentStatus.PENDING,
       )}`}
     >

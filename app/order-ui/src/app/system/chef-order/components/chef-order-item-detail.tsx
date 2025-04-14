@@ -2,16 +2,17 @@ import { useTranslation } from 'react-i18next'
 import { PlayCircle, CheckCircle2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { ChefOrderItemStatus, ISpecificChefOrderItemInfo, IUpdateChefOrderItemStatusRequest } from '@/types'
+import { ChefOrderItemStatus, ChefOrderStatus, ISpecificChefOrderItemInfo, IUpdateChefOrderItemStatusRequest } from '@/types'
 import { Button, Tabs, TabsContent } from '@/components/ui'
 import { useUpdateChefOrderItemStatus } from '@/hooks'
 import { showToast } from '@/utils'
 
 interface ChefOrderItemDetailProps {
   chefOrderItem: ISpecificChefOrderItemInfo
+  chefOrderStatus: ChefOrderStatus
 }
 
-export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDetailProps) {
+export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus }: ChefOrderItemDetailProps) {
   const { t } = useTranslation(['chefArea'])
   const { t: tToast } = useTranslation('toast')
   const { t: tCommon } = useTranslation('common')
@@ -72,8 +73,16 @@ export default function ChefOrderItemDetail({ chefOrderItem }: ChefOrderItemDeta
               </div>
             </div>
             <div className="flex gap-3 justify-end w-full sm:col-span-4">
+              {chefOrderStatus !== ChefOrderStatus.ACCEPTED && (
+                <span
+                  className="flex gap-2 items-center w-full text-destructive sm:w-fit"
+                >
+                  {t('chefOrder.notAccepted')}
+                </span>
+              )}
               {isPending && (
                 <Button
+                  disabled={chefOrderStatus === ChefOrderStatus.PENDING}
                   className="flex gap-2 items-center w-full text-white bg-blue-500 sm:w-fit hover:bg-blue-600"
                   onClick={() => handleStatusChange(orderItem.slug, ChefOrderItemStatus.IN_PROGRESS)}
                 >

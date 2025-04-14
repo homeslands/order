@@ -51,6 +51,7 @@
     "table": "Table",
     "create": "Notify chef",
     "createChefOrderWarning": "You are about to create a chef order for order ",
-    "createChefOrderConfirmation": "Are you sure you want to create a chef order for this order?"
+    "createChefOrderConfirmation": "Are you sure you want to create a chef order for this order?",
+    "notAccepted": "Not accepted"
   }
 }

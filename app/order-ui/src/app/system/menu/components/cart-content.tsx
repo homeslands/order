@@ -11,6 +11,7 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { VoucherListSheet } from '@/components/app/sheet'
+import { ShoppingCart } from 'lucide-react'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -28,33 +29,36 @@ export function CartContent() {
   }
 
   return (
-    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-[25%] shadow-md overflow-hidden">
+    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[35%] lg:w-[30%] xl:w-[25%] shadow-md overflow-hidden bg-background transition-all duration-300">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-2 border-b shrink-0">
-        <h1 className="text-lg font-medium">{t('menu.order')}</h1>
-        <CreateCustomerDialog />
+      <div className="flex flex-col gap-3 px-4 py-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
+        <div className='flex gap-2 justify-between items-center'>
+          <h1 className="text-lg font-semibold">{t('menu.order')}</h1>
+          <CreateCustomerDialog />
+        </div>
+
       </div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="overflow-y-auto min-h-[calc(73vh-10rem)] flex-1 scrollbar-hidden">
+      <ScrollArea className="overflow-y-auto min-h-[calc(75vh-12rem)] flex-1 scrollbar-hidden">
         {/* Order type selection */}
-        <div className="flex flex-col gap-2 px-4 py-2">
-          <CustomerSearchInput />
+        <div className="flex z-10 flex-col gap-2 px-4 py-3 border-b backdrop-blur-sm bg-background/95">
           <OrderTypeSelect />
+          <CustomerSearchInput />
         </div>
 
         {/* Selected Table */}
         {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
-          <div className="flex gap-1 items-center px-6 pb-2 text-sm border-b">
+          <div className="flex gap-2 items-center px-4 py-3 text-sm border-b bg-muted/50">
             {getCartItems()?.table ? (
-              <div className='flex gap-1 items-center'>
-                <p>{t('menu.selectedTable')} </p>
-                <p className="px-3 py-1 text-white rounded bg-primary">
+              <div className='flex gap-2 items-center'>
+                <p className="text-muted-foreground">{t('menu.selectedTable')}</p>
+                <p className="px-3 py-1 font-medium text-white rounded-full bg-primary">
                   {t('menu.tableName')} {getCartItems()?.tableName}
                 </p>
               </div>
             ) : (
-              <p className="h-7 text-muted-foreground">
+              <p className="text-muted-foreground">
                 {t('menu.noSelectedTable')}
               </p>
             )}
@@ -62,36 +66,38 @@ export function CartContent() {
         )}
 
         {/* Cart Items */}
-        <div className="flex flex-col gap-4 px-4 mt-4">
-          {cartItems ? (
+        <div className="flex flex-col gap-4 px-4 py-3">
+          {cartItems && cartItems?.orderItems?.length > 0 ? (
             cartItems?.orderItems?.map((item) => (
-              <div key={item.slug} className="flex flex-col pb-4 border-b">
-                <div className="flex flex-row gap-2 items-center rounded-xl">
+              <div key={item.slug} className="flex flex-col gap-3 p-3 rounded-lg border transition-colors duration-200 hover:border-primary/50">
+                <div className="flex flex-row gap-3 items-start">
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row justify-between items-start">
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="text-sm font-bold truncate">{item.name}</span>
-                        <div className='flex justify-between w-full'>
+                        <span className="text-sm font-semibold truncate">{item.name}</span>
+                        <div className='flex justify-between items-center mt-1 w-full'>
                           {item.promotionValue && item.promotionValue > 0 ? (
-                            <div className="flex gap-2 items-center w-fit">
+                            <div className="flex gap-2 items-center">
                               <span className="text-sm text-muted-foreground">
                                 Size {item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-sm text-primary">
+                            <span className="text-sm font-medium text-primary">
                               {`${formatCurrency(item.price)}`}
                             </span>
                           )}
                           <div className='flex gap-2 items-center'>
-                            <div className="flex justify-between items-center text-sm font-medium w-fit me-5">
+                            <div className="flex justify-between items-center text-sm font-medium">
                               <QuantitySelector cartItem={item} />
                             </div>
                             <Button
                               variant="ghost"
+                              size="icon"
                               onClick={() => handleRemoveCartItem(item.id)}
+                              className="hover:bg-destructive/10 hover:text-destructive"
                             >
-                              <Trash2 size={25} className="text-muted-foreground" color='red' />
+                              <Trash2 size={18} />
                             </Button>
                           </div>
                         </div>
@@ -103,72 +109,68 @@ export function CartContent() {
               </div>
             ))
           ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
+            <div className="flex flex-col items-center justify-center min-h-[12rem] gap-3 text-muted-foreground">
+              <ShoppingCart className="w-12 h-12" />
+              <p className="text-center">{tCommon('common.noData')}</p>
+            </div>
           )}
         </div>
       </ScrollArea>
 
       {/* Footer -Payment */}
       {cartItems && cartItems?.orderItems?.length !== 0 && (
-        <div className="px-4 border-t shrink-0">
-          <div className='py-1'>
+        <div className="z-10 px-4 py-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
+          <div className='space-y-1'>
             <VoucherListSheet />
             {getCartItems()?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex flex-col items-start">
-                  <div className='flex gap-2 items-center mt-2'>
+                  <div className='flex gap-2 items-center'>
                     <span className='text-xs text-muted-foreground'>
                       {t('order.usedVoucher')}:
                     </span>
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full border text-primary bg-primary/20 border-primary">
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full border text-primary bg-primary/10 border-primary">
                       -{`${formatCurrency(discount)}`}
                     </span>
                   </div>
                 </div>
               </div>
             )}
-          </div>
 
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('menu.total')}</span>
-              <span className='text-muted-foreground'>{`${formatCurrency(subTotal || 0)}`}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-xs italic text-green-500">
-                {t('menu.discount')}
-              </span>
-              <span className="text-xs italic text-green-500">
-                - {`${formatCurrency(discount)}`}
-              </span>
-            </div>
-            <div className="flex justify-between py-4 font-medium border-t">
-              <span className="font-semibold">{t('menu.subTotal')}</span>
-              <span className="text-2xl font-bold text-primary">
-                {`${formatCurrency(totalAfterDiscount)}`}
-              </span>
-            </div>
-            <div className='flex justify-end w-full h-40'>
-              <div className='flex justify-end items-center w-full h-fit'>
-                {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
-                  <span className='flex gap-1 items-center text-xs text-destructive'>
-                    <Info size={18} />
-                    {t('menu.noSelectedTable')}
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('menu.total')}</span>
+                <span className='text-muted-foreground'>{`${formatCurrency(subTotal || 0)}`}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-green-600">
+                  {t('menu.discount')}
+                </span>
+                <span className="text-sm text-green-600">
+                  - {`${formatCurrency(discount)}`}
+                </span>
+              </div>
+              {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+                <span className='flex gap-1 items-center text-sm text-destructive'>
+                  <Info size={16} />
+                  {t('menu.noSelectedTable')}
+                </span>
+              )}
+              <div className="flex justify-between items-center pt-3 font-medium border-t">
+                <div className='flex gap-2 items-center'>
+                  <span className="text-sm font-semibold">{t('menu.subTotal')}:</span>
+                  <span className="text-2xl font-bold text-primary">
+                    {`${formatCurrency(totalAfterDiscount)}`}
                   </span>
-                )}
-                <div className='flex justify-end w-1/2'>
-                  <CreateOrderDialog
-                    disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-                  />
                 </div>
+                <CreateOrderDialog
+                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                />
               </div>
             </div>
           </div>
         </div>
       )}
     </div>
-
   )
 }

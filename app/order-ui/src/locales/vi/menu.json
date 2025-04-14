@@ -215,7 +215,8 @@
     "cooking": "Đang làm",
     "cooked": "Đã làm xong",
     "delivered": "Đã giao",
-    "close": "Đóng"
+    "close": "Đóng",
+    "orderReferenceNumber": "Mã tham chiếu"
   },
   "table": {
     "title": "Danh sách bàn"

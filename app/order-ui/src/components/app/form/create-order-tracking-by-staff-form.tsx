@@ -76,7 +76,7 @@ export const CreateOrderTrackingByStaffForm: React.FC<
           clearSelectedItems()
 
           // Show success toast
-          showToast(t('toast.createOrderTrackingSuccess'))
+          showToast(t('toast.createOrderTrackingByStaffSuccess'))
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           showToast(t('toast.errorUpdatingOrder'))

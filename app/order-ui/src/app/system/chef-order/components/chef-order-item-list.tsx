@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ISpecificChefOrderItemInfo, ChefOrderItemStatus } from '@/types'
+import { ISpecificChefOrderItemInfo, ChefOrderItemStatus, ChefOrderStatus } from '@/types'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import ChefOrderItemDetail from './chef-order-item-detail'
 import { ScrollAreaViewport } from '@radix-ui/react-scroll-area'
 
 interface IChefOrderItemListProps {
+  chefOrderStatus: ChefOrderStatus | undefined
   chefOrderItemData?: ISpecificChefOrderItemInfo[]
 }
 
 export default function ChefOrderItemList({
+  chefOrderStatus,
   chefOrderItemData,
 }: IChefOrderItemListProps) {
   const { t } = useTranslation(['chefArea'])
@@ -94,7 +96,7 @@ export default function ChefOrderItemList({
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <div key={item.slug} className="grid gap-4 items-center w-full">
-                  <ChefOrderItemDetail chefOrderItem={item} />
+                  <ChefOrderItemDetail chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
                 </div>
               ))
             ) : (
@@ -108,7 +110,7 @@ export default function ChefOrderItemList({
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail chefOrderItem={item} />
+                <ChefOrderItemDetail chefOrderItem={item} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} />
               </div>
             ))
           ) : (
@@ -121,7 +123,7 @@ export default function ChefOrderItemList({
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail chefOrderItem={item} />
+                <ChefOrderItemDetail chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
               </div>
             ))
           ) : (

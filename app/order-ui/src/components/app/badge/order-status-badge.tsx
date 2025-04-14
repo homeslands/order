@@ -73,7 +73,7 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
 
   return (
     <span
-      className={`inline-block min-w-fit w-32 px-3 py-0.5 text-center text-[0.7rem] ${getBadgeColor(
+      className={`inline-block min-w-fit w-fit px-3 py-1 text-center text-[0.7rem] ${getBadgeColor(
         order?.status || OrderStatus.FAILED,
       )} rounded-full`}
     >

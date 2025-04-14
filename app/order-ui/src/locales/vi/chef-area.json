@@ -37,6 +37,7 @@
     "status": "Trạng thái",
     "all": "Tất cả",
     "reception": "Nhận đơn",
+    "notAccepted": "Chưa tiếp nhận",
     "accepted": "Đã tiếp nhận",
     "pending": "Chờ làm",
     "rejected": "Từ chối",
