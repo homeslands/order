@@ -63,9 +63,9 @@ export class ChefAreaService {
       const branch = await this.branchUtils.getBranch({
         where: { slug: query.branch },
       });
-      Object.assign(where, {
-        branch,
-      });
+      where.where = {
+        branch: { id: branch.id },
+      };
     }
 
     const chefAreas = await this.chefAreaRepository.find(where);
