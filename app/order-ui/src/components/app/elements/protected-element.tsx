@@ -43,7 +43,6 @@ export default function ProtectedElement({
     }
 
     if (pathname.includes(ROUTE.STAFF_PROFILE)
-      || pathname.includes(ROUTE.STAFF_MENU_MANAGEMENT)
       || pathname.includes(ROUTE.STAFF_ORDER_PAYMENT)
       || pathname.includes(ROUTE.ORDER_SUCCESS)) {
       return true;

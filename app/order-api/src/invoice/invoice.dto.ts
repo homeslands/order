@@ -33,6 +33,14 @@ export class InvoiceResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  voucherValue: number;
+
+  @AutoMap()
+  @ApiProperty()
+  referenceNumber: number;
+
+  @AutoMap()
+  @ApiProperty()
   status: string;
 
   @AutoMap()

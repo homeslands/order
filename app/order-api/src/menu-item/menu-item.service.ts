@@ -128,6 +128,8 @@ export class MenuItemService {
     if (existedMenuItem)
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_EXIST);
 
+    // check product is belong to branch or not
+
     const date = new Date(menu.date);
     const promotion = await this.promotionUtils.getPromotionByProductAndBranch(
       date,

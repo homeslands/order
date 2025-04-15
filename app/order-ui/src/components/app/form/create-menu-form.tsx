@@ -34,13 +34,6 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
   const { t } = useTranslation(['menu'])
   const { userInfo } = useUserStore()
   const { mutate: createMenu } = useCreateMenu()
-  // const { pagination } = usePagination()
-  // const { data: menuData } = useAllMenus({
-  //   order: 'DESC',
-  //   page: pagination.pageIndex,
-  //   pageSize: pagination.pageSize,
-  //   branch: userInfo?.branch?.slug,
-  // })
 
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),

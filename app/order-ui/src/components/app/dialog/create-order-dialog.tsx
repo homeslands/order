@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ShoppingCart } from 'lucide-react'
+import { Loader2, ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -30,7 +30,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { getCartItems, clearCart } = useCartItemStore()
-  const { mutate: createOrder } = useCreateOrder()
+  const { mutate: createOrder, isPending } = useCreateOrder()
   const [isOpen, setIsOpen] = useState(false)
   const { getUserInfo, userInfo } = useUserStore()
   const { branch } = useBranchStore()
@@ -112,10 +112,12 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
             variant="outline"
             onClick={() => setIsOpen(false)}
             className="border border-gray-300 min-w-24"
+            disabled={isPending}
           >
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={() => order && handleSubmit(order)}>
+          <Button onClick={() => order && handleSubmit(order)} disabled={isPending}>
+            {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('order.create')}
           </Button>
         </DialogFooter>

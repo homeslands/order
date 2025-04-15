@@ -192,6 +192,18 @@ export class RevenueService {
           (sum, rev) => sum + Number(rev.originalAmount),
           0,
         );
+        const totalAmountBank = revenues.reduce(
+          (sum, rev) => sum + Number(rev.totalAmountBank),
+          0,
+        );
+        const totalAmountCash = revenues.reduce(
+          (sum, rev) => sum + Number(rev.totalAmountCash),
+          0,
+        );
+        const totalAmountInternal = revenues.reduce(
+          (sum, rev) => sum + Number(rev.totalAmountInternal),
+          0,
+        );
         const voucherAmount = revenues.reduce(
           (sum, rev) => sum + Number(rev.voucherAmount),
           0,
@@ -208,6 +220,9 @@ export class RevenueService {
           originalAmount,
           voucherAmount,
           promotionAmount,
+          totalAmountBank,
+          totalAmountCash,
+          totalAmountInternal,
         };
       });
 
@@ -252,6 +267,9 @@ export class RevenueService {
           acc[index] = {
             date: date.toDate(),
             totalAmount: 0,
+            totalAmountBank: 0,
+            totalAmountCash: 0,
+            totalAmountInternal: 0,
             totalOrder: 0,
             originalAmount: 0,
             voucherAmount: 0,
@@ -263,6 +281,9 @@ export class RevenueService {
         acc[index].originalAmount += item.originalAmount;
         acc[index].voucherAmount += item.voucherAmount;
         acc[index].promotionAmount += item.promotionAmount;
+        acc[index].totalAmountBank += item.totalAmountBank;
+        acc[index].totalAmountCash += item.totalAmountCash;
+        acc[index].totalAmountInternal += item.totalAmountInternal;
         return acc;
       },
       {} as Record<string, AggregateRevenueResponseDtoFromBranchRevenue>,
@@ -287,6 +308,9 @@ export class RevenueService {
           acc[index] = {
             date: date.toDate(),
             totalAmount: 0,
+            totalAmountBank: 0,
+            totalAmountCash: 0,
+            totalAmountInternal: 0,
             totalOrder: 0,
             originalAmount: 0,
             voucherAmount: 0,
@@ -298,6 +322,9 @@ export class RevenueService {
         acc[index].originalAmount += item.originalAmount;
         acc[index].voucherAmount += item.voucherAmount;
         acc[index].promotionAmount += item.promotionAmount;
+        acc[index].totalAmountBank += item.totalAmountBank;
+        acc[index].totalAmountCash += item.totalAmountCash;
+        acc[index].totalAmountInternal += item.totalAmountInternal;
         return acc;
       },
       {} as Record<string, AggregateRevenueResponseDtoFromBranchRevenue>,

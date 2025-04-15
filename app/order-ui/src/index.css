@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .swiper-pagination-bullet-active {
   width: 16px;
   height: 10px;
@@ -95,11 +101,11 @@
   }
 
   .auth-layout {
-    @apply flex items-center justify-center w-full min-h-screen bg-muted text-foreground;
+    @apply flex justify-center items-center w-full min-h-screen bg-muted text-foreground;
   }
 
   .login-background {
-    @apply absolute inset-0 z-10 object-cover w-full h-full;
+    @apply object-cover absolute inset-0 z-10 w-full h-full;
   }
 
   .header {
@@ -119,11 +125,11 @@
   }
 
   .icon {
-    @apply h-3.5 w-3.5;
+    @apply w-3.5 h-3.5;
   }
 
   .icon-sm {
-    @apply h-2.5 w-2.5;
+    @apply w-2.5 h-2.5;
   }
 
   .header-icon {
@@ -131,15 +137,15 @@
   }
 
   .danger-icon {
-    @apply h-3.5 w-3.5 text-red-500;
+    @apply w-3.5 h-3.5 text-red-500;
   }
 
   .flex-center {
-    @apply flex items-center justify-center gap-2;
+    @apply flex gap-2 justify-center items-center;
   }
 
   .flex-between {
-    @apply flex items-center justify-between;
+    @apply flex justify-between items-center;
   }
 
   .primary-highlight {

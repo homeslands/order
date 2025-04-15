@@ -7,18 +7,27 @@ import { BranchRevenue } from './branch-revenue.entity';
 import { BranchRevenueScheduler } from './branch-revenue.scheduler';
 import { BranchRevenueProfile } from './branch-revenue.mapper';
 import { DbModule } from 'src/db/db.module';
-import { Payment } from 'src/payment/payment.entity';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { FileService } from 'src/file/file.service';
+import { File } from 'src/file/file.entity';
+import { PdfService } from 'src/pdf/pdf.service';
 import { Order } from 'src/order/order.entity';
-import { OrderItem } from 'src/order-item/order-item.entity';
-
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { OrderUtils } from 'src/order/order.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
+import { Mutex } from 'async-mutex';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Branch,
       BranchRevenue,
-      Payment,
+      File,
       Order,
-      OrderItem,
+      MenuItem,
+      Menu,
     ]),
     DbModule,
   ],
@@ -27,6 +36,14 @@ import { OrderItem } from 'src/order-item/order-item.entity';
     BranchRevenueService,
     BranchRevenueScheduler,
     BranchRevenueProfile,
+    BranchUtils,
+    FileService,
+    PdfService,
+    QrCodeService,
+    OrderUtils,
+    MenuItemUtils,
+    MenuUtils,
+    Mutex,
   ],
   exports: [BranchRevenueService],
 })

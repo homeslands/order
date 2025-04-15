@@ -1,13 +1,15 @@
 import { useTranslation } from 'react-i18next'
 
 import { OrderItemStatus } from '@/types'
+import { Badge } from '@/components/ui'
 
 interface IOrderItemStatusBadgeProps {
   status: OrderItemStatus
+  rounded?: string
 }
 
 export default function OrderItemStatusBadge({
-  status,
+  status, rounded
 }: IOrderItemStatusBadgeProps) {
   const { t } = useTranslation(['menu'])
 
@@ -38,12 +40,12 @@ export default function OrderItemStatusBadge({
   }
   // Ensure the component returns valid JSX
   return (
-    <span
-      className={`inline-block w-fit px-2 py-1 text-center text-[0.5rem] ${getBadgeColor(
+    <Badge
+      className={`w-fit px-2 h-7 py-1 text-center text-xs ${getBadgeColor(
         status,
-      )} rounded-full`}
+      )} ${rounded === 'md' ? 'rounded-md' : 'rounded-full'} `}
     >
       {getBadgeText(status)}
-    </span>
+    </Badge>
   )
 }

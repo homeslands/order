@@ -6,12 +6,15 @@ export const MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE =
   'MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE';
 export const CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H =
   'CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H';
-
 export const START_DATE_IS_NOT_EMPTY = 'START_DATE_IS_NOT_EMPTY';
 export const END_DATE_IS_NOT_EMPTY = 'END_DATE_IS_NOT_EMPTY';
 export const START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE =
   'START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE';
-
+export const BRANCH_SLUG_IS_NOT_EMPTY = 'BRANCH_SLUG_IS_NOT_EMPTY';
+export const START_DATE_AND_END_DATE_MUST_BE_PROVIDED =
+  'START_DATE_AND_END_DATE_MUST_BE_PROVIDED';
+export const NO_ORDERS_FOUND_IN_RANGE_TIME = 'NO_ORDERS_FOUND_IN_RANGE_TIME';
+export const NUMBER_OF_ORDERS_NOT_MATCH = 'NUMBER_OF_ORDERS_NOT_MATCH';
 export type TBranchRevenueErrorCodeKey =
   | typeof REFRESH_BRANCH_REVENUE_ERROR
   | typeof MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE
@@ -19,13 +22,27 @@ export type TBranchRevenueErrorCodeKey =
   | typeof START_DATE_IS_NOT_EMPTY
   | typeof END_DATE_IS_NOT_EMPTY
   | typeof START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
-  | typeof CREATE_BRANCH_REVENUE_ERROR;
+  | typeof CREATE_BRANCH_REVENUE_ERROR
+  | typeof BRANCH_SLUG_IS_NOT_EMPTY
+  | typeof START_DATE_AND_END_DATE_MUST_BE_PROVIDED
+  | typeof NO_ORDERS_FOUND_IN_RANGE_TIME
+  | typeof NUMBER_OF_ORDERS_NOT_MATCH;
 
 // 143001 – 143200
-export type TBranchRevenueErrorCode = Record<
-  TBranchRevenueErrorCodeKey,
-  TErrorCodeValue
->;
+export type TBranchRevenueErrorCode = {
+  CREATE_BRANCH_REVENUE_ERROR: TErrorCodeValue;
+  REFRESH_BRANCH_REVENUE_ERROR: TErrorCodeValue;
+  MAY_BE_DUPLICATE_RECORD_BRANCH_REVENUE_ONE_DAY_IN_DATABASE: TErrorCodeValue;
+  CAN_NOT_REFRESH_BRANCH_REVENUE_MANUALLY_FROM_0H_TO_2H: TErrorCodeValue;
+  START_DATE_IS_NOT_EMPTY: TErrorCodeValue;
+  END_DATE_IS_NOT_EMPTY: TErrorCodeValue;
+  START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE: TErrorCodeValue;
+  BRANCH_SLUG_IS_NOT_EMPTY: TErrorCodeValue;
+  EXPORT_BRANCH_REVENUE_ERROR: TErrorCodeValue;
+  START_DATE_AND_END_DATE_MUST_BE_PROVIDED: TErrorCodeValue;
+  NO_ORDERS_FOUND_IN_RANGE_TIME: TErrorCodeValue;
+  NUMBER_OF_ORDERS_NOT_MATCH: TErrorCodeValue;
+};
 
 export const BranchRevenueValidation: TBranchRevenueErrorCode = {
   CREATE_BRANCH_REVENUE_ERROR: createErrorCode(
@@ -44,10 +61,27 @@ export const BranchRevenueValidation: TBranchRevenueErrorCode = {
     143004,
     'Can not fresh branch revenue manually from 0h to 2h',
   ),
-  START_DATE_IS_NOT_EMPTY: createErrorCode(143205, 'Start date is not empty'),
-  END_DATE_IS_NOT_EMPTY: createErrorCode(143206, 'End date is not empty'),
+  START_DATE_IS_NOT_EMPTY: createErrorCode(143005, 'Start date is not empty'),
+  END_DATE_IS_NOT_EMPTY: createErrorCode(143006, 'End date is not empty'),
   START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE: createErrorCode(
-    143207,
+    143007,
     'Start date only smaller or equal end date',
+  ),
+  BRANCH_SLUG_IS_NOT_EMPTY: createErrorCode(143008, 'Branch slug is not empty'),
+  EXPORT_BRANCH_REVENUE_ERROR: createErrorCode(
+    143209,
+    'Error when exporting branch revenue to Excel',
+  ),
+  START_DATE_AND_END_DATE_MUST_BE_PROVIDED: createErrorCode(
+    143210,
+    'Start date and end date must be provided',
+  ),
+  NO_ORDERS_FOUND_IN_RANGE_TIME: createErrorCode(
+    143211,
+    'No orders found in range time',
+  ),
+  NUMBER_OF_ORDERS_NOT_MATCH: createErrorCode(
+    143212,
+    'Number of orders not match',
   ),
 };

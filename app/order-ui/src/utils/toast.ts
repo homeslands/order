@@ -191,6 +191,7 @@ const errorCodes: { [key: number]: string } = {
   101012: 'toast.invalidOrderItems',
   101013: 'toast.updateOrderError',
   101014: 'toast.invalidOrderSlug',
+  155004: 'toast.onlyUpdateChefOrderItemStatusWhenChefOrderStatusIsAccepted',
 }
 
 export function showToast(message: string) {

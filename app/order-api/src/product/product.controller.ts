@@ -96,7 +96,7 @@ export class ProductController {
   })
   @ApiOperation({ summary: 'Create new product' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async createProduct(
     @Body(
       new ValidationPipe({
@@ -181,7 +181,7 @@ export class ProductController {
     required: true,
     example: '',
   })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Chef, RoleEnum.Staff)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async updateProduct(
     @Param('slug') slug: string,
     @Body(
@@ -221,7 +221,7 @@ export class ProductController {
     required: true,
     example: '',
   })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async deleteProduct(
     @Param('slug') slug: string,
   ): Promise<AppResponseDto<string>> {

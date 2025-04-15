@@ -24,14 +24,14 @@ export const createUserSchema = z
     phonenumber: z
       .string()
       .min(10, 'Số điện thoại không hợp lệ')
-      .max(10, "Số điện thoại không hợp lệ")
+      .max(10, 'Số điện thoại không hợp lệ')
       .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
     password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    firstName: z.string().min(1, "Vui lòng nhập tên"),
-    lastName: z.string().min(1, "Vui lòng nhập họ"),
-    branch: z.string().min(1, "Vui lòng chọn chi nhánh"),
-    role: z.string().min(1, "Vui lòng chọn vai trò"),
+    firstName: z.string().min(1, 'Vui lòng nhập tên'),
+    lastName: z.string().min(1, 'Vui lòng nhập họ'),
+    branch: z.string().optional(),
+    role: z.string().min(1, 'Vui lòng chọn vai trò'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Mật khẩu không khớp',
@@ -44,8 +44,8 @@ export const updateUserSchema = z.object({
   lastName: z.string().min(1),
   dob: z.string(),
   email: z.string().email('Vui lòng nhập đúng định dạng email'),
-  address: z.string().min(1, "Vui lòng nhập địa chỉ"),
-  branch: z.string().min(1, "Vui lòng chọn chi nhánh"),
+  address: z.string().min(1, 'Vui lòng nhập địa chỉ'),
+  branch: z.string().min(1, 'Vui lòng chọn chi nhánh'),
 })
 
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>

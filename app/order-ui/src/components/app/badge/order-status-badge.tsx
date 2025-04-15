@@ -13,13 +13,13 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
   const getBadgeColor = (status: OrderStatus) => {
     switch (status) {
       case OrderStatus.PENDING:
-        return 'bg-yellow-500 bg-yellow-50 text-white'
+        return 'bg-yellow-500  text-white'
       case OrderStatus.SHIPPING:
-        return 'bg-blue-500 bg-blue-50 text-white '
+        return 'bg-indigo-700 text-white '
       case OrderStatus.COMPLETED:
-        return 'bg-green-500 bg-green-50 text-white '
+        return 'bg-blue-500 text-white '
       case OrderStatus.PAID:
-        return 'bg-green-500 bg-green-50 text-white'
+        return 'bg-green-500 text-white'
       case OrderStatus.FAILED:
         return 'bg-destructive bg-destructive/20 text-white'
     }
@@ -73,7 +73,7 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
 
   return (
     <span
-      className={`inline-block min-w-fit w-32 px-3 py-0.5 text-center text-[0.7rem] ${getBadgeColor(
+      className={`inline-block min-w-fit w-fit px-3 py-1 text-center text-[0.7rem] ${getBadgeColor(
         order?.status || OrderStatus.FAILED,
       )} rounded-full`}
     >

@@ -107,7 +107,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void
   onInputChange?: (value: string) => void
   periodOfTime?: string
-  onDateChange?: (startDate: string | null, endDate: string | null) => void
+  onDateChange?: (startDate: string, endDate: string) => void
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
   rowClassName?: (row: TData) => string
@@ -150,8 +150,8 @@ export function DataTable<TData, TValue>({
     return date;
   }, []);
   today.setHours(0, 0, 0, 0)
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
 
   // Add effect to call onInputChange when debounced value changes
   useEffect(() => {
@@ -198,6 +198,9 @@ export function DataTable<TData, TValue>({
     if (periodOfTime === 'today') {
       setStartDate(moment(today).format('YYYY-MM-DD'))
       setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'yesterday') {
+      setStartDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
+      setEndDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
     } else if (periodOfTime === 'inWeek') {
       setStartDate(moment(today).subtract(1, 'week').format('YYYY-MM-DD'))
       setEndDate(moment(today).format('YYYY-MM-DD'))
@@ -237,7 +240,7 @@ export function DataTable<TData, TValue>({
               <div className="flex gap-2 items-center w-[355px]">
                 <div className="flex-1">
                   <SimpleDatePicker
-                    value={startDate || undefined}
+                    value={startDate}
                     onChange={setStartDate}
                     disabledDates={endDate ? (date: Date) => {
                       const endDateObj = new Date(endDate.split('/').reverse().join('-'))
@@ -249,7 +252,7 @@ export function DataTable<TData, TValue>({
                 <MoveRight className="icon" />
                 <div className="flex-1">
                   <SimpleDatePicker
-                    value={endDate || undefined}
+                    value={endDate}
                     onChange={setEndDate}
                     disabledDates={startDate ? (date: Date) => {
                       const startDateObj = new Date(startDate.split('/').reverse().join('-'))

@@ -1,6 +1,7 @@
+import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import moment from 'moment'
+import { MoreHorizontal } from 'lucide-react'
 
 import {
   Button,
@@ -16,7 +17,6 @@ import {
   ConfirmUpdateChefOrderStatusDialog,
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
-import { MoreHorizontal } from 'lucide-react'
 
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])

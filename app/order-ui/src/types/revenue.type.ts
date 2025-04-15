@@ -8,15 +8,19 @@ export interface IRevenue extends IBase {
 }
 
 export interface IRevenueQuery {
+  branch?: string
   startDate?: string
   endDate?: string
   type?: RevenueTypeQuery
 }
 
-export interface IBranchRevenue {
-  slug: string
-  branchId: string
+export interface IBranchRevenue extends IBase {
   date: string
+  maxReferenceNumberOrder: number
+  minReferenceNumberOrder: number
+  totalAmountBank: number
+  totalAmountCash: number
+  totalAmountInternal: number
   originalAmount: number
   promotionAmount: number
   voucherAmount: number

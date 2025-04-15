@@ -28,7 +28,16 @@
     "goHome": "Về trang chủ",
     "goBack": "Quay lại trang trước",
     "oops": "Oops!",
-    "somethingWentWrong": "Có lỗi xảy ra"
+    "somethingWentWrong": "Có lỗi xảy ra",
+    "hours": "Giờ",
+    "minutes": "Phút",
+    "seconds": "Giây",
+    "selectDate": "Chọn ngày",
+    "and": "và",
+    "time": "giờ",
+    "hour": "Giờ",
+    "minute": "Phút",
+    "endDateMustBeGreaterThanStartDate": "Ngày kết thúc phải lớn hơn ngày bắt đầu"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",
@@ -56,6 +65,7 @@
   },
   "dayOfWeek": {
     "selectTimeRange": "Chọn thời gian",
+    "hour": "Giờ",
     "day": "Ngày",
     "month": "Tháng",
     "year": "Năm",
@@ -68,6 +78,7 @@
     "6": "Chủ nhật",
     "noDayOfWeek": "Không có",
     "today": "Hôm nay",
+    "yesterday": "Hôm qua",
     "inWeek": "Trong tuần",
     "inMonth": "Trong tháng",
     "inYear": "Trong năm"

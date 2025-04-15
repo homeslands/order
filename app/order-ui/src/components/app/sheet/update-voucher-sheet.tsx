@@ -215,7 +215,7 @@ export default function UpdateVoucherSheet({
         control={form.control}
         name="value"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className='flex flex-col justify-between'>
             <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">*</span>
               {t('voucher.value')}
@@ -276,7 +276,7 @@ export default function UpdateVoucherSheet({
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex items-center gap-1 ">
               <span className="text-destructive">*</span>
               {t('voucher.minOrderValue')}
             </FormLabel>

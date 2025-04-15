@@ -222,7 +222,7 @@
     "confirmPayment": "Make payment",
     "phoneNumber": "Phone number",
     "total": "Total amount: ",
-    "pending": "Pending payment",
+    "pending": "Pending",
     "shipping": "Shipping",
     "completed": "Completed",
     "paid": "Paid",

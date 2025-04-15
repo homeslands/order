@@ -97,7 +97,7 @@ export default function CreatePromotionSheet() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.name')}
             </FormLabel>
@@ -118,7 +118,7 @@ export default function CreatePromotionSheet() {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.description')}
             </FormLabel>
@@ -139,7 +139,7 @@ export default function CreatePromotionSheet() {
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.startDate')}
             </FormLabel>
@@ -161,7 +161,7 @@ export default function CreatePromotionSheet() {
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.endDate')}
             </FormLabel>
@@ -183,7 +183,7 @@ export default function CreatePromotionSheet() {
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.type')}
             </FormLabel>
@@ -206,7 +206,7 @@ export default function CreatePromotionSheet() {
         name="value"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('promotion.value')}
             </FormLabel>
@@ -257,7 +257,7 @@ export default function CreatePromotionSheet() {
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className={`p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -265,13 +265,13 @@ export default function CreatePromotionSheet() {
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Kiểu khuyến mãi và giá trị khuyến mãi */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.type}
                     {formFields.value}
                   </div>

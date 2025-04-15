@@ -21,17 +21,17 @@ export function SystemMenuManagementTabs() {
 
   return (
     <Tabs defaultValue={tab} className="w-full">
-      <TabsList className="grid grid-cols-3 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
+      <TabsList className="flex justify-start gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
         <TabsTrigger
           value="isTemplate"
-          className="flex justify-center"
+          className="flex justify-center min-w-[150px]"
           onClick={() => setTab('isTemplate')}
         >
           {t('menu.isTemplate')}
         </TabsTrigger>
         <TabsTrigger
           value="notTemplate"
-          className="flex justify-center"
+          className="flex justify-center min-w-[160px] w-fit"
           onClick={() => setTab('notTemplate')}
         >
           {t('menu.noTemplate')}

@@ -308,7 +308,7 @@ export default function PaymentPage() {
                 />
               </div>
             )}
-            <div className="flex justify-between py-6">
+            <div className="flex flex-wrap-reverse gap-2 justify-between py-6 px-2">
               <Button
                 className="w-fit"
                 onClick={() => navigate(-1)}
@@ -317,7 +317,7 @@ export default function PaymentPage() {
               </Button>
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
-                  <div className="flex gap-2 justify-end px-2">
+                  <div className="flex gap-2 justify-end">
                     {paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER ?
                       <>
                         <DownloadQrCode qrCode={qrCode} slug={slug} />

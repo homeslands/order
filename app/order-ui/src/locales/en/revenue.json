@@ -13,6 +13,12 @@
     "totalAmount": "Total amount",
     "totalOrder": "Total order",
     "voucherAmount": "Voucher amount",
-    "tableRevenue": "Revenue statistics table"
+    "tableRevenue": "Revenue statistics table",
+    "revenueSystem": "Total revenue",
+    "order": "Order",
+    "cash": "Cash",
+    "bank": "Bank",
+    "internal": "Internal",
+    "revenue": "Revenue"
   }
 }

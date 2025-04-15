@@ -100,7 +100,7 @@ export default function OrderHistoryDetailSheet({
                           {t('order.cashier')}{' '}
                         </span>
                         <span className="text-muted-foreground">
-                          {`${orderDetail?.owner?.firstName} ${orderDetail?.owner?.lastName} - ${orderDetail?.owner?.phonenumber}`}
+                          {`${orderDetail?.approvalBy?.firstName} ${orderDetail?.approvalBy?.lastName} - ${orderDetail?.approvalBy?.phonenumber}`}
                         </span>
                       </p>
                     </div>
@@ -112,11 +112,11 @@ export default function OrderHistoryDetailSheet({
                     <div className="px-3 py-2 font-bold uppercase">
                       {t('order.customer')}
                     </div>
-                    <div className="px-3 py-2 text-xs">
-                      <p className="font-bold">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-bold">
                         {`${orderDetail?.owner?.firstName} ${orderDetail?.owner?.lastName}`}
                       </p>
-                      <p className="text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {orderDetail?.owner?.phonenumber}
                       </p>
                     </div>
@@ -126,12 +126,12 @@ export default function OrderHistoryDetailSheet({
                       {t('order.orderType')}
                     </div>
                     <div className="px-3 py-2 text-sm">
-                      <p>
+                      <p className="font-bold">
                         {orderDetail?.type === OrderTypeEnum.AT_TABLE
                           ? t('order.dineIn')
                           : t('order.takeAway')}
                       </p>
-                      <p className="flex gap-1">
+                      <p className="flex gap-1 text-muted-foreground">
                         <span className="col-span-2">{t('order.tableNumber')}</span>
                         <span className="col-span-1">
                           {orderDetail?.table?.name}
@@ -149,7 +149,7 @@ export default function OrderHistoryDetailSheet({
                         <span className="col-span-1 text-sm font-bold">
                           {t('paymentMethod.title')}
                         </span>
-                        <span className="text-xs">
+                        <span className="text-sm text-muted-foreground">
                           {orderDetail?.payment?.paymentMethod ? (
                             <>
                               {orderDetail?.payment.paymentMethod ===
@@ -160,17 +160,17 @@ export default function OrderHistoryDetailSheet({
                                 'cash' && <span>{t('paymentMethod.cash')}</span>}
                             </>
                           ) : (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                               {t('order.pending')}
                             </span>
                           )}
                         </span>
                       </p>
                       <p className="flex gap-1 items-center">
-                        <span className="col-span-1 text-xs font-semibold">
+                        <span className="col-span-1 text-sm font-semibold">
                           {t('paymentMethod.status')}
                         </span>
-                        <span className="col-span-1 text-xs">
+                        <span className="col-span-1 text-sm">
                           {order?.payment ? (
                             <PaymentStatusBadge
                               status={orderDetail?.payment?.statusCode}
@@ -267,7 +267,7 @@ export default function OrderHistoryDetailSheet({
                     </div>}
                   <Separator />
                   <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-bold text-md">
                       {t('order.totalPayment')}
                     </p>
                     <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.subtotal || 0)}`}</p>

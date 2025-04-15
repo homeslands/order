@@ -101,6 +101,7 @@ export interface IOrder extends IBase {
     lastName: string
     phonenumber: string
   }
+  referenceNumber: number
   chefOrders: IChefOrders[]
   type: string
   table: ITable
@@ -184,7 +185,7 @@ export enum OrderStatus {
   ALL = 'all',
   PENDING = 'pending',
   SHIPPING = 'shipping',
-  FAILED = 'FAILED',
+  FAILED = 'failed',
   COMPLETED = 'completed',
   PAID = 'paid',
 }

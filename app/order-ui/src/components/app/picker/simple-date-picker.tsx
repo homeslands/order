@@ -2,6 +2,8 @@ import * as React from 'react'
 import moment from 'moment'
 import { CalendarIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { vi } from 'date-fns/locale'
+import { format } from 'date-fns'
 
 import { cn } from '@/lib/utils'
 import {
@@ -10,6 +12,11 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui'
 
 interface ISimpleDatePickerProps {
@@ -19,6 +26,15 @@ interface ISimpleDatePickerProps {
     disableFutureDates?: boolean
 }
 
+// Utility to generate an array of years
+const generateYears = (start: number, end: number) => {
+    const years = []
+    for (let i = end; i >= start; i--) {
+        years.push(i)
+    }
+    return years
+}
+
 export default function SimpleDatePicker({
     value,
     onChange,
@@ -26,6 +42,9 @@ export default function SimpleDatePicker({
     disableFutureDates,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
+    const [month, setMonth] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
+    const [year, setYear] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getFullYear() : new Date().getFullYear())
+    const years = generateYears(1920, new Date().getFullYear()) // 100 years range
     const [date, setDate] = React.useState<Date | undefined>(() => {
         if (value) {
             const momentDate = moment(value, ['YYYY-MM-DD', 'DD/MM/YYYY'])
@@ -48,6 +67,10 @@ export default function SimpleDatePicker({
 
     const handleDateChange = (selectedDate?: Date) => {
         if (selectedDate) {
+            // if (!validateEndDate(selectedDate)) {
+            //     alert(t('common.endDateMustBeGreaterThanStartDate'))
+            //     return
+            // }
             setDate(selectedDate)
             // Format date as YYYY-MM-DD for consistency
             const formattedDate = moment(selectedDate).format('YYYY-MM-DD')
@@ -72,6 +95,13 @@ export default function SimpleDatePicker({
         return false
     }
 
+    // const validateEndDate = (endDate: Date) => {
+    //     if (date && endDate) {
+    //         return endDate > date
+    //     }
+    //     return false
+    // }
+
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -82,11 +112,45 @@ export default function SimpleDatePicker({
                         !date && 'text-muted-foreground',
                     )}
                 >
-                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    <CalendarIcon className="mr-2 w-4 h-4" />
                     {date ? formatDisplayDate(date) : <span>{t('menu.chooseDate')}</span>}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="p-0 w-auto">
+                {/* Month and Year Selection */}
+                <div className="flex justify-between items-center mb-4 space-x-2">
+                    <Select
+                        value={String(month)}
+                        onValueChange={(value) => setMonth(Number(value))}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder={t('common.month')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <SelectItem key={i} value={String(i)}>
+                                    {format(new Date(0, i), 'MMMM', { locale: vi }).charAt(0).toUpperCase() + format(new Date(0, i), 'MMMM', { locale: vi }).slice(1)} {/* Tháng bằng tiếng Việt, chữ cái đầu tiên in hoa */}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={String(year)}
+                        onValueChange={(value) => setYear(Number(value))}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder={t('common.year')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {years.map((year) => (
+                                <SelectItem key={year} value={String(year)}>
+                                    {year}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <Calendar
                     mode="single"
                     selected={date}

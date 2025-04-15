@@ -13,6 +13,8 @@ export const ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER =
   'ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER';
 export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
 export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
+export const PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA =
+  'PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA';
 
 export type TChefOrderErrorCodeKey =
   | typeof ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA
@@ -22,7 +24,8 @@ export type TChefOrderErrorCodeKey =
   | typeof ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER
   | typeof CHEF_ORDERS_ALREADY_EXIST_FROM_THIS_ORDER
   | typeof START_DATE_CAN_NOT_BE_EMPTY
-  | typeof END_DATE_CAN_NOT_BE_EMPTY;
+  | typeof END_DATE_CAN_NOT_BE_EMPTY
+  | typeof PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA;
 
 export type TChefOrderErrorCode = Record<
   TChefOrderErrorCodeKey,
@@ -60,6 +63,10 @@ const ChefOrderValidation: TChefOrderErrorCode = {
   END_DATE_CAN_NOT_BE_EMPTY: createErrorCode(
     154508,
     'End date can not be empty',
+  ),
+  PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA: createErrorCode(
+    154509,
+    'Product not belong to any chef area',
   ),
 };
 

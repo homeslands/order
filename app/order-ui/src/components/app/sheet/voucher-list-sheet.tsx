@@ -179,14 +179,14 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
     return (
       <div className={baseCardClass} key={voucher.slug}>
         {isBest && (
-          <div className="absolute px-2 py-1 text-xs text-white rounded-br-md rounded-tl-md -top-0 -left-0 bg-primary">
+          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
         )}
         <div className={`flex items-center justify-center w-full col-span-2 rounded-md ${isVoucherSelected(voucher.slug) ? `bg-${getTheme() === 'light' ? 'white' : 'black'}` : 'bg-muted-foreground/10'}`}>
-          <Ticket size={56} className='text-muted-foreground' />
+          <Ticket size={56} className='text-primary' />
         </div>
-        <div className='flex flex-col justify-between w-full col-span-3'>
+        <div className='flex flex-col col-span-3 justify-between w-full'>
           <div className='flex flex-col gap-1'>
             <span className='text-xs sm:text-sm text-muted-foreground'>
               {voucher.title}
@@ -194,7 +194,7 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
             <span className='text-xs italic text-primary'>
               {t('voucher.discountValue')}{voucher.value}% {t('voucher.orderValue')}
             </span>
-            <span className='flex items-center gap-1 text-sm text-muted-foreground'>
+            <span className='flex gap-1 items-center text-sm text-muted-foreground'>
               {voucher.code}
               <TooltipProvider>
                 <Tooltip>
@@ -217,7 +217,7 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
             <span className='hidden sm:text-xs text-muted-foreground/60'>Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}</span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
                   ? t('voucher.outOfStock')
@@ -233,20 +233,20 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
             HSD: {moment(voucher.endDate).format('DD/MM/YYYY')}
           </span>
         </div>
-        <div className='flex flex-col items-end justify-between col-span-2'>
+        <div className='flex flex-col col-span-2 justify-between items-end'>
           {!isMobile ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" className='h-8 p-2 text-muted-foreground'>
+                  <Button variant="ghost" className='p-2 h-8 text-muted-foreground'>
                     <CircleHelp />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md shadow-md text-muted-foreground`}>
-                  <div className="flex flex-col justify-between gap-4">
+                  <div className="flex flex-col gap-4 justify-between">
                     <div className="grid grid-cols-5">
                       <span className="col-span-2 text-muted-foreground/70">Mã</span>
-                      <span className="flex items-center col-span-3 gap-1">{voucher.code}
+                      <span className="flex col-span-3 gap-1 items-center">{voucher.code}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -274,15 +274,15 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
           ) : (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" className='h-8 p-2 text-muted-foreground'>
+                <Button variant="ghost" className='p-2 h-8 text-muted-foreground'>
                   <CircleHelp />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className={`w-[20rem] mr-2 p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md shadow-md text-muted-foreground`}>
-                <div className="flex flex-col justify-between gap-4">
+                <div className="flex flex-col gap-4 justify-between">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">Mã</span>
-                    <span className="flex items-center col-span-3 gap-1">{voucher.code}
+                    <span className="flex col-span-3 gap-1 items-center">{voucher.code}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -315,7 +315,7 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
               {isVoucherSelected(voucher.slug) ? t('voucher.remove') : t('voucher.use')}
             </Button>
           ) : (
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col gap-1 items-end">
               <img src={VoucherNotValid} alt="chua-thoa-dieu-kien" className="w-1/2" />
               <span className="text-xs text-destructive">
                 {voucher.minOrderValue > subTotal
@@ -332,9 +332,9 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant='ghost' className='w-full px-0 hover:bg-primary/5'>
-          <div className='flex items-center justify-between w-full gap-1 p-2 mt-2 rounded-md cursor-pointer hover:bg-primary/10'>
-            <div className='flex items-center gap-1'>
+        <Button variant='ghost' className='px-0 w-full hover:bg-primary/5'>
+          <div className='flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer hover:bg-primary/10'>
+            <div className='flex gap-1 items-center'>
               <TicketPercent className='icon text-primary' />
               <span className='text-xs text-muted-foreground'>
                 {t('voucher.useVoucher')}
@@ -356,9 +356,9 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
           <ScrollArea className={`max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-${getTheme() === 'light' ? 'white' : 'black'}`}>
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className='grid items-center grid-cols-5 gap-2'>
+              <div className='grid grid-cols-5 gap-2 items-center'>
                 <div className="relative col-span-4 p-1">
-                  <TicketPercent className="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2" />
+                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
@@ -376,7 +376,7 @@ export default function VoucherListSheet({ defaultValue, onSuccess }: IVoucherLi
             </div>
             {/* Voucher list */}
             <div>
-              <div className='flex items-center justify-between py-4'>
+              <div className='flex justify-between items-center py-4'>
                 <Label className='text-md text-muted-foreground'>
                   {t('voucher.list')}
                 </Label>

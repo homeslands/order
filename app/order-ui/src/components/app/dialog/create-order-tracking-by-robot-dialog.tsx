@@ -37,7 +37,7 @@ export default function CreateOrderTrackingByRobotDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex justify-start" asChild>
         <Button
-          className="gap-1"
+          className="gap-1 text-xs sm:text-sm"
           onClick={() => setIsOpen(true)}
           disabled={isPending || disabled} // Disable button khi pending
         >

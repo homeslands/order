@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
                       {t('order.cashier')}{' '}
                     </span>
                     <span className="text-muted-foreground">
-                      {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName} - ${orderDetail?.result?.owner?.phonenumber}`}
+                      {`${orderInfo?.approvalBy?.firstName} ${orderInfo?.approvalBy?.lastName} - ${orderInfo?.approvalBy?.phonenumber}`}
                     </span>
                   </p>
                 </div>
@@ -107,11 +107,11 @@ export default function OrderDetailPage() {
                 <div className="px-3 py-2 font-bold uppercase">
                   {t('order.customer')}
                 </div>
-                <div className="px-3 py-2 text-xs">
+                <div className="px-3 py-2 text-xs sm:text-sm">
                   <p className="font-bold">
                     {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName}`}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-muted-foreground">
                     {orderInfo?.owner?.phonenumber}
                   </p>
                 </div>
@@ -163,7 +163,7 @@ export default function OrderDetailPage() {
                         />
                         {item.variant.product.name}
                       </TableCell>
-                      <TableCell>{item.variant.size.name}</TableCell>
+                      <TableCell>{item.variant.size.name.toUpperCase()}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell className="text-right">
                         {item.promotion && item.promotion.value > 0 ? (
@@ -199,37 +199,40 @@ export default function OrderDetailPage() {
             <div className="rounded-sm border">
               <div className="px-3 py-2">
                 <p className="flex flex-col gap-1 items-start pb-2">
-                  <span className="col-span-1 text-sm font-bold">
+                  <span className="col-span-1 text-sm font-bold sm:text-lg">
                     {t('paymentMethod.title')}
                   </span>
-                  <span className="text-xs">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {orderInfo?.payment?.paymentMethod ? (
                       <>
                         {orderInfo?.payment.paymentMethod ===
                           'bank-transfer' && (
-                            <span>{t('paymentMethod.bankTransfer')}</span>
+                            <span className="flex gap-1 items-center">
+                              {t('paymentMethod.bankTransfer')}
+                              {orderInfo?.payment ? (
+                                <PaymentStatusBadge
+                                  status={orderInfo?.payment?.statusCode}
+                                />
+                              ) : (
+                                <span className="flex gap-1 items-center text-xs text-muted-foreground">
+                                  {t('order.pending')}
+                                  <PaymentStatusBadge
+                                    status={orderInfo?.payment?.statusCode}
+                                  />
+                                </span>
+                              )}
+                            </span>
                           )}
                         {orderInfo?.payment.paymentMethod ===
-                          'cash' && <span>{t('paymentMethod.cash')}</span>}
+                          'cash' && <span className="flex gap-1 items-center">
+                            {t('paymentMethod.cash')}
+                            <PaymentStatusBadge
+                              status={orderInfo?.payment?.statusCode}
+                            />
+                          </span>}
                       </>
                     ) : (
-                      <span className="text-xs text-muted-foreground">
-                        {t('order.pending')}
-                      </span>
-                    )}
-                  </span>
-                </p>
-                <p className="flex gap-1 items-center">
-                  <span className="col-span-1 text-xs font-semibold">
-                    {t('paymentMethod.status')}
-                  </span>
-                  <span className="col-span-1 text-xs">
-                    {orderInfo?.payment ? (
-                      <PaymentStatusBadge
-                        status={orderInfo?.payment?.statusCode}
-                      />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         {t('order.pending')}
                       </span>
                     )}
@@ -252,7 +255,7 @@ export default function OrderDetailPage() {
                 <p className='text-sm italic text-green-500'>{`- ${formatCurrency(discount || 0)}`}</p>
               </div>
               {orderDetail?.result.voucher &&
-                <div className="flex justify-between pb-4 w-full border-b">
+                <div className="flex justify-between pb-4 w-full">
                   <h3 className="text-sm italic font-medium text-green-500">
                     {t('order.voucher')}
                   </h3>
@@ -262,7 +265,7 @@ export default function OrderDetailPage() {
                 </div>}
               <Separator />
               <div className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="font-bold text-md">
                   {t('order.totalPayment')}
                 </p>
                 <p className="text-xl font-bold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>

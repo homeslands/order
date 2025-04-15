@@ -63,6 +63,8 @@ import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { Payment } from 'src/payment/payment.entity';
+import { Mutex } from 'async-mutex';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -125,6 +127,13 @@ describe('OrderService', () => {
           },
         },
         {
+          provide: Mutex,
+          useValue: {
+            acquire: jest.fn(),
+            runExclusive: jest.fn(),
+          },
+        },
+        {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
         },
@@ -134,6 +143,10 @@ describe('OrderService', () => {
         },
         {
           provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,
         },
         {
