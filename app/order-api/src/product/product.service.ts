@@ -341,7 +341,7 @@ export class ProductService {
 
     if (query.branch) {
       const branch = await this.branchUtils.getBranch({
-        where: { slug: query.branch },
+        where: { slug: query.branch ?? IsNull() },
         relations: ['chefAreas.productChefAreas.product'],
       });
 
@@ -351,9 +351,11 @@ export class ProductService {
         ),
       );
 
-      findOptionsWhere.id = query.isAppliedBranchForChefArea
-        ? In(branchProductIds)
-        : Not(In(branchProductIds));
+      if (query.isAppliedBranchForChefArea !== undefined) {
+        findOptionsWhere.id = query.isAppliedBranchForChefArea
+          ? In(branchProductIds)
+          : Not(In(branchProductIds));
+      }
     }
 
     if (query.menu) {
@@ -361,9 +363,42 @@ export class ProductService {
         where: { slug: query.menu ?? IsNull() },
       });
       const productIdsInMenu = menu.menuItems.map((item) => item.product.id);
-      findOptionsWhere.id = query.inMenu
-        ? In(productIdsInMenu)
-        : Not(In(productIdsInMenu));
+      if (query.inMenu !== undefined) {
+        findOptionsWhere.id = query.inMenu
+          ? In(productIdsInMenu)
+          : Not(In(productIdsInMenu));
+      }
+    }
+
+    if (query.menu && query.branch) {
+      // product is not exist in menu and possible create menu item for branch
+      if (
+        query.isPossibleCreateMenuItemForBranch === true &&
+        query.inMenu === false
+      ) {
+        const menu = await this.menuUtils.getMenu({
+          where: { slug: query.menu ?? IsNull() },
+        });
+
+        const productIdsInMenu = menu.menuItems.map((item) => item.product.id);
+
+        const branch = await this.branchUtils.getBranch({
+          where: { slug: query.branch ?? IsNull() },
+          relations: ['chefAreas.productChefAreas.product'],
+        });
+
+        const possibleCreateMenuItemForBranchProductIds =
+          branch.chefAreas.flatMap((chefArea) =>
+            chefArea.productChefAreas.map(
+              (productChefArea) => productChefArea.product.id,
+            ),
+          );
+        const commonIds = possibleCreateMenuItemForBranchProductIds.filter(
+          (id) => !productIdsInMenu.includes(id),
+        );
+
+        findOptionsWhere.id = In(commonIds);
+      }
     }
 
     const findManyOptions: FindManyOptions<Product> = {

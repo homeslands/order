@@ -201,7 +201,8 @@ export class GetProductRequestDto extends BaseQueryDto {
 
   @AutoMap()
   @ApiProperty({
-    description: 'Get products base on branch is applied for chef area',
+    description:
+      'Get products base on branch is applied for chef area or create menu item',
     example: '',
     required: false,
   })
@@ -221,6 +222,20 @@ export class GetProductRequestDto extends BaseQueryDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   isAppliedBranchForChefArea?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'Get products that are possible to create menu item for branch or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isPossibleCreateMenuItemForBranch?: boolean;
 
   @AutoMap()
   @ApiProperty({
