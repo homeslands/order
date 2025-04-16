@@ -16,7 +16,7 @@ import {
   ScrollArea,
 } from '@/components/ui'
 import { useCreateUser } from '@/hooks'
-import { createUserSchema, TCreateUserSchema } from '@/schemas'
+import { createEmployeeSchema, TCreateEmployeeSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateUserRequest } from '@/types'
@@ -34,8 +34,8 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
   const { t } = useTranslation(['employee'])
   const { mutate: createUser } = useCreateUser()
 
-  const form = useForm<TCreateUserSchema>({
-    resolver: zodResolver(createUserSchema),
+  const form = useForm<TCreateEmployeeSchema>({
+    resolver: zodResolver(createEmployeeSchema),
     defaultValues: {
       phonenumber: '',
       password: '',
@@ -175,11 +175,11 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full max-h-[600px]">
+    <div className="flex flex-col h-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <ScrollArea className="h-[400px] px-2">
-            <div className="grid grid-cols-1 gap-4 px-1">
+            <div className="grid grid-cols-1 gap-4 p-2">
               {Object.keys(formFields).map((key) => (
                 <React.Fragment key={key}>
                   {formFields[key as keyof typeof formFields]}
@@ -187,7 +187,7 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
               ))}
             </div>
           </ScrollArea>
-          <div className="flex justify-end">
+          <div className="flex justify-end p-4 border-t">
             <Button className="flex justify-end" type="submit">
               {t('employee.create')}
             </Button>

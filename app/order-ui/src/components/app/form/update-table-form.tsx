@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,7 @@ import { IUpdateTableRequest, ITable } from '@/types'
 import { useUpdateTable } from '@/hooks'
 import { showToast } from '@/utils'
 import TableLocationSelect from '../select/table-location-select'
-import { useBranchStore } from '@/stores'
+import { QUERYKEY } from '@/constants'
 
 interface IFormUpdateTableProps {
   table: ITable | null
@@ -34,7 +34,6 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['table'])
-  const { branch } = useBranchStore()
   const { mutate: updateTable } = useUpdateTable()
   const [hasLocation, setHasLocation] = useState(false)
   const form = useForm<TUpdateTableSchema>({
@@ -42,15 +41,18 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
     defaultValues: {
       slug: table?.slug,
       name: table?.name,
-      location: table?.location,
+      location: table?.location || '',
     },
   })
+  useEffect(() => {
+    setHasLocation(table?.location ? true : false)
+  }, [table])
 
   const handleSubmit = (data: IUpdateTableRequest) => {
     updateTable(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['tables', branch ? branch?.slug : ''],
+          queryKey: [QUERYKEY.tables],
         })
         onSubmit(false)
         form.reset()
@@ -88,7 +90,7 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
         </FormControl>
       </FormItem>
     ),
-    location: (
+    location: hasLocation && (
       <FormField
         control={form.control}
         name="location"
@@ -96,7 +98,7 @@ export const UpdateTableForm: React.FC<IFormUpdateTableProps> = ({
           <FormItem>
             <FormLabel>{t('table.location')}</FormLabel>
             <FormControl>
-              <TableLocationSelect defaultValue={field.value} {...field} />
+              <TableLocationSelect defaultValue={table?.location} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

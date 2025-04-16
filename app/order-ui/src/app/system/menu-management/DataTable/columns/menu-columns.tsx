@@ -1,6 +1,5 @@
-import { NavLink } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, SquareMousePointer } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
@@ -13,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IMenu } from '@/types'
-import { ROUTE } from '@/constants'
 import { DeleteMenuDialog, UpdateMenuDialog } from '@/components/app/dialog'
 
 export const useMenusColumns = (): ColumnDef<IMenu>[] => {
@@ -81,7 +79,7 @@ export const useMenusColumns = (): ColumnDef<IMenu>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -90,20 +88,22 @@ export const useMenusColumns = (): ColumnDef<IMenu>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink
+                {/* <NavLink
                   to={`${ROUTE.STAFF_MENU_MANAGEMENT}/${menu.slug}`}
-                  className="flex items-center justify-start w-full"
+                  className="flex justify-start items-center w-full"
                 >
                   <Button
                     variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2 text-sm"
+                    className="flex gap-1 justify-start px-2 w-full text-sm"
                   >
                     <SquareMousePointer className="icon" />
                     {tCommon('common.viewDetail')}
                   </Button>
-                </NavLink>
-                <UpdateMenuDialog menu={menu} />
-                <DeleteMenuDialog menu={menu} />
+                </NavLink> */}
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UpdateMenuDialog menu={menu} />
+                  <DeleteMenuDialog menu={menu} />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

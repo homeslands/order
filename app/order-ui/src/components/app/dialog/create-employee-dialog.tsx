@@ -29,8 +29,8 @@ export default function CreateEmployeeDialog() {
           {t('employee.create')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90%] rounded-md px-6 sm:max-w-[50%]">
-        <DialogHeader>
+      <DialogContent className="max-w-[90%] rounded-md p-0 sm:max-w-[50%]">
+        <DialogHeader className="p-4">
           <DialogTitle>{t('employee.create')}</DialogTitle>
           <DialogDescription>
             {t('employee.createDescription')}

@@ -30,7 +30,7 @@ export default function OrderHistoryPage() {
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
-    branchSlug: userInfo?.branch?.slug || '',
+    branch: userInfo?.branch?.slug || '',
     hasPaging: true,
     startDate: startDate,
     endDate: endDate,

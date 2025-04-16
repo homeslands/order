@@ -172,27 +172,28 @@ export const useCartItemStore = create<ICartItemStore>()(
           })
         }
       },
-      
+
       removeCartItem: (cartItemId: string) => {
-        const { cartItems } = get();
+        const { cartItems } = get()
         if (cartItems) {
           const updatedOrderItems = cartItems.orderItems.filter(
-            (orderItem) => orderItem.id !== cartItemId // Xóa trực tiếp sản phẩm
-          );
+            (orderItem) => orderItem.id !== cartItemId, // Xóa trực tiếp sản phẩm
+          )
 
           // Nếu đây là sản phẩm cuối cùng, xóa toàn bộ giỏ hàng
           if (updatedOrderItems.length === 0) {
-            get().clearCart();
+            get().clearCart()
           } else {
             set({
               cartItems: {
                 ...cartItems,
                 orderItems: updatedOrderItems,
               },
+              lastModified: moment().valueOf(), // Thêm cập nhật lastModified để trigger re-render
             });
           }
 
-          showToast(i18next.t('toast.removeSuccess')); // Hiển thị thông báo thành công
+          showToast(i18next.t('toast.removeSuccess')) // Hiển thị thông báo thành công
         }
       },
 

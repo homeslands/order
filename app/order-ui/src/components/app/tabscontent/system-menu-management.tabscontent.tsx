@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { DataTable } from '@/components/ui'
 import { useAllMenus, usePagination } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useMenusColumns } from '@/app/system/menu-management/DataTable/columns'
 import { MenusActionOptions } from '@/app/system/menu-management/DataTable/actions'
+import { IMenu } from '@/types'
+import { ROUTE } from '@/constants'
 
 
 export function SystemMenuManagementTabsContent() {
+  const navigate = useNavigate()
   const { userInfo } = useUserStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const tab = searchParams.get('tab')
@@ -28,6 +31,11 @@ export function SystemMenuManagementTabsContent() {
       return newParams
     })
   }, [setSearchParams, tab])
+
+
+  const handleRowClick = (row: IMenu) => {
+    navigate(`${ROUTE.STAFF_MENU_MANAGEMENT}/${row.slug}`)
+  }
   return (
     <div className="grid grid-cols-1 gap-6">
       <DataTable
@@ -38,6 +46,7 @@ export function SystemMenuManagementTabsContent() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         actionOptions={MenusActionOptions}
+        onRowClick={handleRowClick}
       />
     </div>
   )

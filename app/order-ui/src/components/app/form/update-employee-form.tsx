@@ -23,7 +23,8 @@ import { BranchSelect } from '../select'
 import { useUpdateUser } from '@/hooks'
 import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
-
+import { useUserStore } from '@/stores'
+import { Role } from '@/constants'
 interface IFormUpdateEmployeeProps {
   employee: IUserInfo
   onSubmit: (isOpen: boolean) => void
@@ -35,7 +36,7 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
   const queryClient = useQueryClient()
   const { t } = useTranslation(['employee'])
   const { mutate: updateUser } = useUpdateUser()
-
+  const { userInfo } = useUserStore()
   const form = useForm<TUpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -163,20 +164,21 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
       />
     ),
     branch: (
-      <FormField
-        control={form.control}
-        name="branch"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('employee.branch')}</FormLabel>
-            <FormControl>
-              <BranchSelect defaultValue={employee?.branch?.slug} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+      userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) && (
+        <FormField
+          control={form.control}
+          name="branch"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('employee.branch')}</FormLabel>
+              <FormControl>
+                <BranchSelect defaultValue={employee?.branch?.slug} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ),
   }
 
   return (

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import {
   Select,
   SelectContent,
@@ -7,7 +9,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui";
 
 import { useBranch } from "@/hooks";
 import { useBranchStore } from "@/stores";
@@ -18,20 +20,23 @@ interface SelectBranchProps {
 }
 
 export default function BranchSelect({ defaultValue, onChange }: SelectBranchProps) {
-
+  const { t } = useTranslation('branch')
   const [allBranches, setAllBranches] = useState<{ value: string; label: string }[]>([]);
-  const { data } = useBranch();
-  const { setBranch } = useBranchStore()
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(defaultValue);
 
+  const { data } = useBranch();
+  const { setBranch } = useBranchStore();
+
+  // Set selected branch if defaultValue matches
   useEffect(() => {
     if (defaultValue && data?.result) {
-      const branch = data.result.find((item) => item.slug === defaultValue)
+      const branch = data.result.find((item) => item.slug === defaultValue);
       if (branch) {
-        setBranch(branch)
+        setBranch(branch);
+        setSelectedValue(branch.slug); // Update selected value here
       }
     }
-  }, [defaultValue, data?.result, setBranch])
-
+  }, [defaultValue, data?.result, setBranch]);
 
   useEffect(() => {
     if (data?.result) {
@@ -44,21 +49,24 @@ export default function BranchSelect({ defaultValue, onChange }: SelectBranchPro
   }, [data]);
 
   const handleChange = (value: string) => {
-    const branch = data?.result.find((item) => item.slug === value)
+    setSelectedValue(value); // Update local state
+    const branch = data?.result.find((item) => item.slug === value);
     if (branch) {
-      setBranch(branch)
+      setBranch(branch);
     }
-    onChange?.(value)
-  }
+    onChange?.(value);
+  };
 
   return (
-    <Select onValueChange={handleChange} value={defaultValue}>
+    <Select onValueChange={handleChange} value={selectedValue}>
       <SelectTrigger className="w-full">
-        <SelectValue placeholder="Chọn chi nhánh" />
+        <SelectValue placeholder={t('branch.chooseBranch')} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>Chi nhánh</SelectLabel>
+          <SelectLabel>
+            {t('branch.title')}
+          </SelectLabel>
           {allBranches.map((branch) => (
             <SelectItem key={branch.value} value={branch.value}>
               {branch.label}

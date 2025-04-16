@@ -18,7 +18,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
   }
   const { data: specificMenu, isLoading } = useSpecificMenu({
     date: getCurrentDate(),
-    branch: branch ? branch?.slug : '',
+    branch: branch?.slug,
   })
   const menuItems = specificMenu?.result.menuItems.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
@@ -56,7 +56,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
 
   return (
     <div
-      className={`flex w-full flex-col pr-2 transition-all duration-300 ease-in-out`}
+      className={`flex flex-col pr-2 w-full transition-all duration-300 ease-in-out`}
     >
       <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
         {specificMenu?.result.menuItems.map((item) => (

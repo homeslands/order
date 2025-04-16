@@ -32,7 +32,7 @@ export interface ICreateUserRequest {
   confirmPassword: string
   firstName: string
   lastName: string
-  branch?: string
+  // branch?: string
   role: string
 }
 

@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { DataTable } from '@/components/ui'
 import { useProductColumns } from './DataTable/columns'
 import { ProductActionOptions } from './DataTable/actions'
 import { usePagination, useProducts } from '@/hooks'
+import { IProduct } from '@/types'
+import { ROUTE } from '@/constants'
 
 export default function ProductTab() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
@@ -30,6 +33,10 @@ export default function ProductTab() {
   const handleSearchChange = (value: string) => {
     setProductName(value)
   }
+
+  const handleRowClick = (product: IProduct) => {
+    navigate(`${ROUTE.STAFF_PRODUCT_MANAGEMENT}/${product.slug}`)
+  }
   return (
     <div className="grid grid-cols-1 gap-2 h-full">
       <DataTable
@@ -42,6 +49,7 @@ export default function ProductTab() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         actionOptions={ProductActionOptions}
+        onRowClick={handleRowClick}
       />
     </div>
   )

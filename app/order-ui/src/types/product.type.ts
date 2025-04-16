@@ -31,6 +31,7 @@ export interface IProductRequest {
   isTopSell?: boolean
   isNew?: boolean
   inMenu?: boolean
+  isPossibleCreateMenuItemForBranch?: boolean
   menu?: string //Slug of the menu, get all products in the menu
   branch?: string //Slug of the branch
   hasPaging?: boolean

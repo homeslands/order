@@ -85,7 +85,8 @@
     "searchProduct": "Tìm kiếm sản phẩm",
     "all": "Tất cả",
     "sold": "Đã bán",
-    "noLimit": "Không giới hạn"
+    "noLimit": "Không giới hạn",
+    "noMenuItems": "Không có món ăn trong thực đơn"
   },
   "order": {
     "orderId": "Đơn hàng",

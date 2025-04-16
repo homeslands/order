@@ -84,7 +84,7 @@ export default function ClientCartPage() {
                 <Trash2 size={18} />
               </span>
             </div>
-            <div className="flex flex-col rounded-md border">
+            <div className="flex flex-col mb-2 rounded-md border">
               {cartItems?.orderItems.map((item) => (
                 <div
                   key={item.slug}
@@ -153,10 +153,10 @@ export default function ClientCartPage() {
                     </span>
                   </div>
                   <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
-                    <span>
+                    <span className='italic text-green-500'>
                       {t('order.discount')}:&nbsp;
                     </span>
-                    <span className='text-green-500'>
+                    <span className='italic text-green-500'>
                       -{`${formatCurrency(discount)}`}
                     </span>
                   </div>

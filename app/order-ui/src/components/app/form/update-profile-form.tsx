@@ -24,6 +24,7 @@ import { DatePicker } from '@/components/app/picker'
 import { useUserStore } from '@/stores'
 import { getProfile } from '@/api'
 import { useQueryClient } from '@tanstack/react-query'
+import { Role } from '@/constants'
 
 interface IFormUpdateProfileProps {
   userProfile?: IUserInfo
@@ -36,7 +37,7 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['profile'])
-  const { setUserInfo } = useUserStore()
+  const { userInfo, setUserInfo } = useUserStore()
   const { mutate: createProductVariant } = useUpdateProfile()
   const form = useForm<TUpdateProfileSchema>({
     resolver: zodResolver(updateProfileSchema),
@@ -151,20 +152,21 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
       />
     ),
     branch: (
-      <FormField
-        control={form.control}
-        name="branch"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('profile.branch')}</FormLabel>
-            <FormControl>
-              <BranchSelect onChange={field.onChange} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+      userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) && (
+        <FormField
+          control={form.control}
+          name="branch"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('profile.branch')}</FormLabel>
+              <FormControl>
+                <BranchSelect onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ),
   }
 
   return (

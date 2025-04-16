@@ -1174,7 +1174,6 @@ export class BranchRevenueService {
         getSpecificRangeBranchRevenueByHourClause,
         [startDateQuery, endDateQuery, branchData.id],
       );
-    // console.log('results', results);
     const branchRevenues = this.mapper.mapArray(
       results,
       BranchRevenueQueryResponseForHourDto,
@@ -1207,16 +1206,26 @@ export class BranchRevenueService {
       totalAmountInternal += revenue.totalAmountInternal;
     });
 
-    if (maxReferenceNumberOrder - minReferenceNumberOrder + 1 !== totalOrder) {
-      this.logger.error(
-        `Number of orders not match: ${maxReferenceNumberOrder} - ${minReferenceNumberOrder} + 1 !== ${totalOrder} (maxReferenceNumberOrder - minReferenceNumberOrder + 1 !== totalOrder)`,
-        null,
-        context,
-      );
-      throw new BranchRevenueException(
-        BranchRevenueValidation.NUMBER_OF_ORDERS_NOT_MATCH,
-      );
+    if (
+      maxReferenceNumberOrder !== 0 &&
+      minReferenceNumberOrder !== 0 &&
+      totalOrder !== 0
+    ) {
+      if (
+        maxReferenceNumberOrder - minReferenceNumberOrder + 1 !==
+        totalOrder
+      ) {
+        this.logger.error(
+          `Number of orders not match: ${maxReferenceNumberOrder} - ${minReferenceNumberOrder} + 1 !== ${totalOrder} (maxReferenceNumberOrder - minReferenceNumberOrder + 1 !== totalOrder)`,
+          null,
+          context,
+        );
+        throw new BranchRevenueException(
+          BranchRevenueValidation.NUMBER_OF_ORDERS_NOT_MATCH,
+        );
+      }
     }
+
     // console.log('totalOrderBank', totalOrderBank);
 
     const logoPath = resolve('public/images/logo.png');

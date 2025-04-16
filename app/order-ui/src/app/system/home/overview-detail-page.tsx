@@ -5,7 +5,7 @@ import moment from 'moment'
 
 import { RevenueDetailChart, TopProductsDetail, RevenueDetailSummary, RevenueTable } from './components'
 import { BranchSelect } from '@/components/app/select'
-import { ExportRevenuePopover } from '@/components/app/popover'
+import { RevenueFilterPopover } from '@/components/app/popover'
 import { Badge, Button } from '@/components/ui'
 import { useBranchRevenue, useLatestRevenue } from '@/hooks'
 import { showToast } from '@/utils'
@@ -19,6 +19,8 @@ export default function OverviewDetailPage() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const { branch } = useBranchStore()
+  const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
+
   const [startDate, setStartDate] = useState<string>(
     moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
   )
@@ -26,7 +28,6 @@ export default function OverviewDetailPage() {
   const [endDate, setEndDate] = useState<string>(
     moment().format('YYYY-MM-DD HH:mm:ss')
   )
-  const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY)
   const { mutate: refreshRevenue } = useLatestRevenue()
 
   const { data, isLoading, refetch: refetchRevenue } = useBranchRevenue({
@@ -66,10 +67,23 @@ export default function OverviewDetailPage() {
   }, [startDate, endDate, branch, handleRefreshRevenue])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
-    setStartDate(data.startDate || '')
-    setEndDate(data.endDate || '')
-    setRevenueType(data.type || RevenueTypeQuery.DAILY)
-  }
+    const isHourly = data.type === RevenueTypeQuery.HOURLY;
+
+    setStartDate(
+      data.startDate
+        ? moment(data.startDate).startOf(isHourly ? 'hour' : 'day').format('YYYY-MM-DD HH:mm:ss')
+        : ''
+    );
+
+    setEndDate(
+      data.endDate
+        ? moment(data.endDate).endOf(isHourly ? 'hour' : 'day').format('YYYY-MM-DD HH:mm:ss')
+        : ''
+    );
+
+    setRevenueType(data.type || RevenueTypeQuery.DAILY);
+  };
+
 
   return (
     <div className="min-h-screen">
@@ -87,7 +101,7 @@ export default function OverviewDetailPage() {
               <RefreshCcw />
               {tCommon('common.refresh')}
             </Button>
-            <ExportRevenuePopover onApply={handleSelectDateRange} />
+            <RevenueFilterPopover onApply={handleSelectDateRange} />
             <div className='w-[14rem]'>
               <BranchSelect defaultValue={branch?.slug} />
             </div>
@@ -99,10 +113,10 @@ export default function OverviewDetailPage() {
               <div className='flex gap-2 items-center'>
                 <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>
                 <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                  {startDate === endDate ? moment(startDate).format('DD/MM/YYYY') : `${moment(startDate).format('DD/MM/YYYY')} - ${moment(endDate).format('DD/MM/YYYY')}`}
+                  {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
                   <span className='cursor-pointer' onClick={() => {
-                    setStartDate(moment().format('YYYY-MM-DD'))
-                    setEndDate(moment().format('YYYY-MM-DD'))
+                    setStartDate(moment().format('YYYY-MM-DD HH:mm:ss'))
+                    setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
                   }}>
                     <CircleX className='w-4 h-4' />
                   </span>

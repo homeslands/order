@@ -66,6 +66,13 @@ export class PaymentService {
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
     }
 
+    if (payment.paymentMethod !== PaymentMethod.BANK_TRANSFER) {
+      this.logger.warn(`Payment ${slug} is not a bank transfer`, context);
+      throw new PaymentException(
+        PaymentValidation.ONLY_BANK_TRANSFER_CAN_EXPORT,
+      );
+    }
+
     const data = await this.pdfService.generatePdf('payment', payment, {
       width: '80mm',
     });

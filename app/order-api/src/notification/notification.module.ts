@@ -30,6 +30,11 @@ import { User } from 'src/user/user.entity';
     NotificationProfile,
     NotificationUtils,
   ],
-  exports: [NotificationService, NotificationProducer, NotificationUtils],
+  exports: [
+    NotificationService,
+    NotificationProducer,
+    NotificationUtils,
+    BullModule,
+  ],
 })
 export class NotificationModule {}

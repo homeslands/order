@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PlusCircle } from 'lucide-react'
 
@@ -15,20 +16,21 @@ import { useMenuItemStore } from '@/stores'
 import { usePagination, useProducts } from '@/hooks'
 import { AddMultipleItemsDialog } from '../dialog'
 import { useProductColumns } from '@/app/system/order-history/DataTable/columns'
-import { useState } from 'react'
-
 interface IAddMenuItemSheetProps {
+  branch: string | undefined
   menuSlug: string | undefined
 }
 
-export default function AddMenuItemSheet({ menuSlug }: IAddMenuItemSheetProps) {
+export default function AddMenuItemSheet({ branch, menuSlug }: IAddMenuItemSheetProps) {
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
   const { getMenuItems, clearMenuItems } = useMenuItemStore()
   const { pagination } = usePagination()
   const { data: products, isLoading, refetch } = useProducts({
+    branch: branch,
     menu: menuSlug,
     inMenu: false,
+    isPossibleCreateMenuItemForBranch: true,
     page: pagination.pageIndex,
     size: pagination.pageSize,
     hasPaging: true,

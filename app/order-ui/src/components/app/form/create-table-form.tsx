@@ -21,9 +21,8 @@ import { ICreateTableRequest } from '@/types'
 import { useCreateTable } from '@/hooks'
 import { showToast } from '@/utils'
 import { BranchSelect, TableStatusSelect } from '@/components/app/select'
-import { TableStatus } from '@/constants'
+import { QUERYKEY, TableStatus } from '@/constants'
 import TableLocationSelect from '../select/table-location-select'
-import { useUserStore } from '@/stores'
 
 interface IFormCreateTableProps {
   onSubmit: (isOpen: boolean) => void
@@ -34,7 +33,6 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['table'])
-  const { userInfo } = useUserStore()
   const { mutate: createTable } = useCreateTable()
   const [hasLocation, setHasLocation] = useState(false)
   const form = useForm<TCreateTableSchema>({
@@ -51,7 +49,7 @@ export const CreateTableForm: React.FC<IFormCreateTableProps> = ({
     createTable(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['tables', userInfo?.branch?.slug],
+          queryKey: [QUERYKEY.tables],
         })
         onSubmit(false)
         form.reset()

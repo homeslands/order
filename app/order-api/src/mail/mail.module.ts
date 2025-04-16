@@ -39,6 +39,6 @@ import { MailConsumer } from './mail.consumer';
     }),
   ],
   providers: [MailService, MailProducer, MailConsumer],
-  exports: [MailService],
+  exports: [MailService, BullModule],
 })
 export class MailModule {}

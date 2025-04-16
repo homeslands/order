@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemMenuManagementTabsContent } from '@/components/app/tabscontent'
 
-
 export function SystemMenuManagementTabs() {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
@@ -21,7 +20,7 @@ export function SystemMenuManagementTabs() {
 
   return (
     <Tabs defaultValue={tab} className="w-full">
-      <TabsList className="flex justify-start gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
+      <TabsList className="flex gap-3 justify-start mb-6 border-b sm:grid-cols-6 lg:mb-0">
         <TabsTrigger
           value="isTemplate"
           className="flex justify-center min-w-[150px]"

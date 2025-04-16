@@ -1,13 +1,13 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
+import { SquareMenu } from 'lucide-react'
 
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
 import { Role } from '@/constants'
 import { CustomerAction } from './DataTable/actions'
-import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
 
 export default function CustomerPage() {
   const { t } = useTranslation('customer')
@@ -28,7 +28,7 @@ export default function CustomerPage() {
   }
 
   return (
-    <div className="grid h-full grid-cols-1 gap-2">
+    <div className="grid grid-cols-1 gap-2 h-full">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -36,7 +36,7 @@ export default function CustomerPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.customer.title')} />
       </Helmet>
-      <span className="flex items-center gap-1 text-lg">
+      <span className="flex gap-1 items-center text-lg">
         <SquareMenu />
         {t('customer.title')}
       </span>

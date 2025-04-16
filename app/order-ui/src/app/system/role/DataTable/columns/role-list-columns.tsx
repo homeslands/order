@@ -1,8 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import moment from 'moment'
-import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal, SquareMousePointer } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 
 import {
   Button,
@@ -14,7 +13,6 @@ import {
 } from '@/components/ui'
 import { IRole } from '@/types'
 
-import { ROUTE } from '@/constants'
 import { UpdateRoleDialog } from '@/components/app/dialog'
 
 export const useRoleListColumns = (): ColumnDef<IRole>[] => {
@@ -91,26 +89,10 @@ export const useRoleListColumns = (): ColumnDef<IRole>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink
-                  to={`${ROUTE.STAFF_ROLE_MANAGEMENT}/${role.slug}`}
-                  className="flex justify-start items-center w-full"
-                >
-                  <Button
-                    variant="ghost"
-                    className="flex gap-1 justify-start px-2 w-full text-sm"
-                  >
-                    <SquareMousePointer className="icon" />
-                    {tCommon('common.viewDetail')}
-                  </Button>
-                </NavLink>
-                <UpdateRoleDialog role={role} />
-
+                <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2">
+                  <UpdateRoleDialog role={role} />
+                </div>
                 {/* <DeleteRoleDialog role={role} /> */}
-
-                {/* <UserInfoDialog user={user} /> */}
-                {/* <ResetPasswordDialog user={user} /> */}
-                {/* <UpdateUserRoleDialog user={user} /> */}
-                {/* <UpdateEmployeeDialog employee={user} /> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
