@@ -115,7 +115,7 @@ export class JobService {
       }
     } catch (error) {
       this.logger.error(
-        `Error when create chef orders from order ${orderSlug}`,
+        `Error when create chef orders from order ${orderSlug}: ${error.message}`,
         error.stack,
         context,
       );
