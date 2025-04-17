@@ -9,13 +9,13 @@ import {
     PopoverTrigger,
 } from "@/components/ui";
 import { RevenueTypeSelect } from "../select";
-import { ExportRevenueForm } from "../form";
+import { RevenueFilterForm } from "../form";
 import { RevenueTypeQuery } from "@/constants";
 import { IRevenueQuery } from "@/types";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY);
+    const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
     const [open, setOpen] = useState(false);
 
     const today = new Date();
@@ -40,7 +40,7 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                         <span className="font-bold leading-none text-md">{t("revenue.exportRevenue")}</span>
                     </div>
                     <RevenueTypeSelect defaultValue={revenueType} onChange={(value) => setRevenueType(value as RevenueTypeQuery)} />
-                    <ExportRevenueForm onSubmit={handleExportRevenue} type={revenueType} onSuccess={() => setOpen(false)} />
+                    <RevenueFilterForm onSubmit={handleExportRevenue} type={revenueType} onSuccess={() => setOpen(false)} />
                 </div>
             </PopoverContent>
         </Popover>

@@ -11,13 +11,13 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui'
+import { Role } from '@/constants'
 
 export default function CustomerSearchInput() {
     const { t } = useTranslation(['menu'])
     const { t: tCommon } = useTranslation(['common'])
     const [users, setUsers] = useState<IUserInfo[]>([])
     const { pagination } = usePagination()
-    const [selectedUser, setSelectedUser] = useState<IUserInfo | null>(null)
     const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
     const { getCartItems, addCustomerInfo, removeCustomerInfo } = useCartItemStore()
     const cartItems = getCartItems()
@@ -29,6 +29,7 @@ export default function CustomerSearchInput() {
                 page: pagination.pageIndex,
                 pageSize: pagination.pageSize,
                 phonenumber: debouncedInputValue,
+                role: Role.CUSTOMER,
             }
             : null, // Not calling API if debouncedInputValue is empty
     )
@@ -46,18 +47,18 @@ export default function CustomerSearchInput() {
         addCustomerInfo(user)
         setUsers([])
         setInputValue('')
-        setSelectedUser(user)
+        // setSelectedUser(user)
     }
 
     // check if cartItems is null, setSelectedUser to null
-    useEffect(() => {
-        if (!cartItems) {
-            setSelectedUser(null)
-        }
-    }, [cartItems])
+    // useEffect(() => {
+    //     if (!cartItems) {
+    //         setSelectedUser(null)
+    //     }
+    // }, [cartItems])
 
     const handleRemoveOwner = () => {
-        setSelectedUser(null)
+        // setSelectedUser(null)
         setInputValue('')
         removeCustomerInfo()
     }
@@ -72,14 +73,14 @@ export default function CustomerSearchInput() {
                         onChange={(e) => setInputValue(e.target.value)}
                     />
                 </div>
-                {selectedUser && (
+                {(cartItems?.ownerFullName || cartItems?.ownerPhoneNumber) && (
                     <div className='flex gap-2 justify-between items-center p-2 w-full rounded-md border'>
                         <div className='flex flex-col gap-1 justify-center items-start py-1 text-sm w-fit'>
                             <span className='font-bold text-md'>
-                                {selectedUser.firstName} {selectedUser.lastName}
+                                {cartItems?.ownerFullName}
                             </span>
                             <span className='text-sm text-muted-foreground'>
-                                {selectedUser.phonenumber}
+                                {cartItems?.ownerPhoneNumber}
                             </span>
                         </div>
                         <TooltipProvider>

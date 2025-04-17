@@ -36,7 +36,6 @@ export function CartContent() {
           <h1 className="text-lg font-semibold">{t('menu.order')}</h1>
           <CreateCustomerDialog />
         </div>
-
       </div>
 
       {/* Scrollable Content */}
@@ -69,7 +68,7 @@ export function CartContent() {
         <div className="flex flex-col gap-4 px-4 py-3">
           {cartItems && cartItems?.orderItems?.length > 0 ? (
             cartItems?.orderItems?.map((item) => (
-              <div key={item.slug} className="flex flex-col gap-3 p-3 rounded-lg border transition-colors duration-200 hover:border-primary/50">
+              <div key={item.id} className="flex flex-col gap-3 p-3 rounded-lg border transition-colors duration-200 hover:border-primary/50">
                 <div className="flex flex-row gap-3 items-start">
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row justify-between items-start">
@@ -92,6 +91,7 @@ export function CartContent() {
                               <QuantitySelector cartItem={item} />
                             </div>
                             <Button
+                              title={item.id}
                               variant="ghost"
                               size="icon"
                               onClick={() => handleRemoveCartItem(item.id)}
@@ -142,14 +142,16 @@ export function CartContent() {
                 <span className="text-muted-foreground">{t('menu.total')}</span>
                 <span className='text-muted-foreground'>{`${formatCurrency(subTotal || 0)}`}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-green-600">
-                  {t('menu.discount')}
-                </span>
-                <span className="text-sm text-green-600">
-                  - {`${formatCurrency(discount)}`}
-                </span>
-              </div>
+              {discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-green-600">
+                    {t('menu.discount')}
+                  </span>
+                  <span className="text-sm text-green-600">
+                    - {`${formatCurrency(discount)}`}
+                  </span>
+                </div>
+              )}
               {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
                 <span className='flex gap-1 items-center text-sm text-destructive'>
                   <Info size={16} />

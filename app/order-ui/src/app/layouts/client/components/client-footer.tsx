@@ -12,11 +12,11 @@ export function ClientFooter() {
   const mail: string = "trend.coffee.tea@gmail.com"
   return (
     <footer className={`text-white bg-primary mb-[64px] md:mb-0`}>
-      <div className={`container pt-6 pb-6 md:pb-2 w-full`}>
-        <div className='flex flex-col lg:flex-row-reverse w-full'>
-          <div className='flex flex-col sm:flex-row w-full items-start'>
-            <div className="flex flex-col items-start justify-center gap-4 w-full">
-              <div className='flex'> <Phone /> <span className='ps-4 cursor-pointer hidden md:block'>{t('footer.contact')}: </span><b className='ps-4 md:ps-1'> 0888022200</b></div>
+      <div className={`container pt-6 pb-6 w-full md:pb-2`}>
+        <div className='flex flex-col w-full lg:flex-row-reverse'>
+          <div className='flex flex-col items-start w-full sm:flex-row'>
+            <div className="flex flex-col gap-4 justify-center items-start w-full">
+              <div className='flex'> <Phone /> <span className='hidden cursor-pointer ps-4 md:block'>{t('footer.contact')}: </span><b className='ps-4 md:ps-1'> 0888022200</b></div>
               <div className='flex gap-4'>
                 <Mail />
                 <span className='cursor-pointer hover:underline' onClick={() => window.location.href = `mailto:${mail}`}>
@@ -25,21 +25,21 @@ export function ClientFooter() {
               </div>
 
             </div>
-            <div className="flex flex-col items-start justify-center gap-4 w-full mt-4 sm:mt-0" >
+            <div className="flex flex-col gap-4 justify-center items-start mt-4 w-full sm:mt-0" >
               <div className="relative w-full">
-                <div className={`rounded-sm w-full h-48`}>
+                <div className={`w-full h-48 rounded-sm`}>
                   <GoogleMap />
                 </div>
                 <img
                   src={Logo}
                   alt="logo"
-                  className="absolute top-0 left-0 w-auto h-5 m-2" // Đặt Logo ở góc trên trái với margin
+                  className="absolute top-0 left-0 m-2 w-auto h-5" // Đặt Logo ở góc trên trái với margin
                 />
               </div>
             </div>
           </div>
-          <div className='flex gap-4 items-start w-full md:w-full mt-4 lg:mt-0'>
-            <div className="flex flex-col items-start justify-center gap-2 w-1/2">
+          <div className='flex gap-4 items-start mt-4 w-full md:w-full lg:mt-0'>
+            <div className="flex flex-col gap-2 justify-center items-start w-1/2">
               <span className="font-bold">
                 {t('footer.introduction')}
               </span>
@@ -47,7 +47,7 @@ export function ClientFooter() {
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.CLIENT_MENU)}> {t('footer.menu')}</span>
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ABOUT)}> {t('footer.aboutMe')}</span>
             </div>
-            <div className="flex flex-col items-start justify-center gap-2 w-1/2">
+            <div className="flex flex-col gap-2 justify-center items-start w-1/2">
               <span className="font-bold">{t('footer.policy')}</span>
               <span className="text-sm cursor-pointer" onClick={() => navigator(ROUTE.POLICY)}>{t('footer.securityTerm')}</span>
             </div>

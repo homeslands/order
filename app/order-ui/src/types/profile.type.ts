@@ -17,6 +17,7 @@ export interface IConfirmEmailVerificationRequest {
 export interface IAuthority extends IBase {
   name: string
   description: string
+  code: string
 }
 
 export interface IAuthorityGroup extends IBase {

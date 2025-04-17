@@ -8,7 +8,7 @@ import { EmployeeFilterOptions, EmployeesAction } from './DataTable/actions'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
-
+import { useUserStore } from '@/stores'
 export default function EmployeeListPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { t } = useTranslation('employee')
@@ -16,6 +16,7 @@ export default function EmployeeListPage() {
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [phonenumber, setPhoneNumber] = useState<string>('')
   const [role, setRole] = useState<Role | 'all'>('all')
+  const { userInfo } = useUserStore()
 
   const { data, isLoading } = useUsers({
     page: pagination.pageIndex,
@@ -23,6 +24,7 @@ export default function EmployeeListPage() {
     phonenumber,
     order: 'DESC',
     role: role !== 'all' ? role : [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
+    ...((userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) ? {} : { branch: userInfo?.branch?.slug, })
   })
 
   const filterConfig = [

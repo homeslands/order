@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateUserRequest } from '@/types'
 import { showToast } from '@/utils'
 import { Role } from '@/constants'
+import { useCartItemStore } from '@/stores'
 
 interface IFormCreateCustomerProps {
   onSubmit: (isOpen: boolean) => void
@@ -33,6 +34,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
   const { t } = useTranslation(['customer'])
   const { mutate: createUser } = useCreateUser()
   const { data } = useRoles()
+  const { addCustomerInfo } = useCartItemStore()
 
   // get slug of role customer
   const customerRole = data?.result.find((role) => role.name === Role.CUSTOMER)
@@ -45,16 +47,27 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
       confirmPassword: '',
       firstName: '',
       lastName: '',
-      role: customerRole?.slug,
+      role: '',
     },
   })
 
+  useEffect(() => {
+    if (customerRole) {
+      form.setValue('role', customerRole.slug)
+    }
+  }, [customerRole, form])
+
   const handleSubmit = (data: ICreateUserRequest) => {
     createUser(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         queryClient.invalidateQueries({
           queryKey: ['users'],
+          exact: false,
+          refetchType: 'all'
         })
+        if (response?.result) {
+          addCustomerInfo(response.result)
+        }
         onSubmit(false)
         form.reset()
         showToast(t('toast.createUserSuccess'))

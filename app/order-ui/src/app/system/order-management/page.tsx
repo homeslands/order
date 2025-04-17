@@ -63,7 +63,7 @@ export default function OrderManagementPage() {
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
-    branchSlug: userInfo?.branch?.slug,
+    branch: userInfo?.branch?.slug,
     startDate: startDate,
     endDate: endDate,
     status: status !== 'all' ? status : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
@@ -114,6 +114,11 @@ export default function OrderManagementPage() {
     }
   }
 
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false)
+    setOrderSlug('')
+  }
+
   return (
     <div className="flex flex-col flex-1 gap-2">
       <Helmet>
@@ -153,7 +158,7 @@ export default function OrderManagementPage() {
 
         <OrderItemDetailSheet
           isOpen={isSheetOpen}
-          onClose={() => setIsSheetOpen(false)}
+          onClose={handleCloseSheet}
         />
       </div>
     </div>

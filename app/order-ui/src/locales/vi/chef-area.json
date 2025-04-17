@@ -26,7 +26,7 @@
     "deleteChefAreaProductConfirmation": "Bạn có chắc chắn muốn xóa món này khỏi khu vực bếp không?"
   },
   "chefOrder": {
-    "title": "Quản lý đơn hàng theo khu vực bếp",
+    "title": "Khu vực bếp",
     "slug": "Mã đơn hàng",
     "createdAt": "Ngày tạo",
     "productName": "Tên món",

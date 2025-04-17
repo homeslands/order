@@ -12,6 +12,7 @@ import { MenuModule } from 'src/menu/menu.module';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
       Catalog,
       Promotion,
       ApplicablePromotion,
+      ProductChefArea,
     ]),
     MenuModule,
   ],

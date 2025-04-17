@@ -126,7 +126,8 @@
     "loadOrdersInTheSameTable": "Load orders at same table",
     "all": "All",
     "sold": "Sold",
-    "noLimit": "No limit"
+    "noLimit": "No limit",
+    "noMenuItems": "No menu items found"
   },
   "order": {
     "title": "Order Management",

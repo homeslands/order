@@ -94,29 +94,34 @@ export default function DateAndTimePicker({
       setSelectedDate(now)
       setHour(0)
       setMinute(0)
-      onChange(moment(now).format('YYYY-MM-DD HH:00:00'))
+      onChange(moment(now).format('YYYY-MM-DD 00:00:00'))
     }
   }, [date, onChange])
 
   const handleDateChange = (newDate?: Date) => {
     if (newDate) {
-      // if (!isStartDate && !validateEndDate(newDate)) {
-      //   alert(t('common.endDateMustBeGreaterThanStartDate'))
-      //   return
-      // }
-
       setSelectedDate(newDate)
       const momentDate = moment(newDate)
-      momentDate.hours(hour)
-      momentDate.minutes(0)
+
+      if (showTime) {
+        momentDate.hours(hour)
+        momentDate.minutes(minute)
+      } else {
+        momentDate.startOf('day') // <-- Sửa tại đây: nếu không chọn giờ, set về 00:00:00
+      }
+
       momentDate.seconds(0)
       onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
 
+
   const handleTimeChange = (newHour: number) => {
     setHour(newHour)
     setMinute(0)
+
+    if (!showTime) return // ❌ Không xử lý nếu không hiển thị chọn giờ
+
     if (selectedDate) {
       const momentDate = moment(selectedDate)
       momentDate.hours(newHour)
@@ -125,6 +130,7 @@ export default function DateAndTimePicker({
       onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
+
 
   const handleTodayClick = () => {
     const today = new Date()

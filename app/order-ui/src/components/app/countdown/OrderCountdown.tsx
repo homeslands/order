@@ -18,7 +18,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     const { clearStore } = usePaymentMethodStore()
     // Trạng thái và vị trí cho kéo thả
     const [isDragging, setIsDragging] = useState(false)
-    const [position, setPosition] = useState({ x: window.innerWidth - 320, y: 100, })
+    const [position, setPosition] = useState({ x: window.innerWidth - 350, y: 100, })
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
     const isMobile = useIsMobile()
     useEffect(() => {
@@ -72,7 +72,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
             const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
             const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
             // Giới hạn vị trí trong phạm vi màn hình
-            const maxX = window.innerWidth - 300 // 300 là width của box
+            const maxX = window.innerWidth - 350 // 300 là width của box
             const maxY = window.innerHeight - 40
             const newX = Math.min(Math.max(clientX - dragStart.x, 0), maxX)
             const newY = Math.min(Math.max(clientY - dragStart.y, 0), maxY)
@@ -87,7 +87,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     }
 
     return (
-        <div className="fixed z-20 py-2 min-w-[400px] w-fit flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
+        <div className="fixed z-20 py-2 w-[320px] flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
             style={{ left: position.x, top: position.y }}
             onMouseDown={handleDragStart}
             onMouseMove={handleDrag}

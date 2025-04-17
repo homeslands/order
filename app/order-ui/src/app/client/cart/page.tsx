@@ -84,16 +84,16 @@ export default function ClientCartPage() {
                 <Trash2 size={18} />
               </span>
             </div>
-            <div className="flex flex-col rounded-md border">
+            <div className="flex flex-col mb-2 rounded-md border">
               {cartItems?.orderItems.map((item) => (
                 <div
-                  key={item.slug}
+                  key={item.id}
                   className="grid grid-cols-7 gap-4 items-center p-4 pb-4 w-full rounded-md sm:grid-cols-8"
                 >
                   <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden col-span-1 w-36 h-24 rounded-md sm:block" />
                   <div className='grid flex-row col-span-7 gap-4 items-center w-full'>
                     <div
-                      key={`${item.slug}`}
+                      key={`${item.id}`}
                       className="grid flex-row grid-cols-7 gap-4 items-center w-full"
                     >
                       <div className="flex col-span-2 gap-2 w-full">
@@ -153,10 +153,10 @@ export default function ClientCartPage() {
                     </span>
                   </div>
                   <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
-                    <span>
+                    <span className='italic text-green-500'>
                       {t('order.discount')}:&nbsp;
                     </span>
-                    <span className='text-green-500'>
+                    <span className='italic text-green-500'>
                       -{`${formatCurrency(discount)}`}
                     </span>
                   </div>

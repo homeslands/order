@@ -21,7 +21,7 @@ export const useRevenueListColumns = (): ColumnDef<IBranchRevenue>[] => {
                 const date = row.original.date
                 return (
                     <div className="text-sm">
-                        {date ? moment(date).format('DD/MM/YYYY') : ''}
+                        {date ? moment(date).format('HH:mm DD/MM/YYYY') : ''}
                     </div>
                 )
             },

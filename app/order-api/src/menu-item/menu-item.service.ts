@@ -22,7 +22,8 @@ import { MenuItemValidation } from './menu-item.validation';
 import { Catalog } from 'src/catalog/catalog.entity';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
-
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
+import * as _ from 'lodash';
 @Injectable()
 export class MenuItemService {
   constructor(
@@ -34,6 +35,8 @@ export class MenuItemService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Catalog)
     private readonly catalogRepository: Repository<Catalog>,
+    @InjectRepository(ProductChefArea)
+    private readonly productChefAreaRepository: Repository<ProductChefArea>,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly promotionUtils: PromotionUtils,
@@ -63,6 +66,23 @@ export class MenuItemService {
         relations: ['branch'],
       });
       if (!menu) throw new MenuException(MenuValidation.MENU_NOT_FOUND);
+
+      const productChefArea = await this.productChefAreaRepository.find({
+        where: {
+          product: { id: product.id },
+          chefArea: { branch: { id: menu.branch.id } },
+        },
+      });
+      if (_.isEmpty(productChefArea)) {
+        this.logger.warn(
+          MenuItemValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA_OF_THIS_BRANCH
+            .message,
+          context,
+        );
+        throw new MenuItemException(
+          MenuItemValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA_OF_THIS_BRANCH,
+        );
+      }
 
       const date = new Date(menu.date);
 
@@ -129,6 +149,22 @@ export class MenuItemService {
       throw new MenuItemException(MenuItemValidation.MENU_ITEM_EXIST);
 
     // check product is belong to branch or not
+    const productChefArea = await this.productChefAreaRepository.find({
+      where: {
+        product: { id: product.id },
+        chefArea: { branch: { id: menu.branch.id } },
+      },
+    });
+    if (_.isEmpty(productChefArea)) {
+      this.logger.warn(
+        MenuItemValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA_OF_THIS_BRANCH
+          .message,
+        context,
+      );
+      throw new MenuItemException(
+        MenuItemValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA_OF_THIS_BRANCH,
+      );
+    }
 
     const date = new Date(menu.date);
     const promotion = await this.promotionUtils.getPromotionByProductAndBranch(

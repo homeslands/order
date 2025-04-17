@@ -44,6 +44,7 @@ import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { NotificationModule } from 'src/notification/notification.module';
 import { Mutex } from 'async-mutex';
 import { Payment } from 'src/payment/payment.entity';
+import { JobModule } from 'src/job/job.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -81,6 +82,7 @@ import { Payment } from 'src/payment/payment.entity';
     PdfModule,
     QrCodeModule,
     NotificationModule,
+    JobModule,
   ],
   controllers: [OrderController],
   providers: [

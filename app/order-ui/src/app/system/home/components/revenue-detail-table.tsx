@@ -44,7 +44,7 @@ export default function RevenueTable({ revenueData, isLoading }: { revenueData: 
           {t('revenue.tableRevenue')}
         </CardTitle>
       </CardHeader>
-      <CardContent className='px-4'>
+      <CardContent className='grid grid-cols-1 h-full'>
         <DataTable
           columns={useRevenueListColumns()}
           data={paginatedData || []}

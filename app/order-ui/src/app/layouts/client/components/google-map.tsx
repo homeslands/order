@@ -2,7 +2,7 @@ import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import { googleMapAPIKey } from '@/constants';
 
 export default function GoogleMap() {
-  const mapCenter = { lat: 10.858258, lng: 106.784329 };
+  const mapCenter = { lat: 10.847359, lng: 106.771239 };
 
   const handleMarkerClick = () => {
     const destination = `${mapCenter.lat},${mapCenter.lng}`;

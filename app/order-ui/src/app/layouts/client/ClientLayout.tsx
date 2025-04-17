@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -6,7 +7,6 @@ import { DownloadProgress } from '@/components/app/progress'
 import { useDownloadStore, usePaymentMethodStore, useUserStore } from '@/stores'
 import { ClientHeader, ClientFooter, BackToTop, BottomBar } from './components'
 import { ChooseBranchDialog } from '@/components/app/dialog'
-import { useEffect } from 'react'
 import { Role, ROUTE } from '@/constants'
 
 export default function ClientLayout() {

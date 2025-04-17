@@ -12,7 +12,6 @@ import {
 } from '@/components/ui'
 
 import { CreateCustomerForm } from '@/components/app/form'
-
 export default function CreateCustomerDialog() {
   const { t } = useTranslation(['customer'])
   const [isOpen, setIsOpen] = useState(false)

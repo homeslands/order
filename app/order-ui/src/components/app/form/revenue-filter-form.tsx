@@ -19,13 +19,13 @@ import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
 import { useBranchStore } from '@/stores'
 
-interface IFormExportRevenueProps {
+interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
     onSubmit: (data: IRevenueQuery) => void
     onSuccess: () => void
 }
 
-export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
+export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
     onSubmit,
     type,
 }) => {
@@ -36,7 +36,7 @@ export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
         resolver: zodResolver(exportRevenueSchema),
         defaultValues: {
             branch: branch?.slug,
-            startDate: type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
+            startDate: type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
             endDate: type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
             type: type || RevenueTypeQuery.DAILY,
         },
@@ -46,7 +46,7 @@ export const ExportRevenueForm: React.FC<IFormExportRevenueProps> = ({
         form.reset({
             branch: branch?.slug,
             startDate: type === RevenueTypeQuery.HOURLY
-                ? moment().format('YYYY-MM-DD HH:mm:ss')
+                ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
                 : moment().format('YYYY-MM-DD'),
             endDate: type === RevenueTypeQuery.HOURLY
                 ? moment().format('YYYY-MM-DD HH:mm:ss')

@@ -1,4 +1,5 @@
 import { IBase } from './base.type'
+import { IBranch } from './branch.type'
 import { IProduct } from './product.type'
 import { IPromotion } from './promotion.type'
 
@@ -56,6 +57,7 @@ export interface ISpecificMenu extends IBase {
   menuItems: IMenuItem[]
   dayIndex: number
   isTemplate: boolean
+  branch: IBranch
 }
 
 export interface IMenuItem extends IBase {
@@ -93,7 +95,6 @@ export interface IUpdateMenuItemRequest {
   defaultStock: number
   isLocked: boolean
   isResetCurrentStock: boolean
-
 }
 
 export interface IMenuItemStore {

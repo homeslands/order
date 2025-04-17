@@ -52,6 +52,7 @@ export default function ConfirmCompleteChefOrderDialog({
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.chefOrders],
         })
+        onOpenChange(false)
         showToast(tToast('toast.updateChefOrderStatusSuccess'))
       },
     })

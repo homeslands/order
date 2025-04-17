@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { jwtDecode } from "jwt-decode";
 import { useSidebar } from '@/components/ui'
 import { useMemo } from 'react'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 import {
   Collapsible,
@@ -40,6 +41,7 @@ export function AppSidebar() {
   const { t } = useTranslation('sidebar')
   const location = useLocation()
   const { state, toggleSidebar } = useSidebar()
+  const isMobile = useIsMobile()
   const authStore = useAuthStore.getState()
   const { token } = authStore
   const decoded: IToken = jwtDecode(token || '');
@@ -80,7 +82,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       variant="inset"
-      className={`z-50 bg-white border-r shadow-2xl shadow-gray-300 dark:bg-transparent dark:shadow-none`}
+      className={`z-50 border-r shadow-2xl shadow-gray-300 dark:shadow-none`}
       collapsible="icon"
     >
       <SidebarHeader>
@@ -117,9 +119,8 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.path}
-                      onClick={(e) => {
-                        if (state === 'collapsed') {
-                          e.preventDefault()
+                      onClick={() => {
+                        if (isMobile) {
                           toggleSidebar()
                         }
                       }}
@@ -156,6 +157,11 @@ export function AppSidebar() {
                                 <NavLink
                                   to={subItem.path}
                                   className="flex flex-col gap-4"
+                                  onClick={() => {
+                                    if (isMobile) {
+                                      toggleSidebar()
+                                    }
+                                  }}
                                 >
                                   <span>{subItem.title}</span>
                                 </NavLink>

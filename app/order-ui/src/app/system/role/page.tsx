@@ -6,11 +6,19 @@ import { SquareMenu } from 'lucide-react'
 import { DataTable } from '@/components/ui'
 import { useRoles } from '@/hooks'
 import { useRoleListColumns } from './DataTable/columns'
+import { useNavigate } from 'react-router-dom'
+import { IRole } from '@/types'
+import { ROUTE } from '@/constants'
 
 export default function RolePage() {
+    const navigate = useNavigate()
     const { t: tHelmet } = useTranslation('helmet')
     const { t } = useTranslation('role')
     const { data, isLoading } = useRoles()
+
+    const handleRowClick = (row: IRole) => {
+        navigate(`${ROUTE.STAFF_ROLE_MANAGEMENT}/${row.slug}`)
+    }
 
     return (
         <div className="grid grid-cols-1 gap-2">
@@ -34,6 +42,7 @@ export default function RolePage() {
                 // actionOptions={EmployeesAction}
                 onPageChange={() => { }}
                 onPageSizeChange={() => { }}
+                onRowClick={handleRowClick}
             // actionOptions={CreateRoleDialog}
             />
         </div>

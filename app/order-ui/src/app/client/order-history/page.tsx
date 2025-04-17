@@ -275,7 +275,7 @@ export default function OrderHistoryPage() {
             {/* Return order button */}
             <div className="flex gap-2 justify-between">
               <Button
-                className="w-fit bg-primary"
+                variant="outline"
                 onClick={() => {
                   navigate(`${ROUTE.CLIENT_PROFILE}?tab=history`)
                 }}

@@ -312,7 +312,11 @@ export class MenuService {
     const [menus, total] = await this.menuRepository.findAndCount({
       where: { branch: { slug: query.branch }, isTemplate: query.isTemplate },
       order: { date: 'DESC' },
-      relations: ['menuItems.product.variants.size', 'menuItems.promotion'],
+      relations: [
+        'menuItems.product.variants.size',
+        'menuItems.promotion',
+        'branch',
+      ],
       skip: (query.page - 1) * query.size,
       take: query.size,
     });
