@@ -25,10 +25,10 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="py-10 bg-gray-800">
+    <div className="min-h-screen">
+      <header className="py-6">
         <div className="container mx-auto text-center">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold">
             {staticPage.result.title}
           </h1>
         </div>
