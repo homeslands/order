@@ -22,7 +22,7 @@ import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup } from '@
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
-import { PaymentStatusBadge } from '@/components/app/badge'
+// import { PaymentStatusBadge } from '@/components/app/badge'
 import { useUserStore } from '@/stores'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
@@ -138,19 +138,19 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         return <div className="text-sm">{location}</div>
       },
     },
-    {
-      accessorKey: 'paymentStatus',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex flex-col">
-            <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
-          </div>
-        )
-      },
-    },
+    // {
+    //   accessorKey: 'paymentStatus',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     return (
+    //       <div className="flex flex-col">
+    //         <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
+    //       </div>
+    //     )
+    //   },
+    // },
     {
       accessorKey: 'orderStatus',
       header: ({ column }) => (
@@ -257,11 +257,16 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   )}
 
                 {/* Cancel order */}
-                {isDeletePermissionValid && !(order && order.status === OrderStatus.PAID && order.payment.statusCode === paymentStatus.COMPLETED) && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <OutlineCancelOrderDialog order={order} />
-                  </div>
-                )}
+                {isDeletePermissionValid &&
+                  !(
+                    order &&
+                    (order.status === OrderStatus.PAID || order.status === OrderStatus.COMPLETED) &&
+                    order.payment?.statusCode === paymentStatus.COMPLETED
+                  ) && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <OutlineCancelOrderDialog order={order} />
+                    </div>
+                  )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -29,13 +29,12 @@ export default function BranchSelect({ defaultValue, onChange }: SelectBranchPro
 
   // Set selected branch if defaultValue matches
   useEffect(() => {
-    if (defaultValue && data?.result) {
-      const branch = data.result.find((item) => item.slug === defaultValue);
-      if (branch) {
-        setBranch(branch);
-        setSelectedValue(branch.slug); // Update selected value here
-      }
-    }
+    if (!data?.result || data.result.length === 0) return;
+
+    const branch = data.result.find(item => item.slug === defaultValue) || data.result[0];
+
+    setBranch(branch);
+    setSelectedValue(branch.slug);
   }, [defaultValue, data?.result, setBranch]);
 
   useEffect(() => {

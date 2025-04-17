@@ -80,7 +80,7 @@ export function AppSidebar() {
   return (
     <Sidebar
       variant="inset"
-      className={`z-50 bg-white border-r shadow-2xl shadow-gray-300 dark:bg-transparent dark:shadow-none`}
+      className={`z-50 border-r shadow-2xl shadow-gray-300 dark:shadow-none`}
       collapsible="icon"
     >
       <SidebarHeader>
@@ -117,11 +117,8 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.path}
-                      onClick={(e) => {
-                        if (state === 'collapsed') {
-                          e.preventDefault()
-                          toggleSidebar()
-                        }
+                      onClick={() => {
+                        toggleSidebar()
                       }}
                     >
                       {item.icon && (
@@ -156,6 +153,9 @@ export function AppSidebar() {
                                 <NavLink
                                   to={subItem.path}
                                   className="flex flex-col gap-4"
+                                  onClick={() => {
+                                    toggleSidebar()
+                                  }}
                                 >
                                   <span>{subItem.title}</span>
                                 </NavLink>

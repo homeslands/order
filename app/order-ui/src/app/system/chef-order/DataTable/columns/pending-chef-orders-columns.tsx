@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ChefOrderStatus, IChefOrders, OrderTypeEnum } from '@/types'
+import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, OrderTypeEnum } from '@/types'
 import {
   ConfirmCompleteChefOrderDialog,
   ConfirmUpdateChefOrderStatusDialog,
@@ -135,9 +135,11 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <div onClick={(e) => e.stopPropagation()}>
-                  <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
-                </div>
+                {chefOrder.chefOrderItems.some(item => item.status === ChefOrderItemStatus.COMPLETED) && chefOrder.status !== ChefOrderStatus.COMPLETED && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

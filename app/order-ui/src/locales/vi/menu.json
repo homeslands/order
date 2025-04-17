@@ -131,7 +131,7 @@
     "orderSuccess": "Đặt hàng thành công",
     "continueToPayment": "Tiếp tục thanh toán",
     "paymentStatus": "Thanh toán",
-    "orderStatus": "Đơn hàng",
+    "orderStatus": "Trạng thái đơn hàng",
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
     "pending": "Chờ thanh toán",

@@ -84,7 +84,6 @@ export default function OverviewDetailPage() {
     setRevenueType(data.type || RevenueTypeQuery.DAILY);
   };
 
-
   return (
     <div className="min-h-screen">
       <main className='flex flex-col gap-2 pb-4'>
@@ -95,20 +94,29 @@ export default function OverviewDetailPage() {
               {t('dashboard.title')}
             </div>
           </div>
-          <div className='flex gap-2 items-center'>
-            <RevenueToolDropdown branch={branch?.slug || ''} startDate={startDate} endDate={endDate} revenueType={revenueType} />
-            <Button variant="outline" onClick={handleRefreshRevenue} className='flex gap-1 items-center'>
+          <div className="flex overflow-x-auto gap-2 items-center px-2 py-2 max-w-sm whitespace-nowrap sm:max-w-full">
+            <div className="flex-shrink-0">
+              <RevenueToolDropdown branch={branch?.slug || ''} startDate={startDate} endDate={endDate} revenueType={revenueType} />
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleRefreshRevenue}
+              className="flex flex-shrink-0 gap-1 items-center"
+            >
               <RefreshCcw />
               {tCommon('common.refresh')}
             </Button>
-            <RevenueFilterPopover onApply={handleSelectDateRange} />
-            <div className='w-[14rem]'>
+            <div className="flex-shrink-0">
+              <RevenueFilterPopover onApply={handleSelectDateRange} />
+            </div>
+            <div className="w-[14rem] flex-shrink-0">
               <BranchSelect defaultValue={branch?.slug} />
             </div>
           </div>
+
         </div>
         <div className='flex flex-col gap-4'>
-          <div className='flex gap-4 items-center w-full'>
+          <div className='flex overflow-x-auto gap-2 items-center px-2 py-2 max-w-sm whitespace-nowrap sm:max-w-full'>
             {startDate && endDate && revenueType && (
               <div className='flex gap-2 items-center'>
                 <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>

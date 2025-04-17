@@ -17,6 +17,9 @@ export default function HomePage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { data: banner } = useBanners({ isActive: true })
   const bannerData = banner?.result || []
+
+  const shuffle = (arr: IMenuItem[]): IMenuItem[] => arr.sort(() => Math.random() - 0.5);
+
   // Animation Variants
   const fadeInVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -64,6 +67,9 @@ export default function HomePage() {
     },
     { newsProducts: [], promotionProducts: [] },
   )
+
+  // Sáo trộn mảng sản phẩm mới
+  const shuffledNewsProducts = shuffle(newsProducts);
 
   return (
     <React.Fragment>
@@ -146,7 +152,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={newsProducts} isFetching={fechMenupromotion} />
+              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} />
             </motion.div>
           </div>
         )}

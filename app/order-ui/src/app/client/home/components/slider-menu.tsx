@@ -48,13 +48,13 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             breakpoints={breakpoints}
             initialSlide={0}
             modules={[Autoplay, Pagination]}
-            className="mySwiper w-full h-full overflow-y-visible"
+            className="overflow-y-visible w-full h-full mySwiper"
         >
             {!isFetching ? menus?.map((item, index) => {
                 const imageProduct = item?.product?.image ? publicFileURL + "/" + item.product.image : Com
                 return (
-                    <SwiperSlide key={index} className="w-full h-full py-2 ">
-                        <div className="flex h-full w-full flex-col rounded-xl border shadow-sm bg-white dark:bg-gray-700 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                    <SwiperSlide key={index} className="py-2 w-full h-full">
+                        <div className="flex h-full w-full flex-col rounded-xl border shadow-sm bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                             <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
                                 <>
                                     <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
@@ -74,10 +74,10 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                     <div className="flex items-center justify-between gap-1 h-[82px]">
                                         <div className="flex flex-col">
                                             {item.product.variants.length > 0 ? (
-                                                <div className="flex flex-col items-start justify-start gap-1">
-                                                    <div className='flex flex-row items-center gap-1'>
+                                                <div className="flex flex-col gap-1 justify-start items-start">
+                                                    <div className='flex flex-row gap-1 items-center'>
                                                         {item.promotion && item?.promotion?.value > 0 ? (
-                                                            <div className='flex flex-col items-start justify-start gap-1 mt-2'>
+                                                            <div className='flex flex-col gap-1 justify-start items-start mt-2'>
                                                                 <span className="text-sm sm:text-lg text-primary">
                                                                     {(() => {
                                                                         const range = getPriceRange(item.product.variants)
@@ -86,7 +86,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                             ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                                                                     })()}
                                                                 </span>
-                                                                <div className='flex flex-row items-center gap-3'>
+                                                                <div className='flex flex-row gap-3 items-center'>
                                                                     <span className="text-sm line-through text-muted-foreground/70">
                                                                         {(() => {
                                                                             const range = getPriceRange(item.product.variants)
@@ -131,7 +131,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                 </div>
                             </NavLink>
                             {item.currentStock > 0 || !item?.product?.isLimit ? (
-                                <div className="flex justify-center w-full gap-2 p-2">
+                                <div className="flex gap-2 justify-center p-2 w-full">
                                     {isMobile ? (
                                         <ClientAddToCartDrawer product={item} />
                                     ) : (
@@ -139,9 +139,9 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex justify-center w-full gap-2 p-2">
+                                <div className="flex gap-2 justify-center p-2 w-full">
                                     <Button
-                                        className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                                        className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
                                         disabled
                                     >
                                         {t('menu.outOfStock')}
@@ -155,7 +155,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             }
             ) :
                 [...Array(6)].map((_, index) => (
-                    <SwiperSlide key={index} className="w-full h-full py-2">
+                    <SwiperSlide key={index} className="py-2 w-full h-full">
                         <SkeletonMenuList />
                     </SwiperSlide>
                 ))
