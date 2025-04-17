@@ -132,7 +132,7 @@ export default function RoleDetailPage() {
                 <div className="flex gap-4 justify-between items-center">
                     <div className='flex gap-2 items-center'>
                         <span className='text-sm text-muted-foreground'>{t(`role.name`)}</span>
-                        <Badge className='text-sm font-normal'>{roleDetail?.name}</Badge>
+                        <Badge className='text-sm font-normal'>{t(`role.${roleDetail?.name}`)}</Badge>
                     </div>
                     <div className="flex gap-2 justify-end mt-4">
                         <Button variant="outline" onClick={() => setSelectedPermissions({

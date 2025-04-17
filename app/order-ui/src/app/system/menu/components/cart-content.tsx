@@ -142,14 +142,16 @@ export function CartContent() {
                 <span className="text-muted-foreground">{t('menu.total')}</span>
                 <span className='text-muted-foreground'>{`${formatCurrency(subTotal || 0)}`}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-green-600">
-                  {t('menu.discount')}
-                </span>
-                <span className="text-sm text-green-600">
-                  - {`${formatCurrency(discount)}`}
-                </span>
-              </div>
+              {discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-green-600">
+                    {t('menu.discount')}
+                  </span>
+                  <span className="text-sm text-green-600">
+                    - {`${formatCurrency(discount)}`}
+                  </span>
+                </div>
+              )}
               {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
                 <span className='flex gap-1 items-center text-sm text-destructive'>
                   <Info size={16} />

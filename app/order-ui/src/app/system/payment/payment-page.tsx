@@ -275,14 +275,16 @@ export default function PaymentPage() {
                           - {`${formatCurrency(discount || 0)}`}
                         </p>
                       </div>
-                      <div className="flex justify-between pb-4 w-full border-b">
-                        <h3 className="text-sm italic font-medium text-green-500">
-                          {t('order.voucher')}
-                        </h3>
-                        <p className="text-sm italic font-semibold text-green-500">
-                          - {`${formatCurrency(voucherDiscount || 0)}`}
-                        </p>
-                      </div>
+                      {voucherDiscount > 0 && (
+                        <div className="flex justify-between pb-4 w-full border-b">
+                          <h3 className="text-sm italic font-medium text-green-500">
+                            {t('order.voucher')}
+                          </h3>
+                          <p className="text-sm italic font-semibold text-green-500">
+                            - {`${formatCurrency(voucherDiscount || 0)}`}
+                          </p>
+                        </div>
+                      )}
                       <div className="flex flex-col">
                         <div className="flex justify-between w-full">
                           <h3 className="font-semibold text-md">
@@ -308,7 +310,7 @@ export default function PaymentPage() {
                 />
               </div>
             )}
-            <div className="flex flex-wrap-reverse gap-2 justify-between py-6 px-2">
+            <div className="flex flex-wrap-reverse gap-2 justify-between px-2 py-6">
               <Button
                 className="w-fit"
                 onClick={() => navigate(-1)}

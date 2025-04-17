@@ -10,7 +10,7 @@
     "menuManagement": "Quản lý thực đơn",
     "dishManagement": "Quản lý món",
     "customerManagement": "Quản lý người dùng",
-    "chefOrderManagement": "Quản lý đơn hàng theo khu vực bếp",
+    "chefOrderManagement": "Khu vực bếp",
     "userManagement": "Quản lý nhân viên",
     "roleManagement": "Quản lý vai trò",
     "branchManagement": "Quản lý chi nhánh",
@@ -25,7 +25,7 @@
     "overview": "Tổng quan",
     "voucher": "Mã giảm giá",
     "promotion": "Khuyến mãi",
-    "chefAreaManagement": "Khu vực bếp",
+    "chefAreaManagement": "Quản lý khu vực bếp",
     "banner": "Banner",
     "docs": "Tài liệu"
   },

@@ -1,4 +1,5 @@
 import {
+  Archive,
   Banknote,
   Bolt,
   ChartColumn,
@@ -6,10 +7,10 @@ import {
   ClipboardList,
   CookingPot,
   FileChartColumnIncreasing,
-  FileText,
   Grid2x2,
   LayoutGrid,
   Newspaper,
+  ShoppingCart,
   Store,
   Tag,
   Ticket,
@@ -37,19 +38,19 @@ export const sidebarRoutes: ISidebarRoute[] = [
   {
     title: 'sidebar.orderManagement',
     path: ROUTE.STAFF_ORDER_MANAGEMENT,
-    icon: FileChartColumnIncreasing,
+    icon: ShoppingCart,
     permission: Permission.DELIVERY_MANAGEMENT,
   },
   {
     title: 'sidebar.chefOrderManagement',
     path: ROUTE.STAFF_CHEF_ORDER,
-    icon: FileChartColumnIncreasing,
+    icon: CookingPot,
     permission: Permission.CHEF_ORDER_MANAGEMENT,
   },
   {
     title: 'sidebar.orderHistory',
     path: ROUTE.STAFF_ORDER_HISTORY,
-    icon: FileText,
+    icon: Archive,
     permission: Permission.ORDER_MANAGEMENT,
   },
   {

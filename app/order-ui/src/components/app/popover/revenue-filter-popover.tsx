@@ -15,7 +15,7 @@ import { IRevenueQuery } from "@/types";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY);
+    const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
     const [open, setOpen] = useState(false);
 
     const today = new Date();
