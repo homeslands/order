@@ -18,6 +18,6 @@ export class JobProducer {
   async createJob(data: CreateJobRequestDto) {
     const job = this.jobRepository.create(data);
     await this.jobRepository.save(job);
-    this.jobQueue.add(data.type, job.id);
+    this.jobQueue.add(data.type, { id: job.id });
   }
 }

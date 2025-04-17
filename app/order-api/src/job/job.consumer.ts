@@ -26,7 +26,7 @@ export class JobConsumer extends WorkerHost {
     const context = `${JobConsumer.name}.${this.process.name}`;
     const job: Job = await this.jobRepository.findOne({
       where: {
-        id: jobData.data.id ?? IsNull(),
+        id: jobData.data?.id ?? IsNull(),
       },
     });
     if (!job) {
