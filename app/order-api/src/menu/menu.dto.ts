@@ -35,7 +35,8 @@ export class UpdateMenuDto extends CreateMenuDto {}
 
 export class GetAllMenuQueryRequestDto extends BaseQueryDto {
   @AutoMap()
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, description: 'The branch slug' })
+  @IsOptional()
   branch?: string;
 
   @AutoMap()

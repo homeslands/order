@@ -2,11 +2,11 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Job } from './job.entity';
 import { QueueRegisterKey } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-// import { JobStatus } from './job.constants';
+import { JobStatus } from './job.constants';
 
 @Injectable()
 export class JobRecoveryService implements OnModuleInit {
@@ -22,22 +22,22 @@ export class JobRecoveryService implements OnModuleInit {
   async onModuleInit() {
     const context = `${JobRecoveryService.name}.${this.onModuleInit.name}`;
     this.logger.log('Starting job recovery service', context);
-    // const pendingJobs = await this.jobRepository.find({
-    //   where: {
-    //     status: In([JobStatus.PENDING, JobStatus.PROCESSING]),
-    //   },
-    //   order: {
-    //     createdAt: 'ASC',
-    //   },
-    // });
+    const pendingJobs = await this.jobRepository.find({
+      where: {
+        status: In([JobStatus.PENDING, JobStatus.PROCESSING]),
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+    });
 
-    // for (const job of pendingJobs) {
-    //   await this.jobQueue.add(job.type, { id: job.id });
-    //   this.logger.log(`Re-queued job ${job.id} of type ${job.type}`, context);
-    // }
-    // this.logger.log(
-    //   `${pendingJobs.length} jobs recovery service completed`,
-    //   context,
-    // );
+    for (const job of pendingJobs) {
+      await this.jobQueue.add(job.type, { id: job.id });
+      this.logger.log(`Re-queued job ${job.id} of type ${job.type}`, context);
+    }
+    this.logger.log(
+      `${pendingJobs.length} jobs recovery service completed`,
+      context,
+    );
   }
 }
