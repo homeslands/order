@@ -177,6 +177,7 @@
     "orderStatus": "Order status",
     "cash": "Cash",
     "bankTransfer": "Bank transfer",
+    "deliveryOrderType": "Delivery order type",
     "pending": "Pending",
     "paid": "Paid",
     "completed": "Completed",

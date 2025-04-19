@@ -24,6 +24,8 @@ import { ChefAreaUtils } from 'src/chef-area/chef-area.utils';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { PdfService } from 'src/pdf/pdf.service';
 
 describe('ChefOrderController', () => {
   let controller: ChefOrderController;
@@ -41,6 +43,8 @@ describe('ChefOrderController', () => {
         ChefAreaUtils,
         BranchUtils,
         ChefOrderItemUtils,
+        QrCodeService,
+        PdfService,
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,

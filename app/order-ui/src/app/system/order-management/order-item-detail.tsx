@@ -159,7 +159,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
         {/* {renderDeliveryTimeline(orderItem)} */}
 
         {/* Product Information */}
-        <div className="flex flex-col gap-3 py-4 bg-transparent border-b border-muted-foreground/60">
+        <div className="flex flex-col gap-3 py-4 bg-transparent">
           {/* Order Note */}
           {orderItem.note && (
             <div className="flex gap-2 items-center p-2 rounded-md border">

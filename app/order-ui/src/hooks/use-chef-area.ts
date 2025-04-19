@@ -4,6 +4,7 @@ import {
   createChefArea,
   createChefOrder,
   deleteChefArea,
+  exportChefOrder,
   getAllChefAreaProducts,
   getChefAreaBySlug,
   getChefAreas,
@@ -68,6 +69,13 @@ export const useDeleteChefArea = () => {
   })
 }
 
+export const useExportChefOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return exportChefOrder(slug)
+    },
+  })
+}
 export const useGetChefAreaProducts = (slug: string) => {
   return useQuery({
     queryKey: [QUERYKEY.chefAreaProducts, slug],
@@ -154,6 +162,6 @@ export const useUpdateChefOrderItemStatus = () => {
   return useMutation({
     mutationFn: async (params: IUpdateChefOrderItemStatusRequest) => {
       return updateChefOrderItemStatus(params)
-    }
+    },
   })
 }

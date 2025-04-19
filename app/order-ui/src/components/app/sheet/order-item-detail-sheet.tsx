@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -18,15 +18,17 @@ import {
   SheetTitle,
   Button,
   SheetFooter,
+  ScrollArea,
 } from '@/components/ui'
 import {
   CreateOrderTrackingByStaffDialog,
-  CreateOrderTrackingByRobotDialog,
+  // CreateOrderTrackingByRobotDialog,
 } from '@/components/app/dialog'
 import { paymentStatus } from '@/constants'
 import { loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '../loading'
 import { useSearchParams } from 'react-router-dom'
+import { OrderInformationAccordion } from '../accordion'
 
 interface IOrderItemDetailSheetProps {
   isOpen: boolean
@@ -52,6 +54,7 @@ export default function OrderItemDetailSheet({
   // const [orderSlugs, setOrderSlugs] = useState<string[]>([])
   // const [orderDetails, setOrderDetails] = useState<IOrder[]>([])
   // const [currentFetchIndex, setCurrentFetchIndex] = useState(0)
+  const [isExpanded, setIsExpanded] = useState(false)
   const { getSelectedItems } = useOrderTrackingStore()
   const { mutate: exportOrderInvoice, isPending } = useExportOrderInvoice()
 
@@ -62,6 +65,10 @@ export default function OrderItemDetailSheet({
       enabled: !!orderSlug,
     },
   )
+
+  const handleSubmit = () => {
+    setIsExpanded(!isExpanded)
+  }
 
   useEffect(() => {
     setOrderSlug(slug)
@@ -224,7 +231,7 @@ export default function OrderItemDetailSheet({
                   <div className="flex gap-2 justify-between mt-2">
                     <div className="flex gap-2">
                       <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
-                      <CreateOrderTrackingByRobotDialog disabled={getSelectedItems().length === 0} />
+                      {/* <CreateOrderTrackingByRobotDialog disabled={getSelectedItems().length === 0} /> */}
                     </div>
                     <div>
                       {selectedOrder &&
@@ -248,6 +255,9 @@ export default function OrderItemDetailSheet({
                       {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                     </div>
                     <CustomerInformation orderDetailData={selectedOrder?.result} />
+                    {selectedOrder?.result && (
+                      <OrderInformationAccordion onSubmit={handleSubmit} orderDetailData={selectedOrder?.result} />
+                    )}
                   </div>
                 </div>
               )}
@@ -255,10 +265,11 @@ export default function OrderItemDetailSheet({
           </SheetTitle>
         </SheetHeader>
 
-        {orderSlug ? (
-          <div className="h-[calc(100vh-11rem)] flex-1 px-2 pt-2">
-            <OrderItemList orderDetailData={selectedOrder?.result} />
-            {/* {orderDetails && orderDetails.length > 0 && (
+        <ScrollArea className="h-[calc(100vh-11rem)]">
+          {orderSlug ? (
+            <div className="flex-1 px-2 pt-2">
+              <OrderItemList orderDetailData={selectedOrder?.result} />
+              {/* {orderDetails && orderDetails.length > 0 && (
               <div className="flex gap-1 items-center">
                 <CircleAlert size={14} className="text-blue-500" />
                 <span className="text-xs text-muted-foreground sm:text-sm">
@@ -266,7 +277,7 @@ export default function OrderItemDetailSheet({
                 </span>
               </div>
             )} */}
-            {/* <div className="flex justify-start">
+              {/* <div className="flex justify-start">
               <Button
                 onClick={
                   shouldFetchOrders ? handleRefetchAll : handleFetchOrders
@@ -277,7 +288,7 @@ export default function OrderItemDetailSheet({
                   : t('order.loadOrdersInTheSameTable')}
               </Button>
             </div> */}
-            {/* {shouldFetchOrders && (
+              {/* {shouldFetchOrders && (
               <div className="flex flex-col gap-4">
                 {orderDetails
                   .filter((orderDetail) => orderDetail.slug !== orderSlug)
@@ -292,12 +303,13 @@ export default function OrderItemDetailSheet({
                   ))}
               </div>
             )} */}
-          </div>
-        ) : (
-          <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-            {tCommon('common.noData')}
-          </p>
-        )}
+            </div>
+          ) : (
+            <p className="flex min-h-[calc(100vh-21rem)] items-center justify-center text-muted-foreground">
+              {tCommon('common.noData')}
+            </p>
+          )}
+        </ScrollArea>
 
         <SheetFooter className="p-2">
           <Button onClick={onClose}>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex items-center justify-center">
+        <img src="data:image/png;base64,<%= logoString %>" alt="" class="w-52">
+      </div>
+      <p class="text-center text-sm">
+        <%= branchAddress %>
+      </p>
+      <div class="flex items-center justify-center">
+        <img src="<%= qrcode %>" alt="qrcode" class="w-44 block mt-0 pt-0" />
+      </div>
+      <p class="text-center text-xs">
+        <span class="">
+          Mã đơn:
+        </span>
+        <span class="">
+          <%= referenceNumber %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Invoive info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian:</span>
+        <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs"> 
+        <span class="font-bold">
+          Bàn:
+        </span>
+        <span class="capitalize">
+          <%= tableName %>
+        </span>
+      </p>
+      <p class="text-xs"> 
+        <span class="font-bold">
+          Khu vực:
+        </span>
+        <span class="capitalize">
+          <%= areaName %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Invoice items -->
+     
+    <table class="min-w-full table-auto border-collapse mt-4 text-sm">
+      <thead>
+        <tr class="bg-white-100 border-b border-black">
+          <th class="py-2 text-left px-1">Món</th>
+          <th class="py-2 text-left px-1">SL</th>
+          <th class="py-2 text-right px-1">Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% chefOrderItems.forEach(function(item) { %>
+          <tr class="hover:bg-gray-50 border-b border-black">
+            <td class="px-1 py-2 text-xs">
+              <%= item.orderItem.variant.product.name %> <span class="uppercase">
+                  (<%= item.orderItem.variant.size.name %>)
+                </span>
+            </td>
+            <td class="px-1 py-2 text-xs">
+              <%= item.orderItem.quantity %>
+            </td>
+            <td class="px-1 py-2 text-xs">
+              <%= item.orderItem.note %>
+            </td>
+          </tr>
+          <% }); %>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

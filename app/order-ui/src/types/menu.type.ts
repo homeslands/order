@@ -5,7 +5,7 @@ import { IPromotion } from './promotion.type'
 
 export interface IMenu extends IBase {
   date: string
-  branchSlug: string
+  branch: IBranch
   dayIndex: number
   isTemplate: boolean
   menuItems: IMenuItem[]

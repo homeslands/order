@@ -134,6 +134,7 @@
     "orderStatus": "Trạng thái đơn hàng",
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
+    "deliveryOrderType": "Loại đơn hàng",
     "pending": "Chờ thanh toán",
     "deliveryPending": "Chờ giao",
     "deliveryPendingMobile": "Chờ",

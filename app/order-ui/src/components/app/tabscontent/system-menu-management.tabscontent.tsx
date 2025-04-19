@@ -3,39 +3,44 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { DataTable } from '@/components/ui'
 import { useAllMenus, usePagination } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useBranchStore } from '@/stores'
 import { useMenusColumns } from '@/app/system/menu-management/DataTable/columns'
 import { MenusActionOptions } from '@/app/system/menu-management/DataTable/actions'
 import { IMenu } from '@/types'
 import { ROUTE } from '@/constants'
 
-
 export function SystemMenuManagementTabsContent() {
   const navigate = useNavigate()
-  const { userInfo } = useUserStore()
+  const { branch } = useBranchStore()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = searchParams.get('tab')
+  const tab = searchParams.get('tab') || 'isTemplate'
+
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+
+  // Set default tab and branch slug in URL
+  useEffect(() => {
+    const updatedParams = new URLSearchParams(searchParams)
+    if (!searchParams.get('tab')) {
+      updatedParams.set('tab', 'isTemplate')
+    }
+    if (branch?.slug) {
+      updatedParams.set('branch', branch.slug)
+    }
+    setSearchParams(updatedParams)
+  }, [branch, setSearchParams, searchParams])
+
   const { data, isLoading } = useAllMenus({
     order: 'DESC',
     page: pagination.pageIndex,
     pageSize: pagination.pageSize,
-    branch: userInfo?.branch?.slug,
-    isTemplate: tab === 'isTemplate' ? true : false,
+    branch: branch?.slug,
+    isTemplate: tab === 'isTemplate',
   })
-
-  useEffect(() => {
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev)
-      newParams.set('tab', tab || 'isTemplate')
-      return newParams
-    })
-  }, [setSearchParams, tab])
-
 
   const handleRowClick = (row: IMenu) => {
     navigate(`${ROUTE.STAFF_MENU_MANAGEMENT}/${row.slug}`)
   }
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <DataTable

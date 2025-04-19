@@ -39,3 +39,10 @@ export interface IOrdersQuery {
   hasPaging?: boolean
   enabled?: boolean
 }
+
+export enum DeliveryOrderType {
+  PENDING = 'PENDING',
+  SHIPPING = 'SHIPPING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+}

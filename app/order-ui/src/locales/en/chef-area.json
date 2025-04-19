@@ -26,7 +26,7 @@
   },
   "chefOrder": {
     "title": "Chef order management",
-    "slug": "Order code",
+    "referenceNumber": "Reference number",
     "createdAt": "Created at",
     "productName": "Product name",
     "quantity": "Quantity",

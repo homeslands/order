@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  StreamableFile,
   ValidationPipe,
 } from '@nestjs/common';
 import { ChefOrderService } from './chef-order.service';
@@ -165,5 +166,17 @@ export class ChefOrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<ChefOrderResponseDto>;
+  }
+
+  @Get(':slug/export')
+  @ApiOperation({ summary: 'Export chef order' })
+  @HttpCode(HttpStatus.OK)
+  async exportChefOrder(@Param('slug') slug: string): Promise<StreamableFile> {
+    const result = await this.chefOrderService.exportPdf(slug);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="Chef-order-${new Date().toISOString()}.pdf"`,
+    });
   }
 }

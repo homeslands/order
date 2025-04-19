@@ -174,7 +174,10 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columns.map(column => ({
+      ...column,
+      id: (column as ColumnDef<TData, TValue> & { accessorKey?: string }).accessorKey || Math.random().toString(36).substring(7)
+    })),
     pageCount: pages,
     state: {
       sorting,
