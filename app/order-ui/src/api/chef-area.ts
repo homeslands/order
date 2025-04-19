@@ -61,12 +61,11 @@ export async function exportChefOrder(slug: string): Promise<Blob> {
   setFileName(`TRENDCoffee-${currentDate}.pdf`)
   setIsDownloading(true)
   try {
-    const response = await http.post(`/chef-order/export`, null, {
+    const response = await http.get(`/chef-order/${slug}/export`, {
       responseType: 'blob',
       headers: {
         Accept: 'application/pdf',
       },
-      params: { slug },
       onDownloadProgress: (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / (progressEvent.total ?? 1),

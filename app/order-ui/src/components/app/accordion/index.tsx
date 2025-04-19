@@ -1,1 +1,0 @@
-export { default as OrderInformationAccordion } from './order-information-accordion'

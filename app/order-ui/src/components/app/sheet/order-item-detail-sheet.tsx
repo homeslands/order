@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -28,7 +28,6 @@ import { paymentStatus } from '@/constants'
 import { loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '../loading'
 import { useSearchParams } from 'react-router-dom'
-import { OrderInformationAccordion } from '../accordion'
 
 interface IOrderItemDetailSheetProps {
   isOpen: boolean
@@ -54,7 +53,6 @@ export default function OrderItemDetailSheet({
   // const [orderSlugs, setOrderSlugs] = useState<string[]>([])
   // const [orderDetails, setOrderDetails] = useState<IOrder[]>([])
   // const [currentFetchIndex, setCurrentFetchIndex] = useState(0)
-  const [isExpanded, setIsExpanded] = useState(false)
   const { getSelectedItems } = useOrderTrackingStore()
   const { mutate: exportOrderInvoice, isPending } = useExportOrderInvoice()
 
@@ -65,10 +63,6 @@ export default function OrderItemDetailSheet({
       enabled: !!orderSlug,
     },
   )
-
-  const handleSubmit = () => {
-    setIsExpanded(!isExpanded)
-  }
 
   useEffect(() => {
     setOrderSlug(slug)
@@ -255,9 +249,9 @@ export default function OrderItemDetailSheet({
                       {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                     </div>
                     <CustomerInformation orderDetailData={selectedOrder?.result} />
-                    {selectedOrder?.result && (
-                      <OrderInformationAccordion onSubmit={handleSubmit} orderDetailData={selectedOrder?.result} />
-                    )}
+                    {/* {selectedOrder?.result && (
+                      <OrderInformationAccordion orderDetailData={selectedOrder?.result} />
+                    )} */}
                   </div>
                 </div>
               )}
@@ -265,7 +259,7 @@ export default function OrderItemDetailSheet({
           </SheetTitle>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-11rem)]">
+        <ScrollArea className="h-[calc(100vh-10rem)]">
           {orderSlug ? (
             <div className="flex-1 px-2 pt-2">
               <OrderItemList orderDetailData={selectedOrder?.result} />
