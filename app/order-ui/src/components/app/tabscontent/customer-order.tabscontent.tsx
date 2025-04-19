@@ -9,11 +9,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-  Button,
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent
+  Button
 } from '@/components/ui'
 
 import { useOrders, usePagination } from '@/hooks'
@@ -24,6 +20,7 @@ import { IOrder, OrderStatus } from '@/types'
 import { OrderHistorySkeleton } from '@/components/app/skeleton'
 import { formatCurrency, showErrorToast } from '@/utils'
 import { CancelOrderDialog } from '@/components/app/dialog'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion'
 
 export default function CustomerOrderTabsContent({
   status,
@@ -61,20 +58,20 @@ export default function CustomerOrderTabsContent({
         <Accordion type="multiple" className="w-full">
           {order.result.items.map((orderItem) => (
             <AccordionItem key={orderItem.slug} value={orderItem.slug}>
-              <AccordionTrigger className="relative flex flex-col items-start gap-4 p-0 mt-2 bg-white border rounded-lg sm:justify-between sm:gap-0 sm:items-center">
-                <div className="flex items-center w-full gap-4 px-4 py-2 border-b bg-primary/15">
+              <AccordionTrigger className="flex relative flex-col gap-4 items-start p-0 mt-2 bg-white rounded-lg border sm:justify-between sm:gap-0 sm:items-center">
+                <div className="flex gap-4 items-center px-4 py-2 w-full border-b bg-primary/15">
                   <span className="text-xs text-muted-foreground">
                     {moment(orderItem.createdAt).format('hh:mm:ss DD/MM/YYYY')}
                   </span>
                   <OrderStatusBadge order={orderItem} />
                 </div>
-                <div className="grid w-full grid-cols-1 gap-4 px-4 py-2 sm:grid-cols-2 sm:flex-row">
+                <div className="grid grid-cols-1 gap-4 px-4 py-2 w-full sm:grid-cols-2 sm:flex-row">
                   <div className="grid grid-cols-1 gap-4 sm:flex-col sm:items-start">
                     <div className="flex flex-col col-span-1 gap-2">
                       <span className="text-sm font-semibold">{t('order.orderId')}: {orderItem.slug}</span>
                     </div>
                   </div>
-                  <span className="flex items-center w-full gap-1 text-sm sm:justify-end text-muted-foreground">
+                  <span className="flex gap-1 items-center w-full text-sm sm:justify-end text-muted-foreground">
                     {t('order.total')} ({orderItem.orderItems.length} {t('order.items')}):
                     <span className='text-lg font-semibold text-primary'>
                       {formatCurrency(orderItem.subtotal)}
@@ -92,7 +89,7 @@ export default function CustomerOrderTabsContent({
                           alt={product.variant.product.name}
                           className="object-cover h-20 rounded-md sm:w-28"
                         />
-                        <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -bottom-2 -right-2 bg-primary">
+                        <div className="flex absolute -right-2 -bottom-2 justify-center items-center w-6 h-6 text-xs text-white rounded-full bg-primary">
                           x{product.quantity}
                         </div>
                       </div>
@@ -105,7 +102,7 @@ export default function CustomerOrderTabsContent({
                         </span>
                       </div>
                       {product?.promotion && product?.promotion?.value > 0 ? (
-                        <div className="flex items-center justify-end col-span-3 gap-2 text-sm font-semibold sm:col-span-3 sm:text-base">
+                        <div className="flex col-span-3 gap-2 justify-end items-center text-sm font-semibold sm:col-span-3 sm:text-base">
                           <span className='text-xs line-through text-muted-foreground/60'>
                             {formatCurrency(product.variant.price)}
                           </span>
@@ -114,14 +111,14 @@ export default function CustomerOrderTabsContent({
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-end col-span-3 text-sm font-semibold sm:col-span-3 sm:text-base">
+                        <div className="flex col-span-3 justify-end items-center text-sm font-semibold sm:col-span-3 sm:text-base">
                           {formatCurrency(product.variant.price * product.quantity)}
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-between gap-2 py-4 sm:flex-row bg-gray-50">
+                <div className="flex gap-2 justify-between items-center py-4 bg-gray-50 sm:flex-row">
                   <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`}>
                     <Button>
                       {t('order.viewDetail')}
@@ -146,7 +143,7 @@ export default function CustomerOrderTabsContent({
         <div className="text-center">{t('order.noOrders')}</div>
       )}
       {order && order?.result.totalPages > 0 && (
-        <div className="flex items-center justify-center py-4 space-x-2">
+        <div className="flex justify-center items-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

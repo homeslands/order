@@ -1,3 +1,4 @@
+import { useDownloadStore } from '@/stores'
 import {
   IApiResponse,
   IChefArea,
@@ -51,6 +52,32 @@ export async function updateChefArea(
 
 export async function deleteChefArea(slug: string): Promise<void> {
   await http.delete(`/chef-area/${slug}`)
+}
+
+export async function exportChefOrder(slug: string): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+  const currentDate = new Date().toISOString()
+  setFileName(`TRENDCoffee-${currentDate}.pdf`)
+  setIsDownloading(true)
+  try {
+    const response = await http.get(`/chef-order/${slug}/export`, {
+      responseType: 'blob',
+      headers: {
+        Accept: 'application/pdf',
+      },
+      onDownloadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+        )
+        setProgress(percentCompleted)
+      },
+    })
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
 }
 
 export async function getAllChefAreaProducts(

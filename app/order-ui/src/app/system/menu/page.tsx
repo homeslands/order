@@ -28,7 +28,6 @@ export default function SystemMenuPage() {
         <SystemMenuTabs />
       </div>
 
-
       {/* CartContent cố định bên phải */}
       {!isMobile && <CartContent />}
     </div>

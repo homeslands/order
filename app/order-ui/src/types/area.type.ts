@@ -100,6 +100,7 @@ export interface IChefOrderItemStatus extends IBase {
 }
 
 export interface IChefOrderInfo extends IBase {
+  referenceNumber: number
   subtotal: number
   status: string
   type: string

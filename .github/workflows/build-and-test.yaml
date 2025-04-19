@@ -1,17 +1,17 @@
 name: build-and-test
 
 on:
-  pull_request: # Trigger on pull request creation and updates
+  pull_request:
     branches: [main]
 
 jobs:
-  build-and-test:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js for FE
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
@@ -28,7 +28,13 @@ jobs:
         working-directory: ./app/order-ui
         run: npm run test
 
-      - name: Set up Node.js for BE
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"

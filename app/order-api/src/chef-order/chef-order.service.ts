@@ -20,6 +20,10 @@ import { ChefOrderStatus } from './chef-order.constants';
 import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import moment from 'moment';
+import { resolve } from 'path';
+import { readFileSync } from 'fs';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 @Injectable()
 export class ChefOrderService {
@@ -30,6 +34,8 @@ export class ChefOrderService {
     private readonly orderUtils: OrderUtils,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly pdfService: PdfService,
+    private readonly qrCodeService: QrCodeService,
   ) {}
 
   /**
@@ -107,7 +113,7 @@ export class ChefOrderService {
         'order.table',
       ],
       order: {
-        createdAt: 'ASC',
+        createdAt: 'DESC',
       },
       skip: (query.page - 1) * query.size,
       take: query.size,
@@ -143,6 +149,53 @@ export class ChefOrderService {
     });
 
     return this.mapper.map(chefOrder, ChefOrder, ChefOrderResponseDto);
+  }
+
+  async exportPdf(slug: string): Promise<Buffer> {
+    const context = `${ChefOrderService.name}.${this.exportPdf.name}`;
+    const chefOrder = await this.chefOrderUtils.getChefOrder({
+      where: { slug },
+      relations: [
+        'chefArea',
+        'order.branch',
+        'order.table',
+        'chefOrderItems.orderItem.variant.size',
+        'chefOrderItems.orderItem.variant.product',
+      ],
+    });
+
+    const logoPath = resolve('public/images/logo.png');
+    const logoBuffer = readFileSync(logoPath);
+
+    // Convert the buffer to a Base64 string
+    const logoString = logoBuffer.toString('base64');
+
+    const branchAddress = chefOrder.order.branch.address;
+    const qrcode = await this.qrCodeService.generateQRCode(
+      chefOrder.order?.slug,
+    );
+    const tableName = chefOrder.order.table?.name ?? 'Take out';
+    const referenceNumber = chefOrder.order.referenceNumber;
+    const areaName = chefOrder.chefArea.name;
+    const data = await this.pdfService.generatePdf(
+      'chef-order',
+      {
+        ...chefOrder,
+        logoString,
+        branchAddress,
+        qrcode,
+        referenceNumber,
+        tableName,
+        areaName,
+      },
+      {
+        width: '80mm',
+      },
+    );
+
+    this.logger.log(`Chef order ${chefOrder.slug} exported`, context);
+
+    return data;
   }
 
   /**

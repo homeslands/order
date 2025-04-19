@@ -16,7 +16,7 @@ export function SystemMenuTabscontent() {
 
   return (
     <div
-      className={`flex w-full flex-col`}
+      className={`flex flex-col w-full`}
     >
       <SystemMenus menu={specificMenu?.result} isLoading={isLoading} />
     </div>

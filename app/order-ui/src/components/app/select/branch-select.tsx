@@ -58,7 +58,7 @@ export default function BranchSelect({ defaultValue, onChange }: SelectBranchPro
 
   return (
     <Select onValueChange={handleChange} value={selectedValue}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-fit">
         <SelectValue placeholder={t('branch.chooseBranch')} />
       </SelectTrigger>
       <SelectContent>

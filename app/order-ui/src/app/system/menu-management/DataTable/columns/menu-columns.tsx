@@ -39,6 +39,16 @@ export const useMenusColumns = (): ColumnDef<IMenu>[] => {
       },
     },
     {
+      accessorKey: 'branch',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.branch')} />
+      ),
+      cell: ({ row }) => {
+        const branch = row.original.branch
+        return branch ? branch.name : ''
+      },
+    },
+    {
       accessorKey: 'dayIndex',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('menu.dayIndex')} />

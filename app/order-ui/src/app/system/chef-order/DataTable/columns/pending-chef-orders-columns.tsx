@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal } from 'lucide-react'
+import { DownloadIcon, MoreHorizontal } from 'lucide-react'
 
 import {
   Button,
@@ -17,10 +17,22 @@ import {
   ConfirmUpdateChefOrderStatusDialog,
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
-
+import { loadDataToPrinter, showToast } from '@/utils'
+import { useExportChefOrder } from '@/hooks'
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation('toast')
+  const { mutate: exportChefOrder } = useExportChefOrder()
+
+  const handleExportChefOrder = (slug: string) => {
+    exportChefOrder(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportChefOrderSuccess'))
+        loadDataToPrinter(data)
+      },
+    })
+  }
 
   return [
     {
@@ -40,7 +52,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                 <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
               </div>
             ) : (
-              <div className="pl-3">
+              <div className="pl-3 min-w-28">
                 <span className="italic text-green-500">
                   {t('chefOrder.accepted')}
                 </span>
@@ -53,13 +65,13 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       enableHiding: false,
     },
     {
-      accessorKey: 'slug',
+      accessorKey: '',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('chefOrder.slug')} />
+        <DataTableColumnHeader key={column.id} column={column} title={t('chefOrder.referenceNumber')} />
       ),
       cell: ({ row }) => {
-        const slug = row.original.order.slug
-        return <span className="text-sm text-muted-foreground">{slug}</span>
+        const referenceNumber = row.original.order.referenceNumber
+        return <span className="text-sm text-muted-foreground">{referenceNumber}</span>
       },
     },
     {
@@ -140,6 +152,16 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
+                <Button onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportChefOrder(chefOrder.slug)
+                }}
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                >
+                  <DownloadIcon />
+                  {t('chefOrder.exportChefOrder')}
+                </Button>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

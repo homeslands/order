@@ -5,6 +5,8 @@ import { ChefOrderItemStatus, IOrder, OrderItemStatus } from '@/types'
 import OrderItemDetail from './order-item-detail'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { useIsMobile } from '@/hooks'
+import { DeliveryOrderTypeSelect } from '@/components/app/select'
+import OrderInformation from './order-general-information'
 
 interface IOrderItemListProps {
   orderDetailData?: IOrder
@@ -16,7 +18,7 @@ export default function OrderItemList({
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const isMobile = useIsMobile()
-  const [activeTab, setActiveTab] = useState(OrderItemStatus.PENDING)
+  const [activeTab, setActiveTab] = useState<OrderItemStatus>(OrderItemStatus.PENDING)
 
   const getStatusCounts = () => {
     if (!orderDetailData?.orderItems) {
@@ -105,23 +107,48 @@ export default function OrderItemList({
           </div>
         </div> */}
 
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as OrderItemStatus)} className="w-full h-full rounded-lg border-2 border-primary bg-primary/5 sm:p-4">
-        <TabsList className={`grid grid-cols-4 ${isMobile ? 'mr-2' : ''} px-1 py-0 text-[0.5rem] sm:text-sm`}>
-          <TabsTrigger value={OrderItemStatus.PENDING} className="min-w-[6rem] whitespace-nowrap">
-            {isMobile ? `${t('order.deliveryPendingMobile')} (${pending})` : `${t('order.deliveryPending')} (${pending})`}
-          </TabsTrigger>
-          <TabsTrigger value={OrderItemStatus.RUNNING} className="min-w-[6rem] whitespace-nowrap">
-            {isMobile ? `${t('order.shippingMobile')} (${running})` : `${t('order.shipping')} (${running})`}
-          </TabsTrigger>
-          <TabsTrigger value={OrderItemStatus.COMPLETED} className="min-w-[6rem] whitespace-nowrap">
-            {isMobile ? `${t('order.completedMobile')} (${completed})` : `${t('order.completed')} (${completed})`}
-          </TabsTrigger>
-          <TabsTrigger value={OrderItemStatus.FAILED} className="min-w-[6rem] whitespace-nowrap">
-            {isMobile ? `${t('order.failedMobile')} (${failed})` : `${t('order.failed')} (${failed})`}
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as OrderItemStatus)} className="p-2 w-full h-full rounded-lg border-2 bg-muted-foreground/5">
+        {!isMobile ? (
+          <TabsList className={`grid grid-cols-5 ${isMobile ? 'mr-2' : ''} px-1 py-0 text-[0.5rem] sm:text-sm`}>
+            <TabsTrigger value={OrderItemStatus.ORDER_ITEM_LIST} className="min-w-[6rem] whitespace-nowrap">
+              {isMobile ? `${t('order.orderItemListMobile')}` : `${t('order.orderItemList')}`}
+            </TabsTrigger>
+            <TabsTrigger value={OrderItemStatus.PENDING} className="min-w-[6rem] whitespace-nowrap">
+              {isMobile ? `${t('order.deliveryPendingMobile')} (${pending})` : `${t('order.deliveryPending')} (${pending})`}
+            </TabsTrigger>
+            <TabsTrigger value={OrderItemStatus.RUNNING} className="min-w-[6rem] whitespace-nowrap">
+              {isMobile ? `${t('order.shippingMobile')} (${running})` : `${t('order.shipping')} (${running})`}
+            </TabsTrigger>
+            <TabsTrigger value={OrderItemStatus.COMPLETED} className="min-w-[6rem] whitespace-nowrap">
+              {isMobile ? `${t('order.completedMobile')} (${completed})` : `${t('order.completed')} (${completed})`}
+            </TabsTrigger>
+            <TabsTrigger value={OrderItemStatus.FAILED} className="min-w-[6rem] whitespace-nowrap">
+              {isMobile ? `${t('order.failedMobile')} (${failed})` : `${t('order.failed')} (${failed})`}
+            </TabsTrigger>
+          </TabsList>
+        ) : (
+          <div className="p-2 w-full h-full sm:p-4">
+            <div className='flex justify-end w-full'>
+              <DeliveryOrderTypeSelect defaultValue={activeTab} onChange={(value) => {
+                setActiveTab(value as OrderItemStatus)
+              }} />
+            </div>
+          </div>
+        )}
 
-        <TabsContent value={OrderItemStatus.PENDING} className='h-[calc(100vh-21em)]'>
+        <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className={`p-2 h-[calc(100vh-25rem)]`}>
+          {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
+            <div key={orderDetailData?.slug} className="grid gap-4 items-center w-full">
+              <OrderInformation orderDetailData={orderDetailData} />
+            </div>
+          ) : (
+            <p className={`flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground`}>
+              {tCommon('common.noData')}
+            </p>
+          )}
+          {/* </ScrollArea> */}
+        </TabsContent>
+        <TabsContent value={OrderItemStatus.PENDING} className={`h-[calc(100vh-25rem)]`}>
           {/* <ScrollArea className="h-[calc(100vh-20em)]"> */}
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
@@ -130,13 +157,13 @@ export default function OrderItemList({
               </div>
             ))
           ) : (
-            <p className="flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground">
+            <p className={`flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground`}>
               {tCommon('common.noData')}
             </p>
           )}
           {/* </ScrollArea> */}
         </TabsContent>
-        <TabsContent value={OrderItemStatus.RUNNING} className='h-[calc(100vh-21em)]'>
+        <TabsContent value={OrderItemStatus.RUNNING} className='h-[calc(100vh-25rem)]'>
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <OrderItemDetail order={item} />
@@ -147,7 +174,7 @@ export default function OrderItemList({
             </p>
           )}
         </TabsContent>
-        <TabsContent value={OrderItemStatus.COMPLETED} className='h-[calc(100vh-21em)]'>
+        <TabsContent value={OrderItemStatus.COMPLETED} className='h-[calc(100vh-25rem)]'>
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
@@ -160,7 +187,7 @@ export default function OrderItemList({
             </p>
           )}
         </TabsContent>
-        <TabsContent value={OrderItemStatus.FAILED} className='h-[calc(100vh-21em)]'>
+        <TabsContent value={OrderItemStatus.FAILED} className='h-[calc(100vh-25rem)]'>
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">
@@ -174,6 +201,7 @@ export default function OrderItemList({
           )}
         </TabsContent>
       </Tabs>
+
     </div>
   )
 }

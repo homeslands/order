@@ -27,7 +27,7 @@
   },
   "chefOrder": {
     "title": "Khu vực bếp",
-    "slug": "Mã đơn hàng",
+    "referenceNumber": "Mã tham chiếu",
     "createdAt": "Ngày tạo",
     "productName": "Tên món",
     "quantity": "Số lượng",
@@ -58,6 +58,7 @@
     "take-out": "Mang đi",
     "create": "Thông báo cho bếp",
     "createChefOrderWarning": "Bạn sắp sửa thông báo cho bếp đơn hàng ",
-    "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?"
+    "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?",
+    "exportChefOrder": "Xuất đơn hàng bếp"
   }
 }
