@@ -94,7 +94,7 @@ export default function OverviewDetailPage() {
               {t('dashboard.title')}
             </div>
           </div>
-          <div className="flex overflow-x-auto gap-2 items-center px-2 py-2 max-w-sm whitespace-nowrap sm:max-w-full">
+          <div className="flex overflow-x-auto gap-2 items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full">
             <div className="flex-shrink-0">
               <RevenueToolDropdown branch={branch?.slug || ''} startDate={startDate} endDate={endDate} revenueType={revenueType} />
             </div>
@@ -109,38 +109,42 @@ export default function OverviewDetailPage() {
             <div className="flex-shrink-0">
               <RevenueFilterPopover onApply={handleSelectDateRange} />
             </div>
-            <div className="w-[14rem] flex-shrink-0">
-              <BranchSelect defaultValue={branch?.slug} />
+            <div className="flex-shrink-0">
+              <RevenueFilterPopover onApply={handleSelectDateRange} />
             </div>
+            <div className="flex-shrink-0">
+              <RevenueFilterPopover onApply={handleSelectDateRange} />
+            </div>
+            <BranchSelect defaultValue={branch?.slug} />
           </div>
 
         </div>
+        <div className='flex overflow-x-auto gap-2 items-center px-2 max-w-sm whitespace-nowrap sm:max-w-full'>
+          {startDate && endDate && revenueType && (
+            <div className='flex gap-2 items-center'>
+              <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>
+              <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
+                {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
+                <span className='cursor-pointer' onClick={() => {
+                  setStartDate(moment().format('YYYY-MM-DD HH:mm:ss'))
+                  setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
+                }}>
+                  <CircleX className='w-4 h-4' />
+                </span>
+              </Badge>
+              <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
+                {revenueType === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
+                <span className='cursor-pointer' onClick={() => setRevenueType(RevenueTypeQuery.DAILY)}>
+                  <CircleX className='w-4 h-4' />
+                </span>
+              </Badge>
+              <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
+                {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
+              </Badge>
+            </div>
+          )}
+        </div>
         <div className='flex flex-col gap-4'>
-          <div className='flex overflow-x-auto gap-2 items-center px-2 py-2 max-w-sm whitespace-nowrap sm:max-w-full'>
-            {startDate && endDate && revenueType && (
-              <div className='flex gap-2 items-center'>
-                <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>
-                <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                  {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
-                  <span className='cursor-pointer' onClick={() => {
-                    setStartDate(moment().format('YYYY-MM-DD HH:mm:ss'))
-                    setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
-                  }}>
-                    <CircleX className='w-4 h-4' />
-                  </span>
-                </Badge>
-                <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                  {revenueType === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
-                  <span className='cursor-pointer' onClick={() => setRevenueType(RevenueTypeQuery.DAILY)}>
-                    <CircleX className='w-4 h-4' />
-                  </span>
-                </Badge>
-                <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                  {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
-                </Badge>
-              </div>
-            )}
-          </div>
           <RevenueDetailSummary revenueData={adjustedRevenueData} />
         </div>
         <div className="grid grid-cols-1 gap-2">

@@ -64,8 +64,20 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (!cartItems) {
           // If cart is empty, create new cart with the item
           set({
-            cartItems: item,
-            lastModified: moment().valueOf(), // Update timestamp
+            cartItems: {
+              id: item.id,
+              slug: item.slug,
+              owner: item.owner || '',
+              type: item.type,
+              orderItems: item.orderItems,
+              table: item.table || '',
+              tableName: item.tableName || '',
+              voucher: null,
+              approvalBy: '',
+              ownerPhoneNumber: '',
+              ownerFullName: '',
+            },
+            lastModified: moment().valueOf(),
           })
         } else {
           // Check if item already exists in cart
@@ -84,7 +96,7 @@ export const useCartItemStore = create<ICartItemStore>()(
                 ...cartItems,
                 orderItems: updatedOrderItems,
               },
-              lastModified: moment().valueOf(), // Update timestamp
+              lastModified: moment().valueOf(),
             })
           } else {
             // If item doesn't exist, add it to the array
@@ -93,12 +105,12 @@ export const useCartItemStore = create<ICartItemStore>()(
                 ...cartItems,
                 orderItems: [...cartItems.orderItems, ...item.orderItems],
               },
-              lastModified: moment().valueOf(), // Update timestamp
+              lastModified: moment().valueOf(),
             })
           }
         }
         showToast(i18next.t('toast.addSuccess'))
-        setupAutoClearCart() // Setup auto clear when adding items
+        setupAutoClearCart()
       },
 
       updateCartItemQuantity: (id: string, quantity: number) => {
@@ -190,7 +202,7 @@ export const useCartItemStore = create<ICartItemStore>()(
                 orderItems: updatedOrderItems,
               },
               lastModified: moment().valueOf(), // Thêm cập nhật lastModified để trigger re-render
-            });
+            })
           }
 
           showToast(i18next.t('toast.removeSuccess')) // Hiển thị thông báo thành công

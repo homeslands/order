@@ -259,6 +259,8 @@
     "authorityDeleteFailed": "Xóa quyền hạn thất bại",
     "requestQuantityMustOtherInfinity": "Số lượng yêu cầu phải khác vô cực",
     "errorWhenCreateChefOrdersFromOrder": "Lỗi khi tạo đơn hàng bếp từ đơn hàng",
+    "errorUpdatePromotion": "Lỗi cập nhật khuyến mãi",
+    "promotionAppliedCannotDelete": "Không thể xóa khuyến mãi đã áp dụng",
     "exportChefOrderSuccess": "Xuất đơn hàng bếp thành công",
     "exportChefOrderDescription": "Xuất đơn hàng bếp",
     "exportChefOrderConfirmation": "Bạn có chắc chắn muốn xuất đơn hàng bếp không?"

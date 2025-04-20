@@ -44,6 +44,9 @@ export default function HomePage() {
   const sortedMenuItems = customMenu.sort(
     (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory,
   )
+
+  // get some menu items
+  const menuItems = customMenu.slice(0, 4)
   // Lấy top  sản phẩm có doanh số cao nhất
   const top15BestSellers = sortedMenuItems.slice(0, 10)
 
@@ -68,7 +71,7 @@ export default function HomePage() {
     { newsProducts: [], promotionProducts: [] },
   )
 
-  // Sáo trộn mảng sản phẩm mới
+  // Xáo trộn mảng sản phẩm mới
   const shuffledNewsProducts = shuffle(newsProducts);
 
   return (
@@ -83,6 +86,32 @@ export default function HomePage() {
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
+
+        {/* Section Menu Highlight */}
+        {menuItems.length > 0 && (
+          <div className="container">
+            <motion.div
+              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={fadeInVariants}
+            >
+              <div className="w-full flex-between">
+                <div className="primary-highlight">
+                  {t('home.exploreMenu')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>{t('home.viewMenu')}</Button>
+                </NavLink>
+              </div>
+              <SliderMenu
+                menus={menuItems}
+                isFetching={false}
+              />
+            </motion.div>
+          </div>
+        )}
 
         {/* promotion */}
         {promotionProducts.length > 0 && (
