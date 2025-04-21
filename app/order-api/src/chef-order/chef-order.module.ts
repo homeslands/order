@@ -20,7 +20,6 @@ import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { PdfService } from 'src/pdf/pdf.service';
-import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 @Module({
   imports: [
@@ -48,7 +47,6 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
     BranchUtils,
     ChefOrderItemUtils,
     PdfService,
-    QrCodeService,
   ],
   exports: [ChefOrderUtils],
 })

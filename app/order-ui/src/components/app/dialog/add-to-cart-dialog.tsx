@@ -42,7 +42,11 @@ export default function AddToCartDialog({
   const { addCartItem } = useCartItemStore()
 
   const generateCartItemId = () => {
-    return Date.now().toString(36)
+    return `cart_${Date.now().toString(36)}`
+  }
+
+  const generateOrderItemId = (cartId: string) => {
+    return `${cartId}_order_${Date.now().toString(36)}`
   }
 
   const handleAddToCart = () => {
@@ -52,14 +56,16 @@ export default function AddToCartDialog({
       ? selectedVariant.price * (1 - product?.promotion?.value / 100)
       : selectedVariant.price;
 
+    const cartId = generateCartItemId();
+
     const cartItem: ICartItem = {
-      id: generateCartItemId(),
+      id: cartId,
       slug: product.slug,
       owner: '',
-      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
+      type: OrderTypeEnum.AT_TABLE,
       orderItems: [
         {
-          id: generateCartItemId(),
+          id: generateOrderItemId(cartId),
           slug: product.slug,
           image: product.product.image,
           name: product.product.name,
@@ -74,8 +80,9 @@ export default function AddToCartDialog({
           note,
         },
       ],
-      table: '', // will be set later via addTable
+      table: '',
     }
+
     addCartItem(cartItem)
     // Reset states
     setNote('')
@@ -87,14 +94,14 @@ export default function AddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex flex-row items-center justify-center w-full gap-1 px-4 text-white rounded-full shadow-none">
+          <Button className="flex flex-row gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none">
             <ShoppingCart size={12} />
             {t('menu.addToCart')}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="h-[70%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[60rem]">
+      <DialogContent className="h-[80%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[50rem] xl:max-w-[70rem]">
         <DialogHeader>
           <DialogTitle>{t('menu.confirmProduct')}</DialogTitle>
           <DialogDescription>
@@ -176,7 +183,7 @@ export default function AddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
+        <DialogFooter className="flex flex-row justify-end items-end w-full">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

@@ -78,7 +78,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
         group.items.length > 0 &&
         <div className='flex flex-col gap-4 mt-4'>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className='grid grid-cols-2 gap-4 w-full sm:grid-cols-4' key={index}>
+          <div className='grid grid-cols-2 gap-4 w-full sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' key={index}>
             {group.items.map((item) => (
               <div
                 key={item.slug}
@@ -131,7 +131,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                                       })()}
                                     </span>
                                     {item?.promotion?.value > 0 && (
-                                      <Badge className="text-[10px] bg-destructive hover:bg-destructive">
+                                      <Badge className="text-[10px] px-1 sm:px-2 bg-destructive hover:bg-destructive">
                                         {t('menu.discount')} {item?.promotion?.value}%
                                       </Badge>
                                     )}

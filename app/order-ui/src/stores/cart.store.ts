@@ -1,23 +1,23 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import i18next from 'i18next'
 import moment from 'moment'
 
 import { showToast } from '@/utils'
 import {
-  ICartItemStore,
   ICartItem,
+  ICartItemStore,
   ITable,
-  OrderTypeEnum,
   IUserInfo,
   IVoucher,
+  OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
-      cartItems: null, // Chỉ lưu một cart item hoặc null nếu không có item nào
+      cartItems: null,
       lastModified: null,
 
       getCartItems: () => get().cartItems,
@@ -61,32 +61,34 @@ export const useCartItemStore = create<ICartItemStore>()(
 
       addCartItem: (item: ICartItem) => {
         const { cartItems } = get()
+
         if (!cartItems) {
-          // If cart is empty, create new cart with the item
+          const newCart = {
+            id: item.id,
+            slug: item.slug,
+            owner: item.owner || '',
+            type: item.type,
+            orderItems: item.orderItems,
+            table: item.table || '',
+            tableName: item.tableName || '',
+            voucher: null,
+            approvalBy: '',
+            ownerPhoneNumber: '',
+            ownerFullName: '',
+          }
+
           set({
-            cartItems: {
-              id: item.id,
-              slug: item.slug,
-              owner: item.owner || '',
-              type: item.type,
-              orderItems: item.orderItems,
-              table: item.table || '',
-              tableName: item.tableName || '',
-              voucher: null,
-              approvalBy: '',
-              ownerPhoneNumber: '',
-              ownerFullName: '',
-            },
+            cartItems: newCart,
             lastModified: moment().valueOf(),
           })
         } else {
-          // Check if item already exists in cart
           const existingItemIndex = cartItems.orderItems.findIndex(
-            (orderItem) => orderItem.id === item.orderItems[0].id,
+            (orderItem) =>
+              orderItem.variant === item.orderItems[0].variant &&
+              orderItem.note === item.orderItems[0].note,
           )
 
           if (existingItemIndex >= 0) {
-            // If item exists, increase its quantity
             const updatedOrderItems = [...cartItems.orderItems]
             updatedOrderItems[existingItemIndex].quantity +=
               item.orderItems[0].quantity
@@ -99,7 +101,6 @@ export const useCartItemStore = create<ICartItemStore>()(
               lastModified: moment().valueOf(),
             })
           } else {
-            // If item doesn't exist, add it to the array
             set({
               cartItems: {
                 ...cartItems,
@@ -236,6 +237,7 @@ export const useCartItemStore = create<ICartItemStore>()(
     }),
     {
       name: 'cart-store',
+      storage: createJSONStorage(() => localStorage),
     },
   ),
 )

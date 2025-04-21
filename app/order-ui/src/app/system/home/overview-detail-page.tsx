@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { CircleX, RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -62,9 +62,9 @@ export default function OverviewDetailPage() {
     })
   }, [refreshRevenue, tToast, refetchRevenue])
 
-  useEffect(() => {
-    handleRefreshRevenue()
-  }, [startDate, endDate, branch, handleRefreshRevenue])
+  // useEffect(() => {
+  //   handleRefreshRevenue()
+  // }, [startDate, endDate, branch, handleRefreshRevenue])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     const isHourly = data.type === RevenueTypeQuery.HOURLY;
@@ -106,12 +106,6 @@ export default function OverviewDetailPage() {
               <RefreshCcw />
               {tCommon('common.refresh')}
             </Button>
-            <div className="flex-shrink-0">
-              <RevenueFilterPopover onApply={handleSelectDateRange} />
-            </div>
-            <div className="flex-shrink-0">
-              <RevenueFilterPopover onApply={handleSelectDateRange} />
-            </div>
             <div className="flex-shrink-0">
               <RevenueFilterPopover onApply={handleSelectDateRange} />
             </div>

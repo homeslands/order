@@ -23,7 +23,6 @@ import moment from 'moment';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { PdfService } from 'src/pdf/pdf.service';
-import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 @Injectable()
 export class ChefOrderService {
@@ -35,7 +34,6 @@ export class ChefOrderService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly pdfService: PdfService,
-    private readonly qrCodeService: QrCodeService,
   ) {}
 
   /**
@@ -171,9 +169,6 @@ export class ChefOrderService {
     const logoString = logoBuffer.toString('base64');
 
     const branchAddress = chefOrder.order.branch.address;
-    const qrcode = await this.qrCodeService.generateQRCode(
-      chefOrder.order?.slug,
-    );
     const tableName = chefOrder.order.table?.name ?? 'Take out';
     const referenceNumber = chefOrder.order.referenceNumber;
     const areaName = chefOrder.chefArea.name;
@@ -183,7 +178,6 @@ export class ChefOrderService {
         ...chefOrder,
         logoString,
         branchAddress,
-        qrcode,
         referenceNumber,
         tableName,
         areaName,

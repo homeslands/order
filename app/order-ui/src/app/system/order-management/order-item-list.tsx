@@ -18,7 +18,7 @@ export default function OrderItemList({
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const isMobile = useIsMobile()
-  const [activeTab, setActiveTab] = useState<OrderItemStatus>(OrderItemStatus.PENDING)
+  const [activeTab, setActiveTab] = useState<OrderItemStatus>(OrderItemStatus.ORDER_ITEM_LIST)
 
   const getStatusCounts = () => {
     if (!orderDetailData?.orderItems) {
@@ -138,9 +138,11 @@ export default function OrderItemList({
 
         <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className={`p-2 h-[calc(100vh-25rem)]`}>
           {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
-            <div key={orderDetailData?.slug} className="grid gap-4 items-center w-full">
-              <OrderInformation orderDetailData={orderDetailData} />
-            </div>
+            orderDetailData.orderItems.map((item) => (
+              <div key={item.slug} className="grid gap-4 items-center w-full">
+                <OrderInformation orderDetailData={item} />
+              </div>
+            ))
           ) : (
             <p className={`flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground`}>
               {tCommon('common.noData')}
