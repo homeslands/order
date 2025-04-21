@@ -173,6 +173,24 @@ export class TableService {
         },
       },
     });
+
+    tables.sort((a, b) => {
+      const aNum = parseInt(a.name, 10);
+      const bNum = parseInt(b.name, 10);
+
+      const aIsNumber = !isNaN(aNum);
+      const bIsNumber = !isNaN(bNum);
+
+      if (aIsNumber && bIsNumber) {
+        return aNum - bNum;
+      } else if (aIsNumber) {
+        return -1; // a is number, b is string => a up first
+      } else if (bIsNumber) {
+        return 1; // b is number, a is string => b up first
+      } else {
+        return a.name.localeCompare(b.name); // both are string => sort by string
+      }
+    });
     const tablesDto = this.mapper.mapArray(tables, Table, TableResponseDto);
     return tablesDto;
   }
