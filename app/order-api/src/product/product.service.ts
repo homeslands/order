@@ -456,6 +456,7 @@ export class ProductService {
 
     const existProductName = await this.productRepository.findOneBy({
       name: requestData.name,
+      slug: Not(slug),
     });
     if (existProductName) {
       this.logger.warn(ProductValidation.PRODUCT_NAME_EXIST.message, context);
