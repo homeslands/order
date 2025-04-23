@@ -173,6 +173,7 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   description: string;
+
   @AutoMap()
   type: string;
 

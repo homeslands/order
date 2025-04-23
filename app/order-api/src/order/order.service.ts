@@ -122,6 +122,10 @@ export class OrderService {
     // Get previous voucher
     const previousVoucher = order.voucher;
 
+    if (requestData.description) {
+      order.description = requestData.description;
+    }
+
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
