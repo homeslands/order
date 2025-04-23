@@ -102,7 +102,7 @@ export default function OrderDetailPage() {
               </div>
             </div>
             {/* Order owner info */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 min-h-[8.3rem]">
               <div className="w-1/2 rounded-sm border">
                 <div className="px-3 py-2 font-bold uppercase">
                   {t('order.customer')}
@@ -126,75 +126,29 @@ export default function OrderDetailPage() {
                       ? t('order.dineIn')
                       : t('order.takeAway')}
                   </p>
-                  <p className="flex gap-1">
-                    <span className="col-span-2">{t('order.tableNumber')}</span>
-                    <span className="col-span-1">
-                      {orderInfo?.table?.name}
-                    </span>
-                  </p>
+                  {orderInfo?.type === OrderTypeEnum.AT_TABLE && (
+                    <p className="flex gap-1">
+                      <span className="col-span-2">{t('order.tableNumber')}</span>
+                      <span className="col-span-1">
+                        {orderInfo?.table?.name}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Order table */}
-            <div className="overflow-x-auto">
-              <Table className="min-w-full border border-collapse table-auto">
-                <TableCaption>A list of orders.</TableCaption>
-                <TableHeader className={`rounded bg-muted-foreground/10 dark:bg-transparent`}>
-                  <TableRow>
-                    <TableHead className="">{t('order.product')}</TableHead>
-                    <TableHead>{t('order.size')}</TableHead>
-                    <TableHead>{t('order.quantity')}</TableHead>
-                    <TableHead className="text-start">
-                      {t('order.unitPrice')}
-                    </TableHead>
-                    <TableHead className="text-right">
-                      {t('order.grandTotal')}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orderInfo?.orderItems?.map((item) => (
-                    <TableRow key={item.slug}>
-                      <TableCell className="flex gap-1 items-center font-bold">
-                        <img
-                          src={`${publicFileURL}/${item.variant.product.image}`}
-                          alt={item.variant.product.image}
-                          className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
-                        />
-                        {item.variant.product.name}
-                      </TableCell>
-                      <TableCell>{item.variant.size.name.toUpperCase()}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell className="text-right">
-                        {item.promotion && item.promotion.value > 0 ? (
-                          <div className="flex gap-1 justify-start items-center">
-                            <span className="text-sm line-through text-muted-foreground">
-                              {`${formatCurrency(item?.variant?.price || 0)}`}
-                            </span>
-                            <span className="text-sm sm:text-lg text-primary">
-                              {`${formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}`}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-1 justify-start items-start">
-                            <span className="text-sm text-muted-foreground">
-                              {`${formatCurrency(item?.variant?.price || 0)}`}
-                            </span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-lg font-extrabold text-right text-primary">
-                        {`${formatCurrency(item?.subtotal)}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            {orderInfo?.description && (
+              <div className="flex items-center w-full text-sm">
+                <h3 className="w-20 text-sm font-semibold">
+                  {t('order.note')}
+                </h3>
+                <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{orderInfo?.description}</p>
+              </div>
+            )}
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col gap-2 w-full lg:w-2/5">
+          <div className="flex flex-col gap-3 w-full lg:w-2/5">
             {/* Payment method, status */}
             <div className="rounded-sm border">
               <div className="px-3 py-2">
@@ -291,6 +245,64 @@ export default function OrderDetailPage() {
               <ShowInvoiceDialog order={orderInfo || null} />
             </div>
           </div>
+        </div>
+        {/* Order table */}
+        <div className="overflow-x-auto mt-2">
+          <Table className="min-w-full border border-collapse table-auto">
+            <TableCaption>A list of orders.</TableCaption>
+            <TableHeader className={`rounded bg-muted-foreground/10 dark:bg-transparent`}>
+              <TableRow>
+                <TableHead className="">{t('order.product')}</TableHead>
+                <TableHead>{t('order.note')}</TableHead>
+                <TableHead>{t('order.size')}</TableHead>
+                <TableHead>{t('order.quantity')}</TableHead>
+                <TableHead className="text-start">
+                  {t('order.unitPrice')}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t('order.grandTotal')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orderInfo?.orderItems?.map((item) => (
+                <TableRow key={item.slug}>
+                  <TableCell className="flex gap-1 items-center font-bold">
+                    <img
+                      src={`${publicFileURL}/${item.variant.product.image}`}
+                      alt={item.variant.product.image}
+                      className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
+                    />
+                    {item.variant && item.variant.product && item.variant.product.name}
+                  </TableCell>
+                  <TableCell>{item.note}</TableCell>
+                  <TableCell>{item.variant && item.variant.size && item.variant.size.name.toUpperCase()}</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell className="text-right">
+                    {item.promotion && item.promotion.value > 0 ? (
+                      <div className="flex gap-1 justify-start items-center">
+                        <span className="text-sm line-through text-muted-foreground">
+                          {`${formatCurrency(item?.variant?.price || 0)}`}
+                        </span>
+                        <span className="text-sm sm:text-lg text-primary">
+                          {`${formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}`}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-1 justify-start items-start">
+                        <span className="text-sm text-muted-foreground">
+                          {`${formatCurrency(item?.variant?.price || 0)}`}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-lg font-extrabold text-right text-primary">
+                    {`${formatCurrency(item?.subtotal)}`}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

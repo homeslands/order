@@ -52,11 +52,12 @@ import {
   ChefAreaPage,
   ChefAreaDetailPage,
   ChefOrderPage,
+  ClientSecurityTermPage,
   // ClientViewPage,
   // ClientViewLayout,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
-import { ClientLayout } from '@/app/layouts/client'
+import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
@@ -87,7 +88,7 @@ export const router = createBrowserRouter([
         path: ROUTE.ABOUT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
@@ -101,13 +102,27 @@ export const router = createBrowserRouter([
         path: ROUTE.POLICY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
           {
             index: true,
             element: <SuspenseElement component={ClientPolicyPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.SECURITY,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientSecurityTermPage} />,
           },
         ],
       },

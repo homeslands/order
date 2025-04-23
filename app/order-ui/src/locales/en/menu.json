@@ -51,6 +51,7 @@
     "createdAt": "Created date",
     "totalItems": "Total items",
     "dayIndex": "Day index",
+    "branch": "Branch",
     "noTemplate": "Not a menu template",
     "amount": "Quantity: ",
     "noDescription": "No description available",

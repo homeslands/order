@@ -47,7 +47,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="px-0 rounded-lg shadow-lg sm:max-w-md">
+      <DialogContent className="px-0 rounded-lg shadow-lg sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center px-4 pb-3 mt-4 border-b">
             <div className="flex gap-2 items-center">
@@ -66,6 +66,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
               <p>{t('order.phoneNumber')}:</p>
               <p>{t('order.orderDate')}:</p>
               <p>{t('order.orderType')}:</p>
+              <p>{t('order.note')}:</p>
             </div>
             <div className="flex flex-col gap-1 font-normal text-left">
               <p>{owner.firstName} {owner.lastName}</p>
@@ -74,6 +75,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
               <p>
                 {order.type === 'at-table' ? t('order.dineIn') : t('order.takeAway')}
               </p>
+              <p>{order.description}</p>
             </div>
           </div>
 
@@ -85,6 +87,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
                 <thead className="bg-muted-foreground/15">
                   <tr>
                     <th className="p-2 text-left">{t('order.item')}</th>
+                    <th className="p-2 text-left">{t('order.note')}</th>
                     <th className="p-2 text-center">{t('order.quantity')}</th>
                     <th className="p-2 text-right">{t('order.total')}</th>
                   </tr>
@@ -93,6 +96,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
                   {orderItems.map((item) => (
                     <tr key={item.slug} className="border-b">
                       <td className="p-2">{item.variant.product.name}</td>
+                      <td className="p-2">{item.note}</td>
                       <td className="p-2 text-center">{item.quantity}</td>
                       <td className="p-2 text-right">{formatCurrency(item.quantity * item.subtotal)}</td>
                     </tr>

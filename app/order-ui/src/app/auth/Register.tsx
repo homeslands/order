@@ -35,20 +35,21 @@ export default function Register() {
   }
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen">
+    <div className="flex relative justify-center items-center min-h-screen">
       <img
         src={LoginBackground}
-        className="absolute top-0 left-0 object-cover w-full h-full sm:object-fill"
+        className="object-cover absolute top-0 left-0 w-full h-full sm:object-fill"
       />
 
-      <div className="flex items-center justify-center w-full h-full py-10">
-        <Card className="mx-auto sm:w-[48rem] w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className={cn('text-center text-2xl text-white')}>
-              {t('register.welcome')}{' '}
+      <div className="flex justify-center items-center w-full h-full">
+        <Card className="mx-auto sm:w-[48rem] h-[calc(100vh-5rem)] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
+          <CardHeader className="pb-0">
+            <CardTitle className={cn('text-xl text-center text-white sm:text-2xl')}>
+              {/* {t('register.welcome')}{' '} */}
+              {t('register.description')}{' '}
             </CardTitle>
             <CardDescription className="text-center text-white">
-              {t('register.description')}{' '}
+
             </CardDescription>
           </CardHeader>
           <CardContent>

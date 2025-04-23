@@ -63,6 +63,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,
+      description: order.description || '',
     }
 
     // Call API to create order

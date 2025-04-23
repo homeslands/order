@@ -19,6 +19,7 @@ import {
 import { ChefOrderStatusBadge } from '@/components/app/badge'
 import { loadDataToPrinter, showToast } from '@/utils'
 import { useExportChefOrder } from '@/hooks'
+
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
@@ -39,6 +40,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       id: 'select',
       header: ({ column }) => (
         <DataTableColumnHeader
+          className='min-w-24'
           column={column}
           title={tCommon('common.action')}
         />
@@ -48,7 +50,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         return (
           <>
             {chefOrder.status === ChefOrderStatus.PENDING ? (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div className='min-w-24' onClick={(e) => e.stopPropagation()}>
                 <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
               </div>
             ) : (
@@ -65,7 +67,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       enableHiding: false,
     },
     {
-      accessorKey: '',
+      accessorKey: 'referenceNumber',
       header: ({ column }) => (
         <DataTableColumnHeader key={column.id} column={column} title={t('chefOrder.referenceNumber')} />
       ),

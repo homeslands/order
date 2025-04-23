@@ -144,6 +144,13 @@ export const useCartItemStore = create<ICartItemStore>()(
         }
       },
 
+      addOrderNote: (note: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({ cartItems: { ...cartItems, description: note } })
+        }
+      },
+
       addTable: (table: ITable) => {
         const { cartItems } = get()
         if (cartItems) {

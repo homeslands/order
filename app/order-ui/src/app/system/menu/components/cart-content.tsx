@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
-import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
+import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { formatCurrency } from '@/utils'
@@ -121,7 +121,10 @@ export function CartContent() {
       {cartItems && cartItems?.orderItems?.length !== 0 && (
         <div className="z-10 px-4 py-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
           <div className='space-y-1'>
-            <VoucherListSheet />
+            <div className="flex flex-col gap-2">
+              <OrderNoteInput order={cartItems} />
+              <VoucherListSheet />
+            </div>
             {getCartItems()?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex flex-col items-start">

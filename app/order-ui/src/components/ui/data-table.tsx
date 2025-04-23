@@ -223,12 +223,12 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div
-        className={`flex ${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} items-end flex-wrap gap-2`}
+        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full`}
       >
-        <div className="flex flex-col gap-2 justify-start items-start">
+        <div className="flex gap-2 items-center">
           {/* Input search */}
           {!hiddenInput && (
-            <div className="relative w-[350px]">
+            <div className="relative w-48">
               <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
               <Input
                 placeholder={t('dataTable.search')}
@@ -239,8 +239,8 @@ export function DataTable<TData, TValue>({
             </div>
           )}
           {!hiddenDatePicker && (
-            <div className="flex flex-wrap gap-2 items-center">
-              <div className="flex gap-2 items-center w-[355px]">
+            <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center w-[400px]">
                 <div className="flex-1">
                   <SimpleDatePicker
                     value={startDate}
@@ -269,7 +269,7 @@ export function DataTable<TData, TValue>({
             </div>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 items-center w-fit">
+        <div className="flex gap-2 items-center w-fit">
           {onRefresh && (
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />

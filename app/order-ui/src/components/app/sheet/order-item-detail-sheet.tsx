@@ -77,7 +77,7 @@ export default function OrderItemDetailSheet({
       } catch (error) {
         /* empty */
       }
-    }, 5000) // Polling mỗi 5 giây
+    }, 5000) // Polling every 5 seconds
 
     return () => clearInterval(interval) // Cleanup
   }, [orderSlug, refetchSelectedOrder])

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 
 import {
   FormField,
@@ -12,11 +13,15 @@ import {
   Form,
   Button,
   PasswordInput,
+  Checkbox,
+  Label,
 } from '@/components/ui'
 import { registerSchema, TRegisterSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTE } from '@/constants'
 
 interface IFormRegisterProps {
   onSubmit: (data: z.infer<typeof registerSchema>) => void
@@ -28,6 +33,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   isLoading,
 }) => {
   const { t } = useTranslation(['auth'])
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
   const form = useForm<TRegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -154,7 +160,35 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
               </React.Fragment>
             ))}
           </div>
-          <Button type="submit" className="w-full mt-5" disabled={isLoading}>
+          {/* policy condition */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                className="mt-0.5"
+                id="terms"
+                checked={isTermsAccepted}
+                onCheckedChange={(checked) => setIsTermsAccepted(checked as boolean)}
+              />
+              <Label htmlFor="terms" className="text-sm text-gray-300">
+                {t('register.policyCondition')}
+                <Link to={ROUTE.POLICY} className="text-primary hover:underline">
+                  {t('register.policy')}
+                </Link>
+                <span className="text-gray-300">
+                  {t('register.and')}
+                </span>
+                <Link to={ROUTE.SECURITY} className="text-primary hover:underline">
+                  {t('register.securityTerm')}
+                </Link>
+                {t('register.ofTrendCoffee')}
+              </Label>
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="mt-5 w-full"
+            disabled={isLoading || !isTermsAccepted}
+          >
             {isLoading ? <ButtonLoading /> : t('register.title')}
           </Button>
         </form>

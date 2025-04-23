@@ -336,6 +336,13 @@ export const ClientPolicyPage = React.lazy(() =>
   })),
 )
 
+//Security term page
+export const ClientSecurityTermPage = React.lazy(() =>
+  import('@/app/client/security-term').then((module) => ({
+    default: module.SecurityTermPage,
+  })),
+)
+
 //Banner page
 export const BannerPage = React.lazy(() =>
   import('@/app/system/banner').then((module) => ({
