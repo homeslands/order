@@ -33,17 +33,25 @@ export default function ProductDetailPage() {
   const { addCartItem } = useCartItemStore()
 
   const productDetail = product?.result
-  const [size, setSize] = useState<string | null>(
-    productDetail?.product.variants[0]?.size.name || null,
-  )
-  const [price, setPrice] = useState<number | null>(
-    productDetail?.product.variants[0]?.price || null,
-  )
+  const [size, setSize] = useState<string | null>(null)
+  const [price, setPrice] = useState<number | null>(null)
   const [note, setNote] = useState<string>('')
   const [quantity, setQuantity] = useState<number>(1)
-  const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
+  const [selectedVariant, setSelectedVariant] = useState<IProductVariant | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (productDetail?.product.variants.length && productDetail?.product.variants.length > 0) {
+      // Find the variant with lowest price
+      const smallestVariant = productDetail.product.variants.reduce((prev, curr) =>
+        prev.price < curr.price ? prev : curr
+      )
+      setSelectedVariant(smallestVariant)
+      setSize(smallestVariant.size.name)
+      setPrice(smallestVariant.price)
+    }
+  }, [productDetail])
+
   useEffect(() => {
     window.scrollTo(0, 0)
     if (productDetail?.product?.image) {
@@ -98,6 +106,7 @@ export default function ProductDetailPage() {
           quantity: quantity,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
           description: productDetail?.product.description || '',

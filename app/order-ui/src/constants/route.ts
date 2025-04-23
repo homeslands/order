@@ -15,6 +15,7 @@ export const ROUTE = {
   STAFF_BRANCH: '/system/branch',
   STAFF_PROFILE: '/system/profile',
   STAFF_MENU: '/system/menu',
+  STAFF_CLIENT_VIEW: '/system/client-view',
   STAFF_CHECKOUT_ORDER: '/checkout-order',
   STAFF_ORDER_PAYMENT: '/system/payment',
   STAFF_ORDER_MANAGEMENT: '/system/order-management',

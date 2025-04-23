@@ -72,6 +72,7 @@ export default function AddToCartDialog({
           quantity: 1,
           size: selectedVariant.size.name,
           variant: selectedVariant.slug,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,

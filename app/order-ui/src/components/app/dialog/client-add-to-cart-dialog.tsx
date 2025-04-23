@@ -69,6 +69,7 @@ export default function ClientAddToCartDialog({
           quantity: 1,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice, // Use the calculated final price
           description: product.product.description,
           isLimit: product.product.isLimit,
@@ -109,6 +110,7 @@ export default function ClientAddToCartDialog({
           quantity: 1,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice, // Use the calculated final price
           description: product.product.description,
           isLimit: product.product.isLimit,

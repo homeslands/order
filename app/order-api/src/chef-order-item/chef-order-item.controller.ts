@@ -52,6 +52,7 @@ export class ChefOrderItemController {
   })
   @HasRoles(
     RoleEnum.Chef,
+    RoleEnum.Staff,
     RoleEnum.Manager,
     RoleEnum.Admin,
     RoleEnum.SuperAdmin,

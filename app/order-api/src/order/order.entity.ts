@@ -33,6 +33,11 @@ export class Order extends Base {
   @Column({ name: 'reference_number_column', nullable: true })
   referenceNumber?: number;
 
+  @IsOptional()
+  @AutoMap()
+  @Column({ name: 'description_column', nullable: true })
+  description?: string;
+
   @IsNumber()
   @AutoMap()
   @Column({ name: 'subtotal_column' })

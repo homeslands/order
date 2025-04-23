@@ -136,7 +136,7 @@ export default function OrderItemList({
           </div>
         )}
 
-        <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className={`p-2 h-[calc(100vh-25rem)]`}>
+        <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className={`flex flex-col gap-4 p-2 h-[calc(100vh-10rem)]`}>
           {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
             orderDetailData.orderItems.map((item) => (
               <div key={item.slug} className="grid gap-4 items-center w-full">

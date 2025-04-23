@@ -31,8 +31,8 @@ export function MenuItemCard({ menuItem, isTemplate, onSuccess }: MenuItemCardPr
   }
 
   return (
-    <div className={`relative flex flex-col items-center justify-between gap-2 ${menuItem.isLocked ? 'opacity-50 bg-destructive/10 border-destructive' : ''} p-2 border group rounded-xl`}>
-      <div className="absolute inset-0 flex items-start justify-end transition-opacity opacity-0 group-hover:opacity-100">
+    <div className={`relative flex flex-col items-center justify-between gap-2 ${menuItem.isLocked ? 'opacity-50 bg-destructive/10 border-destructive' : ''} p-2 border border-muted-foreground/40 group rounded-xl`}>
+      <div className="flex absolute inset-0 justify-end items-start opacity-0 transition-opacity group-hover:opacity-100">
         <div className="flex flex-row gap-2 p-4 bg-transparent rounded-md">
           <UpdateMenuItemDialog menuItem={menuItem} isTemplate={isTemplate} />
           <DeleteMenuItemDialog menuItem={menuItem} onSuccess={onSuccess} />
@@ -44,24 +44,26 @@ export function MenuItemCard({ menuItem, isTemplate, onSuccess }: MenuItemCardPr
         className="object-cover w-full h-40 rounded-md"
       />
 
-      <h3 className="flex justify-start w-full font-bold text-md whitespace-nowrap ow-hidden overflow-ellipsis">
-        {menuItem.product.name}
-      </h3>
+      <div className='flex flex-col w-full'>
+        <span className="flex justify-start w-full text-xl font-bold overflow-ellipsis whitespace-nowrap">
+          {menuItem.product.name}
+        </span>
 
-      <p className="flex justify-start w-full text-sm text-muted-foreground h-[60px] line-clamp-3 overflow-hidden text-ellipsis">
-        {menuItem.product.description || t('menu.noDescription')}
-      </p>
-      <div className="flex flex-col justify-between w-full gap-1 mt-2 text-sm font-medium ">
+        <p className="flex justify-start w-full text-sm text-muted-foreground h-[80px] line-clamp-3 overflow-hidden text-ellipsis">
+          {menuItem.product.description || t('menu.noDescription')}
+        </p>
+      </div>
+      <div className="flex flex-col gap-1 justify-between mt-2 w-full text-sm font-medium">
         {menuItem?.product?.isLimit &&
           <span className='text-gray-400 text-[12px]'>
             {`${t('menu.stock')} ${menuItem.currentStock}/${menuItem.defaultStock}`}
           </span>}
         {menuItem.product.variants && (
-          <span className="text-primary">{getPriceRange()}</span>
+          <span className="text-lg font-bold text-primary">{getPriceRange()}</span>
         )}
       </div>
       {menuItem.isLocked && (
-        <div className="absolute flex items-center justify-center bg-red-500 rounded-full bottom-2 right-2 w-9 h-9">
+        <div className="flex absolute right-2 bottom-2 justify-center items-center w-9 h-9 bg-red-500 rounded-full">
           <KeyRound color="white" size={23} />
         </div>
       )}

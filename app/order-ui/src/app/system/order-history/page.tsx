@@ -1,7 +1,8 @@
-import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import moment from 'moment'
+import { Helmet } from 'react-helmet'
+import { SquareMenu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
 import { useOrders, usePagination } from '@/hooks'
@@ -11,7 +12,6 @@ import { IOrder, OrderStatus } from '@/types'
 import OrderFilter from './DataTable/actions/order-filter'
 import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 import { showToast } from '@/utils'
-import moment from 'moment'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])

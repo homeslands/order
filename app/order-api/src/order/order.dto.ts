@@ -81,6 +81,11 @@ export class CreateOrderRequestDto {
   @ApiProperty()
   @IsOptional()
   voucher?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  description?: string;
 }
 
 export class UpdateOrderRequestDto {
@@ -96,9 +101,14 @@ export class UpdateOrderRequestDto {
   table?: string;
 
   @AutoMap()
-  @ApiProperty()
+  @ApiProperty({ description: 'The slug of voucher' })
   @IsOptional()
   voucher?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The description of order' })
+  @IsOptional()
+  description?: string;
 }
 
 export class OwnerResponseDto extends BaseResponseDto {
@@ -161,6 +171,8 @@ export class OrderResponseDto extends BaseResponseDto {
   @AutoMap()
   status: string;
 
+  @AutoMap()
+  description: string;
   @AutoMap()
   type: string;
 

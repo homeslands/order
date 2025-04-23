@@ -65,6 +65,7 @@ export interface IOrderItem {
   quantity: number
   size: string
   variant: string
+  originalPrice?: number
   price: number
   description: string
   isLimit: boolean

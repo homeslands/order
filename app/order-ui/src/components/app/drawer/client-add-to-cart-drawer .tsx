@@ -74,6 +74,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
           quantity: 1,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
@@ -130,7 +131,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img

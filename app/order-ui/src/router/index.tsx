@@ -52,6 +52,8 @@ import {
   ChefAreaPage,
   ChefAreaDetailPage,
   ChefOrderPage,
+  // ClientViewPage,
+  // ClientViewLayout,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout } from '@/app/layouts/client'
@@ -190,6 +192,20 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      // {
+      //   path: ROUTE.STAFF_CLIENT_VIEW,
+      //   element: (
+      //     <Suspense fallback={<SkeletonCart />}>
+      //       <SuspenseElement component={ClientViewLayout} />
+      //     </Suspense>
+      //   ),
+      //   children: [
+      //     {
+      //       index: true,
+      //       element: <SuspenseElement component={ClientViewPage} />,
+      //     },
+      //   ],
+      // },
       {
         path: `${ROUTE.STAFF_ORDER_PAYMENT}`,
         element: (

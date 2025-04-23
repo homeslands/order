@@ -7,6 +7,12 @@ export const SystemLayout = React.lazy(() =>
   })),
 )
 
+export const ClientViewLayout = React.lazy(() =>
+  import('@/app/layouts/system').then((module) => ({
+    default: module.ClientViewLayout,
+  })),
+)
+
 //Auth
 export const LoginPage = React.lazy(() =>
   import('@/app/auth').then((module) => ({
@@ -80,6 +86,12 @@ export const OrderManagementPage = React.lazy(() =>
   })),
 )
 
+//Client view page
+// export const ClientViewPage = React.lazy(() =>
+//   import('@/app/system/client-view').then((module) => ({
+//     default: module.ClientViewPage,
+//   })),
+// )
 // Chef order management page
 export const ChefOrderPage = React.lazy(() =>
   import('@/app/system/chef-order').then((module) => ({
