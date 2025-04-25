@@ -20,6 +20,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     [key: string]: boolean
   }>({})
 
+  // Initialize selectedIndexes only on component mount
   useEffect(() => {
     const selectedItems = getSelectedItems()
     const newSelectedIndexes: { [key: string]: boolean } = {}
@@ -27,11 +28,24 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
     selectedItems.forEach((item) => {
       for (let i = 0; i < item.quantity; i++) {
         const key = `${item.slug}-${i}`
-        newSelectedIndexes[key] = false
+        newSelectedIndexes[key] = true
       }
     })
     setSelectedIndexes(newSelectedIndexes)
-  }, [getSelectedItems])
+  }, []) // Empty dependency array means this only runs on mount
+
+  // Handle failed items separately
+  useEffect(() => {
+    order.trackingOrderItems.forEach((trackingItem, index) => {
+      if (trackingItem.tracking.status === 'FAILED') {
+        setSelectedIndexes((prev) => {
+          const updated = { ...prev }
+          delete updated[`${order.slug}-${index}`]
+          return updated
+        })
+      }
+    })
+  }, [order])
 
   const handleSelectOrderItem = (
     checked: CheckedState,
@@ -257,18 +271,6 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
       </div>
     )
   }
-
-  useEffect(() => {
-    order.trackingOrderItems.forEach((trackingItem, index) => {
-      if (trackingItem.tracking.status === 'FAILED') {
-        setSelectedIndexes((prev) => {
-          const updated = { ...prev }
-          delete updated[`${order.slug}-${index}`]
-          return updated
-        })
-      }
-    })
-  }, [order])
 
   return (
     <div className="flex flex-col gap-4 w-full h-full">
