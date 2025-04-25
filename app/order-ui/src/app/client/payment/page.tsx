@@ -190,14 +190,16 @@ export function ClientPaymentPage() {
                   {order?.result.table ? order?.result.table.name : ''}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <h3 className="col-span-1 text-sm font-medium">
-                  {t('order.orderNote')}
-                </h3>
-                <p className="col-span-1 text-sm font-semibold">
-                  {order?.result.description}
-                </p>
-              </div>
+              {order?.result.description && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('order.orderNote')}
+                  </h3>
+                  <p className="col-span-1 text-sm font-semibold">
+                    {order?.result.description}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           {/* Thông tin đơn hàng */}
@@ -251,10 +253,12 @@ export function ClientPaymentPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-9 items-center w-full text-sm">
-                    <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
-                    <span className="col-span-7 p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/40">{item.note}</span>
-                  </div>
+                  {item.note && (
+                    <div className="grid grid-cols-9 items-center w-full text-sm">
+                      <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
+                      <span className="col-span-7 p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/40">{item.note}</span>
+                    </div>
+                  )}
                 </div>
               ))}
               <div className="flex flex-col gap-2 items-end px-2 py-4 w-full">

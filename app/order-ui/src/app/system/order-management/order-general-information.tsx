@@ -49,9 +49,9 @@ export default function OrderInformation({ orderDetailData }: OrderInformationPr
 
                 {/* Note */}
                 {orderDetailData.note && (
-                    <div className="grid grid-cols-6 gap-2 items-center py-2 rounded-md bg-muted/20">
-                        <span className="col-span-1 text-sm font-bold">{t('order.note')}:</span>
-                        <span className="col-span-5 p-1 pl-2 w-full text-sm rounded-md border border-muted-foreground/40 text-muted-foreground">{orderDetailData.note}</span>
+                    <div className="grid grid-cols-7 gap-2 items-center py-2 rounded-md sm:grid-cols-6 bg-muted/20">
+                        <span className="col-span-2 text-sm font-bold sm:col-span-1">{t('order.note')}:</span>
+                        <span className="col-span-5 p-1 pl-2 w-full text-sm rounded-md border sm:col-span-5 border-muted-foreground/40 text-muted-foreground">{orderDetailData.note}</span>
                     </div>
                 )}
             </div>

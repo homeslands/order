@@ -260,6 +260,7 @@ export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
   voucher?: string | null
+  description?: string
 }
 
 export interface IUpdateOrderItemRequest {
@@ -271,6 +272,10 @@ export interface IUpdateOrderItemRequest {
 }
 export interface IUpdateNoteRequest {
   note: string
+}
+
+export interface IUpdateOrderNoteRequest {
+  description: string
 }
 
 export interface IInitiatePaymentRequest {

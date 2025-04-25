@@ -1,1 +1,1 @@
-// export { default as ClientViewPage } from './page'
+export { default as ClientViewPage } from './page'

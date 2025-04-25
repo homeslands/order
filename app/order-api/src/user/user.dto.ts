@@ -27,14 +27,16 @@ export class CreateUserRequestDto {
   password: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  @IsOptional()
   @AutoMap()
-  firstName: string;
+  firstName?: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: INVALID_LASTNAME })
+  // @IsNotEmpty({ message: INVALID_LASTNAME })
+  @IsOptional()
   @AutoMap()
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -65,11 +67,11 @@ export class UserResponseDto extends BaseResponseDto {
 
   @ApiProperty()
   @AutoMap()
-  readonly firstName: string;
+  readonly firstName?: string;
 
   @ApiProperty()
   @AutoMap()
-  readonly lastName: string;
+  readonly lastName?: string;
 
   @AutoMap()
   @ApiProperty()
@@ -77,7 +79,7 @@ export class UserResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  readonly email: string;
+  readonly email?: string;
 
   @AutoMap()
   @ApiProperty()

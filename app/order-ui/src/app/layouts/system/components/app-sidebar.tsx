@@ -1,11 +1,10 @@
+import { useMemo } from 'react'
 import { ChevronRight, House, Sparkles } from 'lucide-react'
 import { useLocation, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { jwtDecode } from "jwt-decode";
-import { useSidebar } from '@/components/ui'
-import { useMemo } from 'react'
-import { useIsMobile } from '@/hooks/use-mobile'
 
+import { useSidebar } from '@/components/ui'
 import {
   Collapsible,
   CollapsibleContent,
@@ -43,7 +42,6 @@ export function AppSidebar() {
   const location = useLocation()
   const { userInfo } = useUserStore()
   const { state, toggleSidebar } = useSidebar()
-  const isMobile = useIsMobile()
   const authStore = useAuthStore.getState()
   const { token } = authStore
   const decoded: IToken = jwtDecode(token || '');
@@ -159,31 +157,30 @@ export function AppSidebar() {
                     )}
                   >
                     <NavLink
-                      className="flex justify-between items-center"
                       to={item.path}
-                      onClick={() => {
-                        if (isMobile) {
+                      onClick={(e) => {
+                        if (state === 'collapsed') {
+                          e.preventDefault()
                           toggleSidebar()
                         }
                       }}
                     >
-                      <div className="flex gap-2 items-center">
-                        {item.icon && (
-                          <IconWrapper
-                            Icon={item.icon}
-                            className={
-                              isActive(item.path) ? 'bg-primary text-white' : ''
-                            }
-                          />
-                        )}
-                        <span className="font-thin">{item.title}</span>
-                      </div>
+                      {item.icon && (
+                        <IconWrapper
+                          Icon={item.icon}
+                          className={
+                            isActive(item.path) ? 'bg-primary text-white' : ''
+                          }
+                        />
+                      )}
+                      <span className="font-thin">{item.title}</span>
+                      {/* </div> */}
                       {item?.notificationCount && item?.notificationCount > 0 ? (
                         <span className={`px-2 py-1 ml-2 text-xs rounded-full ${isActive(item.path) ? 'bg-white text-primary' : 'bg-primary text-white'} ${item.notificationCount > 99 ? 'px-3' : ''}`}>
                           {item.notificationCount}
                         </span>
                       ) : (
-                        <div />
+                        null
                       )}
                     </NavLink>
                   </SidebarMenuButton>
@@ -208,11 +205,6 @@ export function AppSidebar() {
                                 <NavLink
                                   to={subItem.path}
                                   className="flex flex-col gap-4"
-                                  onClick={() => {
-                                    if (isMobile) {
-                                      toggleSidebar()
-                                    }
-                                  }}
                                 >
                                   <span>{subItem.title}</span>
                                 </NavLink>

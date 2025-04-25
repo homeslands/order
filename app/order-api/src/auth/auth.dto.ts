@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import {
-  INVALID_EMAIL,
-  INVALID_FIRSTNAME,
-  INVALID_LASTNAME,
+  // INVALID_EMAIL,
+  // INVALID_FIRSTNAME,
+  // INVALID_LASTNAME,
   INVALID_PASSWORD,
   INVALID_PHONENUMBER,
 } from './auth.validation';
@@ -24,22 +24,24 @@ export class LoginAuthRequestDto {
   @AutoMap()
   password: string;
 }
-
 export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @ApiProperty({ example: 'John' })
-  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  @IsOptional()
   @AutoMap()
-  firstName: string;
+  firstName?: string;
 
   @ApiProperty({ example: 'Doe' })
-  @IsNotEmpty({ message: INVALID_LASTNAME })
+  // @IsNotEmpty({ message: INVALID_LASTNAME })
+  @IsOptional()
   @AutoMap()
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: INVALID_EMAIL })
+  // @IsNotEmpty({ message: INVALID_EMAIL })
+  @IsOptional()
   @AutoMap()
-  email: string;
+  email?: string;
 }
 
 export class LoginAuthResponseDto {
@@ -126,13 +128,15 @@ export class ConFirmEmailVerificationRequestDto {
 export class UpdateAuthProfileRequestDto {
   @ApiProperty({ example: 'John' })
   @AutoMap()
-  @IsNotEmpty({ message: INVALID_FIRSTNAME })
-  readonly firstName: string;
+  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  @IsOptional()
+  readonly firstName?: string;
 
   @ApiProperty({ example: 'Doe' })
   @AutoMap()
-  @IsNotEmpty({ message: INVALID_LASTNAME })
-  readonly lastName: string;
+  // @IsNotEmpty({ message: INVALID_LASTNAME })
+  @IsOptional()
+  readonly lastName?: string;
 
   @ApiProperty({ example: '1990-01-01' })
   @AutoMap()
@@ -140,7 +144,8 @@ export class UpdateAuthProfileRequestDto {
 
   @ApiProperty({ example: 'johndoe@gmail.com' })
   @AutoMap()
-  readonly email: string;
+  @IsOptional()
+  readonly email?: string;
 
   @ApiProperty({ example: 'Jl. Raya' })
   @AutoMap()
@@ -162,11 +167,11 @@ export class AuthProfileResponseDto {
 
   @ApiProperty()
   @AutoMap()
-  readonly firstName: string;
+  readonly firstName?: string;
 
   @ApiProperty()
   @AutoMap()
-  readonly lastName: string;
+  readonly lastName?: string;
 
   @AutoMap()
   @ApiProperty()
@@ -174,7 +179,7 @@ export class AuthProfileResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  readonly email: string;
+  readonly email?: string;
 
   @AutoMap()
   @ApiProperty()
@@ -213,11 +218,11 @@ export class RegisterAuthResponseDto {
 
   @ApiProperty()
   @AutoMap()
-  firstName: string;
+  firstName?: string;
 
   @ApiProperty()
   @AutoMap()
-  lastName: string;
+  lastName?: string;
 }
 
 export class AuthJwtPayload {

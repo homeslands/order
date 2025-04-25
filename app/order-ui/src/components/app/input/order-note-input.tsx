@@ -20,7 +20,7 @@ export default function OrderNoteInput({ order }: OrderNoteInputProps) {
 
   return (
     <div className="flex w-full flex-row items-center justify-center gap-2.5">
-      <div className="flex flex-row flex-1 gap-2 justify-between items-start w-full">
+      <div className="flex flex-row flex-1 gap-2 justify-between items-start w-full h-">
         {/* <span className="w-20 text-foreground text-bold">
           {t('order.note')}
         </span> */}

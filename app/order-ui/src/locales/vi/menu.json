@@ -175,7 +175,6 @@
     "viewDetail": "Xem chi tiết",
     "cancelOrder": "Hủy",
     "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
-    "updateOrder": "Cập nhật",
     "updatePayment": "Cập nhật thanh toán",
     "exportPayment": "Xuất QR code thanh toán",
     "invoice": "Hóa đơn",
@@ -231,7 +230,9 @@
     "cooked": "Đã làm xong",
     "delivered": "Đã giao",
     "close": "Đóng",
-    "orderReferenceNumber": "Mã tham chiếu"
+    "orderReferenceNumber": "Mã tham chiếu",
+    "updateNote": "Cập nhật",
+    "updateOrder": "Cập nhật đơn hàng"
   },
   "table": {
     "title": "Danh sách bàn"

@@ -59,7 +59,12 @@ export class UserController {
   }
 
   @Post()
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create user' })
   @ApiResponseWithType({

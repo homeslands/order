@@ -22,7 +22,7 @@ import { ClientMenuTabs } from '@/components/app/tabs'
 import { useCallback, useEffect, useState } from 'react'
 import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
-import { UpdateOrderNoteInput } from './components'
+import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 
 export default function ClientUpdateOrderPage() {
@@ -59,6 +59,10 @@ export default function ClientUpdateOrderPage() {
     const handleUpdateOrderTypeSuccess = () => {
         refetch()
     }
+
+    const handleUpdateOrderNoteSuccess = () => {
+        refetch()
+    }
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
     }, [])
@@ -83,7 +87,7 @@ export default function ClientUpdateOrderPage() {
     if (isExpired) {
         return (
             <div className="container py-20 lg:h-[60vh]">
-                <div className="flex flex-col items-center justify-center gap-5">
+                <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
                     <p className="text-center text-[13px]">
                         {t('order.noOrders')}
@@ -114,8 +118,8 @@ export default function ClientUpdateOrderPage() {
                     {/* Left content */}
                     <div className="w-full lg:w-3/5">
                         {/* Note */}
-                        <div className="flex items-end justify-between">
-                            <div className="flex items-center gap-1">
+                        <div className="flex justify-between items-end">
+                            <div className="flex gap-1 items-center">
                                 <CircleAlert size={14} className="text-destructive" />
                                 <span className="text-xs italic text-destructive">
                                     {t('order.selectTableNote')}
@@ -124,11 +128,11 @@ export default function ClientUpdateOrderPage() {
                         </div>
 
                         {/* Menu & Table select */}
-                        <ClientMenuTabs onSuccess={handleUpdateOrderTypeSuccess} order={orderItems} defaultValue={orderItems?.table !== null ? orderItems?.table.slug : ''} />
+                        <ClientMenuTabs onSuccess={handleUpdateOrderTypeSuccess} />
                     </div>
 
                     {/* Right content */}
-                    <div className="w-full lg:w-2/5 mt-8">
+                    <div className="mt-8 w-full lg:w-2/5">
                         <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
 
                         {type === OrderTypeEnum.AT_TABLE &&
@@ -138,7 +142,7 @@ export default function ClientUpdateOrderPage() {
                         }
                         {/* Table list order items */}
                         <div className="mt-5">
-                            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin border rounded-md bg-muted/60">
+                            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
                                 <span className="col-span-2">{t('order.product')}</span>
                                 <span className="col-span-2 text-center">
                                     {t('order.quantity')}
@@ -146,24 +150,24 @@ export default function ClientUpdateOrderPage() {
                                 <span className="col-span-2 text-center">
                                     {t('order.grandTotal')}
                                 </span>
-                                <span className="flex justify-center col-span-1">
+                                <span className="flex col-span-1 justify-center">
                                     <Trash2 size={18} />
                                 </span>
                             </div>
 
-                            <div className="flex flex-col border rounded-md">
+                            <div className="flex flex-col rounded-md border">
                                 {orderItems?.orderItems.map((item) => (
-                                    <div key={item.slug} className="grid items-center w-full gap-2 px-4 py-2 mt-1 rounded-md">
-                                        <div key={`${item.slug}`} className="grid flex-row items-center w-full grid-cols-7">
-                                            <div className="flex w-full col-span-2 gap-1">
-                                                <div className="flex flex-col items-center justify-start gap-2 sm:flex-row sm:justify-center">
+                                    <div key={item.slug} className="grid gap-2 items-center px-4 py-2 mt-1 w-full rounded-md">
+                                        <div key={`${item.slug}`} className="grid flex-row grid-cols-7 items-center w-full">
+                                            <div className="flex col-span-2 gap-1 w-full">
+                                                <div className="flex flex-col gap-2 justify-start items-center sm:flex-row sm:justify-center">
                                                     <div className="flex flex-col">
                                                         <span className="text-[14px] font-bold truncate sm:text-md mb-2">
                                                             {item.variant.product.name}
-                                                            <span className='uppercase font-normal'> - {item.variant.size.name}</span>
+                                                            <span className='font-normal uppercase'> - {item.variant.size.name}</span>
                                                         </span>
                                                         {item?.promotion ? (
-                                                            <div className='flex items-center gap-1'>
+                                                            <div className='flex gap-1 items-center'>
                                                                 <span className="text-xs line-through text-muted-foreground sm:text-sm">
                                                                     {`${formatCurrency(item?.variant?.price)}`}
                                                                 </span>
@@ -172,7 +176,7 @@ export default function ClientUpdateOrderPage() {
                                                                 </span>
                                                             </div>
                                                         ) : (
-                                                            <div className='flex items-center gap-1'>
+                                                            <div className='flex gap-1 items-center'>
                                                                 <span className="text-xs text-primary sm:text-base">
                                                                     {`${formatCurrency(item?.variant?.price)}`}
                                                                 </span>
@@ -181,25 +185,29 @@ export default function ClientUpdateOrderPage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex justify-center col-span-2 h-full items-end">
+                                            <div className="flex col-span-2 justify-center items-end h-full">
                                                 <UpdateOrderQuantity orderItem={item} onSuccess={refetch} />
                                             </div>
                                             <div className="col-span-2 h-full">
-                                                <span className="flex text-sm font-semibold text-primary h-full items-end justify-center">
+                                                <span className="flex justify-center items-end h-full text-sm font-semibold text-primary">
                                                     {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
                                                 </span>
                                             </div>
-                                            <div className="flex justify-center col-span-1 h-full items-end" >
+                                            <div className="flex col-span-1 justify-center items-end h-full" >
                                                 <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
                                             </div>
                                         </div>
-                                        <UpdateOrderNoteInput orderItem={item} />
+                                        <UpdateOrderItemNoteInput orderItem={item} />
                                     </div>
                                 ))}
                             </div>
+                            {/* order note */}
+                            <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
+                            </div>
                             <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
                             <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
-                                <div className="w-2/3 space-y-1">
+                                <div className="space-y-1 w-2/3">
                                     <div className="grid grid-cols-5">
                                         <span className="col-span-3 text-sm text-muted-foreground">{t('order.total')}:</span>
                                         <span className="col-span-2 text-sm text-right text-muted-foreground">
@@ -216,7 +224,7 @@ export default function ClientUpdateOrderPage() {
                                         </span>
                                     </div>
                                     {order?.result.voucher &&
-                                        <div className="flex justify-between w-full pb-4 border-b">
+                                        <div className="flex justify-between pb-4 w-full border-b">
                                             <h3 className="text-sm italic font-medium text-green-500">
                                                 {t('order.voucher')}
                                             </h3>
@@ -238,7 +246,7 @@ export default function ClientUpdateOrderPage() {
                         </div>
 
                         {order?.result?.status === "pending" &&
-                            <div className="flex justify-end w-full mt-4">
+                            <div className="flex justify-end mt-4 w-full">
                                 <Button
                                     disabled={(type === OrderTypeEnum.AT_TABLE && !selectedTable) || orderItems?.orderItems.length === 0}
                                     onClick={handleClickPayment}>{t('order.continueToPayment')}</Button>
@@ -246,7 +254,6 @@ export default function ClientUpdateOrderPage() {
                     </div>
                 </div>
             }
-
         </div>
     )
 }

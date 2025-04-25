@@ -136,72 +136,73 @@ export default function OrderItemList({
           </div>
         )}
 
-        <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className={`flex flex-col gap-4 p-2 h-[calc(100vh-10rem)]`}>
-          {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
-            orderDetailData.orderItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <OrderInformation orderDetailData={item} />
-              </div>
-            ))
-          ) : (
-            <p className={`flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground`}>
-              {tCommon('common.noData')}
-            </p>
-          )}
-          {/* </ScrollArea> */}
-        </TabsContent>
-        <TabsContent value={OrderItemStatus.PENDING} className={`h-[calc(100vh-25rem)]`}>
-          {/* <ScrollArea className="h-[calc(100vh-20em)]"> */}
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <OrderItemDetail order={item} />
-              </div>
-            ))
-          ) : (
-            <p className={`flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground`}>
-              {tCommon('common.noData')}
-            </p>
-          )}
-          {/* </ScrollArea> */}
-        </TabsContent>
-        <TabsContent value={OrderItemStatus.RUNNING} className='h-[calc(100vh-25rem)]'>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <OrderItemDetail order={item} />
-            ))
-          ) : (
-            <p className="flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </TabsContent>
-        <TabsContent value={OrderItemStatus.COMPLETED} className='h-[calc(100vh-25rem)]'>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <OrderItemDetail order={item} />
-              </div>
-            ))
-          ) : (
-            <p className="flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </TabsContent>
-        <TabsContent value={OrderItemStatus.FAILED} className='h-[calc(100vh-25rem)]'>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <OrderItemDetail order={item} />
-              </div>
-            ))
-          ) : (
-            <p className="flex justify-center items-center h-[calc(100vh-21rem)] text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
-        </TabsContent>
+        <div className="h-[calc(100vh-25rem)]">
+          <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className="h-full">
+            {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
+              orderDetailData.orderItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <OrderInformation orderDetailData={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex justify-center items-center h-full text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </TabsContent>
+          <TabsContent value={OrderItemStatus.PENDING} className="h-full">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <OrderItemDetail order={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex justify-center items-center h-full text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </TabsContent>
+          <TabsContent value={OrderItemStatus.RUNNING} className="h-full">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <OrderItemDetail order={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex justify-center items-center h-full text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </TabsContent>
+          <TabsContent value={OrderItemStatus.COMPLETED} className="h-full">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <OrderItemDetail order={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex justify-center items-center h-full text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </TabsContent>
+          <TabsContent value={OrderItemStatus.FAILED} className="h-full">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <OrderItemDetail order={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex justify-center items-center h-full text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </TabsContent>
+        </div>
       </Tabs>
 
     </div>

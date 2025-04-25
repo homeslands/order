@@ -212,7 +212,8 @@
     "noCooked": "No cooked",
     "cooking": "Cooking",
     "cooked": "Cooked",
-    "delivered": "Delivered"
+    "delivered": "Delivered",
+    "updateNote": "Update"
   },
   "table": {
     "title": "Table list"

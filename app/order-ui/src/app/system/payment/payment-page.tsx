@@ -263,10 +263,12 @@ export default function PaymentPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-9 items-center w-full text-sm">
-                        <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
-                        <span className="col-span-7 p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/40">{item.note}</span>
-                      </div>
+                      {item.note && (
+                        <div className="grid grid-cols-9 items-center w-full text-sm">
+                          <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
+                          <span className="col-span-7 p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/40">{item.note}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                   <div className="flex flex-col gap-2 items-end p-4 pr-10 w-full">

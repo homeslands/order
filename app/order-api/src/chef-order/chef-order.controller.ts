@@ -169,6 +169,13 @@ export class ChefOrderController {
   }
 
   @Get(':slug/export')
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
   @ApiOperation({ summary: 'Export chef order' })
   @HttpCode(HttpStatus.OK)
   async exportChefOrder(@Param('slug') slug: string): Promise<StreamableFile> {
@@ -178,5 +185,60 @@ export class ChefOrderController {
       length: result.length,
       disposition: `attachment; filename="Chef-order-${new Date().toISOString()}.pdf"`,
     });
+  }
+
+  @Get(':slug/export-manual/tickets')
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @ApiOperation({ summary: 'Export chef order item ticket' })
+  @HttpCode(HttpStatus.OK)
+  async exportChefOrderItemTicket(
+    @Param('slug') slug: string,
+  ): Promise<StreamableFile> {
+    const result =
+      await this.chefOrderService.exportChefOrderItemTicketPdfManual(slug);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="Chef-order-${new Date().toISOString()}.pdf"`,
+    });
+  }
+
+  @Get(':slug/export-auto/tickets')
+  @HasRoles(
+    RoleEnum.Staff,
+    RoleEnum.Chef,
+    RoleEnum.Manager,
+    RoleEnum.Admin,
+    RoleEnum.SuperAdmin,
+  )
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Print chef order item ticket',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'The chef order item ticket was printed successfully',
+    type: String,
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef order to be printed',
+    required: true,
+    example: '',
+  })
+  async printer(@Param('slug') slug: string) {
+    await this.chefOrderService.printChefOrderItemTicketApi(slug);
+    return {
+      message: 'The chef order item ticket was printed successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Printing chef order item ticket successfully',
+    } as AppResponseDto<string>;
   }
 }
