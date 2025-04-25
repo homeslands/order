@@ -32,7 +32,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
       }
     })
     setSelectedIndexes(newSelectedIndexes)
-  }, []) // Empty dependency array means this only runs on mount
+  }, [getSelectedItems]) // Empty dependency array means this only runs on mount
 
   // Handle failed items separately
   useEffect(() => {

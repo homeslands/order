@@ -33,6 +33,7 @@
     "banner": "Banner",
     "docs": "Documents",
     "notification": "Notification",
-    "update": "Update"
+    "update": "Update",
+    "order-success": "Order Success"
   }
 }
