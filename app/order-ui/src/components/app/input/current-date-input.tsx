@@ -21,13 +21,13 @@ export const CurrentDateInput = ({ menu }: CurrentDateInputProps) => {
   return (
     <div className={`flex gap-2 w-full ${isMobile ? 'flex-col justify-start items-start' : 'justify-between items-center'}`}>
 
-      <div className="flex w-48 items-center justify-start gap-1 rounded-sm py-2 text-[14px] text-muted-foreground">
-        <Calendar />
+      <div className="flex w-40 xl:w-60 items-center justify-start gap-1 rounded-sm py-2 text-[14px] text-muted-foreground">
+        <Calendar className='w-3 h-3 sm:w-4 sm:h-4' />
         <span>
           {dayOfWeek} {currentDate}
         </span>
       </div>
-      <Badge className='py-2 text-sm'>
+      <Badge className='py-2 text-xs xl:text-sm'>
         {userInfo?.branch?.name} - {userInfo?.branch?.address}
       </Badge>
     </div>

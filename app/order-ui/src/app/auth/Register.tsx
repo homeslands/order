@@ -42,7 +42,7 @@ export default function Register() {
       />
 
       <div className="flex justify-center items-center w-full h-full">
-        <Card className="mx-auto sm:w-[48rem] h-[calc(100vh-5rem)] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
+        <Card className="mx-auto sm:w-[36rem] h-[32rem] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
           <CardHeader className="pb-0">
             <CardTitle className={cn('text-xl text-center text-white sm:text-2xl')}>
               {/* {t('register.welcome')}{' '} */}

@@ -142,7 +142,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="overflow-y-auto">
+      <SidebarContent className="overflow-x-auto no-scrollbar scroll-smooth">
         <SidebarGroup>
           <SidebarMenu>
             {filteredRoutes.map((item) => (
@@ -173,15 +173,17 @@ export function AppSidebar() {
                           }
                         />
                       )}
-                      <span className="font-thin">{item.title}</span>
+                      <span className="text-xs font-thin xl:text-sm">{item.title}</span>
                       {/* </div> */}
-                      {item?.notificationCount && item?.notificationCount > 0 ? (
-                        <span className={`px-2 py-1 ml-2 text-xs rounded-full ${isActive(item.path) ? 'bg-white text-primary' : 'bg-primary text-white'} ${item.notificationCount > 99 ? 'px-3' : ''}`}>
-                          {item.notificationCount}
+                      {item?.notificationCount && item.notificationCount > 0 ? (
+                        <span
+                          className={`px-2 py-1 ml-2 text-xs rounded-full ${isActive(item.path) ? 'bg-white text-primary' : 'bg-primary text-white'
+                            } ${item.notificationCount > 99 ? 'px-3' : ''}`}
+                        >
+                          {item.notificationCount > 9 ? '9+' : item.notificationCount}
                         </span>
-                      ) : (
-                        null
-                      )}
+                      ) : null}
+
                     </NavLink>
                   </SidebarMenuButton>
                   {item.children?.length ? (
@@ -206,7 +208,7 @@ export function AppSidebar() {
                                   to={subItem.path}
                                   className="flex flex-col gap-4"
                                 >
-                                  <span>{subItem.title}</span>
+                                  <span className="text-xs">{subItem.title}</span>
                                 </NavLink>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>

@@ -35,6 +35,7 @@
     "customerInformation": "Thông tin khách hàng",
     "customerName": "Tên khách hàng",
     "customerPhone": "Số điện thoại",
+    "description": "Ghi chú",
     "selectOrderType": "Chọn loại đơn hàng",
     "orderType": "Loại đơn hàng",
     "tableNumber": "Bàn số",
@@ -264,6 +265,7 @@
     "scanToPay": "Quét để thanh toán",
     "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Đơn hàng đã hết hạn thanh toán",
-    "downloadQRCode": "Tải QR code"
+    "downloadQRCode": "Tải QR code",
+    "noQRCode": "Không có QR code"
   }
 }

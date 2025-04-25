@@ -11,7 +11,7 @@ import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
-import { Button } from '@/components/ui'
+import { Button, ScrollArea } from '@/components/ui'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
@@ -132,7 +132,7 @@ export default function ClientUpdateOrderPage() {
                     </div>
 
                     {/* Right content */}
-                    <div className="mt-8 w-full lg:w-2/5">
+                    <div className="w-full sm:mt-8 lg:w-2/5">
                         <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
 
                         {type === OrderTypeEnum.AT_TABLE &&
@@ -141,109 +141,111 @@ export default function ClientUpdateOrderPage() {
                             </div>
                         }
                         {/* Table list order items */}
-                        <div className="mt-5">
-                            <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
-                                <span className="col-span-2">{t('order.product')}</span>
-                                <span className="col-span-2 text-center">
-                                    {t('order.quantity')}
-                                </span>
-                                <span className="col-span-2 text-center">
-                                    {t('order.grandTotal')}
-                                </span>
-                                <span className="flex col-span-1 justify-center">
-                                    <Trash2 size={18} />
-                                </span>
-                            </div>
-
-                            <div className="flex flex-col rounded-md border">
-                                {orderItems?.orderItems.map((item) => (
-                                    <div key={item.slug} className="grid gap-2 items-center px-4 py-2 mt-1 w-full rounded-md">
-                                        <div key={`${item.slug}`} className="grid flex-row grid-cols-7 items-center w-full">
-                                            <div className="flex col-span-2 gap-1 w-full">
-                                                <div className="flex flex-col gap-2 justify-start items-center sm:flex-row sm:justify-center">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[14px] font-bold truncate sm:text-md mb-2">
-                                                            {item.variant.product.name}
-                                                            <span className='font-normal uppercase'> - {item.variant.size.name}</span>
-                                                        </span>
-                                                        {item?.promotion ? (
-                                                            <div className='flex gap-1 items-center'>
-                                                                <span className="text-xs line-through text-muted-foreground sm:text-sm">
-                                                                    {`${formatCurrency(item?.variant?.price)}`}
-                                                                </span>
-                                                                <span className="text-xs font-extrabold text-primary sm:text-base">
-                                                                    {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) : item?.variant?.price)}`}
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className='flex gap-1 items-center'>
-                                                                <span className="text-xs text-primary sm:text-base">
-                                                                    {`${formatCurrency(item?.variant?.price)}`}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex col-span-2 justify-center items-end h-full">
-                                                <UpdateOrderQuantity orderItem={item} onSuccess={refetch} />
-                                            </div>
-                                            <div className="col-span-2 h-full">
-                                                <span className="flex justify-center items-end h-full text-sm font-semibold text-primary">
-                                                    {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
-                                                </span>
-                                            </div>
-                                            <div className="flex col-span-1 justify-center items-end h-full" >
-                                                <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
-                                            </div>
-                                        </div>
-                                        <UpdateOrderItemNoteInput orderItem={item} />
-                                    </div>
-                                ))}
-                            </div>
-                            {/* order note */}
-                            <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
-                                <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
-                            </div>
-                            <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
-                            <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
-                                <div className="space-y-1 w-2/3">
-                                    <div className="grid grid-cols-5">
-                                        <span className="col-span-3 text-sm text-muted-foreground">{t('order.total')}:</span>
-                                        <span className="col-span-2 text-sm text-right text-muted-foreground">
-                                            {/* {formatCurrency(orderItems ? orderItems.subtotal : 0)} */}
-                                            {/* {formatCurrency(orderItems?.subtotal || 0)} */}
-                                            {formatCurrency(originalTotal)}
-                                        </span>
-                                    </div>
-                                    <div className="grid grid-cols-5">
-                                        <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
-                                        <span className="col-span-2 text-sm italic text-right text-green-500">
-                                            - {formatCurrency(discount)}
-                                            {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
-                                        </span>
-                                    </div>
-                                    {order?.result.voucher &&
-                                        <div className="flex justify-between pb-4 w-full border-b">
-                                            <h3 className="text-sm italic font-medium text-green-500">
-                                                {t('order.voucher')}
-                                            </h3>
-                                            <p className="text-sm italic font-semibold text-green-500">
-                                                - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
-                                            </p>
-                                        </div>}
-
-                                    <div className="grid grid-cols-5 pt-2 mt-4 border-t">
-                                        <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
-                                        <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
-                                            {formatCurrency(orderItems ? (orderItems.subtotal) : 0)}
-                                        </span>
-                                    </div>
-                                    <span className="text-xs text-muted-foreground">({t('order.vat')})</span>
+                        <ScrollArea className="h-fit sm:h-[calc(60vh)] sm:px-4">
+                            <div className="mt-5">
+                                <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
+                                    <span className="col-span-2">{t('order.product')}</span>
+                                    <span className="col-span-2 text-center">
+                                        {t('order.quantity')}
+                                    </span>
+                                    <span className="col-span-2 text-center">
+                                        {t('order.grandTotal')}
+                                    </span>
+                                    <span className="flex col-span-1 justify-center">
+                                        <Trash2 size={18} />
+                                    </span>
                                 </div>
 
+                                <div className="flex flex-col rounded-md border">
+                                    {orderItems?.orderItems.map((item) => (
+                                        <div key={item.slug} className="grid gap-2 items-center px-4 py-2 mt-1 w-full rounded-md">
+                                            <div key={`${item.slug}`} className="grid flex-row grid-cols-7 items-center w-full">
+                                                <div className="flex col-span-2 gap-1 w-full">
+                                                    <div className="flex flex-col gap-2 justify-start items-center sm:flex-row sm:justify-center">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[14px] font-bold truncate sm:text-md mb-2">
+                                                                {item.variant.product.name}
+                                                                <span className='font-normal uppercase'> - {item.variant.size.name}</span>
+                                                            </span>
+                                                            {item?.promotion ? (
+                                                                <div className='flex gap-1 items-center'>
+                                                                    <span className="text-xs line-through text-muted-foreground sm:text-sm">
+                                                                        {`${formatCurrency(item?.variant?.price)}`}
+                                                                    </span>
+                                                                    <span className="text-xs font-extrabold text-primary sm:text-base">
+                                                                        {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) : item?.variant?.price)}`}
+                                                                    </span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className='flex gap-1 items-center'>
+                                                                    <span className="text-xs text-primary sm:text-base">
+                                                                        {`${formatCurrency(item?.variant?.price)}`}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex col-span-2 justify-center items-end h-full">
+                                                    <UpdateOrderQuantity orderItem={item} onSuccess={refetch} />
+                                                </div>
+                                                <div className="col-span-2 h-full">
+                                                    <span className="flex justify-center items-end h-full text-sm font-semibold text-primary">
+                                                        {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
+                                                    </span>
+                                                </div>
+                                                <div className="flex col-span-1 justify-center items-end h-full" >
+                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
+                                                </div>
+                                            </div>
+                                            <UpdateOrderItemNoteInput orderItem={item} />
+                                        </div>
+                                    ))}
+                                </div>
+                                {/* order note */}
+                                <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                    <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
+                                </div>
+                                <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                    <div className="space-y-1 w-2/3">
+                                        <div className="grid grid-cols-5">
+                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.total')}:</span>
+                                            <span className="col-span-2 text-sm text-right text-muted-foreground">
+                                                {/* {formatCurrency(orderItems ? orderItems.subtotal : 0)} */}
+                                                {/* {formatCurrency(orderItems?.subtotal || 0)} */}
+                                                {formatCurrency(originalTotal)}
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-5">
+                                            <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
+                                            <span className="col-span-2 text-sm italic text-right text-green-500">
+                                                - {formatCurrency(discount)}
+                                                {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
+                                            </span>
+                                        </div>
+                                        {order?.result.voucher &&
+                                            <div className="flex justify-between pb-4 w-full border-b">
+                                                <h3 className="text-sm italic font-medium text-green-500">
+                                                    {t('order.voucher')}
+                                                </h3>
+                                                <p className="text-sm italic font-semibold text-green-500">
+                                                    - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                                </p>
+                                            </div>}
+
+                                        <div className="grid grid-cols-5 pt-2 mt-4 border-t">
+                                            <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
+                                            <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
+                                                {formatCurrency(orderItems ? (orderItems.subtotal) : 0)}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground">({t('order.vat')})</span>
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
+                        </ScrollArea>
 
                         {order?.result?.status === "pending" &&
                             <div className="flex justify-end mt-4 w-full">

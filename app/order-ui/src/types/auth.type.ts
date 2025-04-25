@@ -19,8 +19,8 @@ export interface ILoginResponse {
 export interface IRegisterRequest {
   phonenumber: string
   password: string
-  firstName: string
-  lastName: string
+  // firstName: string
+  // lastName: string
 }
 
 export interface IForgotPasswordRequest {

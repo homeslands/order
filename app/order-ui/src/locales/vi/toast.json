@@ -266,6 +266,7 @@
     "promotionAppliedCannotDelete": "Không thể xóa khuyến mãi đã áp dụng",
     "exportChefOrderSuccess": "Xuất đơn hàng bếp thành công",
     "exportChefOrderDescription": "Xuất đơn hàng bếp",
-    "exportChefOrderConfirmation": "Bạn có chắc chắn muốn xuất đơn hàng bếp không?"
+    "exportChefOrderConfirmation": "Bạn có chắc chắn muốn xuất đơn hàng bếp không?",
+    "emailAlreadyExists": "Email đã tồn tại"
   }
 }

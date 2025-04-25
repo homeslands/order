@@ -25,12 +25,19 @@ export const useCartItemStore = create<ICartItemStore>()(
       addCustomerInfo: (owner: IUserInfo) => {
         const { cartItems } = get()
         if (cartItems) {
+          const hasFirstName = owner.firstName && owner.firstName.trim() !== ''
+          const hasLastName = owner.lastName && owner.lastName.trim() !== ''
+          const ownerFullName =
+            hasFirstName || hasLastName
+              ? `${owner.firstName ?? ''} ${owner.lastName ?? ''}`.trim()
+              : ''
+
           set({
             cartItems: {
               ...cartItems,
               owner: owner.slug,
               ownerPhoneNumber: owner.phonenumber,
-              ownerFullName: `${owner.firstName} ${owner.lastName}`,
+              ownerFullName: ownerFullName,
             },
             lastModified: moment().valueOf(),
           })

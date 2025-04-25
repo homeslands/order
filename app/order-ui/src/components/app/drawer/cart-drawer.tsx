@@ -3,8 +3,8 @@ import _ from 'lodash'
 import { Info, ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from '@/components/ui/button'
 import {
+  Button,
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -13,7 +13,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer'
+} from '@/components/ui'
 import { useCartItemStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
@@ -21,7 +21,7 @@ import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
-import { CreateOrderDialog } from '../dialog'
+import { CreateCustomerDialog, CreateOrderDialog } from '../dialog'
 import { OrderTypeSelect } from '../select'
 import { VoucherListSheet } from '../sheet'
 import TableSelect from '../select/table-select'
@@ -70,7 +70,10 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
             <div className='flex flex-col gap-3  min-h-[55%]'>
               {/* Order type selection */}
               <div className="flex flex-col gap-4 py-2">
-                <CustomerSearchInput />
+                <div className='flex gap-2 items-center'>
+                  <CustomerSearchInput />
+                  <CreateCustomerDialog />
+                </div>
                 <OrderTypeSelect />
                 <div className='flex flex-col gap-1'>
                   <span className='text-sm text-muted-foreground'>

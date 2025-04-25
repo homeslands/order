@@ -15,7 +15,7 @@ import {
   ScrollArea,
 } from '@/components/ui'
 // import { useCreateUser } from '@/hooks'
-import { updateUserSchema, TUpdateUserSchema } from '@/schemas'
+import { TUpdateEmployeeSchema, updateEmployeeSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateUserRequest, IUserInfo } from '@/types'
 // import { showToast } from '@/utils'
@@ -25,6 +25,7 @@ import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
 import { useUserStore } from '@/stores'
 import { Role } from '@/constants'
+
 interface IFormUpdateEmployeeProps {
   employee: IUserInfo
   onSubmit: (isOpen: boolean) => void
@@ -37,8 +38,8 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
   const { t } = useTranslation(['employee'])
   const { mutate: updateUser } = useUpdateUser()
   const { userInfo } = useUserStore()
-  const form = useForm<TUpdateUserSchema>({
-    resolver: zodResolver(updateUserSchema),
+  const form = useForm<TUpdateEmployeeSchema>({
+    resolver: zodResolver(updateEmployeeSchema),
     defaultValues: {
       slug: employee.slug,
       // phonenumber: employee.phonenumber,

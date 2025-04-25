@@ -76,7 +76,9 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
         navigate(orderPath)
         setIsOpen(false)
         onSuccessfulOrder?.()
-        clearCart()
+        if (userInfo?.role.name === Role.CUSTOMER) {
+          clearCart()
+        }
         showToast(tToast('toast.createOrderSuccess'))
       },
     })

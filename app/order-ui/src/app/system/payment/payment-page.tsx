@@ -15,7 +15,7 @@ import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
-import { usePaymentMethodStore } from '@/stores'
+import { useCartItemStore, usePaymentMethodStore, usePaymentStore } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 
 export default function PaymentPage() {
@@ -30,6 +30,9 @@ export default function PaymentPage() {
     useInitiatePayment()
   const { mutate: exportPayment, isPending: isPendingExportPayment } =
     useExportPayment()
+
+  const { setOrderSlug } = usePaymentStore()
+  const { clearCart } = useCartItemStore()
 
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
@@ -66,6 +69,8 @@ export default function PaymentPage() {
         const orderStatus = updatedOrder.data?.result?.status
         if (orderStatus === OrderStatus.PAID) {
           if (pollingInterval) clearInterval(pollingInterval)
+          setOrderSlug('')
+          clearCart()
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
       }, 3000)
@@ -74,7 +79,7 @@ export default function PaymentPage() {
     return () => {
       if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [isPolling, refetchOrder, navigate, slug])
+  }, [isPolling, refetchOrder, navigate, slug, setOrderSlug, clearCart])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
@@ -92,6 +97,7 @@ export default function PaymentPage() {
           onSuccess: (data) => {
             setPaymentSlug(data.result.slug)
             setQrCode(data.result.qrCode)
+            setOrderSlug(slug)
             setIsPolling(true) // Start polling after initiating payment
           },
         },
@@ -101,6 +107,7 @@ export default function PaymentPage() {
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: () => {
+            clearCart()
             navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
           },
         },

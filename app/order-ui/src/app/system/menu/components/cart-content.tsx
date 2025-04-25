@@ -34,7 +34,9 @@ export function CartContent() {
       <div className="flex flex-col gap-3 p-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex gap-2 justify-between items-center'>
           <h1 className="text-sm font-semibold">{t('menu.order')}</h1>
-          <CreateCustomerDialog />
+          {cartItems?.orderItems && (
+            <CreateCustomerDialog />
+          )}
         </div>
       </div>
 
@@ -162,9 +164,9 @@ export function CartContent() {
                 </span>
               )}
               <div className="flex flex-col gap-1 justify-between items-start pt-3 font-medium border-t">
-                <div className='flex gap-2 items-center'>
-                  <span className="text-sm font-semibold">{t('menu.subTotal')}:</span>
-                  <span className="text-2xl font-bold text-primary">
+                <div className='flex gap-2 justify-between items-center w-full'>
+                  <span className="text-sm font-semibold xl:text-lg">{t('menu.subTotal')}</span>
+                  <span className="text-xl font-extrabold xl:text-3xl text-primary">
                     {`${formatCurrency(totalAfterDiscount)}`}
                   </span>
                 </div>

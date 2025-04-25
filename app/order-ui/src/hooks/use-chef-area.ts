@@ -4,7 +4,9 @@ import {
   createChefArea,
   createChefOrder,
   deleteChefArea,
+  exportAutoChefOrderTicket,
   exportChefOrder,
+  exportManualChefOrderTicket,
   getAllChefAreaProducts,
   getChefAreaBySlug,
   getChefAreas,
@@ -162,6 +164,22 @@ export const useUpdateChefOrderItemStatus = () => {
   return useMutation({
     mutationFn: async (params: IUpdateChefOrderItemStatusRequest) => {
       return updateChefOrderItemStatus(params)
+    },
+  })
+}
+
+export const useExportManualChefOrderTicket = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return exportManualChefOrderTicket(slug)
+    },
+  })
+}
+
+export const useExportAutoChefOrderTicket = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return exportAutoChefOrderTicket(slug)
     },
   })
 }

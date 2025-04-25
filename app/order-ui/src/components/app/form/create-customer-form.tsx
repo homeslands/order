@@ -82,7 +82,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.phoneNumber')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.phoneNumber')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
             </FormControl>
@@ -97,7 +100,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.password')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.password')}
+            </FormLabel>
             <FormControl>
               <PasswordInput
                 placeholder={t('customer.enterPassword')}
@@ -115,7 +121,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="confirmPassword"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.confirmPassword')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.confirmPassword')}
+            </FormLabel>
             <FormControl>
               <PasswordInput
                 placeholder={t('customer.enterPassword')}

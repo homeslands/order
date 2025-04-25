@@ -18,12 +18,14 @@ import {
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
 import { loadDataToPrinter, showToast } from '@/utils'
-import { useExportChefOrder } from '@/hooks'
+import { useExportAutoChefOrderTicket, useExportChefOrder, useExportManualChefOrderTicket } from '@/hooks'
 
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
+  const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
+  const { mutate: exportManualChefOrderTicket } = useExportManualChefOrderTicket()
   const { mutate: exportChefOrder } = useExportChefOrder()
 
   const handleExportChefOrder = (slug: string) => {
@@ -35,6 +37,23 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
     })
   }
 
+  const handleExportAutoChefOrderTicket = (slug: string) => {
+    exportAutoChefOrderTicket(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportChefOrderSuccess'))
+        loadDataToPrinter(data)
+      },
+    })
+  }
+
+  const handleExportManualChefOrderTicket = (slug: string) => {
+    exportManualChefOrderTicket(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportChefOrderSuccess'))
+        loadDataToPrinter(data)
+      },
+    })
+  }
   return [
     {
       id: 'select',
@@ -163,6 +182,26 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                 >
                   <DownloadIcon />
                   {t('chefOrder.exportChefOrder')}
+                </Button>
+                <Button onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportAutoChefOrderTicket(chefOrder.slug)
+                }}
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                >
+                  <DownloadIcon />
+                  {t('chefOrder.exportAutoChefOrderTicket')}
+                </Button>
+                <Button onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportManualChefOrderTicket(chefOrder.slug)
+                }}
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                >
+                  <DownloadIcon />
+                  {t('chefOrder.exportManualChefOrderTicket')}
                 </Button>
               </DropdownMenuContent>
             </DropdownMenu>

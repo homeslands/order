@@ -87,14 +87,14 @@ export default function OverviewDetailPage() {
   return (
     <div className="min-h-screen">
       <main className='flex flex-col gap-2 pb-4'>
-        <div className='flex flex-col gap-2 items-center pt-1 w-full sm:justify-between sm:flex-row'>
-          <div className='flex gap-3 justify-start items-center px-1 w-full sm:w-fit'>
+        <div className='grid grid-cols-1 gap-2 items-center pt-1 w-full sm:justify-between sm:grid-cols-4'>
+          <div className='flex col-span-1 gap-3 justify-start items-center px-1 w-full sm:w-fit'>
             <div className='flex gap-1 items-center'>
               <SquareMenu />
               {t('dashboard.title')}
             </div>
           </div>
-          <div className="flex overflow-x-auto gap-2 items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full">
+          <div className="flex overflow-x-auto col-span-3 gap-2 justify-end items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full">
             <div className="flex-shrink-0">
               <RevenueToolDropdown branch={branch?.slug || ''} startDate={startDate} endDate={endDate} revenueType={revenueType} />
             </div>

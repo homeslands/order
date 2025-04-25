@@ -65,3 +65,9 @@ export interface IPaymentMethodStore {
   setPaymentSlug: (paymentSlug: string) => void
   clearStore: () => void
 }
+
+export interface IPaymentStore {
+  orderSlug: string
+  setOrderSlug: (orderSlug: string) => void
+  clearStore: () => void
+}

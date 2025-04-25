@@ -28,8 +28,8 @@ export const createUserSchema = z
       .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
     password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
     confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    firstName: z.string().min(1, 'Vui lòng nhập tên'),
-    lastName: z.string().min(1, 'Vui lòng nhập họ'),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
     // branch: z.string().optional(),
     role: z.string().min(1, 'Vui lòng chọn vai trò'),
   })
@@ -62,13 +62,23 @@ export const updateUserSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   dob: z.string(),
-  email: z.string().email('Vui lòng nhập đúng định dạng email'),
+  // email: z.string().email('Vui lòng nhập đúng định dạng email'),
   address: z.string().min(1, 'Vui lòng nhập địa chỉ'),
   branch: z.string().optional(),
 })
 
+export const updateEmployeeSchema = z.object({
+  slug: z.string(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  dob: z.string(),
+  email: z.string().email('Vui lòng nhập đúng định dạng email'),
+  address: z.string().min(1, 'Vui lòng nhập địa chỉ'),
+  branch: z.string().optional(),
+})
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>
 export type TCreateUserSchema = z.infer<typeof createUserSchema>
 export type TCreateEmployeeSchema = z.infer<typeof createEmployeeSchema>
 export type TUpdateUserSchema = z.infer<typeof updateUserSchema>
+export type TUpdateEmployeeSchema = z.infer<typeof updateEmployeeSchema>

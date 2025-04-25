@@ -4,7 +4,7 @@ import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IProduct, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
 import { AddToCartDialog } from '@/components/app/dialog'
-import { Badge, Button } from '@/components/ui'
+import { Badge, Button, useSidebar } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
 import { StaffAddToCartDrawer } from '@/components/app/drawer'
@@ -17,6 +17,7 @@ interface IMenuProps {
 export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
+  const { state } = useSidebar()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
   const menuItems = menu?.menuItems?.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
@@ -78,7 +79,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
         group.items.length > 0 &&
         <div className='flex flex-col gap-4 mt-4'>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className='grid grid-cols-2 gap-4 w-full sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' key={index}>
+          <div className={`grid gap-2 xl:gap-4 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 xl:grid-cols-3 pr-8 xl:pr-0'}`} key={index}>
             {group.items.map((item) => (
               <div
                 key={item.slug}
