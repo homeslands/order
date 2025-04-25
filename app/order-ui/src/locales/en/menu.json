@@ -51,6 +51,7 @@
     "createdAt": "Created date",
     "totalItems": "Total items",
     "dayIndex": "Day index",
+    "branch": "Branch",
     "noTemplate": "Not a menu template",
     "amount": "Quantity: ",
     "noDescription": "No description available",
@@ -211,7 +212,8 @@
     "noCooked": "No cooked",
     "cooking": "Cooking",
     "cooked": "Cooked",
-    "delivered": "Delivered"
+    "delivered": "Delivered",
+    "updateNote": "Update"
   },
   "table": {
     "title": "Table list"
@@ -241,6 +243,7 @@
     "orderDate": "Order date",
     "cashMethodNote": "Note: For cash payments, please proceed to the store's counter to make payment",
     "paymentNote": "Please verify payment information before proceeding with the transaction",
-    "downloadQRCode": "Download QR code"
+    "downloadQRCode": "Download QR code",
+    "noQRCode": "No QR code"
   }
 }

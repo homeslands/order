@@ -215,6 +215,26 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   )
                 }
 
+                {/* Update order */}
+                {order?.slug &&
+                  order?.status === OrderStatus.PENDING &&
+                  (!order?.payment || order?.payment?.statusCode === paymentStatus.PENDING) && (
+                    <NavLink
+                      to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}/update`}
+                      className="flex justify-start items-center w-full"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="flex gap-1 justify-start px-2 w-full text-sm"
+                      >
+                        <CreditCard className="icon" />
+                        {t('order.updateOrder')}
+                      </Button>
+                    </NavLink>
+                  )
+                }
+
                 {/* Create chef order */}
                 {order.chefOrders.length === 0 && (
                   <div onClick={(e) => e.stopPropagation()}>

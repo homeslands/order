@@ -33,7 +33,7 @@
     "orderUnit": "đơn",
     "cash": "Tiền mặt",
     "bank": "Chuyển khoản",
-    "internal": "Nội bộ",
+    "internalWallet": "Ví nội bộ",
     "revenue": "Doanh thu (nghìn đồng)"
   }
 }

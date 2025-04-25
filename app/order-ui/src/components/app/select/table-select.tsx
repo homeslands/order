@@ -40,12 +40,13 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
             setSelectedTableId(tableOrder.slug)
         }
     }, [tableOrder])
-    const tableList = tables?.result.sort((a, b) => {
+    const tableList = [...(tables?.result || [])].sort((a, b) => {
         if (a.status !== b.status) {
-            return a.status.localeCompare(b.status); // Đảo ngược status (RESERVED trước AVAILABLE)
+            // Đảo ngược thứ tự: RESERVED < AVAILABLE
+            return a.status === TableStatus.RESERVED ? -1 : 1
         }
-        return Number(a.name) - Number(b.name); // Sắp xếp theo tên nếu status giống nhau
-    }) || [];
+        return Number(a.name) - Number(b.name)
+    })
 
     if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
         return null

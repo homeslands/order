@@ -21,6 +21,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     const [position, setPosition] = useState({ x: window.innerWidth - 350, y: 100, })
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
     const isMobile = useIsMobile()
+
     useEffect(() => {
         if (createdAt) {
             const createTime = moment(createdAt)

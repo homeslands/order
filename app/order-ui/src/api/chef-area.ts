@@ -176,3 +176,62 @@ export async function updateChefOrderItemStatus(
   })
   return response.data
 }
+
+export async function exportManualChefOrderTicket(slug: string): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+  const currentDate = new Date().toISOString()
+  setFileName(`TRENDCoffee-invoice-${currentDate}.pdf`)
+  setIsDownloading(true)
+  try {
+    const response = await http.get(
+      `/chef-order/${slug}/export-manual/tickets`,
+      {
+        responseType: 'blob',
+        headers: {
+          Accept: 'application/pdf',
+        },
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+          )
+          setProgress(percentCompleted)
+        },
+        // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+        doNotShowLoading: true,
+      },
+    )
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
+
+export async function exportAutoChefOrderTicket(slug: string): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+  const currentDate = new Date().toISOString()
+  setFileName(`TRENDCoffee-invoice-${currentDate}.pdf`)
+  setIsDownloading(true)
+  try {
+    const response = await http.get(`/chef-order/${slug}/export-auto/tickets`, {
+      responseType: 'blob',
+      headers: {
+        Accept: 'application/pdf',
+      },
+      onDownloadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+        )
+        setProgress(percentCompleted)
+      },
+      // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+      doNotShowLoading: true,
+    })
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}

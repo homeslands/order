@@ -22,3 +22,8 @@ export { default as HomelandLogo } from './homeland-logo.png'
 export { default as TabHomelandLogo } from './tab-homeland-logo.png'
 export { default as ErrorIllustration } from './error-page-logo.svg'
 export { default as NotFoundIllustration } from './404-page-logo.svg'
+export { default as TrendCoffee1 } from './trend-coffee-1.jpg'
+export { default as TrendCoffee2 } from './trend-coffee-2.jpg'
+export { default as TrendCoffee3 } from './trend-coffee-3.jpg'
+export { default as TrendCoffee4 } from './trend-coffee-4.jpg'
+

@@ -78,7 +78,7 @@ export default function OrderHistoryDetailSheet({
               <div className="flex flex-col gap-4 w-full">
                 {/* Order info */}
                 <div className="flex justify-between items-center p-3 rounded-sm border">
-                  <div className="">
+                  <div className="flex flex-col gap-2">
                     <p className="flex gap-2 items-center pb-2">
                       <span className="font-bold">
                         {t('order.order')}{' '}
@@ -104,6 +104,14 @@ export default function OrderHistoryDetailSheet({
                         </span>
                       </p>
                     </div>
+                    {orderDetail?.description && (
+                      <div className="flex items-center w-full text-sm">
+                        <h3 className="w-20 text-sm font-semibold">
+                          {t('order.note')}
+                        </h3>
+                        <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{orderDetail?.description}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Order owner info */}
@@ -131,12 +139,14 @@ export default function OrderHistoryDetailSheet({
                           ? t('order.dineIn')
                           : t('order.takeAway')}
                       </p>
-                      <p className="flex gap-1 text-muted-foreground">
-                        <span className="col-span-2">{t('order.tableNumber')}</span>
-                        <span className="col-span-1">
-                          {orderDetail?.table?.name}
-                        </span>
-                      </p>
+                      {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
+                        <p className="flex gap-1 text-muted-foreground">
+                          <span className="col-span-2">{t('order.tableNumber')}</span>
+                          <span className="col-span-1">
+                            {orderDetail?.table?.name}
+                          </span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -209,13 +219,13 @@ export default function OrderHistoryDetailSheet({
                         <TableRow key={item.slug}>
                           <TableCell className="flex gap-1 items-center font-bold">
                             <img
-                              src={`${publicFileURL}/${item.variant.product.image}`}
-                              alt={item.variant.product.image}
+                              src={`${publicFileURL}/${item.variant && item.variant.product.image}`}
+                              alt={item.variant && item.variant.product.image}
                               className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
                             />
-                            {item.variant.product.name}
+                            {item.variant && item.variant.product.name}
                           </TableCell>
-                          <TableCell>{item.variant.size.name}</TableCell>
+                          <TableCell>{item.variant && item.variant.size.name}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell className="text-right">
                             {item.promotion && item.promotion.value > 0 ? (

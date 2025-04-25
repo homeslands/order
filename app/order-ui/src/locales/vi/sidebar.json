@@ -16,7 +16,7 @@
     "branchManagement": "Quản lý chi nhánh",
     "revenueManagement": "Quản lý doanh thu",
     "logManagement": "Quản lý log",
-    "staticPageManagement": "Quản lý các trang khác",
+    "staticPageManagement": "Quản lý trang tĩnh",
     "bankConfig": "Cấu hình ngân hàng",
     "config": "Cấu hình",
     "notification": "Thông báo",
@@ -40,7 +40,8 @@
     "home": "Trang chủ",
     "menu": "Thực đơn",
     "aboutUs": "Về chúng tôi",
-    "policy": "Điều khoản"
+    "policy": "Điều khoản",
+    "securityTerm": "Điều khoản bảo mật"
   },
   "footer": {
     "quickLink": "Liên kết nhanh",

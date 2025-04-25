@@ -40,12 +40,14 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_ORDER_MANAGEMENT,
     icon: ShoppingCart,
     permission: Permission.DELIVERY_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.chefOrderManagement',
     path: ROUTE.STAFF_CHEF_ORDER,
     icon: CookingPot,
     permission: Permission.CHEF_ORDER_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.orderHistory',
@@ -142,5 +144,11 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_BANNER,
     icon: Newspaper,
     permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.clientView',
+    path: ROUTE.STAFF_CLIENT_VIEW,
+    icon: Users,
+    permission: Permission.CLIENT_VIEW,
   },
 ]

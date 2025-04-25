@@ -1,23 +1,23 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import i18next from 'i18next'
 import moment from 'moment'
 
 import { showToast } from '@/utils'
 import {
-  ICartItemStore,
   ICartItem,
+  ICartItemStore,
   ITable,
-  OrderTypeEnum,
   IUserInfo,
   IVoucher,
+  OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
-      cartItems: null, // Chỉ lưu một cart item hoặc null nếu không có item nào
+      cartItems: null,
       lastModified: null,
 
       getCartItems: () => get().cartItems,
@@ -25,13 +25,21 @@ export const useCartItemStore = create<ICartItemStore>()(
       addCustomerInfo: (owner: IUserInfo) => {
         const { cartItems } = get()
         if (cartItems) {
+          const hasFirstName = owner.firstName && owner.firstName.trim() !== ''
+          const hasLastName = owner.lastName && owner.lastName.trim() !== ''
+          const ownerFullName =
+            hasFirstName || hasLastName
+              ? `${owner.firstName ?? ''} ${owner.lastName ?? ''}`.trim()
+              : ''
+
           set({
             cartItems: {
               ...cartItems,
               owner: owner.slug,
               ownerPhoneNumber: owner.phonenumber,
-              ownerFullName: `${owner.firstName} ${owner.lastName}`,
+              ownerFullName: ownerFullName,
             },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -46,6 +54,7 @@ export const useCartItemStore = create<ICartItemStore>()(
               ownerFullName: '',
               ownerPhoneNumber: '',
             },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -54,51 +63,58 @@ export const useCartItemStore = create<ICartItemStore>()(
         const { cartItems } = get()
         if (cartItems) {
           set({
-            cartItems: { ...cartItems, approvalBy }, // Cập nhật approvalBy cho cartItems
+            cartItems: { ...cartItems, approvalBy },
+            lastModified: moment().valueOf(),
           })
         }
       },
 
       addCartItem: (item: ICartItem) => {
         const { cartItems } = get()
+        const timestamp = moment().valueOf()
+
         if (!cartItems) {
-          // If cart is empty, create new cart with the item
+          const newCart = {
+            id: `cart_${timestamp}`,
+            slug: `cart_${timestamp}`,
+            owner: item.owner || '',
+            type: item.type,
+            orderItems: item.orderItems.map((orderItem) => ({
+              ...orderItem,
+              id: `cart_${timestamp}_order_${orderItem.id}`,
+            })),
+            table: item.table || '',
+            tableName: item.tableName || '',
+            voucher: null,
+            approvalBy: '',
+            ownerPhoneNumber: '',
+            ownerFullName: '',
+          }
+
           set({
-            cartItems: item,
-            lastModified: moment().valueOf(), // Update timestamp
+            cartItems: newCart,
+            lastModified: timestamp,
           })
         } else {
-          // Check if item already exists in cart
-          const existingItemIndex = cartItems.orderItems.findIndex(
-            (orderItem) => orderItem.id === item.orderItems[0].id,
-          )
-
-          if (existingItemIndex >= 0) {
-            // If item exists, increase its quantity
-            const updatedOrderItems = [...cartItems.orderItems]
-            updatedOrderItems[existingItemIndex].quantity +=
-              item.orderItems[0].quantity
-
-            set({
-              cartItems: {
-                ...cartItems,
-                orderItems: updatedOrderItems,
-              },
-              lastModified: moment().valueOf(), // Update timestamp
-            })
-          } else {
-            // If item doesn't exist, add it to the array
-            set({
-              cartItems: {
-                ...cartItems,
-                orderItems: [...cartItems.orderItems, ...item.orderItems],
-              },
-              lastModified: moment().valueOf(), // Update timestamp
-            })
+          const newOrderItems = [
+            ...cartItems.orderItems,
+            ...item.orderItems.map((orderItem) => ({
+              ...orderItem,
+              id: `cart_${cartItems.id}_order_${orderItem.id}`,
+            })),
+          ]
+          const newCart = {
+            ...cartItems,
+            orderItems: newOrderItems,
           }
+
+          set({
+            cartItems: newCart,
+            lastModified: timestamp,
+          })
         }
         showToast(i18next.t('toast.addSuccess'))
-        setupAutoClearCart() // Setup auto clear when adding items
+        setupAutoClearCart()
       },
 
       updateCartItemQuantity: (id: string, quantity: number) => {
@@ -113,6 +129,7 @@ export const useCartItemStore = create<ICartItemStore>()(
               ...cartItems,
               orderItems: updatedOrderItems,
             },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -129,7 +146,15 @@ export const useCartItemStore = create<ICartItemStore>()(
               ...cartItems,
               orderItems: updatedOrderItems,
             },
+            lastModified: moment().valueOf(),
           })
+        }
+      },
+
+      addOrderNote: (note: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({ cartItems: { ...cartItems, description: note } })
         }
       },
 
@@ -142,6 +167,7 @@ export const useCartItemStore = create<ICartItemStore>()(
               table: table.slug,
               tableName: table.name,
             },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -151,6 +177,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (cartItems) {
           set({
             cartItems: { ...cartItems, table: '', tableName: '' },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -160,6 +187,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (cartItems) {
           set({
             cartItems: { ...cartItems },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -169,6 +197,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (cartItems) {
           set({
             cartItems: { ...cartItems, type: orderType },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -177,10 +206,9 @@ export const useCartItemStore = create<ICartItemStore>()(
         const { cartItems } = get()
         if (cartItems) {
           const updatedOrderItems = cartItems.orderItems.filter(
-            (orderItem) => orderItem.id !== cartItemId, // Xóa trực tiếp sản phẩm
+            (orderItem) => orderItem.id !== cartItemId,
           )
 
-          // Nếu đây là sản phẩm cuối cùng, xóa toàn bộ giỏ hàng
           if (updatedOrderItems.length === 0) {
             get().clearCart()
           } else {
@@ -189,11 +217,11 @@ export const useCartItemStore = create<ICartItemStore>()(
                 ...cartItems,
                 orderItems: updatedOrderItems,
               },
-              lastModified: moment().valueOf(), // Thêm cập nhật lastModified để trigger re-render
-            });
+              lastModified: moment().valueOf(),
+            })
           }
 
-          showToast(i18next.t('toast.removeSuccess')) // Hiển thị thông báo thành công
+          showToast(i18next.t('toast.removeSuccess'))
         }
       },
 
@@ -202,6 +230,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (cartItems) {
           set({
             cartItems: { ...cartItems, voucher },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -211,6 +240,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (cartItems) {
           set({
             cartItems: { ...cartItems, voucher: null },
+            lastModified: moment().valueOf(),
           })
         }
       },
@@ -224,6 +254,12 @@ export const useCartItemStore = create<ICartItemStore>()(
     }),
     {
       name: 'cart-store',
+      storage: createJSONStorage(() => localStorage),
+      version: 1,
+      partialize: (state) => ({
+        cartItems: state.cartItems,
+        lastModified: state.lastModified,
+      }),
     },
   ),
 )

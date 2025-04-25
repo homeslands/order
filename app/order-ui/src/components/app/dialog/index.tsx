@@ -56,6 +56,7 @@ export { default as CancelOrderDialog } from './cancel-order-dialog'
 export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
 
 export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
+export { default as SystemAddToCurrentOrderDialog } from './system-add-to-current-order-dialog'
 
 export { default as CreateBankConnectorDialog } from './create-bank-connector-dialog'
 export { default as UpdateBankConnectorDialog } from './update-bank-connector-dialog'

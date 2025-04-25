@@ -37,12 +37,13 @@ export default function CheckoutCartSheet() {
   const { data: userByPhoneNumber } = useUsers(
     debouncedInputValue
       ? {
-          order: 'DESC',
-          page: pagination.pageIndex,
-          pageSize: pagination.pageSize,
-          phonenumber: debouncedInputValue,
-          role: Role.CUSTOMER,
-        }
+        order: 'DESC',
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+        phonenumber: debouncedInputValue,
+        role: Role.CUSTOMER,
+        hasPaging: true,
+      }
       : null, // Không gọi hook nếu không có số điện thoại
   )
 
@@ -101,13 +102,13 @@ export default function CheckoutCartSheet() {
             {t('order.orderInformation')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
+        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
           {/* Cart Items */}
           <ScrollArea className="max-h-[28rem] flex-1 px-4">
-            <div className="flex flex-1 flex-col gap-4 pb-8">
-              <div className="flex flex-col gap-4 space-y-2 py-2">
+            <div className="flex flex-col flex-1 gap-4 pb-8">
+              <div className="flex flex-col gap-4 py-2 space-y-2">
                 {/* Customer Information */}
-                <div className="mt-6 flex flex-col gap-4 border-b pb-6 sm:relative">
+                <div className="flex flex-col gap-4 pb-6 mt-6 border-b sm:relative">
                   <div className="flex flex-col gap-4">
                     <Label>{t('order.phoneNumber')}</Label>
                     <div className="flex gap-2">
@@ -123,7 +124,7 @@ export default function CheckoutCartSheet() {
                       </Button>
                     </div>
                     {cartItems && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2 items-center">
                         <span className="text-sm font-semibold">
                           {cartItems.ownerFullName}
                         </span>
@@ -136,14 +137,13 @@ export default function CheckoutCartSheet() {
 
                   {/* Dropdown danh sách user */}
                   {users.length > 0 && (
-                    <div className="absolute z-10 mt-16 w-full rounded-md border bg-white p-2 shadow-lg">
+                    <div className="absolute z-10 p-2 mt-16 w-full bg-white rounded-md border shadow-lg">
                       {users.map((user, index) => (
                         <div
                           key={user.slug}
                           onClick={handleAddOwner(user)}
-                          className={`cursor-pointer p-2 hover:bg-gray-100 ${
-                            index < users.length - 1 ? 'border-b' : ''
-                          }`}
+                          className={`cursor-pointer p-2 hover:bg-gray-100 ${index < users.length - 1 ? 'border-b' : ''
+                            }`}
                         >
                           <div className="font-medium">
                             {user.firstName} {user.lastName}
@@ -158,11 +158,11 @@ export default function CheckoutCartSheet() {
                 </div>
 
                 {/* Table Information */}
-                <div className="mt-5 flex flex-col gap-4 border-b pb-6">
+                <div className="flex flex-col gap-4 pb-6 mt-5 border-b">
                   <div className="flex flex-col gap-2">
                     <Label>{t('order.deliveryMethod')}</Label>
-                    <div className="flex flex-row items-center gap-4">
-                      <div className="flex w-fit items-center justify-center rounded-full bg-primary/15 px-4 py-1 text-xs font-thin text-primary">
+                    <div className="flex flex-row gap-4 items-center">
+                      <div className="flex justify-center items-center px-4 py-1 text-xs font-thin rounded-full w-fit bg-primary/15 text-primary">
                         {t('order.dineIn')}
                       </div>
                       <div>
@@ -178,21 +178,21 @@ export default function CheckoutCartSheet() {
                 {cartItems?.orderItems.map((item) => (
                   <div
                     key={item.slug}
-                    className="flex flex-col gap-4 border-b pb-4"
+                    className="flex flex-col gap-4 pb-4 border-b"
                   >
                     <div
                       key={`${item.slug}`}
-                      className="flex w-full items-center gap-2 rounded-xl"
+                      className="flex gap-2 items-center w-full rounded-xl"
                     >
                       <img
                         src={`${publicFileURL}/${item.image}`}
                         alt={item.name}
-                        className="h-20 w-20 rounded-2xl object-cover"
+                        className="object-cover w-20 h-20 rounded-2xl"
                       />
-                      <div className="flex flex-1 flex-col gap-2">
-                        <div className="flex flex-row items-start justify-between">
-                          <div className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate font-bold">
+                      <div className="flex flex-col flex-1 gap-2">
+                        <div className="flex flex-row justify-between items-start">
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <span className="font-bold truncate">
                               {item.name}
                             </span>
                             <span className="text-xs font-thin text-muted-foreground">
@@ -209,7 +209,7 @@ export default function CheckoutCartSheet() {
                             />
                           </Button>
                         </div>
-                        <div className="flex w-full items-center justify-between text-sm font-medium">
+                        <div className="flex justify-between items-center w-full text-sm font-medium">
                           <span>
                             {t('order.quantity')} {item.quantity}
                           </span>
@@ -229,7 +229,7 @@ export default function CheckoutCartSheet() {
           </ScrollArea>
 
           {/* Order Summary and Checkout */}
-          <div className="border-t p-4">
+          <div className="p-4 border-t">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
@@ -259,7 +259,7 @@ export default function CheckoutCartSheet() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 items-center justify-between gap-2 py-4">
+            <div className="grid grid-cols-2 gap-2 justify-between items-center py-4">
               <div className="col-span-1">
                 <Button
                   variant="outline"

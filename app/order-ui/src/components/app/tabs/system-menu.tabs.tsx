@@ -21,7 +21,7 @@ export function SystemMenuTabs() {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-0">
+      <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
@@ -31,7 +31,7 @@ export function SystemMenuTabs() {
           </TabsTrigger>
         )}
       </TabsList>
-      <TabsContent value="menu" className="w-full p-0">
+      <TabsContent value="menu" className="p-0 w-full">
         <SystemMenuTabscontent />
       </TabsContent>
       {cartItems?.type === OrderTypeEnum.AT_TABLE && (

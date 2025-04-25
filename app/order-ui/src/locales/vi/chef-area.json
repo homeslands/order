@@ -59,6 +59,8 @@
     "create": "Thông báo cho bếp",
     "createChefOrderWarning": "Bạn sắp sửa thông báo cho bếp đơn hàng ",
     "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?",
-    "exportChefOrder": "Xuất đơn hàng bếp"
+    "exportChefOrder": "Xuất đơn hàng bếp",
+    "exportAutoChefOrderTicket": "Xuất nhãn dán món tự động",
+    "exportManualChefOrderTicket": "Xuất nhãn dán món thủ công"
   }
 }

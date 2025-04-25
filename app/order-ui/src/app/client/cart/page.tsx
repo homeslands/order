@@ -18,7 +18,9 @@ import { OrderTypeSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency } from '@/utils'
 import { OrderTypeEnum } from '@/types'
-import { publicFileURL } from '@/constants/env'
+import { publicFileURL } from '@/constants'
+import { OrderNoteInput } from '@/components/app/input'
+
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tHelmet } = useTranslation('helmet')
@@ -122,11 +124,13 @@ export default function ClientCartPage() {
                     </div>
                     <CartNoteInput cartItem={item} />
                   </div>
-
                 </div>
               ))}
             </div>
-            <VoucherListSheet />
+            <div className="flex flex-col gap-2">
+              <OrderNoteInput order={cartItems} />
+              <VoucherListSheet />
+            </div>
             <div>
               {getCartItems()?.voucher && (
                 <div className="flex justify-start w-full">

@@ -63,6 +63,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,
+      description: order.description || '',
     }
 
     // Call API to create order
@@ -75,7 +76,9 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
         navigate(orderPath)
         setIsOpen(false)
         onSuccessfulOrder?.()
-        clearCart()
+        if (userInfo?.role.name === Role.CUSTOMER) {
+          clearCart()
+        }
         showToast(tToast('toast.createOrderSuccess'))
       },
     })
@@ -86,7 +89,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
       <DialogTrigger asChild>
         <Button
           disabled={disabled}
-          className="flex items-center text-sm rounded-full w-fit"
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}

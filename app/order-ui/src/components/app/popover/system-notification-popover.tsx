@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
   Badge,
 } from '@/components/ui'
-import { Role, ROUTE } from '@/constants'
+import { NotificationMessageCode, Role, ROUTE } from '@/constants'
 import { useNotification, usePagination, useUpdateNotificationStatus } from '@/hooks'
 import { INotification } from '@/types'
 import { useOrderTrackingStore, useSelectedOrderStore, useUserStore } from '@/stores'
@@ -144,13 +144,13 @@ export default function SystemNotificationPopover() {
                   {/* Icon Bell với dấu chấm nếu chưa đọc */}
                   <div className={`flex relative justify-center items-center w-9 h-9 rounded-full ${notification.isRead
                     ? 'bg-muted-foreground/15'
-                    : notification.message === 'order-needs-processed'
+                    : notification.message === NotificationMessageCode.ORDER_NEEDS_PROCESSED
                       ? 'bg-primary/20'
                       : 'bg-blue-100'
                     }`}>
-                    {notification.message === 'order-needs-processed' ? (
+                    {notification.message === NotificationMessageCode.ORDER_NEEDS_PROCESSED ? (
                       <Package className={`w-4 h-4 ${notification.isRead ? 'text-muted-foreground/70' : 'text-orange-500'}`} />
-                    ) : notification.message === 'order-needs-delivered' ? (
+                    ) : notification.message === NotificationMessageCode.ORDER_NEEDS_DELIVERED ? (
                       <Truck className={`w-4 h-4 ${notification.isRead ? 'text-muted-foreground/70' : 'text-blue-500'}`} />
                     ) : (
                       <Bell className={`w-4 h-4 ${notification.isRead ? 'text-muted-foreground/70' : 'text-primary'}`} />

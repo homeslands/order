@@ -7,6 +7,12 @@ export const SystemLayout = React.lazy(() =>
   })),
 )
 
+export const ClientViewLayout = React.lazy(() =>
+  import('@/app/layouts/system').then((module) => ({
+    default: module.ClientViewLayout,
+  })),
+)
+
 //Auth
 export const LoginPage = React.lazy(() =>
   import('@/app/auth').then((module) => ({
@@ -80,6 +86,12 @@ export const OrderManagementPage = React.lazy(() =>
   })),
 )
 
+//Client view page
+export const ClientViewPage = React.lazy(() =>
+  import('@/app/system/client-view').then((module) => ({
+    default: module.ClientViewPage,
+  })),
+)
 // Chef order management page
 export const ChefOrderPage = React.lazy(() =>
   import('@/app/system/chef-order').then((module) => ({
@@ -94,6 +106,12 @@ export const OrderHistoryPage = React.lazy(() =>
   })),
 )
 
+//Update order page for staff
+export const UpdateOrderPage = React.lazy(() =>
+  import('@/app/system/update-order').then((module) => ({
+    default: module.UpdateOrderPage,
+  })),
+)
 //Order detail page
 export const OrderDetailPage = React.lazy(() =>
   import('@/app/system/order-history').then((module) => ({
@@ -321,6 +339,13 @@ export const ClientAboutPage = React.lazy(() =>
 export const ClientPolicyPage = React.lazy(() =>
   import('@/app/client/policy').then((module) => ({
     default: module.PolicyPage,
+  })),
+)
+
+//Security term page
+export const ClientSecurityTermPage = React.lazy(() =>
+  import('@/app/client/security-term').then((module) => ({
+    default: module.SecurityTermPage,
   })),
 )
 

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
-import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
+import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { formatCurrency } from '@/utils'
@@ -29,12 +29,14 @@ export function CartContent() {
   }
 
   return (
-    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[35%] lg:w-[30%] xl:w-[25%] shadow-md overflow-hidden bg-background transition-all duration-300">
+    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[25%] xl:w-[25%] shadow-md overflow-hidden bg-background transition-all duration-300">
       {/* Header */}
-      <div className="flex flex-col gap-3 px-4 py-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
+      <div className="flex flex-col gap-3 p-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex gap-2 justify-between items-center'>
-          <h1 className="text-lg font-semibold">{t('menu.order')}</h1>
-          <CreateCustomerDialog />
+          <h1 className="text-sm font-semibold">{t('menu.order')}</h1>
+          {cartItems?.orderItems && (
+            <CreateCustomerDialog />
+          )}
         </div>
       </div>
 
@@ -121,7 +123,10 @@ export function CartContent() {
       {cartItems && cartItems?.orderItems?.length !== 0 && (
         <div className="z-10 px-4 py-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
           <div className='space-y-1'>
-            <VoucherListSheet />
+            <div className="flex flex-col gap-2">
+              <OrderNoteInput order={cartItems} />
+              <VoucherListSheet />
+            </div>
             {getCartItems()?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex flex-col items-start">
@@ -158,16 +163,18 @@ export function CartContent() {
                   {t('menu.noSelectedTable')}
                 </span>
               )}
-              <div className="flex justify-between items-center pt-3 font-medium border-t">
-                <div className='flex gap-2 items-center'>
-                  <span className="text-sm font-semibold">{t('menu.subTotal')}:</span>
-                  <span className="text-2xl font-bold text-primary">
+              <div className="flex flex-col gap-1 justify-between items-start pt-3 font-medium border-t">
+                <div className='flex gap-2 justify-between items-center w-full'>
+                  <span className="text-sm font-semibold xl:text-lg">{t('menu.subTotal')}</span>
+                  <span className="text-xl font-extrabold xl:text-3xl text-primary">
                     {`${formatCurrency(totalAfterDiscount)}`}
                   </span>
                 </div>
-                <CreateOrderDialog
-                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-                />
+                <div className='w-full'>
+                  <CreateOrderDialog
+                    disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                  />
+                </div>
               </div>
             </div>
           </div>

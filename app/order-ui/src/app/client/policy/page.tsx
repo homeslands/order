@@ -1,6 +1,8 @@
 import { useStaticPage } from '@/hooks'
+import { useTranslation } from 'react-i18next'
 
 export default function PolicyPage() {
+  const { t: tCommon } = useTranslation('common')
   const { data: staticPage, isLoading } = useStaticPage('POLICY')
 
   if (isLoading) {
@@ -15,7 +17,7 @@ export default function PolicyPage() {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-lg font-medium">
-          No content available.
+          {tCommon('common.noData')}
         </p>
       </div>
     )

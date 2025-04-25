@@ -30,6 +30,7 @@ import { User } from 'src/user/user.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { JobRecoveryService } from './job.recovery';
+import { JobScheduler } from './job.scheduler';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -38,6 +39,7 @@ describe('JobController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [JobController],
       providers: [
+        JobScheduler,
         TransactionManagerService,
         JobService,
         OrderUtils,

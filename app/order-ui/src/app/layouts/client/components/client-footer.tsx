@@ -48,8 +48,8 @@ export function ClientFooter() {
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ABOUT)}> {t('footer.aboutMe')}</span>
             </div>
             <div className="flex flex-col gap-2 justify-center items-start w-1/2">
-              <span className="font-bold">{t('footer.policy')}</span>
-              <span className="text-sm cursor-pointer" onClick={() => navigator(ROUTE.POLICY)}>{t('footer.securityTerm')}</span>
+              <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.POLICY)}>{t('footer.policy')}</span>
+              <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.SECURITY)}>{t('footer.securityTerm')}</span>
             </div>
           </div>
         </div>

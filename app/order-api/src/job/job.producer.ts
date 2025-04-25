@@ -18,6 +18,21 @@ export class JobProducer {
   async createJob(data: CreateJobRequestDto) {
     const job = this.jobRepository.create(data);
     await this.jobRepository.save(job);
-    this.jobQueue.add(data.type, { id: job.id });
+    this.jobQueue.add(
+      data.type,
+      { id: job.id },
+      // {
+      //   removeOnComplete: {
+      //     // age: 1000 * 20, => không dùng được
+      //     // count: 3,
+      //   },
+      //   // removeOnFail: {
+      //   //   age: 1000 * 60 * 60 * 24 * 4,
+      //   //   count: 10,
+      //   // },
+      //   // removeOnComplete: 4,
+      //   // removeOnComplete: true,
+      // },
+    );
   }
 }

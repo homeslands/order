@@ -39,6 +39,7 @@ export interface ICartItem {
   } | null
   note?: string
   approvalBy?: string
+  description?: string
 }
 
 export interface IOrderToUpdate {
@@ -65,6 +66,7 @@ export interface IOrderItem {
   quantity: number
   size: string
   variant: string
+  originalPrice?: number
   price: number
   description: string
   isLimit: boolean
@@ -114,6 +116,7 @@ export interface IOrder extends IBase {
   invoice: IOrderInvoice
   voucher: IVoucher
   isExtend?: boolean
+  description?: string
 }
 
 export interface IOrderItems extends IBase {
@@ -242,6 +245,7 @@ export interface ICreateOrderRequest {
   }[]
   approvalBy: string
   voucher: string | null // voucher slug
+  description?: string
 }
 
 export interface IAddNewOrderItemRequest {
@@ -256,6 +260,7 @@ export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
   voucher?: string | null
+  description?: string
 }
 
 export interface IUpdateOrderItemRequest {
@@ -267,6 +272,10 @@ export interface IUpdateOrderItemRequest {
 }
 export interface IUpdateNoteRequest {
   note: string
+}
+
+export interface IUpdateOrderNoteRequest {
+  description: string
 }
 
 export interface IInitiatePaymentRequest {

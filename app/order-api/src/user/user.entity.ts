@@ -16,11 +16,11 @@ export class User extends Base {
   @Column({ name: 'password_column' })
   password: string;
 
-  @Column({ name: 'first_name_column' })
+  @Column({ name: 'first_name_column', nullable: true })
   @AutoMap()
   firstName: string;
 
-  @Column({ name: 'last_name_column' })
+  @Column({ name: 'last_name_column', nullable: true })
   @AutoMap()
   lastName: string;
 

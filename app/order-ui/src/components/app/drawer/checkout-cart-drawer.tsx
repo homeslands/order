@@ -38,8 +38,9 @@ export default function CheckoutCartDrawer() {
       ? {
         order: 'DESC',
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
         phonenumber: debouncedInputValue,
+        hasPaging: true,
       }
       : null, // Không gọi hook nếu không có số điện thoại
   )
@@ -86,7 +87,7 @@ export default function CheckoutCartDrawer() {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[90%]">
-        <div className="pb-10 mx-4 overflow-y-auto">
+        <div className="overflow-y-auto pb-10 mx-4">
           <DrawerHeader>
             <DrawerTitle>{t('order.orderInformation')}</DrawerTitle>
             <DrawerDescription>{t('menu.orderDescription')}</DrawerDescription>
@@ -107,7 +108,7 @@ export default function CheckoutCartDrawer() {
                   </Button>
                 </div>
                 {cartItems && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex gap-2 items-center">
                     <span className="text-sm font-semibold">
                       {cartItems.ownerFullName}
                     </span>
@@ -120,7 +121,7 @@ export default function CheckoutCartDrawer() {
 
               {/* Dropdown danh sách user */}
               {users.length > 0 && (
-                <div className="absolute z-10 w-full p-2 mt-16 bg-white border rounded-md shadow-lg">
+                <div className="absolute z-10 p-2 mt-16 w-full bg-white rounded-md border shadow-lg">
                   {users.map((user, index) => (
                     <div
                       key={user.slug}
@@ -142,8 +143,8 @@ export default function CheckoutCartDrawer() {
             <div className="flex flex-col gap-4 p-4 mt-5 border-b">
               <div className="flex flex-col gap-2">
                 <Label>{t('order.deliveryMethod')}</Label>
-                <div className="flex flex-row items-center gap-4">
-                  <div className="flex items-center justify-center px-4 py-1 text-xs font-thin rounded-full w-fit bg-primary/15 text-primary">
+                <div className="flex flex-row gap-4 items-center">
+                  <div className="flex justify-center items-center px-4 py-1 text-xs font-thin rounded-full w-fit bg-primary/15 text-primary">
                     {t('order.dineIn')}
                   </div>
                   <div>
@@ -164,7 +165,7 @@ export default function CheckoutCartDrawer() {
                     >
                       <div
                         key={`${item.slug}`}
-                        className="flex flex-row items-center gap-2 rounded-xl"
+                        className="flex flex-row gap-2 items-center rounded-xl"
                       >
                         {/* Hình ảnh sản phẩm */}
                         <img
@@ -172,13 +173,13 @@ export default function CheckoutCartDrawer() {
                           alt={item.name}
                           className="object-cover w-20 h-20 rounded-2xl"
                         />
-                        <div className="flex flex-col flex-1 h-20 gap-2 py-2">
-                          <div className="flex flex-row items-start justify-between h-full">
-                            <div className="flex flex-col justify-between flex-1 h-full min-w-0">
+                        <div className="flex flex-col flex-1 gap-2 py-2 h-20">
+                          <div className="flex flex-row justify-between items-start h-full">
+                            <div className="flex flex-col flex-1 justify-between min-w-0 h-full">
                               <span className="font-bold truncate">
                                 {item.name}
                               </span>
-                              <span className="flex items-center justify-between text-xs font-thin text-muted-foreground">
+                              <span className="flex justify-between items-center text-xs font-thin text-muted-foreground">
                                 {`${formatCurrency(item.price || 0)}`}
                               </span>
                             </div>
@@ -192,7 +193,7 @@ export default function CheckoutCartDrawer() {
                               />
                             </Button>
                           </div>
-                          <div className="flex items-center justify-between w-full text-sm font-medium">
+                          <div className="flex justify-between items-center w-full text-sm font-medium">
                             <span>
                               {t('order.quantity')} {item.quantity}
                             </span>
@@ -250,7 +251,7 @@ export default function CheckoutCartDrawer() {
               <DrawerClose asChild>
                 <Button
                   variant="outline"
-                  className="w-full border border-gray-400 rounded-full"
+                  className="w-full rounded-full border border-gray-400"
                 >
                   {tCommon('common.close')}
                 </Button>
