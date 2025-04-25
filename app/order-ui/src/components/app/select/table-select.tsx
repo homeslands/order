@@ -40,20 +40,20 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
             setSelectedTableId(tableOrder.slug)
         }
     }, [tableOrder])
-    const tableList = [...(tables?.result || [])].sort((a, b) => {
-        if (a.status !== b.status) {
-            // Đảo ngược thứ tự: RESERVED < AVAILABLE
-            return a.status === TableStatus.RESERVED ? -1 : 1
-        }
-        return Number(a.name) - Number(b.name)
-    })
+    // const tableList = [...(tables?.result || [])].sort((a, b) => {
+    //     if (a.status !== b.status) {
+    //         // Đảo ngược thứ tự: RESERVED < AVAILABLE
+    //         return a.status === TableStatus.RESERVED ? -1 : 1
+    //     }
+    //     return Number(a.name) - Number(b.name)
+    // })
 
     if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
         return null
     }
 
     const handleTableSelect = (tableId: string) => {
-        const table = tableList.find((t) => t.slug === tableId)
+        const table = tables?.result?.find((t) => t.slug === tableId)
         if (!table) return
         if (table.status === TableStatus.RESERVED) {
             setSelectedTable(table)
@@ -80,7 +80,7 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
                 <SelectContent>
                     <SelectGroup>
                         <SelectLabel>{t('table.title')}</SelectLabel>
-                        {tableList.map((table) => (
+                        {tables?.result?.map((table) => (
                             <SelectItem key={table.slug} value={table.slug} className={table.status === TableStatus.RESERVED ? 'text-red-400' : ''}>
                                 {`${table.name} - ${t(`table.${table.status}`)}`}
                             </SelectItem>
