@@ -47,12 +47,12 @@ export default function ConfirmUpdateChefOrderStatusDialog({
             queryClient.invalidateQueries({
               queryKey: [QUERYKEY.chefOrders]
             })
-            // showToast(tToast('toast.exportChefOrderSuccess'))
+            showToast(tToast('toast.updateChefOrderStatusSuccess'))
             loadDataToPrinter(data)
           },
         })
         onOpenChange(false)
-        showToast(tToast('toast.updateChefOrderStatusSuccess'))
+
       },
     })
   }
