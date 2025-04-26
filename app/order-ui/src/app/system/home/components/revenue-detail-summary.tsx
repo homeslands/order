@@ -27,8 +27,11 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
     // Tính tổng số đơn hàng
     const totalOrders = revenueData?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
 
+    // calculate totalOrderItem
+    // const totalOrderItem = revenueData?.reduce((sum, item) => sum + (item.totalOrderItem || 0), 0) || 0;
+
     return (
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-6">
             <Card className="text-white shadow-none bg-primary">
                 <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">
@@ -50,6 +53,18 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
                 </CardHeader>
                 <CardContent className='p-3'>
                     <div className="text-xl font-bold">{totalOrders}</div>
+                    {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
+                </CardContent>
+            </Card>
+            <Card className="shadow-none">
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalOrderItem')}
+                    </CardTitle>
+                    <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className='p-3'>
+                    {/* <div className="text-xl font-bold">{totalOrders}</div> */}
                     {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
                 </CardContent>
             </Card>

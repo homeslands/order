@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import moment from 'moment'
 import { Helmet } from 'react-helmet'
 import { SquareMenu } from 'lucide-react'
@@ -12,6 +12,7 @@ import { IOrder, OrderStatus } from '@/types'
 import OrderFilter from './DataTable/actions/order-filter'
 import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 import { showToast } from '@/utils'
+import { notificationSound } from '@/assets/sound'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -25,6 +26,8 @@ export default function OrderHistoryPage() {
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [previousOrderCount, setPreviousOrderCount] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -36,6 +39,19 @@ export default function OrderHistoryPage() {
     endDate: endDate,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
+
+  // Check for new orders and play sound
+  useEffect(() => {
+    const currentOrderCount = data?.result?.items?.length || 0
+    if (currentOrderCount > previousOrderCount && previousOrderCount > 0) {
+      // Play notification sound
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0 // Reset the audio to start
+        audioRef.current.play()
+      }
+    }
+    setPreviousOrderCount(currentOrderCount)
+  }, [data?.result?.items, previousOrderCount])
 
   // Reset page when filters change
   useEffect(() => {
@@ -52,14 +68,14 @@ export default function OrderHistoryPage() {
   }
 
   // polling useOrders every 5 seconds, but only when dialog is not open
-  // useEffect(() => {
-  //   if (isDialogOpen) return // Skip polling when dialog is open
+  useEffect(() => {
+    if (isSelected) return // Skip polling when dialog is open
 
-  //   const interval = setInterval(() => {
-  //     refetch()
-  //   }, 5000)
-  //   return () => clearInterval(interval)
-  // }, [refetch, isDialogOpen])
+    const interval = setInterval(() => {
+      refetch()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [refetch, isSelected])
 
   const filterConfig = [
     {
@@ -97,6 +113,7 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="flex flex-col">
+      <audio ref={audioRef} src={notificationSound} preload="auto" />
       <Helmet>
         <meta charSet='utf-8' />
         <title>

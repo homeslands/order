@@ -119,25 +119,25 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
+        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none touch-manipulation select-none pointer-events-auto">
           <ShoppingCart className='icon' />
           {t('menu.addToCart')}
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%]">
+      <DrawerContent className="h-[90%] touch-manipulation select-none pointer-events-auto">
         <DrawerHeader>
           <DrawerTitle>{t('menu.confirmProduct')}</DrawerTitle>
           <DrawerDescription>{t('menu.confirmProductDescription')}</DrawerDescription>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
+        <ScrollArea className="flex-1 max-h-[calc(100%-8rem)] touch-manipulation select-none pointer-events-auto">
           <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
                   src={`${publicFileURL}/${product.product.image}`}
                   alt={product.product.name}
-                  className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
+                  className="object-cover w-full h-48 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
                 />
               ) : (
                 <div className="w-full rounded-md bg-muted/50" />
@@ -164,14 +164,14 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
                       setSelectedVariant(variant || null);
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="pointer-events-auto select-none touch-manipulation">
                       <SelectValue placeholder={t('menu.selectSize')} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="pointer-events-auto select-none touch-manipulation">
                       {product.product.variants
                         .sort((a, b) => a.price - b.price)
                         .map((variant) => (
-                          <SelectItem key={variant.slug} value={variant.slug}>
+                          <SelectItem key={variant.slug} value={variant.slug} className="pointer-events-auto select-none touch-manipulation">
                             {variant.size.name.toUpperCase()} -{' '}
                             {product.promotion && product?.promotion?.value > 0 ? formatCurrency((variant.price) * (1 - (product?.promotion?.value) / 100)) : formatCurrency(variant.price)}
                           </SelectItem>
@@ -187,13 +187,14 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={t('menu.enterNote')}
+                  className="pointer-events-auto select-none touch-manipulation"
                 />
               </div>
               <div className='grid grid-cols-2 gap-2'>
                 <DrawerClose asChild>
-                  <Button variant="outline">{tCommon('common.cancel')}</Button>
+                  <Button variant="outline" className="pointer-events-auto select-none touch-manipulation">{tCommon('common.cancel')}</Button>
                 </DrawerClose>
-                <Button onClick={isUpdateOrder ? handleAddToCurrentOrder : handleAddToCart} disabled={!selectedVariant}>
+                <Button onClick={isUpdateOrder ? handleAddToCurrentOrder : handleAddToCart} disabled={!selectedVariant} className="pointer-events-auto select-none touch-manipulation">
                   {t('menu.addToCart')}
                 </Button>
               </div>

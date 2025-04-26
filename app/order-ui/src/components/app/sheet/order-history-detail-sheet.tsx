@@ -104,12 +104,19 @@ export default function OrderHistoryDetailSheet({
                         </span>
                       </p>
                     </div>
-                    {orderDetail?.description && (
+                    {orderDetail?.description ? (
                       <div className="flex items-center w-full text-sm">
                         <h3 className="w-20 text-sm font-semibold">
                           {t('order.note')}
                         </h3>
                         <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{orderDetail?.description}</p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center w-full text-sm">
+                        <h3 className="w-20 text-sm font-semibold">
+                          {t('order.note')}
+                        </h3>
+                        <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{t('order.noNote')}</p>
                       </div>
                     )}
                   </div>
@@ -206,6 +213,7 @@ export default function OrderHistoryDetailSheet({
                         <TableHead className="">{t('order.product')}</TableHead>
                         <TableHead>{t('order.size')}</TableHead>
                         <TableHead>{t('order.quantity')}</TableHead>
+                        <TableHead>{t('order.note')}</TableHead>
                         <TableHead className="text-start">
                           {t('order.unitPrice')}
                         </TableHead>
@@ -225,8 +233,9 @@ export default function OrderHistoryDetailSheet({
                             />
                             {item.variant && item.variant.product.name}
                           </TableCell>
-                          <TableCell>{item.variant && item.variant.size.name}</TableCell>
+                          <TableCell>{item.variant && item.variant.size.name.toUpperCase()}</TableCell>
                           <TableCell>{item.quantity}</TableCell>
+                          <TableCell>{item.note || t("order.noNote")}</TableCell>
                           <TableCell className="text-right">
                             {item.promotion && item.promotion.value > 0 ? (
                               <div className="flex gap-1 justify-start items-center">

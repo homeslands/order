@@ -1,0 +1,1 @@
+export const notificationSound = '/notification.mp3'
