@@ -55,7 +55,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
 
   if (isLoading || isLoadingCatalog) {
     return (
-      <div className={`grid grid-cols-1 gap-3 lg:grid-cols-3`}>
+      <div className={`grid grid-cols-1 gap-3 lg:grid-cols-4`}>
         {[...Array(8)].map((_, index) => (
           <SkeletonMenuList key={index} />
         ))}
@@ -79,7 +79,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
         group.items.length > 0 &&
         <div className='flex flex-col gap-4 mt-4'>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className={`grid gap-2 xl:gap-4 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 xl:grid-cols-3 pr-8 xl:pr-0'}`} key={index}>
+          <div className={`grid gap-2 xl:gap-4 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-3 xl:grid-cols-4 pr-9 xl:pr-0'}`} key={index}>
             {group.items.map((item) => (
               <div
                 key={item.slug}

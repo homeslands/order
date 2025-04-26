@@ -54,6 +54,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_ORDER_HISTORY,
     icon: Archive,
     permission: Permission.ORDER_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.tableManagement',

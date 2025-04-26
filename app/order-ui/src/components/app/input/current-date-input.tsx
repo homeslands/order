@@ -21,7 +21,7 @@ export const CurrentDateInput = ({ menu }: CurrentDateInputProps) => {
   return (
     <div className={`flex gap-2 w-full ${isMobile ? 'flex-col justify-start items-start' : 'justify-between items-center'}`}>
 
-      <div className="flex w-40 xl:w-60 items-center justify-start gap-1 rounded-sm py-2 text-[14px] text-muted-foreground">
+      <div className="flex w-56 items-center justify-start gap-1 rounded-sm py-2 text-[14px] text-muted-foreground">
         <Calendar className='w-3 h-3 sm:w-4 sm:h-4' />
         <span>
           {dayOfWeek} {currentDate}

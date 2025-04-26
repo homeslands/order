@@ -41,7 +41,7 @@ export function CartContent() {
       </div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="overflow-y-auto min-h-[calc(75vh-12rem)] flex-1 scrollbar-hidden">
+      <ScrollArea className="overflow-y-auto min-h-[calc(75vh-14rem)] flex-1 scrollbar-hidden">
         {/* Order type selection */}
         <div className="flex z-10 flex-col gap-2 px-4 py-3 border-b backdrop-blur-sm bg-background/95">
           <OrderTypeSelect />
@@ -166,7 +166,7 @@ export function CartContent() {
               <div className="flex flex-col gap-1 justify-between items-start pt-3 font-medium border-t">
                 <div className='flex gap-2 justify-between items-center w-full'>
                   <span className="text-sm font-semibold xl:text-lg">{t('menu.subTotal')}</span>
-                  <span className="text-xl font-extrabold xl:text-3xl text-primary">
+                  <span className="text-xl font-extrabold xl:text-2xl text-primary">
                     {`${formatCurrency(totalAfterDiscount)}`}
                   </span>
                 </div>

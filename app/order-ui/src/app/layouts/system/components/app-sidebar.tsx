@@ -68,7 +68,7 @@ export function AppSidebar() {
 
       if (route.path === ROUTE.STAFF_ORDER_MANAGEMENT) {
         notificationCount = orderNeedsDelivered;
-      } else if (route.path === ROUTE.STAFF_CHEF_ORDER) {
+      } else if (route.path === ROUTE.STAFF_CHEF_ORDER || route.path === ROUTE.STAFF_ORDER_HISTORY) {
         notificationCount = orderNeedsProcessed;
       }
 
