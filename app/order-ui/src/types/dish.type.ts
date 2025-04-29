@@ -40,6 +40,7 @@ export interface ICartItem {
   note?: string
   approvalBy?: string
   description?: string
+  paymentMethod?: string
 }
 
 export interface IOrderToUpdate {

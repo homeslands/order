@@ -93,8 +93,8 @@ export default function ChefOrderItemList({
             {t('chefOrder.completed')} ({completed})
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={ChefOrderItemStatus.PENDING} className='h-[calc(100vh-13em)]'>
-          <ScrollAreaViewport className="h-[calc(100vh-13em)]">
+        <TabsContent value={ChefOrderItemStatus.PENDING} className='h-[calc(100vh-11em)]'>
+          <ScrollAreaViewport className="h-[calc(100vh-12em)]">
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <div key={item.slug} className="grid gap-4 items-center w-full">
@@ -108,31 +108,35 @@ export default function ChefOrderItemList({
             )}
           </ScrollAreaViewport>
         </TabsContent>
-        <TabsContent value={ChefOrderItemStatus.IN_PROGRESS} className='h-[calc(100vh-13em)]'>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail onSuccess={onSuccess} chefOrderItem={item} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} />
-              </div>
-            ))
-          ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
+        <TabsContent value={ChefOrderItemStatus.IN_PROGRESS} className='h-[calc(100vh-11em)]'>
+          <ScrollAreaViewport className="h-[calc(100vh-12em)]">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <ChefOrderItemDetail onSuccess={onSuccess} chefOrderItem={item} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} />
+                </div>
+              ))
+            ) : (
+              <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </ScrollAreaViewport>
         </TabsContent>
-        <TabsContent value={ChefOrderItemStatus.COMPLETED} className='h-[calc(100vh-13em)]'>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div key={item.slug} className="grid gap-4 items-center w-full">
-                <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
-              </div>
-            ))
-          ) : (
-            <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
-              {tCommon('common.noData')}
-            </p>
-          )}
+        <TabsContent value={ChefOrderItemStatus.COMPLETED} className='h-[calc(100vh-11em)]'>
+          <ScrollAreaViewport className="h-[calc(100vh-12em)]">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div key={item.slug} className="grid gap-4 items-center w-full">
+                  <ChefOrderItemDetail onSuccess={onSuccess} chefOrderStatus={chefOrderStatus || ChefOrderStatus.PENDING} chefOrderItem={item} />
+                </div>
+              ))
+            ) : (
+              <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
+                {tCommon('common.noData')}
+              </p>
+            )}
+          </ScrollAreaViewport>
         </TabsContent>
       </Tabs>
     </div >

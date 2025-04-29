@@ -162,6 +162,11 @@ export function AppSidebar() {
                         if (state === 'collapsed') {
                           e.preventDefault()
                           toggleSidebar()
+                        } else {
+                          // Collapse sidebar after navigation on mobile
+                          if (window.innerWidth < 768) {
+                            toggleSidebar()
+                          }
                         }
                       }}
                     >

@@ -390,7 +390,7 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <div
       className={cn(
-        'flex min-w-[6rem] items-center space-x-2 text-[0.7rem]',
+        'flex min-w-[3rem] items-center space-x-2 text-[0.7rem]',
         className,
       )}
     >

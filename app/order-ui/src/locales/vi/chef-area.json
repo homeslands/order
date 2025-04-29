@@ -27,7 +27,7 @@
   },
   "chefOrder": {
     "title": "Khu vực bếp",
-    "referenceNumber": "Mã tham chiếu",
+    "referenceNumber": "Mã đơn",
     "createdAt": "Ngày tạo",
     "productName": "Tên món",
     "quantity": "Số lượng",

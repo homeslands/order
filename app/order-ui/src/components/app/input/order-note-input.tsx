@@ -26,7 +26,7 @@ export default function OrderNoteInput({ order }: OrderNoteInputProps) {
         </span> */}
         <Textarea
           defaultValue={order?.note || ''}
-          className='shadow-none'
+          className='text-xs shadow-none sm:text-sm'
           placeholder={t('order.enterOrderNote')}
           onChange={handleNoteChange}
         />

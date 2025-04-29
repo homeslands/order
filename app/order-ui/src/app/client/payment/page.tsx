@@ -153,7 +153,12 @@ export function ClientPaymentPage() {
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.customerName')}
                 </h3>
-                <p className="text-sm font-semibold">{`${order?.result.owner.lastName} ${order?.result.owner.firstName}`}</p>
+                <p className="text-sm font-semibold">
+                  {order?.result?.owner?.lastName || order?.result?.owner?.firstName
+                    ? `${order.result.owner.lastName || ''} ${order.result.owner.firstName || ''}`.trim()
+                    : order?.result?.owner?.phonenumber || 'Không có tên'}
+                </p>
+
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
