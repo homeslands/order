@@ -128,3 +128,5 @@ export { default as ConfirmCompleteChefOrderDialog } from './confirm-complete-ch
 export { default as ShowInvoiceDialog } from './show-invoice-dialog'
 
 export { default as ConfirmLeavingRoleDetailPageDialog } from './confirm-leaving-role-detail-page'
+
+export { default as ChooseTableDialog } from './choose-table-dialog'

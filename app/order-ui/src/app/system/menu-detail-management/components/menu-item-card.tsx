@@ -45,9 +45,10 @@ export function MenuItemCard({ menuItem, isTemplate, onSuccess }: MenuItemCardPr
       />
 
       <div className='flex flex-col w-full'>
-        <span className="flex justify-start w-full text-xl font-bold overflow-ellipsis whitespace-nowrap">
+        <span className="flex flex-wrap justify-start w-full text-xl font-bold break-words">
           {menuItem.product.name}
         </span>
+
 
         <p className="flex justify-start w-full text-sm text-muted-foreground h-[80px] line-clamp-3 overflow-hidden text-ellipsis">
           {menuItem.product.description || t('menu.noDescription')}

@@ -1,4 +1,5 @@
 import _ from 'lodash'
+// import Joyride from 'react-joyride';
 import { CircleAlert, Info, ShoppingCartIcon, Trash2 } from 'lucide-react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -20,10 +21,38 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeEnum } from '@/types'
 import { publicFileURL } from '@/constants'
 import { OrderNoteInput } from '@/components/app/input'
+import { useEffect } from 'react';
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tHelmet } = useTranslation('helmet')
+  // Bên trong component
+  // const [runJoyride, setRunJoyride] = useState(false)
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    const timer = setTimeout(() => {
+      // setRunJoyride(true)
+    }, 300) // delay nhẹ để scroll xong rồi mới chạy joyride
+
+    return () => clearTimeout(timer)
+  }, [])
+  // const steps = [
+  //   {
+  //     target: '.joyride-step-1',
+  //     content: 'Hãy chọn hình thức đặt hàng trước nhé!',
+  //     disableBeacon: true,
+  //   },
+  //   {
+  //     target: '.joyride-step-2',
+  //     content: 'Đừng quên chọn bàn nếu bạn đang dùng tại quán!',
+  //   },
+  //   {
+  //     target: '.joyride-step-3',
+  //     content: 'Sau khi kiểm tra giỏ hàng, hãy nhấn vào đây để đặt!',
+  //   },
+  // ];
+
   const { getCartItems } = useCartItemStore()
   const cartItems = getCartItems()
 
@@ -67,11 +96,46 @@ export default function ClientCartPage() {
               {t('order.selectTableNote')}
             </span>
           </div>
-          <div className='flex gap-1'>
-            <OrderTypeSelect />
-            <TableInCartSelect />
-            <DeleteAllCartDialog />
+          <div className='grid grid-cols-1 gap-1 sm:grid-cols-2'>
+            <div className='joyride-step-1'>
+              <OrderTypeSelect />
+            </div>
+            <div className='grid grid-cols-2 gap-1 sm:grid-cols-5'>
+              <div className='sm:col-span-4 joyride-step-2'>
+                <TableInCartSelect />
+              </div>
+              <DeleteAllCartDialog />
+              {/* <Joyride
+                run={runJoyride}
+                steps={steps}
+                continuous={true}
+                showProgress={true}
+                showSkipButton={true}
+                disableScrolling={true}
+                styles={{
+                  options: {
+                    zIndex: 10000,
+                    primaryColor: '#f79e22',  // Nút chính (ví dụ: xanh lá)
+                    textColor: '#000000',
+                    backgroundColor: '#ffffff',
+                    arrowColor: '#ffffff',
+                  },
+                  tooltip: {
+                    borderRadius: '12px',
+                    padding: '16px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  },
+                  buttonNext: {
+                    backgroundColor: '#f79e22',
+                  },
+                  buttonBack: {
+                    color: '#64748b',
+                  },
+                }}
+              /> */}
+            </div>
           </div>
+
           {/* Table list order items */}
           <div className="my-4">
             <div className="grid grid-cols-8 px-4 py-3 mb-4 text-sm font-thin rounded-md bg-muted-foreground/15">

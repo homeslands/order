@@ -20,11 +20,12 @@ import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
+  onSuccess?: () => void
   disabled?: boolean | undefined
   onSuccessfulOrder?: () => void
 }
 
-export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlaceOrderDialogProps) {
+export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSuccess }: IPlaceOrderDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
@@ -73,6 +74,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
           userInfo?.role.name === Role.CUSTOMER
             ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
             : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
+        onSuccess?.()
         navigate(orderPath)
         setIsOpen(false)
         onSuccessfulOrder?.()

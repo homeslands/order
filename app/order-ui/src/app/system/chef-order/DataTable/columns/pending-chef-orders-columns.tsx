@@ -70,7 +70,9 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
           <>
             {chefOrder.status === ChefOrderStatus.PENDING ? (
               <div className='min-w-24' onClick={(e) => e.stopPropagation()}>
-                <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
+                <ConfirmUpdateChefOrderStatusDialog onSuccess={() => {
+                  handleExportChefOrder(chefOrder.slug)
+                }} chefOrder={chefOrder} />
               </div>
             ) : (
               <div className="pl-3 min-w-28">

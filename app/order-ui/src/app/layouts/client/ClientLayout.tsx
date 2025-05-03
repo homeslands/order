@@ -34,6 +34,7 @@ export default function ClientLayout() {
       {/* Main content */}
       <main className={cn('flex-grow', isMobile ? 'pb-16' : '')}>
         <ChooseBranchDialog />
+        {/* <ChooseTableDialog /> */}
         <Outlet />
         {isDownloading && (
           <DownloadProgress progress={progress} fileName={fileName} />

@@ -231,7 +231,7 @@
     "cooked": "Đã làm xong",
     "delivered": "Đã giao",
     "close": "Đóng",
-    "orderReferenceNumber": "Mã tham chiếu",
+    "orderReferenceNumber": "Mã đơn",
     "updateNote": "Cập nhật",
     "updateOrder": "Cập nhật đơn hàng"
   },
@@ -243,7 +243,7 @@
     "title": "Phương thức thanh toán",
     "cash": "Thanh toán bằng tiền mặt",
     "status": "Trạng thái",
-    "bankTransfer": "Thanh toán bằng chuyển khoản ngân hàng",
+    "bankTransfer": "Chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
     "comingSoon": "Sắp ra mắt",
     "bankTransferProcessing": "Chuyển khoản ngân hàng có thể mất đến 24 giờ để xử lý.",

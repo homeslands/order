@@ -205,6 +205,9 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                     </DrawerClose>
                     <div className='flex justify-end w-fit'>
                       <CreateOrderDialog
+                        onSuccess={() => {
+                          drawerCloseRef.current?.click();
+                        }}
                         disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
                       />
                     </div>

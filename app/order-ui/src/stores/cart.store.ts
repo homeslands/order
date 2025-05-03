@@ -70,8 +70,8 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addCartItem: (item: ICartItem) => {
-        const { cartItems } = get()
         const timestamp = moment().valueOf()
+        const { cartItems } = get()
 
         if (!cartItems) {
           const newCart = {
@@ -103,13 +103,12 @@ export const useCartItemStore = create<ICartItemStore>()(
               id: `cart_${cartItems.id}_order_${orderItem.id}`,
             })),
           ]
-          const newCart = {
-            ...cartItems,
-            orderItems: newOrderItems,
-          }
 
           set({
-            cartItems: newCart,
+            cartItems: {
+              ...cartItems,
+              orderItems: newOrderItems,
+            },
             lastModified: timestamp,
           })
         }
@@ -182,11 +181,11 @@ export const useCartItemStore = create<ICartItemStore>()(
         }
       },
 
-      addPaymentMethod: () => {
+      addPaymentMethod: (paymentMethod: string) => {
         const { cartItems } = get()
         if (cartItems) {
           set({
-            cartItems: { ...cartItems },
+            cartItems: { ...cartItems, paymentMethod },
             lastModified: moment().valueOf(),
           })
         }
@@ -260,6 +259,9 @@ export const useCartItemStore = create<ICartItemStore>()(
         cartItems: state.cartItems,
         lastModified: state.lastModified,
       }),
+      // onRehydrateStorage: () => (state) => {
+      //   console.log('Rehydrated state:', state)
+      // },
     },
   ),
 )

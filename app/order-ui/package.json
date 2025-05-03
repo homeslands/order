@@ -66,6 +66,7 @@
     "react-facebook": "^9.0.12",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.55.0",
+    "react-joyride": "^2.9.3",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.30.0",
     "react-select": "^5.10.1",

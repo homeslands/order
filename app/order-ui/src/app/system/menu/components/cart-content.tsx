@@ -16,9 +16,8 @@ import { ShoppingCart } from 'lucide-react'
 export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
-  const { getCartItems, removeCartItem } = useCartItemStore()
-
-  const cartItems = getCartItems()
+  const cartItems = useCartItemStore((state) => state.cartItems)
+  const removeCartItem = useCartItemStore((state) => state.removeCartItem)
 
   const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
   const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
@@ -49,13 +48,13 @@ export function CartContent() {
         </div>
 
         {/* Selected Table */}
-        {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
+        {cartItems?.type === OrderTypeEnum.AT_TABLE && (
           <div className="flex gap-2 items-center px-4 py-3 text-sm border-b bg-muted/50">
-            {getCartItems()?.table ? (
+            {cartItems?.table ? (
               <div className='flex gap-2 items-center'>
                 <p className="text-muted-foreground">{t('menu.selectedTable')}</p>
                 <p className="px-3 py-1 font-medium text-white rounded-full bg-primary">
-                  {t('menu.tableName')} {getCartItems()?.tableName}
+                  {t('menu.tableName')} {cartItems?.tableName}
                 </p>
               </div>
             ) : (
@@ -127,7 +126,7 @@ export function CartContent() {
               <OrderNoteInput order={cartItems} />
               <VoucherListSheet />
             </div>
-            {getCartItems()?.voucher && (
+            {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex flex-col items-start">
                   <div className='flex gap-2 items-center'>

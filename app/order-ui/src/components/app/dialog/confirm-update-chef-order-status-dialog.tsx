@@ -15,24 +15,25 @@ import {
 } from '@/components/ui'
 
 import { ChefOrderStatus, IChefOrders, IUpdateChefOrderStatusRequest } from '@/types'
-import { useExportAutoChefOrderTicket, useUpdateChefOrderStatus } from '@/hooks'
-import { loadDataToPrinter, showToast } from '@/utils'
+import { useUpdateChefOrderStatus } from '@/hooks'
+// import { loadDataToPrinter, showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
 interface IConfirmUpdateChefOrderStatusDialogProps {
+  onSuccess: (slug: string) => void
   chefOrder: IChefOrders | null
 }
 
 export default function ConfirmUpdateChefOrderStatusDialog({
   chefOrder,
+  onSuccess,
 }: IConfirmUpdateChefOrderStatusDialogProps) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
-  const { t: tToast } = useTranslation('toast')
   const [isOpen, onOpenChange] = useState(false)
   const { mutate: updateChefOrderStatus } = useUpdateChefOrderStatus()
-  const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
+  // const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
 
   const handleSubmit = (chefOrder: IChefOrders) => {
     if (!chefOrder) return
@@ -42,15 +43,19 @@ export default function ConfirmUpdateChefOrderStatusDialog({
     }
     updateChefOrderStatus(params, {
       onSuccess: () => {
-        exportAutoChefOrderTicket(chefOrder.slug, {
-          onSuccess: (data: Blob) => {
-            queryClient.invalidateQueries({
-              queryKey: [QUERYKEY.chefOrders]
-            })
-            showToast(tToast('toast.updateChefOrderStatusSuccess'))
-            loadDataToPrinter(data)
-          },
+        queryClient.invalidateQueries({
+          queryKey: [QUERYKEY.chefOrders]
         })
+        onSuccess(chefOrder.slug)
+        // exportAutoChefOrderTicket(chefOrder.slug, {
+        //   onSuccess: (data: Blob) => {
+        //     queryClient.invalidateQueries({
+        //       queryKey: [QUERYKEY.chefOrders]
+        //     })
+        //     showToast(tToast('toast.updateChefOrderStatusSuccess'))
+        //     loadDataToPrinter(data)
+        //   },
+        // })
         onOpenChange(false)
 
       },
