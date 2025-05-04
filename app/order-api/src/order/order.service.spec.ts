@@ -65,6 +65,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { Mutex } from 'async-mutex';
+import { APP_GUARD } from '@nestjs/core';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -108,6 +109,12 @@ describe('OrderService', () => {
         OrderItemUtils,
         PromotionUtils,
         SchedulerRegistry,
+        {
+          provide: APP_GUARD,
+          useValue: {
+            canActivate: jest.fn(() => true),
+          },
+        },
         {
           provide: ConfigService,
           useValue: {

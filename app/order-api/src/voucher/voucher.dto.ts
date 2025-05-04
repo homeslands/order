@@ -44,6 +44,18 @@ export class CreateVoucherDto {
   @AutoMap()
   @Type(() => Date)
   endDate: Date;
+
+  @AutoMap()
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'INVALID_IS_VERIFICATION_IDENTITY' })
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isVerificationIdentity: boolean;
 }
 
 export class UpdateVoucherDto extends CreateVoucherDto {
@@ -142,4 +154,8 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   remainingUsage: number;
+
+  @ApiProperty()
+  @AutoMap()
+  isVerificationIdentity: boolean;
 }

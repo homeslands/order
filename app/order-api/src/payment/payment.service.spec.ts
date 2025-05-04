@@ -18,6 +18,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PdfService } from 'src/pdf/pdf.service';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { APP_GUARD } from '@nestjs/core';
 
 describe('PaymentService', () => {
   let service: PaymentService;
@@ -33,6 +34,12 @@ describe('PaymentService', () => {
         HttpService,
         PdfService,
         SystemConfigService,
+        {
+          provide: APP_GUARD,
+          useValue: {
+            canActivate: jest.fn(() => true),
+          },
+        },
         {
           provide: ConfigService,
           useValue: {

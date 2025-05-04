@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { corsOptions } from './config/cors.config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { otelSDK } from './otel';
+import { sessionConfig } from './config/session.config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -31,6 +32,8 @@ async function bootstrap() {
     // jsonDocumentUrl: 'api/swagger/json',
     jsonDocumentUrl: 'swagger.json',
   });
+
+  app.use(sessionConfig);
 
   logger.log(`Server running on port ${port}`);
   logger.log(`Swagger running at http://localhost:${port}/api/api-docs`);

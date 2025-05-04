@@ -49,6 +49,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class OrderService {
@@ -77,6 +78,15 @@ export class OrderService {
    * @returns {Promise<void>} The deleted order
    */
   async deleteOrder(slug: string): Promise<Order> {
+    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
+  }
+
+  async deleteOrderPublic(slug: string, orders: string[]): Promise<Order> {
+    const context = `${OrderService.name}.${this.deleteOrderPublic.name}`;
+    if (!orders.includes(slug)) {
+      this.logger.warn(`Order ${slug} is not in the list`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
     return await this.orderUtils.deleteOrder(slug); // Delete order immediately
   }
 
@@ -285,18 +295,28 @@ export class OrderService {
       });
     }
 
-    // Get owner
-    const owner = await this.userUtils.getUser({
-      where: { slug: data.owner },
-    });
-
-    // Get cashier
-    const approvalBy = await this.userUtils.getUser({
+    const defaultCustomer = await this.userUtils.getUser({
       where: {
-        slug: data.approvalBy,
+        phonenumber: 'default-customer',
+        role: {
+          name: RoleEnum.Customer,
+        },
       },
     });
 
+    // Get owner
+    let owner = await this.userUtils.getUser({
+      where: { slug: data.owner ?? IsNull() },
+    });
+    if (!owner) owner = defaultCustomer;
+
+    // Get cashier
+    let approvalBy = await this.userUtils.getUser({
+      where: {
+        slug: data.approvalBy ?? IsNull(),
+      },
+    });
+    if (!approvalBy) approvalBy = defaultCustomer;
     const order = this.mapper.map(data, CreateOrderRequestDto, Order);
     Object.assign(order, {
       owner,
@@ -494,6 +514,25 @@ export class OrderService {
       pageSize,
       totalPages,
     } as AppPaginatedResponseDto<OrderResponseDto>;
+  }
+
+  async getAllOrdersBySlugArray(data: string[]): Promise<OrderResponseDto[]> {
+    const orders = await this.orderRepository.find({
+      where: { slug: In(data) },
+      relations: [
+        'owner',
+        'approvalBy',
+        'orderItems.variant.size',
+        'orderItems.variant.product',
+        'payment',
+        'invoice',
+        'table',
+        'orderItems.promotion',
+        'chefOrders',
+      ],
+      order: { createdAt: 'DESC' },
+    });
+    return this.mapper.mapArray(orders, Order, OrderResponseDto);
   }
 
   /**
