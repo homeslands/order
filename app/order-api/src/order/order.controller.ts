@@ -96,7 +96,10 @@ export class OrderController {
     }
     const result = await this.orderService.createOrder(requestData);
     session.orders.push(result.slug);
-    this.logger.log('Session orders from createOrderPublic:', session.orders);
+    this.logger.log(
+      'Session orders from createOrderPublic:',
+      JSON.stringify(session),
+    );
 
     return {
       message: 'Order have been created successfully',
@@ -142,10 +145,11 @@ export class OrderController {
     isArray: true,
   })
   async getAllOrdersBySlugArray(@Session() session: Record<string, any>) {
-    this.logger.log('Get session orders:', session?.orders);
+    this.logger.log('Get session orders:', JSON.stringify(session));
     if (!session.orders) {
       session.orders = [] as string[];
     }
+    this.logger.log('Get session orders after check:', JSON.stringify(session));
     const result = await this.orderService.getAllOrdersBySlugArray(
       session.orders,
     );
