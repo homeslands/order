@@ -50,6 +50,7 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { RoleEnum } from 'src/role/role.enum';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class OrderService {
@@ -57,6 +58,8 @@ export class OrderService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectMapper() private readonly mapper: Mapper,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly orderScheduler: OrderScheduler,
     private readonly transactionManagerService: TransactionManagerService,
@@ -305,16 +308,22 @@ export class OrderService {
     });
 
     // Get owner
-    let owner = await this.userUtils.getUser({
+    // let owner = await this.userUtils.getUser({
+    //   where: { slug: data.owner ?? IsNull() },
+    // });
+    let owner = await this.userRepository.findOne({
       where: { slug: data.owner ?? IsNull() },
     });
     if (!owner) owner = defaultCustomer;
 
     // Get cashier
-    let approvalBy = await this.userUtils.getUser({
-      where: {
-        slug: data.approvalBy ?? IsNull(),
-      },
+    // let approvalBy = await this.userUtils.getUser({
+    //   where: {
+    //     slug: data.approvalBy ?? IsNull(),
+    //   },
+    // });
+    let approvalBy = await this.userRepository.findOne({
+      where: { slug: data.approvalBy ?? IsNull() },
     });
     if (!approvalBy) approvalBy = defaultCustomer;
     const order = this.mapper.map(data, CreateOrderRequestDto, Order);
