@@ -1,4 +1,6 @@
 import session from 'express-session';
+import { RedisStore } from 'connect-redis';
+import { createClient } from 'redis';
 // import MySQLStoreFactory from 'express-mysql-session';
 // import { config as dotenvConfig } from 'dotenv';
 
@@ -25,7 +27,7 @@ import session from 'express-session';
 // const secretSession = process.env.SESSION_SECRET;
 const secretSession =
   'aZUkAaMFmhiXeUSGKpHknndw38YIqKtL+3Gy+/70S5sPKSVrVZSvTYFn7LY/2PTd0R1AI+0gRxGU9mepA23Z6g=+';
-const nodeEnv = process.env.NODE_ENV;
+// const nodeEnv = process.env.NODE_ENV;
 
 // const MySQLStore = MySQLStoreFactory(session);
 // // const sessionStore = new MySQLStore(dataOptions);
@@ -37,14 +39,24 @@ const nodeEnv = process.env.NODE_ENV;
 //   }
 // });
 
+const redisClient = createClient();
+redisClient.connect();
+
+const redisStore = new RedisStore({
+  client: redisClient,
+  prefix: 'sess:',
+});
+
 export const sessionConfig = session({
   secret: secretSession,
   resave: false,
   saveUninitialized: false,
+  store: redisStore,
   // store: sessionStore,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     httpOnly: true,
-    secure: nodeEnv === 'production',
+    // secure: nodeEnv === 'production',
+    secure: false,
   },
 });
