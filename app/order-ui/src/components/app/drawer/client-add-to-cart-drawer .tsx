@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import {
   Button,
@@ -63,7 +63,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
     const cartItem = {
       id: generateCartItemId(),
       slug: product.slug,
-      owner: getUserInfo()?.slug,
+      owner: getUserInfo()?.slug || '',
       type: OrderTypeEnum.AT_TABLE, // Default value
       orderItems: [
         {
@@ -136,9 +136,9 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
   return (
     <Drawer modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-          <ShoppingCart className='icon' />
-          {t('menu.addToCart')}
+        <Button className="flex [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+          <Plus className='icon' />
+          {/* {t('menu.addToCart')} */}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-[90%] drawer-content">

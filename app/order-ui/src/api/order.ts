@@ -37,6 +37,16 @@ export async function getAllOrders(
   return response.data
 }
 
+// public order
+export async function getAllOrdersPublic(): Promise<IApiResponse<IOrder[]>> {
+  const response = await http.get<IApiResponse<IOrder[]>>('/orders/public', {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+  })
+  // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+  return response.data
+}
+
 export async function getOrderBySlug(
   slug: string,
 ): Promise<IApiResponse<IOrder>> {
@@ -63,6 +73,17 @@ export async function initiatePayment(
 ): Promise<IApiResponse<IPayment>> {
   const response = await http.post<IApiResponse<IPayment>>(
     `/payment/initiate`,
+    params,
+  )
+  return response.data
+}
+
+// public payment
+export async function initiatePublicPayment(
+  params: IInitiatePaymentRequest,
+): Promise<IApiResponse<IPayment>> {
+  const response = await http.post<IApiResponse<IPayment>>(
+    `/payment/initiate/public`,
     params,
   )
   return response.data
@@ -118,6 +139,15 @@ export async function getOrderInvoice(
   return response.data
 }
 
+// public order invoice
+export async function getPublicOrderInvoice(order: string): Promise<Blob> {
+  const response = await http.get(`/invoice/specific/public`, {
+    params: { order },
+    responseType: 'blob',
+  })
+  return response.data
+}
+
 export async function exportOrderInvoice(order: string): Promise<Blob> {
   const { setProgress, setFileName, setIsDownloading, reset } =
     useDownloadStore.getState()
@@ -149,6 +179,33 @@ export async function exportOrderInvoice(order: string): Promise<Blob> {
   }
 }
 
+// public order invoice
+export async function exportPublicOrderInvoice(order: string): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+  const currentDate = moment(new Date()).toISOString()
+  setFileName(`Invoice-${currentDate}.pdf`)
+  setIsDownloading(true)
+  try {
+    const response = await http.post(`/invoice/export/public`, { order }, {
+      responseType: 'blob',
+      headers: {
+        Accept: 'application/pdf',
+      },
+      onDownloadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+        )
+        setProgress(percentCompleted)
+      },
+      doNotShowLoading: true,
+    } as AxiosRequestConfig)
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
 //Update order
 export async function addNewOrderItem(
   params: IAddNewOrderItemRequest,
@@ -181,7 +238,8 @@ export async function updateOrderItem(
   data: IUpdateOrderItemRequest,
 ): Promise<IApiResponse<IOrder>> {
   const response = await http.patch<IApiResponse<IOrder>>(
-    `/order-items/${slug}`, data
+    `/order-items/${slug}`,
+    data,
   )
   return response.data
 }
@@ -190,12 +248,42 @@ export async function updateNoteOrderItem(
   data: IUpdateNoteRequest,
 ): Promise<IApiResponse<IOrder>> {
   const response = await http.patch<IApiResponse<IOrder>>(
-    `/order-items/${slug}/note`, data
+    `/order-items/${slug}/note`,
+    data,
   )
   return response.data
 }
 
 export async function deleteOrder(slug: string): Promise<IApiResponse<IOrder>> {
   const response = await http.delete<IApiResponse<IOrder>>(`/orders/${slug}`)
+  return response.data
+}
+
+// order without login
+export async function createOrderWithoutLogin(
+  params: ICreateOrderRequest,
+): Promise<IApiResponse<ICreateOrderResponse>> {
+  const response = await http.post<IApiResponse<ICreateOrderResponse>>(
+    '/orders/public',
+    params,
+  )
+  return response.data
+}
+
+// get all order without login
+export async function getAllOrderWithoutLogin(): Promise<
+  IApiResponse<IOrder[]>
+> {
+  const response = await http.get<IApiResponse<IOrder[]>>(`/orders/public`)
+  return response.data
+}
+
+// delete order without login
+export async function deleteOrderWithoutLogin(
+  slug: string,
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.delete<IApiResponse<IOrder>>(
+    `/orders/${slug}/public`,
+  )
   return response.data
 }

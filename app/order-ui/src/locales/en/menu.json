@@ -213,7 +213,8 @@
     "cooking": "Cooking",
     "cooked": "Cooked",
     "delivered": "Delivered",
-    "updateNote": "Update"
+    "updateNote": "Update",
+    "invoiceNote": "Note: If you cannot download the invoice, please take a screenshot"
   },
   "table": {
     "title": "Table list"

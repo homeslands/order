@@ -7,14 +7,14 @@ import { useTranslation } from 'react-i18next'
 import { CircleX, SquareMenu } from 'lucide-react'
 
 import { Button } from '@/components/ui'
-import { useInitiatePayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, ROUTE } from '@/constants'
+import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
+import { PaymentMethod, Role, ROUTE } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
 import { OrderStatus, OrderTypeEnum } from '@/types'
-import { usePaymentMethodStore } from '@/stores'
+import { usePaymentMethodStore, useUserStore } from '@/stores'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
@@ -22,11 +22,13 @@ import DownloadQrCode from '@/components/app/button/download-qr-code'
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
+  const { userInfo } = useUserStore()
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('order')
   const navigate = useNavigate()
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
+  const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
   const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
@@ -77,29 +79,76 @@ export function ClientPaymentPage() {
   }
 
   const handleConfirmPayment = () => {
+    // console.log('handleConfirmPayment', slug, paymentMethod)
     if (!slug || !paymentMethod) return
     setIsExpired(false)
 
-    if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
-      initiatePayment(
-        { orderSlug: slug, paymentMethod },
-        {
-          onSuccess: (data) => {
-            setPaymentSlug(data.result.slug)
-            setQrCode(data.result.qrCode)
-            setIsPolling(true)
+    if (!userInfo) {
+      if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
+        initiatePublicPayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: (data) => {
+              setPaymentSlug(data.result.slug)
+              setQrCode(data.result.qrCode)
+              setIsPolling(true)
+            },
           },
-        },
-      )
-    } else if (paymentMethod === PaymentMethod.CASH) {
-      initiatePayment(
-        { orderSlug: slug, paymentMethod },
-        {
-          onSuccess: () => {
-            navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+        )
+      } else if (paymentMethod === PaymentMethod.CASH) {
+        initiatePublicPayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: () => {
+              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+            },
           },
-        },
-      )
+        )
+      }
+    } else if (userInfo.role.name === Role.CUSTOMER) {
+      if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
+        initiatePayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: (data) => {
+              setPaymentSlug(data.result.slug)
+              setQrCode(data.result.qrCode)
+              setIsPolling(true)
+            },
+          },
+        )
+      } else if (paymentMethod === PaymentMethod.CASH) {
+        initiatePayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: () => {
+              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+            },
+          },
+        )
+      }
+    } else {
+      if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
+        initiatePayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: (data) => {
+              setPaymentSlug(data.result.slug)
+              setQrCode(data.result.qrCode)
+              setIsPolling(true)
+            },
+          },
+        )
+      } else if (paymentMethod === PaymentMethod.CASH) {
+        initiatePayment(
+          { orderSlug: slug, paymentMethod },
+          {
+            onSuccess: () => {
+              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+            },
+          },
+        )
+      }
     }
   }
 
@@ -144,8 +193,8 @@ export function ClientPaymentPage() {
       <div className="flex flex-col gap-3 mt-5">
         <div className="flex flex-col gap-5 lg:flex-row">
           {/* Customer info */}
-          <div className="w-full lg:w-1/3">
-            <div className="flex flex-col gap-1 px-4 py-2 rounded-md bg-muted-foreground/10">
+          <div className="flex flex-col gap-3 w-full lg:w-1/3">
+            <div className="flex gap-1 px-4 py-2 rounded-md bg-muted-foreground/10">
               <Label className="text-md">{t('paymentMethod.userInfo')}</Label>
             </div>
             <div className="flex flex-col gap-3 p-3 mt-2 rounded border">
@@ -206,6 +255,13 @@ export function ClientPaymentPage() {
                 </div>
               )}
             </div>
+            {userInfo && userInfo.role.name !== Role.CUSTOMER && (
+              <NavLink to={`${ROUTE.CLIENT_UPDATE_ORDER}/${slug}`} className='w-full'>
+                <Button className='w-full'>
+                  {t('order.updateOrder')}
+                </Button>
+              </NavLink>
+            )}
           </div>
           {/* Thông tin đơn hàng */}
           <div className="w-full lg:w-2/3">
@@ -321,11 +377,11 @@ export function ClientPaymentPage() {
             <div className="flex gap-2">
               {paymentSlug ? <DownloadQrCode qrCode={qrCode} slug={slug} /> :
                 <Button
-                  disabled={isPendingInitiatePayment}
+                  disabled={isPendingInitiatePayment || isPendingInitiatePublicPayment}
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >
-                  {isPendingInitiatePayment && <ButtonLoading />}
+                  {isPendingInitiatePayment || isPendingInitiatePublicPayment && <ButtonLoading />}
                   {t('paymentMethod.confirmPayment')}
                 </Button>}
             </div>}

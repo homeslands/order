@@ -49,6 +49,10 @@ export class InvoiceResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  qrcode: string;
+
+  @AutoMap()
+  @ApiProperty()
   tableName: string;
 
   @AutoMap()

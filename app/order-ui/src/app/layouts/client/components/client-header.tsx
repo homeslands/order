@@ -53,6 +53,16 @@ export function ClientHeader() {
               </span>
             </NavLink>
             <NavLink
+              to={ROUTE.CLIENT_ORDERS_PUBLIC}
+              className={({ isActive }) =>
+                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
+              }
+            >
+              <span className="text-sm">
+                {t('header.myOrders')}
+              </span>
+            </NavLink>
+            <NavLink
               to={ROUTE.ABOUT}
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
@@ -87,23 +97,24 @@ export function ClientHeader() {
           {/* Right content */}
           <div className="flex gap-2 justify-end items-center">
             {/* Cart */}
-            <NavLink
-              to={ROUTE.CLIENT_CART}
-              className="flex relative gap-2 items-center"
-            >
-              <Button
-                variant="ghost"
-                className="relative text-muted-foreground hover:bg-primary/10 hover:text-primary"
+            {!isMobile && (
+              <NavLink
+                to={ROUTE.CLIENT_CART}
+                className="flex relative gap-2 items-center"
               >
-                <ShoppingCart />
-                {getCartItems()?.orderItems?.length ? (
-                  <span className="flex absolute top-2 right-2 justify-center items-center w-4 h-4 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
-                    {getCartItems()?.orderItems.length}
-                  </span>
-                ) : null}
-              </Button>
-            </NavLink>
-
+                <Button
+                  variant="ghost"
+                  className="relative text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                >
+                  <ShoppingCart />
+                  {getCartItems()?.orderItems?.length ? (
+                    <span className="flex absolute top-2 right-2 justify-center items-center w-4 h-4 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
+                      {getCartItems()?.orderItems.length}
+                    </span>
+                  ) : null}
+                </Button>
+              </NavLink>
+            )}
             {/* Settings */}
             <SettingsDropdown />
 

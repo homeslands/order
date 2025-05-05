@@ -91,7 +91,7 @@ export default function HomePage() {
         {menuItems.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              className="flex h-[25rem] w-full flex-col items-start gap-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -106,6 +106,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
               <SliderMenu
+                type="highlight"
                 menus={menuItems}
                 isFetching={false}
               />
@@ -132,6 +133,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
               <SliderMenu
+                type="promotion"
                 menus={promotionProducts}
                 isFetching={fechMenupromotion}
               />
@@ -181,7 +183,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} />
+              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} type="new" />
             </motion.div>
           </div>
         )}

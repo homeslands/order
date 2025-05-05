@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { IMenuItem, IProduct } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
-import { Badge, Button } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { ClientAddToCartDialog } from '@/components/app/dialog'
 import { ClientAddToCartDrawer } from '@/components/app/drawer'
@@ -34,115 +34,102 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className={`flex flex-col justify-between bg-white rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out border-muted-foreground/40 min-h-[22rem] dark:bg-transparent hover:shadow-2xl`}
+      className="flex flex-row sm:flex-col justify-between bg-white rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out border-muted-foreground/40 min-h-[8rem] sm:min-h-[22rem] dark:bg-transparent hover:scale-105"
     >
-      <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-        {/* Image Section with Ribbon Discount Tag */}
-        <div className="relative">
+      {/* Image */}
+      <NavLink
+        to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}
+        className="flex flex-row w-full sm:flex-col"
+      >
+        <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-48">
           {item.product.image ? (
             <>
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full h-36 rounded-t-md"
+                className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-48"
               />
-              {/* Discount Ribbon Tag */}
-              {/* <PromotionTag /> */}
-              {item.product.isTopSell && <PromotionTag />}
+              {item.promotion && item.promotion.value > 0 && (
+                <PromotionTag promotion={item.promotion} />
+              )}
             </>
           ) : (
-            <div className="w-full h-36 rounded-t-md bg-muted/60" />
+            <div className="w-full h-full rounded-t-md bg-muted/60" />
           )}
         </div>
-        {/* Content Section */}
-        <div className="flex flex-col justify-between flex-1 p-2 min-h-[8rem]">
-          <div>
-            <h3 className="text-lg font-bold line-clamp-1">
-              {item.product.name}
-            </h3>
-            <p className="text-xs text-gray-500 line-clamp-2">
+
+        {/* Content */}
+        <div className="flex flex-col flex-1 justify-between p-2">
+          <div className="h-auto sm:h-[5rem]">
+            <h3 className="text-sm font-bold sm:text-lg line-clamp-1">{item.product.name}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
               {item.product.description}
             </p>
           </div>
 
-          <div className="flex gap-1 justify-between items-center">
-            <div className="flex flex-col">
-              {item.product.variants.length > 0 ? (
-                <div className="flex flex-col gap-1 justify-start items-start">
-                  <div className='flex flex-row gap-1 items-center'>
-                    {item?.promotion && item?.promotion?.value > 0 ? (
-                      <div className='flex flex-col gap-1 justify-start items-start mt-2'>
-                        <span className="text-sm sm:text-lg text-primary">
-                          {(() => {
-                            const range = getPriceRange(item.product.variants)
-                            if (!range) return formatCurrency(0)
-                            return range.isSinglePrice
-                              ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
-                          })()}
-                        </span>
-                        <div className='flex flex-row gap-3 items-center'>
-                          <span className="text-sm line-through text-muted-foreground/70">
-                            {(() => {
-                              const range = getPriceRange(item.product.variants)
-                              if (!range) return formatCurrency(0)
-                              return range.isSinglePrice
-                                ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
-                            })()}
-                          </span>
-                          {item?.promotion?.value > 0 && (
-                            <Badge className="text-[8px] md:text-xs bg-destructive hover:bg-destructive">
-                              {t('menu.discount')} {item?.promotion?.value}%
-                            </Badge>
-                          )}
-                        </div>
-
-                      </div>) : (
-                      <span className="text-sm font-bold sm:text-lg text-primary">
-                        {(() => {
-                          const range = getPriceRange(item.product.variants)
-                          if (!range) return formatCurrency(0)
-                          return range.isSinglePrice
-                            ? `${formatCurrency(range.min)}`
-                            : `${formatCurrency(range.min)}`
-                        })()}
-                      </span>
-                    )}
-
+          {item.product.variants.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {/* Prices */}
+              <div className="flex flex-col">
+                {item?.promotion?.value > 0 ? (
+                  <div className="flex flex-row gap-2 items-center">
+                    <span className="text-xs line-through text-muted-foreground/70">
+                      {(() => {
+                        const range = getPriceRange(item.product.variants)
+                        if (!range) return formatCurrency(0)
+                        return formatCurrency(range.min)
+                      })()}
+                    </span>
+                    <span className="text-sm font-bold text-primary">
+                      {(() => {
+                        const range = getPriceRange(item.product.variants)
+                        if (!range) return formatCurrency(0)
+                        return formatCurrency(range.min * (1 - item.promotion.value / 100))
+                      })()}
+                    </span>
                   </div>
-                  {item?.product?.isLimit &&
-                    <span className="text-[0.7rem] text-muted-foreground">
-                      {t('menu.amount')}
-                      {item.currentStock}/{item.defaultStock}
-                    </span>}
-                </div>
-              ) : (
-                <span className="text-sm font-bold text-primary">
-                  {t('menu.contactForPrice')}
+                ) : (
+                  <span className="text-sm font-bold text-primary">
+                    {(() => {
+                      const range = getPriceRange(item.product.variants)
+                      if (!range) return formatCurrency(0)
+                      return formatCurrency(range.min)
+                    })()}
+                  </span>
+                )}
+              </div>
+
+              {/* Stock */}
+              {item.product.isLimit && (
+                <span className="text-[0.65rem] text-muted-foreground">
+                  {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                 </span>
               )}
             </div>
-          </div>
+          ) : (
+            <span className="text-sm font-bold text-primary">{t('menu.contactForPrice')}</span>
+          )}
         </div>
       </NavLink>
 
-      {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
-        <div className="flex gap-2 justify-center p-2 w-full">
-          {isMobile ? (
+      {/* Add to Cart / Out of Stock */}
+      <div className="flex justify-end items-end p-2 sm:w-full">
+        {!item.isLocked && (item.currentStock > 0 || !item.product.isLimit) ? (
+          isMobile ? (
             <ClientAddToCartDrawer product={item} />
           ) : (
             <ClientAddToCartDialog product={item} />
-          )}
-        </div>
-      ) : (
-        <div className="flex gap-2 justify-center p-2 w-full">
+          )
+        ) : (
           <Button
-            className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
+            className="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
             disabled
           >
             {t('menu.outOfStock')}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
+
   )
 }

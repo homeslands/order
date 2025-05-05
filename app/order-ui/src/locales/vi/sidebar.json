@@ -41,7 +41,7 @@
     "menu": "Thực đơn",
     "aboutUs": "Về chúng tôi",
     "policy": "Điều khoản",
-    "securityTerm": "Điều khoản bảo mật"
+    "securityTerm": "Chính sách bảo mật"
   },
   "footer": {
     "quickLink": "Liên kết nhanh",
@@ -61,6 +61,9 @@
     "home": "Trang chủ",
     "menu": "Thực đơn",
     "notification": "Thông báo",
-    "profile": "Hồ sơ"
+    "profile": "Hồ sơ",
+    "cart": "Giỏ hàng",
+    "history": "Lịch sử đơn hàng",
+    "order": "Đơn hàng"
   }
 }

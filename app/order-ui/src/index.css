@@ -17,7 +17,7 @@ input[type='number']::-webkit-outer-spin-button {
     box-shadow: 0 0 0px #f79e22;
   }
   50% {
-    transform: scale(1.05);
+    /* transform: scale(1.05); */
     border-color: #f79e22;
     box-shadow: 0 0 12px 3px #f79e22;
   }

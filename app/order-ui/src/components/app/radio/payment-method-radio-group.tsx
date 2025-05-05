@@ -24,13 +24,13 @@ export default function PaymentMethodRadioGroup({
   return (
     <RadioGroup
       defaultValue={defaultValue || PaymentMethod.BANK_TRANSFER}
-      className="min-w-full gap-6"
+      className="gap-6 min-w-full"
       onValueChange={handlePaymentMethodChange}
     >
       {/* <div className="flex items-center space-x-2">
         <RadioGroupItem value="internalWallet" id="r1" />
-        <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-          <Label htmlFor="r1" className="flex items-center gap-1">
+        <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+          <Label htmlFor="r1" className="flex gap-1 items-center">
             <WalletMinimal size={20} />
             {t('paymentMethod.internalWallet')} (coming soon)
           </Label>
@@ -38,18 +38,18 @@ export default function PaymentMethodRadioGroup({
       </div> */}
       <div className="flex items-center space-x-2">
         <RadioGroupItem value={PaymentMethod.BANK_TRANSFER} id="r2" />
-        <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-          <Label htmlFor="r2" className="flex items-center gap-1">
+        <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+          <Label htmlFor="r2" className="flex gap-1 items-center">
             <CreditCard size={20} />
             {t('paymentMethod.bankTransfer')}
           </Label>
         </div>
       </div>
-      {userInfo?.role.name !== Role.CUSTOMER && (
+      {userInfo && userInfo.role.name !== Role.CUSTOMER && (
         <div className="flex items-center space-x-2">
           <RadioGroupItem value={PaymentMethod.CASH} id="r3" />
-          <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-            <Label htmlFor="r3" className="flex items-center gap-1">
+          <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+            <Label htmlFor="r3" className="flex gap-1 items-center">
               <Coins size={20} />
               {t('paymentMethod.cash')}
             </Label>
