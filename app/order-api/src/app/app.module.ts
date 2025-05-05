@@ -62,6 +62,7 @@ import { ChefOrderModule } from 'src/chef-order/chef-order.module';
 import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module';
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobModule } from 'src/job/job.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -94,6 +95,14 @@ import { JobModule } from 'src/job/job.module';
     EventEmitterModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 100000,
+        },
+      ],
     }),
     AuthModule,
     FileModule,
@@ -155,6 +164,10 @@ import { JobModule } from 'src/job/job.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

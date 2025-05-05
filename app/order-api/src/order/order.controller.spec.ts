@@ -21,7 +21,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import ProductValidation from 'src/product/product.validation';
 import { ProductException } from 'src/product/product.exception';
 import { Payment } from 'src/payment/payment.entity';
-import { APP_GUARD } from '@nestjs/core';
 
 describe('SizeController', () => {
   let controller: OrderController;
@@ -33,12 +32,6 @@ describe('SizeController', () => {
       providers: [
         OrderService,
         SystemConfigService,
-        {
-          provide: APP_GUARD,
-          useValue: {
-            canActivate: jest.fn(() => true),
-          },
-        },
         {
           provide: OrderService,
           useValue: {

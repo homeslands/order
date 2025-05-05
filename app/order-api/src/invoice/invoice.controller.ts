@@ -24,7 +24,7 @@ import {
 } from './invoice.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('invoice')
 @ApiTags('Invoice')
@@ -32,7 +32,6 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
-  @SkipThrottle()
   @Get('specific')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'order', required: false })
@@ -81,7 +80,6 @@ export class InvoiceController {
     } as AppResponseDto<InvoiceResponseDto>;
   }
 
-  @SkipThrottle()
   @Post('export')
   @ApiOperation({ summary: 'Export invoice' })
   @HttpCode(HttpStatus.OK)

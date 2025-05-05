@@ -26,7 +26,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Payment')
 @ApiBearerAuth()
@@ -34,7 +34,6 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @SkipThrottle()
   @Get('specific')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Initiate payment' })
@@ -62,7 +61,6 @@ export class PaymentController {
     } as AppResponseDto<PaymentResponseDto>;
   }
 
-  @SkipThrottle()
   @Post('initiate')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Initiate payment' })
@@ -109,7 +107,6 @@ export class PaymentController {
     } as AppResponseDto<PaymentResponseDto>;
   }
 
-  @SkipThrottle()
   @Post('callback/status')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -127,7 +124,6 @@ export class PaymentController {
     return result;
   }
 
-  @SkipThrottle()
   @Post(':slug/export')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export payment' })

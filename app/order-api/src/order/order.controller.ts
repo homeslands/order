@@ -29,7 +29,7 @@ import {
 } from './order.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -37,7 +37,6 @@ import { SkipThrottle, Throttle } from '@nestjs/throttler';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @SkipThrottle()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
@@ -65,7 +64,7 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post('public')
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -99,7 +98,6 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
-  @SkipThrottle()
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all orders' })
@@ -124,7 +122,6 @@ export class OrderController {
   }
 
   // for not login user
-  @SkipThrottle()
   @Get('public')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -151,7 +148,6 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto[]>;
   }
 
-  @SkipThrottle()
   @Get(':slug')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -178,7 +174,6 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
-  @SkipThrottle()
   @Patch(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update order' })
@@ -201,7 +196,6 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
-  @SkipThrottle()
   @Delete(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete order' })
@@ -215,7 +209,6 @@ export class OrderController {
     } as AppResponseDto<void>;
   }
 
-  @SkipThrottle()
   @Delete(':slug/public')
   @Public()
   @HttpCode(HttpStatus.OK)

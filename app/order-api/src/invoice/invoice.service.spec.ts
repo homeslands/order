@@ -9,7 +9,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Order } from 'src/order/order.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
-import { APP_GUARD } from '@nestjs/core';
 
 describe('InvoiceService', () => {
   let service: InvoiceService;
@@ -20,12 +19,6 @@ describe('InvoiceService', () => {
         InvoiceService,
         PdfService,
         QrCodeService,
-        {
-          provide: APP_GUARD,
-          useValue: {
-            canActivate: jest.fn(() => true),
-          },
-        },
         {
           provide: getRepositoryToken(Invoice),
           useFactory: repositoryMockFactory,

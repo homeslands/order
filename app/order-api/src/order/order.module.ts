@@ -45,8 +45,6 @@ import { NotificationModule } from 'src/notification/notification.module';
 import { Mutex } from 'async-mutex';
 import { Payment } from 'src/payment/payment.entity';
 import { JobModule } from 'src/job/job.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -69,14 +67,6 @@ import { APP_GUARD } from '@nestjs/core';
       ChefOrderItem,
       Payment,
     ]),
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          ttl: 60000,
-          limit: 10,
-        },
-      ],
-    }),
     RobotConnectorModule,
     DbModule,
     BranchModule,
@@ -96,10 +86,6 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   controllers: [OrderController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
     OrderService,
     OrderProfile,
     OrderSubscriber,

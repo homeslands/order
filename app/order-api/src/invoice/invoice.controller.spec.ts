@@ -10,7 +10,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Order } from 'src/order/order.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
-import { APP_GUARD } from '@nestjs/core';
 
 describe('InvoiceController', () => {
   let controller: InvoiceController;
@@ -22,12 +21,6 @@ describe('InvoiceController', () => {
         InvoiceService,
         PdfService,
         QrCodeService,
-        {
-          provide: APP_GUARD,
-          useValue: {
-            canActivate: jest.fn(() => true),
-          },
-        },
         {
           provide: getRepositoryToken(Order),
           useFactory: repositoryMockFactory,
