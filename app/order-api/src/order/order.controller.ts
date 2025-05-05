@@ -5,6 +5,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
+  Logger,
   Param,
   Patch,
   Post,
@@ -30,12 +32,16 @@ import {
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @ApiTags('Order')
 @Controller('orders')
 @ApiBearerAuth()
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -90,6 +96,8 @@ export class OrderController {
     }
     const result = await this.orderService.createOrder(requestData);
     session.orders.push(result.slug);
+    this.logger.log('Session orders from createOrderPublic:', session.orders);
+
     return {
       message: 'Order have been created successfully',
       statusCode: HttpStatus.CREATED,
@@ -134,6 +142,7 @@ export class OrderController {
     isArray: true,
   })
   async getAllOrdersBySlugArray(@Session() session: Record<string, any>) {
+    this.logger.log('Get session orders:', session?.orders);
     if (!session.orders) {
       session.orders = [] as string[];
     }
