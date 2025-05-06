@@ -69,6 +69,9 @@ services:
       # Otel lgtm
       OTEL_LGTM_URL: ${OTEL_LGTM_URL}
 
+      # Session
+      SESSION_SECRET: ${SESSION_SECRET}
+
       TZ: Asia/Ho_Chi_Minh
     ports:
       - 8080:8080

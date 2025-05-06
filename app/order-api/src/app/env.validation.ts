@@ -70,6 +70,9 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   MAIL_PASSWORD: string;
+
+  @IsNotEmpty()
+  SESSION_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {
