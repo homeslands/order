@@ -7,7 +7,7 @@ import {
   SelectBranchDropdown,
   SettingsDropdown,
 } from '@/components/app/dropdown'
-import { useCartItemStore } from '@/stores'
+import { useAuthStore, useCartItemStore } from '@/stores'
 import { Logo } from '@/assets/images'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
@@ -17,6 +17,7 @@ import { useIsMobile } from '@/hooks'
 export function ClientHeader() {
   const { t } = useTranslation('sidebar')
   const isMobile = useIsMobile()
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const { getCartItems } = useCartItemStore()
   return (
     <header className={`sticky top-0 z-30 w-full bg-white shadow-md text-muted-foreground dark:bg-black`}>
@@ -52,16 +53,18 @@ export function ClientHeader() {
                 {t('header.menu')}
               </span>
             </NavLink>
-            <NavLink
-              to={ROUTE.CLIENT_ORDERS_PUBLIC}
-              className={({ isActive }) =>
-                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
-              }
-            >
-              <span className="text-sm">
-                {t('header.myOrders')}
-              </span>
-            </NavLink>
+            {!isAuthenticated() && (
+              <NavLink
+                to={ROUTE.CLIENT_ORDERS_PUBLIC}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
+                }
+              >
+                <span className="text-sm">
+                  {t('header.myOrders')}
+                </span>
+              </NavLink>
+            )}
             <NavLink
               to={ROUTE.ABOUT}
               className={({ isActive }) =>

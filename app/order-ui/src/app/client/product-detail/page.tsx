@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
@@ -12,11 +12,10 @@ import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { NonPropQuantitySelector } from '@/components/app/button'
 import {
   useCartItemStore,
-  useCurrentUrlStore,
   useUserStore,
 } from '@/stores'
 import { ICartItem, OrderTypeEnum, IProductVariant } from '@/types'
-import { formatCurrency, showErrorToast } from '@/utils'
+import { formatCurrency, } from '@/utils'
 import { ProductImageCarousel } from '.'
 
 export default function ProductDetailPage() {
@@ -26,8 +25,6 @@ export default function ProductDetailPage() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('slug')
   const { getUserInfo } = useUserStore()
-  const { setCurrentUrl } = useCurrentUrlStore()
-  const navigate = useNavigate()
 
   const { data: product, isLoading } = useSpecificMenuItem(slug as string)
   const { addCartItem } = useCartItemStore()
@@ -86,11 +83,11 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    const currentUrl = window.location.pathname
-    if (!getUserInfo()?.slug)
-      return (
-        showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
-      )
+    // const currentUrl = window.location.pathname
+    // if (!getUserInfo()?.slug)
+    //   return (
+    //     showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
+    //   )
     if (!selectedVariant) return
     const cartItem: ICartItem = {
       id: generateCartItemId(),

@@ -78,7 +78,7 @@ export default function OrdersPublicPage() {
                                                     className="object-cover h-16 rounded-md sm:h-28 sm:w-36"
                                                 />
                                                 {/* </NavLink> */}
-                                                <div className="flex absolute -right-2 -bottom-2 justify-center items-center w-6 h-6 text-xs text-white rounded-full sm:-right-4 xl:right-12 lg:w-8 lg:h-8 bg-primary">
+                                                <div className="flex absolute -right-2 -bottom-2 justify-center items-center w-6 h-6 text-xs text-white rounded-full sm:-right-4 lg:right-4 xl:right-12 lg:w-8 lg:h-8 bg-primary">
                                                     x{product.quantity}
                                                 </div>
                                             </div>

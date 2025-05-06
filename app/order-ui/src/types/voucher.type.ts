@@ -11,6 +11,7 @@ export interface IVoucher extends IBase {
   remainingUsage: number
   startDate: string
   endDate: string
+  isVerificationIdentity?: boolean
 }
 
 export interface IGetAllVoucherRequest {
