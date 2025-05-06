@@ -183,8 +183,8 @@ export async function exportOrderInvoice(order: string): Promise<Blob> {
 export async function exportPublicOrderInvoice(order: string): Promise<Blob> {
   const { setProgress, setFileName, setIsDownloading, reset } =
     useDownloadStore.getState()
-  const currentDate = moment(new Date()).toISOString()
-  setFileName(`Invoice-${currentDate}.pdf`)
+  const currentDate = new Date().toISOString()
+  setFileName(`TRENDCoffee-invoice-${currentDate}.pdf`)
   setIsDownloading(true)
   try {
     const response = await http.post(`/invoice/export/public`, { order }, {
@@ -200,12 +200,23 @@ export async function exportPublicOrderInvoice(order: string): Promise<Blob> {
       },
       doNotShowLoading: true,
     } as AxiosRequestConfig)
+
+    // create a url for the blob
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `TRENDCoffee-invoice-${currentDate}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
     return response.data
   } finally {
     setIsDownloading(false)
     reset()
   }
 }
+
 //Update order
 export async function addNewOrderItem(
   params: IAddNewOrderItemRequest,

@@ -67,6 +67,7 @@
     "cron": "^3.5.0",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
+    "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.1",
     "googleapis": "^144.0.0",
     "http-status-codes": "^2.3.0",

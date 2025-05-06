@@ -18,7 +18,7 @@ import {
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
 import { publicFileURL, ROUTE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { InvoiceTemplate } from './components'
@@ -64,10 +64,10 @@ export default function PublicOrderDetailPage() {
 
     const handleExportInvoice = () => {
         exportPublicOrderInvoice(orderDetail?.result?.slug || '', {
-            onSuccess: (data: Blob) => {
+            onSuccess: () => {
                 showToast(tToast('toast.exportInvoiceSuccess'))
                 // Load data to print
-                loadDataToPrinter(data)
+                // loadDataToPrinter(data)
             },
         })
     }
@@ -284,7 +284,7 @@ export default function PublicOrderDetailPage() {
                                 </div>
                             </div>
                         </div>
-                        {isMobile && (
+                        {isMobile && orderInfo?.status === OrderStatus.PAID && (
                             <div className='flex flex-col justify-center items-center mt-12 w-full'>
                                 <span className='text-lg text-muted-foreground'>
                                     {t('order.invoice')}
@@ -323,17 +323,11 @@ export default function PublicOrderDetailPage() {
                                     }}
                                 >
                                     {tCommon('common.checkout')}
-                                </Button>) : (
-                                    <Button onClick={() => {
-                                        handleExportInvoice()
-                                    }}>
-                                        {t('order.exportInvoice')}
-                                    </Button>
-                                )}
+                                </Button>) : null}
                         </div>
                     </div>
                 </div>
-                {!isMobile && (
+                {!isMobile && orderInfo?.status === OrderStatus.PAID && (
                     <div className='flex flex-col justify-center items-center mt-12 w-full'>
                         <span className='text-lg text-muted-foreground'>
                             {t('order.invoice')}
