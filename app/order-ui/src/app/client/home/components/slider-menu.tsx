@@ -110,14 +110,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                         <div className='flex flex-row gap-1 items-center'>
                                                             {item?.promotion?.value > 0 ? (
                                                                 <div className="flex flex-row gap-2 items-center">
-                                                                    <span className="text-xs line-through text-muted-foreground/70">
+                                                                    <span className="text-xs line-through sm:text-sm text-muted-foreground/70">
                                                                         {(() => {
                                                                             const range = getPriceRange(item.product.variants)
                                                                             if (!range) return formatCurrency(0)
                                                                             return formatCurrency(range.min)
                                                                         })()}
                                                                     </span>
-                                                                    <span className="text-sm font-bold text-primary">
+                                                                    <span className="text-sm font-bold sm:text-lg text-primary">
                                                                         {(() => {
                                                                             const range = getPriceRange(item.product.variants)
                                                                             if (!range) return formatCurrency(0)
@@ -126,7 +126,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                     </span>
                                                                 </div>
                                                             ) : (
-                                                                <span className="text-sm font-bold text-primary">
+                                                                <span className="text-sm font-bold sm:text-lg text-primary">
                                                                     {(() => {
                                                                         const range = getPriceRange(item.product.variants)
                                                                         if (!range) return formatCurrency(0)
@@ -134,6 +134,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                     })()}
                                                                 </span>
                                                             )}
+
 
                                                         </div>
                                                         {item?.product?.isLimit &&
@@ -245,6 +246,24 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                         return formatCurrency(range.min)
                                                                     })()}
                                                                 </span>
+                                                                {item.currentStock > 0 || !item?.product?.isLimit ? (
+                                                                    <div className="flex gap-2 justify-end items-end w-full">
+                                                                        {isMobile ? (
+                                                                            <ClientAddToCartDrawer product={item} />
+                                                                        ) : (
+                                                                            <ClientAddToCartDialog product={item} />
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex gap-2 justify-center p-2 w-full">
+                                                                        <Button
+                                                                            className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white rounded-full bg-destructive"
+                                                                            disabled
+                                                                        >
+                                                                            {t('menu.outOfStock')}
+                                                                        </Button>
+                                                                    </div>
+                                                                )}
                                                                 {/* {item.currentStock > 0 || !item?.product?.isLimit ? (
                                                                 <div className="flex gap-2 justify-end items-end w-full">
                                                                     {isMobile ? (

@@ -73,14 +73,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               <div className="flex flex-col">
                 {item?.promotion?.value > 0 ? (
                   <div className="flex flex-row gap-2 items-center">
-                    <span className="text-xs line-through text-muted-foreground/70">
+                    <span className="text-xs line-through sm:text-sm text-muted-foreground/70">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
                         if (!range) return formatCurrency(0)
                         return formatCurrency(range.min)
                       })()}
                     </span>
-                    <span className="text-sm font-bold text-primary">
+                    <span className="text-sm font-bold sm:text-lg text-primary">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
                         if (!range) return formatCurrency(0)
@@ -89,7 +89,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                     </span>
                   </div>
                 ) : (
-                  <span className="text-sm font-bold text-primary">
+                  <span className="text-sm font-bold sm:text-lg text-primary">
                     {(() => {
                       const range = getPriceRange(item.product.variants)
                       if (!range) return formatCurrency(0)

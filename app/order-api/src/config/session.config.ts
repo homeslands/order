@@ -1,11 +1,9 @@
 import session from 'express-session';
-
 import MySQLStoreFactory from 'express-mysql-session';
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig({ path: '.env' });
 // import { RedisStore } from 'connect-redis';
 // import { createClient } from 'redis';
-import { config as dotenvConfig } from 'dotenv';
-
-dotenvConfig({ path: '.env' });
 
 // const redisClient = createClient({
 //   socket: {
@@ -40,8 +38,6 @@ export const dataOptions = {
 };
 
 const secretSession = process.env.SESSION_SECRET;
-// const secretSession =
-//   'aZUkAaMFmhiXeUSGKpHknndw38YIqKtL+3Gy+/70S5sPKSVrVZSvTYFn7LY/2PTd0R1AI+0gRxGU9mepA23Z6g=+';
 const nodeEnv = process.env.NODE_ENV;
 
 const MySQLStore = MySQLStoreFactory(session);

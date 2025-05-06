@@ -19,6 +19,14 @@ export default function OrdersPublicPage() {
     const { data: order, isLoading, refetch } = useOrdersPublic()
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        const timer = setTimeout(() => {
+        }, 300)
+
+        return () => clearTimeout(timer)
+    }, [])
+
+    useEffect(() => {
         const interval = setInterval(() => {
             refetch()
         }, 10000)

@@ -136,7 +136,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
   return (
     <Drawer modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="flex [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+        <Button className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
           <Plus className='icon' />
           {/* {t('menu.addToCart')} */}
         </Button>
