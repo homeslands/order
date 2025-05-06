@@ -33,6 +33,8 @@ async function bootstrap() {
     jsonDocumentUrl: 'swagger.json',
   });
 
+  app.set('trust proxy', 1);
+
   app.use(sessionConfig);
 
   logger.log(`Server running on port ${port}`);
