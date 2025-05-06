@@ -54,7 +54,7 @@ export default function PublicOrderDetailPage() {
                     <p className="text-center text-muted-foreground">
                         {t('menu.noData')}
                     </p>
-                    <Button variant="default" onClick={() => navigate(-1)}>
+                    <Button variant="default" onClick={() => navigate(`${ROUTE.CLIENT_ORDERS_PUBLIC}`)}>
                         {tCommon('common.goBack')}
                     </Button>
                 </div>
@@ -299,7 +299,7 @@ export default function PublicOrderDetailPage() {
                             <Button
                                 variant="outline"
                                 onClick={() => {
-                                    navigate(`${ROUTE.CLIENT_PROFILE}?tab=history`)
+                                    navigate(-1)
                                 }}
                             >
                                 {tCommon('common.goBack')}
