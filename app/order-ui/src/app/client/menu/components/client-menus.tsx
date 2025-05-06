@@ -36,7 +36,7 @@ export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
 
   if (isLoading || isLoadingCatalog) {
     return (
-      <div className={`grid grid-cols-2 gap-3 lg:grid-cols-3`}>
+      <div className={`grid grid-cols-1 gap-3 lg:grid-cols-3`}>
         {[...Array(8)].map((_, index) => (
           <SkeletonMenuList key={index} />
         ))}
@@ -58,7 +58,7 @@ export function ClientMenus({ menu, isLoading }: IClientMenuProps) {
         group.items.length > 0 &&
         <div className='mb-12 w-full' key={index}>
           <div className='uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className={`grid grid-cols-2 gap-4 mt-5 lg:grid-cols-3`}>
+          <div className={`grid grid-cols-1 gap-4 mt-5 lg:grid-cols-3`}>
             {group.items.map((item) => (
               <ClientMenuItem item={item} key={item.slug} />
             ))}

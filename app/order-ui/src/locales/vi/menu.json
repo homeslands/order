@@ -173,6 +173,7 @@
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
     "confirm": "Xác nhận",
+    "myOrders": "Đơn hàng của tôi",
     "viewDetail": "Xem chi tiết",
     "cancelOrder": "Hủy",
     "cancelOrderWarning": "Bạn có chắc muốn hủy đơn hàng này không?",
@@ -233,7 +234,8 @@
     "close": "Đóng",
     "orderReferenceNumber": "Mã đơn",
     "updateNote": "Cập nhật",
-    "updateOrder": "Cập nhật đơn hàng"
+    "updateOrder": "Cập nhật đơn hàng",
+    "invoiceNote": "Lưu ý: Nếu bạn không tải được hóa đơn, vui lòng chụp lại màn hình"
   },
   "table": {
     "title": "Danh sách bàn"

@@ -7,16 +7,21 @@ import { Role } from 'src/role/role.entity';
 import { RoleEnum } from 'src/role/role.enum';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserScheduler {
+  private saltOfRounds: number;
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
+  }
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async updateUserRole() {
@@ -84,7 +89,7 @@ export class UserScheduler {
 
     // Create supper admin
     const superAdmin = new User();
-    const hashedPass = await bcrypt.hash('root', 10);
+    const hashedPass = await bcrypt.hash('root', this.saltOfRounds);
     Object.assign(superAdmin, {
       role,
       phonenumber: 'root',
@@ -98,6 +103,54 @@ export class UserScheduler {
     } catch (error) {
       this.logger.error(
         `Error when creating super admin: ${error.message}`,
+        error.stack,
+        context,
+      );
+    }
+  }
+
+  @Timeout(5000)
+  async initDefaultCustomer() {
+    const context = `${UserScheduler.name}.${this.initDefaultCustomer.name}`;
+    this.logger.log(`Initializing default customer...`, context);
+
+    const hasDefaultCustomer = await this.userRepository.exists({
+      where: {
+        phonenumber: 'default-customer',
+      },
+    });
+    if (hasDefaultCustomer) {
+      this.logger.warn(`Default customer already existed...`, context);
+      return;
+    }
+
+    const role = await this.roleRepository.findOne({
+      where: {
+        name: RoleEnum.Customer,
+      },
+    });
+    if (!role) {
+      this.logger.warn(`Role ${RoleEnum.Customer} not found`, context);
+      return;
+    }
+
+    // Create default customer
+    const defaultCustomer = new User();
+    const hashedPass = await bcrypt.hash('default-customer', this.saltOfRounds);
+    Object.assign(defaultCustomer, {
+      role,
+      phonenumber: 'default-customer',
+      firstName: 'Default',
+      lastName: 'Customer',
+      password: hashedPass,
+    } as User);
+    try {
+      await this.userRepository.save(defaultCustomer);
+      this.logger.log(`Default customer created successfuly`, context);
+    } catch (error) {
+      this.logger.error(
+        `Error when creating default customer: ${error.message}`,
+        error.stack,
         context,
       );
     }

@@ -51,4 +51,8 @@ export class Voucher extends Base {
 
   @OneToMany(() => Order, (order) => order.voucher)
   orders: Order[];
+
+  @AutoMap()
+  @Column({ name: 'is_verification_identity_column', default: true })
+  isVerificationIdentity: boolean;
 }

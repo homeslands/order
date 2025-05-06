@@ -21,10 +21,12 @@ export default function ClientLayout() {
     if (!location.pathname.startsWith(ROUTE.CLIENT_PAYMENT)) {
       clearStore()
     }
-    if (userInfo && userInfo.role.name !== Role.CUSTOMER) {
+
+    if (userInfo && userInfo?.role && userInfo?.role?.name !== Role.CUSTOMER) {
       navigate(ROUTE.LOGIN)
     }
   }, [location.pathname, clearStore, userInfo, navigate])
+
 
   return (
     <div className="flex flex-col min-h-screen">

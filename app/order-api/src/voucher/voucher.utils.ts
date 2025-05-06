@@ -59,31 +59,52 @@ export class VoucherUtils {
   }
 
   async validateVoucherUsage(voucher: Voucher, user: string): Promise<boolean> {
-    try {
-      const owner = await this.userUtils.getUser({
-        where: {
-          slug: user,
-        },
-      });
-
-      const order = await this.orderUtils.getOrder({
-        where: {
-          owner: {
-            slug: owner.slug,
+    const context = `${VoucherUtils.name}.${this.validateVoucherUsage.name}`;
+    if (voucher.isVerificationIdentity) {
+      try {
+        // We will check customer has already used voucher
+        // If User are employee, admin, ... roles => No login. Can't use voucher directly
+        // that must verify by owner is customer
+        const owner = await this.userUtils.getUser({
+          where: {
+            slug: user,
           },
-          voucher: {
-            slug: voucher.slug,
-          },
-        },
-      });
+          relations: ['role'],
+        });
 
-      // We will check customer has already used voucher
-      // If User are employee, admin, ... roles. We don't need to check voucher usage
-      if (order && owner.role.name === RoleEnum.Customer) {
-        throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
+        if (owner.role.name !== RoleEnum.Customer) {
+          this.logger.warn(`User ${owner.slug} is not customer`, context);
+          throw new VoucherException(VoucherValidation.USER_MUST_BE_CUSTOMER);
+        }
+
+        const order = await this.orderUtils.getOrder({
+          where: {
+            owner: {
+              slug: owner.slug,
+            },
+            voucher: {
+              slug: voucher.slug,
+            },
+          },
+        });
+
+        if (order) {
+          this.logger.warn(`Voucher ${voucher.slug} is already used`, context);
+          throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
+        }
+      } catch (error) {
+        this.logger.error(
+          VoucherValidation.VALIDATE_VOUCHER_USAGE_FAILED.message,
+          error.stack,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.VALIDATE_VOUCHER_USAGE_FAILED,
+          error.message,
+        );
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {}
+    }
+
     return true;
   }
 

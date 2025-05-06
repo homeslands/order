@@ -591,6 +591,10 @@ export class AuthService {
       this.logger.warn(`User ${phonenumber} is not found`, `${context}`);
       return null;
     }
+    if (user.phonenumber === 'default-customer') {
+      this.logger.warn(`User ${phonenumber} is default customer`, context);
+      return null;
+    }
     const isMatch = await bcrypt.compare(pass, user.password);
     if (!isMatch) {
       this.logger.warn(

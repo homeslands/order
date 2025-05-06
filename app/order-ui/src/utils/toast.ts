@@ -4,6 +4,7 @@ import i18next from 'i18next'
 // Map error codes from JSON to corresponding toast messages
 const errorCodes: { [key: number]: string } = {
   1: 'toast.invalidQuery',
+  429: 'toast.tooManyRequests',
   401: 'toast.unauthorized',
   403: 'toast.forbidden',
   119010: 'toast.invalidCredentials',

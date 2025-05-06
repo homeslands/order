@@ -20,7 +20,7 @@ import { useUpdateChefOrderStatus } from '@/hooks'
 import { QUERYKEY } from '@/constants'
 
 interface IConfirmUpdateChefOrderStatusDialogProps {
-  onSuccess: (slug: string) => void
+  onSuccess?: (slug: string) => void
   chefOrder: IChefOrders | null
 }
 
@@ -46,7 +46,7 @@ export default function ConfirmUpdateChefOrderStatusDialog({
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.chefOrders]
         })
-        onSuccess(chefOrder.slug)
+        onSuccess?.(chefOrder.slug)
         // exportAutoChefOrderTicket(chefOrder.slug, {
         //   onSuccess: (data: Blob) => {
         //     queryClient.invalidateQueries({

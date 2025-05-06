@@ -10,6 +10,7 @@ export const createVoucherSchema = z.object({
   isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
+  isVerificationIdentity: z.boolean(),
 })
 
 export const updateVoucherSchema = z.object({

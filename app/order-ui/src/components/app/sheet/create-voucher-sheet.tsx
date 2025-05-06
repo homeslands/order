@@ -19,6 +19,7 @@ import {
   FormControl,
   FormMessage,
   Form,
+  Switch,
 } from '@/components/ui'
 import { CreateVoucherDialog } from '@/components/app/dialog'
 import { ICreateVoucherRequest } from '@/types'
@@ -42,7 +43,8 @@ export default function CreateVoucherSheet() {
       value: 0,
       isActive: false,
       maxUsage: 0,
-      minOrderValue: 0
+      minOrderValue: 0,
+      isVerificationIdentity: true
     }
   })
 
@@ -80,7 +82,8 @@ export default function CreateVoucherSheet() {
       value: 0,
       isActive: false,
       maxUsage: 0,
-      minOrderValue: 0
+      minOrderValue: 0,
+      isVerificationIdentity: true
     })
   }
 
@@ -91,7 +94,7 @@ export default function CreateVoucherSheet() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -110,7 +113,7 @@ export default function CreateVoucherSheet() {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -129,7 +132,7 @@ export default function CreateVoucherSheet() {
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -148,7 +151,7 @@ export default function CreateVoucherSheet() {
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -167,7 +170,7 @@ export default function CreateVoucherSheet() {
         name="code"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -190,7 +193,7 @@ export default function CreateVoucherSheet() {
         name="value"
         render={({ field }) => (
           <FormItem className='flex flex-col justify-between'>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -210,7 +213,7 @@ export default function CreateVoucherSheet() {
                   max={100}
                   placeholder={t('voucher.enterVoucherValue')}
                 />
-                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   %
                 </span>
               </div>
@@ -226,7 +229,7 @@ export default function CreateVoucherSheet() {
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -251,7 +254,7 @@ export default function CreateVoucherSheet() {
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -264,7 +267,7 @@ export default function CreateVoucherSheet() {
                   placeholder={t('voucher.enterMinOrderValue')}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
-                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   ₫
                 </span>
               </div>
@@ -273,7 +276,31 @@ export default function CreateVoucherSheet() {
           </FormItem>
         )}
       />
-    )
+    ),
+    isVerificationIdentity: (
+      <FormField
+        control={form.control}
+        name="isVerificationIdentity"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex gap-1 items-center">
+              <span className="text-destructive">*</span>
+              {t('voucher.isVerificationIdentity')}
+            </FormLabel>
+            <FormControl>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is-verification-identity"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
   }
 
   return (
@@ -297,7 +324,7 @@ export default function CreateVoucherSheet() {
               <Form {...form}>
                 <form id="voucher-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className={`p-4 border bg-white dark:bg-transparent rounded-md`}>
+                  <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -305,21 +332,25 @@ export default function CreateVoucherSheet() {
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.code}
                     {formFields.maxUsage}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white dark:bg-transparent border rounded-md`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.minOrderValue}
                     {formFields.value}
+                  </div>
+                  {/* Nhóm: Kiểm tra định danh */}
+                  <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    {formFields.isVerificationIdentity}
                   </div>
                 </form>
               </Form>

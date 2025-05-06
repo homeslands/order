@@ -337,6 +337,7 @@
     "exportChefOrderSuccess": "Chef order exported successfully",
     "exportChefOrderDescription": "Export chef order",
     "exportChefOrderConfirmation": "Are you sure you want to export chef order?",
-    "emailAlreadyExists": "Email already exists"
+    "emailAlreadyExists": "Email already exists",
+    "tooManyRequests": "Too many requests"
   }
 }

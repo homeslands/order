@@ -116,6 +116,7 @@ describe('VoucherService', () => {
         title: 'Test Voucher',
         value: 10,
         description: 'Test Voucher',
+        isVerificationIdentity: false,
       } as CreateVoucherDto;
 
       const mockVoucherRepo = mockVoucherInput;

@@ -56,6 +56,8 @@ import {
   UpdateOrderPage,
   ClientViewPage,
   ClientViewLayout,
+  OrdersPublicPage,
+  PublicOrderDetailPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -870,16 +872,12 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                element={<SuspenseElement component={ClientCartPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientCartPage} />,
           },
         ],
       },
       {
-        path: `${ROUTE.CLIENT_PAYMENT}`,
+        path: ROUTE.CLIENT_PAYMENT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />
@@ -888,17 +886,40 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientPaymentPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientPaymentPage} />,
           },
         ],
       },
       {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}`,
+        path: ROUTE.CLIENT_ORDERS_PUBLIC,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={OrdersPublicPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDERS_PUBLIC}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={PublicOrderDetailPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.CLIENT_ORDER_HISTORY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />
