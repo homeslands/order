@@ -79,6 +79,12 @@ export const OrderSuccessPage = React.lazy(() =>
   })),
 )
 
+export const ClientOrderSuccessPage = React.lazy(() =>
+  import('@/app/client/payment/components').then((module) => ({
+    default: module.ClientOrderSuccessPage,
+  })),
+)
+
 //Order management page
 export const OrderManagementPage = React.lazy(() =>
   import('@/app/system/order-management').then((module) => ({

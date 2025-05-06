@@ -15,20 +15,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui'
-import { useOrderBySlug } from '@/hooks'
+import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
 import { publicFileURL, ROUTE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
-import { ShowInvoiceDialog } from '@/components/app/dialog'
+import { InvoiceTemplate } from '../public-order-detail/components'
 
 export default function OrderHistoryPage() {
+  const isMobile = useIsMobile()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
+  const { t: tToast } = useTranslation('toast')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const order = searchParams.get('order')
+  const { mutate: exportPublicOrderInvoice } = useExportPublicOrderInvoice()
   const { data: orderDetail } = useOrderBySlug(order || '')
 
   const orderInfo = orderDetail?.result
@@ -58,6 +61,16 @@ export default function OrderHistoryPage() {
         </div>
       </div>
     )
+  }
+
+  const handleExportInvoice = () => {
+    exportPublicOrderInvoice(orderDetail?.result?.slug || '', {
+      onSuccess: () => {
+        showToast(tToast('toast.exportInvoiceSuccess'))
+        // Load data to print
+        // loadDataToPrinter(data)
+      },
+    })
   }
   return (
     <div className="container py-5">
@@ -272,6 +285,16 @@ export default function OrderHistoryPage() {
                 </div>
               </div>
             </div>
+            {isMobile && orderInfo?.status === OrderStatus.PAID && (
+              <div className='flex flex-col justify-center items-center mt-12 w-full'>
+                <span className='text-lg text-muted-foreground'>
+                  {t('order.invoice')}
+                </span>
+                <InvoiceTemplate
+                  order={orderInfo}
+                />
+              </div>
+            )}
             {/* Return order button */}
             <div className="flex gap-2 justify-between">
               <Button
@@ -290,12 +313,26 @@ export default function OrderHistoryPage() {
                   }}
                 >
                   {tCommon('common.checkout')}
-                </Button>) : (
-                  <ShowInvoiceDialog order={orderInfo || null} />
-                )}
+                </Button>) : null}
             </div>
           </div>
         </div>
+        {!isMobile && orderInfo?.status === OrderStatus.PAID && (
+          <div className='flex flex-col justify-center items-center mt-12 w-full'>
+            <span className='text-lg text-muted-foreground'>
+              {t('order.invoice')}
+            </span>
+            <InvoiceTemplate
+              order={orderInfo}
+            />
+
+            <Button onClick={() => {
+              handleExportInvoice()
+            }}>
+              {t('order.exportInvoice')}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

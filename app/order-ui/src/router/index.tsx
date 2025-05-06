@@ -58,6 +58,7 @@ import {
   ClientViewLayout,
   OrdersPublicPage,
   PublicOrderDetailPage,
+  ClientOrderSuccessPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -258,17 +259,21 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[
-                //   Role.STAFF,
-                //   Role.MANAGER,
-                //   Role.ADMIN,
-                //   Role.SUPER_ADMIN,
-                // ]}
-                element={<SuspenseElement component={OrderSuccessPage} />}
-              />
-            ),
+            element: <SuspenseElement component={OrderSuccessPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDER_SUCCESS}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientOrderSuccessPage} />,
           },
         ],
       },
