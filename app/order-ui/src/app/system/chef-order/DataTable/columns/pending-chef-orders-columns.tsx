@@ -158,15 +158,16 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       cell: ({ row }) => {
         const chefOrder = row.original
         return (
-          <Button variant="outline" onClick={(e) => {
-            e.stopPropagation()
-            handleExportChefOrder(chefOrder.slug)
-          }}
-            className="flex gap-1 justify-center px-2 w-full"
-          >
-            <DownloadIcon />
-            {t('chefOrder.exportChefOrder')}
-          </Button>
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" onClick={(e) => {
+              e.stopPropagation()
+              handleExportChefOrder(chefOrder.slug)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportChefOrder')}
+            </Button>
+          ) : null
         )
       },
     },
