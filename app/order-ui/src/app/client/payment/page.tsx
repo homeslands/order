@@ -42,17 +42,18 @@ export function ClientPaymentPage() {
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
   const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [])
+
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
-    }
-  }, [isExpired])
-
-  useEffect(() => {
-    if (qrCode && paymentSlug && !isExpired) {
+    } else if (qrCode && paymentSlug) {
       setIsPolling(true)
     }
-  }, [qrCode, paymentSlug, isExpired])
+  }, [isExpired, qrCode, paymentSlug])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -61,10 +62,9 @@ export function ClientPaymentPage() {
       pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
         if (updatedOrder.data?.result?.status === OrderStatus.PAID) {
-          if (pollingInterval) clearInterval(pollingInterval)
-          navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+          navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
         }
-      }, 3000) // Poll every 3 seconds
+      }, 3000)
     }
 
     return () => {
@@ -100,7 +100,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: () => {
-              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+              navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
           },
         )
@@ -122,7 +122,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: () => {
-              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+              navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
           },
         )
@@ -144,7 +144,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: () => {
-              navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+              navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
           },
         )
@@ -156,7 +156,7 @@ export function ClientPaymentPage() {
     setIsExpired(value)
   }, [])
 
-  if (isExpired) {
+  if (!isPending && isExpired) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col gap-5 justify-center items-center">
