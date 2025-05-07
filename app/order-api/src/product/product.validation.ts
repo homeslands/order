@@ -11,7 +11,7 @@ export const CREATE_MANY_PRODUCTS_FAILED = 'CREATE_MANY_PRODUCTS_FAILED';
 export const DEFAULT_QUANTITY_REQUIRED = 'DEFAULT_QUANTITY_REQUIRED';
 export const PRODUCT_NOT_LIMIT = 'PRODUCT_NOT_LIMIT';
 export const DUPLICATE_PRODUCT_NAME = 'DUPLICATE_PRODUCT_NAME';
-
+export const PRODUCT_HAS_RELATION = 'PRODUCT_HAS_RELATION';
 export type TProductErrorCodeKey =
   | typeof PRODUCT_NOT_FOUND
   | typeof PRODUCT_NAME_EXIST
@@ -22,7 +22,8 @@ export type TProductErrorCodeKey =
   | typeof DEFAULT_QUANTITY_REQUIRED
   | typeof PRODUCT_NOT_LIMIT
   | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU
-  | typeof DUPLICATE_PRODUCT_NAME;
+  | typeof DUPLICATE_PRODUCT_NAME
+  | typeof PRODUCT_HAS_RELATION;
 
 export type TProductErrorCode = Record<TProductErrorCodeKey, TErrorCodeValue>;
 
@@ -55,6 +56,10 @@ const ProductValidation: TProductErrorCode = {
   DUPLICATE_PRODUCT_NAME: createErrorCode(
     115009,
     'The product name is duplicate',
+  ),
+  PRODUCT_HAS_RELATION: createErrorCode(
+    115010,
+    'The product has relation with other table',
   ),
 };
 
