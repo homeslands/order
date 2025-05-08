@@ -67,12 +67,6 @@ export const MenuPage = React.lazy(() =>
   })),
 )
 
-export const SystemCheckoutPage = React.lazy(() =>
-  import('@/app/system/checkout').then((module) => ({
-    default: module.SystemCheckoutPage,
-  })),
-)
-
 export const OrderSuccessPage = React.lazy(() =>
   import('@/app/system/menu').then((module) => ({
     default: module.OrderSuccessPage,

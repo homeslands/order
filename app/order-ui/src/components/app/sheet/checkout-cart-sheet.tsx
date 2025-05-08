@@ -254,9 +254,9 @@ export default function CheckoutCartSheet() {
                     {`${formatCurrency(total)}`}
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground/60">
+                {/* <div className="text-xs text-muted-foreground/60">
                   {t('order.vat')}
-                </div>
+                </div> */}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 justify-between items-center py-4">

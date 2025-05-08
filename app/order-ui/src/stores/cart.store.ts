@@ -159,14 +159,33 @@ export const useCartItemStore = create<ICartItemStore>()(
 
       addTable: (table: ITable) => {
         const { cartItems } = get()
-        if (cartItems) {
+        const timestamp = moment().valueOf()
+
+        if (!cartItems) {
+          set({
+            cartItems: {
+              id: `cart_${timestamp}`,
+              slug: `cart_${timestamp}`,
+              owner: '',
+              type: OrderTypeEnum.AT_TABLE,
+              orderItems: [],
+              table: table.slug,
+              tableName: table.name,
+              voucher: null,
+              approvalBy: '',
+              ownerPhoneNumber: '',
+              ownerFullName: '',
+            },
+            lastModified: timestamp,
+          })
+        } else {
           set({
             cartItems: {
               ...cartItems,
               table: table.slug,
               tableName: table.name,
             },
-            lastModified: moment().valueOf(),
+            lastModified: timestamp,
           })
         }
       },

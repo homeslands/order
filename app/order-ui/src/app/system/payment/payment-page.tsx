@@ -315,9 +315,9 @@ export default function PaymentPage() {
                             {`${formatCurrency(order.result.subtotal)}`}
                           </p>
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        {/* <span className="text-xs text-muted-foreground">
                           ({t('order.vat')})
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   </div>

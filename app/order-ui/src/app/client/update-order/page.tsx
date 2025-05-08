@@ -240,7 +240,7 @@ export default function ClientUpdateOrderPage() {
                                                 {formatCurrency(orderItems ? (orderItems.subtotal) : 0)}
                                             </span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">({t('order.vat')})</span>
+                                        {/* <span className="text-xs text-muted-foreground">({t('order.vat')})</span> */}
                                     </div>
 
                                 </div>

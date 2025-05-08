@@ -338,6 +338,7 @@
     "exportChefOrderDescription": "Export chef order",
     "exportChefOrderConfirmation": "Are you sure you want to export chef order?",
     "emailAlreadyExists": "Email already exists",
-    "tooManyRequests": "Too many requests"
+    "tooManyRequests": "Too many requests",
+    "duplicateVoucherCode": "Voucher code already exists"
   }
 }

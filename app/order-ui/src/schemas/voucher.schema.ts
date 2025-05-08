@@ -25,6 +25,7 @@ export const updateVoucherSchema = z.object({
   isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
+  isVerificationIdentity: z.boolean(),
 })
 
 export type TCreateVoucherSchema = z.infer<typeof createVoucherSchema>
