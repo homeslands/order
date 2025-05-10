@@ -19,6 +19,7 @@ import {
 import { FileService } from './file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiBearerAuth()
 @Controller('file')
@@ -26,6 +27,7 @@ import { AppResponseDto } from 'src/app/app.dto';
 export class FileController {
   constructor(private fileService: FileService) {}
 
+  @SkipThrottle()
   @Get(':filename')
   @Public()
   @ApiOperation({ summary: 'Get file by filename' })

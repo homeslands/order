@@ -152,7 +152,7 @@ const errorCodes: { [key: number]: string } = {
   143207: 'toast.startDateOnlySmallerOrEqualEndDate',
   143208: 'toast.updateRevenueError',
   143401: 'toast.voucherNotFound',
-  143402: 'toast.createVoucherFailed',
+  143402: 'toast.duplicateVoucherCode',
   143403: 'toast.findAllVoucherFailed',
   143404: 'toast.findOneVoucherFailed',
   143405: 'toast.updateVoucherFailed',

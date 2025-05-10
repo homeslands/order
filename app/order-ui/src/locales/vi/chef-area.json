@@ -62,6 +62,7 @@
     "exportChefOrder": "Xuất hóa đơn",
     "exportAutoChefOrderTicket": "Xuất nhãn dán món tự động",
     "exportManualChefOrderTicket": "Xuất nhãn dán món thủ công",
-    "export": "Xuất hóa đơn"
+    "export": "Xuất hóa đơn",
+    "exportTicket": "Xuất nhãn dán"
   }
 }

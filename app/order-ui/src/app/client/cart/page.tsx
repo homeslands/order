@@ -236,9 +236,9 @@ export default function ClientCartPage() {
                       {`${formatCurrency(totalAfterDiscount)}`}
                     </span>
                   </div>
-                  <span className='text-xs text-muted-foreground'>
+                  {/* <span className='text-xs text-muted-foreground'>
                     ({t('order.vat')})
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>

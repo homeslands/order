@@ -241,9 +241,9 @@ export default function CheckoutCartDrawer() {
                       {`${formatCurrency(total)}`}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  {/* <div className="text-xs text-muted-foreground">
                     {t('order.vat')}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

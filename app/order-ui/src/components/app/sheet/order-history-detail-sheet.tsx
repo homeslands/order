@@ -291,9 +291,9 @@ export default function OrderHistoryDetailSheet({
                     </p>
                     <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.subtotal || 0)}`}</p>
                   </div>
-                  <div className="flex justify-between items-center">
+                  {/* <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

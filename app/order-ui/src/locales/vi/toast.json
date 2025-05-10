@@ -268,6 +268,7 @@
     "exportChefOrderDescription": "Xuất đơn hàng bếp",
     "exportChefOrderConfirmation": "Bạn có chắc chắn muốn xuất đơn hàng bếp không?",
     "emailAlreadyExists": "Email đã tồn tại",
-    "tooManyRequests": "Quá nhiều yêu cầu"
+    "tooManyRequests": "Quá nhiều yêu cầu",
+    "duplicateVoucherCode": "Mã voucher đã tồn tại"
   }
 }

@@ -18,14 +18,14 @@ import {
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
 import { loadDataToPrinter, showToast } from '@/utils'
-import { useExportChefOrder } from '@/hooks'
+import { useExportChefOrder, useExportManualChefOrderTicket } from '@/hooks'
 
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   // const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
-  // const { mutate: exportManualChefOrderTicket } = useExportManualChefOrderTicket()
+  const { mutate: exportManualChefOrderTicket } = useExportManualChefOrderTicket()
   const { mutate: exportChefOrder } = useExportChefOrder()
 
   const handleExportChefOrder = (slug: string) => {
@@ -46,14 +46,14 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   //   })
   // }
 
-  // const handleExportManualChefOrderTicket = (slug: string) => {
-  //   exportManualChefOrderTicket(slug, {
-  //     onSuccess: (data: Blob) => {
-  //       showToast(tToast('toast.exportChefOrderSuccess'))
-  //       loadDataToPrinter(data)
-  //     },
-  //   })
-  // }
+  const handleExportManualChefOrderTicket = (slug: string) => {
+    exportManualChefOrderTicket(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportChefOrderSuccess'))
+        loadDataToPrinter(data)
+      },
+    })
+  }
   return [
     {
       id: 'select',
@@ -166,6 +166,27 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
             >
               <DownloadIcon />
               {t('chefOrder.exportChefOrder')}
+            </Button>
+          ) : null
+        )
+      },
+    },
+    {
+      accessorKey: 'exportTicket',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.exportTicket')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" onClick={(e) => {
+              e.stopPropagation()
+              handleExportManualChefOrderTicket(chefOrder.slug)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportTicket')}
             </Button>
           ) : null
         )

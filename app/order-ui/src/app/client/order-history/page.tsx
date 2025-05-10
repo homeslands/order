@@ -279,9 +279,9 @@ export default function OrderHistoryPage() {
                   <p className="text-sm text-muted-foreground">
                     ({orderInfo?.orderItems?.length} {t('order.product')})
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  {/* <p className="text-xs text-muted-foreground">
                     ({t('order.vat')})
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </div>

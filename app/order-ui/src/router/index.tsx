@@ -8,7 +8,6 @@ import {
   MenuPage,
   SystemLayout,
   LoginPage,
-  SystemCheckoutPage,
   TablePage,
   OrderSuccessPage,
   RegisterPage,
@@ -187,25 +186,6 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.STAFF]}
                 element={<SuspenseElement component={MenuPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: ROUTE.STAFF_CHECKOUT_ORDER,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.STAFF]}
-                element={<SuspenseElement component={SystemCheckoutPage} />}
               />
             ),
           },

@@ -228,7 +228,7 @@ export default function OrderDetailPage() {
                 {/* <p className="text-sm text-muted-foreground">
                   ({orderInfo?.orderItems?.length}{' '}{t('order.product')})
                 </p> */}
-                <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p>
+                {/* <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p> */}
               </div>
             </div>
             {/* Return order button */}
