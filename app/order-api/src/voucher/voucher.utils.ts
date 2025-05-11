@@ -15,7 +15,6 @@ import { Order } from 'src/order/order.entity';
 import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { RoleEnum } from 'src/role/role.enum';
-import { VoucherType } from './voucher.constant';
 import _ from 'lodash';
 
 @Injectable()

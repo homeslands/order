@@ -19,7 +19,6 @@ import {
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
   Repository,
 } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
