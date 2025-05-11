@@ -13,7 +13,12 @@ export const ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE =
   'ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE';
 export const USER_MUST_BE_CUSTOMER = 'USER_MUST_BE_CUSTOMER';
 export const VALIDATE_VOUCHER_USAGE_FAILED = 'VALIDATE_VOUCHER_USAGE_FAILED';
-
+export const INVALID_VOUCHER_TYPE = 'INVALID_VOUCHER_TYPE';
+export const INVALID_NUMBER_OF_USAGE_PER_USER =
+  'INVALID_NUMBER_OF_USAGE_PER_USER';
+export const DUPLICATE_VOUCHER_TITLE = 'DUPLICATE_VOUCHER_TITLE';
+export const MUST_VERIFY_IDENTITY_TO_USE_VOUCHER =
+  'MUST_VERIFY_IDENTITY_TO_USE_VOUCHER';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -26,7 +31,11 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_HAS_NO_REMAINING_USAGE
   | typeof CREATE_VOUCHER_FAILED
   | typeof USER_MUST_BE_CUSTOMER
-  | typeof VALIDATE_VOUCHER_USAGE_FAILED;
+  | typeof VALIDATE_VOUCHER_USAGE_FAILED
+  | typeof INVALID_VOUCHER_TYPE
+  | typeof INVALID_NUMBER_OF_USAGE_PER_USER
+  | typeof DUPLICATE_VOUCHER_TITLE
+  | typeof MUST_VERIFY_IDENTITY_TO_USE_VOUCHER;
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
 // 143401 – 144000
@@ -57,5 +66,15 @@ export const VoucherValidation: TVoucherErrorCode = {
   VALIDATE_VOUCHER_USAGE_FAILED: createErrorCode(
     143412,
     'Validate voucher usage failed',
+  ),
+  INVALID_VOUCHER_TYPE: createErrorCode(143413, 'Invalid voucher type'),
+  INVALID_NUMBER_OF_USAGE_PER_USER: createErrorCode(
+    143414,
+    'Invalid number of usage per user',
+  ),
+  DUPLICATE_VOUCHER_TITLE: createErrorCode(143415, 'Duplicate voucher title'),
+  MUST_VERIFY_IDENTITY_TO_USE_VOUCHER: createErrorCode(
+    143416,
+    'Must verify identity to use voucher',
   ),
 };

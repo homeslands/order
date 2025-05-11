@@ -1,47 +1,49 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { VoucherController } from './voucher.controller';
-import { VoucherService } from './voucher.service';
+import { VoucherGroupService } from './voucher-group.service';
+import { VoucherGroupUtils } from './voucher-group.utils';
+import { VoucherGroupScheduler } from './voucher-group.scheduler';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
-import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
+import { VoucherGroup } from './voucher-group.entity';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
+import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Voucher } from 'src/voucher/voucher.entity';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
-import { VoucherUtils } from './voucher.utils';
-import { OrderUtils } from 'src/order/order.utils';
 import { Order } from 'src/order/order.entity';
-import { MenuUtils } from 'src/menu/menu.utils';
-import { Menu } from 'src/menu/menu.entity';
-import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
-import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
-import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
-import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Menu } from 'src/menu/menu.entity';
 
-describe('VoucherController', () => {
-  let controller: VoucherController;
+describe('VoucherGroupService', () => {
+  let service: VoucherGroupService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [VoucherController],
       providers: [
-        VoucherService,
+        VoucherGroupService,
+        VoucherGroupScheduler,
+        VoucherGroupUtils,
+        TransactionManagerService,
         VoucherUtils,
         OrderUtils,
+        UserUtils,
         MenuUtils,
         MenuItemUtils,
-        UserUtils,
-        VoucherGroupUtils,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(VoucherGroup),
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(MenuItem),
+          provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
         },
         {
@@ -49,15 +51,15 @@ describe('VoucherController', () => {
           useFactory: repositoryMockFactory,
         },
         {
-          provide: getRepositoryToken(VoucherGroup),
+          provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Order),
-          useFactory: repositoryMockFactory,
-        },
-        {
-          provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
         },
         {
@@ -68,15 +70,13 @@ describe('VoucherController', () => {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
         },
-        TransactionManagerService,
-        { provide: DataSource, useFactory: dataSourceMockFactory },
       ],
     }).compile();
 
-    controller = module.get<VoucherController>(VoucherController);
+    service = module.get<VoucherGroupService>(VoucherGroupService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 });
