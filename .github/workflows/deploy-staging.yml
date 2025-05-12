@@ -1,0 +1,51 @@
+name: deploy-staging
+
+on:
+  workflow_run:
+    workflows: ["publish-staging"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Copy Environment Configuration
+        env:
+          ENV: ${{ secrets.ENV_STAGING }}
+        run: |
+          echo "$ENV" > .deploy/staging/.env
+
+      - name: Deploy with Docker Compose
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST_STAGING }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER_STAGING }}
+          SSH_PORT: ${{ secrets.SSH_PORT_STAGING }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_STAGING }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
+          export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
+
+          # Export env. Docker swarm is not able to read .env file
+          set -o allexport
+          source .deploy/staging/.env
+          set +o allexport
+
+          docker compose -f .deploy/staging/docker-compose.yml pull
+          docker stack deploy -c .deploy/staging/docker-compose.yml order_stack --detach=true
+
+          # Remove exited containers
+          # docker rm $(docker ps -aq -f status=exited)
+
+          # clean up none image after built
+          docker image prune -f
