@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { VoucherGroup } from './voucher-group.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectMapper } from '@automapper/nestjs';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Not, Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import {
   CreateVoucherGroupRequestDto,
@@ -97,6 +97,19 @@ export class VoucherGroupService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug },
     });
+
+    const hasVoucherGroup = await this.voucherGroupRepository.findOne({
+      where: {
+        title: updateVoucherGroupDto.title,
+        slug: Not(slug),
+      },
+    });
+
+    if (hasVoucherGroup) {
+      throw new VoucherGroupException(
+        VoucherGroupValidation.VOUCHER_GROUP_ALREADY_EXISTS,
+      );
+    }
 
     Object.assign(voucherGroup, updateVoucherGroupDto);
 

@@ -417,4 +417,12 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   isVerificationIdentity: boolean;
+
+  @ApiProperty()
+  @AutoMap()
+  type: string;
+
+  @ApiProperty()
+  @AutoMap()
+  numberOfUsagePerUser: number;
 }

@@ -182,11 +182,9 @@ export class VoucherService {
     }
 
     const vouchers = [];
-    const todayString = new Date().getTime().toString();
-    const preCode = todayString.slice(0, -5);
     for (let i = 0; i < numberOfVoucher; i++) {
       const voucher = _.cloneDeep(voucherTemplate);
-      voucher.code = `${preCode}${getRandomString().slice(0, 5)}${i}`;
+      voucher.code = `${getRandomString()}${i}`;
       vouchers.push(voucher);
     }
 
