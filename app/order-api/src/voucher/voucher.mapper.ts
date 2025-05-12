@@ -8,7 +8,11 @@ import {
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { Voucher } from './voucher.entity';
-import { CreateVoucherDto, VoucherResponseDto } from './voucher.dto';
+import {
+  BulkCreateVoucherDto,
+  CreateVoucherDto,
+  VoucherResponseDto,
+} from './voucher.dto';
 import { baseMapper } from 'src/app/base.mapper';
 import moment from 'moment';
 
@@ -45,6 +49,7 @@ export class VoucherProfile extends AutomapperProfile {
         ),
       );
       createMap(mapper, CreateVoucherDto, Voucher);
+      createMap(mapper, BulkCreateVoucherDto, Voucher);
     };
   }
 }

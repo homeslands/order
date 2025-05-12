@@ -13,24 +13,26 @@ import {
   DialogTrigger,
 } from '@/components/ui'
 
-import { ICartItem, ICreateOrderRequest } from '@/types'
-import { useCreateOrder } from '@/hooks'
+import { ICartItem, ICreateOrderRequest, OrderTypeEnum } from '@/types'
+import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
 import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
+  onSuccess?: () => void
   disabled?: boolean | undefined
   onSuccessfulOrder?: () => void
 }
 
-export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlaceOrderDialogProps) {
+export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSuccess }: IPlaceOrderDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { getCartItems, clearCart } = useCartItemStore()
   const { mutate: createOrder, isPending } = useCreateOrder()
+  const { mutate: createOrderWithoutLogin, isPending: isPendingWithoutLogin } = useCreateOrderWithoutLogin()
   const [isOpen, setIsOpen] = useState(false)
   const { getUserInfo, userInfo } = useUserStore()
   const { branch } = useBranchStore()
@@ -41,9 +43,11 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
     if (!order) return
 
     const selectedBranch =
-      userInfo?.role.name === Role.CUSTOMER
-        ? branch?.slug
-        : userInfo?.branch?.slug
+      userInfo
+        ? (userInfo?.role.name === Role.CUSTOMER
+          ? branch?.slug
+          : userInfo?.branch?.slug)
+        : branch?.slug
 
     if (!selectedBranch) {
       showErrorToast(11000)
@@ -59,26 +63,43 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
         variant: orderItem.variant,
-        ... (orderItem.promotion && { promotion: orderItem.promotion }),
+        ...(orderItem.promotion && { promotion: orderItem.promotion }),
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,
+      description: order.description || '',
     }
 
     // Call API to create order
-    createOrder(createOrderRequest, {
-      onSuccess: (data) => {
-        const orderPath =
-          userInfo?.role.name === Role.CUSTOMER
-            ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
-            : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
-        navigate(orderPath)
-        setIsOpen(false)
-        onSuccessfulOrder?.()
-        clearCart()
-        showToast(tToast('toast.createOrderSuccess'))
-      },
-    })
+    if (userInfo) {
+      createOrder(createOrderRequest, {
+        onSuccess: (data) => {
+          const orderPath =
+            userInfo?.role.name === Role.CUSTOMER
+              ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
+              : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
+          onSuccess?.()
+          navigate(orderPath)
+          setIsOpen(false)
+          onSuccessfulOrder?.()
+          if (userInfo?.role.name === Role.CUSTOMER) {
+            clearCart()
+          }
+          showToast(tToast('toast.createOrderSuccess'))
+        },
+      })
+    } else {
+      createOrderWithoutLogin(createOrderRequest, {
+        onSuccess: (data) => {
+          onSuccess?.()
+          navigate(`${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`)
+          setIsOpen(false)
+          onSuccessfulOrder?.()
+          clearCart()
+          showToast(tToast('toast.createOrderSuccess'))
+        },
+      })
+    }
   }
 
   return (
@@ -86,10 +107,14 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
       <DialogTrigger asChild>
         <Button
           disabled={disabled}
-          className="flex items-center text-sm rounded-full w-fit"
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
-          {t('order.create')}
+          {(order?.type === OrderTypeEnum.TAKE_OUT ||
+            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
+            ? t('order.create')
+            : t('menu.noSelectedTable')}
+
         </Button>
       </DialogTrigger>
 
@@ -112,12 +137,16 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder }: IPlace
             variant="outline"
             onClick={() => setIsOpen(false)}
             className="border border-gray-300 min-w-24"
-            disabled={isPending}
+            disabled={isPending || isPendingWithoutLogin}
           >
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={() => order && handleSubmit(order)} disabled={isPending}>
-            {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+          <Button onClick={() => {
+            if (order) {
+              handleSubmit(order)
+            }
+          }} disabled={isPending || isPendingWithoutLogin}>
+            {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('order.create')}
           </Button>
         </DialogFooter>

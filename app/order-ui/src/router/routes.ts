@@ -40,18 +40,21 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_ORDER_MANAGEMENT,
     icon: ShoppingCart,
     permission: Permission.DELIVERY_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.chefOrderManagement',
     path: ROUTE.STAFF_CHEF_ORDER,
     icon: CookingPot,
     permission: Permission.CHEF_ORDER_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.orderHistory',
     path: ROUTE.STAFF_ORDER_HISTORY,
     icon: Archive,
     permission: Permission.ORDER_MANAGEMENT,
+    notificationCount: 0,
   },
   {
     title: 'sidebar.tableManagement',
@@ -127,7 +130,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
   },
   {
     title: 'sidebar.voucher',
-    path: ROUTE.STAFF_VOUCHER,
+    path: ROUTE.STAFF_VOUCHER_GROUP,
     icon: Ticket,
     permission: Permission.VOUCHER_MANAGEMENT,
   },
@@ -142,5 +145,11 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_BANNER,
     icon: Newspaper,
     permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.clientView',
+    path: ROUTE.STAFF_CLIENT_VIEW,
+    icon: Users,
+    permission: Permission.CLIENT_VIEW,
   },
 ]

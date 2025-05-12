@@ -16,22 +16,24 @@ import {
 
 import { ChefOrderStatus, IChefOrders, IUpdateChefOrderStatusRequest } from '@/types'
 import { useUpdateChefOrderStatus } from '@/hooks'
-import { showToast } from '@/utils'
+// import { loadDataToPrinter, showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
 interface IConfirmUpdateChefOrderStatusDialogProps {
+  onSuccess?: (slug: string) => void
   chefOrder: IChefOrders | null
 }
 
 export default function ConfirmUpdateChefOrderStatusDialog({
   chefOrder,
+  onSuccess,
 }: IConfirmUpdateChefOrderStatusDialogProps) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
-  const { t: tToast } = useTranslation('toast')
   const [isOpen, onOpenChange] = useState(false)
   const { mutate: updateChefOrderStatus } = useUpdateChefOrderStatus()
+  // const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
 
   const handleSubmit = (chefOrder: IChefOrders) => {
     if (!chefOrder) return
@@ -44,8 +46,18 @@ export default function ConfirmUpdateChefOrderStatusDialog({
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.chefOrders]
         })
+        onSuccess?.(chefOrder.slug)
+        // exportAutoChefOrderTicket(chefOrder.slug, {
+        //   onSuccess: (data: Blob) => {
+        //     queryClient.invalidateQueries({
+        //       queryKey: [QUERYKEY.chefOrders]
+        //     })
+        //     showToast(tToast('toast.updateChefOrderStatusSuccess'))
+        //     loadDataToPrinter(data)
+        //   },
+        // })
         onOpenChange(false)
-        showToast(tToast('toast.updateChefOrderStatusSuccess'))
+
       },
     })
   }

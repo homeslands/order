@@ -41,7 +41,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
       firstName: customer.firstName,
       lastName: customer.lastName,
       dob: customer.dob,
-      email: customer.email,
+      // email: customer.email,
       address: customer.address,
       // branch: customer?.branch?.slug || '',
     },
@@ -131,21 +131,21 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
         )}
       />
     ),
-    email: (
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('customer.email')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('customer.enterEmail')} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+    // email: (
+    //   <FormField
+    //     control={form.control}
+    //     name="email"
+    //     render={({ field }) => (
+    //       <FormItem>
+    //         <FormLabel>{t('customer.email')}</FormLabel>
+    //         <FormControl>
+    //           <Input placeholder={t('customer.enterEmail')} {...field} />
+    //         </FormControl>
+    //         <FormMessage />
+    //       </FormItem>
+    //     )}
+    //   />
+    // ),
     address: (
       <FormField
         control={form.control}

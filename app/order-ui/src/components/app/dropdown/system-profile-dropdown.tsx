@@ -24,9 +24,9 @@ export default function SystemProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex cursor-pointer items-center gap-2">
+        <div className="flex gap-2 items-center cursor-pointer">
           <ProfileAvatar />
-          <span className="text-sm font-semibold">
+          <span className="hidden text-sm font-semibold xl:block">
             {userInfo?.firstName} {userInfo?.lastName}
           </span>
         </div>
@@ -37,14 +37,14 @@ export default function SystemProfileDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="h-9 px-0">
+          <DropdownMenuItem className="px-0 h-9">
             <NavLink
               to={`${ROUTE.STAFF_PROFILE}`}
-              className="flex h-9 w-full justify-start"
+              className="flex justify-start w-full h-9"
             >
               <Button
                 variant="ghost"
-                className="flex w-full justify-start gap-1 text-sm"
+                className="flex gap-1 justify-start w-full text-sm"
               >
                 <User className="icon" />
                 {t('header.profile')}
@@ -52,14 +52,14 @@ export default function SystemProfileDropdown() {
             </NavLink>
           </DropdownMenuItem>
           {userInfo?.role.name === Role.CUSTOMER && (
-            <DropdownMenuItem className="h-9 px-0">
+            <DropdownMenuItem className="px-0 h-9">
               <NavLink
                 to={`${ROUTE.CLIENT_ORDER_HISTORY}`}
-                className="flex h-9 w-full justify-start"
+                className="flex justify-start w-full h-9"
               >
                 <Button
                   variant="ghost"
-                  className="flex w-full justify-start gap-1 text-sm"
+                  className="flex gap-1 justify-start w-full text-sm"
                 >
                   <ShoppingBag className="icon" />
                   {t('header.myOrders')}
@@ -75,7 +75,7 @@ export default function SystemProfileDropdown() {
           <NavLink to={ROUTE.LOGIN}>
             <Button
               variant="ghost"
-              className="flex w-full items-center justify-start gap-2"
+              className="flex gap-2 justify-start items-center w-full"
             >
               <LogIn />
               {t('header.login')}

@@ -81,4 +81,44 @@ export class PdfService {
 
     return Buffer.from(pdfBuffer);
   }
+
+  public async generatePdfImage(
+    templateName: string,
+    data: any,
+    metadata?: puppeteer.ScreenshotOptions,
+  ): Promise<Buffer> {
+    // Compile HTML using the specified template and data
+    const htmlContent = await this.compileTemplate(templateName, data);
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const page = await browser.newPage();
+
+    await page.setViewport({
+      width: 420,
+      height: 290,
+      deviceScaleFactor: 1,
+    });
+
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    if (_.isEmpty(metadata)) metadata.type = 'png';
+
+    const screenshotBuffer = await page.screenshot({
+      // fullPage: true,
+      clip: {
+        x: 0,
+        y: 0,
+        width: 420,
+        height: 290,
+      },
+      ...metadata,
+    });
+
+    await browser.close();
+
+    return Buffer.from(screenshotBuffer);
+  }
 }

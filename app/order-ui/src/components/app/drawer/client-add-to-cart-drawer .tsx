@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import {
   Button,
@@ -63,7 +63,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
     const cartItem = {
       id: generateCartItemId(),
       slug: product.slug,
-      owner: getUserInfo()?.slug,
+      owner: getUserInfo()?.slug || '',
       type: OrderTypeEnum.AT_TABLE, // Default value
       orderItems: [
         {
@@ -74,6 +74,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
           quantity: 1,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
@@ -115,28 +116,45 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
     setIsOpen(false)
   }
 
+  useEffect(() => {
+    const handleTouchStart = (e: Event) => {
+      e.stopPropagation();
+    };
+
+    const drawerContent = document.querySelector('.drawer-content');
+    if (drawerContent) {
+      drawerContent.addEventListener('touchstart', handleTouchStart, { passive: false });
+    }
+
+    return () => {
+      if (drawerContent) {
+        drawerContent.removeEventListener('touchstart', handleTouchStart);
+      }
+    };
+  }, [isOpen]);
+
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-          <ShoppingCart className='icon' />
-          {t('menu.addToCart')}
+        <Button className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+          <Plus className='icon' />
+          {/* {t('menu.addToCart')} */}
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%]">
+      <DrawerContent className="h-[90%] drawer-content">
         <DrawerHeader>
           <DrawerTitle>{t('menu.confirmProduct')}</DrawerTitle>
           <DrawerDescription>{t('menu.confirmProductDescription')}</DrawerDescription>
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
                   src={`${publicFileURL}/${product.product.image}`}
                   alt={product.product.name}
-                  className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
+                  className="object-cover w-full h-48 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
                 />
               ) : (
                 <div className="w-full rounded-md bg-muted/50" />

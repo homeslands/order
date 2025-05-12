@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
@@ -12,11 +12,10 @@ import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { NonPropQuantitySelector } from '@/components/app/button'
 import {
   useCartItemStore,
-  useCurrentUrlStore,
   useUserStore,
 } from '@/stores'
 import { ICartItem, OrderTypeEnum, IProductVariant } from '@/types'
-import { formatCurrency, showErrorToast } from '@/utils'
+import { formatCurrency, } from '@/utils'
 import { ProductImageCarousel } from '.'
 
 export default function ProductDetailPage() {
@@ -26,24 +25,30 @@ export default function ProductDetailPage() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('slug')
   const { getUserInfo } = useUserStore()
-  const { setCurrentUrl } = useCurrentUrlStore()
-  const navigate = useNavigate()
 
   const { data: product, isLoading } = useSpecificMenuItem(slug as string)
   const { addCartItem } = useCartItemStore()
 
   const productDetail = product?.result
-  const [size, setSize] = useState<string | null>(
-    productDetail?.product.variants[0]?.size.name || null,
-  )
-  const [price, setPrice] = useState<number | null>(
-    productDetail?.product.variants[0]?.price || null,
-  )
+  const [size, setSize] = useState<string | null>(null)
+  const [price, setPrice] = useState<number | null>(null)
   const [note, setNote] = useState<string>('')
   const [quantity, setQuantity] = useState<number>(1)
-  const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
+  const [selectedVariant, setSelectedVariant] = useState<IProductVariant | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (productDetail?.product.variants.length && productDetail?.product.variants.length > 0) {
+      // Find the variant with lowest price
+      const smallestVariant = productDetail.product.variants.reduce((prev, curr) =>
+        prev.price < curr.price ? prev : curr
+      )
+      setSelectedVariant(smallestVariant)
+      setSize(smallestVariant.size.name)
+      setPrice(smallestVariant.price)
+    }
+  }, [productDetail])
+
   useEffect(() => {
     window.scrollTo(0, 0)
     if (productDetail?.product?.image) {
@@ -78,11 +83,11 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    const currentUrl = window.location.pathname
-    if (!getUserInfo()?.slug)
-      return (
-        showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
-      )
+    // const currentUrl = window.location.pathname
+    // if (!getUserInfo()?.slug)
+    //   return (
+    //     showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
+    //   )
     if (!selectedVariant) return
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -98,6 +103,7 @@ export default function ProductDetailPage() {
           quantity: quantity,
           variant: selectedVariant.slug,
           size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
           description: productDetail?.product.description || '',

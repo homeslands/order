@@ -15,7 +15,11 @@ export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
 export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
 export const PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA =
   'PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA';
-
+export const PRINTER_IP_EMPTY = 'PRINTER_IP_EMPTY';
+export const PRINTER_PORT_EMPTY = 'PRINTER_PORT_EMPTY';
+export const PRINTER_CONNECT_ERROR = 'PRINTER_CONNECT_ERROR';
+export const PRINTER_WRITE_ERROR = 'PRINTER_WRITE_ERROR';
+export const CHEF_ORDER_MUST_BE_ACCEPTED = 'CHEF_ORDER_MUST_BE_ACCEPTED';
 export type TChefOrderErrorCodeKey =
   | typeof ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA
   | typeof CHEF_ORDER_NOT_FOUND
@@ -25,7 +29,12 @@ export type TChefOrderErrorCodeKey =
   | typeof CHEF_ORDERS_ALREADY_EXIST_FROM_THIS_ORDER
   | typeof START_DATE_CAN_NOT_BE_EMPTY
   | typeof END_DATE_CAN_NOT_BE_EMPTY
-  | typeof PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA;
+  | typeof PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA
+  | typeof PRINTER_IP_EMPTY
+  | typeof PRINTER_PORT_EMPTY
+  | typeof PRINTER_CONNECT_ERROR
+  | typeof PRINTER_WRITE_ERROR
+  | typeof CHEF_ORDER_MUST_BE_ACCEPTED;
 
 export type TChefOrderErrorCode = Record<
   TChefOrderErrorCodeKey,
@@ -67,6 +76,14 @@ const ChefOrderValidation: TChefOrderErrorCode = {
   PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA: createErrorCode(
     154509,
     'Product not belong to any chef area',
+  ),
+  PRINTER_IP_EMPTY: createErrorCode(154510, 'Printer IP is empty'),
+  PRINTER_PORT_EMPTY: createErrorCode(154511, 'Printer port is empty'),
+  PRINTER_CONNECT_ERROR: createErrorCode(154512, 'Printer connect error'),
+  PRINTER_WRITE_ERROR: createErrorCode(154513, 'Printer write error'),
+  CHEF_ORDER_MUST_BE_ACCEPTED: createErrorCode(
+    154514,
+    'Chef order must be accepted',
   ),
 };
 

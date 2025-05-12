@@ -157,6 +157,65 @@ export class PaymentService {
     return this.mapper.map(payment, Payment, PaymentResponseDto);
   }
 
+  async initiatePublic(
+    createPaymentDto: CreatePaymentDto,
+  ): Promise<PaymentResponseDto> {
+    const context = `${PaymentService.name}.${this.initiatePublic.name}`;
+    // get order
+    const order = await this.orderRepository.findOne({
+      where: { slug: createPaymentDto.orderSlug },
+      relations: ['owner', 'payment'],
+    });
+    if (!order) {
+      this.logger.error('Order not found', null, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+    if (order.owner?.phonenumber !== 'default-customer') {
+      this.logger.error('Initiate public payment denied', null, context);
+      throw new PaymentException(
+        PaymentValidation.INITIATE_PUBLIC_PAYMENT_DENIED,
+      );
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.error('Order is not pending', null, context);
+      throw new OrderException(
+        OrderValidation.ORDER_STATUS_INVALID,
+        'Order is not pending',
+      );
+    }
+
+    let payment: Payment;
+
+    switch (createPaymentDto.paymentMethod) {
+      case PaymentMethod.BANK_TRANSFER:
+        payment = await this.bankTransferStrategy.process(order);
+        break;
+      case PaymentMethod.CASH:
+        payment = await this.cashStrategy.process(order);
+        break;
+      default:
+        this.logger.error('Invalid payment method', null, context);
+        throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+    }
+    this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
+
+    // Delete previous payment
+    if (order.payment) {
+      await this.paymentRepository.softRemove(order.payment);
+    }
+
+    // Update order
+    order.payment = payment;
+    await this.orderRepository.save(order);
+
+    if (payment.paymentMethod === PaymentMethod.CASH) {
+      // Update order status
+      this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, { orderId: order.id });
+    }
+    return this.mapper.map(payment, Payment, PaymentResponseDto);
+  }
+
   /**
    * Callback update payment status
    * @param {CallbackUpdatePaymentStatusRequestDto} requestData

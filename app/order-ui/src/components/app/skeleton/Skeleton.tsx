@@ -5,7 +5,7 @@ export function SkeletonCart() {
     <div className="flex flex-col h-full bg-muted/50">
       {/* Header */}
       <div className="sticky top-0 z-10 p-4 bg-white shadow-sm">
-        <Skeleton className="w-32 h-6 mb-4" />
+        <Skeleton className="mb-4 w-32 h-6" />
         <div className="flex gap-3">
           <Skeleton className="w-24 h-10 rounded-full" />
           <Skeleton className="w-24 h-10 rounded-full" />
@@ -16,17 +16,17 @@ export function SkeletonCart() {
       <div className="flex-1 p-4">
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 bg-white rounded-xl">
+            <div key={i} className="flex gap-3 items-center p-3 bg-white rounded-xl">
               <Skeleton className="w-[72px] h-[72px] rounded-lg" />
               <div className="flex-1">
-                <Skeleton className="w-3/4 h-5 mb-2" />
+                <Skeleton className="mb-2 w-3/4 h-5" />
                 <Skeleton className="w-1/4 h-4" />
-                <Skeleton className="w-1/3 h-4 mt-1" />
+                <Skeleton className="mt-1 w-1/3 h-4" />
               </div>
-              <div className="flex items-center gap-2">
-                <Skeleton className="rounded-md w-7 h-7" />
+              <div className="flex gap-2 items-center">
+                <Skeleton className="w-7 h-7 rounded-md" />
                 <Skeleton className="w-5 h-5" />
-                <Skeleton className="rounded-md w-7 h-7" />
+                <Skeleton className="w-7 h-7 rounded-md" />
               </div>
             </div>
           ))}
@@ -56,19 +56,31 @@ export function SkeletonCart() {
 
 export function SkeletonMenuList() {
   return (
-    <div className="flex flex-col border bg-muted/50 rounded-xl">
-      <div className="relative p-2">
-        <Skeleton className="w-full h-32 rounded-lg bg-gray-300" />
+    <div className="flex flex-row sm:flex-col justify-between bg-white rounded-xl border backdrop-blur-md border-muted-foreground/40 min-h-[8rem] sm:min-h-[22rem] dark:bg-transparent">
+      {/* Image Section */}
+      <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-48">
+        <Skeleton className="w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-48 bg-muted-foreground/20" />
       </div>
-      {/* Content Section */}
-      <div className="flex flex-col flex-1 p-4 space-y-2">
-        {/* Name */}
-        <Skeleton className="w-3/4 h-4 bg-gray-300" />
 
-        {/* Description */}
-        <div className="space-y-1">
-          <Skeleton className="w-full h-3 bg-gray-300" />
+      {/* Content Section */}
+      <div className="flex flex-col flex-1 justify-between p-2">
+        <div className="h-auto sm:h-[5rem]">
+          <Skeleton className="mb-2 w-3/4 h-4 bg-muted-foreground/20" />
+          <div className="space-y-1">
+            <Skeleton className="w-full h-3 bg-muted-foreground/20" />
+            <Skeleton className="w-2/3 h-3 bg-muted-foreground/20" />
+          </div>
         </div>
+
+        <div className="flex flex-col gap-1">
+          <Skeleton className="w-1/3 h-4 bg-muted-foreground/20" />
+          <Skeleton className="w-1/4 h-3 bg-muted-foreground/20" />
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <div className="flex justify-end items-end p-2 sm:w-full">
+        <Skeleton className="w-8 h-8 rounded-full bg-muted-foreground/20" />
       </div>
     </div>
   )

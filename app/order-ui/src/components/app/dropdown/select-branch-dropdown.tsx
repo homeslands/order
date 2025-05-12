@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { MapPinIcon } from 'lucide-react'
 
 import {
@@ -13,10 +15,23 @@ import {
 } from '@/components/ui'
 import { useBranch } from '@/hooks'
 import { useBranchStore } from '@/stores'
+import { useTranslation } from 'react-i18next'
 
 export default function SelectBranchDropdown() {
+  const { t } = useTranslation('branch')
   const { data: branchRes } = useBranch()
   const { branch, setBranch } = useBranchStore()
+  // get branch from params
+  const [searchParams] = useSearchParams()
+  const branchSlug = searchParams.get('branch')
+  useEffect(() => {
+    if (branchSlug && branchRes?.result) {
+      const b = branchRes.result.find((item) => item.slug === branchSlug)
+      if (b) {
+        setBranch(b)
+      }
+    }
+  }, [branchSlug, branchRes, setBranch])
 
   const handleSelectChange = (value: string) => {
     const b = branchRes?.result.find((item) => item.slug === value)
@@ -34,7 +49,7 @@ export default function SelectBranchDropdown() {
           <MapPinIcon className="h-[1.1rem] w-[1.1rem]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 mt-1 mr-2">
+      <DropdownMenuContent className="mt-1 mr-2 w-56">
         <Select
           value={branch?.slug}
           onValueChange={(value) => handleSelectChange(value)}
@@ -42,7 +57,7 @@ export default function SelectBranchDropdown() {
           <SelectTrigger className="w-full h-8">
             <SelectValue
               className="text-xs"
-              placeholder={'Lựa chọn chi nhánh'}
+              placeholder={t('branch.chooseBranch')}
             />
           </SelectTrigger>
           <SelectContent>

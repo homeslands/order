@@ -368,6 +368,9 @@ describe('ProductService', () => {
         id: 'mock-product-id',
         slug: 'mock-product-slug',
         variants: [variant],
+        menuItems: [],
+        productChefAreas: [],
+        productAnalyses: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       } as Product;

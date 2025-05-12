@@ -456,6 +456,7 @@ export class ProductService {
 
     const existProductName = await this.productRepository.findOneBy({
       name: requestData.name,
+      slug: Not(slug),
     });
     if (existProductName) {
       this.logger.warn(ProductValidation.PRODUCT_NAME_EXIST.message, context);
@@ -521,13 +522,26 @@ export class ProductService {
     const context = `${ProductService.name}.${this.deleteProduct.name}`;
     const product = await this.productRepository.findOne({
       where: { slug },
-      relations: ['variants'],
+      relations: [
+        'variants',
+        'menuItems',
+        'productChefAreas',
+        'productAnalyses',
+      ],
     });
     if (!product)
       throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+    if (
+      !_.isEmpty(product.menuItems) ||
+      !_.isEmpty(product.productChefAreas) ||
+      !_.isEmpty(product.productAnalyses)
+    ) {
+      this.logger.warn(ProductValidation.PRODUCT_HAS_RELATION.message, context);
+      throw new ProductException(ProductValidation.PRODUCT_HAS_RELATION);
+    }
 
-    // Delete variants
     await this.deleteVariantsRelatedProduct(product.variants);
+
     const deleted = await this.productRepository.softDelete({ slug });
     this.logger.log(`Product ${slug} deleted successfully`, context);
 

@@ -3,6 +3,7 @@
     "title": "Doanh thu",
     "totalRevenue": "Doanh thu",
     "totalOrders": "Tổng đơn hàng",
+    "totalOrderItem": "Tổng số ly",
     "totalAmountCash": "Tiền mặt",
     "totalAmountBank": "Chuyển khoản",
     "totalAmountInternal": "Ví nội bộ",
@@ -33,7 +34,7 @@
     "orderUnit": "đơn",
     "cash": "Tiền mặt",
     "bank": "Chuyển khoản",
-    "internal": "Nội bộ",
+    "internalWallet": "Ví nội bộ",
     "revenue": "Doanh thu (nghìn đồng)"
   }
 }

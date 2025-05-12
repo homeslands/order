@@ -28,6 +28,7 @@ import { Menu } from 'src/menu/menu.entity';
 import { JobRecoveryService } from './job.recovery';
 import { MailModule } from 'src/mail/mail.module';
 import { NotificationModule } from 'src/notification/notification.module';
+import { JobScheduler } from './job.scheduler';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { NotificationModule } from 'src/notification/notification.module';
     ChefOrderItemUtils,
     MenuUtils,
     JobRecoveryService,
+    JobScheduler,
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })

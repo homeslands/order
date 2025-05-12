@@ -21,6 +21,8 @@ import moment from 'moment'
 export default function OrderManagementPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
+  const { t: tCommon } = useTranslation('common')
+
   const {
     setOrderSlug,
     setIsSheetOpen,
@@ -29,34 +31,27 @@ export default function OrderManagementPage() {
     orderSlug,
     selectedRow,
   } = useSelectedOrderStore()
-  const { t: tCommon } = useTranslation('common')
+
   const { userInfo } = useUserStore()
   const { addOrder } = useOrderStore()
   const { clearSelectedItems } = useOrderTrackingStore()
   const { data: orderDetail } = useOrderBySlug(orderSlug)
+
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
+
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [searchParams] = useSearchParams()
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
-  const [slug, setSlug] = useState(searchParams.get('slug') || '')
 
   useEffect(() => {
     const urlSlug = searchParams.get('slug')
-    if (urlSlug && urlSlug !== slug) {
-      setSlug(urlSlug)
+    if (urlSlug) {
       setOrderSlug(urlSlug)
-      setIsSheetOpen(true)
       setSelectedRow(urlSlug)
-    }
-  }, [searchParams, slug, setOrderSlug, setIsSheetOpen, setSelectedRow])
-
-  useEffect(() => {
-    if (slug) {
-      setOrderSlug(slug)
       setIsSheetOpen(true)
     }
-  }, [slug, setOrderSlug, setIsSheetOpen])
+  }, [searchParams, setOrderSlug, setIsSheetOpen, setSelectedRow])
 
   const { data, isLoading, refetch } = useOrders({
     hasPaging: true,
@@ -64,24 +59,26 @@ export default function OrderManagementPage() {
     size: pagination.pageSize,
     order: 'DESC',
     branch: userInfo?.branch?.slug,
-    startDate: startDate,
-    endDate: endDate,
-    status: status !== 'all' ? status : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
+    startDate,
+    endDate,
+    status: status !== 'all'
+      ? status
+      : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
   })
 
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
-      pageIndex: 1
+      pageIndex: 1,
     }))
   }, [startDate, endDate, status, setPagination])
+
   useEffect(() => {
     if (orderDetail?.result) {
       addOrder(orderDetail.result)
     }
   }, [orderDetail, addOrder])
 
-  //polling useOrders every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       refetch()
@@ -91,7 +88,15 @@ export default function OrderManagementPage() {
 
   const handleOrderClick = (order: IOrder) => {
     clearSelectedItems()
-    setSlug(order.slug)
+    setOrderSlug(order.slug)
+    setSelectedRow(order.slug)
+    setIsSheetOpen(true)
+  }
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false)
+    setOrderSlug('')
+    setSelectedRow('')
   }
 
   const filterConfig = [
@@ -114,24 +119,19 @@ export default function OrderManagementPage() {
     }
   }
 
-  const handleCloseSheet = () => {
-    setIsSheetOpen(false)
-    setOrderSlug('')
-  }
-
   return (
     <div className="flex flex-col flex-1 gap-2">
       <Helmet>
-        <meta charSet='utf-8' />
-        <title>
-          {tHelmet('helmet.orderManagement.title')}
-        </title>
-        <meta name='description' content={tHelmet('helmet.orderManagement.title')} />
+        <meta charSet="utf-8" />
+        <title>{tHelmet('helmet.orderManagement.title')}</title>
+        <meta name="description" content={tHelmet('helmet.orderManagement.title')} />
       </Helmet>
+
       <span className="flex gap-1 justify-start items-center w-full text-lg">
         <SquareMenu />
         {t('order.title')}
       </span>
+
       <div className="grid grid-cols-1 gap-2 h-full">
         <DataTable
           isLoading={isLoading}

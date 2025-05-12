@@ -27,7 +27,7 @@
   },
   "chefOrder": {
     "title": "Khu vực bếp",
-    "referenceNumber": "Mã tham chiếu",
+    "referenceNumber": "Mã đơn",
     "createdAt": "Ngày tạo",
     "productName": "Tên món",
     "quantity": "Số lượng",
@@ -59,6 +59,10 @@
     "create": "Thông báo cho bếp",
     "createChefOrderWarning": "Bạn sắp sửa thông báo cho bếp đơn hàng ",
     "createChefOrderConfirmation": "Bạn có chắc chắn muốn thông báo cho bếp đơn hàng này không?",
-    "exportChefOrder": "Xuất đơn hàng bếp"
+    "exportChefOrder": "Xuất hóa đơn",
+    "exportAutoChefOrderTicket": "Xuất nhãn dán món tự động",
+    "exportManualChefOrderTicket": "Xuất nhãn dán món thủ công",
+    "export": "Xuất hóa đơn",
+    "exportTicket": "Xuất nhãn dán"
   }
 }

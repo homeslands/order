@@ -7,6 +7,7 @@ export const ROUTE = {
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/reset-password',
   ORDER_SUCCESS: '/order-success',
+  CLIENT_ORDER_SUCCESS: '/client/order-success',
   VERIFY_EMAIL: '/verify-email', // Make sure this matches exactly with your URL path
 
   // System Routes
@@ -15,11 +16,13 @@ export const ROUTE = {
   STAFF_BRANCH: '/system/branch',
   STAFF_PROFILE: '/system/profile',
   STAFF_MENU: '/system/menu',
+  STAFF_CLIENT_VIEW: '/system/client-view',
   STAFF_CHECKOUT_ORDER: '/checkout-order',
   STAFF_ORDER_PAYMENT: '/system/payment',
   STAFF_ORDER_MANAGEMENT: '/system/order-management',
   STAFF_CHEF_ORDER: '/system/chef-order',
   STAFF_ORDER_HISTORY: '/system/order-history',
+  // STAFF_UPDATE_ORDER: '/system/update-order',
   STAFF_ORDER_PREPARATION: '/order-preparation',
   STAFF_TABLE_MANAGEMENT: '/system/table',
   STAFF_PRODUCT_MANAGEMENT: '/system/product',
@@ -32,7 +35,7 @@ export const ROUTE = {
   STAFF_ROLE_MANAGEMENT: '/system/role',
   STAFF_BANK_CONFIG: '/system/bank-config',
   STAFF_STATIC_PAGE: '/system/static-page',
-  STAFF_VOUCHER: '/system/voucher',
+  STAFF_VOUCHER_GROUP: '/system/voucher-group',
   STAFF_PROMOTION: '/system/promotion',
   STAFF_CHEF_AREA_MANAGEMENT: '/system/area',
   STAFF_BANNER: '/system/banner',
@@ -48,6 +51,7 @@ export const ROUTE = {
   CLIENT_ORDER_HISTORY: '/history',
   CLIENT_UPDATE_ORDER: '/update-order',
   CLIENT_PROFILE: '/profile',
+  CLIENT_ORDERS_PUBLIC: '/orders-public',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes
@@ -55,6 +59,7 @@ export const ROUTE = {
   CONTACT: '/contact',
   HELP: '/help',
   POLICY: '/policy',
+  SECURITY: '/security',
   DOCS: '/docs',
 
   ADMIN_CONFIG: 'system/config',

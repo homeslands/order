@@ -13,6 +13,8 @@
     "copyEmailSuccess": "Email copied successfully",
     "sendVerifyEmailSuccess": "Verification email sent successfully. Please check your email",
     "branchRequired": "You haven't selected a branch",
+    "updateOrderNoteSuccess": "Order note updated successfully",
+    "updateOrderItemNoteSuccess": "Order item note updated successfully",
     "orderSuccess": "Order placed successfully",
     "createCatalogSuccess": "Catalog created successfully",
     "updateCatalogSuccess": "Catalog updated successfully",
@@ -173,6 +175,10 @@
     "voucherAlreadyUsed": "Voucher has already been used!",
     "voucherNotFound": "Voucher not found",
     "voucherExpired": "Voucher expired",
+    "voucherNotValid": "Voucher is not valid, please choose another voucher",
+    "createVoucherGroupSuccess": "Voucher group created successfully",
+    "updateVoucherGroupSuccess": "Voucher group updated successfully",
+    "deleteVoucherGroupSuccess": "Voucher group deleted successfully",
     "minOrderNotMet": "Minimum order value not met",
     "invalidQuery": "Invalid query",
     "acbConnectorConfigNotFound": "ACB connector configuration not found",
@@ -260,6 +266,7 @@
     "promotionNotFound": "Promotion not found",
     "denyDeletePromotion": "Cannot delete promotion",
     "errorGetMenuItemByPromotion": "Error getting menu items by promotion",
+    "menuItemNotFound": "Menu item not found",
     "errorUpdatePromotion": "Error updating promotion",
     "promotionAppliedCannotUpdateBranch": "Cannot update branch - promotion already applied",
     "promotionAppliedCannotUpdateTime": "Cannot update time - promotion already applied",
@@ -333,6 +340,10 @@
     "errorWhenCreateChefOrdersFromOrder": "Error when creating chef orders from order",
     "exportChefOrderSuccess": "Chef order exported successfully",
     "exportChefOrderDescription": "Export chef order",
-    "exportChefOrderConfirmation": "Are you sure you want to export chef order?"
+    "exportChefOrderConfirmation": "Are you sure you want to export chef order?",
+    "emailAlreadyExists": "Email already exists",
+    "tooManyRequests": "Too many requests",
+    "duplicateVoucherTitle": "Voucher title already exists",
+    "duplicateVoucherCode": "Voucher code already exists"
   }
 }

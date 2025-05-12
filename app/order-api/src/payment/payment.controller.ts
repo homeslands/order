@@ -26,6 +26,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Payment')
 @ApiBearerAuth()
@@ -82,6 +83,30 @@ export class PaymentController {
     } as AppResponseDto<PaymentResponseDto>;
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('initiate/public')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Initiate payment public' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Payment has been initiated successfully',
+    type: PaymentResponseDto,
+    isArray: true,
+  })
+  async initiatePublic(
+    @Body(new ValidationPipe({ transform: true }))
+    createPaymentDto: CreatePaymentDto,
+  ) {
+    const result = await this.paymentService.initiatePublic(createPaymentDto);
+    return {
+      message: 'Payment has been initiated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PaymentResponseDto>;
+  }
+
   @Post('callback/status')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -103,6 +128,20 @@ export class PaymentController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export payment' })
   async exportPayment(@Param('slug') slug: string) {
+    const result = await this.paymentService.exportPayment(slug);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="payment-${new Date().toISOString()}.pdf"`,
+    });
+  }
+
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Post(':slug/export/public')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Export payment public' })
+  async exportPaymentPublic(@Param('slug') slug: string) {
     const result = await this.paymentService.exportPayment(slug);
     return new StreamableFile(result, {
       type: 'application/pdf',

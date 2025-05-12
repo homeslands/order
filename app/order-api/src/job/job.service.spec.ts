@@ -29,6 +29,7 @@ import { MailProducer } from 'src/mail/mail.producer';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { NotificationProducer } from 'src/notification/notification.producer';
+import { JobScheduler } from './job.scheduler';
 
 describe('JobService', () => {
   let service: JobService;
@@ -36,6 +37,7 @@ describe('JobService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        JobScheduler,
         TransactionManagerService,
         JobService,
         OrderUtils,

@@ -56,6 +56,7 @@ export { default as CancelOrderDialog } from './cancel-order-dialog'
 export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
 
 export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
+export { default as SystemAddToCurrentOrderDialog } from './system-add-to-current-order-dialog'
 
 export { default as CreateBankConnectorDialog } from './create-bank-connector-dialog'
 export { default as UpdateBankConnectorDialog } from './update-bank-connector-dialog'
@@ -65,6 +66,10 @@ export { default as QrCodeDialog } from './qr-code-dialog'
 export { default as CreateVoucherDialog } from './confirm-create-voucher-dialog'
 export { default as ConfirmUpdateVoucherDialog } from './confirm-update-voucher-dialog'
 export { default as DeleteVoucherDialog } from './delete-voucher-dialog'
+
+export { default as ConfirmCreateVoucherGroupDialog } from './confirm-create-voucher-group-dialog'
+export { default as ConfirmUpdateVoucherGroupDialog } from './confirm-update-voucher-group-dialog'
+export { default as ConfirmCreateMultipleVoucherDialog } from './confirm-create-multiple-voucher-dialog'
 
 export { default as AddMenuItemDialog } from './add-product-to-menu-dialog'
 export { default as AddMultipleItemsDialog } from './add-multiple-products-to-menu-dialog'
@@ -127,3 +132,7 @@ export { default as ConfirmCompleteChefOrderDialog } from './confirm-complete-ch
 export { default as ShowInvoiceDialog } from './show-invoice-dialog'
 
 export { default as ConfirmLeavingRoleDetailPageDialog } from './confirm-leaving-role-detail-page'
+
+export { default as ChooseTableDialog } from './choose-table-dialog'
+
+export { default as CancelPublicOrderDialog } from './cancel-public-order-dialog'

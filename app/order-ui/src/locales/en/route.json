@@ -32,6 +32,8 @@
     "payment": "Payment",
     "banner": "Banner",
     "docs": "Documents",
-    "notification": "Notification"
+    "notification": "Notification",
+    "update": "Update",
+    "order-success": "Order Success"
   }
 }

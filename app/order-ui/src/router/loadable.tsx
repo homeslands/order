@@ -7,6 +7,12 @@ export const SystemLayout = React.lazy(() =>
   })),
 )
 
+export const ClientViewLayout = React.lazy(() =>
+  import('@/app/layouts/system').then((module) => ({
+    default: module.ClientViewLayout,
+  })),
+)
+
 //Auth
 export const LoginPage = React.lazy(() =>
   import('@/app/auth').then((module) => ({
@@ -61,15 +67,15 @@ export const MenuPage = React.lazy(() =>
   })),
 )
 
-export const SystemCheckoutPage = React.lazy(() =>
-  import('@/app/system/checkout').then((module) => ({
-    default: module.SystemCheckoutPage,
-  })),
-)
-
 export const OrderSuccessPage = React.lazy(() =>
   import('@/app/system/menu').then((module) => ({
     default: module.OrderSuccessPage,
+  })),
+)
+
+export const ClientOrderSuccessPage = React.lazy(() =>
+  import('@/app/client/payment/components').then((module) => ({
+    default: module.ClientOrderSuccessPage,
   })),
 )
 
@@ -80,6 +86,12 @@ export const OrderManagementPage = React.lazy(() =>
   })),
 )
 
+//Client view page
+export const ClientViewPage = React.lazy(() =>
+  import('@/app/system/client-view').then((module) => ({
+    default: module.ClientViewPage,
+  })),
+)
 // Chef order management page
 export const ChefOrderPage = React.lazy(() =>
   import('@/app/system/chef-order').then((module) => ({
@@ -94,6 +106,25 @@ export const OrderHistoryPage = React.lazy(() =>
   })),
 )
 
+//Order public page
+export const OrdersPublicPage = React.lazy(() =>
+  import('@/app/client/orders-public').then((module) => ({
+    default: module.OrdersPublicPage,
+  })),
+)
+
+//Order public detail page
+export const PublicOrderDetailPage = React.lazy(() =>
+  import('@/app/client/public-order-detail').then((module) => ({
+    default: module.PublicOrderDetailPage,
+  })),
+)
+//Update order page for staff
+export const UpdateOrderPage = React.lazy(() =>
+  import('@/app/system/update-order').then((module) => ({
+    default: module.UpdateOrderPage,
+  })),
+)
 //Order detail page
 export const OrderDetailPage = React.lazy(() =>
   import('@/app/system/order-history').then((module) => ({
@@ -224,8 +255,14 @@ export const ConfigPage = React.lazy(() =>
   })),
 )
 
-export const VoucherPage = React.lazy(() =>
+//Voucher group page
+export const VoucherGroupPage = React.lazy(() =>
   import('@/app/system/voucher').then((module) => ({
+    default: module.VoucherGroupPage,
+  })),
+)
+export const VoucherPage = React.lazy(() =>
+  import('@/app/system/voucher/components').then((module) => ({
     default: module.VoucherPage,
   })),
 )
@@ -321,6 +358,13 @@ export const ClientAboutPage = React.lazy(() =>
 export const ClientPolicyPage = React.lazy(() =>
   import('@/app/client/policy').then((module) => ({
     default: module.PolicyPage,
+  })),
+)
+
+//Security term page
+export const ClientSecurityTermPage = React.lazy(() =>
+  import('@/app/client/security-term').then((module) => ({
+    default: module.SecurityTermPage,
   })),
 )
 

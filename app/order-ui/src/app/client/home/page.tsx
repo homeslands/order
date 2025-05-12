@@ -3,10 +3,10 @@ import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui'
-import { useBanners, useSpecificMenu } from '@/hooks'
+import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner } from './components'
-import { AdPopup } from '@/components/app/AdPopup'
+// import { AdPopup } from '@/components/app/AdPopup'
 import { Helmet } from 'react-helmet'
 import moment from 'moment'
 import { useBranchStore } from '@/stores'
@@ -15,6 +15,7 @@ import { IMenuItem } from '@/types'
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tHelmet } = useTranslation('helmet')
+  const isMobile = useIsMobile()
   const { data: banner } = useBanners({ isActive: true })
   const bannerData = banner?.result || []
 
@@ -44,6 +45,9 @@ export default function HomePage() {
   const sortedMenuItems = customMenu.sort(
     (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory,
   )
+
+  // get some menu items
+  const menuItems = customMenu.slice(0, 4)
   // Lấy top  sản phẩm có doanh số cao nhất
   const top15BestSellers = sortedMenuItems.slice(0, 10)
 
@@ -68,12 +72,12 @@ export default function HomePage() {
     { newsProducts: [], promotionProducts: [] },
   )
 
-  // Sáo trộn mảng sản phẩm mới
+  // Xáo trộn mảng sản phẩm mới
   const shuffledNewsProducts = shuffle(newsProducts);
 
   return (
     <React.Fragment>
-      <AdPopup />
+      {/* <AdPopup /> */}
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.home.title')}</title>
@@ -84,11 +88,38 @@ export default function HomePage() {
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
 
+        {/* Section Menu Highlight */}
+        {menuItems.length > 0 && (
+          <div className="container">
+            <motion.div
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={fadeInVariants}
+            >
+              <div className="w-full flex-between">
+                <div className="primary-highlight">
+                  {t('home.exploreMenu')}
+                </div>
+                <NavLink to={ROUTE.CLIENT_MENU}>
+                  <Button>{t('home.viewMenu')}</Button>
+                </NavLink>
+              </div>
+              <SliderMenu
+                type="highlight"
+                menus={menuItems}
+                isFetching={false}
+              />
+            </motion.div>
+          </div>
+        )}
+
         {/* promotion */}
         {promotionProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -103,6 +134,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
               <SliderMenu
+                type="promotion"
                 menus={promotionProducts}
                 isFetching={fechMenupromotion}
               />
@@ -114,7 +146,7 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-fit min-h-[28rem] w-full flex-col items-start gap-4"
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -139,7 +171,7 @@ export default function HomePage() {
         {newsProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className="flex h-[28rem] w-full flex-col items-start gap-4"
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -152,7 +184,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} />
+              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} type="new" />
             </motion.div>
           </div>
         )}

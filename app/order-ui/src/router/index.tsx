@@ -8,7 +8,6 @@ import {
   MenuPage,
   SystemLayout,
   LoginPage,
-  SystemCheckoutPage,
   TablePage,
   OrderSuccessPage,
   RegisterPage,
@@ -52,9 +51,17 @@ import {
   ChefAreaPage,
   ChefAreaDetailPage,
   ChefOrderPage,
+  ClientSecurityTermPage,
+  UpdateOrderPage,
+  ClientViewPage,
+  ClientViewLayout,
+  OrdersPublicPage,
+  PublicOrderDetailPage,
+  ClientOrderSuccessPage,
+  VoucherGroupPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
-import { ClientLayout } from '@/app/layouts/client'
+import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
@@ -85,7 +92,7 @@ export const router = createBrowserRouter([
         path: ROUTE.ABOUT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
@@ -99,13 +106,27 @@ export const router = createBrowserRouter([
         path: ROUTE.POLICY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
           {
             index: true,
             element: <SuspenseElement component={ClientPolicyPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.SECURITY,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientSecurityTermPage} />,
           },
         ],
       },
@@ -172,21 +193,16 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_CHECKOUT_ORDER,
+        path: ROUTE.STAFF_CLIENT_VIEW,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
+            <SuspenseElement component={ClientViewLayout} />
           </Suspense>
         ),
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.STAFF]}
-                element={<SuspenseElement component={SystemCheckoutPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientViewPage} />,
           },
         ],
       },
@@ -224,17 +240,21 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[
-                //   Role.STAFF,
-                //   Role.MANAGER,
-                //   Role.ADMIN,
-                //   Role.SUPER_ADMIN,
-                // ]}
-                element={<SuspenseElement component={OrderSuccessPage} />}
-              />
-            ),
+            element: <SuspenseElement component={OrderSuccessPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDER_SUCCESS}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientOrderSuccessPage} />,
           },
         ],
       },
@@ -288,6 +308,25 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.STAFF, Role.MANAGER]}
                 element={<SuspenseElement component={OrderHistoryPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_ORDER_HISTORY}/:slug/update`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.STAFF, Role.MANAGER]}
+                element={<SuspenseElement component={UpdateOrderPage} />}
               />
             ),
           },
@@ -648,7 +687,26 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_VOUCHER,
+        path: ROUTE.STAFF_VOUCHER_GROUP,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={VoucherGroupPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_VOUCHER_GROUP}/:slug`,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />
@@ -819,16 +877,12 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                element={<SuspenseElement component={ClientCartPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientCartPage} />,
           },
         ],
       },
       {
-        path: `${ROUTE.CLIENT_PAYMENT}`,
+        path: ROUTE.CLIENT_PAYMENT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />
@@ -837,17 +891,40 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientPaymentPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientPaymentPage} />,
           },
         ],
       },
       {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}`,
+        path: ROUTE.CLIENT_ORDERS_PUBLIC,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={OrdersPublicPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDERS_PUBLIC}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={PublicOrderDetailPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.CLIENT_ORDER_HISTORY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />

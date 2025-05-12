@@ -18,6 +18,7 @@
     "price": "Price: ",
     "note": "Note",
     "enterNote": "Enter note",
+    "noNote": "No note",
     "menu": "Menu",
     "table": "Table list",
     "take-out": "Take out",
@@ -35,7 +36,7 @@
     "order": "Order",
     "selectOrderType": "Select order type",
     "orderDescription": "Please check order details",
-    "dineIn": "Dine-in",
+    "dineIn": "Dine in",
     "takeAway": "Take away",
     "promotion": "Discount code",
     "enterPromotion": "Enter discount code",
@@ -51,6 +52,7 @@
     "createdAt": "Created date",
     "totalItems": "Total items",
     "dayIndex": "Day index",
+    "branch": "Branch",
     "noTemplate": "Not a menu template",
     "amount": "Quantity: ",
     "noDescription": "No description available",
@@ -154,8 +156,9 @@
     "orderDate": "Order date",
     "note": "Note",
     "enterNote": "Enter note",
+    "enterOrderNote": "Enter order note (if any)",
     "deliveryMethod": "Delivery method",
-    "dineIn": "Dine-in",
+    "dineIn": "Dine in",
     "takeAway": "Take away",
     "defaultApprover": "Default",
     "location": "Location",
@@ -166,7 +169,6 @@
     "subTotal": "Subtotal",
     "total": "Total price",
     "discount": "Discount",
-    "vat": "VAT included",
     "grandTotal": "Grand total",
     "totalPayment": "Total payment",
     "confirmPaid": "Confirm payment",
@@ -183,6 +185,10 @@
     "completed": "Completed",
     "shipping": "Shipping",
     "failed": "Failed",
+    "failedMobile": "Failed",
+    "waitingForKitchen": "Waiting for kitchen",
+    "deleteAll": "Delete all",
+    "deleteAllWarning": "Are you sure you want to delete all items in the cart?",
     "orderDetail": "Order details",
     "order": "Order",
     "cashier": "Cashier",
@@ -196,6 +202,8 @@
     "deleteNote": "Note: This action cannot be undone!",
     "deleteContent": "Are you sure you want to remove ",
     "deleteContent2": " from the cart?",
+    "selectTableNote": "Note: Select table before confirming order. Multiple orders can share the same table.",
+    "create": "Place order",
     "confirmOrder": "Are you sure you want to place the order?",
     "update": "Update order",
     "confirmUpdateOrder": "Are you sure you want to update the order?",
@@ -211,7 +219,9 @@
     "noCooked": "No cooked",
     "cooking": "Cooking",
     "cooked": "Cooked",
-    "delivered": "Delivered"
+    "delivered": "Delivered",
+    "updateNote": "Update",
+    "invoiceNote": "Note: If you cannot download the invoice, please take a screenshot"
   },
   "table": {
     "title": "Table list"
@@ -241,6 +251,7 @@
     "orderDate": "Order date",
     "cashMethodNote": "Note: For cash payments, please proceed to the store's counter to make payment",
     "paymentNote": "Please verify payment information before proceeding with the transaction",
-    "downloadQRCode": "Download QR code"
+    "downloadQRCode": "Download QR code",
+    "noQRCode": "No QR code"
   }
 }

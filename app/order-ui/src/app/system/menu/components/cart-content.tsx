@@ -1,10 +1,10 @@
 import _ from 'lodash'
-import { Info, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
-import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
+import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { formatCurrency } from '@/utils'
@@ -16,9 +16,8 @@ import { ShoppingCart } from 'lucide-react'
 export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
-  const { getCartItems, removeCartItem } = useCartItemStore()
-
-  const cartItems = getCartItems()
+  const cartItems = useCartItemStore((state) => state.cartItems)
+  const removeCartItem = useCartItemStore((state) => state.removeCartItem)
 
   const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
   const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
@@ -29,17 +28,19 @@ export function CartContent() {
   }
 
   return (
-    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[35%] lg:w-[30%] xl:w-[25%] shadow-md overflow-hidden bg-background transition-all duration-300">
+    <div className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[25%] xl:w-[25%] shadow-md overflow-hidden bg-background transition-all duration-300">
       {/* Header */}
-      <div className="flex flex-col gap-3 px-4 py-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
+      <div className="flex flex-col gap-3 p-3 border-b backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex gap-2 justify-between items-center'>
-          <h1 className="text-lg font-semibold">{t('menu.order')}</h1>
-          <CreateCustomerDialog />
+          <h1 className="text-sm font-semibold">{t('menu.order')}</h1>
+          {cartItems?.orderItems && (
+            <CreateCustomerDialog />
+          )}
         </div>
       </div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="overflow-y-auto min-h-[calc(75vh-12rem)] flex-1 scrollbar-hidden">
+      <ScrollArea className="overflow-y-auto min-h-[calc(75vh-14rem)] flex-1 scrollbar-hidden">
         {/* Order type selection */}
         <div className="flex z-10 flex-col gap-2 px-4 py-3 border-b backdrop-blur-sm bg-background/95">
           <OrderTypeSelect />
@@ -47,13 +48,13 @@ export function CartContent() {
         </div>
 
         {/* Selected Table */}
-        {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
+        {cartItems?.type === OrderTypeEnum.AT_TABLE && (
           <div className="flex gap-2 items-center px-4 py-3 text-sm border-b bg-muted/50">
-            {getCartItems()?.table ? (
+            {cartItems?.table ? (
               <div className='flex gap-2 items-center'>
                 <p className="text-muted-foreground">{t('menu.selectedTable')}</p>
                 <p className="px-3 py-1 font-medium text-white rounded-full bg-primary">
-                  {t('menu.tableName')} {getCartItems()?.tableName}
+                  {t('menu.tableName')} {cartItems?.tableName}
                 </p>
               </div>
             ) : (
@@ -121,8 +122,11 @@ export function CartContent() {
       {cartItems && cartItems?.orderItems?.length !== 0 && (
         <div className="z-10 px-4 py-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
           <div className='space-y-1'>
-            <VoucherListSheet />
-            {getCartItems()?.voucher && (
+            <div className="flex flex-col gap-2">
+              <OrderNoteInput order={cartItems} />
+              <VoucherListSheet />
+            </div>
+            {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex flex-col items-start">
                   <div className='flex gap-2 items-center'>
@@ -152,22 +156,24 @@ export function CartContent() {
                   </span>
                 </div>
               )}
-              {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+              {/* {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
                 <span className='flex gap-1 items-center text-sm text-destructive'>
                   <Info size={16} />
                   {t('menu.noSelectedTable')}
                 </span>
-              )}
-              <div className="flex justify-between items-center pt-3 font-medium border-t">
-                <div className='flex gap-2 items-center'>
-                  <span className="text-sm font-semibold">{t('menu.subTotal')}:</span>
-                  <span className="text-2xl font-bold text-primary">
+              )} */}
+              <div className="flex flex-col gap-1 justify-between items-start pt-3 font-medium border-t">
+                <div className='flex gap-2 justify-between items-center w-full'>
+                  <span className="text-sm font-semibold xl:text-lg">{t('menu.subTotal')}</span>
+                  <span className="text-xl font-extrabold xl:text-2xl text-primary">
                     {`${formatCurrency(totalAfterDiscount)}`}
                   </span>
                 </div>
-                <CreateOrderDialog
-                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
-                />
+                <div className='w-full'>
+                  <CreateOrderDialog
+                    disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -18,11 +18,14 @@ import {
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
 import { loadDataToPrinter, showToast } from '@/utils'
-import { useExportChefOrder } from '@/hooks'
+import { useExportChefOrder, useExportManualChefOrderTicket } from '@/hooks'
+
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
+  // const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
+  const { mutate: exportManualChefOrderTicket } = useExportManualChefOrderTicket()
   const { mutate: exportChefOrder } = useExportChefOrder()
 
   const handleExportChefOrder = (slug: string) => {
@@ -34,11 +37,29 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
     })
   }
 
+  // const handleExportAutoChefOrderTicket = (slug: string) => {
+  //   exportAutoChefOrderTicket(slug, {
+  //     onSuccess: (data: Blob) => {
+  //       showToast(tToast('toast.exportChefOrderSuccess'))
+  //       loadDataToPrinter(data)
+  //     },
+  //   })
+  // }
+
+  const handleExportManualChefOrderTicket = (slug: string) => {
+    exportManualChefOrderTicket(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportChefOrderSuccess'))
+        loadDataToPrinter(data)
+      },
+    })
+  }
   return [
     {
       id: 'select',
       header: ({ column }) => (
         <DataTableColumnHeader
+          className='min-w-24'
           column={column}
           title={tCommon('common.action')}
         />
@@ -48,7 +69,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         return (
           <>
             {chefOrder.status === ChefOrderStatus.PENDING ? (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div className='min-w-24' onClick={(e) => e.stopPropagation()}>
                 <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
               </div>
             ) : (
@@ -65,7 +86,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       enableHiding: false,
     },
     {
-      accessorKey: '',
+      accessorKey: 'referenceNumber',
       header: ({ column }) => (
         <DataTableColumnHeader key={column.id} column={column} title={t('chefOrder.referenceNumber')} />
       ),
@@ -130,6 +151,48 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       },
     },
     {
+      accessorKey: 'export',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.export')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" onClick={(e) => {
+              e.stopPropagation()
+              handleExportChefOrder(chefOrder.slug)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportChefOrder')}
+            </Button>
+          ) : null
+        )
+      },
+    },
+    {
+      accessorKey: 'exportTicket',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.exportTicket')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" onClick={(e) => {
+              e.stopPropagation()
+              handleExportManualChefOrderTicket(chefOrder.slug)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportTicket')}
+            </Button>
+          ) : null
+        )
+      },
+    },
+    {
       id: 'actions',
       header: tCommon('common.action'),
       cell: ({ row }) => {
@@ -152,7 +215,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
-                <Button onClick={(e) => {
+                {/* <Button onClick={(e) => {
                   e.stopPropagation()
                   handleExportChefOrder(chefOrder.slug)
                 }}
@@ -161,7 +224,27 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                 >
                   <DownloadIcon />
                   {t('chefOrder.exportChefOrder')}
+                </Button> */}
+                {/* <Button onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportAutoChefOrderTicket(chefOrder.slug)
+                }}
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                >
+                  <DownloadIcon />
+                  {t('chefOrder.exportAutoChefOrderTicket')}
                 </Button>
+                <Button onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportManualChefOrderTicket(chefOrder.slug)
+                }}
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                >
+                  <DownloadIcon />
+                  {t('chefOrder.exportManualChefOrderTicket')}
+                </Button> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
