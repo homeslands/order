@@ -24,8 +24,8 @@ export default function PublicClientLayout() {
   const { data: tableRes } = useTables(branchSlug)
 
   useEffect(() => {
-    if (tableSlug && tableRes?.result) {
-      const table = tableRes?.result.find((item) => item.slug === tableSlug)
+    if (tableSlug && tableRes?.result && tableRes.result.length > 0) {
+      const table = tableRes.result.find((item) => item.slug === tableSlug)
       if (table) {
         addTable(table)
       }

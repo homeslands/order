@@ -19,6 +19,7 @@ import { formatCurrency, showToast } from '@/utils'
 import { UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
 import moment from 'moment'
+import { VOUCHER_TYPE } from '@/constants'
 
 export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
   const { t } = useTranslation(['voucher'])
@@ -59,6 +60,16 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       },
     },
     {
+      accessorKey: 'type',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.type')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : t('voucher.percentOrder')}</div>
+      },
+    },
+    {
       accessorKey: 'startDate',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('voucher.time')} />
@@ -86,7 +97,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div className="flex items-center gap-2 text-xs sm:text-sm">
+          <div className="flex gap-2 items-center text-xs sm:text-sm">
             {voucher?.code}
             <TooltipProvider>
               <Tooltip>
@@ -150,7 +161,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
 
         return (
           <div
-            className={`text-xs sm:text-sm min-w-[8rem] italic font-medium ${isActive ? ' text-green-500' : ' text-destructive'
+            className={`text-xs sm:text-sm min-w-[8rem] italic font-medium ${isActive ? 'text-green-500' : 'text-destructive'
               }`}
           >
             {isActive ? t('voucher.active') : t('voucher.inactive')}
@@ -182,7 +193,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
           <div className='w-[4rem]'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>

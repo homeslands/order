@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from '@/components/ui'
 
-import { ICartItem, ICreateOrderRequest } from '@/types'
+import { ICartItem, ICreateOrderRequest, OrderTypeEnum } from '@/types'
 import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
 import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
@@ -110,7 +110,11 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
-          {t('order.create')}
+          {(order?.type === OrderTypeEnum.TAKE_OUT ||
+            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
+            ? t('order.create')
+            : t('menu.noSelectedTable')}
+
         </Button>
       </DialogTrigger>
 
@@ -137,7 +141,11 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           >
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={() => order && handleSubmit(order)} disabled={isPending || isPendingWithoutLogin}>
+          <Button onClick={() => {
+            if (order) {
+              handleSubmit(order)
+            }
+          }} disabled={isPending || isPendingWithoutLogin}>
             {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('order.create')}
           </Button>

@@ -21,12 +21,11 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeEnum } from '@/types'
 import { publicFileURL } from '@/constants'
 import { OrderNoteInput } from '@/components/app/input'
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tHelmet } = useTranslation('helmet')
-  // Bên trong component
   // const [runJoyride, setRunJoyride] = useState(false)
 
   useEffect(() => {
@@ -56,22 +55,22 @@ export default function ClientCartPage() {
   const { getCartItems } = useCartItemStore()
   const cartItems = getCartItems()
 
-  const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
-  const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
-  const totalAfterDiscount = subTotal - (subTotal * (cartItems?.voucher?.value || 0) / 100)
+  const subTotal = _.sumBy(
+    cartItems?.orderItems,
+    (item) => item.price * item.quantity,
+  )
+  const discount = (subTotal * (cartItems?.voucher?.value || 0)) / 100
+  const totalAfterDiscount =
+    subTotal - (subTotal * (cartItems?.voucher?.value || 0)) / 100
 
   if (_.isEmpty(cartItems?.orderItems)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col gap-5 justify-center items-center">
           <ShoppingCartIcon className="w-32 h-32 text-primary" />
-          <p className="text-center text-[13px]">
-            {t('order.noOrders')}
-          </p>
+          <p className="text-center text-[13px]">{t('order.noOrders')}</p>
           <NavLink to={ROUTE.CLIENT_MENU}>
-            <Button variant="default">
-              {t('order.backToMenu')}
-            </Button>
+            <Button variant="default">{t('order.backToMenu')}</Button>
           </NavLink>
         </div>
       </div>
@@ -81,11 +80,9 @@ export default function ClientCartPage() {
   return (
     <div className={`container py-10`}>
       <Helmet>
-        <meta charSet='utf-8' />
-        <title>
-          {tHelmet('helmet.cart.title')}
-        </title>
-        <meta name='description' content={tHelmet('helmet.cart.title')} />
+        <meta charSet="utf-8" />
+        <title>{tHelmet('helmet.cart.title')}</title>
+        <meta name="description" content={tHelmet('helmet.cart.title')} />
       </Helmet>
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
@@ -96,12 +93,12 @@ export default function ClientCartPage() {
               {t('order.selectTableNote')}
             </span>
           </div>
-          <div className='grid grid-cols-1 gap-1 sm:grid-cols-2'>
-            <div className='joyride-step-1'>
+          <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+            <div className="joyride-step-1">
               <OrderTypeSelect />
             </div>
-            <div className='grid grid-cols-2 gap-1 sm:grid-cols-5'>
-              <div className='sm:col-span-4 joyride-step-2'>
+            <div className="grid grid-cols-2 gap-1 sm:grid-cols-5">
+              <div className="joyride-step-2 sm:col-span-4">
                 <TableInCartSelect />
               </div>
               <DeleteAllCartDialog />
@@ -156,8 +153,12 @@ export default function ClientCartPage() {
                   key={item.id}
                   className="grid grid-cols-7 gap-4 items-center p-4 pb-4 w-full rounded-md sm:grid-cols-8"
                 >
-                  <img src={publicFileURL + "/" + item?.image} alt={item.name} className="hidden col-span-1 w-36 h-24 rounded-md sm:block" />
-                  <div className='grid flex-row col-span-7 gap-4 items-center w-full'>
+                  <img
+                    src={publicFileURL + '/' + item?.image}
+                    alt={item.name}
+                    className="hidden col-span-1 w-36 h-24 rounded-md sm:block"
+                  />
+                  <div className="grid flex-row col-span-7 gap-4 items-center w-full">
                     <div
                       key={`${item.id}`}
                       className="grid flex-row grid-cols-7 gap-4 items-center w-full"
@@ -199,11 +200,11 @@ export default function ClientCartPage() {
               {getCartItems()?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
-                    <div className='flex gap-2 items-center mt-2'>
-                      <span className='text-xs text-muted-foreground'>
+                    <div className="flex gap-2 items-center mt-2">
+                      <span className="text-xs text-muted-foreground">
                         {t('order.usedVoucher')}:&nbsp;
                       </span>
-                      <span className="px-3 py-1 text-xs font-semibold rounded-full border text-primary bg-primary/20 border-primary">
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
                         -{`${formatCurrency(discount)}`}
                       </span>
                     </div>
@@ -213,26 +214,22 @@ export default function ClientCartPage() {
             </div>
             <div className="flex flex-col justify-between items-end p-2 pt-4 mt-4 rounded-md border">
               <div className="flex flex-col justify-between items-start w-full">
-                <div className='flex flex-col gap-1 justify-start items-start w-full'>
-                  <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
+                <div className="flex flex-col gap-1 justify-start items-start w-full">
+                  <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
                     {t('order.subtotal')}:&nbsp;
-                    <span>
-                      {`${formatCurrency(subTotal)}`}
-                    </span>
+                    <span>{`${formatCurrency(subTotal)}`}</span>
                   </div>
-                  <div className='flex gap-2 justify-between items-center w-full text-sm text-muted-foreground'>
-                    <span className='italic text-green-500'>
+                  <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+                    <span className="italic text-green-500">
                       {t('order.discount')}:&nbsp;
                     </span>
-                    <span className='italic text-green-500'>
+                    <span className="italic text-green-500">
                       -{`${formatCurrency(discount)}`}
                     </span>
                   </div>
-                  <div className='flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md'>
-                    <span>
-                      {t('order.totalPayment')}:&nbsp;
-                    </span>
-                    <span className='text-2xl font-extrabold text-primary'>
+                  <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
+                    <span>{t('order.totalPayment')}:&nbsp;</span>
+                    <span className="text-2xl font-extrabold text-primary">
                       {`${formatCurrency(totalAfterDiscount)}`}
                     </span>
                   </div>
@@ -244,16 +241,22 @@ export default function ClientCartPage() {
             </div>
           </div>
           {/* Button */}
-          <div className='flex gap-2 justify-end w-full'>
-            {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
-              <span className='flex gap-2 justify-end items-center text-xs text-destructive'>
-                <Info size={18} />
-                {t('menu.noSelectedTable')}
-              </span>
-            )}
+          <div className="flex gap-2 justify-end w-full">
+            {cartItems &&
+              cartItems.type === OrderTypeEnum.AT_TABLE &&
+              !cartItems.table && (
+                <span className="flex gap-2 justify-end items-center text-xs text-destructive">
+                  <Info size={18} />
+                  {t('menu.noSelectedTable')}
+                </span>
+              )}
             <div className="flex justify-end w-fit">
               <CreateOrderDialog
-                disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                disabled={
+                  !cartItems ||
+                  (cartItems.type === OrderTypeEnum.AT_TABLE &&
+                    !cartItems.table)
+                }
               />
             </div>
           </div>

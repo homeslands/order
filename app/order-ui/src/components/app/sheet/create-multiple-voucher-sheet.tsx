@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { PenLine } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 
 import {
   Sheet,
@@ -22,113 +22,80 @@ import {
   Form,
   Switch,
 } from '@/components/ui'
-import { ConfirmUpdateVoucherDialog } from '@/components/app/dialog'
-import { IUpdateVoucherRequest, IVoucher } from '@/types'
+import { ConfirmCreateMultipleVoucherDialog } from '@/components/app/dialog'
+import { ICreateMultipleVoucherRequest } from '@/types'
 import { SimpleDatePicker } from '../picker'
-import { TUpdateVoucherSchema, updateVoucherSchema } from '@/schemas'
+import { createMultipleVoucherSchema, TCreateMultipleVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
 
-interface IUpdateVoucherSheetProps {
-  voucher: IVoucher
-  onSuccess?: () => void
-}
-
-export default function UpdateVoucherSheet({
-  voucher,
-  onSuccess,
-}: IUpdateVoucherSheetProps) {
+export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: () => void }) {
   const { t } = useTranslation(['voucher'])
   const { slug } = useParams()
   const [isOpen, setIsOpen] = useState(false)
-  const [formData, setFormData] = useState<IUpdateVoucherRequest | null>(null)
+  const [formData, setFormData] = useState<ICreateMultipleVoucherRequest | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
-
-  const form = useForm<TUpdateVoucherSchema>({
-    resolver: zodResolver(updateVoucherSchema),
+  const form = useForm<TCreateMultipleVoucherSchema>({
+    resolver: zodResolver(createMultipleVoucherSchema),
     defaultValues: {
       voucherGroup: slug as string,
-      createdAt: voucher.createdAt,
-      title: voucher.title,
-      description: voucher.description,
-      type: voucher.type,
-      startDate: voucher.startDate,
-      endDate: voucher.endDate,
-      code: voucher.code,
-      value: voucher.value,
-      maxUsage: voucher.maxUsage,
-      isActive: voucher.isActive,
-      isPrivate: voucher.isPrivate,
-      numberOfUsagePerUser: voucher.numberOfUsagePerUser,
-      minOrderValue: voucher.minOrderValue,
-      isVerificationIdentity: voucher.isVerificationIdentity,
-    },
-  })
-
-  // Use useWatch to watch type field without causing re-renders
-  const voucherType = useWatch({
-    control: form.control,
-    name: 'type',
-    defaultValue: voucher.type
-  })
-
-  // Reset form when sheet opens
-  useEffect(() => {
-    if (sheetOpen) {
-      form.reset({
-        voucherGroup: slug as string,
-        createdAt: voucher.createdAt,
-        title: voucher.title,
-        description: voucher.description,
-        type: voucher.type,
-        startDate: voucher.startDate,
-        endDate: voucher.endDate,
-        code: voucher.code,
-        value: voucher.value,
-        maxUsage: voucher.maxUsage,
-        isActive: voucher.isActive,
-        isPrivate: voucher.isPrivate,
-        numberOfUsagePerUser: voucher.numberOfUsagePerUser,
-        minOrderValue: voucher.minOrderValue,
-        isVerificationIdentity: voucher.isVerificationIdentity,
-      })
+      numberOfVoucher: 2,
+      title: '',
+      description: '',
+      type: VOUCHER_TYPE.PERCENT_ORDER,
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+      value: 0,
+      isActive: false,
+      isPrivate: false,
+      numberOfUsagePerUser: 1,
+      maxUsage: 0,
+      minOrderValue: 0,
+      isVerificationIdentity: true
     }
-  }, [sheetOpen, voucher, form, slug])
+  })
 
-  const isDateBeforeToday = (date: Date) => {
+  const disableStartDate = (date: Date) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     return date < today
   }
 
-  const isDateBeforeStartDate = (date: Date) => {
+  const disableEndDate = (date: Date) => {
     const startDate = form.getValues('startDate')
     if (!startDate) return false
-    const startDateObj = new Date(startDate)
-    return date <= startDateObj
+
+    const selectedStartDate = new Date(startDate)
+    selectedStartDate.setHours(0, 0, 0, 0)
+    return date < selectedStartDate
   }
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
-    if (fieldName === 'startDate') {
-      // Nếu thay đổi ngày bắt đầu, xóa ngày kết thúc nếu nó trước ngày bắt đầu mới
-      const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
-        form.setValue('endDate', '')
-      }
-    }
     form.setValue(fieldName, date)
   }
 
-  const handleSubmit = (data: IUpdateVoucherRequest) => {
+  const handleSubmit = (data: ICreateMultipleVoucherRequest) => {
     setFormData(data)
     setIsOpen(true)
   }
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setSheetOpen(true)
+  const resetForm = () => {
+    form.reset({
+      voucherGroup: slug as string,
+      title: '',
+      description: '',
+      type: VOUCHER_TYPE.PERCENT_ORDER,
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+      value: 0,
+      isActive: false,
+      isPrivate: false,
+      numberOfUsagePerUser: 1,
+      maxUsage: 0,
+      minOrderValue: 0,
+      isVerificationIdentity: true
+    })
   }
 
   const formFields = {
@@ -138,10 +105,11 @@ export default function UpdateVoucherSheet({
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.name')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.name')}</FormLabel>
             <FormControl>
               <Input {...field} placeholder={t('voucher.enterVoucherName')} />
             </FormControl>
@@ -156,14 +124,37 @@ export default function UpdateVoucherSheet({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.description')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.description')}</FormLabel>
+            <FormControl>
+              <Input {...field} placeholder={t('voucher.enterVoucherDescription')} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    numberOfVoucher: (
+      <FormField
+        control={form.control}
+        name="numberOfVoucher"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.numberOfVoucher')}</FormLabel>
             <FormControl>
               <Input
+                type="number"
                 {...field}
-                placeholder={t('voucher.enterVoucherDescription')}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+                min={0}
+                placeholder={t('voucher.enterNumberOfVoucher')}
               />
             </FormControl>
             <FormMessage />
@@ -177,16 +168,13 @@ export default function UpdateVoucherSheet({
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.startDate')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.startDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('startDate', date)}
-                disabledDates={isDateBeforeToday}
-              />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} disabledDates={disableStartDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -199,16 +187,13 @@ export default function UpdateVoucherSheet({
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.endDate')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.endDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('endDate', date)}
-                disabledDates={isDateBeforeStartDate}
-              />
+              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('endDate', date)} disabledDates={disableEndDate} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -228,7 +213,6 @@ export default function UpdateVoucherSheet({
               {t('voucher.type')}</FormLabel>
             <FormControl>
               <VoucherTypeSelect
-                defaultValue={field.value}
                 {...field}
                 onChange={(value) => {
                   field.onChange(value);
@@ -241,47 +225,27 @@ export default function UpdateVoucherSheet({
         )}
       />
     ),
-    code: (
-      <FormField
-        control={form.control}
-        name="code"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.code')}
-            </FormLabel>
-            <FormControl>
-              <Input
-                type="text"
-                {...field}
-                placeholder={t('voucher.enterVoucherCode')}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
     value: (
       <FormField
         control={form.control}
         name="value"
-        defaultValue={voucher.value}
         render={({ field }) => (
           <FormItem className='flex flex-col justify-between'>
             <FormLabel className='flex gap-1 items-center'>
-              <span className="text-destructive">*</span>
-              {t('voucher.value')}
-            </FormLabel>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.value')}</FormLabel>
             <FormControl>
-              {voucherType === VOUCHER_TYPE.PERCENT_ORDER ? (
+              {form.watch('type') === 'percent_order' ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
-                    placeholder={t('voucher.enterVoucherValue')}
                     onChange={(e) => field.onChange(Number(e.target.value))}
+                    min={0}
+                    max={100}
+                    placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     %
@@ -292,12 +256,9 @@ export default function UpdateVoucherSheet({
                   <Input
                     type="number"
                     {...field}
-                    placeholder={t('voucher.enterVoucherValue')}
                     onChange={(e) => field.onChange(Number(e.target.value))}
+                    placeholder={t('voucher.enterVoucherValue')}
                   />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    {t('voucher.usage')}
-                  </span>
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₫
                   </span>
@@ -309,17 +270,17 @@ export default function UpdateVoucherSheet({
         )}
       />
     ),
-
     maxUsage: (
       <FormField
         control={form.control}
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.maxUsage')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.maxUsage')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -369,10 +330,11 @@ export default function UpdateVoucherSheet({
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.minOrderValue')}
-            </FormLabel>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.minOrderValue')}</FormLabel>
             <FormControl>
               <div className='relative'>
                 <Input
@@ -380,35 +342,10 @@ export default function UpdateVoucherSheet({
                   {...field}
                   placeholder={t('voucher.enterMinOrderValue')}
                   onChange={(e) => field.onChange(Number(e.target.value))}
-                  min={0}
                 />
                 <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   ₫
                 </span>
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    isActive: (
-      <FormField
-        control={form.control}
-        name="isActive"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
-              {t('voucher.isActive')}
-            </FormLabel>
-            <FormControl>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is-active"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
               </div>
             </FormControl>
             <FormMessage />
@@ -445,11 +382,12 @@ export default function UpdateVoucherSheet({
         control={form.control}
         name="isPrivate"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className='flex flex-col gap-2'>
             <FormLabel className="flex gap-1 items-start leading-6">
               <span className="mt-1 text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
+
             <FormControl>
               <div className="flex items-center space-x-2">
                 <Switch
@@ -466,37 +404,33 @@ export default function UpdateVoucherSheet({
     ),
   }
 
-  const handleUpdateVoucherSuccess = () => {
-    setSheetOpen(false)
-    onSuccess?.()
+  const handleCreateVoucherSuccess = () => {
+    resetForm()
+    onSuccess()
   }
 
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="gap-1 px-2" onClick={handleClick}>
-          <PenLine className="icon" />
-          {t('voucher.update')}
+        <Button>
+          <PlusCircle size={16} />
+          {t('voucher.createMultiple')}
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
-            {t('voucher.update')}
+            {t('voucher.createMultiple')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-muted-foreground/10">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
-                <form
-                  id="voucher-form"
-                  onSubmit={form.handleSubmit(handleSubmit)}
-                  className="space-y-4"
-                >
+                <form id="voucher-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white rounded-md border">
+                  <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -504,38 +438,31 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded-md border">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded-md border">
-                    {formFields.code}
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.type}
+                    {formFields.numberOfVoucher}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded-md border">
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.minOrderValue}
                     {formFields.value}
                   </div>
-
                   {/* Nhóm: Số lượng sử dụng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.numberOfUsagePerUser}
                   </div>
-
-                  {/* Nhóm: Kích hoạt voucher */}
-                  <div className="flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent">
-                    {formFields.isActive}
-                    {formFields.isPrivate}
-                  </div>
-
                   {/* Nhóm: Kiểm tra định danh */}
-                  <div className="grid grid-cols-1 p-4 bg-white rounded-md border">
+                  <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.isVerificationIdentity}
+                    {formFields.isPrivate}
                   </div>
                 </form>
               </Form>
@@ -543,15 +470,15 @@ export default function UpdateVoucherSheet({
           </ScrollArea>
           <SheetFooter className="p-4">
             <Button type="submit" form="voucher-form">
-              {t('voucher.update')}
+              {t('voucher.create')}
             </Button>
             {isOpen && (
-              <ConfirmUpdateVoucherDialog
+              <ConfirmCreateMultipleVoucherDialog
                 voucher={formData}
                 isOpen={isOpen}
                 onOpenChange={setIsOpen}
                 onCloseSheet={() => setSheetOpen(false)}
-                onSuccess={handleUpdateVoucherSuccess}
+                onSuccess={handleCreateVoucherSuccess}
               />
             )}
           </SheetFooter>

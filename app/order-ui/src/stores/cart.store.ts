@@ -247,7 +247,14 @@ export const useCartItemStore = create<ICartItemStore>()(
         const { cartItems } = get()
         if (cartItems) {
           set({
-            cartItems: { ...cartItems, voucher },
+            cartItems: {
+              ...cartItems,
+              voucher: {
+                slug: voucher.slug,
+                value: voucher.value,
+                isVerificationIdentity: voucher.isVerificationIdentity || false,
+              },
+            },
             lastModified: moment().valueOf(),
           })
         }

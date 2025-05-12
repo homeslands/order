@@ -110,6 +110,7 @@ const errorCodes: { [key: number]: string } = {
   1000: 'toast.voucherNotFound',
   1001: 'toast.minOrderNotMet',
   1002: 'toast.voucherExpired',
+  1003: 'toast.voucherNotValid',
   105000: 'toast.invalidBranchAddress',
   105001: 'toast.invalidBranchName',
   105002: 'toast.branchNotFound',
@@ -219,6 +220,7 @@ const errorCodes: { [key: number]: string } = {
   143210: 'toast.startDateAndEndDateMustBeProvided',
   143211: 'toast.noOrdersFoundInRangeTime',
   143212: 'toast.numberOfOrdersNotMatch',
+  143415: 'toast.duplicateVoucherTitle',
   151007: 'toast.errorWhenHandleDataToDeleteApplicablePromotion',
   153002: 'toast.permissionCreateFailed',
   153003: 'toast.permissionRemoveFailed',
@@ -237,6 +239,7 @@ const errorCodes: { [key: number]: string } = {
   156001: 'toast.authorityNotFound',
   156002: 'toast.authorityUpdateFailed',
   156003: 'toast.authorityDeleteFailed',
+  157002: 'toast.voucherGroupAlreadyExists',
   1010015: 'toast.requestQuantityMustOtherInfinity',
   1010016: 'toast.errorWhenCreateChefOrdersFromOrder',
 }

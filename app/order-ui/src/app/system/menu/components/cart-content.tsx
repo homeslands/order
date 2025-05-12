@@ -156,12 +156,12 @@ export function CartContent() {
                   </span>
                 </div>
               )}
-              {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
+              {/* {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
                 <span className='flex gap-1 items-center text-sm text-destructive'>
                   <Info size={16} />
                   {t('menu.noSelectedTable')}
                 </span>
-              )}
+              )} */}
               <div className="flex flex-col gap-1 justify-between items-start pt-3 font-medium border-t">
                 <div className='flex gap-2 justify-between items-center w-full'>
                   <span className="text-sm font-semibold xl:text-lg">{t('menu.subTotal')}</span>
