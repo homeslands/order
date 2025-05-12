@@ -420,6 +420,10 @@ export class VoucherResponseDto extends BaseResponseDto {
 
   @ApiProperty()
   @AutoMap()
+  isPrivate: boolean;
+
+  @ApiProperty()
+  @AutoMap()
   type: string;
 
   @ApiProperty()
