@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { Info, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
