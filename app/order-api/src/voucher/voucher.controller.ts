@@ -81,7 +81,7 @@ export class VoucherController {
     } as AppResponseDto<string>;
   }
 
-  @Get('manager')
+  @Get()
   @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all voucher' })
