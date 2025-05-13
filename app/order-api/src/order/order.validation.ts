@@ -22,6 +22,8 @@ export const ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER =
   'ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER';
 export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
 export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
+export const INVALID_TABLE_SLUG = 'INVALID_TABLE_SLUG';
+export const INVALID_VOUCHER_SLUG = 'INVALID_VOUCHER_SLUG';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -42,7 +44,9 @@ export type TOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CHEF_ORDERS_FROM_ORDER
   | typeof REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY
   | typeof START_DATE_CAN_NOT_BE_EMPTY
-  | typeof END_DATE_CAN_NOT_BE_EMPTY;
+  | typeof END_DATE_CAN_NOT_BE_EMPTY
+  | typeof INVALID_TABLE_SLUG
+  | typeof INVALID_VOUCHER_SLUG;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -82,4 +86,6 @@ export const OrderValidation: TOrderErrorCode = {
     1010018,
     'End date can not be empty',
   ),
+  INVALID_TABLE_SLUG: createErrorCode(1010019, 'Invalid table slug'),
+  INVALID_VOUCHER_SLUG: createErrorCode(1010020, 'Invalid voucher slug'),
 };
