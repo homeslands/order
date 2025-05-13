@@ -17,12 +17,7 @@ import {
 } from 'src/order-item/order-item.dto';
 import { Transform, Type } from 'class-transformer';
 import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
-import {
-  INVALID_ORDER_ITEMS,
-  INVALID_TABLE_SLUG,
-  INVALID_VOUCHER_SLUG,
-  ORDER_TYPE_INVALID,
-} from './order.validation';
+import { INVALID_ORDER_ITEMS, ORDER_TYPE_INVALID } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
