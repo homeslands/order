@@ -20,7 +20,6 @@ import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
 import {
   INVALID_ORDER_ITEMS,
   INVALID_TABLE_SLUG,
-  INVALID_VOUCHER_SLUG,
   ORDER_TYPE_INVALID,
 } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
