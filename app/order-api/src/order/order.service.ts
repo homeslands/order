@@ -166,7 +166,10 @@ export class OrderService {
         return await manager.save(order);
       },
       (result) => {
-        this.logger.log(`Order ${result.slug} updated successfully`, context);
+        this.logger.log(
+          `Order with slug ${result.slug} updated successfully`,
+          context,
+        );
       },
       (error) => {
         this.logger.warn(
