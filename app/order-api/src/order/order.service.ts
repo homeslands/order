@@ -156,6 +156,10 @@ export class OrderService {
           await manager.save(voucher);
         } else {
           order.voucher = null;
+          order.subtotal = await this.orderUtils.getOrderSubtotal(
+            order,
+            voucher,
+          );
         }
 
         if (previousVoucher) {
