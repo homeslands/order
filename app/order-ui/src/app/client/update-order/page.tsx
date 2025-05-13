@@ -89,7 +89,7 @@ export default function ClientUpdateOrderPage() {
             <div className="container py-20 lg:h-[60vh]">
                 <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
-                    <p className="text-center text-[13px]">
+                    <p className="text-center text-[13px] sm:text-sm">
                         {t('order.noOrders')}
                     </p>
                     <NavLink to={ROUTE.CLIENT_MENU}>
@@ -141,7 +141,7 @@ export default function ClientUpdateOrderPage() {
                             </div>
                         }
                         {/* Table list order items */}
-                        <ScrollArea className="h-fit sm:h-[calc(60vh)] sm:px-4">
+                        <ScrollArea className="h-fit sm:h-[calc(60vh)] sm:pr-4">
                             <div className="mt-5">
                                 <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
                                     <span className="col-span-2">{t('order.product')}</span>
@@ -163,9 +163,9 @@ export default function ClientUpdateOrderPage() {
                                                 <div className="flex col-span-2 gap-1 w-full">
                                                     <div className="flex flex-col gap-2 justify-start items-center sm:flex-row sm:justify-center">
                                                         <div className="flex flex-col">
-                                                            <span className="text-[14px] font-bold truncate sm:text-md mb-2">
+                                                            <span className="text-[14px] font-bold truncate sm:text-sm mb-2">
                                                                 {item.variant.product.name}
-                                                                <span className='font-normal uppercase'> - {item.variant.size.name}</span>
+                                                                <span className='text-muted-foreground'> - Size {item.variant.size.name.toLocaleUpperCase()}</span>
                                                             </span>
                                                             {item?.promotion ? (
                                                                 <div className='flex gap-1 items-center'>
@@ -203,10 +203,26 @@ export default function ClientUpdateOrderPage() {
                                     ))}
                                 </div>
                                 {/* order note */}
-                                <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
                                 <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <div>
+                                    {orderItems?.voucher && (
+                                        <div className="flex justify-start w-full">
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex gap-2 items-center mt-2">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {t('order.usedVoucher')}:&nbsp;
+                                                    </span>
+                                                    <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                                                        -{`${formatCurrency(discount)}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">
@@ -242,7 +258,6 @@ export default function ClientUpdateOrderPage() {
                                         </div>
                                         {/* <span className="text-xs text-muted-foreground">({t('order.vat')})</span> */}
                                     </div>
-
                                 </div>
                             </div>
                         </ScrollArea>

@@ -167,7 +167,7 @@
     "deleteContent2": " khỏi giỏ hàng không?",
     "selectTableNote": "Lưu ý: Lựa chọn bàn trước khi nhấn xác nhận đơn hàng.  Nhiều đơn hàng có thể đặt chung một bàn.",
     "create": "Đặt hàng",
-    "confirmOrder": "Bạn có chắc muốn đặt hàng?",
+    "confirmOrder": "Vui lòng xác nhận thông tin đơn hàng trước khi đặt hàng!",
     "usedVoucher": "Mã giảm giá đã sử dụng",
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
@@ -233,7 +233,7 @@
     "close": "Đóng",
     "orderReferenceNumber": "Mã đơn",
     "updateNote": "Cập nhật",
-    "updateOrder": "Cập nhật đơn hàng",
+    "updateOrder": "Cập nhật",
     "invoiceNote": "Lưu ý: Nếu bạn không tải được hóa đơn, vui lòng chụp lại màn hình"
   },
   "table": {

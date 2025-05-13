@@ -37,6 +37,8 @@ export interface ICartItem {
     slug: string
     value: number
     isVerificationIdentity: boolean
+    isPrivate: boolean
+    code: string
   } | null
   note?: string
   approvalBy?: string

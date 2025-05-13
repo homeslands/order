@@ -15,6 +15,7 @@
     "branchRequired": "You haven't selected a branch",
     "updateOrderNoteSuccess": "Order note updated successfully",
     "updateOrderItemNoteSuccess": "Order item note updated successfully",
+    "updateQuantitySuccess": "Quantity updated successfully",
     "orderSuccess": "Order placed successfully",
     "createCatalogSuccess": "Catalog created successfully",
     "updateCatalogSuccess": "Catalog updated successfully",
@@ -344,6 +345,21 @@
     "emailAlreadyExists": "Email already exists",
     "tooManyRequests": "Too many requests",
     "duplicateVoucherTitle": "Voucher title already exists",
-    "duplicateVoucherCode": "Voucher code already exists"
+    "duplicateVoucherCode": "Voucher code already exists",
+    "invalidTableSlug": "Invalid table slug",
+    "invalidVoucherSlug": "Invalid voucher slug",
+    "productHasRelation": "The product has relations with other tables",
+    "initiatePublicPaymentDenied": "Public payment initiation denied",
+    "userMustBeCustomer": "User must be a customer",
+    "validateVoucherUsageFailed": "Failed to validate voucher usage",
+    "invalidVoucherType": "Invalid voucher type",
+    "invalidNumberOfUsagePerUser": "Invalid number of usages per user",
+    "mustVerifyIdentityToUseVoucher": "Must verify identity to use voucher",
+    "printerIpEmpty": "Printer IP is empty",
+    "printerPortEmpty": "Printer port is empty",
+    "printerConnectError": "Failed to connect to printer",
+    "printerWriteError": "Failed to write to printer",
+    "chefOrderMustBeAccepted": "Chef order must be accepted",
+    "voucherGroupAlreadyExists": "Voucher group already exists"
   }
 }

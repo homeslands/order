@@ -42,14 +42,14 @@ export function CartContent() {
       {/* Scrollable Content */}
       <ScrollArea className="overflow-y-auto min-h-[calc(75vh-14rem)] flex-1 scrollbar-hidden">
         {/* Order type selection */}
-        <div className="flex z-10 flex-col gap-2 px-4 py-3 border-b backdrop-blur-sm bg-background/95">
+        <div className="flex z-10 flex-col gap-2 px-2 py-3 border-b backdrop-blur-sm bg-background/95">
           <OrderTypeSelect />
           <CustomerSearchInput />
         </div>
 
         {/* Selected Table */}
         {cartItems?.type === OrderTypeEnum.AT_TABLE && (
-          <div className="flex gap-2 items-center px-4 py-3 text-sm border-b bg-muted/50">
+          <div className="flex gap-2 items-center px-2 py-3 text-sm border-b bg-muted/50">
             {cartItems?.table ? (
               <div className='flex gap-2 items-center'>
                 <p className="text-muted-foreground">{t('menu.selectedTable')}</p>
@@ -66,10 +66,10 @@ export function CartContent() {
         )}
 
         {/* Cart Items */}
-        <div className="flex flex-col gap-4 px-4 py-3">
+        <div className="flex flex-col gap-4 px-2 py-3">
           {cartItems && cartItems?.orderItems?.length > 0 ? (
             cartItems?.orderItems?.map((item) => (
-              <div key={item.id} className="flex flex-col gap-3 p-3 rounded-lg border transition-colors duration-200 hover:border-primary/50">
+              <div key={item.id} className="flex flex-col gap-3 pb-3 border-b border-muted-foreground/50">
                 <div className="flex flex-row gap-3 items-start">
                   <div className="flex flex-col flex-1 gap-2">
                     <div className="flex flex-row justify-between items-start">
@@ -120,7 +120,7 @@ export function CartContent() {
 
       {/* Footer -Payment */}
       {cartItems && cartItems?.orderItems?.length !== 0 && (
-        <div className="z-10 px-4 py-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
+        <div className="z-10 p-2 border-t backdrop-blur-sm shrink-0 bg-background/95">
           <div className='space-y-1'>
             <div className="flex flex-col gap-2">
               <OrderNoteInput order={cartItems} />

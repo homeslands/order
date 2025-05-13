@@ -79,16 +79,6 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
         return <div className="text-xs min-w-[13rem] sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')} - {moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
       },
     },
-    // {
-    //   accessorKey: 'endDate',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('voucher.endDate')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const voucher = row.original
-    //     return <div className="text-xs sm:text-sm">{moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
-    //   },
-    // },
     {
       accessorKey: 'code',
       header: ({ column }) => (
@@ -147,7 +137,9 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs sm:text-sm">{voucher?.value}%</div>
+        return <div className="text-xs sm:text-sm">
+          {voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? formatCurrency(voucher?.value) : `${voucher?.value}%`}
+        </div>
       },
     },
     {

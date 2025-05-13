@@ -84,7 +84,7 @@ export const useSpecificVoucher = (data: IGetSpecificVoucherRequest) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchers, data],
     queryFn: () => getSpecificVoucher(data),
-    // enabled: !!data.code,
+    enabled: !!data.code,
   })
 }
 

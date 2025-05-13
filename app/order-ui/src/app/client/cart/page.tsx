@@ -1,6 +1,7 @@
+import { useEffect } from 'react'
 import _ from 'lodash'
 // import Joyride from 'react-joyride';
-import { CircleAlert, Info, ShoppingCartIcon, Trash2 } from 'lucide-react'
+import { CircleAlert, ShoppingCartIcon, Trash2 } from 'lucide-react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
@@ -21,7 +22,6 @@ import { formatCurrency } from '@/utils'
 import { OrderTypeEnum } from '@/types'
 import { publicFileURL } from '@/constants'
 import { OrderNoteInput } from '@/components/app/input'
-import { useEffect } from 'react'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
@@ -242,14 +242,14 @@ export default function ClientCartPage() {
           </div>
           {/* Button */}
           <div className="flex gap-2 justify-end w-full">
-            {cartItems &&
+            {/* {cartItems &&
               cartItems.type === OrderTypeEnum.AT_TABLE &&
               !cartItems.table && (
                 <span className="flex gap-2 justify-end items-center text-xs text-destructive">
                   <Info size={18} />
                   {t('menu.noSelectedTable')}
                 </span>
-              )}
+              )} */}
             <div className="flex justify-end w-fit">
               <CreateOrderDialog
                 disabled={

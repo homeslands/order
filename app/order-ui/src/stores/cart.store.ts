@@ -253,6 +253,8 @@ export const useCartItemStore = create<ICartItemStore>()(
                 slug: voucher.slug,
                 value: voucher.value,
                 isVerificationIdentity: voucher.isVerificationIdentity || false,
+                isPrivate: voucher.isPrivate || false,
+                code: voucher.code,
               },
             },
             lastModified: moment().valueOf(),
