@@ -154,6 +154,8 @@ export class OrderService {
           );
 
           await manager.save(voucher);
+        } else {
+          order.voucher = null;
         }
 
         if (previousVoucher) {

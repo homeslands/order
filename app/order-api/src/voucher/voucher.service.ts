@@ -75,6 +75,10 @@ export class VoucherService {
 
   async create(createVoucherDto: CreateVoucherDto) {
     const context = `${VoucherService.name}.${this.create.name}`;
+    this.logger.log(
+      `Create voucher: ${JSON.stringify(createVoucherDto)}`,
+      context,
+    );
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: createVoucherDto.voucherGroup },
     });
