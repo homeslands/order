@@ -48,8 +48,48 @@ export class VoucherProfile extends AutomapperProfile {
           }),
         ),
       );
-      createMap(mapper, CreateVoucherDto, Voucher);
-      createMap(mapper, BulkCreateVoucherDto, Voucher);
+      createMap(
+        mapper,
+        CreateVoucherDto,
+        Voucher,
+        forMember(
+          (destination) => destination.startDate,
+          mapFrom((source) => {
+            const date = source.startDate;
+            date.setHours(7, 0, 0, 0);
+            return date;
+          }),
+        ),
+        forMember(
+          (destination) => destination.endDate,
+          mapFrom((source) => {
+            const date = source.endDate;
+            date.setHours(7, 0, 0, 0);
+            return date;
+          }),
+        ),
+      );
+      createMap(
+        mapper,
+        BulkCreateVoucherDto,
+        Voucher,
+        forMember(
+          (destination) => destination.startDate,
+          mapFrom((source) => {
+            const date = source.startDate;
+            date.setHours(7, 0, 0, 0);
+            return date;
+          }),
+        ),
+        forMember(
+          (destination) => destination.endDate,
+          mapFrom((source) => {
+            const date = source.endDate;
+            date.setHours(7, 0, 0, 0);
+            return date;
+          }),
+        ),
+      );
     };
   }
 }

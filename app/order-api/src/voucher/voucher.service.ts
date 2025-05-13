@@ -115,7 +115,10 @@ export class VoucherService {
     const createdVoucher = await this.transactionService.execute<Voucher>(
       async (manager) => await manager.save(voucher),
       (result) => {
-        this.logger.log(`Voucher created successfully: ${result}`, context);
+        this.logger.log(
+          `Voucher created successfully: ${JSON.stringify(result)}`,
+          context,
+        );
       },
       (error) => {
         this.logger.error(
@@ -226,8 +229,10 @@ export class VoucherService {
       findOptionsWhere.minOrderValue = MoreThanOrEqual(options.minOrderValue);
 
     if (!_.isNil(options.date)) {
-      findOptionsWhere.startDate = LessThanOrEqual(options.date);
-      findOptionsWhere.endDate = MoreThanOrEqual(options.date);
+      const dateQuery = options.date;
+      dateQuery.setHours(7, 0, 0, 0);
+      findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
+      findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }
 
     if (!_.isNil(options.isActive))
@@ -290,8 +295,10 @@ export class VoucherService {
       findOptionsWhere.minOrderValue = MoreThanOrEqual(options.minOrderValue);
 
     if (!_.isNil(options.date)) {
-      findOptionsWhere.startDate = LessThanOrEqual(options.date);
-      findOptionsWhere.endDate = MoreThanOrEqual(options.date);
+      const dateQuery = options.date;
+      dateQuery.setHours(7, 0, 0, 0);
+      findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
+      findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }
 
     if (!_.isNil(options.isActive))
@@ -355,8 +362,10 @@ export class VoucherService {
       findOptionsWhere.minOrderValue = MoreThanOrEqual(options.minOrderValue);
 
     if (!_.isNil(options.date)) {
-      findOptionsWhere.startDate = LessThanOrEqual(options.date);
-      findOptionsWhere.endDate = MoreThanOrEqual(options.date);
+      const dateQuery = options.date;
+      dateQuery.setHours(7, 0, 0, 0);
+      findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
+      findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }
 
     if (!_.isNil(options.isActive))

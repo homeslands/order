@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsDate,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -51,11 +52,13 @@ export class CreateVoucherDto {
 
   @ApiProperty({ example: '2024-12-26' })
   @AutoMap()
+  @IsDate({ message: 'The start date of voucher must be a date' })
   @Type(() => Date)
   startDate: Date;
 
   @ApiProperty({ example: '2024-12-30' })
   @AutoMap()
+  @IsDate({ message: 'The end date of voucher must be a date' })
   @Type(() => Date)
   endDate: Date;
 
@@ -143,11 +146,13 @@ export class BulkCreateVoucherDto {
 
   @ApiProperty({ example: '2024-12-26' })
   @AutoMap()
+  @IsDate({ message: 'The start date of voucher must be a date' })
   @Type(() => Date)
   startDate: Date;
 
   @ApiProperty({ example: '2024-12-30' })
   @AutoMap()
+  @IsDate({ message: 'The end date of voucher must be a date' })
   @Type(() => Date)
   endDate: Date;
 
@@ -207,6 +212,7 @@ export class GetAllVoucherForUserDto extends BaseQueryDto {
 
   @ApiProperty({ example: '2024-12-26', required: false })
   @AutoMap()
+  @IsDate({ message: 'The date of voucher must be a date' })
   @Type(() => Date)
   @IsOptional()
   date?: Date;
@@ -257,6 +263,7 @@ export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
 
   @ApiProperty({ example: '2024-12-26', required: false })
   @AutoMap()
+  @IsDate({ message: 'The date of voucher must be a date' })
   @Type(() => Date)
   @IsOptional()
   date?: Date;
@@ -300,6 +307,7 @@ export class GetAllVoucherDto extends BaseQueryDto {
 
   @ApiProperty({ example: '2024-12-26', required: false })
   @AutoMap()
+  @IsDate({ message: 'The date of voucher must be a date' })
   @Type(() => Date)
   @IsOptional()
   date?: Date;
