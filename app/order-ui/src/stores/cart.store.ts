@@ -38,6 +38,7 @@ export const useCartItemStore = create<ICartItemStore>()(
               owner: owner.slug,
               ownerPhoneNumber: owner.phonenumber,
               ownerFullName: ownerFullName,
+              ownerRole: owner.role.name,
             },
             lastModified: moment().valueOf(),
           })

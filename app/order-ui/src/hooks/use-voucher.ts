@@ -64,20 +64,26 @@ export const useVouchers = (params?: IGetAllVoucherRequest) => {
 }
 
 // Vouchers for order
-export const useVouchersForOrder = (params?: IGetAllVoucherRequest) => {
+export const useVouchersForOrder = (
+  params?: IGetAllVoucherRequest,
+  enabled?: boolean,
+) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchersForOrder],
     queryFn: () => getVouchersForOrder(params),
     placeholderData: keepPreviousData,
-    enabled: !!params,
+    enabled: !!params && !!enabled,
   })
 }
-export const usePublicVouchersForOrder = (params?: IGetAllVoucherRequest) => {
+export const usePublicVouchersForOrder = (
+  params?: IGetAllVoucherRequest,
+  enabled?: boolean,
+) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchers],
     queryFn: () => getPublicVouchersForOrder(params),
     placeholderData: keepPreviousData,
-    enabled: !!params,
+    enabled: !!params && !!enabled,
   })
 }
 export const useSpecificVoucher = (data: IGetSpecificVoucherRequest) => {

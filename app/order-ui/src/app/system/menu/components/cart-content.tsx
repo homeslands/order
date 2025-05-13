@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { Trash2 } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button, ScrollArea } from '@/components/ui'
@@ -10,8 +11,7 @@ import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog
 import { formatCurrency } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
-import { VoucherListSheet } from '@/components/app/sheet'
-import { ShoppingCart } from 'lucide-react'
+import { StaffVoucherListSheet } from '@/components/app/sheet'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -124,7 +124,7 @@ export function CartContent() {
           <div className='space-y-1'>
             <div className="flex flex-col gap-2">
               <OrderNoteInput order={cartItems} />
-              <VoucherListSheet />
+              <StaffVoucherListSheet />
             </div>
             {cartItems?.voucher && (
               <div className="flex justify-start w-full">

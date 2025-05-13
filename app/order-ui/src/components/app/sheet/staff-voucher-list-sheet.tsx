@@ -34,7 +34,6 @@ import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
 import {
   useIsMobile,
   usePagination,
-  usePublicVouchersForOrder,
   useSpecificPublicVoucher,
   useSpecificVoucher,
   useUpdateOrderType,
@@ -50,13 +49,14 @@ import {
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
+import { Role } from '@/constants'
 
 interface IVoucherListSheetProps {
   defaultValue?: IOrder | undefined
   onSuccess?: () => void
 }
 
-export default function VoucherListSheet({
+export default function StaffVoucherListSheet({
   defaultValue,
   onSuccess,
 }: IVoucherListSheetProps) {
@@ -101,28 +101,29 @@ export default function VoucherListSheet({
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
+  const isCustomerOwner =
+    sheetOpen &&
+    !!cartItems?.owner && // Check khác null, undefined, ""
+    cartItems.ownerRole === Role.CUSTOMER;
+
   const { data: voucherList } = useVouchersForOrder(
-    sheetOpen && userInfo
+    isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         pageSize: pagination.pageSize,
       }
-      : undefined,
-    !!sheetOpen
-  )
-  const { data: publicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && !userInfo
-      ? {
+      : {
+        isVerificationIdentity: false,
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         pageSize: pagination.pageSize,
-      }
-      : undefined,
+      },
     !!sheetOpen
-  )
+  );
+
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -165,9 +166,9 @@ export default function VoucherListSheet({
   }, [defaultValue?.voucher, refetchSpecificVoucher]);
 
   useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : publicVoucherList?.result.items) || []
+    const baseList = (userInfo ? voucherList?.result.items : []) || []
     setLocalVoucherList(baseList)
-  }, [userInfo, voucherList?.result.items, publicVoucherList?.result.items])
+  }, [userInfo, voucherList?.result.items])
 
   // Add useEffect to update voucher list with specific voucher
   useEffect(() => {
@@ -301,7 +302,7 @@ export default function VoucherListSheet({
       } else {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
-          user: userInfo?.slug || '',
+          user: cartItems?.owner || '',
         }
         if (userInfo) {
           validateVoucher(validateVoucherParam, {
@@ -336,7 +337,7 @@ export default function VoucherListSheet({
       if (voucher) {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
-          user: userInfo.slug || '',
+          user: cartItems?.owner || '',
         };
 
         validateVoucher(validateVoucherParam, {

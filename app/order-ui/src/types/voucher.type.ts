@@ -36,6 +36,7 @@ export interface IVoucher extends IBase {
 export interface IGetAllVoucherRequest {
   voucherGroup?: string
   minOrderValue?: number
+  isVerificationIdentity?: boolean
   date?: string
   isActive?: boolean
   isPrivate?: boolean
