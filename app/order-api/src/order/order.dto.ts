@@ -103,7 +103,7 @@ export class UpdateOrderRequestDto {
 
   @AutoMap()
   @ApiProperty({ description: 'The slug of voucher' })
-  @IsOptional({ message: INVALID_VOUCHER_SLUG })
+  @IsOptional()
   voucher?: string;
 
   @AutoMap()
