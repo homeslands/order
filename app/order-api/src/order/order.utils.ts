@@ -120,11 +120,31 @@ export class OrderUtils {
     const context = `${OrderUtils.name}.${this.deleteOrder.name}`;
     this.logger.log(`Cancel order ${orderSlug}`, context);
 
-    const order = await this.getOrder({
+    const order = await this.orderRepository.findOne({
       where: {
         slug: orderSlug,
       },
+      relations: [
+        'payment',
+        'owner',
+        'approvalBy',
+        'orderItems.chefOrderItems',
+        'orderItems.variant.size',
+        'orderItems.variant.product',
+        'orderItems.promotion',
+        'orderItems.trackingOrderItems.tracking',
+        'invoice.invoiceItems',
+        'table',
+        'voucher',
+        'branch',
+        'chefOrders.chefOrderItems',
+      ],
     });
+
+    if (!order) {
+      this.logger.warn(`Order ${orderSlug} not found`, context);
+      return;
+    }
 
     if (order.status !== OrderStatus.PENDING) {
       this.logger.warn(`Order ${orderSlug} is not pending`, context);

@@ -25,7 +25,7 @@ import { Table } from 'src/table/table.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { OrderType } from './order.constants';
+import { OrderStatus, OrderType } from './order.constants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
@@ -81,7 +81,7 @@ export class OrderService {
    * @returns {Promise<void>} The deleted order
    */
   async deleteOrder(slug: string): Promise<Order> {
-    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
+    return await this.handleDeleteOrder(slug); // Delete order immediately
   }
 
   async deleteOrderPublic(slug: string, orders: string[]): Promise<Order> {
@@ -90,7 +90,106 @@ export class OrderService {
       this.logger.warn(`Order ${slug} is not in the list`, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
-    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
+    return await this.handleDeleteOrder(slug); // Delete order immediately
+  }
+
+  async handleDeleteOrder(orderSlug: string) {
+    const context = `${OrderUtils.name}.${this.deleteOrder.name}`;
+    this.logger.log(`Cancel order ${orderSlug}`, context);
+
+    const order = await this.orderRepository.findOne({
+      where: {
+        slug: orderSlug,
+      },
+      relations: [
+        'payment',
+        'owner',
+        'approvalBy',
+        'orderItems.chefOrderItems',
+        'orderItems.variant.size',
+        'orderItems.variant.product',
+        'orderItems.promotion',
+        'orderItems.trackingOrderItems.tracking',
+        'invoice.invoiceItems',
+        'table',
+        'voucher',
+        'branch',
+        'chefOrders.chefOrderItems',
+      ],
+    });
+
+    if (!order) {
+      this.logger.warn(`Order ${orderSlug} not found`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${orderSlug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+    // Get all menu items base on unique products
+    const orderDate = new Date(moment(order.createdAt).format('YYYY-MM-DD'));
+    const menuItems = await this.menuItemUtils.getCurrentMenuItems(
+      order,
+      orderDate,
+      'increment',
+    );
+
+    const { payment, table, voucher } = order;
+
+    // Delete order
+    const removedOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
+        // Update stock of menu items
+        await manager.save(menuItems);
+        this.logger.log(
+          `Menu items: ${menuItems.map((item) => item.product.name).join(', ')} updated`,
+          context,
+        );
+
+        // Remove order items
+        if (order.orderItems) await manager.remove(order.orderItems);
+
+        // Remove order
+        const removedOrder = await manager.remove(order);
+
+        // Remove payment
+        if (payment) {
+          await manager.remove(payment);
+          this.logger.log(`Payment has been removed`, context);
+        }
+
+        // Update table status if order is at table
+        if (table) {
+          table.status = 'available';
+          await manager.save(table);
+          this.logger.log(`Table ${table.name} is available`, context);
+        }
+
+        // Update voucher remaining quantity
+        if (voucher) {
+          voucher.remainingUsage += 1;
+          await manager.save(voucher);
+          this.logger.log(
+            `Voucher ${voucher.code} remaining usage updated`,
+            context,
+          );
+        }
+        return removedOrder;
+      },
+      () => {
+        this.logger.log(`Order ${orderSlug} has been canceled`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when cancel order ${orderSlug}: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new OrderException(OrderValidation.ERROR_WHEN_CANCEL_ORDER);
+      },
+    );
+    return removedOrder;
   }
 
   /**

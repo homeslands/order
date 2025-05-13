@@ -24,6 +24,8 @@ export const START_DATE_CAN_NOT_BE_EMPTY = 'START_DATE_CAN_NOT_BE_EMPTY';
 export const END_DATE_CAN_NOT_BE_EMPTY = 'END_DATE_CAN_NOT_BE_EMPTY';
 export const INVALID_TABLE_SLUG = 'INVALID_TABLE_SLUG';
 export const INVALID_VOUCHER_SLUG = 'INVALID_VOUCHER_SLUG';
+export const ORDER_IS_NOT_PENDING = 'ORDER_IS_NOT_PENDING';
+export const ERROR_WHEN_CANCEL_ORDER = 'ERROR_WHEN_CANCEL_ORDER';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -46,7 +48,9 @@ export type TOrderErrorCodeKey =
   | typeof START_DATE_CAN_NOT_BE_EMPTY
   | typeof END_DATE_CAN_NOT_BE_EMPTY
   | typeof INVALID_TABLE_SLUG
-  | typeof INVALID_VOUCHER_SLUG;
+  | typeof INVALID_VOUCHER_SLUG
+  | typeof ORDER_IS_NOT_PENDING
+  | typeof ERROR_WHEN_CANCEL_ORDER;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -88,4 +92,6 @@ export const OrderValidation: TOrderErrorCode = {
   ),
   INVALID_TABLE_SLUG: createErrorCode(1010019, 'Invalid table slug'),
   INVALID_VOUCHER_SLUG: createErrorCode(1010020, 'Invalid voucher slug'),
+  ORDER_IS_NOT_PENDING: createErrorCode(1010021, 'Order is not pending'),
+  ERROR_WHEN_CANCEL_ORDER: createErrorCode(1010022, 'Error when cancel order'),
 };
