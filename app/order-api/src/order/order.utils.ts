@@ -35,7 +35,7 @@ export class OrderUtils {
     const order = await this.orderRepository.findOne({
       relations: [
         'payment',
-        'owner',
+        'owner.role',
         'approvalBy',
         'orderItems.chefOrderItems',
         'orderItems.variant.size',
@@ -63,7 +63,7 @@ export class OrderUtils {
     const orders = await this.orderRepository.find({
       relations: [
         'payment',
-        'owner',
+        'owner.role',
         'approvalBy',
         'orderItems.chefOrderItems',
         'orderItems.variant.size',
