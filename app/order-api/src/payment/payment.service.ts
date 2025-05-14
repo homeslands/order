@@ -36,6 +36,7 @@ import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
 import { OrderStatus } from 'src/order/order.constants';
 import { PdfService } from 'src/pdf/pdf.service';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class PaymentService {
@@ -111,7 +112,7 @@ export class PaymentService {
     // get order
     const order = await this.orderRepository.findOne({
       where: { slug: createPaymentDto.orderSlug },
-      relations: ['owner', 'payment'],
+      relations: ['owner.role', 'payment'],
     });
     if (!order) {
       this.logger.error('Order not found', null, context);
@@ -128,17 +129,39 @@ export class PaymentService {
 
     let payment: Payment;
 
-    switch (createPaymentDto.paymentMethod) {
-      case PaymentMethod.BANK_TRANSFER:
-        payment = await this.bankTransferStrategy.process(order);
-        break;
-      case PaymentMethod.CASH:
-        payment = await this.cashStrategy.process(order);
-        break;
-      default:
-        this.logger.error('Invalid payment method', null, context);
-        throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+    if (order.owner?.role?.name === RoleEnum.Customer) {
+      switch (createPaymentDto.paymentMethod) {
+        case PaymentMethod.BANK_TRANSFER:
+          payment = await this.bankTransferStrategy.process(order);
+          break;
+        default:
+          this.logger.error('Invalid payment method', null, context);
+          throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+      }
+    } else if (
+      order.owner?.role?.name === RoleEnum.Staff ||
+      order.owner?.role?.name === RoleEnum.Manager ||
+      order.owner?.role?.name === RoleEnum.Admin ||
+      order.owner?.role?.name === RoleEnum.SuperAdmin
+    ) {
+      switch (createPaymentDto.paymentMethod) {
+        case PaymentMethod.BANK_TRANSFER:
+          payment = await this.bankTransferStrategy.process(order);
+          break;
+        case PaymentMethod.CASH:
+          payment = await this.cashStrategy.process(order);
+          break;
+        default:
+          this.logger.error('Invalid payment method', null, context);
+          throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+      }
+    } else {
+      this.logger.error('Role not allowed to initiate payment', null, context);
+      throw new PaymentException(
+        PaymentValidation.ROLE_NOT_ALLOWED_TO_INITIATE_PAYMENT,
+      );
     }
+
     this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
 
     // Delete previous payment
@@ -191,9 +214,6 @@ export class PaymentService {
       case PaymentMethod.BANK_TRANSFER:
         payment = await this.bankTransferStrategy.process(order);
         break;
-      case PaymentMethod.CASH:
-        payment = await this.cashStrategy.process(order);
-        break;
       default:
         this.logger.error('Invalid payment method', null, context);
         throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
@@ -208,11 +228,6 @@ export class PaymentService {
     // Update order
     order.payment = payment;
     await this.orderRepository.save(order);
-
-    if (payment.paymentMethod === PaymentMethod.CASH) {
-      // Update order status
-      this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, { orderId: order.id });
-    }
     return this.mapper.map(payment, Payment, PaymentResponseDto);
   }
 

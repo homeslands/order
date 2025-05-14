@@ -337,6 +337,11 @@ export class OrderService {
     order.voucher = voucher;
     const subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
     order.subtotal = subtotal;
+    if (subtotal < 2000) {
+      // by pass payment
+      // initiate payment with method CASH and status PAID
+      // update order loss
+    }
     order.originalSubtotal = order.orderItems.reduce(
       (previous, current) => previous + current.originalSubtotal,
       0,
