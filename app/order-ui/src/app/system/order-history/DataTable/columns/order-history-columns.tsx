@@ -4,6 +4,7 @@ import {
   MoreHorizontal,
   CreditCard,
   DownloadIcon,
+  SquarePen,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -228,7 +229,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                         variant="ghost"
                         className="flex gap-1 justify-start px-2 w-full text-sm"
                       >
-                        <CreditCard className="icon" />
+                        <SquarePen className="icon" />
                         {t('order.updateOrder')}
                       </Button>
                     </NavLink>

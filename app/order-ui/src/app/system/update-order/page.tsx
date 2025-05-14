@@ -13,7 +13,7 @@ import {
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
-import { VoucherListSheet } from '@/components/app/sheet'
+import { StaffVoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 // import UpdateOrderSkeleton from '@/components/app/skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
@@ -35,12 +35,32 @@ export default function UpdateOrderPage() {
     const [type, setType] = useState<string>("")
     const navigate = useNavigate()
     const [isExpired, setIsExpired] = useState<boolean>(false)
+
     useEffect(() => {
         if (order?.result) {
             setSelectedTable(order?.result.table)
             setType(order?.result.type)
         }
     }, [order])
+
+    const handleTypeChange = (value: string) => {
+        setType(value)
+        let params: IUpdateOrderTypeRequest | null = null
+        if (value === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
+            params = { type: value, table: selectedTable.slug }
+        } else {
+            params = { type: value, table: null }
+        }
+        updateOrderType(
+            { slug: slug as string, params },
+            {
+                onSuccess: () => {
+                    refetch()
+                }
+            }
+        )
+    }
+
     const orderItems = order?.result
 
     const originalTotal = orderItems
@@ -50,31 +70,6 @@ export default function UpdateOrderPage() {
     const discount = orderItems
         ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
         : 0;
-
-    // check when order type change, use updateOrderType
-    useEffect(() => {
-        if (!type) return; // if type is not set, do not update order type
-        if (type === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
-            updateOrderType(
-                { slug: slug as string, params: { type, table: selectedTable.slug } },
-                {
-                    onSuccess: () => {
-                        refetch()
-                    }
-                }
-            )
-        } else if (type !== OrderTypeEnum.AT_TABLE) {
-            updateOrderType(
-                { slug: slug as string, params: { type, table: null } },
-                {
-                    onSuccess: () => {
-                        refetch()
-                    }
-                }
-            )
-        }
-    }, [type, selectedTable?.slug, refetch, slug, updateOrderType])
-
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -113,7 +108,7 @@ export default function UpdateOrderPage() {
             <div className="container py-20 lg:h-[60vh]">
                 <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
-                    <p className="text-center text-[13px]">
+                    <p className="text-center text-[13px] sm:text-base">
                         {t('order.noOrders')}
                     </p>
                     <NavLink to={ROUTE.CLIENT_MENU}>
@@ -156,7 +151,7 @@ export default function UpdateOrderPage() {
                     {/* Right content */}
 
                     <div className="w-full lg:w-2/5">
-                        <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
+                        <OrderTypeInUpdateOrderSelect onChange={handleTypeChange} typeOrder={type} />
                         <ScrollArea className="h-[calc(55vh)] sm:h-[calc(73vh)] sm:px-4">
                             {/* Table list order items */}
                             <div className="mt-4">
@@ -223,7 +218,23 @@ export default function UpdateOrderPage() {
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
-                                <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <StaffVoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <div>
+                                    {orderItems?.voucher && (
+                                        <div className="flex justify-start w-full">
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex gap-2 items-center mt-2">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {t('order.usedVoucher')}:&nbsp;
+                                                    </span>
+                                                    <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                                                        -{`${formatCurrency(discount)}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">

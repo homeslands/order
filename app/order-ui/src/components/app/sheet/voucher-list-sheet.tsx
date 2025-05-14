@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -37,29 +36,18 @@ import {
   usePublicVouchersForOrder,
   useSpecificPublicVoucher,
   useSpecificVoucher,
-  useUpdateOrderType,
   useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
-  IOrder,
-  IUpdateOrderTypeRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
 
-interface IVoucherListSheetProps {
-  defaultValue?: IOrder | undefined
-  onSuccess?: () => void
-}
-
-export default function VoucherListSheet({
-  defaultValue,
-  onSuccess,
-}: IVoucherListSheetProps) {
+export default function VoucherListSheet() {
   const isMobile = useIsMobile()
   const { getTheme } = useThemeStore()
   const { t } = useTranslation(['voucher'])
@@ -68,19 +56,22 @@ export default function VoucherListSheet({
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
-  const { mutate: updateOrderType } = useUpdateOrderType()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const queryClient = useQueryClient()
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
-  const subTotal = defaultValue
-    ? defaultValue?.subtotal
-    : cartItems?.orderItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    ) || 0
+  // calculate subtotal
+  const subTotal = cartItems?.orderItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  ) || 0
+  // const subTotal = defaultValue
+  //   ? defaultValue?.subtotal
+  //   : cartItems?.orderItems.reduce(
+  //     (acc, item) => acc + item.price * item.quantity,
+  //     0,
+  //   ) || 0
 
 
 
@@ -136,9 +127,34 @@ export default function VoucherListSheet({
     },
   )
 
+  // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
+  useEffect(() => {
+    if (specificVoucher?.result?.isPrivate) {
+      refetchSpecificVoucher()
+    }
+  }, [specificVoucher?.result?.isPrivate, refetchSpecificVoucher])
+
+  // check if voucher is private and user is logged in, then refetch specific voucher
+  useEffect(() => {
+    if (userInfo && specificVoucher?.result?.isPrivate) {
+      refetchSpecificVoucher();
+    } else if (!userInfo && specificPublicVoucher?.result) {
+      refetchSpecificPublicVoucher();
+    }
+  }, [
+    userInfo,
+    specificVoucher?.result?.isPrivate,
+    specificPublicVoucher?.result,
+    refetchSpecificVoucher,
+    refetchSpecificPublicVoucher
+  ]);
+
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
-    const vouchers = [specificVoucher?.result, specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+    const vouchers = userInfo
+      ? [specificVoucher?.result].filter((v): v is IVoucher => !!v)
+      : [specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+
     if (vouchers.length > 0) {
       setLocalVoucherList(prevList => {
         const newList = [...(prevList || [])];
@@ -151,52 +167,39 @@ export default function VoucherListSheet({
         return newList;
       });
     }
-  }, [specificVoucher?.result, specificPublicVoucher?.result]);
-
-  useEffect(() => {
-    if (defaultValue?.voucher) {
-      const code = defaultValue.voucher.code;
-      setSelectedVoucher(code);
-
-      if (defaultValue.voucher.isPrivate) {
-        refetchSpecificVoucher();
-      }
-    }
-  }, [defaultValue?.voucher, refetchSpecificVoucher]);
+  }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
 
   useEffect(() => {
     const baseList = (userInfo ? voucherList?.result.items : publicVoucherList?.result.items) || []
-    setLocalVoucherList(baseList)
-  }, [userInfo, voucherList?.result.items, publicVoucherList?.result.items])
+    let newList = [...baseList]
 
-  // Add useEffect to update voucher list with specific voucher
-  useEffect(() => {
     if (userInfo && specificVoucher?.result) {
-      setLocalVoucherList(prevList => {
-        const existingVoucherIndex = prevList?.findIndex(
-          (v) => v.slug === specificVoucher.result.slug
-        )
-        if (existingVoucherIndex === -1) {
-          return [specificVoucher.result, ...prevList || []]
-        }
-        return prevList
-      })
+      const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
+      if (existingIndex === -1) {
+        newList = [specificVoucher.result, ...newList]
+      }
     }
-  }, [specificVoucher?.result, userInfo])
+
+    if (!userInfo && specificPublicVoucher?.result) {
+      const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
+      if (existingIndex === -1) {
+        newList = [specificPublicVoucher.result, ...newList]
+      }
+    }
+
+    setLocalVoucherList(newList)
+  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
 
   useEffect(() => {
-    if (!userInfo && specificPublicVoucher?.result) {
-      setLocalVoucherList(prevList => {
-        const existingVoucherIndex = prevList?.findIndex(
-          (v) => v.slug === specificPublicVoucher.result.slug
-        )
-        if (existingVoucherIndex === -1) {
-          return [specificPublicVoucher.result, ...prevList || []]
-        }
-        return prevList
-      })
+    if (cartItems?.voucher) {
+      const code = cartItems.voucher.code;
+      setSelectedVoucher(code);
+
+      if (cartItems.voucher.isPrivate) {
+        refetchSpecificVoucher();
+      }
     }
-  }, [specificPublicVoucher?.result, userInfo])
+  }, [cartItems?.voucher, refetchSpecificVoucher]);
 
   // useEffect(() => {
   //   if (defaultValue?.voucher?.slug) {
@@ -220,111 +223,73 @@ export default function VoucherListSheet({
     const currentDate = new Date()
 
     const validVouchers = localVoucherList
-      .filter(
-        (voucher) => {
-          const isValid = voucher.isActive &&
-            moment(voucher.startDate).format('DD/MM/YYYY') <=
-            currentDate.toLocaleString() &&
-            moment(voucher.endDate).format('DD/MM/YYYY') >=
-            currentDate.toLocaleString() &&
-            voucher.remainingUsage > 0 &&
-            (userInfo
-              ? voucher.isVerificationIdentity === true
-              : voucher.isVerificationIdentity === false)
-          return isValid
-        }
-      )
+      .filter((voucher) => {
+        const isValid = voucher.isActive &&
+          moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
+          moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
+          voucher.remainingUsage > 0 &&
+          (!userInfo ? voucher.isVerificationIdentity === false : true)
+        return isValid
+      })
       .sort((a, b) => {
-        // Sort by endDate
-        const endDateDiff =
-          new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-
+        const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
         if (endDateDiff !== 0) return endDateDiff
-
-        // If endDate is the same, sort by minOrderValue
         if (a.minOrderValue !== b.minOrderValue) {
           return a.minOrderValue - b.minOrderValue
         }
-
-        // If minOrderValue is the same, sort by value
         return b.value - a.value
       })
 
     return validVouchers.length > 0 ? validVouchers[0] : null
   }
 
+
   const bestVoucher = getBestVoucher()
 
   const isVoucherSelected = (voucherSlug: string) => {
     return (
-      defaultValue?.voucher?.slug === voucherSlug ||
       cartItems?.voucher?.slug === voucherSlug ||
       selectedVoucher === voucherSlug
     )
   }
 
   const handleToggleVoucher = (voucher: IVoucher) => {
-    if (defaultValue) {
-      let params: IUpdateOrderTypeRequest | null = null
-      let message: string
-      if (isVoucherSelected(voucher.slug)) {
-        params = {
-          type: defaultValue?.type,
-          table: defaultValue?.table?.slug || null,
-          voucher: null,
-        }
-        message = tToast('toast.removeVoucherSuccess')
-      } else {
-        params = {
-          type: defaultValue?.type,
-          table: defaultValue?.table?.slug || null,
-          voucher: voucher.slug,
-        }
-        message = tToast('toast.applyVoucherSuccess')
-      }
-      updateOrderType(
-        { slug: defaultValue.slug as string, params },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['orders'] })
-            setSheetOpen(false)
-            onSuccess?.()
-            showToast(message)
-          },
-        },
-      )
+    const isSelected = isVoucherSelected(voucher.slug)
+
+    const handleRemove = () => {
+      removeVoucher()
+      setSelectedVoucher('')
+      showToast(tToast('toast.removeVoucherSuccess'))
+    }
+
+    const handleApply = () => {
+      addVoucher(voucher)
+      setSelectedVoucher(voucher.slug)
+      setSheetOpen(false)
+      showToast(tToast('toast.applyVoucherSuccess'))
+    }
+
+    if (isSelected) {
+      handleRemove()
+    } else if (cartItems) {
+      // Đã có giỏ hàng local, không cần validate
+      handleApply()
     } else {
-      if (isVoucherSelected(voucher.slug)) {
-        removeVoucher()
-        setSelectedVoucher('')
-        showToast(tToast('toast.removeVoucherSuccess'))
+      const validateVoucherParam: IValidateVoucherRequest = {
+        voucher: voucher.slug,
+        user: userInfo?.slug || '',
+      }
+
+      const onSuccess = () => handleApply()
+
+      if (userInfo) {
+        validateVoucher(validateVoucherParam, { onSuccess })
       } else {
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: voucher.slug,
-          user: userInfo?.slug || '',
-        }
-        if (userInfo) {
-          validateVoucher(validateVoucherParam, {
-            onSuccess: () => {
-              addVoucher(voucher)
-              setSelectedVoucher(voucher.slug)
-              setSheetOpen(false)
-              showToast(tToast('toast.applyVoucherSuccess'))
-            },
-          })
-        } else {
-          validatePublicVoucher(validateVoucherParam, {
-            onSuccess: () => {
-              addVoucher(voucher)
-              setSelectedVoucher(voucher.slug)
-              setSheetOpen(false)
-              showToast(tToast('toast.applyVoucherSuccess'))
-            },
-          })
-        }
+        validatePublicVoucher(validateVoucherParam, { onSuccess })
       }
     }
   }
+
 
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
@@ -376,7 +341,7 @@ export default function VoucherListSheet({
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
     const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount || isValidDate
+    return isValidAmount && isValidDate
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {

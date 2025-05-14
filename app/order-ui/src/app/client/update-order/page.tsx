@@ -7,12 +7,13 @@ import {
     Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
 import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
-import { VoucherListSheet } from '@/components/app/sheet'
+import { VoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
@@ -206,7 +207,7 @@ export default function ClientUpdateOrderPage() {
                                 <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
-                                <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <VoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
                                 <div>
                                     {orderItems?.voucher && (
                                         <div className="flex justify-start w-full">

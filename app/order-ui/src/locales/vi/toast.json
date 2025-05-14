@@ -298,6 +298,7 @@
     "invalidOrderApproval": "Phê duyệt đơn hàng không hợp lệ",
     "invalidOrderItems": "Các món trong đơn hàng không hợp lệ",
     "updateOrderError": "Lỗi cập nhật đơn hàng",
-    "invalidOrderSlug": "Mã đơn hàng không hợp lệ"
+    "invalidOrderSlug": "Mã đơn hàng không hợp lệ",
+    "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu"
   }
 }
