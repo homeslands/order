@@ -18,8 +18,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PdfService } from 'src/pdf/pdf.service';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
-import { UserUtils } from 'src/user/user.utils';
-import { User } from 'src/user/user.entity';
+// import { UserUtils } from 'src/user/user.utils';
+// import { User } from 'src/user/user.entity';
 describe('PaymentService', () => {
   let service: PaymentService;
 
@@ -34,7 +34,7 @@ describe('PaymentService', () => {
         HttpService,
         PdfService,
         SystemConfigService,
-        UserUtils,
+        // UserUtils,
         {
           provide: ConfigService,
           useValue: {
@@ -63,10 +63,10 @@ describe('PaymentService', () => {
           provide: getRepositoryToken(Order),
           useValue: repositoryMockFactory,
         },
-        {
-          provide: getRepositoryToken(User),
-          useValue: repositoryMockFactory,
-        },
+        // {
+        //   provide: getRepositoryToken(User),
+        //   useValue: repositoryMockFactory,
+        // },
         {
           provide: getRepositoryToken(SystemConfig),
           useValue: repositoryMockFactory,
