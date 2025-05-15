@@ -19,6 +19,9 @@ export const INVALID_NUMBER_OF_USAGE_PER_USER =
 export const DUPLICATE_VOUCHER_TITLE = 'DUPLICATE_VOUCHER_TITLE';
 export const MUST_VERIFY_IDENTITY_TO_USE_VOUCHER =
   'MUST_VERIFY_IDENTITY_TO_USE_VOUCHER';
+export const VOUCHER_HAS_ORDERS = 'VOUCHER_HAS_ORDERS';
+export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
+  'VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -35,7 +38,9 @@ export type TVoucherErrorCodeKey =
   | typeof INVALID_VOUCHER_TYPE
   | typeof INVALID_NUMBER_OF_USAGE_PER_USER
   | typeof DUPLICATE_VOUCHER_TITLE
-  | typeof MUST_VERIFY_IDENTITY_TO_USE_VOUCHER;
+  | typeof MUST_VERIFY_IDENTITY_TO_USE_VOUCHER
+  | typeof VOUCHER_HAS_ORDERS
+  | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE;
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
 // 143401 – 144000
@@ -76,5 +81,10 @@ export const VoucherValidation: TVoucherErrorCode = {
   MUST_VERIFY_IDENTITY_TO_USE_VOUCHER: createErrorCode(
     143416,
     'Must verify identity to use voucher',
+  ),
+  VOUCHER_HAS_ORDERS: createErrorCode(143417, 'Voucher has orders'),
+  VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE: createErrorCode(
+    143418,
+    'Voucher has used can not update max usage',
   ),
 };

@@ -434,9 +434,28 @@ export class VoucherService {
     const context = `${VoucherService.name}.${this.update.name}`;
 
     const voucher = await this.voucherUtils.getVoucher({ where: { slug } });
+    const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
+      where: { slug: updateVoucherDto.voucherGroup },
+    });
+
+    if (voucher.maxUsage !== updateVoucherDto.maxUsage) {
+      const orders = await this.orderUtils.getBulkOrders({
+        where: { voucher: { slug } },
+      });
+      if (!_.isEmpty(orders)) {
+        this.logger.error(
+          'Voucher has used can not update max usage',
+          null,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE,
+        );
+      }
+    }
 
     Object.assign(voucher, updateVoucherDto);
-
+    voucher.voucherGroup = voucherGroup;
     const updatedVoucher = await this.transactionService.execute<Voucher>(
       async (manager) => {
         return await manager.save(voucher);
@@ -466,7 +485,12 @@ export class VoucherService {
     const context = `${VoucherService.name}.${this.remove.name}`;
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug },
+      relations: ['orders'],
     });
+    if (_.size(voucher.orders) > 0) {
+      this.logger.error('Voucher has orders', null, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_HAS_ORDERS);
+    }
     const deletedVoucher = await this.transactionService.execute<Voucher>(
       async (manager) => await manager.remove(voucher),
       (result) =>
