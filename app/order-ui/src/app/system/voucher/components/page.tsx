@@ -14,9 +14,10 @@ export default function VoucherPage() {
     const { slug } = useParams()
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data, isLoading, refetch } = useVouchers({
+        order: 'DESC',
         voucherGroup: slug,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
         hasPaging: true
     })
 
@@ -47,7 +48,7 @@ export default function VoucherPage() {
                     data={data?.result.items || []}
                     isLoading={isLoading}
                     pages={data?.result.totalPages || 1}
-                    hiddenInput={false}
+                    hiddenInput={true}
                     actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} />}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}

@@ -299,6 +299,7 @@
     "invalidOrderItems": "Các món trong đơn hàng không hợp lệ",
     "updateOrderError": "Lỗi cập nhật đơn hàng",
     "invalidOrderSlug": "Mã đơn hàng không hợp lệ",
-    "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu"
+    "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
+    "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!"
   }
 }

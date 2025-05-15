@@ -93,7 +93,7 @@ export default function VoucherListSheet() {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : undefined,
     !!sheetOpen
@@ -104,13 +104,13 @@ export default function VoucherListSheet() {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
         isVerificationIdentity: false,
       },
     !!sheetOpen
@@ -272,19 +272,16 @@ export default function VoucherListSheet() {
       showToast(tToast('toast.applyVoucherSuccess'))
     }
 
+    const validateVoucherParam: IValidateVoucherRequest = {
+      voucher: voucher.slug,
+      user: userInfo?.slug || '',
+    }
+
+    const onSuccess = () => handleApply()
+
     if (isSelected) {
       handleRemove()
-    } else if (cartItems) {
-      // Đã có giỏ hàng local, không cần validate
-      handleApply()
     } else {
-      const validateVoucherParam: IValidateVoucherRequest = {
-        voucher: voucher.slug,
-        user: userInfo?.slug || '',
-      }
-
-      const onSuccess = () => handleApply()
-
       if (userInfo) {
         validateVoucher(validateVoucherParam, { onSuccess })
       } else {
@@ -292,6 +289,7 @@ export default function VoucherListSheet() {
       }
     }
   }
+
 
 
   const handleApplyVoucher = async () => {
@@ -344,8 +342,15 @@ export default function VoucherListSheet() {
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
     const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount && isValidDate
+
+    const requiresLogin = voucher.isVerificationIdentity === true
+    const isUserLoggedIn = !!userInfo
+
+    const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
+
+    return isValidAmount && isValidDate && isIdentityValid
   }
+
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
@@ -471,6 +476,17 @@ export default function VoucherListSheet() {
                           {t('voucher.minOrderValue')}:{' '}
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
+                        {voucher.isVerificationIdentity && (
+                          <li>
+                            {t('voucher.needVerifyIdentity')}
+                          </li>
+                        )}
+                        {voucher.numberOfUsagePerUser && (
+                          <li>
+                            {t('voucher.numberOfUsagePerUser')}:{' '}
+                            {voucher.numberOfUsagePerUser}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -551,8 +567,13 @@ export default function VoucherListSheet() {
               <span className="text-xs text-destructive">
                 {voucher.minOrderValue > subTotal
                   ? t('voucher.minOrderNotMet')
-                  : t('voucher.expired')}
+                  : moment().isAfter(moment(voucher.endDate))
+                    ? t('voucher.expired')
+                    : voucher.isVerificationIdentity && !userInfo
+                      ? t('voucher.needVerifyIdentity')
+                      : ''}
               </span>
+
             </div>
           )}
         </div>

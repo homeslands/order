@@ -99,7 +99,7 @@ export default function StaffVoucherListSheetInUpdateOrder({
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : undefined,
     !!sheetOpen

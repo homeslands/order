@@ -73,24 +73,6 @@ export default function StaffVoucherListSheet() {
     ? subTotal * cartItems?.voucher?.value / 100
     : cartItems?.voucher?.value
 
-
-  // Add useEffect to check voucher validation
-  useEffect(() => {
-    if (cartItems?.voucher) {
-      // If user is logged in but voucher doesn't require verification
-      // if (userInfo && !cartItems.voucher.isVerificationIdentity) {
-      //   showErrorToast(1003) // Show error toast
-      //   removeVoucher() // Remove invalid voucher
-      // }
-      // If user is not logged in but voucher requires verification
-      if (!userInfo && cartItems.voucher.isVerificationIdentity) {
-        // console.log('cartItems.voucher', cartItems.voucher)
-        showErrorToast(1003) // Show error toast
-        removeVoucher() // Remove invalid voucher
-      }
-    }
-  }, [userInfo, cartItems?.voucher, removeVoucher])
-
   const isCustomerOwner =
     sheetOpen &&
     !!cartItems?.owner && // Check khác null, undefined, ""
@@ -102,14 +84,14 @@ export default function StaffVoucherListSheet() {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : {
         isVerificationIdentity: false,
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       },
     !!sheetOpen
   );
@@ -129,7 +111,10 @@ export default function StaffVoucherListSheet() {
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
-    const vouchers = [specificVoucher?.result, specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+    const vouchers = userInfo
+      ? [specificVoucher?.result].filter((v): v is IVoucher => !!v)
+      : [specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+
     if (vouchers.length > 0) {
       setLocalVoucherList(prevList => {
         const newList = [...(prevList || [])];
@@ -142,7 +127,28 @@ export default function StaffVoucherListSheet() {
         return newList;
       });
     }
-  }, [specificVoucher?.result, specificPublicVoucher?.result]);
+  }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
+
+  useEffect(() => {
+    const baseList = (userInfo ? voucherList?.result.items : []) || []
+    let newList = [...baseList]
+
+    if (userInfo && specificVoucher?.result) {
+      const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
+      if (existingIndex === -1) {
+        newList = [specificVoucher.result, ...newList]
+      }
+    }
+
+    if (!userInfo && specificPublicVoucher?.result) {
+      const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
+      if (existingIndex === -1) {
+        newList = [specificPublicVoucher.result, ...newList]
+      }
+    }
+
+    setLocalVoucherList(newList)
+  }, [userInfo, voucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
 
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -155,53 +161,33 @@ export default function StaffVoucherListSheet() {
     }
   }, [cartItems?.voucher, refetchSpecificVoucher]);
 
-  // check if voucher is private, then refetch specific voucher
+  // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
-    if (specificVoucher?.result?.isPrivate) {
-      refetchSpecificVoucher()
+    if (userInfo && specificVoucher?.result?.isPrivate) {
+      refetchSpecificVoucher();
+    } else if (!userInfo && specificPublicVoucher?.result) {
+      refetchSpecificPublicVoucher();
     }
-  }, [specificVoucher?.result?.isPrivate, refetchSpecificVoucher])
-
-  useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : []) || []
-    let newList = [...baseList]
-
-    if (specificVoucher?.result) {
-      const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
-      if (existingIndex === -1) {
-        newList = [specificVoucher.result, ...newList]
-      }
-    }
-
-    setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result])
-
-  // Add useEffect to update voucher list with specific voucher
-  useEffect(() => {
-    if (userInfo && specificVoucher?.result) {
-      setLocalVoucherList(prevList => {
-        const existingVoucherIndex = prevList?.findIndex(
-          (v) => v.slug === specificVoucher.result.slug
-        )
-        if (existingVoucherIndex === -1) {
-          return [specificVoucher.result, ...prevList || []]
-        }
-        return prevList
-      })
-    }
-  }, [specificVoucher?.result, userInfo])
-
-  // useEffect(() => {
-  //   if (defaultValue?.voucher?.slug) {
-  //     setSelectedVoucher(defaultValue.voucher.slug)
-  //   } else {
-  //     setSelectedVoucher('')
-  //   }
-  // }, [defaultValue?.voucher?.slug, sheetOpen])
+  }, [
+    userInfo,
+    specificVoucher?.result?.isPrivate,
+    specificPublicVoucher?.result,
+    refetchSpecificVoucher,
+    refetchSpecificPublicVoucher
+  ]);
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
     showToast(tToast('toast.copyCodeSuccess'))
+  }
+
+  const isVoucherValid = (voucher: IVoucher) => {
+    const isValidAmount = voucher.minOrderValue <= subTotal
+    const isValidDate = moment().isBefore(moment(voucher.endDate))
+    const requiresLogin = voucher.isVerificationIdentity === true
+    const isUserLoggedIn = !!userInfo
+    const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
+    return isValidAmount && isValidDate && isIdentityValid
   }
 
   // Filter and sort vouchers to get the best one
@@ -338,11 +324,6 @@ export default function StaffVoucherListSheet() {
   };
 
 
-  const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= subTotal
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount && isValidDate
-  }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100

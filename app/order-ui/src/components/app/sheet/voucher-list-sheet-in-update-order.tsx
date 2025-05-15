@@ -105,7 +105,7 @@ export default function VoucherListSheetInUpdateOrder({
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : undefined,
     !!sheetOpen
@@ -116,7 +116,7 @@ export default function VoucherListSheetInUpdateOrder({
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
       }
       : undefined,
     !!sheetOpen
@@ -272,61 +272,78 @@ export default function VoucherListSheetInUpdateOrder({
       onSuccess?.()
     }
 
-    if (defaultValue) {
-      const params: IUpdateOrderTypeRequest = {
-        type: defaultValue.type,
-        table: defaultValue.table?.slug || null,
-        voucher: isSelected ? null : voucher.slug,
-      }
+    // Nếu đang bỏ chọn
+    if (isSelected) {
+      if (defaultValue) {
+        const params: IUpdateOrderTypeRequest = {
+          type: defaultValue.type,
+          table: defaultValue.table?.slug || null,
+          voucher: null,
+        }
 
-      const message = isSelected ? removeMessage : applyMessage
-      const shouldCloseSheet = !isSelected
-
-      updateOrderType(
-        { slug: defaultValue.slug, params },
-        {
-          onSuccess: () => {
-            if (userInfo) {
-              refetchVoucherList()
-              // remove local voucher list and set new voucher list from refetch voucher list
-              setLocalVoucherList([])
-              setLocalVoucherList(voucherList?.result?.items || [])
-            } else {
-              refetchPublicVoucherList()
-              // remove local voucher list and set new voucher list
-              setLocalVoucherList([])
-              setLocalVoucherList(publicVoucherList?.result?.items || [])
-            }
-            queryClient.invalidateQueries({ queryKey: ['orders'] })
-            handleApplySuccess(message, shouldCloseSheet)
+        updateOrderType(
+          { slug: defaultValue.slug, params },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ['orders'] })
+              setSelectedVoucher('')
+              handleApplySuccess(removeMessage, false)
+            },
           },
-        },
-      )
-    } else {
-      if (isSelected) {
+        )
+      } else {
         removeVoucher()
         setSelectedVoucher('')
         showToast(removeMessage)
-      } else {
-        const validateVoucherParam: IValidateVoucherRequest = {
+      }
+      return
+    }
+
+    // Đang chọn voucher mới → luôn validate
+    const validateVoucherParam: IValidateVoucherRequest = {
+      voucher: voucher.slug,
+      user: userInfo?.slug || '',
+    }
+
+    const onValidated = () => {
+      if (defaultValue) {
+        const params: IUpdateOrderTypeRequest = {
+          type: defaultValue.type,
+          table: defaultValue.table?.slug || null,
           voucher: voucher.slug,
-          user: userInfo?.slug || '',
         }
 
-        const onValidated = () => {
-          addVoucher(voucher)
-          setSelectedVoucher(voucher.slug)
-          handleApplySuccess(applyMessage)
-        }
-
-        if (userInfo) {
-          validateVoucher(validateVoucherParam, { onSuccess: onValidated })
-        } else {
-          validatePublicVoucher(validateVoucherParam, { onSuccess: onValidated })
-        }
+        updateOrderType(
+          { slug: defaultValue.slug, params },
+          {
+            onSuccess: () => {
+              if (userInfo) {
+                refetchVoucherList()
+                setLocalVoucherList(voucherList?.result?.items || [])
+              } else {
+                refetchPublicVoucherList()
+                setLocalVoucherList(publicVoucherList?.result?.items || [])
+              }
+              queryClient.invalidateQueries({ queryKey: ['orders'] })
+              setSelectedVoucher(voucher.slug)
+              handleApplySuccess(applyMessage)
+            },
+          },
+        )
+      } else {
+        addVoucher(voucher)
+        setSelectedVoucher(voucher.slug)
+        handleApplySuccess(applyMessage)
       }
     }
+
+    if (userInfo) {
+      validateVoucher(validateVoucherParam, { onSuccess: onValidated })
+    } else {
+      validatePublicVoucher(validateVoucherParam, { onSuccess: onValidated })
+    }
   }
+
 
 
   const handleApplyVoucher = async () => {

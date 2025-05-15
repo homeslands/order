@@ -70,6 +70,7 @@
     "minOrderNotMet": "Chưa đạt giá trị tối thiểu",
     "expired": "Voucher đã hết hạn",
     "noVoucher": "Không có mã giảm giá hợp lệ",
-    "isVerificationIdentity": "Kiểm tra định danh (Voucher sẽ khả dụng đối với khách hàng đã đăng ký tài khoản)"
+    "isVerificationIdentity": "Kiểm tra định danh (Voucher sẽ khả dụng đối với khách hàng đã đăng ký tài khoản)",
+    "needVerifyIdentity": "Vui lòng đăng nhập để sử dụng voucher"
   }
 }

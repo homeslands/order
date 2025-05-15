@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { useEffect } from 'react'
 import { Trash2, ShoppingCart, Receipt } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,7 +9,7 @@ import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
@@ -17,7 +18,9 @@ import { VOUCHER_TYPE } from '@/constants'
 export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation(['toast'])
   const cartItems = useCartItemStore((state) => state.cartItems)
+  const { removeVoucher } = useCartItemStore()
   const removeCartItem = useCartItemStore((state) => state.removeCartItem)
 
   const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
@@ -27,6 +30,23 @@ export function CartContent() {
   const handleRemoveCartItem = (id: string) => {
     removeCartItem(id)
   }
+
+  // check if customer info is removed, then check if voucher.isVerificationIdentity is true, then show toast
+  useEffect(() => {
+    const hasNoCustomerInfo = !cartItems?.ownerFullName && !cartItems?.ownerPhoneNumber
+    const isPrivateVoucher = cartItems?.voucher?.isVerificationIdentity === true
+
+    if (hasNoCustomerInfo && isPrivateVoucher) {
+      showToast(tToast('toast.voucherVerificationIdentity'))
+      removeVoucher()
+    }
+  }, [
+    cartItems?.ownerFullName,
+    cartItems?.ownerPhoneNumber,
+    cartItems?.voucher?.isVerificationIdentity,
+    tToast,
+    removeVoucher
+  ])
 
   return (
     <motion.div

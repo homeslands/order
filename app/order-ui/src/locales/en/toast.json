@@ -360,6 +360,7 @@
     "printerConnectError": "Failed to connect to printer",
     "printerWriteError": "Failed to write to printer",
     "chefOrderMustBeAccepted": "Chef order must be accepted",
-    "voucherGroupAlreadyExists": "Voucher group already exists"
+    "voucherGroupAlreadyExists": "Voucher group already exists",
+    "voucherVerificationIdentity": "This voucher requires login to use!"
   }
 }

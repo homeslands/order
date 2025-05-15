@@ -56,7 +56,7 @@ export const useUpdateVoucherGroup = () => {
 // vouchers for management
 export const useVouchers = (params?: IGetAllVoucherRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.vouchers],
+    queryKey: [QUERYKEY.vouchers, params],
     queryFn: () => getVouchers(params),
     placeholderData: keepPreviousData,
     enabled: !!params,

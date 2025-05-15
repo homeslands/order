@@ -16,7 +16,7 @@ export default function VoucherGroupPage() {
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data, isLoading } = useVoucherGroups({
         page: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        size: pagination.pageSize,
         hasPaging: true
     })
 

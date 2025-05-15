@@ -35,6 +35,7 @@ export interface IVoucher extends IBase {
 }
 
 export interface IGetAllVoucherRequest {
+  order?: string
   voucherGroup?: string
   minOrderValue?: number
   isVerificationIdentity?: boolean
@@ -43,7 +44,7 @@ export interface IGetAllVoucherRequest {
   isPrivate?: boolean
   hasPaging?: boolean
   page?: number
-  pageSize?: number
+  size?: number
 }
 
 export interface ICreateVoucherRequest {
