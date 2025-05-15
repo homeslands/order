@@ -17,19 +17,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Copy Environment Configuration
+      - name: Copy Environment Configuration & Deploy
         env:
           ENV: ${{ secrets.ENV_STAGING }}
-        run: |
-          echo "$ENV" > .deploy/staging/.env
-
-      - name: Deploy with Docker Compose
-        env:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST_STAGING }}
           REMOTE_USER: ${{ secrets.REMOTE_USER_STAGING }}
           SSH_PORT: ${{ secrets.SSH_PORT_STAGING }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_STAGING }}
         run: |
+          echo "$ENV" > .deploy/staging/.env
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
