@@ -4,6 +4,7 @@
     "detail": "Tổng quan các chi nhánh",
     "bank-config": "Cấu hình ngân hàng",
     "checkout-order": "Xác nhận đơn hàng",
+    "order-success": "Đơn hàng thành công",
     "config": "Cấu hình",
     "details": "Chi tiết",
     "home": "Trang chủ",
@@ -12,6 +13,7 @@
     "menu-management": "Quản lý thực đơn",
     "order-payment": "Thanh toán",
     "order-management": "Quản lý giao hàng",
+    "chef-order": "Khu vực bếp",
     "order-history": "Quản lý đơn hàng",
     "profile": "Trang cá nhân",
     "product": "Món",
@@ -21,13 +23,17 @@
     "product-management": "Quản lý món",
     "table": "Quản lý bàn",
     "user-management": "Quản lý người dùng",
+    "role": "Quản lý vai trò",
     "revenue": "Quản lý doanh thu",
     "static-page": "Quản lý trang tĩnh",
     "staff": "Nhân viên",
     "voucher": "Mã giảm giá",
     "promotion": "Khuyến mãi",
+    "area": "Quản lý khu vực bếp",
     "payment": "Thanh toán",
     "banner": "Banner",
-    "docs": "Tài liệu"
+    "docs": "Tài liệu",
+    "notification": "Thông báo",
+    "update": "Cập nhật"
   }
 }

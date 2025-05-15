@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import {
   Button,
@@ -20,23 +20,33 @@ import {
   Textarea,
 } from '@/components/ui';
 
-import { OrderTypeEnum, IProductVariant, IMenuItem } from '@/types';
+import { OrderTypeEnum, IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types';
 import { useCartItemStore, useUserStore } from '@/stores';
 import { publicFileURL } from '@/constants';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, showToast } from '@/utils';
+import { useAddNewOrderItem } from '@/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 interface AddToCartDialogProps {
   product: IMenuItem;
+  onSuccess?: () => void;
+  isUpdateOrder?: boolean;
+
 }
 
-export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps) {
+export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrder }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
+  const { t: tToast } = useTranslation('toast')
+  const { slug } = useParams()
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
   const { addCartItem } = useCartItemStore();
   const { getUserInfo } = useUserStore();
+  const { mutate: addNewMenuItem } = useAddNewOrderItem()
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
   const generateCartItemId = () => {
@@ -53,7 +63,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
     const cartItem = {
       id: generateCartItemId(),
       slug: product.slug,
-      owner: getUserInfo()?.slug,
+      owner: getUserInfo()?.slug || '',
       type: OrderTypeEnum.AT_TABLE, // Default value
       orderItems: [
         {
@@ -63,10 +73,13 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
           name: product.product.name,
           quantity: 1,
           variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
           promotion: product.promotion ? product.promotion?.slug : '',
+          promotionValue: product.promotion ? product.promotion?.value : 0,
           note,
         },
       ],
@@ -79,28 +92,69 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
     setIsOpen(false); // Close drawer after adding to cart
   };
 
+  const handleAddToCurrentOrder = () => {
+    if (!selectedVariant) return
+
+    const orderItem: IAddNewOrderItemRequest = {
+      quantity: 1,
+      variant: selectedVariant.slug,
+      order: slug as string,
+      promotion: product.promotion ? product.promotion?.slug : '',
+      note: note,
+    }
+    addNewMenuItem(orderItem, {
+      onSuccess: () => {
+        setIsOpen(false)
+        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
+        onSuccess?.()
+        showToast(tToast('toast.addNewOrderItemSuccess'))
+      },
+    })
+    // Reset states
+    setNote('')
+    setSelectedVariant(product.product.variants[0] || null)
+    setIsOpen(false)
+  }
+
+  useEffect(() => {
+    const handleTouchStart = (e: Event) => {
+      e.stopPropagation();
+    };
+
+    const drawerContent = document.querySelector('.drawer-content');
+    if (drawerContent) {
+      drawerContent.addEventListener('touchstart', handleTouchStart, { passive: false });
+    }
+
+    return () => {
+      if (drawerContent) {
+        drawerContent.removeEventListener('touchstart', handleTouchStart);
+      }
+    };
+  }, [isOpen]);
+
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-          <ShoppingCart className='icon' />
-          {t('menu.addToCart')}
+        <Button className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+          <Plus className='icon' />
+          {/* {t('menu.addToCart')} */}
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%]">
+      <DrawerContent className="h-[90%] drawer-content">
         <DrawerHeader>
           <DrawerTitle>{t('menu.confirmProduct')}</DrawerTitle>
           <DrawerDescription>{t('menu.confirmProductDescription')}</DrawerDescription>
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full max-w-sm grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
                   src={`${publicFileURL}/${product.product.image}`}
                   alt={product.product.name}
-                  className="object-cover w-full h-48 rounded-md sm:h-64 lg:h-72"
+                  className="object-cover w-full h-48 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
                 />
               ) : (
                 <div className="w-full rounded-md bg-muted/50" />
@@ -156,7 +210,7 @@ export default function ClientAddToCartDrawer({ product }: AddToCartDialogProps)
                 <DrawerClose asChild>
                   <Button variant="outline">{tCommon('common.cancel')}</Button>
                 </DrawerClose>
-                <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+                <Button onClick={isUpdateOrder ? handleAddToCurrentOrder : handleAddToCart} disabled={!selectedVariant}>
                   {t('menu.addToCart')}
                 </Button>
               </div>

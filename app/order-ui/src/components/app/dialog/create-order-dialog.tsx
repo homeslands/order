@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ShoppingCart } from 'lucide-react'
+import { Loader2, ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -14,22 +14,25 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, ICreateOrderRequest } from '@/types'
-import { useCreateOrder } from '@/hooks'
+import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
 import { showErrorToast, showToast } from '@/utils'
 import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 
 interface IPlaceOrderDialogProps {
+  onSuccess?: () => void
   disabled?: boolean | undefined
+  onSuccessfulOrder?: () => void
 }
 
-export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
+export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSuccess }: IPlaceOrderDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { getCartItems, clearCart } = useCartItemStore()
-  const { mutate: createOrder } = useCreateOrder()
+  const { mutate: createOrder, isPending } = useCreateOrder()
+  const { mutate: createOrderWithoutLogin, isPending: isPendingWithoutLogin } = useCreateOrderWithoutLogin()
   const [isOpen, setIsOpen] = useState(false)
   const { getUserInfo, userInfo } = useUserStore()
   const { branch } = useBranchStore()
@@ -40,9 +43,11 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
     if (!order) return
 
     const selectedBranch =
-      userInfo?.role.name === Role.CUSTOMER
-        ? branch?.slug
-        : userInfo?.branch.slug
+      userInfo
+        ? (userInfo?.role.name === Role.CUSTOMER
+          ? branch?.slug
+          : userInfo?.branch?.slug)
+        : branch?.slug
 
     if (!selectedBranch) {
       showErrorToast(11000)
@@ -53,38 +58,56 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       type: order.type,
       table: order.table || '',
       branch: selectedBranch,
-      owner: order.owner || '',
+      owner: order.owner || getUserInfo()?.slug || '',
       approvalBy: getUserInfo()?.slug || '',
       orderItems: order.orderItems.map((orderItem) => ({
         quantity: orderItem.quantity,
         variant: orderItem.variant,
-        ... (orderItem.promotion && { promotion: orderItem.promotion }),
+        ...(orderItem.promotion && { promotion: orderItem.promotion }),
         note: orderItem.note || '',
       })),
       voucher: order.voucher?.slug || null,
+      description: order.description || '',
     }
 
-    // Gọi API để tạo đơn hàng.
-    createOrder(createOrderRequest, {
-      onSuccess: (data) => {
-        const orderPath =
-          userInfo?.role.name === Role.CUSTOMER
-            ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
-            : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
-        navigate(orderPath)
-        setIsOpen(false)
-        clearCart()
-        showToast(tToast('toast.createOrderSuccess'))
-      },
-    })
+    // Call API to create order
+    if (userInfo) {
+      createOrder(createOrderRequest, {
+        onSuccess: (data) => {
+          const orderPath =
+            userInfo?.role.name === Role.CUSTOMER
+              ? `${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`
+              : `${ROUTE.STAFF_ORDER_PAYMENT}?order=${data.result.slug}`
+          onSuccess?.()
+          navigate(orderPath)
+          setIsOpen(false)
+          onSuccessfulOrder?.()
+          if (userInfo?.role.name === Role.CUSTOMER) {
+            clearCart()
+          }
+          showToast(tToast('toast.createOrderSuccess'))
+        },
+      })
+    } else {
+      createOrderWithoutLogin(createOrderRequest, {
+        onSuccess: (data) => {
+          onSuccess?.()
+          navigate(`${ROUTE.CLIENT_PAYMENT}?order=${data.result.slug}`)
+          setIsOpen(false)
+          onSuccessfulOrder?.()
+          clearCart()
+          showToast(tToast('toast.createOrderSuccess'))
+        },
+      })
+    }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={!disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-1/6"
+          disabled={disabled}
+          className="flex items-center w-full text-sm rounded-full"
           onClick={() => setIsOpen(true)}
         >
           {t('order.create')}
@@ -94,7 +117,7 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
-            <div className="flex items-center gap-2 text-primary">
+            <div className="flex gap-2 items-center text-primary">
               <ShoppingCart className="w-6 h-6" />
               {t('order.create')}
             </div>
@@ -105,15 +128,17 @@ export default function PlaceOrderDialog({ disabled }: IPlaceOrderDialogProps) {
             <br />
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}
             className="border border-gray-300 min-w-24"
+            disabled={isPending || isPendingWithoutLogin}
           >
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={() => order && handleSubmit(order)}>
+          <Button onClick={() => order && handleSubmit(order)} disabled={isPending || isPendingWithoutLogin}>
+            {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('order.create')}
           </Button>
         </DialogFooter>

@@ -29,7 +29,7 @@ import {
 } from './menu-item.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('menu-item')
 @ApiTags('Menu Item')
@@ -122,6 +122,7 @@ export class MenuItemController {
   }
 
   @Patch(':slug')
+  @Public()
   @ApiOperation({ summary: 'Update menu item' })
   @ApiResponseWithType({
     type: MenuItemResponseDto,

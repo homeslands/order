@@ -18,7 +18,7 @@ import { ITable } from '@/types'
 
 import { useDeleteTable } from '@/hooks'
 import { showToast } from '@/utils'
-import { useBranchStore } from '@/stores'
+import { QUERYKEY } from '@/constants'
 
 interface DeleteTableDialogProps {
   table: ITable | null
@@ -33,7 +33,6 @@ export default function DeleteTableDialog({
   const { t } = useTranslation(['table'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
-  const { branch } = useBranchStore()
   const { mutate: deleteTable } = useDeleteTable()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -43,7 +42,7 @@ export default function DeleteTableDialog({
         setIsOpen(false)
         setTimeout(() => {
           queryClient.invalidateQueries({
-            queryKey: ['tables', branch ? branch?.slug : ''],
+            queryKey: [QUERYKEY.tables],
           })
           showToast(tToast('toast.deleteTableSuccess'))
           document.body.style.pointerEvents = 'auto'

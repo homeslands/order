@@ -6,6 +6,7 @@ import { ISize } from './size.type'
 import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
 import { IPromotion } from './promotion.type'
+import { IChefOrderItemStatus, IChefOrders } from './area.type'
 
 export interface IDish {
   id: number
@@ -38,6 +39,8 @@ export interface ICartItem {
   } | null
   note?: string
   approvalBy?: string
+  description?: string
+  paymentMethod?: string
 }
 
 export interface IOrderToUpdate {
@@ -62,11 +65,14 @@ export interface IOrderItem {
   image: string
   name: string
   quantity: number
+  size: string
   variant: string
+  originalPrice?: number
   price: number
   description: string
   isLimit: boolean
   promotion?: string // promotion slug
+  promotionValue?: number
   // catalog: ICatalog
   note?: string
 }
@@ -90,9 +96,16 @@ export interface IPayment extends IBase {
   statusMessage: string
 }
 
-export interface IOrder {
-  createdAt: string
-  slug: string
+export interface IOrder extends IBase {
+  approvalBy: {
+    createdAt: string
+    slug: string
+    firstName: string
+    lastName: string
+    phonenumber: string
+  }
+  referenceNumber: number
+  chefOrders: IChefOrders[]
   type: string
   table: ITable
   payment: IPayment
@@ -104,11 +117,29 @@ export interface IOrder {
   invoice: IOrderInvoice
   voucher: IVoucher
   isExtend?: boolean
+  description?: string
+}
+
+export interface IOrderItems extends IBase {
+  id?: string
+  quantity: number
+  subtotal: number
+  note: string
+  variant: IProductVariant
+  trackingOrderItems: ITrackingOrderItems[]
+  promotion?: IPromotion
+  chefOrderItems?: IChefOrderItemStatus[]
+  status: {
+    PENDING: number
+    COMPLETED: number
+    FAILED: number
+    RUNNING: number
+  }
 }
 
 export interface IOrderDetail extends IBase {
   index?: number
-  id: string
+  id?: string
   note: string
   quantity: number
   status: {
@@ -122,6 +153,7 @@ export interface IOrderDetail extends IBase {
   size: ISize
   trackingOrderItems: ITrackingOrderItems[]
   promotion?: IPromotion
+  chefOrderItems?: IChefOrderItemStatus[]
 }
 
 export interface IOrderDetailForTracking extends IBase {
@@ -157,12 +189,13 @@ export enum OrderStatus {
   ALL = 'all',
   PENDING = 'pending',
   SHIPPING = 'shipping',
-  FAILED = 'FAILED',
+  FAILED = 'failed',
   COMPLETED = 'completed',
   PAID = 'paid',
 }
 
 export enum OrderItemStatus {
+  ORDER_ITEM_LIST = 'ORDER_ITEM_LIST',
   PENDING = 'PENDING',
   RUNNING = 'RUNNING',
   COMPLETED = 'COMPLETED',
@@ -213,6 +246,7 @@ export interface ICreateOrderRequest {
   }[]
   approvalBy: string
   voucher: string | null // voucher slug
+  description?: string
 }
 
 export interface IAddNewOrderItemRequest {
@@ -226,6 +260,23 @@ export interface IAddNewOrderItemRequest {
 export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
+  voucher?: string | null
+  description?: string
+}
+
+export interface IUpdateOrderItemRequest {
+  quantity: number
+  note?: string
+  variant: string | IProductVariant
+  promotion?: string | IPromotion
+  action?: string
+}
+export interface IUpdateNoteRequest {
+  note: string
+}
+
+export interface IUpdateOrderNoteRequest {
+  description: string
 }
 
 export interface IInitiatePaymentRequest {

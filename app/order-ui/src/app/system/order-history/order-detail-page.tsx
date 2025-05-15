@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import moment from 'moment'
+import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
-import moment from 'moment'
 
 import {
   Button,
@@ -20,7 +21,7 @@ import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { OrderTypeEnum } from '@/types'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency } from '@/utils'
-import { Helmet } from 'react-helmet'
+import { ShowInvoiceDialog } from '@/components/app/dialog'
 
 export default function OrderDetailPage() {
   const { t } = useTranslation(['menu'])
@@ -29,6 +30,22 @@ export default function OrderDetailPage() {
   const { slug } = useParams()
   const { data: orderDetail } = useOrderBySlug(slug as string)
   const navigate = useNavigate()
+
+  const orderInfo = orderDetail?.result;
+
+  const originalTotal = orderInfo
+    ? orderInfo?.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+    : 0;
+  // const totalBeforeDiscount = orderInfo
+  //   ? orderInfo.orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+  //   : 0;
+
+  const discount = orderInfo
+    ? orderInfo.orderItems.reduce(
+      (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
+      0
+    )
+    : 0;
 
   return (
     <div className="mb-10">
@@ -41,203 +58,251 @@ export default function OrderDetailPage() {
       </Helmet>
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="top-0 z-10 flex flex-col items-center gap-2 pb-4">
-          <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <div className="flex top-0 z-10 flex-col gap-2 items-center pb-4">
+          <span className="flex gap-1 justify-start items-center w-full text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
             <span className="text-muted-foreground">
-              #{orderDetail?.result?.slug}
+              #{orderInfo?.slug}
             </span>
           </span>
         </div>
 
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col w-full gap-4 lg:w-3/4">
+          <div className="flex flex-col gap-4 w-full lg:w-3/5">
             {/* Order info */}
-            <div className="flex items-center justify-between p-3 border rounded-sm">
+            <div className="flex justify-between items-center p-3 rounded-sm border">
               <div className="">
-                <p className="flex items-center gap-2 pb-2">
+                <p className="flex gap-2 items-center pb-2">
                   <span className="font-bold">
                     {t('order.order')}{' '}
                   </span>{' '}
                   <span className="text-primary">
-                    #{orderDetail?.result?.slug}
+                    #{orderInfo?.slug}
                   </span>
-                  <OrderStatusBadge order={orderDetail?.result || undefined} />
+                  <OrderStatusBadge order={orderInfo || undefined} />
                 </p>
-                <div className="flex items-center gap-1 text-sm font-thin">
+                <div className="flex gap-1 items-center text-sm font-thin">
                   <p>
-                    {moment(orderDetail?.result?.createdAt).format(
+                    {moment(orderInfo?.createdAt).format(
                       'hh:mm:ss DD/MM/YYYY',
                     )}
                   </p>{' '}
                   |
-                  <p className="flex items-center gap-1">
+                  <p className="flex gap-1 items-center">
                     <span>
                       {t('order.cashier')}{' '}
                     </span>
                     <span className="text-muted-foreground">
-                      {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName} - ${orderDetail?.result?.owner?.phonenumber}`}
+                      {`${orderInfo?.approvalBy?.firstName} ${orderInfo?.approvalBy?.lastName} - ${orderInfo?.approvalBy?.phonenumber}`}
                     </span>
                   </p>
                 </div>
               </div>
             </div>
             {/* Order owner info */}
-            <div className="flex gap-2">
-              <div className="w-1/2 border rounded-sm">
+            <div className="flex gap-2 min-h-[8.3rem]">
+              <div className="w-1/2 rounded-sm border">
                 <div className="px-3 py-2 font-bold uppercase">
                   {t('order.customer')}
                 </div>
-                <div className="px-3 py-2 text-xs">
+                <div className="px-3 py-2 text-xs sm:text-sm">
                   <p className="font-bold">
-                    {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName}`}
+                    {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName}`}
                   </p>
-                  <p className="text-sm">
-                    {orderDetail?.result?.owner?.phonenumber}
+                  <p className="text-muted-foreground">
+                    {orderInfo?.owner?.phonenumber}
                   </p>
                 </div>
               </div>
-              <div className="w-1/2 border rounded-sm">
+              <div className="w-1/2 rounded-sm border">
                 <div className="px-3 py-2 font-bold uppercase">
                   {t('order.orderType')}
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
-                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                    {orderInfo?.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
                       : t('order.takeAway')}
                   </p>
-                  <p className="flex gap-1">
-                    <span className="col-span-2">{t('order.tableNumber')}</span>
-                    <span className="col-span-1">
-                      {orderDetail?.result?.table?.name}
-                    </span>
-                  </p>
+                  {orderInfo?.type === OrderTypeEnum.AT_TABLE && (
+                    <p className="flex gap-1">
+                      <span className="col-span-2">{t('order.tableNumber')}</span>
+                      <span className="col-span-1">
+                        {orderInfo?.table?.name}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Order table */}
-            <div className="overflow-x-auto">
-              <Table className="min-w-full border border-collapse table-auto">
-                <TableCaption>A list of orders.</TableCaption>
-                <TableHeader className={`rounded bg-muted-foreground/10 dark:bg-transparent`}>
-                  <TableRow>
-                    <TableHead className="">{t('order.product')}</TableHead>
-                    <TableHead>{t('order.size')}</TableHead>
-                    <TableHead>{t('order.quantity')}</TableHead>
-                    <TableHead className="text-right">
-                      {t('order.unitPrice')}
-                    </TableHead>
-                    <TableHead className="text-right">
-                      {t('order.grandTotal')}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orderDetail?.result.orderItems?.map((item) => (
-                    <TableRow key={item.slug}>
-                      <TableCell className="flex items-center gap-1 font-bold">
-                        <img
-                          src={`${publicFileURL}/${item.variant.product.image}`}
-                          alt={item.variant.product.image}
-                          className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
-                        />
-                        {item.variant.product.name}
-                      </TableCell>
-                      <TableCell>{item.variant.size.name}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell className="text-right">
-                        {`${formatCurrency(item.variant.price || 0)}`}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            {orderInfo?.description && (
+              <div className="flex items-center w-full text-sm">
+                <h3 className="w-20 text-sm font-semibold">
+                  {t('order.note')}
+                </h3>
+                <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{orderInfo?.description}</p>
+              </div>
+            )}
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col w-full gap-2 lg:w-1/4">
+          <div className="flex flex-col gap-3 w-full lg:w-2/5">
             {/* Payment method, status */}
-            <div className="border rounded-sm">
-              {/* <div className="px-3 py-2 font-bold uppercase">
-                Phương thức thanh toán
-              </div> */}
+            <div className="rounded-sm border">
               <div className="px-3 py-2">
-                <p className="flex flex-col items-start gap-1 pb-2">
-                  <span className="col-span-1 text-sm font-bold">
+                <p className="flex flex-col gap-1 items-start pb-2">
+                  <span className="col-span-1 text-sm font-bold sm:text-lg">
                     {t('paymentMethod.title')}
                   </span>
-                  <span className="text-xs">
-                    {orderDetail?.result?.payment?.paymentMethod && (
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    {orderInfo?.payment?.paymentMethod ? (
                       <>
-                        {orderDetail?.result?.payment.paymentMethod ===
+                        {orderInfo?.payment.paymentMethod ===
                           'bank-transfer' && (
-                            <span>{t('paymentMethod.bankTransfer')}</span>
+                            <span className="flex gap-1 items-center">
+                              {t('paymentMethod.bankTransfer')}
+                              {orderInfo?.payment ? (
+                                <PaymentStatusBadge
+                                  status={orderInfo?.payment?.statusCode}
+                                />
+                              ) : (
+                                <span className="flex gap-1 items-center text-xs text-muted-foreground">
+                                  {t('order.pending')}
+                                  <PaymentStatusBadge
+                                    status={orderInfo?.payment?.statusCode}
+                                  />
+                                </span>
+                              )}
+                            </span>
                           )}
-                        {orderDetail?.result?.payment.paymentMethod ===
-                          'cash' && <span>{t('paymentMethod.cash')}</span>}
+                        {orderInfo?.payment.paymentMethod ===
+                          'cash' && <span className="flex gap-1 items-center">
+                            {t('paymentMethod.cash')}
+                            <PaymentStatusBadge
+                              status={orderInfo?.payment?.statusCode}
+                            />
+                          </span>}
                       </>
-                    )}
-                  </span>
-                </p>
-                <p className="flex items-center gap-1">
-                  <span className="col-span-1 text-xs font-semibold">
-                    {t('paymentMethod.status')}
-                  </span>
-                  <span className="col-span-1 text-xs">
-                    {orderDetail?.result?.payment && (
-                      <PaymentStatusBadge
-                        status={orderDetail?.result?.payment?.statusCode}
-                      />
+                    ) : (
+                      <span className="text-xs sm:text-sm text-muted-foreground">
+                        {t('order.pending')}
+                      </span>
                     )}
                   </span>
                 </p>
               </div>
             </div>
             {/* Total */}
-            <div className="flex flex-col gap-2 p-2 border rounded-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
+            <div className="flex flex-col gap-2 p-2 rounded-sm border">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
                   {t('order.subtotal')}
                 </p>
-                <p>{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                <p className='text-muted-foreground'>{`${formatCurrency(originalTotal || 0)}`}</p>
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-green-500">
+              <div className="flex justify-between items-center">
+                <p className="text-sm italic text-green-500">
                   {t('order.discount')}
                 </p>
-                <p className='text-sm text-green-500'>{`${formatCurrency(orderDetail?.result?.voucher?.value || 0)}`}</p>
+                <p className='text-sm italic text-green-500'>{`- ${formatCurrency(discount || 0)}`}</p>
               </div>
+              {orderDetail?.result.voucher &&
+                <div className="flex justify-between pb-4 w-full">
+                  <h3 className="text-sm italic font-medium text-green-500">
+                    {t('order.voucher')}
+                  </h3>
+                  <p className="text-sm italic font-semibold text-green-500">
+                    - {`${formatCurrency((originalTotal - discount) * ((orderDetail.result.voucher.value) / 100))}`}
+                  </p>
+                </div>}
               <Separator />
-              <div className="flex items-center justify-between">
-                <p className="text-gray-500">
+              <div className="flex justify-between items-center">
+                <p className="font-bold text-md">
                   {t('order.totalPayment')}
                 </p>
-                <p className="text-2xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                <p className="text-xl font-bold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  ({orderDetail?.result?.orderItems?.length}{t('order.product')})
-                </p>
-                <p className="text-xs text-muted-foreground/60">({t('order.vat')})</p>
+              <div className="flex justify-between items-center">
+                {/* <p className="text-sm text-muted-foreground">
+                  ({orderInfo?.orderItems?.length}{' '}{t('order.product')})
+                </p> */}
+                {/* <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p> */}
               </div>
             </div>
             {/* Return order button */}
-            <Button
-              className="w-full bg-primary"
-              onClick={() => {
-                navigate(-1)
-              }}
-            >
-              {tCommon('common.goBack')}
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                className="text-muted-foreground"
+                onClick={() => {
+                  navigate(-1)
+                }}
+              >
+                {tCommon('common.goBack')}
+              </Button>
+              <ShowInvoiceDialog order={orderInfo || null} />
+            </div>
           </div>
+        </div>
+        {/* Order table */}
+        <div className="overflow-x-auto mt-2">
+          <Table className="min-w-full border border-collapse table-auto">
+            <TableCaption>A list of orders.</TableCaption>
+            <TableHeader className={`rounded bg-muted-foreground/10 dark:bg-transparent`}>
+              <TableRow>
+                <TableHead className="">{t('order.product')}</TableHead>
+                <TableHead>{t('order.note')}</TableHead>
+                <TableHead>{t('order.size')}</TableHead>
+                <TableHead>{t('order.quantity')}</TableHead>
+                <TableHead className="text-start">
+                  {t('order.unitPrice')}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t('order.grandTotal')}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orderInfo?.orderItems?.map((item) => (
+                <TableRow key={item.slug}>
+                  <TableCell className="flex gap-1 items-center font-bold">
+                    <img
+                      src={`${publicFileURL}/${item.variant.product.image}`}
+                      alt={item.variant.product.image}
+                      className="object-cover w-20 h-12 rounded-lg sm:h-16 sm:w-24"
+                    />
+                    {item.variant && item.variant.product && item.variant.product.name}
+                  </TableCell>
+                  <TableCell>{item.note}</TableCell>
+                  <TableCell>{item.variant && item.variant.size && item.variant.size.name.toUpperCase()}</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell className="text-right">
+                    {item.promotion && item.promotion.value > 0 ? (
+                      <div className="flex gap-1 justify-start items-center">
+                        <span className="text-sm line-through text-muted-foreground">
+                          {`${formatCurrency(item?.variant?.price || 0)}`}
+                        </span>
+                        <span className="text-sm sm:text-lg text-primary">
+                          {`${formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}`}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-1 justify-start items-start">
+                        <span className="text-sm text-muted-foreground">
+                          {`${formatCurrency(item?.variant?.price || 0)}`}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-lg font-extrabold text-right text-primary">
+                    {`${formatCurrency(item?.subtotal)}`}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

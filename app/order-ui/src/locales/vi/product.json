@@ -43,6 +43,8 @@
   "product": {
     "title": "Quản lý món ăn",
     "create": "Thêm món ăn",
+    "btnCreate": "Thêm món",
+    "btnCreateAndContinue": "Thêm tiếp",
     "createProductDescription": "Điền thông tin để tạo món ăn",
     "productName": "Tên món ăn",
     "enterProductName": "Nhập tên món ăn",

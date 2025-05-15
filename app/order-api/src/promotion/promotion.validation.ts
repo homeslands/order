@@ -43,52 +43,52 @@ export type TPromotionErrorCode = Record<
   TErrorCodeValue
 >;
 
-// 150500 - 150999
+// 150501 - 151000
 export const PromotionValidation: TPromotionErrorCode = {
-  PROMOTION_NOT_FOUND: createErrorCode(150500, 'Promotion not found'),
-  DENY_DELETE_PROMOTION: createErrorCode(150501, 'Deny delete promotion'),
+  PROMOTION_NOT_FOUND: createErrorCode(150501, 'Promotion not found'),
+  DENY_DELETE_PROMOTION: createErrorCode(150502, 'Deny delete promotion'),
   ERROR_WHEN_GET_MENU_ITEM_BY_PROMOTION: createErrorCode(
-    150502,
+    150503,
     'Error when get menu item by promotion',
   ),
   ERROR_WHEN_UPDATE_PROMOTION: createErrorCode(
-    150503,
+    150504,
     'Error when update promotion',
   ),
   PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_BRANCH: createErrorCode(
-    150504,
+    150505,
     'Promotion already applied, can not update branch',
   ),
   PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_TIME: createErrorCode(
-    150505,
+    150506,
     'Promotion already applied, can not update time',
   ),
   PROMOTION_ALREADY_APPLIED_CAN_NOT_UPDATE_START_TIME: createErrorCode(
-    150506,
+    150507,
     'Promotion already applied, can not update start time',
   ),
   UPDATE_END_TIME_MUST_BE_GREATER_TODAY: createErrorCode(
-    150507,
+    150508,
     'Update end time must be greater than today',
   ),
   PROMOTION_ALREADY_EXPIRED_CAN_NOT_UPDATE_TIME: createErrorCode(
-    150508,
+    150509,
     'Promotion already expired, can not update time',
   ),
   END_TIME_MUST_BE_GREATER_OR_EQUAL_START_TIME: createErrorCode(
-    150509,
+    150510,
     'End time must be greater or equal start time',
   ),
   END_TIME_MUST_BE_GREATER_OR_EQUAL_TODAY: createErrorCode(
-    150510,
+    150511,
     'End time must be greater or equal today',
   ),
   PROMOTION_ALREADY_APPLIED_CAN_NOT_DELETE: createErrorCode(
-    150511,
+    150512,
     'Promotion already applied, can not delete',
   ),
   ERROR_WHEN_VALIDATE_PROMOTION: createErrorCode(
-    150512,
+    150513,
     'Error when validate promotion',
   ),
 };

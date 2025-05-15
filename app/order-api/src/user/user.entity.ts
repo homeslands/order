@@ -3,9 +3,9 @@ import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 import { Branch } from 'src/branch/branch.entity';
 import { Order } from 'src/order/order.entity';
-import { ForgotPasswordToken } from 'src/auth/forgot-password-token.entity';
+import { ForgotPasswordToken } from 'src/auth/entity/forgot-password-token.entity';
 import { Role } from 'src/role/role.entity';
-import { VerifyEmailToken } from 'src/auth/verify-email-token.entity';
+import { VerifyEmailToken } from 'src/auth/entity/verify-email-token.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -16,11 +16,11 @@ export class User extends Base {
   @Column({ name: 'password_column' })
   password: string;
 
-  @Column({ name: 'first_name_column' })
+  @Column({ name: 'first_name_column', nullable: true })
   @AutoMap()
   firstName: string;
 
-  @Column({ name: 'last_name_column' })
+  @Column({ name: 'last_name_column', nullable: true })
   @AutoMap()
   lastName: string;
 

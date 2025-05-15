@@ -9,7 +9,7 @@ export default function MenuManagementPage() {
   const { t: tHelmet } = useTranslation('helmet')
 
   return (
-    <div className="grid w-full h-full grid-cols-1">
+    <div className="grid grid-cols-1 w-full h-full">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -17,7 +17,7 @@ export default function MenuManagementPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.menuManagement.title')} />
       </Helmet>
-      <span className="flex items-center gap-1 text-lg">
+      <span className="flex gap-1 items-center text-lg">
         <SquareMenu />
         {t('menu.title')}
       </span>

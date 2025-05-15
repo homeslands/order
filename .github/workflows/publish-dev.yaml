@@ -35,11 +35,13 @@ jobs:
 
       - name: Copy Environment Configuration
         env:
+          AUTHORITIES: ${{ secrets.AUTHORITIES }}
           GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
           FE_ENV_DEV: ${{ secrets.FE_ENV_DEV }}
         run: |
           mkdir -p app/order-api/public/json
           echo "$GOOGLE_API_CREDENTIALS" > app/order-api/public/json/credentials.json
+          echo "$AUTHORITIES" > app/order-api/public/json/authorities.json
           echo "$FE_ENV_DEV" > app/order-ui/.env
 
       # Step 3: Log in to GitHub Container Registry

@@ -1,91 +1,78 @@
-import { useEffect, useState } from 'react'
-import ReactSelect, { SingleValue } from 'react-select'
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useBranch } from '@/hooks'
-import { useThemeStore } from '@/stores'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
+
+import { useBranch } from "@/hooks";
+import { useBranchStore } from "@/stores";
 
 interface SelectBranchProps {
-  defaultValue?: string
-  onChange: (value: string) => void
+  defaultValue?: string;
+  onChange?: (value: string) => void;
 }
 
-export default function BranchSelect({
-  defaultValue,
-  onChange,
-}: SelectBranchProps) {
-  const { getTheme } = useThemeStore()
-  const [allBranches, setAllBranches] = useState<
-    { value: string; label: string }[]
-  >([])
-  const [selectedBranch, setSelectedBranch] = useState<{
-    value: string
-    label: string
-  } | null>(null)
-  const { data } = useBranch()
+export default function BranchSelect({ defaultValue, onChange }: SelectBranchProps) {
+  const { t } = useTranslation('branch')
+  const [allBranches, setAllBranches] = useState<{ value: string; label: string }[]>([]);
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(defaultValue);
+
+  const { data } = useBranch();
+  const { setBranch } = useBranchStore();
+
+  // Set selected branch if defaultValue matches
+  useEffect(() => {
+    if (!data?.result || data.result.length === 0) return;
+
+    const branch = data.result.find(item => item.slug === defaultValue) || data.result[0];
+
+    setBranch(branch);
+    setSelectedValue(branch.slug);
+  }, [defaultValue, data?.result, setBranch]);
 
   useEffect(() => {
-    if (data?.result && !selectedBranch) {
+    if (data?.result) {
       const newBranches = data.result.map((item) => ({
-        value: item.slug || '',
+        value: item.slug || "",
         label: `${item.name} - ${item.address}`,
-      }))
-      setAllBranches(newBranches)
-
-      const defaultOption = defaultValue
-        ? newBranches.find((branch) => branch.value === defaultValue)
-        : newBranches[0]
-
-      if (defaultOption) {
-        setSelectedBranch(defaultOption)
-        onChange(defaultOption.value)
-      }
+      }));
+      setAllBranches(newBranches);
     }
-  }, [data, defaultValue, onChange, selectedBranch]) // Bỏ onChange khỏi dependencies
+  }, [data]);
 
-  const handleChange = (
-    selectedOption: SingleValue<{ value: string; label: string }>,
-  ) => {
-    if (selectedOption) {
-      setSelectedBranch(selectedOption)
-      onChange(selectedOption.value)
+  const handleChange = (value: string) => {
+    setSelectedValue(value); // Update local state
+    const branch = data?.result.find((item) => item.slug === value);
+    if (branch) {
+      setBranch(branch);
     }
-  }
+    onChange?.(value);
+  };
 
   return (
-    <ReactSelect
-      className="text-sm max-w-[16rem] border-muted-foreground text-muted-foreground"
-      value={selectedBranch}
-      options={allBranches}
-      onChange={handleChange}
-      styles={{
-        control: (baseStyles) => ({
-          ...baseStyles,
-          backgroundColor: getTheme() === 'light' ? 'white' : '',
-          borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
-        }),
-        menu: (baseStyles) => ({
-          ...baseStyles,
-          backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
-        }),
-        option: (baseStyles, state) => ({
-          ...baseStyles,
-          backgroundColor: state.isFocused
-            ? getTheme() === 'light'
-              ? '#e2e8f0'
-              : '#2d2d2d'
-            : getTheme() === 'light'
-              ? 'white'
-              : '#121212',
-          color: getTheme() === 'light' ? 'black' : 'white',
-          '&:hover': {
-            backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
-          },
-        }),
-        singleValue: (baseStyles) => ({
-          ...baseStyles,
-          color: getTheme() === 'light' ? 'black' : 'white',
-        }),
-      }}
-    />
-  )
+    <Select onValueChange={handleChange} value={selectedValue}>
+      <SelectTrigger className="w-fit">
+        <SelectValue placeholder={t('branch.chooseBranch')} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>
+            {t('branch.title')}
+          </SelectLabel>
+          {allBranches.map((branch) => (
+            <SelectItem key={branch.value} value={branch.value}>
+              {branch.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
 }

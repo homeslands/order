@@ -44,7 +44,6 @@ const axiosInstance: AxiosInstance = axios.create({
   timeout: 10000,
   withCredentials: true,
 })
-
 // Public routes configuration
 const publicRoutes = [
   { path: /^\/auth\/login$/, methods: ['post'] },
@@ -52,9 +51,15 @@ const publicRoutes = [
   { path: /^\/auth\/refresh$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password$/, methods: ['post'] },
   { path: /^\/auth\/forgot-password\/token$/, methods: ['post'] },
+  { path: /^\/orders\/public$/, methods: ['post'] },
+  { path: /^\/orders\/[^/]+$/, methods: ['get'] }, // get order by slug
+  { path: /^\/orders\/[^/]+\/public$/, methods: ['delete'] }, // delete order by slug
+  { path: /^\/invoice\/export\/public$/, methods: ['post'] }, // export public order invoice
   { path: /^\/menu\/specific$/, methods: ['get'] },
+  { path: /^\/payment\/initiate\/public$/, methods: ['post'] },
   { path: /^\/products\/[^/]+$/, methods: ['get'] }, // get product by slug
   { path: /^\/products$/, methods: ['get'] },
+  { path: /^\/tables$/, methods: ['get'] },
   { path: /^\/branch$/, methods: ['get'] },
   { path: /^\/menu-item\/[^/]+$/, methods: ['get'] },
   { path: /^\/product-analysis\/top-sell\/branch\/[^/]+$/, methods: ['get'] },
@@ -101,10 +106,10 @@ axiosInstance.interceptors.request.use(
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
           await axios.post(`${baseURL}/auth/refresh`, {
             refreshToken,
-            expiredToken: token,
+            accessToken: token,
           })
 
-        const newToken = response.data.result.token
+        const newToken = response.data.result.accessToken
         setToken(newToken)
         setRefreshToken(response.data.result.refreshToken)
         setExpireTime(response.data.result.expireTime)

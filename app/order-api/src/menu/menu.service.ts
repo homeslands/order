@@ -1,14 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './menu.entity';
-import {
-  Between,
-  FindOptionsWhere,
-  IsNull,
-  Like,
-  Not,
-  Repository,
-} from 'typeorm';
+import { FindOptionsWhere, IsNull, Like, Not, Repository } from 'typeorm';
 import {
   CreateMenuDto,
   GetAllMenuQueryRequestDto,
@@ -28,6 +21,7 @@ import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { MenuUtils } from './menu.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class MenuService {
@@ -39,6 +33,7 @@ export class MenuService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly menuUtils: MenuUtils,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
 
   /**
@@ -114,16 +109,6 @@ export class MenuService {
       };
     }
 
-    if (query.minPrice && query.maxPrice) {
-      findOptionsWhere.menuItems = {
-        product: {
-          variants: {
-            price: Between(query.minPrice, query.maxPrice),
-          },
-        },
-      };
-    }
-
     if (_.isBoolean(query.promotion)) {
       findOptionsWhere.menuItems = {
         promotion: query.promotion ? Not(IsNull()) : IsNull(),
@@ -136,6 +121,7 @@ export class MenuService {
         'menuItems.product.variants.size',
         'menuItems.product.catalog',
         'menuItems.promotion',
+        'branch',
       ],
       order: {
         menuItems: {
@@ -162,6 +148,16 @@ export class MenuService {
           );
         });
       }
+    }
+
+    if (_.isNumber(query.minPrice) && _.isNumber(query.maxPrice)) {
+      menu.menuItems = menu.menuItems.filter((item) => {
+        return item.product.variants.some((variant) => {
+          return (
+            variant.price >= query.minPrice && variant.price <= query.maxPrice
+          );
+        });
+      });
     }
 
     return this.mapper.map(menu, Menu, MenuResponseDto);
@@ -227,8 +223,24 @@ export class MenuService {
     }
 
     Object.assign(menu, { ...requestData, branch });
-    const updatedMenu = await this.menuRepository.save(menu);
-    this.logger.log(`Menu ${slug} updated`, context);
+    const updatedMenu = await this.transactionManagerService.execute<Menu>(
+      async (manager) => {
+        const updatedMenu = await manager.save(menu);
+        this.logger.log(`Menu ${slug} updated`, context);
+        return updatedMenu;
+      },
+      (result) => {
+        this.logger.log(`Menu ${result.date} updated`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error updating menu: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new MenuException(MenuValidation.UPDATE_MENU_FAILED);
+      },
+    );
 
     return this.mapper.map(updatedMenu, Menu, MenuResponseDto);
   }
@@ -267,9 +279,24 @@ export class MenuService {
     const menu = this.mapper.map(requestData, CreateMenuDto, Menu);
     Object.assign(menu, { branch });
 
-    this.menuRepository.create(menu);
-    const createdMenu = await this.menuRepository.save(menu);
-    this.logger.log(`New menu created: ${createdMenu.slug}`, context);
+    const createdMenu = await this.transactionManagerService.execute<Menu>(
+      async (manager) => {
+        const createdMenu = await manager.save(menu);
+        this.logger.log(`New menu created: ${createdMenu.date}`, context);
+        return createdMenu;
+      },
+      (result) => {
+        this.logger.log(`New menu created: ${result.date}`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error creating menu: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new MenuException(MenuValidation.CREATE_MENU_FAILED);
+      },
+    );
 
     return this.mapper.map(createdMenu, Menu, MenuResponseDto);
   }
@@ -277,7 +304,7 @@ export class MenuService {
   /**
    *
    * @param {any} query
-   * @returns {Promise<MenuResponseDto[]>} All menus retrieved successfully
+   * @returns {Promise<AppPaginatedResponseDto<MenuResponseDto>>} All menus retrieved successfully
    */
   async getAllMenus(
     query: GetAllMenuQueryRequestDto,
@@ -285,7 +312,11 @@ export class MenuService {
     const [menus, total] = await this.menuRepository.findAndCount({
       where: { branch: { slug: query.branch }, isTemplate: query.isTemplate },
       order: { date: 'DESC' },
-      relations: ['menuItems.product.variants.size', 'menuItems.promotion'],
+      relations: [
+        'menuItems.product.variants.size',
+        'menuItems.promotion',
+        'branch',
+      ],
       skip: (query.page - 1) * query.size,
       take: query.size,
     });

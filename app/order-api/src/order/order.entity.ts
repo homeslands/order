@@ -11,16 +11,33 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
-import { OrderStatus } from './order.contants';
+import { OrderStatus } from './order.constants';
 import { Payment } from 'src/payment/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { Table } from 'src/table/table.entity';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { ORDER_STATUS_INVALID } from './order.validation';
 import { Voucher } from 'src/voucher/voucher.entity';
+import { ChefOrder } from 'src/chef-order/chef-order.entity';
 
 @Entity('order_tbl')
 export class Order extends Base {
+  @IsNumber()
+  @AutoMap()
+  @Column({ name: 'original_subtotal_column', default: 0 })
+  originalSubtotal: number;
+
+  @IsOptional()
+  @IsNumber()
+  @AutoMap()
+  @Column({ name: 'reference_number_column', nullable: true })
+  referenceNumber?: number;
+
+  @IsOptional()
+  @AutoMap()
+  @Column({ name: 'description_column', nullable: true })
+  description?: string;
+
   @IsNumber()
   @AutoMap()
   @Column({ name: 'subtotal_column' })
@@ -82,4 +99,7 @@ export class Order extends Base {
   @JoinColumn({ name: 'voucher_column' })
   @AutoMap(() => Voucher)
   voucher: Voucher;
+
+  @OneToMany(() => ChefOrder, (chefOrder) => chefOrder.order)
+  chefOrders: ChefOrder[];
 }

@@ -1,8 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsOptional, Min } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { IsOptional } from 'class-validator';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 
 export class LoggerResponseDto extends BaseResponseDto {
   @AutoMap()
@@ -21,7 +20,7 @@ export class LoggerResponseDto extends BaseResponseDto {
   pid: number;
 }
 
-export class GetLoggerRequestDto {
+export class GetLoggerRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     example: 'info',
@@ -30,24 +29,4 @@ export class GetLoggerRequestDto {
   })
   @IsOptional()
   level: string;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 1,
-    description: 'Page number',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
 }

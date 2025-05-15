@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -13,15 +13,15 @@ import {
   Button,
   Input,
   PasswordInput,
-  ScrollArea,
 } from '@/components/ui'
-import { useCreateUser } from '@/hooks'
+import { useCreateUser, useRoles } from '@/hooks'
 import { createUserSchema, TCreateUserSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateUserRequest } from '@/types'
 import { showToast } from '@/utils'
 import { Role } from '@/constants'
+import { useCartItemStore } from '@/stores'
 
 interface IFormCreateCustomerProps {
   onSubmit: (isOpen: boolean) => void
@@ -33,6 +33,11 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
   const queryClient = useQueryClient()
   const { t } = useTranslation(['customer'])
   const { mutate: createUser } = useCreateUser()
+  const { data } = useRoles()
+  const { addCustomerInfo } = useCartItemStore()
+
+  // get slug of role customer
+  const customerRole = data?.result.find((role) => role.name === Role.CUSTOMER)
 
   const form = useForm<TCreateUserSchema>({
     resolver: zodResolver(createUserSchema),
@@ -42,16 +47,27 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
       confirmPassword: '',
       firstName: '',
       lastName: '',
-      role: Role.CUSTOMER,
+      role: '',
     },
   })
 
+  useEffect(() => {
+    if (customerRole) {
+      form.setValue('role', customerRole.slug)
+    }
+  }, [customerRole, form])
+
   const handleSubmit = (data: ICreateUserRequest) => {
     createUser(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         queryClient.invalidateQueries({
           queryKey: ['users'],
+          exact: false,
+          refetchType: 'all'
         })
+        if (response?.result) {
+          addCustomerInfo(response.result)
+        }
         onSubmit(false)
         form.reset()
         showToast(t('toast.createUserSuccess'))
@@ -66,7 +82,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.phoneNumber')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.phoneNumber')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
             </FormControl>
@@ -81,7 +100,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.password')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.password')}
+            </FormLabel>
             <FormControl>
               <PasswordInput
                 placeholder={t('customer.enterPassword')}
@@ -99,7 +121,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="confirmPassword"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('customer.confirmPassword')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('customer.confirmPassword')}
+            </FormLabel>
             <FormControl>
               <PasswordInput
                 placeholder={t('customer.enterPassword')}
@@ -147,16 +172,14 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
     <div className="flex flex-col h-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <ScrollArea className="px-2 ">
-            <div className="grid grid-cols-1 gap-4 px-1">
-              {Object.keys(formFields).map((key) => (
-                <React.Fragment key={key}>
-                  {formFields[key as keyof typeof formFields]}
-                </React.Fragment>
-              ))}
-            </div>
-          </ScrollArea>
-          <div className="flex justify-end pt-4 border-t">
+          <div className="grid overflow-y-auto grid-cols-1 gap-4 p-4">
+            {Object.keys(formFields).map((key) => (
+              <React.Fragment key={key}>
+                {formFields[key as keyof typeof formFields]}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="flex justify-end p-4 border-t">
             <Button type="submit">
               {t('customer.create')}
             </Button>

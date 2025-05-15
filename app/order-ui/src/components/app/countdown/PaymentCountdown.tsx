@@ -25,7 +25,7 @@ export function PaymentCountdown({ timeRemaining }: PaymentCountdownProps) {
     // }
 
     return (
-        <div className="fixed z-10 px-4 py-2 min-w-[13rem] text-white rounded-md shadow-lg top-20 right-4 bg-primary">
+        <div className="fixed z-20 px-4 py-2 min-w-[13rem] text-white rounded-md shadow-lg top-20 right-4 bg-primary">
             {t('paymentMethod.timeRemaining')}{minutes}:{seconds < 10 ? `0${seconds}` : seconds}
         </div>
     )

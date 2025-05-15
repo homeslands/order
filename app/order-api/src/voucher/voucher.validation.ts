@@ -11,6 +11,8 @@ export const VOUCHER_IS_NOT_ACTIVE = 'VOUCHER_IS_NOT_ACTIVE';
 export const VOUCHER_HAS_NO_REMAINING_USAGE = 'VOUCHER_HAS_NO_REMAINING_USAGE';
 export const ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE =
   'ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE';
+export const USER_MUST_BE_CUSTOMER = 'USER_MUST_BE_CUSTOMER';
+export const VALIDATE_VOUCHER_USAGE_FAILED = 'VALIDATE_VOUCHER_USAGE_FAILED';
 
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
@@ -22,7 +24,9 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_IS_NOT_ACTIVE
   | typeof ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE
   | typeof VOUCHER_HAS_NO_REMAINING_USAGE
-  | typeof CREATE_VOUCHER_FAILED;
+  | typeof CREATE_VOUCHER_FAILED
+  | typeof USER_MUST_BE_CUSTOMER
+  | typeof VALIDATE_VOUCHER_USAGE_FAILED;
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
 // 143401 – 144000
@@ -48,5 +52,10 @@ export const VoucherValidation: TVoucherErrorCode = {
   VOUCHER_HAS_NO_REMAINING_USAGE: createErrorCode(
     143410,
     'Voucher has no remaining usage',
+  ),
+  USER_MUST_BE_CUSTOMER: createErrorCode(143411, 'User must be customer'),
+  VALIDATE_VOUCHER_USAGE_FAILED: createErrorCode(
+    143412,
+    'Validate voucher usage failed',
   ),
 };

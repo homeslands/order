@@ -1,25 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
+import { SquareMenu } from 'lucide-react'
 
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
 import { useUserListColumns } from './DataTable/columns'
 import { Role } from '@/constants'
 import { CustomerAction } from './DataTable/actions'
-import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
-import { SquareMenu } from 'lucide-react'
 
 export default function CustomerPage() {
   const { t } = useTranslation('customer')
   const { t: tHelmet } = useTranslation('helmet')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const page = Number(searchParams.get('page')) || 1
+  const size = Number(searchParams.get('size')) || 10
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [phonenumber, setPhoneNumber] = useState<string>('')
 
+  // add page size to query params
+  useEffect(() => {
+    setSearchParams((prev) => {
+      prev.set('page', pagination.pageIndex.toString())
+      prev.set('size', pagination.pageSize.toString())
+      return prev
+    })
+  }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+
   const { data, isLoading } = useUsers({
-    page: pagination.pageIndex,
-    pageSize: pagination.pageSize,
+    page,
+    size,
     order: 'DESC',
     phonenumber,
+    hasPaging: true,
     role: Role.CUSTOMER,
   })
 
@@ -28,7 +42,7 @@ export default function CustomerPage() {
   }
 
   return (
-    <div className="grid h-full grid-cols-1 gap-2">
+    <div className="grid grid-cols-1 gap-2 h-full">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -36,7 +50,7 @@ export default function CustomerPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.customer.title')} />
       </Helmet>
-      <span className="flex items-center gap-1 text-lg">
+      <span className="flex gap-1 items-center text-lg">
         <SquareMenu />
         {t('customer.title')}
       </span>

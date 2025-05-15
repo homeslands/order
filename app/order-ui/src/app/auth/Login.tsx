@@ -13,45 +13,71 @@ import {
 } from '@/components/ui'
 import { LoginBackground } from '@/assets/images'
 import { LoginForm } from '@/components/app/form'
-import { useAuthStore, useUserStore } from '@/stores'
+import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role, ROUTE } from '@/constants'
+import { sidebarRoutes } from '@/router/routes'
+import { jwtDecode } from 'jwt-decode'
+import { IToken } from '@/types'
 
 export default function Login() {
   const { t } = useTranslation(['auth'])
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, token } = useAuthStore()
   const { userInfo } = useUserStore()
-
+  const { currentUrl, clearUrl } = useCurrentUrlStore()
   const navigate = useNavigate()
 
-  // Redirect if the user is already authenticated
   useEffect(() => {
-    if (isAuthenticated() && !_.isEmpty(userInfo)) {
-      switch (userInfo.role.name) {
-        case Role.STAFF:
-        case Role.CHEF:
-        case Role.MANAGER:
-        case Role.ADMIN:
-        case Role.SUPER_ADMIN:
-          navigate(ROUTE.OVERVIEW, { replace: true })
-          break
-        default:
-          navigate(ROUTE.HOME, { replace: true })
-          break
+    if (isAuthenticated() && !_.isEmpty(userInfo) && token) {
+      let urlNavigate = ROUTE.HOME;
+      const decoded: IToken = jwtDecode(token);
+      if (!decoded.scope) return;
+
+      const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
+      const permissions = scope.permissions || [];
+
+      if (currentUrl) {
+        // Kiểm tra quyền truy cập currentUrl
+        if (userInfo.role.name === Role.CUSTOMER) {
+          // Customer không được phép truy cập route /system
+          urlNavigate = !currentUrl.includes('/system') ? currentUrl : ROUTE.HOME;
+        } else {
+          const route = sidebarRoutes.find(route => currentUrl.includes(route.path));
+          if (route && permissions.includes(route.permission)) {
+            urlNavigate = currentUrl;
+          } else {
+            // Tìm route đầu tiên mà user có quyền truy cập trong sidebarRoutes
+            const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
+            urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+          }
+        }
+      } else {
+        // Nếu không có currentUrl, tìm route đầu tiên mà user có quyền truy cập
+        if (userInfo?.role && userInfo?.role?.name === Role.CUSTOMER) {
+          urlNavigate = ROUTE.HOME;
+        } else {
+          const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
+          urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+        }
       }
+
+      navigate(urlNavigate, { replace: true });
+      setTimeout(() => {
+        clearUrl();
+      }, 1000);
     }
-  }, [isAuthenticated, navigate, userInfo])
+  }, [isAuthenticated, navigate, userInfo, currentUrl, clearUrl, token])
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center">
+    <div className="flex relative justify-center items-center min-h-screen">
       <img
         src={LoginBackground}
-        className="absolute left-0 top-0 h-full w-full object-cover sm:object-fill"
+        className="object-cover absolute top-0 left-0 w-full h-full sm:object-fill"
       />
 
-      <div className="relative z-10 flex h-full w-full items-center justify-center">
+      <div className="flex relative z-10 justify-center items-center w-full h-full">
         <Card className="min-w-[22rem] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl sm:min-w-[24rem]">
           <CardHeader>
-            <CardTitle className="text-center text-2xl text-white">
+            <CardTitle className="text-2xl text-center text-white">
               {t('login.welcome')}{' '}
             </CardTitle>
             <CardDescription className="text-center text-white">
@@ -61,12 +87,12 @@ export default function Login() {
           <CardContent>
             <LoginForm />
           </CardContent>
-          <CardFooter className="flex justify-between gap-1 text-white">
+          <CardFooter className="flex gap-1 justify-between text-white">
             <div className="flex gap-1">
               <span className="text-xs sm:text-sm">{t('login.noAccount')}</span>
               <NavLink
                 to={ROUTE.REGISTER}
-                className="text-center text-xs text-primary sm:text-sm"
+                className="text-xs text-center text-primary sm:text-sm"
               >
                 {t('login.register')}
               </NavLink>

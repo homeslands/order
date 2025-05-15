@@ -20,6 +20,8 @@ import { TrackingOrderItemResponseDto } from 'src/tracking-order-item/tracking-o
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
 import { PromotionResponseDto } from 'src/promotion/promotion.dto';
 import { Promotion } from 'src/promotion/promotion.entity';
+import { ChefOrderItemResponseDto } from 'src/chef-order-item/chef-order-item.dto';
+import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 
 @Injectable()
 export class OrderItemProfile extends AutomapperProfile {
@@ -51,6 +53,14 @@ export class OrderItemProfile extends AutomapperProfile {
             PromotionResponseDto,
             Promotion,
             (source) => source.promotion,
+          ),
+        ),
+        forMember(
+          (destination) => destination.chefOrderItems,
+          mapWith(
+            ChefOrderItemResponseDto,
+            ChefOrderItem,
+            (source) => source.chefOrderItems,
           ),
         ),
         extend(baseMapper(mapper)),

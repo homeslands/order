@@ -19,7 +19,7 @@ interface IUpdateBranchDialogProps {
     branch: IBranch
 }
 
-export default function UpdateDialogDialog({ branch }: IUpdateBranchDialogProps) {
+export default function UpdateBranchDialog({ branch }: IUpdateBranchDialogProps) {
     const { t } = useTranslation(['branch'])
     const [isOpen, setIsOpen] = useState(false)
     const handleSubmit = (isOpen: boolean) => {

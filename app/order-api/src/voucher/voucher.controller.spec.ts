@@ -15,6 +15,10 @@ import { OrderUtils } from 'src/order/order.utils';
 import { Order } from 'src/order/order.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { UserUtils } from 'src/user/user.utils';
+import { User } from 'src/user/user.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -27,17 +31,27 @@ describe('VoucherController', () => {
         VoucherUtils,
         OrderUtils,
         MenuUtils,
+        MenuItemUtils,
+        UserUtils,
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Voucher),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Order),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Menu),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: MAPPER_MODULE_PROVIDER,

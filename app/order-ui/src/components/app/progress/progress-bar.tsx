@@ -22,7 +22,7 @@ export default function ProgressBar({ step }: ProgressBarProps) {
   const currentStepIndex = steps.findIndex((item) => item.value === step);
 
   return (
-    <ol className="flex items-center justify-center w-full py-6 space-x-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:space-x-4 rtl:space-x-reverse">
+    <ol className="flex items-center justify-center w-full py-6 space-x-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg dark:text-gray-400 sm:text-base dark:bg-transparent sm:space-x-4 rtl:space-x-reverse">
       {steps.map((item, index) => (
         <li
           key={index}

@@ -1,7 +1,7 @@
 {
   "users": {
     "title": "User Management",
-
+    "id": "Employee ID",
     "viewDetail": "View Details",
     "detailInfo": "Detailed Information",
     "detailInfoDescription": "View user details",
@@ -16,11 +16,9 @@
     "role": "Role",
     "address": "Address",
     "branch": "Branch",
-
     "updateRole": "Update Role",
     "updateRoleDescription": "Update user role",
     "update": "Update",
-
     "resetPassword": "Reset Password",
     "resetPasswordDescription": "Reset user password",
     "resetPasswordContent": "Are you sure you want to reset the password for user ",

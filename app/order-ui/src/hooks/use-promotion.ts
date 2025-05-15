@@ -10,6 +10,7 @@ import { QUERYKEY } from '@/constants'
 import {
   IApplyPromotionRequest,
   ICreatePromotionRequest,
+  IRemoveAppliedPromotionRequest,
   IUpdatePromotionRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
@@ -56,8 +57,8 @@ export const useApplyPromotion = () => {
 
 export const useRemoveAppliedPromotion = () => {
   return useMutation({
-    mutationFn: async (applicablePromotionSlug: string) => {
-      return RemoveProductPromotion(applicablePromotionSlug)
+    mutationFn: async (data: IRemoveAppliedPromotionRequest) => {
+      return RemoveProductPromotion(data)
     },
   })
 }

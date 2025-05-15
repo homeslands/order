@@ -1,19 +1,25 @@
 import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validation';
 import { ApplicablePromotionValidation } from 'src/applicable-promotion/applicable-promotion.validation';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { AuthorityValidation } from 'src/authority/authority.validation';
 import BannerValidation from 'src/banner/banner.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
+import ChefAreaValidation from 'src/chef-area/chef-area.validation';
+import ChefOrderValidation from 'src/chef-order/chef-order.validation';
 import { DbValidation } from 'src/db/db.validation';
 import FileValidation from 'src/file/file.validation';
 import { InvoiceValidation } from 'src/invoice/invoice.validation';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuValidation } from 'src/menu/menu.validation';
+import { NotificationValidation } from 'src/notification/notification.validation';
 import { OrderItemValidation } from 'src/order-item/order-item.validation';
 import { OrderValidation } from 'src/order/order.validation';
 import { PaymentValidation } from 'src/payment/payment.validation';
+import { PermissionValidation } from 'src/permission/permission.validation';
 import { ProductAnalysisValidation } from 'src/product-analysis/product-analysis.validation';
+import ProductChefAreaValidation from 'src/product-chef-area/product-chef-area.validation';
 import ProductValidation from 'src/product/product.validation';
 import { PromotionValidation } from 'src/promotion/promotion.validation';
 import { RevenueValidation } from 'src/revenue/revenue.validation';
@@ -74,6 +80,12 @@ export const AppValidation: TErrorCode = {
   ...ApplicablePromotionValidation,
   ...VoucherValidation,
   ...BannerValidation,
+  ...AuthorityValidation,
+  ...PermissionValidation,
+  ...ChefAreaValidation,
+  ...ProductChefAreaValidation,
+  ...ChefOrderValidation,
+  ...NotificationValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

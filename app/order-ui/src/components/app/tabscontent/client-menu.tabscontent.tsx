@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useBranchStore } from '@/stores'
 import { useSpecificMenu } from '@/hooks'
 import { SkeletonMenuList } from '../skeleton'
-import { ClientMenuItemIUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
+import { ClientMenuItemInUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
 
 interface ClientMenuTabscontentProps {
   onSuccess: () => void
@@ -18,7 +18,26 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
   }
   const { data: specificMenu, isLoading } = useSpecificMenu({
     date: getCurrentDate(),
-    branch: branch ? branch?.slug : '',
+    branch: branch?.slug,
+  })
+  const menuItems = specificMenu?.result.menuItems.sort((a, b) => {
+    // Đưa các mục không bị khóa lên trước
+    if (a.isLocked !== b.isLocked) {
+      return Number(a.isLocked) - Number(b.isLocked);
+    }
+
+    // Coi mục với currentStock = null là "còn hàng" khi isLimit = false
+    const aInStock = (a.currentStock !== 0 && a.currentStock !== null) || !a.product.isLimit;
+    const bInStock = (b.currentStock !== 0 && b.currentStock !== null) || !b.product.isLimit;
+
+    // Đưa các mục còn hàng lên trước
+    if (aInStock !== bInStock) {
+      return Number(bInStock) - Number(aInStock); // Còn hàng trước hết hàng
+    }
+    if (a.product.catalog.name !== b.product.catalog.name) {
+      return a.product.catalog.name.localeCompare(b.product.catalog.name)
+    }
+    return 0;
   })
 
   if (isLoading) {
@@ -31,17 +50,17 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     )
   }
 
-  if (!specificMenu?.result.menuItems || specificMenu?.result.menuItems.length === 0) {
+  if (!menuItems || menuItems.length === 0) {
     return <p className="text-center">{t('menu.noData')}</p>
   }
 
   return (
     <div
-      className={`flex w-full flex-col pr-2 transition-all duration-300 ease-in-out`}
+      className={`flex flex-col pr-2 w-full transition-all duration-300 ease-in-out`}
     >
       <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
         {specificMenu?.result.menuItems.map((item) => (
-          <ClientMenuItemIUpdateOrder onSuccess={onSuccess} item={item} key={item.slug} />
+          <ClientMenuItemInUpdateOrder onSuccess={onSuccess} item={item} key={item.slug} />
         ))}
       </div>
     </div>

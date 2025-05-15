@@ -11,6 +11,10 @@ import { Product } from 'src/product/product.entity';
 import { ProductAnalysis } from './product-analysis.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
+import { ProductAnalysisUtils } from './product-analysis.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('ProductAnalysisController', () => {
   let controller: ProductAnalysisController;
@@ -20,6 +24,9 @@ describe('ProductAnalysisController', () => {
       controllers: [ProductAnalysisController],
       providers: [
         ProductAnalysisService,
+        ProductAnalysisUtils,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(ProductAnalysis),
           useFactory: repositoryMockFactory,

@@ -1,18 +1,18 @@
 import { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
+import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { usePagination, useTopBranchProducts } from '@/hooks'
+import { useBranchStore } from '@/stores'
 
-interface TopProductData {
-    branch: string
-}
-
-export default function TopProductsDetail({ branch }: TopProductData) {
+export default function TopProductsDetail() {
+    const { t } = useTranslation('dashboard')
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
+    const { branch } = useBranchStore()
     const { data: topBranchProducts } = useTopBranchProducts({
-        branch,
+        branch: branch?.slug || '',
         page: pagination.pageIndex,
         size: pagination.pageSize,
         hasPaging: true
@@ -78,8 +78,8 @@ export default function TopProductsDetail({ branch }: TopProductData) {
     return (
         <Card className='shadow-none'>
             <CardHeader >
-                <CardTitle className='flex items-center justify-between'>Top Products
-                    {/* <DateSelect onChange={handleSelectTimeRange} /> */}
+                <CardTitle className='flex justify-between items-center'>
+                    {t('dashboard.topProducts')}
                 </CardTitle>
             </CardHeader>
             <CardContent className='p-0'>

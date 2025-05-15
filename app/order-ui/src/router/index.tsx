@@ -3,12 +3,11 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import { SkeletonCart } from '@/components/app/skeleton'
 import { SuspenseElement } from '@/components/app/elements'
-import { Role, ROUTE, RoutePermissions } from '@/constants'
+import { ROUTE } from '@/constants'
 import {
   MenuPage,
   SystemLayout,
   LoginPage,
-  SystemCheckoutPage,
   TablePage,
   OrderSuccessPage,
   RegisterPage,
@@ -23,7 +22,7 @@ import {
   OrderManagementPage,
   OrderHistoryPage,
   OrderDetailPage,
-  UserListPage,
+  EmployeeListPage,
   ForgotPasswordPage,
   ConfigPage,
   ForgotPasswordAndResetPasswordPage,
@@ -37,7 +36,6 @@ import {
   RevenuePage,
   StaticPageManagementPage,
   CustomerPage,
-  OverviewPage,
   OverviewDetailPage,
   ClientUpdateOrderPage,
   ClientAboutPage,
@@ -48,10 +46,21 @@ import {
   PromotionPage,
   BannerPage,
   EmailVerificationPage,
-  // VoucherAndPromotionPage,
+  RolePage,
+  RoleDetailPage,
+  ChefAreaPage,
+  ChefAreaDetailPage,
+  ChefOrderPage,
+  ClientSecurityTermPage,
+  UpdateOrderPage,
+  ClientViewPage,
+  ClientViewLayout,
+  OrdersPublicPage,
+  PublicOrderDetailPage,
+  ClientOrderSuccessPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
-import { ClientLayout } from '@/app/layouts/client'
+import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
 import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
@@ -82,7 +91,7 @@ export const router = createBrowserRouter([
         path: ROUTE.ABOUT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
@@ -96,13 +105,27 @@ export const router = createBrowserRouter([
         path: ROUTE.POLICY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <ClientLayout />
+            <PublicClientLayout />
           </Suspense>
         ),
         children: [
           {
             index: true,
             element: <SuspenseElement component={ClientPolicyPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.SECURITY,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientSecurityTermPage} />,
           },
         ],
       },
@@ -118,44 +141,37 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[
-                  Role.CHEF,
-                  Role.STAFF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
-                element={<SuspenseElement component={OverviewPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: ROUTE.OVERVIEW_DETAIL,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[
-                  Role.CHEF,
-                  Role.STAFF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
                 element={<SuspenseElement component={OverviewDetailPage} />}
               />
             ),
           },
         ],
       },
+      // {
+      //   path: ROUTE.OVERVIEW_DETAIL,
+      //   element: (
+      //     <Suspense fallback={<SkeletonCart />}>
+      //       <SuspenseElement component={SystemLayout} />
+      //     </Suspense>
+      //   ),
+      //   children: [
+      //     {
+      //       index: true,
+      //       element: (
+      //         <ProtectedElement
+      //           // allowedRoles={[
+      //           //   Role.CHEF,
+      //           //   Role.STAFF,
+      //           //   Role.MANAGER,
+      //           //   Role.ADMIN,
+      //           //   Role.SUPER_ADMIN,
+      //           // ]}
+      //           element={<SuspenseElement component={OverviewDetailPage} />}
+      //         />
+      //       ),
+      //     },
+      //   ],
+      // },
       {
         path: ROUTE.STAFF_MENU,
         element: (
@@ -168,7 +184,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.STAFF]}
+                // allowedRoles={[Role.STAFF]}
                 element={<SuspenseElement component={MenuPage} />}
               />
             ),
@@ -176,21 +192,16 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_CHECKOUT_ORDER,
+        path: ROUTE.STAFF_CLIENT_VIEW,
         element: (
           <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
+            <SuspenseElement component={ClientViewLayout} />
           </Suspense>
         ),
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[Role.STAFF]}
-                element={<SuspenseElement component={SystemCheckoutPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientViewPage} />,
           },
         ],
       },
@@ -206,12 +217,12 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[
-                  Role.STAFF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
+                // allowedRoles={[
+                //   Role.STAFF,
+                //   Role.MANAGER,
+                //   Role.ADMIN,
+                //   Role.SUPER_ADMIN,
+                // ]}
                 element={<SuspenseElement component={OrderPaymentPage} />}
               />
             ),
@@ -228,17 +239,21 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[
-                  Role.STAFF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
-                element={<SuspenseElement component={OrderSuccessPage} />}
-              />
-            ),
+            element: <SuspenseElement component={OrderSuccessPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDER_SUCCESS}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientOrderSuccessPage} />,
           },
         ],
       },
@@ -254,8 +269,25 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CHEF]}
                 element={<SuspenseElement component={OrderManagementPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CHEF_ORDER,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefOrderPage} />}
               />
             ),
           },
@@ -273,8 +305,27 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.STAFF, Role.MANAGER]}
+                // allowedRoles={[Role.STAFF, Role.MANAGER]}
                 element={<SuspenseElement component={OrderHistoryPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_ORDER_HISTORY}/:slug/update`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.STAFF, Role.MANAGER]}
+                element={<SuspenseElement component={UpdateOrderPage} />}
               />
             ),
           },
@@ -292,7 +343,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.STAFF, Role.MANAGER]}
+                // allowedRoles={[Role.STAFF, Role.MANAGER]}
                 element={<SuspenseElement component={OrderDetailPage} />}
               />
             ),
@@ -311,7 +362,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
+                // allowedRoles={[Role.MANAGER]}
                 element={<SuspenseElement component={TablePage} />}
               />
             ),
@@ -330,7 +381,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
+                // allowedRoles={[Role.MANAGER]}
                 element={<SuspenseElement component={ProductManagementPage} />}
               />
             ),
@@ -349,7 +400,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.ADMIN, Role.MANAGER]}
+                // allowedRoles={[Role.ADMIN, Role.MANAGER]}
                 element={<SuspenseElement component={ProductDetailPage} />}
               />
             ),
@@ -368,7 +419,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CHEF, Role.MANAGER]}
+                // allowedRoles={[Role.CHEF, Role.MANAGER]}
                 element={<SuspenseElement component={MenuManagementPage} />}
               />
             ),
@@ -387,7 +438,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CHEF, Role.MANAGER]}
+                // allowedRoles={[Role.CHEF, Role.MANAGER]}
                 element={<SuspenseElement component={MenuDetailManagementPage} />}
               />
             ),
@@ -406,7 +457,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={CustomerPage} />}
               />
             ),
@@ -425,8 +476,46 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
-                element={<SuspenseElement component={UserListPage} />}
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={EmployeeListPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_ROLE_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={RolePage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_ROLE_MANAGEMENT}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={RoleDetailPage} />}
               />
             ),
           },
@@ -444,7 +533,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
+                // allowedRoles={[Role.MANAGER]}
                 element={<SuspenseElement component={BranchManagementPage} />}
               />
             ),
@@ -463,13 +552,13 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[
-                  Role.STAFF,
-                  Role.CHEF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
+                // allowedRoles={[
+                //   Role.STAFF,
+                //   Role.CHEF,
+                //   Role.MANAGER,
+                //   Role.ADMIN,
+                //   Role.SUPER_ADMIN,
+                // ]}
                 element={<SuspenseElement component={RevenuePage} />}
               />
             ),
@@ -488,7 +577,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
+                // allowedRoles={[Role.MANAGER]}
                 element={<SuspenseElement component={StaticPageManagementPage} />}
               />
             ),
@@ -507,7 +596,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER]}
+                // allowedRoles={[Role.MANAGER]}
                 element={<SuspenseElement component={StaticPageDetailPage} />}
               />
             ),
@@ -526,7 +615,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={LoggerPage} />}
               />
             ),
@@ -545,13 +634,13 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[
-                  Role.STAFF,
-                  Role.CHEF,
-                  Role.MANAGER,
-                  Role.ADMIN,
-                  Role.SUPER_ADMIN,
-                ]}
+                // allowedRoles={[
+                //   Role.STAFF,
+                //   Role.CHEF,
+                //   Role.MANAGER,
+                //   Role.ADMIN,
+                //   Role.SUPER_ADMIN,
+                // ]}
                 element={<SuspenseElement component={ProfilePage} />}
               />
             ),
@@ -570,7 +659,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={BankConfigPage} />}
               />
             ),
@@ -589,7 +678,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={ConfigPage} />}
               />
             ),
@@ -608,7 +697,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={VoucherPage} />}
               />
             ),
@@ -627,8 +716,44 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={PromotionPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CHEF_AREA_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefAreaPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.STAFF_CHEF_AREA_MANAGEMENT}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={<SuspenseElement component={ChefAreaDetailPage} />}
               />
             ),
           },
@@ -646,7 +771,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={BannerPage} />}
               />
             ),
@@ -673,7 +798,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN]}
+                // allowedRoles={[Role.CHEF, Role.STAFF, Role.MANAGER, Role.ADMIN]}
                 element={<SuspenseElement component={DocsPage} />}
               />
             ),
@@ -732,17 +857,54 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientCartPage} />}
-              />
-            ),
+            element: <SuspenseElement component={ClientCartPage} />,
           },
         ],
       },
       {
-        path: `${ROUTE.CLIENT_PAYMENT}`,
+        path: ROUTE.CLIENT_PAYMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={ClientPaymentPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.CLIENT_ORDERS_PUBLIC,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={OrdersPublicPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.CLIENT_ORDERS_PUBLIC}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={PublicOrderDetailPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.CLIENT_ORDER_HISTORY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientLayout} />
@@ -753,45 +915,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientPaymentPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
-                element={<SuspenseElement component={ClientOrderHistoryPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.CLIENT_ORDER_HISTORY}/:slug`,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={ClientLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
+                // allowedRoles={[Role.CUSTOMER]}
                 element={<SuspenseElement component={ClientOrderHistoryPage} />}
               />
             ),
@@ -810,7 +934,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
+                // allowedRoles={[Role.CUSTOMER]}
                 element={<SuspenseElement component={ClientUpdateOrderPage} />}
               />
             ),
@@ -825,7 +949,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={RoutePermissions[ROUTE.HOME]}
+                // allowedRoles={RoutePermissions[ROUTE.HOME]}
                 element={<ClientHomePage />}
               />
             ),
@@ -844,7 +968,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                allowedRoles={[Role.CUSTOMER]}
+                // allowedRoles={[Role.CUSTOMER]}
                 element={<SuspenseElement component={ClientProfilePage} />}
               />
             ),

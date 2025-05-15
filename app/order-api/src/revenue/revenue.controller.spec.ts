@@ -9,6 +9,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { BranchRevenue } from 'src/branch-revenue/branch-revenue.entity';
 
 describe('RevenueController', () => {
   let controller: RevenueController;
@@ -26,6 +27,10 @@ describe('RevenueController', () => {
         },
         {
           provide: getRepositoryToken(Revenue),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(BranchRevenue),
           useValue: repositoryMockFactory,
         },
         {

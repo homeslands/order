@@ -39,6 +39,7 @@ describe('ProductController', () => {
             getAllProducts: jest.fn(),
             updateProduct: jest.fn(),
             deleteProduct: jest.fn(),
+            getAllProductsPagination: jest.fn(),
           },
         },
       ],
@@ -108,6 +109,8 @@ describe('ProductController', () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
         promotion: 'mock-promotion-slug',
+        page: 0,
+        size: 0,
       };
       const product: ProductResponseDto = {
         slug: 'mock-product-slug',
@@ -122,11 +125,21 @@ describe('ProductController', () => {
         isNew: false,
         saleQuantityHistory: 0,
       };
-      const mockOutput = [product];
+      const mockOutput = {
+        items: [product],
+        total: 1,
+        page: 0,
+        pageSize: 10,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevios: false,
+      };
 
-      (service.getAllProducts as jest.Mock).mockResolvedValue(mockOutput);
+      (service.getAllProductsPagination as jest.Mock).mockResolvedValue(
+        mockOutput,
+      );
 
-      const result = await controller.getAllProducts(query);
+      const result = await controller.getAllProductsWithPagination(query);
       expect(result.result).toEqual(mockOutput);
     });
 
@@ -134,15 +147,16 @@ describe('ProductController', () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
         promotion: 'mock-promotion-slug',
+        page: 0,
+        size: 0,
       };
-      (service.getAllProducts as jest.Mock).mockRejectedValue(
+      (service.getAllProductsPagination as jest.Mock).mockRejectedValue(
         new InternalServerErrorException(),
       );
 
-      await expect(controller.getAllProducts(query)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-      expect(service.getAllProducts).toHaveBeenCalled();
+      await expect(
+        controller.getAllProductsWithPagination(query),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 

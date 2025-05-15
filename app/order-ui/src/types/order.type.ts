@@ -1,4 +1,4 @@
-import { IOrderDetail, IOrder } from './dish.type'
+import { IOrder, IOrderDetail } from './dish.type'
 
 export interface IOrderStore {
   order: IOrder | null
@@ -28,7 +28,9 @@ export interface IOrderTrackingStore {
 
 export interface IOrdersQuery {
   owner?: string
-  branchSlug?: string
+  branch?: string
+  startDate?: string
+  endDate?: string
   page: number | 1
   size: number | 10
   order: 'ASC' | 'DESC'
@@ -36,4 +38,11 @@ export interface IOrdersQuery {
   table?: string
   hasPaging?: boolean
   enabled?: boolean
+}
+
+export enum DeliveryOrderType {
+  PENDING = 'PENDING',
+  SHIPPING = 'SHIPPING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
 }

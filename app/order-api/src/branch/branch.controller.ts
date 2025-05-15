@@ -18,7 +18,7 @@ import {
   CreateBranchDto,
   UpdateBranchDto,
 } from './branch.dto';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
@@ -94,22 +94,15 @@ export class BranchController {
   }
 
   @Delete(':slug')
-  // @Public()
   @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete branch' })
-  @ApiResponseWithType({
-    status: HttpStatus.OK,
-    description: 'Branch have been deleted successfully',
-    type: String,
-  })
   async deleteBranch(@Param('slug') slug: string) {
-    const result = await this.branchService.deleteBranch(slug);
+    await this.branchService.deleteBranch(slug);
     return {
       message: 'Branch have been deleted successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
-      result: `${result} records have been deleted successfully`,
     } as AppResponseDto<string>;
   }
 }

@@ -30,6 +30,9 @@ import { Branch } from 'src/branch/branch.entity';
 import { User } from 'src/user/user.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { Payment } from 'src/payment/payment.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { UserUtils } from 'src/user/user.utils';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -46,6 +49,16 @@ describe('VoucherService', () => {
         VoucherUtils,
         OrderUtils,
         MenuUtils,
+        MenuItemUtils,
+        UserUtils,
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Voucher),
           useFactory: repositoryMockFactory,
@@ -103,6 +116,7 @@ describe('VoucherService', () => {
         title: 'Test Voucher',
         value: 10,
         description: 'Test Voucher',
+        isVerificationIdentity: false,
       } as CreateVoucherDto;
 
       const mockVoucherRepo = mockVoucherInput;
@@ -421,10 +435,18 @@ describe('VoucherService', () => {
         id: '1',
         createdAt: new Date(),
         updatedAt: new Date(),
+        chefOrders: [],
+        originalSubtotal: 100,
+        referenceNumber: 1,
       } as Order;
 
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(mockVoucherRepo);
       jest.spyOn(orderUtils, 'getOrder').mockResolvedValue(mockOrder);
+      jest
+        .spyOn(voucherUtils, 'validateVoucherUsage')
+        .mockRejectedValue(
+          new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED),
+        );
 
       // Execute
       expect(service.validateVoucher(mockInput)).rejects.toThrow(

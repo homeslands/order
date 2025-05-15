@@ -1,19 +1,25 @@
 import {
+  authorityGroup,
   confirmEmailVerification,
+  createPermission,
+  deletePermission,
   forgotPasswordAndGetToken,
   forgotPasswordAndResetPassword,
   login,
   register,
   verifyEmail,
 } from '@/api'
+// import { QUERYKEY } from '@/constants'
 import {
   ILoginRequest,
   IRegisterRequest,
   IForgotPasswordRequest,
   IVerifyEmailRequest,
   IConfirmEmailVerificationRequest,
+  IGetAuthorityGroupsRequest,
+  ICreatePermissionRequest,
 } from '@/types'
-import { useMutation } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
 export const useLogin = () => {
   return useMutation({
@@ -60,6 +66,30 @@ export const useConfirmEmailVerification = () => {
   return useMutation({
     mutationFn: async (data: IConfirmEmailVerificationRequest) => {
       return confirmEmailVerification(data)
+    },
+  })
+}
+
+export const useGetAuthorityGroup = (q: IGetAuthorityGroupsRequest) => {
+  return useQuery({
+    queryKey: ['bankConnector'],
+    queryFn: () => authorityGroup(q),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export const useCreatePermission = () => {
+  return useMutation({
+    mutationFn: async (data: ICreatePermissionRequest) => {
+      return createPermission(data)
+    },
+  })
+}
+
+export const useDeletePermission = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return deletePermission(slug)
     },
   })
 }

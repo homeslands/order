@@ -20,7 +20,7 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
-import { useCartItemStore, useUserStore } from '@/stores'
+import { useCartItemStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 
@@ -40,37 +40,48 @@ export default function AddToCartDialog({
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants?.[0] || null)
   const { addCartItem } = useCartItemStore()
-  const { getUserInfo } = useUserStore()
 
   const generateCartItemId = () => {
-    return Date.now().toString(36)
+    return `cart_${Date.now().toString(36)}`
+  }
+
+  const generateOrderItemId = (cartId: string) => {
+    return `${cartId}_order_${Date.now().toString(36)}`
   }
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
+    const finalPrice = product.promotion && product?.promotion?.value > 0
+      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
+      : selectedVariant.price;
+
+    const cartId = generateCartItemId();
+
     const cartItem: ICartItem = {
-      id: generateCartItemId(),
+      id: cartId,
       slug: product.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-      // branch: getUserInfo()?.branch.slug, // get branch from user info
+      owner: '',
+      type: OrderTypeEnum.AT_TABLE,
       orderItems: [
         {
-          id: generateCartItemId(),
+          id: generateOrderItemId(cartId),
           slug: product.slug,
           image: product.product.image,
           name: product.product.name,
           quantity: 1,
+          size: selectedVariant.size.name,
           variant: selectedVariant.slug,
-          price: selectedVariant.price,
+          originalPrice: selectedVariant.price,
+          price: finalPrice,
           description: product.product.description,
           isLimit: product.product.isLimit,
-          // catalog: product.catalog,
-          note: note,
+          promotion: product.promotion ? product.promotion?.slug : '',
+          promotionValue: product.promotion ? product.promotion?.value : 0,
+          note,
         },
       ],
-      table: '', // will be set later via addTable
+      table: '',
     }
 
     addCartItem(cartItem)
@@ -84,14 +95,14 @@ export default function AddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex flex-row items-center justify-center w-full gap-1 px-4 text-white rounded-full shadow-none">
+          <Button className="flex flex-row gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none">
             <ShoppingCart size={12} />
             {t('menu.addToCart')}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="h-[70%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[60rem]">
+      <DialogContent className="h-[80%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[50rem] xl:max-w-[70rem]">
         <DialogHeader>
           <DialogTitle>{t('menu.confirmProduct')}</DialogTitle>
           <DialogDescription>
@@ -173,7 +184,7 @@ export default function AddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
+        <DialogFooter className="flex flex-row justify-end items-end w-full">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

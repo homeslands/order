@@ -6,11 +6,10 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
-  Min,
   ValidateNested,
 } from 'class-validator';
-import { OrderType } from './order.contants';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { OrderType } from './order.constants';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import {
   CreateOrderItemRequestDto,
@@ -18,13 +17,10 @@ import {
 } from 'src/order-item/order-item.dto';
 import { Transform, Type } from 'class-transformer';
 import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
-import {
-  INVALID_ORDER_ITEMS,
-  INVALID_ORDER_OWNER,
-  ORDER_TYPE_INVALID,
-} from './order.validation';
+import { INVALID_ORDER_ITEMS, ORDER_TYPE_INVALID } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
+import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 
 export class CreateOrderRequestDto {
   @AutoMap()
@@ -51,8 +47,8 @@ export class CreateOrderRequestDto {
     description: 'The slug of user that creating order',
     example: '',
   })
-  @IsNotEmpty({ message: INVALID_ORDER_OWNER })
-  owner: string;
+  @IsOptional()
+  owner?: string;
 
   @ApiProperty({
     description: 'The array of order items',
@@ -81,6 +77,11 @@ export class CreateOrderRequestDto {
   @ApiProperty()
   @IsOptional()
   voucher?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsOptional()
+  description?: string;
 }
 
 export class UpdateOrderRequestDto {
@@ -93,7 +94,17 @@ export class UpdateOrderRequestDto {
   @AutoMap()
   @ApiProperty({ description: 'The slug of table' })
   @IsOptional()
-  table: string;
+  table?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of voucher' })
+  @IsOptional()
+  voucher?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The description of order' })
+  @IsOptional()
+  description?: string;
 }
 
 export class OwnerResponseDto extends BaseResponseDto {
@@ -148,10 +159,16 @@ export class OrderTableResponseDto extends BaseResponseDto {
 
 export class OrderResponseDto extends BaseResponseDto {
   @AutoMap()
+  referenceNumber: number;
+
+  @AutoMap()
   subtotal: number;
 
   @AutoMap()
   status: string;
+
+  @AutoMap()
+  description: string;
 
   @AutoMap()
   type: string;
@@ -179,9 +196,12 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap(() => VoucherResponseDto)
   voucher: VoucherResponseDto;
+
+  @AutoMap(() => [ChefOrderResponseDto])
+  chefOrders: ChefOrderResponseDto[];
 }
 
-export class GetOrderRequestDto {
+export class GetOrderRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of branch',
@@ -211,28 +231,6 @@ export class GetOrderRequestDto {
 
   @AutoMap()
   @ApiProperty({
-    example: 1,
-    description: 'Page number',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
-
-  @AutoMap()
-  @ApiProperty({
     description: 'Order status',
     required: false,
   })
@@ -254,4 +252,16 @@ export class GetOrderRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-26' })
+  @Type(() => Date)
+  @IsOptional()
+  startDate?: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: '2024-12-27' })
+  @Type(() => Date)
+  @IsOptional()
+  endDate?: Date;
 }

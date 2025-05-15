@@ -30,6 +30,8 @@ import enRole from '@/locales/en/role.json'
 import enBanner from '@/locales/en/banner.json'
 import enHome from '@/locales/en/home.json'
 import enAbout from '@/locales/en/about.json'
+import enChefArea from '@/locales/en/chef-area.json'
+import enNotification from '@/locales/en/notification.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -60,6 +62,8 @@ import viRole from '@/locales/vi/role.json'
 import viBanner from '@/locales/vi/banner.json'
 import viHome from '@/locales/vi/home.json'
 import viAbout from '@/locales/vi/about.json'
+import viChefArea from '@/locales/vi/chef-area.json'
+import viNotification from '@/locales/vi/notification.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -95,6 +99,8 @@ i18n
         banner: enBanner,
         home: enHome,
         about: enAbout,
+        chefArea: enChefArea,
+        notification: enNotification,
       },
       vi: {
         toast: viToast,
@@ -126,6 +132,8 @@ i18n
         banner: viBanner,
         home: viHome,
         about: viAbout,
+        chefArea: viChefArea,
+        notification: viNotification,
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',
@@ -163,6 +171,8 @@ i18n
       'banner',
       'home',
       'about',
+      'chefArea',
+      'notification',
     ], //Dùng để phân biệt các phần khác nhau của app
     defaultNS: 'auth', //Ngôn ngữ mặc định
   })

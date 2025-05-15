@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './order.entity';
 import {
+  Between,
   FindManyOptions,
   FindOptionsWhere,
   In,
@@ -24,7 +25,7 @@ import { Table } from 'src/table/table.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { OrderType } from './order.contants';
+import { OrderType } from './order.constants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
@@ -46,6 +47,10 @@ import { Voucher } from 'src/voucher/voucher.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
+import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
+import { MenuItemException } from 'src/menu-item/menu-item.exception';
+import { RoleEnum } from 'src/role/role.enum';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class OrderService {
@@ -53,6 +58,8 @@ export class OrderService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectMapper() private readonly mapper: Mapper,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly orderScheduler: OrderScheduler,
     private readonly transactionManagerService: TransactionManagerService,
@@ -73,15 +80,30 @@ export class OrderService {
    * @param {string} slug
    * @returns {Promise<void>} The deleted order
    */
-  async deleteOrder(slug: string): Promise<void> {
-    this.orderScheduler.addCancelOrderJob(slug, 0); // Delete order immediately
+  async deleteOrder(slug: string): Promise<Order> {
+    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
+  }
+
+  async deleteOrderPublic(slug: string, orders: string[]): Promise<Order> {
+    const context = `${OrderService.name}.${this.deleteOrderPublic.name}`;
+    if (!orders.includes(slug)) {
+      this.logger.warn(`Order ${slug} is not in the list`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+    return await this.orderUtils.deleteOrder(slug); // Delete order immediately
   }
 
   /**
    * Handles order updating
    * @param {string} slug
+   * @param {UpdateOrderRequestDto} requestData The data to update order
+   * @returns {Promise<OrderResponseDto>} The updated order
+   * @throws {OrderException} If order is not found
    */
-  async updateOrder(slug: string, requestData: UpdateOrderRequestDto) {
+  async updateOrder(
+    slug: string,
+    requestData: UpdateOrderRequestDto,
+  ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.updateOrder.name}`;
 
     const order = await this.orderUtils.getOrder({ where: { slug } });
@@ -96,13 +118,50 @@ export class OrderService {
         : null;
     order.type = requestData.type;
     order.table = table;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order);
+
+    // Get new voucher
+    let voucher: Voucher = null;
+    if (requestData.voucher) {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+      });
+      await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+    }
+
+    // Get previous voucher
+    const previousVoucher = order.voucher;
+
+    if (requestData.description) {
+      order.description = requestData.description;
+    }
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
-        const updatedOrder = await manager.save(order);
-        return updatedOrder;
+        if (voucher) {
+          // Update remaining quantity of voucher
+          voucher.remainingUsage -= 1;
+
+          // Update order
+          order.voucher = voucher;
+          order.subtotal = await this.orderUtils.getOrderSubtotal(
+            order,
+            voucher,
+          );
+
+          await manager.save(voucher);
+        }
+
+        if (previousVoucher) {
+          previousVoucher.remainingUsage += 1;
+          await manager.save(previousVoucher);
+        }
+
+        return await manager.save(order);
       },
       (result) => {
         this.logger.log(`Order ${result.slug} updated successfully`, context);
@@ -168,7 +227,12 @@ export class OrderService {
     }
 
     order.voucher = voucher;
-    order.subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    const subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+    order.subtotal = subtotal;
+    order.originalSubtotal = order.orderItems.reduce(
+      (previous, current) => previous + current.originalSubtotal,
+      0,
+    );
 
     const createdOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
@@ -189,7 +253,7 @@ export class OrderService {
         );
 
         // Cancel order after 10 minutes
-        this.orderScheduler.addCancelOrderJob(
+        this.orderScheduler.handleDeleteOrder(
           createdOrder.slug,
           10 * 60 * 1000,
         );
@@ -217,7 +281,9 @@ export class OrderService {
    */
   async constructOrder(data: CreateOrderRequestDto): Promise<Order> {
     // Get branch
-    const branch = await this.branchUtils.getBranch({ slug: data.branch });
+    const branch = await this.branchUtils.getBranch({
+      where: { slug: data.branch },
+    });
 
     // Get table if order type is at table
     let table: Table = null;
@@ -232,14 +298,34 @@ export class OrderService {
       });
     }
 
-    // Get owner
-    const owner = await this.userUtils.getUser({ slug: data.owner });
-
-    // Get cashier
-    const approvalBy = await this.userUtils.getUser({
-      slug: data.approvalBy,
+    const defaultCustomer = await this.userUtils.getUser({
+      where: {
+        phonenumber: 'default-customer',
+        role: {
+          name: RoleEnum.Customer,
+        },
+      },
     });
 
+    // Get owner
+    // let owner = await this.userUtils.getUser({
+    //   where: { slug: data.owner ?? IsNull() },
+    // });
+    let owner = await this.userRepository.findOne({
+      where: { slug: data.owner ?? IsNull() },
+    });
+    if (!owner) owner = defaultCustomer;
+
+    // Get cashier
+    // let approvalBy = await this.userUtils.getUser({
+    //   where: {
+    //     slug: data.approvalBy ?? IsNull(),
+    //   },
+    // });
+    let approvalBy = await this.userRepository.findOne({
+      where: { slug: data.approvalBy ?? IsNull() },
+    });
+    if (!approvalBy) approvalBy = defaultCustomer;
     const order = this.mapper.map(data, CreateOrderRequestDto, Order);
     Object.assign(order, {
       owner,
@@ -298,15 +384,30 @@ export class OrderService {
       },
       relations: ['promotion'],
     });
+    if (menuItem.isLocked) {
+      this.logger.warn(MenuItemValidation.MENU_ITEM_IS_LOCKED.message, context);
+      throw new MenuItemException(MenuItemValidation.MENU_ITEM_IS_LOCKED);
+    }
     //  limit product
-    if (item.quantity > menuItem.currentStock) {
+    if (item.quantity === Infinity) {
       this.logger.warn(
-        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY.message,
         context,
       );
       throw new OrderException(
-        OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+        OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY,
       );
+    }
+    if (menuItem.defaultStock !== null) {
+      if (item.quantity > menuItem.currentStock) {
+        this.logger.warn(
+          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY.message,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.REQUEST_QUANTITY_EXCESS_CURRENT_QUANTITY,
+        );
+      }
     }
 
     const promotion: Promotion = menuItem.promotion;
@@ -314,11 +415,6 @@ export class OrderService {
       item.promotion,
       menuItem,
     );
-
-    // const promotionWhere: FindOptionsWhere<Promotion> = { id: menuItem.promotionId };
-    // if(menuItem.promotionId) {
-    //   promotion = await this.promotionUtils.getPromotion(promotionWhere);
-    // }
 
     const orderItem = this.mapper.map(
       item,
@@ -335,9 +431,11 @@ export class OrderService {
       orderItem,
       promotion,
     );
+    const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
     Object.assign(orderItem, {
       subtotal,
+      originalSubtotal,
     });
     return orderItem;
   }
@@ -366,6 +464,20 @@ export class OrderService {
       findOptionsWhere.status = In(options.status);
     }
 
+    if (options.startDate && !options.endDate) {
+      throw new OrderException(OrderValidation.END_DATE_CAN_NOT_BE_EMPTY);
+    }
+
+    if (options.endDate && !options.startDate) {
+      throw new OrderException(OrderValidation.START_DATE_CAN_NOT_BE_EMPTY);
+    }
+
+    if (options.startDate && options.endDate) {
+      options.startDate = moment(options.startDate).startOf('day').toDate();
+      options.endDate = moment(options.endDate).endOf('day').toDate();
+      findOptionsWhere.createdAt = Between(options.startDate, options.endDate);
+    }
+
     const findManyOptions: FindManyOptions<Order> = {
       where: findOptionsWhere,
       relations: [
@@ -377,6 +489,7 @@ export class OrderService {
         'invoice',
         'table',
         'orderItems.promotion',
+        'chefOrders',
       ],
       order: { createdAt: 'DESC' },
     };
@@ -410,6 +523,25 @@ export class OrderService {
       pageSize,
       totalPages,
     } as AppPaginatedResponseDto<OrderResponseDto>;
+  }
+
+  async getAllOrdersBySlugArray(data: string[]): Promise<OrderResponseDto[]> {
+    const orders = await this.orderRepository.find({
+      where: { slug: In(data) },
+      relations: [
+        'owner',
+        'approvalBy',
+        'orderItems.variant.size',
+        'orderItems.variant.product',
+        'payment',
+        'invoice',
+        'table',
+        'orderItems.promotion',
+        'chefOrders',
+      ],
+      order: { createdAt: 'DESC' },
+    });
+    return this.mapper.mapArray(orders, Order, OrderResponseDto);
   }
 
   /**

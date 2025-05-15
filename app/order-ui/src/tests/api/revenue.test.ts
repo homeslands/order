@@ -6,7 +6,6 @@ import {
   getBranchRevenue,
   getLatestRevenue,
   getLatestRevenueForARange,
-  getLatestBranchRevenue,
   getLatestBranchRevenueForARange,
 } from '@/api'
 import { SERVER_ERROR } from '../constants'
@@ -109,7 +108,7 @@ describe('Revenue API', () => {
       ;(http.patch as Mock).mockResolvedValue(mockResponse)
 
       const result = await getLatestRevenue()
-      expect(http.patch).toHaveBeenCalledWith('/revenue/latest')
+      expect(http.patch).toHaveBeenCalledWith('/revenue/branch/latest')
       expect(result).toEqual(mockResponse.data)
     })
   })
@@ -118,7 +117,7 @@ describe('Revenue API', () => {
     const queryParams = {
       startDate: '2024-01-01',
       endDate: '2024-01-31',
-      type: RevenueTypeQuery.MONTHLY,
+      type: RevenueTypeQuery.HOURLY,
     }
 
     it('should fetch latest revenue range correctly', async () => {
@@ -144,37 +143,12 @@ describe('Revenue API', () => {
     })
   })
 
-  describe('getLatestBranchRevenue', () => {
-    it('should fetch latest branch revenue correctly', async () => {
-      const mockResponse = {
-        data: {
-          items: [
-            {
-              slug: 'latest-branch-revenue',
-              branchId: 'branch-1',
-              date: '2024-01-31',
-              totalAmount: 1500000,
-              totalOrder: 15,
-            },
-          ],
-        },
-      }
-      ;(http.patch as Mock).mockResolvedValue(mockResponse)
-
-      const result = await getLatestBranchRevenue('branch-1')
-      expect(http.patch).toHaveBeenCalledWith('/revenue/branch/latest', {
-        params: 'branch-1',
-      })
-      expect(result).toEqual(mockResponse.data)
-    })
-  })
-
   describe('getLatestBranchRevenueForARange', () => {
     const queryParams = {
       branch: 'branch-1',
       startDate: '2024-01-01',
       endDate: '2024-01-31',
-      type: RevenueTypeQuery.MONTHLY,
+      type: RevenueTypeQuery.HOURLY,
     }
 
     it('should fetch latest branch revenue range correctly', async () => {
@@ -194,10 +168,9 @@ describe('Revenue API', () => {
       ;(http.patch as Mock).mockResolvedValue(mockResponse)
 
       const result = await getLatestBranchRevenueForARange(queryParams)
-      expect(http.patch).toHaveBeenCalledWith(
-        `/revenue/branch/date/${queryParams.branch}`,
-        { params: queryParams },
-      )
+      expect(http.patch).toHaveBeenCalledWith(`/revenue/branch/date`, {
+        params: queryParams,
+      })
       expect(result).toEqual(mockResponse.data)
     })
 

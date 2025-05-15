@@ -14,6 +14,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { ProductUtils } from './product.utils';
 import { MenuModule } from 'src/menu/menu.module';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { Branch } from 'src/branch/branch.entity';
 
 @Module({
   imports: [
@@ -24,12 +26,19 @@ import { MenuModule } from 'src/menu/menu.module';
       Size,
       Promotion,
       ApplicablePromotion,
+      Branch,
     ]),
     FileModule,
     MenuModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ProductProfile, PromotionUtils, ProductUtils],
+  providers: [
+    ProductService,
+    ProductProfile,
+    PromotionUtils,
+    ProductUtils,
+    BranchUtils,
+  ],
   exports: [ProductService, ProductUtils],
 })
 export class ProductModule {}

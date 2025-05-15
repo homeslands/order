@@ -6,10 +6,11 @@ export const createVoucherSchema = z.object({
   code: z.string().min(1),
   value: z.number().int().positive(),
   maxUsage: z.number().int().positive(),
-  minOrderValue: z.number().int().positive(),
+  minOrderValue: z.number().int().nonnegative(),
   isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
+  isVerificationIdentity: z.boolean(),
 })
 
 export const updateVoucherSchema = z.object({
@@ -20,10 +21,11 @@ export const updateVoucherSchema = z.object({
   code: z.string().min(1),
   value: z.number().int().positive(),
   maxUsage: z.number().int().positive(),
-  minOrderValue: z.number().int().positive(),
+  minOrderValue: z.number().int().nonnegative(),
   isActive: z.boolean(),
   startDate: z.string(),
   endDate: z.string(),
+  isVerificationIdentity: z.boolean(),
 })
 
 export type TCreateVoucherSchema = z.infer<typeof createVoucherSchema>

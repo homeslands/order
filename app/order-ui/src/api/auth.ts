@@ -4,6 +4,10 @@ import {
   IForgotPasswordRequest,
   IVerifyEmailRequest,
   IConfirmEmailVerificationRequest,
+  IGetAuthorityGroupsRequest,
+  IAuthorityGroup,
+  ICreatePermissionRequest,
+  IRegisterRequest,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -15,12 +19,9 @@ export async function login(params: {
   return response.data
 }
 
-export async function register(params: {
-  phonenumber: string
-  password: string
-  firstName: string
-  lastName: string
-}): Promise<IApiResponse<ILoginResponse>> {
+export async function register(
+  params: IRegisterRequest,
+): Promise<IApiResponse<ILoginResponse>> {
   const response = await http.post<IApiResponse<ILoginResponse>>(
     '/auth/register',
     params,
@@ -66,5 +67,34 @@ export async function confirmEmailVerification(
     `/auth/confirm-email-verification`,
     confirmEmailVerificationParams,
   )
+  return response.data
+}
+
+export async function authorityGroup(
+  params: IGetAuthorityGroupsRequest,
+): Promise<IApiResponse<IAuthorityGroup[]>> {
+  const response = await http.get<IApiResponse<IAuthorityGroup[]>>(
+    '/authority-group',
+    {
+      params,
+    },
+  )
+  return response.data
+}
+
+export async function createPermission(
+  params: ICreatePermissionRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    '/permission/bulk',
+    params,
+  )
+  return response.data
+}
+
+export async function deletePermission(
+  slug: string,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(`/permission/${slug}`)
   return response.data
 }

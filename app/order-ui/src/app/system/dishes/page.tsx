@@ -17,10 +17,10 @@ export default function ProductManagementPage() {
         <meta name='description' content={tHelmet('helmet.product.title')} />
       </Helmet>
       <Tabs defaultValue="product" className="w-full">
-        <TabsList className="grid grid-cols-3 w-96">
-          <TabsTrigger value="catalog">{t('tab.catalog')}</TabsTrigger>
-          <TabsTrigger value="size">{t('tab.size')}</TabsTrigger>
-          <TabsTrigger value="product">{t('tab.product')}</TabsTrigger>
+        <TabsList className="grid grid-cols-3 sm:grid-cols-5">
+          <TabsTrigger className='flex justify-center' value="catalog">{t('tab.catalog')}</TabsTrigger>
+          <TabsTrigger className='flex justify-center' value="size">{t('tab.size')}</TabsTrigger>
+          <TabsTrigger className='flex justify-center' value="product">{t('tab.product')}</TabsTrigger>
         </TabsList>
         <TabsContent value="catalog" className="w-full">
           <CatalogTab />

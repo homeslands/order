@@ -1,4 +1,5 @@
 import { Role } from '@/constants/role'
+import { IPermission } from './permissions.type'
 
 export interface IUserInfo {
   slug: string
@@ -19,6 +20,7 @@ export interface IUserInfo {
     slug: string
     createdAt: string
     description: string
+    permissions: IPermission[]
   }
   isVerifiedEmail: boolean
   isVerifiedPhonenumber: boolean
@@ -28,9 +30,9 @@ export interface ICreateUserRequest {
   phonenumber: string
   password: string
   confirmPassword: string
-  firstName: string
-  lastName: string
-  branch?: string
+  firstName?: string
+  lastName?: string
+  // branch?: string
   role: string
 }
 
@@ -40,7 +42,7 @@ export interface IUpdateUserRequest {
   firstName: string
   lastName: string
   dob: string
-  email: string
+  // email: string
   address: string
   branch?: string
 }
@@ -49,7 +51,7 @@ export interface IUserQuery {
   branch?: string
   phonenumber?: string
   page: number | 1
-  pageSize: number | 10
+  size: number | 10
   order: 'ASC' | 'DESC'
   hasPaging?: boolean
   role?: string

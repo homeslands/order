@@ -19,8 +19,8 @@ export interface ILoginResponse {
 export interface IRegisterRequest {
   phonenumber: string
   password: string
-  firstName: string
-  lastName: string
+  // firstName: string
+  // lastName: string
 }
 
 export interface IForgotPasswordRequest {
@@ -30,6 +30,13 @@ export interface IForgotPasswordRequest {
 export interface IRefreshTokenResponse {
   expireTime: string
   expireTimeRefreshToken: string
-  token: string
+  accessToken: string
   refreshToken: string
+}
+
+export interface IToken {
+  scope: {
+    role: string
+    permissions: string[]
+  }
 }

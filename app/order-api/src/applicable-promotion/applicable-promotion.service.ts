@@ -364,13 +364,12 @@ export class ApplicablePromotionService {
       let menuItems: MenuItem[] = [];
       const applicablePromotions = await Promise.all(
         requestData.applicableSlugs.map(async (applicableSlug) => {
-          const productFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
-            {
+          const product = await this.productUtils.getProduct({
+            where: {
               slug: applicableSlug,
-            };
-          const product = await this.productUtils.getProduct(
-            productFindOptionsWhere,
-          );
+            },
+            relations: ['catalog', 'variants'],
+          });
 
           const applicablePromotionFindOptionsWhere: FindOptionsWhere<ApplicablePromotion> =
             {
@@ -561,7 +560,10 @@ export class ApplicablePromotionService {
         (p) => p !== null && p.id !== deletedApplicablePromotion.promotion.id,
       );
 
-      if (_.isEmpty(successfulPromotionsNotNull)) return null;
+      if (_.isEmpty(successfulPromotionsNotNull)) {
+        Object.assign(menuItem, { promotion: null });
+        return menuItem;
+      }
 
       const maxPromotion = successfulPromotionsNotNull.reduce(
         (max, obj) => (obj.value > max.value ? obj : max),

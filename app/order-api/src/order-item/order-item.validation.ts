@@ -29,7 +29,6 @@ export type TOrderItemErrorCode = Record<
 
 // 131000 - 132000
 export const OrderItemValidation: TOrderItemErrorCode = {
-  ORDER_ITEM_NOT_FOUND: createErrorCode(1031, 'Order item not found'),
   ORDER_ITEM_NOT_BELONG_TO_ANY_ORDER: createErrorCode(
     131000,
     'Order item not belong to any order',
@@ -46,4 +45,5 @@ export const OrderItemValidation: TOrderItemErrorCode = {
   CREATE_ORDER_ITEM_ERROR: createErrorCode(131004, 'Create order item error'),
   DELETE_ORDER_ITEM_ERROR: createErrorCode(131005, 'Delete order item error'),
   UPDATE_ORDER_ITEM_ERROR: createErrorCode(131006, 'Update order item error'),
+  ORDER_ITEM_NOT_FOUND: createErrorCode(131007, 'Order item not found'),
 };

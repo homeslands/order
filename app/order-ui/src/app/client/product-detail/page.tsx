@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
@@ -12,11 +12,10 @@ import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { NonPropQuantitySelector } from '@/components/app/button'
 import {
   useCartItemStore,
-  useCurrentUrlStore,
   useUserStore,
 } from '@/stores'
 import { ICartItem, OrderTypeEnum, IProductVariant } from '@/types'
-import { formatCurrency, showErrorToast } from '@/utils'
+import { formatCurrency, } from '@/utils'
 import { ProductImageCarousel } from '.'
 
 export default function ProductDetailPage() {
@@ -26,24 +25,38 @@ export default function ProductDetailPage() {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('slug')
   const { getUserInfo } = useUserStore()
-  const { setCurrentUrl } = useCurrentUrlStore()
-  const navigate = useNavigate()
 
   const { data: product, isLoading } = useSpecificMenuItem(slug as string)
   const { addCartItem } = useCartItemStore()
 
   const productDetail = product?.result
-  const [size, setSize] = useState<string | null>(
-    productDetail?.product.variants[0]?.size.name || null,
-  )
-  const [price, setPrice] = useState<number | null>(
-    productDetail?.product.variants[0]?.price || null,
-  )
+  const [size, setSize] = useState<string | null>(null)
+  const [price, setPrice] = useState<number | null>(null)
   const [note, setNote] = useState<string>('')
   const [quantity, setQuantity] = useState<number>(1)
-  const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariant | null>(productDetail?.product.variants[0] || null)
+  const [selectedVariant, setSelectedVariant] = useState<IProductVariant | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (productDetail?.product.variants.length && productDetail?.product.variants.length > 0) {
+      // Find the variant with lowest price
+      const smallestVariant = productDetail.product.variants.reduce((prev, curr) =>
+        prev.price < curr.price ? prev : curr
+      )
+      setSelectedVariant(smallestVariant)
+      setSize(smallestVariant.size.name)
+      setPrice(smallestVariant.price)
+    }
+  }, [productDetail])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    if (productDetail?.product?.image) {
+      setSelectedImage(productDetail?.product?.image)
+    } else {
+      setSelectedImage(null)
+    }
+  }, [productDetail])
 
   const generateCartItemId = () => {
     return Date.now().toString(36)
@@ -70,11 +83,11 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    const currentUrl = window.location.pathname
-    if (!getUserInfo()?.slug)
-      return (
-        showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
-      )
+    // const currentUrl = window.location.pathname
+    // if (!getUserInfo()?.slug)
+    //   return (
+    //     showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
+    //   )
     if (!selectedVariant) return
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -89,6 +102,8 @@ export default function ProductDetailPage() {
           name: productDetail?.product.name || '',
           quantity: quantity,
           variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
           price: finalPrice,
           promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
           description: productDetail?.product.description || '',
@@ -103,9 +118,8 @@ export default function ProductDetailPage() {
     setNote('')
     setSelectedVariant(productDetail?.product.variants[0] || null)
   }
-
   return (
-    <div className="container flex flex-col items-start gap-10 py-10">
+    <div className="container flex flex-col gap-10 items-start py-10">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -114,11 +128,11 @@ export default function ProductDetailPage() {
         <meta name='description' content={tHelmet('helmet.productDetail.title')} />
       </Helmet>
       {/* Product detail */}
-      <div className="flex flex-col w-full gap-5 lg:flex-row">
-        <div className="flex flex-col w-full col-span-1 gap-2 lg:w-1/2">
+      <div className="flex flex-col gap-5 w-full lg:flex-row">
+        <div className="flex flex-col col-span-1 gap-2 w-full lg:w-1/2">
           {productDetail && (
             <img
-              src={`${publicFileURL}/${selectedImage || productDetail.product.image}`}
+              src={`${publicFileURL}/${selectedImage}`}
               alt={productDetail.product.name}
               className="h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
             />
@@ -132,23 +146,23 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col justify-between col-span-1 gap-4">
+        <div className="flex flex-col col-span-1 gap-4 justify-between w-full lg:w-1/2">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <span className="text-xl font-semibold">
+                <span className="text-3xl font-extrabold">
                   {productDetail.product.name}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   {productDetail.product.description}
                 </span>
                 {price ? (
-                  <div className="flex flex-col items-start justify-start gap-2">
-                    <div className='flex flex-row items-center gap-2'>
+                  <div className="flex flex-col gap-2 justify-start items-start">
+                    <div className='flex flex-row gap-2 items-center'>
 
                       {productDetail?.promotion && productDetail?.promotion?.value > 0 ? (
-                        <div className='flex flex-col items-start'>
-                          <div className='flex flex-row items-center gap-2'>
+                        <div className='flex flex-col gap-1 items-start mt-3'>
+                          <div className='flex flex-row gap-2 items-center'>
                             <span className='text-sm font-normal line-through text-muted-foreground'>
                               {`${formatCurrency(price)} `}
                             </span>
@@ -156,7 +170,7 @@ export default function ProductDetailPage() {
                               {t('product.discount')} {productDetail?.promotion?.value}%
                             </Badge>
                           </div>
-                          <span className="text-xl font-semibold text-primary">
+                          <span className="text-2xl font-extrabold text-primary">
                             {formatCurrency(price - (price * productDetail?.promotion?.value) / 100)}
                           </span>
                         </div>
@@ -178,14 +192,14 @@ export default function ProductDetailPage() {
                 </div>
               </div>
               {productDetail.product.variants.length > 0 && (
-                <div className="flex flex-row items-center w-full gap-6">
+                <div className="flex flex-row gap-6 items-center w-full">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {t('product.selectSize')}
                   </label>
-                  <div className="flex flex-row items-center justify-start gap-2">
+                  <div className="flex flex-row gap-2 justify-start items-center">
                     {productDetail.product.variants.map((variant) => (
                       <div
-                        className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-gray-500 p-2 text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
+                        className={`flex w-fit px-5 py-[4px] cursor-pointer items-center justify-center rounded-full border border-gray-500  text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
                         key={variant.slug}
                         onClick={() => handleSizeChange(variant)}
                       >
@@ -196,26 +210,29 @@ export default function ProductDetailPage() {
                 </div>
               )}
               {productDetail.product.variants.length > 0 && (
-                <div className="flex flex-row items-center w-full gap-6">
+                <div className="flex flex-row gap-6 items-center w-full">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {t('product.selectQuantity')}
                   </label>
-                  <div className="flex flex-row items-center justify-start gap-2">
+                  <div className="flex flex-row gap-2 justify-start items-center">
                     <NonPropQuantitySelector
-                      currentQuantity={product.result.currentStock}
+                      isLimit={productDetail.product.isLimit}
+                      disabled={productDetail.isLocked}
+                      currentQuantity={product?.result?.currentStock}
                       onChange={handleQuantityChange}
                     />
-                    <div className="text-xs text-muted-foreground">
-                      {product.result.currentStock}/
-                      {product.result.defaultStock}{' '}{t('product.inStock')}
-                    </div>
+                    {productDetail?.product?.isLimit &&
+                      <div className="text-xs text-muted-foreground">
+                        {product.result.currentStock}/
+                        {product.result.defaultStock}{' '}{t('product.inStock')}
+                      </div>}
                   </div>
                 </div>
               )}
               {/* Khuyến mãi */}
               {productDetail.promotion && (
-                <div className="flex flex-col gap-4 p-4 border-l-4 border-yellow-500 rounded-md bg-yellow-50">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-4 p-4 bg-yellow-50 rounded-md border-l-4 border-yellow-500">
+                  <div className="flex gap-2 items-center">
                     <span className="text-lg font-bold text-primary">
                       🎉 {t('product.specialOffer')}
                     </span>
@@ -250,10 +267,9 @@ export default function ProductDetailPage() {
           <Button
             onClick={handleAddToCart}
             variant="default"
-            disabled={!size || quantity <= 0}
+            disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
           >
-            <ShoppingCart />
-            {tMenu('menu.addToCart')}
+            <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
           </Button>
         </div>
       </div>
@@ -290,14 +306,14 @@ export default function ProductDetailPage() {
                     >
                       <div
                         key={item.slug}
-                        className="flex flex-col transition-all duration-300 rounded-xl backdrop-blur-md hover:scale-105"
+                        className="flex flex-col rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-105"
                       >
                         <div className="relative">
                           {item.product.image ? (
                             <img
                               src={`${publicFileURL}/${item.product.image}`}
                               alt={item.product.name}
-                              className="object-cover w-full rounded-md h-36"
+                              className="object-cover w-full h-36 rounded-md"
                             />
                           ) : (
                             <div className="w-full h-24 rounded-t-md bg-muted/60" />

@@ -11,12 +11,12 @@ export function SystemMenuTabscontent() {
   }
   const { data: specificMenu, isLoading } = useSpecificMenu({
     date: getCurrentDate(),
-    branch: userInfo?.branch.slug || '',
+    branch: userInfo?.branch?.slug || '',
   })
 
   return (
     <div
-      className={`flex w-full flex-col pr-2 transition-all duration-300 ease-in-out`}
+      className={`flex flex-col w-full`}
     >
       <SystemMenus menu={specificMenu?.result} isLoading={isLoading} />
     </div>

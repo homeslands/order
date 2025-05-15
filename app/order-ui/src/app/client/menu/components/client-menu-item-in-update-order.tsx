@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { IMenuItem, IProduct } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
-import { Badge, Button } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { AddNewOrderItemDialog } from '@/components/app/dialog'
 import { ClientAddToCartDrawer } from '@/components/app/drawer'
@@ -15,7 +15,7 @@ interface IClientMenuItemInUpdateOrderProps {
   item: IMenuItem
 }
 
-export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemInUpdateOrderProps) {
+export function ClientMenuItemInUpdateOrder({ onSuccess, item }: IClientMenuItemInUpdateOrderProps) {
   const { t } = useTranslation('menu')
   const isMobile = useIsMobile()
 
@@ -36,7 +36,7 @@ export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemI
   return (
     <div
       key={item.slug}
-      className={`flex min-h-[22rem] dark:bg-transparent hover:scale-105 flex-col justify-between rounded-xl border bg-white backdrop-blur-md transition-all duration-300 ease-in-out`}
+      className={`flex flex-col justify-between bg-white rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out min-h-[22rem] dark:bg-transparent hover:scale-105`}
     >
       <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
         {/* Image Section with Ribbon Discount Tag */}
@@ -50,7 +50,10 @@ export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemI
               />
               {/* Discount Ribbon Tag */}
               {/* <PromotionTag /> */}
-              {item.product.isTopSell && <PromotionTag />}
+              {/* {item.product.isTopSell && <PromotionTag promotion={item.promotion} />} */}
+              {item.promotion && item.promotion.value > 0 && (
+                <PromotionTag promotion={item.promotion} />
+              )}
             </>
           ) : (
             <div className="w-full h-24 rounded-t-md bg-muted/60" />
@@ -67,54 +70,43 @@ export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemI
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex gap-1 justify-between items-center">
             <div className="flex flex-col">
               {item.product.variants.length > 0 ? (
-                <div className="flex flex-col items-start justify-start gap-1">
-                  <div className='flex flex-row items-center gap-1'>
-                    {item.promotion && item?.promotion?.value > 0 ? (
-                      <div className='flex flex-col items-start justify-start gap-1 mt-2'>
-                        <span className="text-sm sm:text-lg text-primary">
+                <div className="flex flex-col gap-1 justify-start items-start">
+                  <div className='flex flex-row gap-1 items-center'>
+                    {item?.promotion?.value > 0 ? (
+                      <div className="flex flex-row gap-2 items-center">
+                        <span className="text-xs line-through sm:text-sm text-muted-foreground/70">
                           {(() => {
                             const range = getPriceRange(item.product.variants)
                             if (!range) return formatCurrency(0)
-                            return range.isSinglePrice
-                              ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
+                            return formatCurrency(range.min)
                           })()}
                         </span>
-                        <div className='flex flex-row items-center gap-3'>
-                          <span className="text-sm line-through text-muted-foreground/70">
-                            {(() => {
-                              const range = getPriceRange(item.product.variants)
-                              if (!range) return formatCurrency(0)
-                              return range.isSinglePrice
-                                ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
-                            })()}
-                          </span>
-                          {item?.promotion?.value > 0 && (
-                            <Badge className="text-xs bg-destructive hover:bg-destructive">
-                              {t('menu.discount')} {item?.promotion?.value}%
-                            </Badge>
-                          )}
-                        </div>
-
-                      </div>) : (
+                        <span className="text-sm font-bold sm:text-lg text-primary">
+                          {(() => {
+                            const range = getPriceRange(item.product.variants)
+                            if (!range) return formatCurrency(0)
+                            return formatCurrency(range.min * (1 - item.promotion.value / 100))
+                          })()}
+                        </span>
+                      </div>
+                    ) : (
                       <span className="text-sm font-bold sm:text-lg text-primary">
                         {(() => {
                           const range = getPriceRange(item.product.variants)
                           if (!range) return formatCurrency(0)
-                          return range.isSinglePrice
-                            ? `${formatCurrency(range.min)}`
-                            : `${formatCurrency(range.min)}`
+                          return formatCurrency(range.min)
                         })()}
                       </span>
                     )}
 
                   </div>
-                  <span className="text-[0.7rem] text-muted-foreground">
+                  {item?.product?.isLimit && <span className="text-[0.7rem] text-muted-foreground">
                     {t('menu.amount')}
                     {item.currentStock}/{item.defaultStock}
-                  </span>
+                  </span>}
                 </div>
               ) : (
                 <span className="text-sm font-bold text-primary">
@@ -126,21 +118,23 @@ export function ClientMenuItemIUpdateOrder({ onSuccess, item }: IClientMenuItemI
         </div>
       </NavLink>
 
-      {item.currentStock > 0 ? (
-        <div className="flex justify-center w-full gap-2 p-2">
+      {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
+        <div className="flex gap-2 justify-center p-2 w-full">
           {isMobile ? (
-            <ClientAddToCartDrawer product={item} />
+            <ClientAddToCartDrawer product={item} onSuccess={onSuccess} isUpdateOrder={true} />
           ) : (
             <AddNewOrderItemDialog product={item} onSuccess={onSuccess} />
           )}
         </div>
       ) : (
-        <Button
-          className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
-          disabled
-        >
-          {t('menu.outOfStock')}
-        </Button>
+        <div className="flex gap-2 justify-center p-2 w-full">
+          <Button
+            className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
+            disabled
+          >
+            {t('menu.outOfStock')}
+          </Button>
+        </div>
       )}
     </div>
   )

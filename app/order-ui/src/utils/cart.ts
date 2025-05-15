@@ -7,17 +7,20 @@ export const setupAutoClearCart = () => {
 
   if (cartItems) {
     // Check if cart should be cleared
-    const expirationTime = localStorage.getItem('cartExpirationTime')
+    const expirationTime = localStorage.getItem('cart-expiration-time')
     if (expirationTime && moment().valueOf() > parseInt(expirationTime)) {
       clearCart()
-      localStorage.removeItem('cartExpirationTime')
+      localStorage.removeItem('cart-expiration-time')
       return
     }
 
     // Set new expiration time if not exists
     if (!expirationTime) {
       const tomorrow = moment().add(1, 'day').startOf('day')
-      localStorage.setItem('cartExpirationTime', tomorrow.valueOf().toString())
+      localStorage.setItem(
+        'cart-expiration-time',
+        tomorrow.valueOf().toString(),
+      )
     }
 
     // Set timeout for current session
@@ -25,7 +28,7 @@ export const setupAutoClearCart = () => {
     if (timeUntilExpiration > 0) {
       setTimeout(() => {
         clearCart()
-        localStorage.removeItem('cartExpirationTime')
+        localStorage.removeItem('cart-expiration-time')
       }, timeUntilExpiration)
     }
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2 } from 'lucide-react'
 
@@ -12,10 +12,9 @@ import {
   ScrollArea,
   SheetFooter,
   DataTable,
-  Switch,
 } from '@/components/ui'
 import { RemoveAppliedPromotionDialog } from '@/components/app/dialog'
-import { IApplyPromotionRequest, IProduct, IPromotion } from '@/types'
+import { IApplyPromotionRequest, IPromotion } from '@/types'
 import { useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
 
@@ -31,40 +30,56 @@ export default function RemoveAppliedPromotionSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const [applyPromotionRequest, setApplyPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
-  const { data: products, isLoading } = useProducts({ promotion: promotion?.slug, isAppliedPromotion: true })
-  const [isApplyFromToday, setIsApplyFromToday] = useState(false)
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
+  // Separate pagination state for sheet
+  const [sheetPagination, setSheetPagination] = useState({
+    pageIndex: 1,
+    pageSize: 10
+  })
+  const { data: products, isLoading } = useProducts({
+    promotion: promotion?.slug, isAppliedPromotion: true,
+    page: sheetPagination.pageIndex,
+    size: sheetPagination.pageSize,
+    hasPaging: true,
+  })
 
-  const productsData = products?.result
+  const productsData = products?.result.items
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
   }
-  const handleProductSelect = (product: IProduct, isSelected: boolean) => {
-    setSelectedProducts((prev) => {
-      if (isSelected) {
-        return [...prev, product.slug]
-      }
-      return prev.filter((slug) => slug !== product.slug)
-    })
 
-    const applyPromotionRequest: IApplyPromotionRequest = {
-      applicableSlugs: isSelected
-        ? [...selectedProducts, product.slug]
-        : selectedProducts.filter((slug) => slug !== product.slug),
+  const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
+    setApplyPromotionRequest({
+      applicableSlugs: selectedSlugs,
       promotion: promotion?.slug,
       type: 'product',
-      isApplyFromToday: isApplyFromToday || true,
-    }
-    setApplyPromotionRequest(applyPromotionRequest)
-  }
+    })
+  }, [promotion?.slug])
+
+  const handleSheetPageChange = useCallback((page: number) => {
+    setSheetPagination(prev => ({
+      ...prev,
+      pageIndex: page
+    }))
+  }, [])
+
+  const handleSheetPageSizeChange = useCallback((size: number) => {
+    setSheetPagination(() => ({
+      pageIndex: 1, // Reset to first page when changing page size
+      pageSize: size
+    }))
+  }, [])
+
+  const handleSheetOpenChange = useCallback((open: boolean) => {
+    setSheetOpen(open)
+  }, [])
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="justify-start w-full gap-1 px-2 bg-destructive/10 text-destructive"
+          className="gap-1 justify-start px-2 w-full bg-destructive/10 text-destructive"
           onClick={handleClick}
         >
           <Trash2 className="icon" />
@@ -81,26 +96,18 @@ export default function RemoveAppliedPromotionSheet({
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4">
             {/* Product List */}
             <div
-              className={`rounded-md border bg-white p-4 dark:bg-transparent`}
+              className={`p-4 bg-white rounded-md border dark:bg-transparent`}
             >
               <div className="grid grid-cols-1 gap-2">
                 <DataTable
                   columns={useProductColumns({
-                    onSelect: (product, isSelected) =>
-                      handleProductSelect(product, isSelected),
+                    onSelectionChange: handleSelectionChange,
                   })}
                   data={productsData || []}
                   isLoading={isLoading}
-                  pages={1}
-                  onPageChange={() => { }}
-                  onPageSizeChange={() => { }}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is-applied-from-today"
-                  checked={isApplyFromToday}
-                  onCheckedChange={setIsApplyFromToday}
+                  pages={products?.result.totalPages || 1}
+                  onPageChange={handleSheetPageChange}
+                  onPageSizeChange={handleSheetPageSizeChange}
                 />
               </div>
             </div>
@@ -108,7 +115,7 @@ export default function RemoveAppliedPromotionSheet({
           <SheetFooter className="p-4">
             <RemoveAppliedPromotionDialog
               disabled={
-                !applyPromotionRequest || !applyPromotionRequest.applicableSlugs
+                !applyPromotionRequest || applyPromotionRequest.applicableSlugs.length === 0
               }
               applyPromotionData={applyPromotionRequest}
               isOpen={isOpen}

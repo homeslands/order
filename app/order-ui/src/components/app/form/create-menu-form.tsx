@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
-import moment from 'moment'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
@@ -13,7 +12,7 @@ import {
   Form,
   Button,
 } from '@/components/ui'
-import { useAllMenus, usePagination, useCreateMenu } from '@/hooks'
+import { useCreateMenu } from '@/hooks'
 import { createMenuSchema, TCreateMenuSchema } from '@/schemas'
 import { SimpleDatePicker } from '@/components/app/picker'
 import { ICreateMenuRequest } from '@/types'
@@ -22,6 +21,7 @@ import { BranchSelect } from '@/components/app/select'
 import { IsTemplateSwitch } from '@/components/app/switch'
 import { useUserStore } from '@/stores'
 import { zodResolver } from '@hookform/resolvers/zod'
+import moment from 'moment'
 
 interface IFormCreateMenuProps {
   onSubmit: (isOpen: boolean) => void
@@ -34,37 +34,29 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
   const { t } = useTranslation(['menu'])
   const { userInfo } = useUserStore()
   const { mutate: createMenu } = useCreateMenu()
-  const { pagination } = usePagination()
-  const { data: menuData } = useAllMenus({
-    order: 'DESC',
-    page: pagination.pageIndex,
-    pageSize: pagination.pageSize,
-    branch: userInfo?.branch.slug,
-  })
 
   const form = useForm<TCreateMenuSchema>({
     resolver: zodResolver(createMenuSchema),
     defaultValues: {
-      date: '',
-      branchSlug: userInfo?.branch.slug,
+      date: moment().format('YYYY-MM-DD'),
+      branchSlug: userInfo?.branch?.slug,
       isTemplate: false,
     },
   })
 
   // Get existing menu dates
-  const existingMenuDates = useMemo(() => {
-    return (
-      menuData?.result.items.map((menu) =>
-        moment(menu.date).format('YYYY-MM-DD'),
-      ) || []
-    )
-  }, [menuData])
+  // const existingMenuDates = useMemo(() => {
+  //   return (
+  //     menuData?.result.items.map((menu) =>
+  //       moment(menu.date).format('YYYY-MM-DD'),
+  //     ) || []
+  //   )
+  // }, [menuData])
 
-  const disabledDates = (date: Date) => {
-    const formattedDate = moment(date).format('YYYY-MM-DD')
-    return existingMenuDates.includes(formattedDate)
-  }
-
+  // const disabledDates = (date: Date) => {
+  //   const formattedDate = moment(date).format('YYYY-MM-DD')
+  //   return existingMenuDates.includes(formattedDate)
+  // }
   const handleSubmit = (data: ICreateMenuRequest) => {
     createMenu(data, {
       onSuccess: () => {
@@ -90,7 +82,6 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
               <SimpleDatePicker
                 value={field.value}
                 onChange={(date) => field.onChange(date)}
-                disabledDates={disabledDates}
               />
             </FormControl>
             <FormMessage />
@@ -106,7 +97,7 @@ export const CreateMenuForm: React.FC<IFormCreateMenuProps> = ({
           <FormItem>
             <FormLabel>{t('menu.branchSlug')}</FormLabel>
             <FormControl>
-              <BranchSelect {...field} />
+              <BranchSelect defaultValue={userInfo?.branch?.slug} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

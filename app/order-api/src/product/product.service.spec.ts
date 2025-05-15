@@ -29,6 +29,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
+import { BranchUtils } from 'src/branch/branch.utils';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -45,6 +47,7 @@ describe('ProductService', () => {
         FileService,
         PromotionUtils,
         MenuUtils,
+        BranchUtils,
         {
           provide: FileService,
           useValue: {
@@ -57,6 +60,10 @@ describe('ProductService', () => {
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
           useFactory: repositoryMockFactory,
         },
         {
@@ -137,6 +144,7 @@ describe('ProductService', () => {
         isTopSell: false,
         isNew: false,
         saleQuantityHistory: 0,
+        productChefAreas: [],
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);
@@ -206,6 +214,8 @@ describe('ProductService', () => {
     it('should get all product success and return product array', async () => {
       const query: GetProductRequestDto = {
         catalog: 'mock-catalog-slug',
+        page: 0,
+        size: 0,
       };
       const product = {
         name: 'Mock product name',
@@ -268,7 +278,12 @@ describe('ProductService', () => {
         updatedAt: new Date(),
       } as Product;
 
-      (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => product,
+      );
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => null,
+      );
       (catalogRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
       await expect(
         service.updateProduct(productSlug, mockInput),
@@ -304,8 +319,11 @@ describe('ProductService', () => {
         updatedAt: new Date(),
       } as Catalog;
 
-      (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(
-        mockOutput,
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => mockOutput,
+      );
+      (productRepositoryMock.findOneBy as jest.Mock).mockImplementationOnce(
+        () => null,
       );
       (catalogRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(catalog);
       (mapperMock.map as jest.Mock).mockImplementationOnce(() => mockOutput);
@@ -350,6 +368,9 @@ describe('ProductService', () => {
         id: 'mock-product-id',
         slug: 'mock-product-slug',
         variants: [variant],
+        menuItems: [],
+        productChefAreas: [],
+        productAnalyses: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       } as Product;

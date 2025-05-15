@@ -4,6 +4,7 @@ volumes:
   postgres_data:
   nginx_proxy_manager_data:
   letsencrypt:
+  grafana_data:
 
 services:
   redis:
@@ -17,10 +18,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   order-api:
     image: ghcr.io/homeslands/order-api:latest
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/${VERSION}/health"]
       interval: 5s
@@ -63,12 +66,15 @@ services:
       # Otel lgtm
       OTEL_LGTM_URL: ${OTEL_LGTM_URL}
 
+      # Session
+      SESSION_SECRET: ${SESSION_SECRET}
+
       TZ: Asia/Ho_Chi_Minh
 
     deploy:
       replicas: 3
       restart_policy:
-        condition: unless-stopped
+        condition: on-failure
       update_config:
         delay: 10s
         parallelism: 1
@@ -76,6 +82,9 @@ services:
         failure_action: rollback
         monitor: 60s
         max_failure_ratio: 0.3
+
+    depends_on:
+      - mysql_db
 
   mysql_db:
     image: mysql:8.2.0
@@ -90,7 +99,9 @@ services:
       interval: 5s
       timeout: 60s # Increase timeout to give MySQL more time
       retries: 5
-    restart: unless-stopped
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   order-ui:
     image: ghcr.io/homeslands/order-ui:latest
@@ -99,23 +110,25 @@ services:
       interval: 10s # Increase interval between health checks
       timeout: 10s # Increase timeout for slower responses
       retries: 5
-    restart: unless-stopped
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   postgres:
     image: postgres:16-alpine
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   roboflow:
     image: tuanvux01/roboflow:dev
     restart: unless-stopped
-    ports:
-      - 8082:8080
     environment:
       - ENV=development
       - PORT=8080
@@ -125,7 +138,6 @@ services:
 
   nginx-proxy-manager:
     image: jc21/nginx-proxy-manager:2.9.22
-    restart: unless-stopped
     ports:
       - "80:80"
       - "81:81"
@@ -137,6 +149,27 @@ services:
     volumes:
       - nginx_proxy_manager_data:/data
       - letsencrypt:/etc/letsencrypt
+    deploy:
+      restart_policy:
+        condition: on-failure
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    environment:
+      - ENABLE_LOGS_LOKI=true
+      - GF_SERVER_ROOT_URL=https://trendcoffee.net/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - grafana_data:/var/lib/grafana
 
 networks:
   default:

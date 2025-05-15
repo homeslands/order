@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -20,6 +20,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
+  MoveRight,
+  RefreshCcw,
   SearchIcon,
 } from 'lucide-react'
 import {
@@ -27,6 +29,7 @@ import {
   DoubleArrowRightIcon,
   MixerHorizontalIcon,
 } from '@radix-ui/react-icons'
+import moment from 'moment'
 
 import {
   Table,
@@ -52,6 +55,8 @@ import {
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useDebouncedInput } from '@/hooks'
+import { SimpleDatePicker } from '../app/picker'
+import { PeriodOfTimeSelect } from '../app/select'
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
@@ -62,6 +67,15 @@ interface DataTablePaginationProps<TData> {
 export interface DataTableFilterOptionsProps<TData> {
   setFilterOption: React.Dispatch<React.SetStateAction<ColumnFiltersState>>
   data: TData[]
+  filterConfig?: {
+    id: string
+    label: string
+    options: {
+      label: string
+      value: string | number | boolean
+    }[]
+  }[]
+  onFilterChange?: (filterId: string, value: string) => void
 }
 
 // DataTableColumnHeader Component
@@ -85,16 +99,27 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   pages: number
-  // inputValue?: string
   hiddenInput?: boolean
+  hiddenDatePicker?: boolean
+  onRefresh?: () => void
   onPageChange: (pageIndex: number) => void
   onPageSizeChange: (pageSize: number) => void
   onRowClick?: (row: TData) => void
-  // onInputChange?: Dispatch<SetStateAction<string>>
   onInputChange?: (value: string) => void
+  periodOfTime?: string
+  onDateChange?: (startDate: string, endDate: string) => void
   filterOptions?: React.FC<DataTableFilterOptionsProps<TData>>
   actionOptions?: React.FC<DataTableActionOptionsProps<TData>>
   rowClassName?: (row: TData) => string
+  filterConfig?: {
+    id: string
+    label: string
+    options: {
+      label: string
+      value: string | number | boolean
+    }[]
+  }[]
+  onFilterChange?: (filterId: string, value: string) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -103,16 +128,30 @@ export function DataTable<TData, TValue>({
   data,
   pages,
   hiddenInput = true,
+  hiddenDatePicker = true,
+  onRefresh,
   onPageChange,
   onPageSizeChange,
   onRowClick,
   onInputChange,
+  periodOfTime,
+  onDateChange,
   filterOptions: DataTableFilterOptions,
   actionOptions: DataTableActionOptions,
   rowClassName,
+  filterConfig,
+  onFilterChange,
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation('common')
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
+  const today = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }, []);
+  today.setHours(0, 0, 0, 0)
+  const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
+  const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
 
   // Add effect to call onInputChange when debounced value changes
   useEffect(() => {
@@ -121,6 +160,13 @@ export function DataTable<TData, TValue>({
     }
   }, [debouncedInputValue, onInputChange])
 
+  // Add effect to call onDateChange when dates change
+  useEffect(() => {
+    if (onDateChange) {
+      onDateChange(startDate, endDate)
+    }
+  }, [startDate, endDate, onDateChange])
+
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -128,7 +174,10 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columns.map(column => ({
+      ...column,
+      id: (column as ColumnDef<TData, TValue> & { accessorKey?: string }).accessorKey || Math.random().toString(36).substring(7)
+    })),
     pageCount: pages,
     state: {
       sorting,
@@ -148,24 +197,87 @@ export function DataTable<TData, TValue>({
     debugTable: true,
   })
 
+  const handlePeriodOfTimeChange = useCallback((periodOfTime: string) => {
+    if (periodOfTime === 'today') {
+      setStartDate(moment(today).format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'yesterday') {
+      setStartDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
+      setEndDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inWeek') {
+      setStartDate(moment(today).subtract(1, 'week').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inMonth') {
+      setStartDate(moment(today).subtract(1, 'month').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    } else if (periodOfTime === 'inYear') {
+      setStartDate(moment(today).subtract(1, 'year').format('YYYY-MM-DD'))
+      setEndDate(moment(today).format('YYYY-MM-DD'))
+    }
+  }, [today])
+
+  const handleRefresh = () => {
+    onRefresh?.()
+  }
+
   return (
     <div className="w-full">
       <div
-        className={`flex ${hiddenInput ? 'justify-end' : 'justify-between'} flex-wrap gap-2`}
+        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full`}
       >
-        {/* Input search */}
-        {!hiddenInput && (
-          <div className="relative w-full lg:w-[30%]">
-            <SearchIcon className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-2 top-1/2" />
-            <Input
-              placeholder={t('dataTable.search')}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="pl-8 text-sm border placeholder:hidden sm:h-10 sm:w-full sm:pr-2 placeholder:sm:inline md:w-full"
-            />
-          </div>
-        )}
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
+          {/* Input search */}
+          {!hiddenInput && (
+            <div className="relative w-48">
+              <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
+              <Input
+                placeholder={t('dataTable.search')}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="pl-8 text-sm border placeholder:hidden sm:w-full sm:pr-2 placeholder:sm:inline md:w-full"
+              />
+            </div>
+          )}
+          {!hiddenDatePicker && (
+            <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center w-[400px]">
+                <div className="flex-1">
+                  <SimpleDatePicker
+                    value={startDate}
+                    onChange={setStartDate}
+                    disabledDates={endDate ? (date: Date) => {
+                      const endDateObj = new Date(endDate.split('/').reverse().join('-'))
+                      return date > endDateObj
+                    } : undefined}
+                    disableFutureDates={true}
+                  />
+                </div>
+                <MoveRight className="icon" />
+                <div className="flex-1">
+                  <SimpleDatePicker
+                    value={endDate}
+                    onChange={setEndDate}
+                    disabledDates={startDate ? (date: Date) => {
+                      const startDateObj = new Date(startDate.split('/').reverse().join('-'))
+                      return date < startDateObj
+                    } : undefined}
+                    disableFutureDates={true}
+                  />
+                </div>
+              </div>
+              <PeriodOfTimeSelect periodOfTime={periodOfTime} onChange={handlePeriodOfTimeChange} />
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2 items-center w-fit">
+          {onRefresh && (
+            <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCcw className="w-4 h-4 text-muted-foreground" />
+              <span className='text-muted-foreground'>
+                {t('dataTable.refresh')}
+              </span>
+            </Button>
+          )}
           {/* Actions */}
           {DataTableActionOptions && <DataTableActionOptions table={table} />}
           {/* Filter */}
@@ -173,6 +285,8 @@ export function DataTable<TData, TValue>({
             <DataTableFilterOptions
               setFilterOption={setColumnFilters}
               data={data}
+              filterConfig={filterConfig}
+              onFilterChange={onFilterChange}
             />
           )}
           {/* View options */}
@@ -181,7 +295,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="mt-3 border rounded-md">
+      <div className="mt-3 rounded-md border">
         <Table>
           <TableHeader className="bg-muted-foreground/5">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -206,9 +320,9 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="w-full h-full mx-auto text-center"
+                  className="mx-auto w-full h-full text-center"
                 >
-                  <Loader2Icon className="w-6 h-6 mx-auto animate-spin text-primary" />
+                  <Loader2Icon className="mx-auto w-6 h-6 animate-spin text-primary" />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length ? (
@@ -251,7 +365,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end py-4 space-x-2">
+      <div className="flex justify-end items-center py-4 space-x-2">
         <DataTablePagination
           table={table}
           onPageChange={onPageChange}
@@ -276,7 +390,7 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <div
       className={cn(
-        'flex min-w-[6rem] items-center space-x-2 text-[0.7rem]',
+        'flex min-w-[3rem] items-center space-x-2 text-[0.7rem]',
         className,
       )}
     >
@@ -289,26 +403,26 @@ export function DataTableColumnHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{t(title)}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -343,26 +457,26 @@ export function DataTableColumnAddressHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -397,26 +511,26 @@ export function DataTableColumnActionHeader<TData, TValue>({
           >
             <span className="text-[0.8rem]">{title}</span>
             {column.getIsSorted() === 'desc' ? (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUpIcon className="w-3 h-3 ml-2" />
+              <ArrowUpIcon className="ml-2 w-3 h-3" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 ml-2" />
+              <ArrowDownIcon className="ml-2 w-3 h-3" />
             )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.asc')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowDownIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.desc')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <ArrowUpIcon className="w-3 h-3 mr-2 text-muted-foreground/70" />
+            <ArrowUpIcon className="mr-2 w-3 h-3 text-muted-foreground/70" />
             {t('dataTable.hide')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -431,7 +545,7 @@ export function DataTablePagination<TData>({
   onPageSizeChange,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex flex-wrap items-center justify-between px-2">
+    <div className="flex flex-wrap justify-between items-center px-2">
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium sr-only">Rows per page</p>
@@ -461,7 +575,7 @@ export function DataTablePagination<TData>({
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
-            className="hidden w-8 h-8 p-0 lg:flex"
+            className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
               table.setPageIndex(0)
               onPageChange?.(1)
@@ -473,7 +587,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="w-8 h-8 p-0"
+            className="p-0 w-8 h-8"
             onClick={() => {
               onPageChange(table.getState().pagination.pageIndex)
               table.previousPage()
@@ -485,7 +599,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="w-8 h-8 p-0"
+            className="p-0 w-8 h-8"
             onClick={() => {
               onPageChange(table.getState().pagination.pageIndex + 2)
               table.nextPage()
@@ -497,7 +611,7 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             variant="outline"
-            className="hidden w-8 h-8 p-0 lg:flex"
+            className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
               onPageChange(table.getPageCount())
               table.setPageIndex(table.getPageCount() - 1)
@@ -522,9 +636,9 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="outline"
           size="sm"
-          className="items-center h-10 gap-1 lg:flex"
+          className="gap-1 items-center h-10 lg:flex"
         >
-          <MixerHorizontalIcon className="w-4 h-4 mr-2" />
+          <MixerHorizontalIcon className="mr-2 w-4 h-4" />
           Hiển thị
         </Button>
       </DropdownMenuTrigger>

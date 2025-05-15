@@ -35,6 +35,12 @@
       "description": "Quản lý nhân viên của bạn tại đây",
       "keywords": "quản lý nhân viên, nhân viên, quản lý nhân sự"
     },
+    "role": {
+      "title": "Quản lý vai trò",
+      "manageRole": "Quản lý vai trò",
+      "description": "Quản lý vai trò của bạn tại đây",
+      "keywords": "vai trò, quản lý vai trò, vai trò người dùng"
+    },
     "menuManagement": {
       "title": "Quản lý thực đơn",
       "manageMenuManagement": "Quản lý thực đơn",
@@ -93,6 +99,12 @@
       "description": "Quản lý khuyến mãi của bạn tại đây",
       "keywords": "khuyến mãi, quản lý khuyến mãi, khuyến mãi giảm giá"
     },
+    "chefArea": {
+      "title": "Khu vực bếp",
+      "manageChefArea": "Khu vực của đầu bếp",
+      "description": "Quản lý khu vực của đầu bếp tại đây",
+      "keywords": "khu vực, quản lý khu vực, khu vực đầu bếp"
+    },
     "banner": {
       "title": "Quản lý banner",
       "manageBanner": "Quản lý banner",
@@ -134,6 +146,12 @@
       "manageOrderManagement": "Quản lý đơn hàng",
       "description": "Quản lý đơn hàng của bạn tại đây",
       "keywords": "đơn hàng, quản lý đơn hàng, đơn hàng quán ăn"
+    },
+    "notification": {
+      "title": "Quản lý thông báo",
+      "manageNotification": "Quản lý thông báo",
+      "description": "Quản lý thông báo của bạn tại đây",
+      "keywords": "thông báo, quản lý thông báo, thông báo quán ăn"
     }
   }
 }

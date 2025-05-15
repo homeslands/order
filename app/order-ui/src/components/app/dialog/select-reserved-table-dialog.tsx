@@ -14,7 +14,7 @@ import { ITable } from '@/types'
 
 interface SelectReservedTableDialogProps {
   table: ITable | null
-  setSelectedTableId: React.Dispatch<React.SetStateAction<string | undefined>>
+  setSelectedTableId?: React.Dispatch<React.SetStateAction<string | undefined>>
   onConfirm: (table: ITable) => void
   onCancel: () => void
 }

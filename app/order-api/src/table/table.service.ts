@@ -51,7 +51,9 @@ export class TableService {
   ): Promise<TableResponseDto[]> {
     const context = `${TableService.name}.${this.bulkCreateTables.name}`;
     const branch = await this.branchUtils.getBranch({
-      slug: bulkCreateTablesRequestDto.branch || IsNull(),
+      where: {
+        slug: bulkCreateTablesRequestDto.branch || IsNull(),
+      },
     });
     if (bulkCreateTablesRequestDto.from > bulkCreateTablesRequestDto.to) {
       this.logger.warn(
@@ -118,7 +120,9 @@ export class TableService {
   ): Promise<TableResponseDto> {
     const context = `${TableService.name}.${this.create.name}`;
     const branch = await this.branchUtils.getBranch({
-      slug: createTableDto.branch || IsNull(),
+      where: {
+        slug: createTableDto.branch || IsNull(),
+      },
     });
 
     // Validate location if location is provided
@@ -168,6 +172,24 @@ export class TableService {
           slug: branch,
         },
       },
+    });
+
+    tables.sort((a, b) => {
+      const aNum = parseInt(a.name, 10);
+      const bNum = parseInt(b.name, 10);
+
+      const aIsNumber = !isNaN(aNum);
+      const bIsNumber = !isNaN(bNum);
+
+      if (aIsNumber && bIsNumber) {
+        return aNum - bNum;
+      } else if (aIsNumber) {
+        return -1; // a is number, b is string => a up first
+      } else if (bIsNumber) {
+        return 1; // b is number, a is string => b up first
+      } else {
+        return a.name.localeCompare(b.name); // both are string => sort by string
+      }
     });
     const tablesDto = this.mapper.mapArray(tables, Table, TableResponseDto);
     return tablesDto;

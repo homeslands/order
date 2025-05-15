@@ -24,7 +24,7 @@ describe('User API', () => {
     const queryParams = {
       branch: 'branch-1',
       page: 1,
-      pageSize: 10,
+      size: 10,
       order: 'DESC' as const,
       role: 'admin',
     }

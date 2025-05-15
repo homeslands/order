@@ -6,7 +6,7 @@ import { PaymentMethod } from '@/constants'
 export const usePaymentMethodStore = create<IPaymentMethodStore>()(
   persist(
     (set) => ({
-      paymentMethod: PaymentMethod.INTERNAL_WALLET,
+      paymentMethod: PaymentMethod.BANK_TRANSFER,
       qrCode: '',
       setPaymentMethod: (value: PaymentMethod) => {
         set({ paymentMethod: value })
@@ -14,8 +14,12 @@ export const usePaymentMethodStore = create<IPaymentMethodStore>()(
       setQrCode: (value: string) => {
         set({ qrCode: value })
       },
+      paymentSlug: '',
+      setPaymentSlug: (value: string) => {
+        set({ paymentSlug: value })
+      },
       clearStore: () => {
-        set({ paymentMethod: PaymentMethod.INTERNAL_WALLET, qrCode: '' })
+        set({ paymentMethod: PaymentMethod.BANK_TRANSFER, qrCode: '', paymentSlug: '' })
       },
     }),
     {

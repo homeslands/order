@@ -17,16 +17,24 @@ export interface IProduct {
   slug: string
   note?: string
   createdAt: string
+  saleQuantityHistory: number
+  productChefArea: string // Slug of the product in chef area
 }
 
 export interface IProductRequest {
+  page?: number
+  size?: number
   catalog?: string
   promotion?: string // get all products base on promotion
   isAppliedPromotion?: boolean
+  isAppliedBranchForChefArea?: boolean
   isTopSell?: boolean
   isNew?: boolean
   inMenu?: boolean
+  isPossibleCreateMenuItemForBranch?: boolean
   menu?: string //Slug of the menu, get all products in the menu
+  branch?: string //Slug of the branch
+  hasPaging?: boolean
 }
 
 export interface ITopProduct {

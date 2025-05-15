@@ -12,6 +12,7 @@ import { Catalog } from 'src/catalog/catalog.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 
 describe('MenuItemService', () => {
   let service: MenuItemService;
@@ -23,6 +24,10 @@ describe('MenuItemService', () => {
         PromotionUtils,
         {
           provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ProductChefArea),
           useFactory: repositoryMockFactory,
         },
         {

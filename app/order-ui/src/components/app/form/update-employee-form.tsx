@@ -15,7 +15,7 @@ import {
   ScrollArea,
 } from '@/components/ui'
 // import { useCreateUser } from '@/hooks'
-import { updateUserSchema, TUpdateUserSchema } from '@/schemas'
+import { TUpdateEmployeeSchema, updateEmployeeSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateUserRequest, IUserInfo } from '@/types'
 // import { showToast } from '@/utils'
@@ -23,6 +23,8 @@ import { BranchSelect } from '../select'
 import { useUpdateUser } from '@/hooks'
 import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
+import { useUserStore } from '@/stores'
+import { Role } from '@/constants'
 
 interface IFormUpdateEmployeeProps {
   employee: IUserInfo
@@ -35,9 +37,9 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
   const queryClient = useQueryClient()
   const { t } = useTranslation(['employee'])
   const { mutate: updateUser } = useUpdateUser()
-
-  const form = useForm<TUpdateUserSchema>({
-    resolver: zodResolver(updateUserSchema),
+  const { userInfo } = useUserStore()
+  const form = useForm<TUpdateEmployeeSchema>({
+    resolver: zodResolver(updateEmployeeSchema),
     defaultValues: {
       slug: employee.slug,
       // phonenumber: employee.phonenumber,
@@ -45,8 +47,8 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
       lastName: employee.lastName,
       dob: employee.dob,
       email: employee.email,
-      address: employee.address,
-      branch: employee.branch.slug || '',
+      address: employee?.address || '',
+      branch: employee?.branch?.slug || '',
     },
   })
 
@@ -163,20 +165,21 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
       />
     ),
     branch: (
-      <FormField
-        control={form.control}
-        name="branch"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('employee.branch')}</FormLabel>
-            <FormControl>
-              <BranchSelect defaultValue={employee.branch.slug} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
+      userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) && (
+        <FormField
+          control={form.control}
+          name="branch"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('employee.branch')}</FormLabel>
+              <FormControl>
+                <BranchSelect defaultValue={employee?.branch?.slug} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ),
   }
 
   return (

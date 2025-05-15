@@ -10,7 +10,18 @@ import { Branch } from 'src/branch/branch.entity';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-
+import { BranchUtils } from 'src/branch/branch.utils';
+import { FileService } from 'src/file/file.service';
+import { File } from 'src/file/file.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { Menu } from 'src/menu/menu.entity';
+import { Order } from 'src/order/order.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { OrderUtils } from 'src/order/order.utils';
+import { Mutex } from 'async-mutex';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -20,10 +31,40 @@ describe('BranchRevenueController', () => {
       providers: [
         BranchRevenueService,
         TransactionManagerService,
+        BranchUtils,
+        FileService,
+        PdfService,
+        QrCodeService,
+        OrderUtils,
+        MenuItemUtils,
+        MenuUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        {
+          provide: Mutex,
+          useValue: {
+            acquire: jest.fn(),
+            runExclusive: jest.fn(),
+          },
+        },
         {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(BranchRevenue),
@@ -31,6 +72,10 @@ describe('BranchRevenueController', () => {
         },
         {
           provide: getRepositoryToken(Branch),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(File),
           useValue: repositoryMockFactory,
         },
         {

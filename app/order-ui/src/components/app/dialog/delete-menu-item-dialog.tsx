@@ -20,9 +20,10 @@ import { useDeleteMenuItem } from '@/hooks'
 import { showToast } from '@/utils'
 
 export default function DeleteMenuItemDialog({
-  menuItem,
+  menuItem, onSuccess
 }: {
   menuItem: IMenuItem
+  onSuccess: () => void
 }) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['menu'])
@@ -37,6 +38,7 @@ export default function DeleteMenuItemDialog({
         queryClient.invalidateQueries({
           queryKey: ['specific-menu'],
         })
+        onSuccess();
         setIsOpen(false)
         showToast(tToast('toast.deleteMenuItemSuccess'))
       },

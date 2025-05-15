@@ -13,6 +13,7 @@
     "checkout": "Checkout",
     "viewDetail": "View details",
     "confirm": "Confirm",
+    "selectAll": "Select all",
     "confirmDelete": "I understand, confirm delete",
     "confirmCancel": "I understand, confirm cancel",
     "noData": "No data",
@@ -26,7 +27,10 @@
     "goHome": "Go to homepage",
     "goBack": "Go back to the previous page",
     "oops": "Oops!",
-    "somethingWentWrong": "Something went wrong"
+    "somethingWentWrong": "Something went wrong",
+    "hour": "Hour",
+    "minute": "Minute",
+    "endDateMustBeGreaterThanStartDate": "End date must be greater than start date"
   },
   "dataTable": {
     "rowsPerPage": "Rows per page",
@@ -63,6 +67,11 @@
     "4": "Friday",
     "5": "Saturday",
     "6": "Sunday",
-    "noDayOfWeek": "None"
+    "noDayOfWeek": "None",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "inWeek": "In week",
+    "inMonth": "In month",
+    "inYear": "In year"
   }
 }

@@ -1,4 +1,4 @@
-import { Coins, CreditCard, WalletMinimal } from 'lucide-react'
+import { Coins, CreditCard } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { RadioGroup, RadioGroupItem, Label } from '@/components/ui'
@@ -23,33 +23,33 @@ export default function PaymentMethodRadioGroup({
   }
   return (
     <RadioGroup
-      defaultValue={defaultValue || PaymentMethod.INTERNAL_WALLET}
-      className="min-w-full gap-6"
+      defaultValue={defaultValue || PaymentMethod.BANK_TRANSFER}
+      className="gap-6 min-w-full"
       onValueChange={handlePaymentMethodChange}
     >
-      <div className="flex items-center space-x-2">
+      {/* <div className="flex items-center space-x-2">
         <RadioGroupItem value="internalWallet" id="r1" />
-        <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-          <Label htmlFor="r1" className="flex items-center gap-1">
+        <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+          <Label htmlFor="r1" className="flex gap-1 items-center">
             <WalletMinimal size={20} />
             {t('paymentMethod.internalWallet')} (coming soon)
           </Label>
         </div>
-      </div>
+      </div> */}
       <div className="flex items-center space-x-2">
         <RadioGroupItem value={PaymentMethod.BANK_TRANSFER} id="r2" />
-        <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-          <Label htmlFor="r2" className="flex items-center gap-1">
+        <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+          <Label htmlFor="r2" className="flex gap-1 items-center">
             <CreditCard size={20} />
             {t('paymentMethod.bankTransfer')}
           </Label>
         </div>
       </div>
-      {userInfo?.role.name !== Role.CUSTOMER && (
+      {userInfo && userInfo.role.name !== Role.CUSTOMER && (
         <div className="flex items-center space-x-2">
           <RadioGroupItem value={PaymentMethod.CASH} id="r3" />
-          <div className="flex items-center gap-1 pl-2 text-muted-foreground">
-            <Label htmlFor="r3" className="flex items-center gap-1">
+          <div className="flex gap-1 items-center pl-2 text-muted-foreground">
+            <Label htmlFor="r3" className="flex gap-1 items-center">
               <Coins size={20} />
               {t('paymentMethod.cash')}
             </Label>

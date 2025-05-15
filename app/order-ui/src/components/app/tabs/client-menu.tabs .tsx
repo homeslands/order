@@ -1,17 +1,14 @@
 import { useTranslation } from 'react-i18next'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
+import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { ClientMenuTabscontent } from '../tabscontent/client-menu.tabscontent'
-import { IOrder } from '@/types'
-import { ClientUpdateOrderTableSelect } from '@/app/system/menu'
+// import { ClientUpdateOrderTableSelect } from '@/app/system/menu'
 
 interface ClientMenusProps {
-  order?: IOrder
-  defaultValue?: string
   onSuccess: () => void
 }
 
-export function ClientMenuTabs({ order, defaultValue, onSuccess }: ClientMenusProps) {
+export function ClientMenuTabs({ onSuccess }: ClientMenusProps) {
   const { t } = useTranslation(['menu'])
   return (
     <Tabs defaultValue="menu">
@@ -19,16 +16,19 @@ export function ClientMenuTabs({ order, defaultValue, onSuccess }: ClientMenusPr
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
-        <TabsTrigger value="table" className="flex justify-center">
+        {/* Mở cmt này để hiển thị tab chọn bàn hình ảnh */}
+        {/* <TabsTrigger value="table" className="flex justify-center">
           {t('menu.table')}
-        </TabsTrigger>
+        </TabsTrigger> */}
       </TabsList>
-      <TabsContent value="menu" className="w-full p-0 mt-6">
-        <ClientMenuTabscontent onSuccess={onSuccess} />
-      </TabsContent>
-      <TabsContent value="table" className="p-0">
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <TabsContent value="menu" className="p-0">
+          <ClientMenuTabscontent onSuccess={onSuccess} />
+        </TabsContent>
+      </ScrollArea>
+      {/* <TabsContent value="table" className="p-0">
         <ClientUpdateOrderTableSelect onSuccess={onSuccess} order={order} defaultValue={defaultValue} />
-      </TabsContent>
+      </TabsContent> */}
     </Tabs>
   )
 }

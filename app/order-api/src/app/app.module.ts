@@ -38,7 +38,7 @@ import { WorkflowModule } from 'src/workflow/workflow.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { DbModule } from 'src/db/db.module';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/passport/jwt/jwt-auth.guard';
 import { RoleModule } from 'src/role/role.module';
 import { RolesGuard } from 'src/role/roles.guard';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
@@ -53,6 +53,16 @@ import { ApplicablePromotionModule } from 'src/applicable-promotion/applicable-p
 import { VoucherModule } from 'src/voucher/voucher.module';
 import { BannerModule } from 'src/banner/banner.module';
 import { LoggerMiddleware } from 'src/logger/logger.middleware';
+import { AuthorityModule } from 'src/authority/authority.module';
+import { AuthorityGroupModule } from 'src/authority-group/authority-group.module';
+import { PermissionModule } from 'src/permission/permission.module';
+import { ChefAreaModule } from 'src/chef-area/chef-area.module';
+import { ProductChefAreaModule } from 'src/product-chef-area/product-chef-area.module';
+import { ChefOrderModule } from 'src/chef-order/chef-order.module';
+import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module';
+import { NotificationModule } from 'src/notification/notification.module';
+import { JobModule } from 'src/job/job.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -85,6 +95,14 @@ import { LoggerMiddleware } from 'src/logger/logger.middleware';
     EventEmitterModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 100000,
+        },
+      ],
     }),
     AuthModule,
     FileModule,
@@ -121,6 +139,15 @@ import { LoggerMiddleware } from 'src/logger/logger.middleware';
     ApplicablePromotionModule,
     VoucherModule,
     BannerModule,
+    AuthorityModule,
+    AuthorityGroupModule,
+    PermissionModule,
+    ChefAreaModule,
+    ProductChefAreaModule,
+    ChefOrderModule,
+    ChefOrderItemModule,
+    NotificationModule,
+    JobModule,
   ],
   controllers: [AppController],
   providers: [
@@ -137,6 +164,10 @@ import { LoggerMiddleware } from 'src/logger/logger.middleware';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

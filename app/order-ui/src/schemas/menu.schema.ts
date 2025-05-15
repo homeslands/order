@@ -1,15 +1,15 @@
 import { z } from 'zod'
 
 export const createMenuSchema = z.object({
-  date: z.string(),
-  branchSlug: z.string(),
+  date: z.string().min(1),
+  branchSlug: z.string().min(1),
   isTemplate: z.boolean(),
 })
 
 export const updateMenuSchema = z.object({
   slug: z.string(),
   date: z.string(),
-  branchSlug: z.string(),
+  branchSlug: z.string().min(1),
   isTemplate: z.boolean(),
 })
 
@@ -34,6 +34,8 @@ export const updateMenuItemSchema = z.object({
   productSlug: z.string(),
   productName: z.string(),
   defaultStock: z.number().min(0),
+  isLocked: z.boolean(),
+  isResetCurrentStock: z.boolean(),
 })
 
 export type TCreateMenuSchema = z.infer<typeof createMenuSchema>

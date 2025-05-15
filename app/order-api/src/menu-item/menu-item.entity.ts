@@ -8,12 +8,16 @@ import { Promotion } from 'src/promotion/promotion.entity';
 @Entity('menu_item_tbl')
 export class MenuItem extends Base {
   @AutoMap()
-  @Column({ name: 'default_stock_column' })
+  @Column({ name: 'default_stock_column', nullable: true })
   defaultStock: number;
 
   @AutoMap()
-  @Column({ name: 'current_stock_column' })
+  @Column({ name: 'current_stock_column', nullable: true })
   currentStock: number;
+
+  @AutoMap()
+  @Column({ name: 'is_locked_column', default: false })
+  isLocked: boolean;
 
   // Many to one with branch
   @AutoMap()

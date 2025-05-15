@@ -2,8 +2,8 @@ import { Skeleton } from '@/components/ui'
 
 export default function ProductDetailSkeleton() {
   return (
-    <div className="flex bg-muted/50 flex-row gap-2 h-[calc(100vh-4rem)]">
-      <div className="flex-1 ">
+    <div className="flex bg-muted-foreground/15 flex-row gap-2 h-[calc(100vh-4rem)]">
+      <div className="flex-1">
         <div className="pl-4 transition-all duration-300 ease-in-out ">
           {/* Header Section */}
           <div className="sticky top-0 z-10 flex flex-col items-center gap-2 py-3 pr-4">

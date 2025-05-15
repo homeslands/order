@@ -6,7 +6,10 @@ import { QueueRegisterKey } from 'src/app/app.constants';
 
 @Injectable()
 export class MailProducer {
-  constructor(@InjectQueue(QueueRegisterKey.MAIL) private mailQueue: Queue) {}
+  constructor(
+    @InjectQueue(QueueRegisterKey.MAIL)
+    private mailQueue: Queue,
+  ) {}
 
   async sendMail(data: ISendMailOptions) {
     this.mailQueue.add('send-mail', data);

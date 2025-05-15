@@ -6,6 +6,9 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('RoleService', () => {
   let service: RoleService;
@@ -14,6 +17,8 @@ describe('RoleService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RoleService,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(Role),
           useValue: repositoryMockFactory,

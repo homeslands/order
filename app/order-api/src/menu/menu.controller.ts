@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CreateMenuDto,
@@ -41,7 +41,7 @@ export class MenuController {
     isArray: true,
   })
   async getAllMenus(
-    @Query(new ValidationPipe({ transform: true }))
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: GetAllMenuQueryRequestDto,
   ) {
     const result = await this.menuService.getAllMenus(query);
@@ -63,7 +63,8 @@ export class MenuController {
     type: MenuResponseDto,
   })
   async getMenu(
-    @Query(new ValidationPipe({ transform: true })) query: GetMenuRequestDto,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: GetMenuRequestDto,
   ) {
     const result = await this.menuService.getMenu(query);
     return {
@@ -83,7 +84,8 @@ export class MenuController {
     type: MenuResponseDto,
   })
   async createMenu(
-    @Body(new ValidationPipe({ transform: true })) requestData: CreateMenuDto,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: CreateMenuDto,
   ) {
     const result = await this.menuService.createMenu(requestData);
     return {

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import moment from 'moment'
 import _ from 'lodash'
 import { useTranslation } from 'react-i18next'
@@ -15,23 +15,42 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui'
-import { useOrderBySlug } from '@/hooks'
+import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
 import { publicFileURL, ROUTE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
-import { OrderTypeEnum } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
+import { InvoiceTemplate } from '../public-order-detail/components'
 
 export default function OrderHistoryPage() {
+  const isMobile = useIsMobile()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
-  const { slug } = useParams()
-  const { data: orderDetail } = useOrderBySlug(slug as string)
+  const { t: tToast } = useTranslation('toast')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const order = searchParams.get('order')
+  const { mutate: exportPublicOrderInvoice } = useExportPublicOrderInvoice()
+  const { data: orderDetail } = useOrderBySlug(order || '')
+
+  const orderInfo = orderDetail?.result
+  const originalTotal = orderInfo
+    ? orderInfo.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
+    : 0;
+
+  const discount = orderInfo
+    ? orderInfo.orderItems.reduce(
+      (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
+      0
+    )
+    : 0;
+
+  const voucherDiscount = orderInfo?.voucher ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : 0;
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
-        <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex flex-col gap-5 justify-center items-center">
           <CircleX className="w-32 h-32 text-destructive" />
           <p className="text-center text-muted-foreground">
             {t('menu.noData')}
@@ -43,40 +62,46 @@ export default function OrderHistoryPage() {
       </div>
     )
   }
+
+  const handleExportInvoice = () => {
+    exportPublicOrderInvoice(orderDetail?.result?.slug || '', {
+      onSuccess: () => {
+        showToast(tToast('toast.exportInvoiceSuccess'))
+        // Load data to print
+        // loadDataToPrinter(data)
+      },
+    })
+  }
   return (
     <div className="container py-5">
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="sticky z-10 flex flex-col items-center gap-2 py-2 bg-white -top-1">
-          <span className="flex items-center justify-start w-full gap-1 text-lg">
+        <div className="flex sticky -top-1 z-10 flex-col gap-2 items-center py-2 bg-white dark:bg-transparent">
+          <span className="flex gap-1 justify-start items-center w-full text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
-            {/* <span className="text-muted-foreground">
-              #{orderDetail?.result?.slug}
-            </span> */}
           </span>
         </div>
-        <ProgressBar step={orderDetail?.result.status} />
-
+        <ProgressBar step={orderInfo?.status} />
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col w-full gap-4 lg:w-3/4">
+          <div className="flex flex-col gap-4 w-full lg:w-3/5">
             {/* Order info */}
-            <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
+            <div className="flex justify-between items-center p-3 rounded-sm border border-muted-foreground/30">
               <div className="">
-                <p className="flex items-center gap-2 pb-2">
+                <p className="flex gap-2 items-center pb-2">
                   <span className="font-bold">
                     {t('order.order')}{' '}
                   </span>
                   <span className="text-muted-foreground">
-                    {orderDetail?.result?.slug}
+                    #{orderInfo?.slug}
                   </span>
                 </p>
                 <div className="flex flex-col gap-1 text-sm font-thin sm:flex-row sm:items-center">
                   <p>
                     {t('order.orderTime')}{' '}
                     <span className="text-muted-foreground">
-                      {moment(orderDetail?.result?.createdAt).format(
+                      {moment(orderInfo?.createdAt).format(
                         'hh:mm:ss DD/MM/YYYY',
                       )}
                     </span>
@@ -86,27 +111,25 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.customer')}{' '}
                 </div>
                 <div className="px-3 py-2">
                   <p className="text-sm text-muted-foreground">
-                    {`${orderDetail?.result?.owner?.firstName} ${orderDetail?.result?.owner?.lastName} (${orderDetail?.result?.owner?.phonenumber})`}
+                    {`${orderInfo?.owner?.firstName} ${orderInfo?.owner?.lastName} (${orderInfo?.owner?.phonenumber})`}
                   </p>
                 </div>
               </div>
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
+              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.orderType')}
                 </div>
                 <div className="px-3 py-2 text-sm">
                   <p>
                     {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
-                      ? t('order.dineIn')
+                      ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
                       : t('order.takeAway')}{' '}
-                    - {t('order.tableNumber')}{' '}
-                    {orderDetail?.result?.table?.name}
                   </p>
                 </div>
               </div>
@@ -114,47 +137,60 @@ export default function OrderHistoryPage() {
             {/* Order table */}
             <div className="overflow-x-auto">
               <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
-                <TableCaption>
-                  {t('order.aListOfOrders')}
-                </TableCaption>
+                <TableCaption>{t('order.aListOfOrders')}</TableCaption>
+
+                {/* Header */}
                 <TableHeader className="rounded bg-muted-foreground/10">
                   <TableRow>
-                    <TableHead className="">{t('order.product')}</TableHead>
-                    <TableHead className="text-right">
-                      {t('order.unitPrice')}
-                    </TableHead>
-                    <TableHead className="text-right">
-                      {t('order.grandTotal')}
-                    </TableHead>
+                    <TableHead className="w-3/5 text-left">{t('order.product')}</TableHead>
+                    <TableHead className="w-2/5 text-right">{t('order.grandTotal')}</TableHead>
                   </TableRow>
                 </TableHeader>
+
+                {/* Body */}
                 <TableBody>
-                  {orderDetail?.result.orderItems?.map((item) => (
+                  {orderInfo?.orderItems?.map((item) => (
                     <TableRow key={item.slug}>
-                      <TableCell className="flex flex-col gap-3 font-bold sm:flex-row sm:items-center">
-                        <div className="relative col-span-4">
-                          <div className="relative h-[8rem] w-full cursor-pointer">
+                      {/* Cột hình ảnh + thông tin */}
+                      <TableCell className="flex gap-5 items-center font-bold">
+                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex gap-5 items-center">
+                          {/* Hình ảnh */}
+                          <div className="relative h-[3.5rem] w-[3.5rem] sm:h-[6.5rem] sm:w-[6.5rem] cursor-pointer">
                             <img
                               src={`${publicFileURL}/${item.variant.product.image}`}
                               alt={item.variant.product.name}
                               className="object-cover w-full h-full rounded-md aspect-square"
                             />
-                            <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-2 -right-3 h-7 w-7 bg-primary sm:h-10 sm:w-10">
+                            <div className="flex absolute -bottom-3 left-10 justify-center items-center w-7 h-7 text-sm text-white rounded-full sm:-bottom-3 sm:-right-3 sm:left-auto bg-primary">
                               x{item.quantity}
                             </div>
                           </div>
-                        </div>
-                        <span className="text-xs sm:text-sm">
-                          {item.variant.product.name} - Size{' '}
-                          {item.variant.size.name.toUpperCase()}
-                        </span>
+
+                          {/* Thông tin sản phẩm */}
+                          <div className="flex flex-col items-start">
+                            <span className="text-sm font-semibold truncate">{item?.variant?.product?.name}</span>
+                            {item?.promotion && item?.promotion?.value > 0 ? (
+                              <div className="flex flex-row gap-1 items-center">
+                                <span className="text-xs font-normal">Size {item?.variant?.size?.name.toUpperCase()}</span>
+                                <span className="text-xs line-through text-muted-foreground/60">
+                                  {formatCurrency(item?.variant?.price || 0)}
+                                </span>
+                                <span className="font-semibold text-primary">
+                                  {formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground">
+                                Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+                              </div>
+                            )}
+                          </div>
+                        </NavLink>
                       </TableCell>
-                      {/* <TableCell className='text-center'>{item.quantity}</TableCell> */}
-                      <TableCell className="text-right">
-                        {`${formatCurrency(orderDetail.result.subtotal)}`}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {`${formatCurrency((item.variant.price || 0) * item.quantity)}`}
+
+                      {/* Cột tổng giá */}
+                      <TableCell className="w-1/4 font-semibold text-right">
+                        {formatCurrency(item?.subtotal || 0)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -164,98 +200,139 @@ export default function OrderHistoryPage() {
           </div>
 
           {/* Right, payment*/}
-          <div className="grid w-full grid-cols-1 gap-2 lg:w-1/4">
+          <div className="flex flex-col gap-2 w-full lg:w-2/5">
             {/* Payment method, status */}
-            <div className="border rounded-sm border-muted-foreground/30">
-              <div className="px-3 py-2 font-bold bg-muted-foreground/10">
+            <div className="rounded-sm border h-fit border-muted-foreground/30">
+              <div className="px-3 py-4 font-bold bg-muted-foreground/10">
                 {t('paymentMethod.title')}
               </div>
-              <div className="px-3 py-2">
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm">
-                    {orderDetail?.result?.payment?.paymentMethod && (
-                      <>
-                        {orderDetail?.result?.payment.paymentMethod ===
-                          'bank-transfer' && (
-                            <span className="italic">
-                              {t('paymentMethod.bankTransfer')}
-                            </span>
-                          )}
-                        {orderDetail?.result?.payment.paymentMethod ===
-                          'cash' && (
-                            <span className="italic">
-                              {t('paymentMethod.cash')}
-                            </span>
-                          )}
-                      </>
-                    )}
-                  </span>
-                  <div className="flex">
-                    {orderDetail?.result?.payment && (
-                      <PaymentStatusBadge
-                        status={orderDetail?.result?.payment?.statusCode}
-                      />
-                    )}
+              {orderInfo?.payment ? (
+                <div className="px-3 py-4">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm">
+                      {orderInfo?.payment?.paymentMethod && (
+                        <>
+                          {orderInfo?.payment.paymentMethod ===
+                            'bank-transfer' && (
+                              <span className="italic">
+                                {t('paymentMethod.bankTransfer')}
+                              </span>
+                            )}
+                          {orderInfo?.payment.paymentMethod ===
+                            'cash' && (
+                              <span className="italic">
+                                {t('paymentMethod.cash')}
+                              </span>
+                            )}
+                        </>
+                      )}
+                    </span>
+                    <div className="flex">
+                      {orderInfo?.payment && (
+                        <PaymentStatusBadge
+                          status={orderInfo?.payment?.statusCode}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="px-3 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t('paymentMethod.notPaid')}
+                  </p>
+                </div>
+              )}
             </div>
             {/* Total */}
-            <div className="border rounded-sm border-muted-foreground/30">
-              <div className="px-3 py-2 font-bold bg-muted-foreground/10">
+            <div className="rounded-sm border border-muted-foreground/30">
+              <div className="px-3 py-3 font-bold bg-muted-foreground/10">
                 {t('order.paymentInformation')}
               </div>
-              <div className="px-3 py-2">
-                <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 px-3 py-2">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     {t('order.subTotal')}
                   </p>
-                  <p className="text-sm">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                  <p className="text-sm">{`${formatCurrency(originalTotal || 0)}`}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
-                    {t('order.totalPrice')}
+                    {t('order.discount')}
                   </p>
-                  <p className="text-sm">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm italic text-green-500">
+                    {t('order.voucher')}
+                  </p>
+                  <p className="text-sm italic text-green-500">{`- ${formatCurrency(voucherDiscount || 0)}`}</p>
                 </div>
                 <Separator className="my-2" />
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
-                  <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
+                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
-                    ({orderDetail?.result?.orderItems?.length} {t('order.product')})
+                    ({orderInfo?.orderItems?.length} {t('order.product')})
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  {/* <p className="text-xs text-muted-foreground">
                     ({t('order.vat')})
-                  </p>
+                  </p> */}
                 </div>
               </div>
             </div>
+            {isMobile && orderInfo?.status === OrderStatus.PAID && (
+              <div className='flex flex-col justify-center items-center mt-12 w-full'>
+                <span className='text-lg text-muted-foreground'>
+                  {t('order.invoice')}
+                </span>
+                <InvoiceTemplate
+                  order={orderInfo}
+                />
+              </div>
+            )}
             {/* Return order button */}
-            <div className="flex justify-between gap-2">
+            <div className="flex gap-2 justify-between">
               <Button
-                className="w-fit bg-primary"
+                variant="outline"
                 onClick={() => {
                   navigate(`${ROUTE.CLIENT_PROFILE}?tab=history`)
                 }}
               >
                 {tCommon('common.goBack')}
               </Button>
-              <Button
-                className="w-fit bg-primary"
-                onClick={() => {
-                  navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderDetail?.result?.slug}`)
-                }}
-              >
-                {tCommon('common.checkout')}
-              </Button>
+              {orderDetail?.result?.status === OrderStatus.PENDING ?
+                (<Button
+                  className="w-fit bg-primary"
+                  onClick={() => {
+                    navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderDetail?.result?.slug}`)
+                  }}
+                >
+                  {tCommon('common.checkout')}
+                </Button>) : null}
             </div>
           </div>
         </div>
+        {!isMobile && orderInfo?.status === OrderStatus.PAID && (
+          <div className='flex flex-col justify-center items-center mt-12 w-full'>
+            <span className='text-lg text-muted-foreground'>
+              {t('order.invoice')}
+            </span>
+            <InvoiceTemplate
+              order={orderInfo}
+            />
+
+            <Button onClick={() => {
+              handleExportInvoice()
+            }}>
+              {t('order.exportInvoice')}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

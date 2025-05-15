@@ -24,7 +24,7 @@ import {
   UpdateSizeRequestDto,
 } from './size.dto';
 import { SizeService } from './size.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 

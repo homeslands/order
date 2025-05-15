@@ -1,18 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react' // Thêm useState
+import { useCallback, useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
+import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
-import { useBranchRevenue } from '@/hooks'
 import { formatCurrency, formatShortCurrency } from '@/utils'
 import { RevenueTypeQuery } from '@/constants'
-import { DateSelect } from '@/components/app/select'
+import { IBranchRevenue } from '@/types'
 
 interface RevenueData {
-  branch: string
-  startDate: string
-  endDate: string
-  trigger?: number // Add trigger prop
+  revenueData: IBranchRevenue[] | undefined
+  revenueType: RevenueTypeQuery
 }
 
 interface TooltipParams {
@@ -22,78 +20,61 @@ interface TooltipParams {
 }
 
 export default function RevenueDetailChart({
-  trigger,
-  branch,
-  startDate,
-  endDate,
+  revenueData,
+  revenueType,
 }: RevenueData) {
+  const { t } = useTranslation('revenue')
   const chartRef = useRef<HTMLDivElement>(null)
-  const [revenueType, setRevenueType] = useState(RevenueTypeQuery.DAILY)
-
-  const { data: revenueData, refetch } = useBranchRevenue({
-    branch,
-    startDate,
-    endDate,
-    type: revenueType,
-  })
-
-  // Refetch when trigger changes
-  useEffect(() => {
-    if (trigger) {
-      refetch()
-    }
-  }, [trigger, refetch])
-
-  const handleSelectTimeRange = (timeRange: string) => {
-    // Cập nhật type dựa vào timeRange
-    if (timeRange === RevenueTypeQuery.DAILY) {
-      setRevenueType(RevenueTypeQuery.DAILY)
-    } else if (timeRange === RevenueTypeQuery.MONTHLY) {
-      setRevenueType(RevenueTypeQuery.MONTHLY)
-    } else if (timeRange === RevenueTypeQuery.YEARLY) {
-      setRevenueType(RevenueTypeQuery.YEARLY)
-    }
-  }
 
   const formatDate = useCallback(
     (date: string) => {
+      const parsed = moment(date)
+
+      if (!parsed.isValid()) return date
+
       switch (revenueType) {
         case RevenueTypeQuery.DAILY:
-          return moment(date).format('DD/MM')
-        case RevenueTypeQuery.MONTHLY:
-          return moment(date).format('MM/YYYY')
-        case RevenueTypeQuery.YEARLY:
-          return moment(date).format('YYYY')
+          return parsed.format('DD/MM')
+        case RevenueTypeQuery.HOURLY:
+          return parsed.format('DD/MM HH:mm')
         default:
-          return moment(date).format('DD/MM')
+          return parsed.format('DD/MM')
       }
     },
     [revenueType],
   )
 
+
   useEffect(() => {
-    if (chartRef.current && revenueData?.result) {
+    if (chartRef.current && revenueData) {
       const chart = echarts.init(chartRef.current)
 
       // Ensure we're working with an array and sort it
-      const sortedData = Array.isArray(revenueData.result)
-        ? [...revenueData.result].sort(
-            (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
-          )
+      const sortedData = Array.isArray(revenueData)
+        ? [...revenueData].sort(
+          (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
+        )
         : []
 
       const option = {
         tooltip: {
           trigger: 'axis' as const,
           formatter: function (params: TooltipParams[]) {
-            const date = params[0].name
-            const revenue = formatCurrency(params[0].value)
-            const orders = params[1].value
-            return `${date}<br/>${params[0].seriesName}: ${revenue}<br/>${params[1].seriesName}: ${orders}`
+            const date = params[0].name as string
+            const orders = params[0].value
+            const cash = formatCurrency(params[1].value)
+            const bank = formatCurrency(params[2].value)
+            const internal = formatCurrency(params[3].value)
+
+            return `${date}<br/>
+              ${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}<br/>
+              ${params[1].seriesName}: ${cash}<br/>
+              ${params[2].seriesName}: ${bank}<br/>
+              ${params[3].seriesName}: ${internal}`
           },
         },
         legend: {
-          data: ['Doanh thu', 'Đơn hàng'],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet')],
         },
         xAxis: {
           type: 'category',
@@ -105,7 +86,7 @@ export default function RevenueDetailChart({
         yAxis: [
           {
             type: 'value',
-            name: 'Doanh thu (nghìn đồng)',
+            name: t('revenue.revenue'),
             position: 'left',
             nameTextStyle: {
               padding: [0, -50, 0, 0], // Tăng padding bên trái
@@ -129,7 +110,7 @@ export default function RevenueDetailChart({
           },
           {
             type: 'value',
-            name: 'Đơn hàng',
+            name: t('revenue.order'),
             position: 'right',
             // nameTextStyle: {
             //     padding: [0, 0, 0, 0], // Tăng padding bên phải
@@ -150,23 +131,39 @@ export default function RevenueDetailChart({
         ],
         series: [
           {
-            name: 'Doanh thu',
+            name: t('revenue.order'),
             type: 'line',
             smooth: true,
-            data: sortedData.map((item) => item.totalAmount),
-            itemStyle: {
-              color: '#09c10c',
-            },
-          },
-          {
-            name: 'Đơn hàng',
-            type: 'bar',
             yAxisIndex: 1,
-            barWidth: sortedData.length === 1 ? 40 : '50%', // Add this line
             data: sortedData.map((item) => item.totalOrder),
             itemStyle: {
               color: '#f89209',
-              opacity: 0.5,
+            },
+          },
+          {
+            name: t('revenue.cash'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountCash),
+            itemStyle: {
+              color: '#4169E1',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
+          {
+            name: t('revenue.bank'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountBank),
+            itemStyle: {
+              color: '#FF4500',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
+          {
+            name: t('revenue.internalWallet'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountInternal),
+            itemStyle: {
+              color: '#32CD32',
               borderRadius: [5, 5, 0, 0],
             },
           },
@@ -186,18 +183,16 @@ export default function RevenueDetailChart({
         window.removeEventListener('resize', handleResize)
       }
     }
-  }, [formatDate, revenueData, revenueType]) // Add revenueType to dependencies
+  }, [formatDate, revenueData, revenueType, t]) // Add revenueType to dependencies
 
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Doanh thu toàn hệ thống
-          {/* <TimeRangeRevenueFilter onApply={handleSelectTimeRange} /> */}
-          <DateSelect onChange={handleSelectTimeRange} />
+        <CardTitle className="flex justify-between items-center">
+          {t('revenue.revenueSystem')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex items-center justify-center p-2">
+      <CardContent className="flex justify-center items-center p-2">
         <div ref={chartRef} className="h-[26rem] w-full" />
       </CardContent>
     </Card>

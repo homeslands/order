@@ -31,7 +31,7 @@ export default function UpdateMenuDialog({ menu }: IUpdateMenuDialogProps) {
       <DialogTrigger asChild className="flex justify-start">
         <Button
           variant="ghost"
-          className="h-10 gap-1 px-2 text-sm"
+          className="gap-1 px-2 h-10 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <SquarePen className="icon" />

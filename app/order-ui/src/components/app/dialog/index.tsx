@@ -8,6 +8,7 @@ export { default as SelectReservedTableDialog } from './select-reserved-table-di
 export { default as SelectedTableToRemoveDialog } from './selected-table-to-remove-dialog'
 export { default as DeleteCartItemDialog } from './delete-cart-item-dialog'
 export { default as ClientAddToCartDialog } from './client-add-to-cart-dialog'
+export { default as DeleteAllCartDialog } from './delete-all-cart-dialog'
 
 export { default as RemoveOrderItemInUpdateOrderDialog } from './remove-order-item-in-update-order-dialog'
 
@@ -55,6 +56,7 @@ export { default as CancelOrderDialog } from './cancel-order-dialog'
 export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
 
 export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
+export { default as SystemAddToCurrentOrderDialog } from './system-add-to-current-order-dialog'
 
 export { default as CreateBankConnectorDialog } from './create-bank-connector-dialog'
 export { default as UpdateBankConnectorDialog } from './update-bank-connector-dialog'
@@ -107,3 +109,26 @@ export { default as UploadBannerBannerDialog } from './upload-banner-image-dialo
 export { default as UpdateTableStatusDialog } from './update-table-status-dialog'
 export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'
+
+export { default as UpdateRoleDialog } from './update-role-dialog'
+export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'
+export { default as DeletePermissionDialog } from './delete-permission-dialog'
+
+export { default as CreateChefAreaDialog } from './create-chef-area-dialog'
+export { default as UpdateChefAreaDialog } from './update-chef-area-dialog'
+export { default as DeleteChefAreaDialog } from './delete-chef-area-dialog'
+
+export { default as ConfirmAddChefAreaProductDialog } from './confirm-add-product-in-chef-area-dialog'
+export { default as RemoveChefAreaProductDialog } from './remove-product-in-chef-area-dialog'
+
+export { default as CreateChefOrderDialog } from './create-chef-order-dialog'
+export { default as ConfirmUpdateChefOrderStatusDialog } from './confirm-update-chef-order-status-dialog'
+export { default as ConfirmCompleteChefOrderDialog } from './confirm-complete-chef-order-dialog'
+
+export { default as ShowInvoiceDialog } from './show-invoice-dialog'
+
+export { default as ConfirmLeavingRoleDetailPageDialog } from './confirm-leaving-role-detail-page'
+
+export { default as ChooseTableDialog } from './choose-table-dialog'
+
+export { default as CancelPublicOrderDialog } from './cancel-public-order-dialog'

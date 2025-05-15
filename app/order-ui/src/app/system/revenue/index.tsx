@@ -1,1 +1,1 @@
-export { default as RevenuePage } from './revenue-page'
+export { default as RevenuePage } from './page'

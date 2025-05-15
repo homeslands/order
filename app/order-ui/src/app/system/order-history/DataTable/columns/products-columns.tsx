@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { DataTableColumnHeader, Checkbox } from '@/components/ui'
 import { IProduct } from '@/types'
 import { publicFileURL } from '@/constants'
-import { AddMenuItemDialog } from '@/components/app/dialog'
 import { useMenuItemStore } from '@/stores'
 
 export const useProductColumns = (): ColumnDef<IProduct>[] => {
@@ -33,6 +32,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
                   productName: product.name,
                   productSlug: product.slug,
                   defaultStock: 50,
+                  isLimit: product.isLimit
                 })
               } else {
                 removeMenuItem(product.slug)
@@ -61,6 +61,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
                   productName: product.name,
                   productSlug: product.slug,
                   defaultStock: 50,
+                  isLimit: product.isLimit
                 })
               } else {
                 removeMenuItem(product.slug)
@@ -73,16 +74,16 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: 'actions',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('product.actions')} />
-      ),
-      cell: ({ row }) => {
-        const product = row.original
-        return <AddMenuItemDialog product={product} />
-      },
-    },
+    // {
+    //   accessorKey: 'actions',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('product.actions')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const product = row.original
+    //     return <AddMenuItemDialog product={product} />
+    //   },
+    // },
     {
       accessorKey: 'image',
       header: ({ column }) => (

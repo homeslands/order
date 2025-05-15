@@ -102,7 +102,7 @@ export const UpdateBranchForm: React.FC<IFormUpdateBranchProps> = ({
                     </div>
                     <div className="flex justify-end">
                         <Button className="flex justify-end" type="submit">
-                            {t('menu.update')}
+                            {t('branch.update')}
                         </Button>
                     </div>
                 </form>

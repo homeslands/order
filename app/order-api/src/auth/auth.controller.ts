@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './public.decorator';
+import { Public } from './decorator/public.decorator';
 import {
   AuthChangePasswordRequestDto,
   AuthProfileResponseDto,
@@ -158,10 +158,10 @@ export class AuthController {
     const result = await this.authService.getProfile(user);
     return {
       message: 'Profile retrieved successfully',
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as unknown as AppResponseDto<AuthProfileResponseDto>;
+    } as AppResponseDto<AuthProfileResponseDto>;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -181,10 +181,10 @@ export class AuthController {
     const result = await this.authService.updateProfile(user, requestData);
     return {
       message: 'Profile updated successfully',
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as unknown as AppResponseDto<AuthProfileResponseDto>;
+    } as AppResponseDto<AuthProfileResponseDto>;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -203,10 +203,10 @@ export class AuthController {
     const result = await this.authService.refresh(requestData);
     return {
       message: 'User refreshed token successfully',
-      status: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as unknown as AppResponseDto<LoginAuthResponseDto>;
+    } as AppResponseDto<LoginAuthResponseDto>;
   }
 
   @HttpCode(HttpStatus.OK)

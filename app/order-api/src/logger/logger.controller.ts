@@ -12,7 +12,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import { GetLoggerRequestDto, LoggerResponseDto } from './logger.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';

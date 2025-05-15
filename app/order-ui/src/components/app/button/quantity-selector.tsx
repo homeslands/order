@@ -4,6 +4,7 @@ import { Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useCartItemStore } from '@/stores'
 import { IOrderDetail, IOrderItem } from '@/types'
+import { useStore } from 'zustand'
 
 interface QuantitySelectorProps {
   cartItem: IOrderDetail | IOrderItem
@@ -11,12 +12,12 @@ interface QuantitySelectorProps {
 
 export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const [quantity, setQuantity] = React.useState(cartItem.quantity)
-  const { updateCartItemQuantity } = useCartItemStore()
+  const updateCartItemQuantity = useStore(useCartItemStore, (state) => state.updateCartItemQuantity)
 
   const handleIncrement = () => {
     setQuantity((prev) => {
       const newQuantity = prev + 1
-      updateCartItemQuantity(cartItem.id, newQuantity)
+      updateCartItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
@@ -24,7 +25,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const handleDecrement = () => {
     setQuantity((prev) => {
       const newQuantity = Math.max(prev - 1, 1)
-      updateCartItemQuantity(cartItem.id, newQuantity)
+      updateCartItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
@@ -35,7 +36,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
         variant="ghost"
         size="icon"
         onClick={handleDecrement}
-        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
+        className="p-1 rounded-full border h-fit w-fit hover:bg-gray-100"
       >
         <Minus size={12} />
       </Button>
@@ -44,7 +45,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
         variant="ghost"
         size="icon"
         onClick={handleIncrement}
-        className="p-1 border rounded-full h-fit w-fit hover:bg-gray-100"
+        className="p-1 rounded-full border h-fit w-fit hover:bg-gray-100"
       >
         <Plus size={12} />
       </Button>

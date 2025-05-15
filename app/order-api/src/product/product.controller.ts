@@ -25,7 +25,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductService } from './product.service';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from 'src/auth/decorator/public.decorator';
 import {
   CreateProductRequestDto,
   GetProductRequestDto,
@@ -33,7 +33,7 @@ import {
   UpdateProductRequestDto,
 } from './product.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
-import { AppResponseDto } from 'src/app/app.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { RoleEnum } from 'src/role/role.enum';
 import { HasRoles } from 'src/role/roles.decorator';
 import {
@@ -96,7 +96,7 @@ export class ProductController {
   })
   @ApiOperation({ summary: 'Create new product' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Staff, RoleEnum.Chef)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async createProduct(
     @Body(
       new ValidationPipe({
@@ -115,6 +115,31 @@ export class ProductController {
     } as AppResponseDto<ProductResponseDto>;
   }
 
+  // @Get()
+  // @Public()
+  // @HttpCode(HttpStatus.OK)
+  // @ApiResponseWithType({
+  //   status: HttpStatus.OK,
+  //   description: 'All products have been retrieved successfully',
+  //   type: ProductResponseDto,
+  //   isArray: true,
+  // })
+  // @ApiOperation({ summary: 'Get all products' })
+  // @ApiResponse({ status: 200, description: 'Get all products successfully' })
+  // @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  // async getAllProducts(
+  //   @Query(new ValidationPipe({ transform: true }))
+  //   query: GetProductRequestDto,
+  // ): Promise<AppResponseDto<ProductResponseDto[]>> {
+  //   const result = await this.productService.getAllProducts(query);
+  //   return {
+  //     message: 'All products have been retrieved successfully',
+  //     statusCode: HttpStatus.OK,
+  //     timestamp: new Date().toISOString(),
+  //     result,
+  //   } as AppResponseDto<ProductResponseDto[]>;
+  // }
+
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -127,17 +152,17 @@ export class ProductController {
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'Get all products successfully' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async getAllProducts(
+  async getAllProductsWithPagination(
     @Query(new ValidationPipe({ transform: true }))
     query: GetProductRequestDto,
-  ): Promise<AppResponseDto<ProductResponseDto[]>> {
-    const result = await this.productService.getAllProducts(query);
+  ): Promise<AppResponseDto<AppPaginatedResponseDto<ProductResponseDto>>> {
+    const result = await this.productService.getAllProductsPagination(query);
     return {
       message: 'All products have been retrieved successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<ProductResponseDto[]>;
+    } as AppResponseDto<AppPaginatedResponseDto<ProductResponseDto>>;
   }
 
   @Patch(':slug')
@@ -156,7 +181,7 @@ export class ProductController {
     required: true,
     example: '',
   })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.Chef, RoleEnum.Staff)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async updateProduct(
     @Param('slug') slug: string,
     @Body(
@@ -196,7 +221,7 @@ export class ProductController {
     required: true,
     example: '',
   })
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async deleteProduct(
     @Param('slug') slug: string,
   ): Promise<AppResponseDto<string>> {

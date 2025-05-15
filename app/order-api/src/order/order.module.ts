@@ -34,7 +34,17 @@ import { PromotionModule } from 'src/promotion/promotion.module';
 import { InvoiceModule } from 'src/invoice/invoice.module';
 import { PdfModule } from 'src/pdf/pdf.module';
 import { QrCodeModule } from 'src/qr-code/qr-code.module';
-
+import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
+import { ChefArea } from 'src/chef-area/chef-area.entity';
+import { Product } from 'src/product/product.entity';
+import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
+import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
+import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
+import { NotificationModule } from 'src/notification/notification.module';
+import { Mutex } from 'async-mutex';
+import { Payment } from 'src/payment/payment.entity';
+import { JobModule } from 'src/job/job.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -50,6 +60,12 @@ import { QrCodeModule } from 'src/qr-code/qr-code.module';
       Promotion,
       ApplicablePromotion,
       Invoice,
+      ChefArea,
+      Product,
+      ProductChefArea,
+      ChefOrder,
+      ChefOrderItem,
+      Payment,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -65,6 +81,8 @@ import { QrCodeModule } from 'src/qr-code/qr-code.module';
     InvoiceModule,
     PdfModule,
     QrCodeModule,
+    NotificationModule,
+    JobModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -75,6 +93,9 @@ import { QrCodeModule } from 'src/qr-code/qr-code.module';
     OrderUtils,
     OrderListener,
     OrderItemUtils,
+    ChefOrderUtils,
+    ChefOrderItemUtils,
+    Mutex,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

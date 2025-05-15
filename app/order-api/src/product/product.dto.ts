@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { BaseResponseDto } from 'src/app/base.dto';
+import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { CatalogResponseDto } from 'src/catalog/catalog.dto';
 import { VariantResponseDto } from 'src/variant/variant.dto';
 import {
@@ -46,6 +46,7 @@ export class CreateProductRequestDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true')
   isTopSell?: boolean;
 
   @AutoMap()
@@ -77,6 +78,14 @@ export class UpdateProductRequestDto {
   @IsNotEmpty({ message: PRODUCT_LIMIT_REQUIRED })
   @Type(() => Boolean)
   isLimit: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The quantity of product for default stock of menu item',
+    example: true,
+  })
+  @IsOptional()
+  defaultQuantity?: number;
 
   @AutoMap()
   @ApiProperty({ description: 'The active of product', example: false })
@@ -158,7 +167,7 @@ export class ValidationError {
   errors: { [key: string]: string };
 }
 
-export class GetProductRequestDto {
+export class GetProductRequestDto extends BaseQueryDto {
   @AutoMap()
   @ApiProperty({
     description: 'The slug of catalog',
@@ -189,6 +198,44 @@ export class GetProductRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   isAppliedPromotion?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'Get products base on branch is applied for chef area or create menu item',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  branch?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'Get products that are either applied to a chef area of branch or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedBranchForChefArea?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description:
+      'Get products that are possible to create menu item for branch or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isPossibleCreateMenuItemForBranch?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -239,4 +286,18 @@ export class GetProductRequestDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   isNew?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option has paging or not',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  hasPaging?: boolean;
 }

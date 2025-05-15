@@ -24,6 +24,8 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { OrderScheduler } from 'src/order/order.scheduler';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { Branch } from 'src/branch/branch.entity';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('OrderItemController', () => {
   let controller: OrderItemController;
@@ -42,6 +44,14 @@ describe('OrderItemController', () => {
         PromotionUtils,
         OrderScheduler,
         SchedulerRegistry,
+        {
+          provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Promotion),
           useFactory: repositoryMockFactory,

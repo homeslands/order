@@ -11,11 +11,11 @@ export type TBannerErrorCodeKey =
 
 export type TBannerErrorCode = Record<TBannerErrorCodeKey, TErrorCodeValue>;
 
-// 152000 - 153000
+// 152001 - 153000
 const BannerValidation: TBannerErrorCode = {
-  BANNER_NOT_FOUND: createErrorCode(152000, 'Banner not found'),
-  CREATE_BANNER_FAILED: createErrorCode(152001, 'Create banner failed'),
-  UPDATE_BANNER_FAILED: createErrorCode(152002, 'Update banner failed'),
+  BANNER_NOT_FOUND: createErrorCode(152001, 'Banner not found'),
+  CREATE_BANNER_FAILED: createErrorCode(152002, 'Create banner failed'),
+  UPDATE_BANNER_FAILED: createErrorCode(152003, 'Update banner failed'),
 };
 
 export default BannerValidation;

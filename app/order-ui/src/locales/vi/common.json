@@ -1,5 +1,6 @@
 {
   "common": {
+    "all": "Tất cả",
     "search": "Tìm kiếm",
     "add": "Thêm",
     "edit": "Sửa",
@@ -13,6 +14,7 @@
     "checkout": "Thanh toán",
     "viewDetail": "Xem chi tiết",
     "confirm": "Xác nhận",
+    "selectAll": "Chọn tất cả",
     "confirmDelete": "Tôi đã hiểu, xác nhận xóa",
     "confirmCancel": "Tôi đã hiểu, xác nhận hủy",
     "noData": "Không có dữ liệu",
@@ -26,7 +28,16 @@
     "goHome": "Về trang chủ",
     "goBack": "Quay lại trang trước",
     "oops": "Oops!",
-    "somethingWentWrong": "Có lỗi xảy ra"
+    "somethingWentWrong": "Có lỗi xảy ra",
+    "hours": "Giờ",
+    "minutes": "Phút",
+    "seconds": "Giây",
+    "selectDate": "Chọn ngày",
+    "and": "và",
+    "time": "giờ",
+    "hour": "Giờ",
+    "minute": "Phút",
+    "endDateMustBeGreaterThanStartDate": "Ngày kết thúc phải lớn hơn ngày bắt đầu"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",
@@ -49,10 +60,12 @@
     "error": "Error",
     "debug": "Debug",
     "isTemplate": "Mẫu thực đơn",
-    "noTemplate": "Không phải mẫu thực đơn"
+    "noTemplate": "Không phải mẫu thực đơn",
+    "refresh": "Làm mới"
   },
   "dayOfWeek": {
     "selectTimeRange": "Chọn thời gian",
+    "hour": "Giờ",
     "day": "Ngày",
     "month": "Tháng",
     "year": "Năm",
@@ -63,6 +76,11 @@
     "4": "Thứ sáu",
     "5": "Thứ bảy",
     "6": "Chủ nhật",
-    "noDayOfWeek": "Không có"
+    "noDayOfWeek": "Không có",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "inWeek": "Trong tuần",
+    "inMonth": "Trong tháng",
+    "inYear": "Trong năm"
   }
 }

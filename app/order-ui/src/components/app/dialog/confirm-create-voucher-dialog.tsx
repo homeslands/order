@@ -45,7 +45,9 @@ export default function ConfirmCreateVoucherDialog({
     createVoucher(voucher, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [QUERYKEY.vouchers]
+          queryKey: [QUERYKEY.vouchers],
+          exact: false,
+          refetchType: 'all'
         })
         onOpenChange(false)
         onCloseSheet() // Close the sheet after success
@@ -70,7 +72,7 @@ export default function ConfirmCreateVoucherDialog({
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
-            <div className="flex items-center gap-2 text-primary">
+            <div className="flex gap-2 items-center text-primary">
               <ShoppingCart className="w-6 h-6" />
               {t('voucher.create')}
             </div>
@@ -81,7 +83,7 @@ export default function ConfirmCreateVoucherDialog({
             <br />
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

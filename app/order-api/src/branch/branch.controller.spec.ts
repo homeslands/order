@@ -6,6 +6,11 @@ import { Branch } from './branch.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { BranchUtils } from './branch.utils';
+import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
+import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 describe('BranchController', () => {
   let controller: BranchController;
@@ -16,13 +21,18 @@ describe('BranchController', () => {
       providers: [
         BranchService,
         BranchUtils,
+        TransactionManagerService,
         {
-          provide: MAPPER_MODULE_PROVIDER,
-          useValue: {},
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
         {
           provide: getRepositoryToken(Branch),
-          useValue: {},
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: MAPPER_MODULE_PROVIDER,
+          useFactory: mapperMockFactory,
         },
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,

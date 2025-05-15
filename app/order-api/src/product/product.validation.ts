@@ -8,7 +8,10 @@ export const PRODUCT_ACTIVE_REQUIRED = 'PRODUCT_ACTIVE_REQUIRED';
 export const PRODUCT_NOT_FOUND_IN_TODAY_MENU =
   'PRODUCT_NOT_FOUND_IN_TODAY_MENU';
 export const CREATE_MANY_PRODUCTS_FAILED = 'CREATE_MANY_PRODUCTS_FAILED';
-
+export const DEFAULT_QUANTITY_REQUIRED = 'DEFAULT_QUANTITY_REQUIRED';
+export const PRODUCT_NOT_LIMIT = 'PRODUCT_NOT_LIMIT';
+export const DUPLICATE_PRODUCT_NAME = 'DUPLICATE_PRODUCT_NAME';
+export const PRODUCT_HAS_RELATION = 'PRODUCT_HAS_RELATION';
 export type TProductErrorCodeKey =
   | typeof PRODUCT_NOT_FOUND
   | typeof PRODUCT_NAME_EXIST
@@ -16,7 +19,11 @@ export type TProductErrorCodeKey =
   | typeof PRODUCT_ACTIVE_REQUIRED
   | typeof PRODUCT_NAME_REQUIRED
   | typeof CREATE_MANY_PRODUCTS_FAILED
-  | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU;
+  | typeof DEFAULT_QUANTITY_REQUIRED
+  | typeof PRODUCT_NOT_LIMIT
+  | typeof PRODUCT_NOT_FOUND_IN_TODAY_MENU
+  | typeof DUPLICATE_PRODUCT_NAME
+  | typeof PRODUCT_HAS_RELATION;
 
 export type TProductErrorCode = Record<TProductErrorCodeKey, TErrorCodeValue>;
 
@@ -40,6 +47,19 @@ const ProductValidation: TProductErrorCode = {
   CREATE_MANY_PRODUCTS_FAILED: createErrorCode(
     115006,
     'Create many product failed',
+  ),
+  DEFAULT_QUANTITY_REQUIRED: createErrorCode(
+    115007,
+    'The default quantity of product is required',
+  ),
+  PRODUCT_NOT_LIMIT: createErrorCode(115008, 'The product is not limit'),
+  DUPLICATE_PRODUCT_NAME: createErrorCode(
+    115009,
+    'The product name is duplicate',
+  ),
+  PRODUCT_HAS_RELATION: createErrorCode(
+    115010,
+    'The product has relation with other table',
   ),
 };
 

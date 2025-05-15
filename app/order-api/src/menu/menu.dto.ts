@@ -1,10 +1,12 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { INVALID_DATE } from './menu.validation';
 import { Transform, Type } from 'class-transformer';
 import { MenuItemResponseDto } from 'src/menu-item/menu-item.dto';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
+import { BaseQueryDto } from 'src/app/base.dto';
+import { BranchResponseDto } from 'src/branch/branch.dto';
 
 export class CreateMenuDto {
   @AutoMap()
@@ -31,32 +33,11 @@ export class CreateMenuDto {
 
 export class UpdateMenuDto extends CreateMenuDto {}
 
-export class GetAllMenuQueryRequestDto {
+export class GetAllMenuQueryRequestDto extends BaseQueryDto {
   @AutoMap()
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, description: 'The branch slug' })
+  @IsOptional()
   branch?: string;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 1,
-    description: 'Page number',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  page: number = 1;
-
-  @AutoMap()
-  @ApiProperty({
-    example: 10,
-    description: 'Number of items per page',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  size: number = 10;
 
   @AutoMap()
   @ApiProperty({
@@ -74,6 +55,7 @@ export class GetAllMenuQueryRequestDto {
 export class GetMenuRequestDto {
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   slug?: string;
 
   @AutoMap()
@@ -83,7 +65,7 @@ export class GetMenuRequestDto {
   date?: Date;
 
   @AutoMap()
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   branch?: string;
 
@@ -100,12 +82,14 @@ export class GetMenuRequestDto {
   @AutoMap()
   @ApiProperty({ required: false })
   @Transform(({ value }) => parseInt(value))
-  minPrice: number;
+  @IsOptional()
+  minPrice?: number;
 
   @AutoMap()
   @ApiProperty({ required: false })
+  @IsOptional()
   @Transform(({ value }) => parseInt(value))
-  maxPrice: number;
+  maxPrice?: number;
 
   @AutoMap()
   @ApiProperty({
@@ -116,7 +100,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  promotion: boolean;
+  promotion?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -127,7 +111,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  isNewProduct: boolean;
+  isNewProduct?: boolean;
 
   @AutoMap()
   @ApiProperty({
@@ -138,7 +122,7 @@ export class GetMenuRequestDto {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
-  isSortTopSell: boolean;
+  isSortTopSell?: boolean;
 }
 
 export class MenuResponseDto {
@@ -147,6 +131,7 @@ export class MenuResponseDto {
   date: string;
 
   @AutoMap(() => MenuItemResponseDto)
+  @ApiProperty()
   menuItems: MenuItemResponseDto[];
 
   @AutoMap()
@@ -156,4 +141,8 @@ export class MenuResponseDto {
   @AutoMap()
   @ApiProperty()
   isTemplate: boolean;
+
+  @AutoMap(() => BranchResponseDto)
+  @ApiProperty()
+  branch: BranchResponseDto;
 }

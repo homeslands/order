@@ -1,20 +1,31 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 
 import { SidebarProvider, ScrollArea } from '@/components/ui'
 import { SystemBreadcrumb } from '@/components/app/breadcrumb'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib'
 import { DownloadProgress } from '@/components/app/progress'
-import { useDownloadStore } from '@/stores'
+import { useDownloadStore, usePaymentMethodStore } from '@/stores'
 import { AppHeader, AppSidebar } from './components'
+import { useEffect } from 'react'
+import { ROUTE } from '@/constants'
+import StoreHydrationProvider from './store-hydration-provider'
 
 export default function SystemLayout() {
   const isMobile = useIsMobile()
   const { progress, fileName, isDownloading } = useDownloadStore()
+  const location = useLocation()
+  const { clearStore } = usePaymentMethodStore()
 
+  useEffect(() => {
+    if (!location.pathname.startsWith(ROUTE.STAFF_ORDER_PAYMENT)) {
+      clearStore()
+    }
+  }, [location.pathname, clearStore])
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="box-border flex min-h-screen flex-1">
+      <div className="box-border flex flex-1 min-h-screen">
+        <StoreHydrationProvider />
         <AppSidebar />
 
         {/* Main content */}
