@@ -114,6 +114,11 @@ export class PaymentService {
       where: { slug: createPaymentDto.orderSlug },
       relations: ['owner.role', 'payment'],
     });
+
+    this.logger.log(
+      `Initiate payment for order: ${JSON.stringify(order)}`,
+      context,
+    );
     if (!order) {
       this.logger.error('Order not found', null, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
@@ -135,8 +140,10 @@ export class PaymentService {
           payment = await this.bankTransferStrategy.process(order);
           break;
         default:
-          this.logger.error('Invalid payment method', null, context);
-          throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+          this.logger.error('Customer only use bank transfer', null, context);
+          throw new PaymentException(
+            PaymentValidation.CUSTOMER_ONLY_USE_BANK_TRANSFER,
+          );
       }
     } else if (
       order.owner?.role?.name === RoleEnum.Staff ||

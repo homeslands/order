@@ -355,12 +355,12 @@ export class GetVoucherDto {
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
-  slug: string;
+  slug?: string;
 
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
-  code: string;
+  code?: string;
 }
 
 export class ValidateVoucherDto {
