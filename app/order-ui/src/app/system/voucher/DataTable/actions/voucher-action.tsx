@@ -1,9 +1,12 @@
-import { CreateVoucherSheet } from '@/components/app/sheet'
+import { CreateMultipleVoucherSheet, CreateVoucherSheet } from '@/components/app/sheet'
 
-export default function CustomerAction() {
+export default function VoucherAction({ onSuccess }: { onSuccess: () => void }) {
   return (
     <div className="flex gap-2">
-      <CreateVoucherSheet />
+      <CreateVoucherSheet onSuccess={onSuccess} />
+      <CreateMultipleVoucherSheet onSuccess={onSuccess} />
     </div>
   )
 }
+
+

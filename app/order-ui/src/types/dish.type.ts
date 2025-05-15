@@ -36,6 +36,7 @@ export interface ICartItem {
   voucher?: {
     slug: string
     value: number
+    isVerificationIdentity: boolean
   } | null
   note?: string
   approvalBy?: string

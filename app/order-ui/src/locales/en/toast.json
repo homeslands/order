@@ -175,6 +175,10 @@
     "voucherAlreadyUsed": "Voucher has already been used!",
     "voucherNotFound": "Voucher not found",
     "voucherExpired": "Voucher expired",
+    "voucherNotValid": "Voucher is not valid, please choose another voucher",
+    "createVoucherGroupSuccess": "Voucher group created successfully",
+    "updateVoucherGroupSuccess": "Voucher group updated successfully",
+    "deleteVoucherGroupSuccess": "Voucher group deleted successfully",
     "minOrderNotMet": "Minimum order value not met",
     "invalidQuery": "Invalid query",
     "acbConnectorConfigNotFound": "ACB connector configuration not found",
@@ -339,6 +343,7 @@
     "exportChefOrderConfirmation": "Are you sure you want to export chef order?",
     "emailAlreadyExists": "Email already exists",
     "tooManyRequests": "Too many requests",
+    "duplicateVoucherTitle": "Voucher title already exists",
     "duplicateVoucherCode": "Voucher code already exists"
   }
 }

@@ -84,6 +84,9 @@
     "createVoucherSuccess": "Tạo voucher thành công",
     "updateVoucherSuccess": "Cập nhật voucher thành công",
     "deleteVoucherSuccess": "Xóa voucher thành công",
+    "createVoucherGroupSuccess": "Tạo nhóm voucher thành công",
+    "updateVoucherGroupSuccess": "Cập nhật nhóm voucher thành công",
+    "deleteVoucherGroupSuccess": "Xóa nhóm voucher thành công",
     "createPromotionSuccess": "Tạo khuyến mãi thành công",
     "updatePromotionSuccess": "Cập nhật khuyến mãi thành công",
     "deletePromotionSuccess": "Xóa khuyến mãi thành công",
@@ -178,6 +181,7 @@
     "voucherAlreadyUsed": "Voucher đã được sử dụng!",
     "voucherNotFound": "Không tìm thấy voucher",
     "voucherExpired": "Voucher đã hết hạn",
+    "voucherNotValid": "Voucher không hợp lệ, vui lòng chọn voucher khác",
     "minOrderNotMet": "Chưa đạt giá trị tối thiểu",
     "invalidQuery": "Truy vấn không hợp lệ",
     "acbConnectorConfigNotFound": "Không tìm thấy cấu hình kết nối ACB",
@@ -269,6 +273,9 @@
     "exportChefOrderConfirmation": "Bạn có chắc chắn muốn xuất đơn hàng bếp không?",
     "emailAlreadyExists": "Email đã tồn tại",
     "tooManyRequests": "Quá nhiều yêu cầu",
-    "duplicateVoucherCode": "Mã voucher đã tồn tại"
+    "voucherGroupAlreadyExists": "Nhóm voucher đã tồn tại",
+    "duplicateVoucherCode": "Mã voucher đã tồn tại",
+    "duplicateVoucherTitle": "Tiêu đề voucher đã tồn tại",
+    "voucherNotActive": "Voucher không có hiệu lực"
   }
 }

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui'
 import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner } from './components'
-import { AdPopup } from '@/components/app/AdPopup'
+// import { AdPopup } from '@/components/app/AdPopup'
 import { Helmet } from 'react-helmet'
 import moment from 'moment'
 import { useBranchStore } from '@/stores'
@@ -77,7 +77,7 @@ export default function HomePage() {
 
   return (
     <React.Fragment>
-      <AdPopup />
+      {/* <AdPopup /> */}
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.home.title')}</title>
