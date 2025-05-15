@@ -82,6 +82,8 @@ services:
 
     depends_on:
       - mysql_db
+    ports:
+      - 8080:8080
 
   mysql_db:
     image: mysql:8.2.0
@@ -110,6 +112,8 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    ports:
+      - 5173:5173
 
   postgres:
     image: postgres:16-alpine

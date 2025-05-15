@@ -10,7 +10,7 @@ env:
   REPOSITORY_OWNER: homeslands
 
 jobs:
-  publish-cloud:
+  publish-staging:
     runs-on: ubuntu-latest
     permissions:
       packages: write
