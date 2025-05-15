@@ -46,6 +46,7 @@ import {
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
+import { Role, VOUCHER_TYPE } from '@/constants'
 
 export default function VoucherListSheet() {
   const isMobile = useIsMobile()
@@ -66,12 +67,6 @@ export default function VoucherListSheet() {
     (acc, item) => acc + item.price * item.quantity,
     0,
   ) || 0
-  // const subTotal = defaultValue
-  //   ? defaultValue?.subtotal
-  //   : cartItems?.orderItems.reduce(
-  //     (acc, item) => acc + item.price * item.quantity,
-  //     0,
-  //   ) || 0
 
 
 
@@ -93,7 +88,7 @@ export default function VoucherListSheet() {
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
   const { data: voucherList } = useVouchersForOrder(
-    sheetOpen && userInfo
+    sheetOpen && userInfo && userInfo?.role.name === Role.CUSTOMER
       ? {
         isActive: true,
         hasPaging: true,
@@ -104,14 +99,20 @@ export default function VoucherListSheet() {
     !!sheetOpen
   )
   const { data: publicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && !userInfo
+    sheetOpen && !userInfo && cartItems?.ownerRole === Role.CUSTOMER
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         pageSize: pagination.pageSize,
       }
-      : undefined,
+      : {
+        isActive: true,
+        hasPaging: true,
+        page: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+        isVerificationIdentity: false,
+      },
     !!sheetOpen
   )
 
@@ -170,7 +171,10 @@ export default function VoucherListSheet() {
   }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
 
   useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : publicVoucherList?.result.items) || []
+    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.ownerRole === Role.CUSTOMER)
+
+    const baseList = (isCustomer ? voucherList?.result.items : publicVoucherList?.result.items) || []
+
     let newList = [...baseList]
 
     if (userInfo && specificVoucher?.result) {
@@ -188,7 +192,7 @@ export default function VoucherListSheet() {
     }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
+  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole])
 
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -242,7 +246,6 @@ export default function VoucherListSheet() {
 
     return validVouchers.length > 0 ? validVouchers[0] : null
   }
-
 
   const bestVoucher = getBestVoucher()
 
@@ -368,10 +371,17 @@ export default function VoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            <span className="text-xs italic text-primary">
-              {t('voucher.discountValue')}
-              {voucher.value}% {t('voucher.orderValue')}
-            </span>
+            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+              </span>
+            )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>

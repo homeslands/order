@@ -24,6 +24,10 @@ export default function VoucherPage() {
         refetch()
     }
 
+    const handleUpdateVoucherSuccess = () => {
+        refetch()
+    }
+
     return (
         <div className="flex flex-col flex-1 w-full">
             <Helmet>
@@ -39,7 +43,7 @@ export default function VoucherPage() {
             </span>
             <div className="grid grid-cols-1 gap-2 mt-4 h-full">
                 <DataTable
-                    columns={useVoucherColumns()}
+                    columns={useVoucherColumns(handleUpdateVoucherSuccess)}
                     data={data?.result.items || []}
                     isLoading={isLoading}
                     pages={data?.result.totalPages || 1}

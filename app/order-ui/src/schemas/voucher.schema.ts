@@ -18,7 +18,11 @@ export const createVoucherSchema = z.object({
   description: z.optional(z.string()),
   type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
   code: z.string().min(1),
-  value: z.number().int().positive(),
+  value: z
+    .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+    .refine((val) => val > 0, {
+      message: 'Giá trị phải lớn hơn 0',
+    }),
   maxUsage: z.number().int().positive(),
   minOrderValue: z.number().int().nonnegative(),
   isActive: z.boolean(),
@@ -37,7 +41,11 @@ export const createMultipleVoucherSchema = z.object({
   type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
   startDate: z.string(),
   endDate: z.string(),
-  value: z.number().int().positive(),
+  value: z
+    .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+    .refine((val) => val > 0, {
+      message: 'Giá trị phải lớn hơn 0',
+    }),
   minOrderValue: z.number().int().nonnegative(),
   maxUsage: z.number().int().positive(),
   isActive: z.boolean(),
@@ -55,9 +63,14 @@ export const updateVoucherSchema = z
     description: z.optional(z.string()),
     type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
     code: z.string().min(1),
-    value: z.number().int().positive(),
+    value: z
+      .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+      .refine((val) => val > 0, {
+        message: 'Giá trị phải lớn hơn 0',
+      }),
     maxUsage: z.number().int().positive(),
     minOrderValue: z.number().int().nonnegative(),
+    remainingUsage: z.number().int().positive(),
     isActive: z.boolean(),
     isPrivate: z.boolean(),
     startDate: z.string(),
@@ -65,18 +78,17 @@ export const updateVoucherSchema = z
     isVerificationIdentity: z.boolean(),
     numberOfUsagePerUser: z.number().int().positive(),
   })
-  .refine(
-    (data) => {
-      if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {
-        return data.value >= 1 && data.value <= 100
+  .superRefine((data, ctx) => {
+    if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      if (data.value < 1 || data.value > 100) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['value'],
+          message: 'Giá trị phần trăm phải từ 1 đến 100',
+        })
       }
-      return true // valid for FIXED_VALUE
-    },
-    {
-      message: 'Giá trị phần trăm phải từ 1 đến 100',
-      path: ['value'],
-    },
-  )
+    }
+  })
 
 export type TCreateVoucherGroupSchema = z.infer<typeof createVoucherGroupSchema>
 export type TUpdateVoucherGroupSchema = z.infer<typeof updateVoucherGroupSchema>

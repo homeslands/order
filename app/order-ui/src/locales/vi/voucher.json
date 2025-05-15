@@ -7,7 +7,7 @@
     "createdAt": "Ngày tạo",
     "title": "Tiêu đề",
     "code": "Mã giảm giá",
-    "maxUsage": "Số lượng sử dụng tối đa",
+    "maxUsage": "Số lượng",
     "minOrderValue": "Giá trị đơn hàng tối thiểu",
     "copyCode": "Sao chép mã giảm giá",
     "discountValue": "Giảm ",

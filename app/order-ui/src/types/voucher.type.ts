@@ -17,6 +17,7 @@ export interface IUpdateVoucherGroupRequest {
 }
 
 export interface IVoucher extends IBase {
+  voucherGroup: string
   title: string
   description?: string
   code: string
@@ -59,6 +60,7 @@ export interface ICreateVoucherRequest {
 
 export interface IUpdateVoucherRequest {
   slug: string
+  voucherGroup: string
   title: string
   description?: string
   code: string
@@ -66,6 +68,11 @@ export interface IUpdateVoucherRequest {
   maxUsage: number
   minOrderValue: number
   isActive: boolean
+  remainingUsage: number
+  isPrivate: boolean
+  isVerificationIdentity: boolean
+  type: string
+  numberOfUsagePerUser: number
   startDate: string
   endDate: string
 }

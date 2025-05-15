@@ -21,7 +21,7 @@ import { DeleteVoucherDialog } from '@/components/app/dialog'
 import moment from 'moment'
 import { VOUCHER_TYPE } from '@/constants'
 
-export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
+export const useVoucherColumns = (onSuccess: () => void): ColumnDef<IVoucher>[] => {
   const { t } = useTranslation(['voucher'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
@@ -29,6 +29,10 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
     showToast(tToast('toast.copyCodeSuccess'))
+  }
+
+  const handleUpdateVoucherSuccess = () => {
+    onSuccess()
   }
 
   return [
@@ -194,7 +198,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <UpdateVoucherSheet voucher={voucher} />
+                <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
                 <DeleteVoucherDialog voucher={voucher} />
               </DropdownMenuContent>
             </DropdownMenu>

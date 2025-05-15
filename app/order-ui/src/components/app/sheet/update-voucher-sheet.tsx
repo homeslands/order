@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { PenLine } from 'lucide-react'
 
@@ -28,7 +28,6 @@ import { SimpleDatePicker } from '../picker'
 import { TUpdateVoucherSchema, updateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
-import { VOUCHER_TYPE } from '@/constants'
 
 interface IUpdateVoucherSheetProps {
   voucher: IVoucher
@@ -44,10 +43,10 @@ export default function UpdateVoucherSheet({
   const [isOpen, setIsOpen] = useState(false)
   const [formData, setFormData] = useState<IUpdateVoucherRequest | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
-
   const form = useForm<TUpdateVoucherSchema>({
     resolver: zodResolver(updateVoucherSchema),
     defaultValues: {
+      slug: voucher.slug,
       voucherGroup: slug as string,
       createdAt: voucher.createdAt,
       title: voucher.title,
@@ -57,6 +56,7 @@ export default function UpdateVoucherSheet({
       endDate: voucher.endDate,
       code: voucher.code,
       value: voucher.value,
+      remainingUsage: voucher.remainingUsage,
       maxUsage: voucher.maxUsage,
       isActive: voucher.isActive,
       isPrivate: voucher.isPrivate,
@@ -67,34 +67,11 @@ export default function UpdateVoucherSheet({
   })
 
   // Use useWatch to watch type field without causing re-renders
-  const voucherType = useWatch({
-    control: form.control,
-    name: 'type',
-    defaultValue: voucher.type
-  })
-
-  // Reset form when sheet opens
-  useEffect(() => {
-    if (sheetOpen) {
-      form.reset({
-        voucherGroup: slug as string,
-        createdAt: voucher.createdAt,
-        title: voucher.title,
-        description: voucher.description,
-        type: voucher.type,
-        startDate: voucher.startDate,
-        endDate: voucher.endDate,
-        code: voucher.code,
-        value: voucher.value,
-        maxUsage: voucher.maxUsage,
-        isActive: voucher.isActive,
-        isPrivate: voucher.isPrivate,
-        numberOfUsagePerUser: voucher.numberOfUsagePerUser,
-        minOrderValue: voucher.minOrderValue,
-        isVerificationIdentity: voucher.isVerificationIdentity,
-      })
-    }
-  }, [sheetOpen, voucher, form, slug])
+  // const voucherType = useWatch({
+  //   control: form.control,
+  //   name: 'type',
+  //   defaultValue: voucher.type
+  // })
 
   const isDateBeforeToday = (date: Date) => {
     const today = new Date()
@@ -121,18 +98,28 @@ export default function UpdateVoucherSheet({
   }
 
   const handleSubmit = (data: IUpdateVoucherRequest) => {
-    setFormData(data)
-    setIsOpen(true)
+    // Ensure value is converted to number before submitting
+    const submissionData = {
+      ...data,
+      value: Number(data.value)
+    };
+    setFormData(submissionData);
+    setIsOpen(true);
   }
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setSheetOpen(true)
-  }
+  // Add onSubmit handler directly to form element
+  const onSubmit = form.handleSubmit((data) => {
+    handleSubmit(data as IUpdateVoucherRequest);
+  });
+
+  // const handleClick = (e: React.MouseEvent) => {
+  //   e.preventDefault()
+  //   e.stopPropagation()
+  //   setSheetOpen(true)
+  // }
 
   const formFields = {
-    name: (
+    title: (
       <FormField
         control={form.control}
         name="title"
@@ -140,10 +127,10 @@ export default function UpdateVoucherSheet({
           <FormItem>
             <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
-              {t('voucher.name')}
+              {t('voucher.title')}
             </FormLabel>
             <FormControl>
-              <Input {...field} placeholder={t('voucher.enterVoucherName')} />
+              <Input {...field} placeholder={t('voucher.enterVoucherTitle')} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -232,7 +219,6 @@ export default function UpdateVoucherSheet({
                 {...field}
                 onChange={(value) => {
                   field.onChange(value);
-                  form.setValue('value', 0); // Reset value when type changes
                 }}
               />
             </FormControl>
@@ -275,14 +261,26 @@ export default function UpdateVoucherSheet({
               {t('voucher.value')}
             </FormLabel>
             <FormControl>
-              {voucherType === VOUCHER_TYPE.PERCENT_ORDER ? (
+              {form.watch('type') === 'percent_order' ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
+                      if (value === '') {
+                        field.onChange(''); // hoặc null tùy theo schema
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
+                    min={0}
+                    max={100}
                     placeholder={t('voucher.enterVoucherValue')}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
+
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     %
                   </span>
@@ -292,12 +290,18 @@ export default function UpdateVoucherSheet({
                   <Input
                     type="number"
                     {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
+                      if (value === '') {
+                        field.onChange(''); // hoặc null tùy theo schema
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
                     placeholder={t('voucher.enterVoucherValue')}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    {t('voucher.usage')}
-                  </span>
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₫
                   </span>
@@ -474,7 +478,7 @@ export default function UpdateVoucherSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="gap-1 px-2" onClick={handleClick}>
+        <Button variant="ghost" className="gap-1 px-2">
           <PenLine className="icon" />
           {t('voucher.update')}
         </Button>
@@ -492,13 +496,13 @@ export default function UpdateVoucherSheet({
               <Form {...form}>
                 <form
                   id="voucher-form"
-                  onSubmit={form.handleSubmit(handleSubmit)}
+                  onSubmit={onSubmit}
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
                   <div className="p-4 bg-white rounded-md border">
                     <div className="grid grid-cols-1 gap-2">
-                      {formFields.name}
+                      {formFields.title}
                       {formFields.description}
                     </div>
                   </div>
@@ -542,7 +546,10 @@ export default function UpdateVoucherSheet({
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="voucher-form">
+            <Button
+              type="submit"
+              form="voucher-form"
+            >
               {t('voucher.update')}
             </Button>
             {isOpen && (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useSearchParams } from 'react-router-dom'
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
@@ -7,7 +7,7 @@ import { ShoppingCart } from 'lucide-react'
 import { Badge, Button } from '@/components/ui'
 import { useSpecificMenuItem } from '@/hooks'
 import { publicFileURL, ROUTE } from '@/constants'
-import { ProductRating, SliderRelatedProducts } from './components'
+import { SliderRelatedProducts } from './components'
 import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { NonPropQuantitySelector } from '@/components/app/button'
 import {
@@ -36,6 +36,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedVariant, setSelectedVariant] = useState<IProductVariant | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (productDetail?.product.variants.length && productDetail?.product.variants.length > 0) {
@@ -118,6 +119,47 @@ export default function ProductDetailPage() {
     setNote('')
     setSelectedVariant(productDetail?.product.variants[0] || null)
   }
+
+  const handleBuyNow = () => {
+    if (!selectedVariant) return
+
+    const finalPrice = productDetail?.promotion && productDetail?.promotion?.value > 0
+      ? selectedVariant.price * (1 - productDetail?.promotion?.value / 100)
+      : selectedVariant.price;
+
+    const cartItem: ICartItem = {
+      id: generateCartItemId(),
+      slug: productDetail?.slug || '',
+      owner: getUserInfo()?.slug,
+      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
+      // branch: getUserInfo()?.branch.slug, // get branch from user info
+      orderItems: [
+        {
+          id: generateCartItemId(),
+          slug: productDetail?.slug || '',
+          image: productDetail?.product.image || '',
+          name: productDetail?.product.name || '',
+          quantity: 1,
+          variant: selectedVariant.slug,
+          size: selectedVariant.size.name,
+          originalPrice: selectedVariant.price,
+          price: finalPrice, // Use the calculated final price
+          description: productDetail?.product.description || '',
+          isLimit: productDetail?.product.isLimit || false,
+          promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
+          // catalog: product.catalog,
+          note: note,
+        },
+      ],
+      table: '', // will be set later via addTable
+    }
+
+    addCartItem(cartItem)
+    // Reset states
+    setNote('')
+    setSelectedVariant(productDetail?.product.variants[0] || null)
+    navigate(ROUTE.CLIENT_CART)
+  }
   return (
     <div className="container flex flex-col gap-10 items-start py-10">
       <Helmet>
@@ -134,7 +176,7 @@ export default function ProductDetailPage() {
             <img
               src={`${publicFileURL}/${selectedImage}`}
               alt={productDetail.product.name}
-              className="h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
+              className="h-[15rem] sm:h-[20rem] w-full rounded-xl object-cover transition-opacity duration-300 ease-in-out"
             />
           )}
           <ProductImageCarousel
@@ -153,7 +195,7 @@ export default function ProductDetailPage() {
                 <span className="text-3xl font-extrabold">
                   {productDetail.product.name}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-md text-muted-foreground">
                   {productDetail.product.description}
                 </span>
                 {price ? (
@@ -187,9 +229,9 @@ export default function ProductDetailPage() {
                   </div>
                 )}
                 {/* Product Rating */}
-                <div className="mt-2">
+                {/* <div className="mt-2">
                   <ProductRating rating={productDetail.product.rating} />
-                </div>
+                </div> */}
               </div>
               {productDetail.product.variants.length > 0 && (
                 <div className="flex flex-row gap-6 items-center w-full">
@@ -242,35 +284,26 @@ export default function ProductDetailPage() {
                       {productDetail.promotion.description}
                     </li>
                   </ul>
-                  {/* <ul className="pl-5 text-sm list-disc text-primary">
-                        <li>
-                          <strong>Mua 2 tặng 1:</strong> Áp dụng cho tất cả các
-                          kích cỡ.
-                        </li>
-                        <li>
-                          <strong>Giảm 10%:</strong> Cho đơn hàng trên{' '}
-                          <strong>500.000 VNĐ</strong>.
-                        </li>
-                        <li>
-                          <strong>Freeship nội thành:</strong> Đơn từ{' '}
-                          <strong>200.000 VNĐ</strong>.
-                        </li>
-                      </ul>
-                      <div className="mt-2 text-xs text-yellow-600">
-                        * Lưu ý: Các ưu đãi không được cộng gộp. Thời hạn đến
-                        cuối tháng này!
-                      </div> */}
                 </div>
               )}
             </div>
           )}
-          <Button
-            onClick={handleAddToCart}
-            variant="default"
-            disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
-          >
-            <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
-          </Button>
+
+          <div className='grid fixed right-0 left-0 bottom-16 z-50 grid-cols-2 gap-2 bg-white border-t md:relative md:mt-14 md:bg-transparent md:border-0'>
+            <Button
+              onClick={handleBuyNow}
+              disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
+            >
+              <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.buyNow')}
+            </Button>
+            <Button
+              onClick={handleAddToCart}
+              variant="outline"
+              disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
+            >
+              <ShoppingCart /> {productDetail?.isLocked || productDetail?.currentStock === 0 ? tMenu('menu.outOfStock') : tMenu('menu.addToCart')}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -287,54 +320,6 @@ export default function ProductDetailPage() {
           </NavLink>
         </p>
         <SliderRelatedProducts currentProduct={slug || ''} catalog={productDetail?.product.catalog.slug || ''} />
-        {/* <p className="flex justify-between pl-2 border-l-4 border-primary text-primary">
-                <span>
-                  {t('product.relatedProducts')}
-                </span>
-                <NavLink to={ROUTE.CLIENT_MENU}>
-                  <span className="text-sm text-muted-foreground">
-                    {t('product.viewMore')}
-                  </span>
-                </NavLink>
-              </p>
-              <div className="grid grid-cols-2 gap-5 mt-4 lg:grid-cols-4">
-                {specificMenu?.result.menuItems.map((item) => {
-                  return (
-                    <NavLink
-                      key={item.slug}
-                      to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}
-                    >
-                      <div
-                        key={item.slug}
-                        className="flex flex-col rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-105"
-                      >
-                        <div className="relative">
-                          {item.product.image ? (
-                            <img
-                              src={`${publicFileURL}/${item.product.image}`}
-                              alt={item.product.name}
-                              className="object-cover w-full h-36 rounded-md"
-                            />
-                          ) : (
-                            <div className="w-full h-24 rounded-t-md bg-muted/60" />
-                          )}
-                        </div>
-
-                        <h3 className="flex flex-col gap-1 mt-3">
-                          <span className="font-semibold text-md">
-                            {item.product.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {getPriceRange(item.product.variants, (value) =>
-                              formatCurrency(value),
-                            )}
-                          </span>
-                        </h3>
-                      </div>
-                    </NavLink>
-                  )
-                })}
-              </div> */}
       </div>
     </div>
   )

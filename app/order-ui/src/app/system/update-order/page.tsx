@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
+import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
 import { StaffVoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
@@ -67,9 +67,13 @@ export default function UpdateOrderPage() {
         ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
         : 0;
 
-    const discount = orderItems
+    // calculate voucher value
+    const voucherValue = orderItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
         ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
-        : 0;
+        : orderItems?.voucher?.value || 0;
+
+    // calculate discount base on promotion
+    const discount = orderItems?.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -228,7 +232,7 @@ export default function UpdateOrderPage() {
                                                         {t('order.usedVoucher')}:&nbsp;
                                                     </span>
                                                     <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                                                        -{`${formatCurrency(discount)}`}
+                                                        -{`${formatCurrency(voucherValue)}`}
                                                     </span>
                                                 </div>
                                             </div>
@@ -248,7 +252,7 @@ export default function UpdateOrderPage() {
                                         <div className="grid grid-cols-5">
                                             <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
                                             <span className="col-span-2 text-sm italic text-right text-green-500">
-                                                - {formatCurrency(discount)}
+                                                - {formatCurrency(discount || 0)}
                                                 {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                             </span>
                                         </div>
@@ -258,7 +262,7 @@ export default function UpdateOrderPage() {
                                                     {t('order.voucher')}
                                                 </h3>
                                                 <p className="text-sm italic font-semibold text-green-500">
-                                                    - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                                    - {`${formatCurrency((discount ? originalTotal - discount : originalTotal) * ((order.result.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? order.result.voucher.value : 0) / 100))}`}
                                                 </p>
                                             </div>}
 

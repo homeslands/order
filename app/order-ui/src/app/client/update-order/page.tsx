@@ -217,7 +217,7 @@ export default function ClientUpdateOrderPage() {
                                                         {t('order.usedVoucher')}:&nbsp;
                                                     </span>
                                                     <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                                                        -{`${formatCurrency(discount)}`}
+                                                        - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
                                                     </span>
                                                 </div>
                                             </div>

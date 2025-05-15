@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Loader2, ShoppingCart } from 'lucide-react'
+import { Loader2, MapPin, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
 
 import {
   Button,
@@ -18,7 +18,7 @@ import {
 import { ICartItem, ICreateOrderRequest, OrderTypeEnum } from '@/types'
 import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
-import { Role, ROUTE } from '@/constants'
+import { Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
 import _ from 'lodash'
 
@@ -110,9 +110,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
     cartItems?.orderItems,
     (item) => item.price * item.quantity,
   )
-  const discount = (subTotal * (cartItems?.voucher?.value || 0)) / 100
-  const totalAfterDiscount =
-    subTotal - (subTotal * (cartItems?.voucher?.value || 0)) / 100
+  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? (subTotal * (cartItems?.voucher?.value || 0)) / 100 : cartItems?.voucher?.value || 0
+  const totalAfterDiscount = subTotal - discount
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -146,33 +145,45 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         {/* Order Items List */}
         <ScrollArea className="h-[calc(100vh-30rem)] sm:h-[calc(100vh-28rem)] px-4 flex flex-col gap-4">
           {/* Order Info */}
-          <div className="p-2 space-y-2 text-sm rounded-md border bg-muted-foreground/20">
+          <div className="p-2 space-y-2 text-sm rounded-md border border-primary/60 bg-primary/5">
             <div className="flex justify-between">
-              <span className="text-gray-600">{t('order.orderType')}</span>
+              <span className="flex gap-2 items-center text-gray-600">
+                <Receipt className="w-4 h-4" />
+                {t('order.orderType')}
+              </span>
               <span className="font-medium">
                 {order?.type === 'at-table' ? t('menu.dineIn') : t('menu.takeAway')}
               </span>
             </div>
             {order?.tableName && (
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('menu.tableName')}</span>
+                <span className="flex gap-2 items-center text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {t('menu.tableName')}
+                </span>
                 <span className="font-medium">{order.tableName}</span>
               </div>
             )}
             {order?.ownerFullName && (
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('order.customer')}</span>
+                <span className="flex gap-2 items-center text-gray-600">
+                  <User className="w-4 h-4" />
+                  {t('order.customer')}
+                </span>
                 <span className="font-medium">{order.ownerFullName}</span>
               </div>
             )}
             {order?.ownerPhoneNumber && (
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('order.phoneNumber')}</span>
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  {t('order.phoneNumber')}
+                </span>
                 <span className="font-medium">{order.ownerPhoneNumber}</span>
               </div>
             )}
           </div>
-          <div className="flex flex-col gap-4 p-2 mt-4 rounded-md border border-muted-foreground/60">
+          <div className="flex flex-col gap-4 px-2 py-4 mt-6 border-t border-dashed border-muted-foreground/60">
             {order?.orderItems.map((item, index) => (
               <div key={index} className="flex justify-between items-center">
                 <div className="flex-1">
@@ -195,7 +206,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
             </div>
             <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
               <span className="italic text-green-500">
-                {t('order.discount')}:&nbsp;
+                {t('order.voucher')}:&nbsp;
               </span>
               <span className="italic text-green-500">
                 -{`${formatCurrency(discount)}`}

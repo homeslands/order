@@ -45,7 +45,7 @@ import {
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
-import { Role } from '@/constants'
+import { Role, VOUCHER_TYPE } from '@/constants'
 
 export default function StaffVoucherListSheet() {
   const isMobile = useIsMobile()
@@ -67,12 +67,12 @@ export default function StaffVoucherListSheet() {
     (acc, item) => acc + item.price * item.quantity,
     0,
   ) || 0
-  // const subTotal = cartItems
-  //   ? cartItems?.subtotal
-  //   : cartItems?.orderItems.reduce(
-  //     (acc, item) => acc + item.price * item.quantity,
-  //     0,
-  //   ) || 0
+
+  // calculate discount base on voucher type, voucher value and subtotal
+  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+    ? subTotal * cartItems?.voucher?.value / 100
+    : cartItems?.voucher?.value
+
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -368,10 +368,17 @@ export default function StaffVoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            <span className="text-xs italic text-primary">
-              {t('voucher.discountValue')}
-              {voucher.value}% {t('voucher.orderValue')}
-            </span>
+            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+              </span>
+            )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
@@ -554,13 +561,22 @@ export default function StaffVoucherListSheet() {
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" className="px-0 mt-3 w-full bg-primary/15 hover:bg-primary/20">
-          <div className="flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer">
+          <div className="flex gap-3 justify-between items-center p-2 w-full rounded-md cursor-pointer">
             <div className="flex gap-1 items-center">
               <TicketPercent className="icon text-primary" />
               <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
               </span>
             </div>
+            {cartItems?.voucher && (
+              <div className="flex justify-start w-full">
+                <div className="flex gap-2 items-center w-full">
+                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
+                    -{`${formatCurrency(discount || 0)}`}
+                  </span>
+                </div>
+              </div>
+            )}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

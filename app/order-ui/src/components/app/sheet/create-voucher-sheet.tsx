@@ -241,11 +241,21 @@ export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => voi
                   <Input
                     type="number"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
+                      if (value === '') {
+                        field.onChange(''); // hoặc null tùy theo schema
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
                     min={0}
                     max={100}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
+
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     %
                   </span>
@@ -255,7 +265,16 @@ export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => voi
                   <Input
                     type="number"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
+                      if (value === '') {
+                        field.onChange(''); // hoặc null tùy theo schema
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">

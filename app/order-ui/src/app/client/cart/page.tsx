@@ -7,14 +7,14 @@ import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
 import { QuantitySelector } from '@/components/app/button'
-import { useCartItemStore } from '@/stores'
+import { useCartItemStore, useUserStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import {
   CreateOrderDialog,
   DeleteAllCartDialog,
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
+import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button } from '@/components/ui'
 import { OrderTypeSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
@@ -27,6 +27,15 @@ export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tHelmet } = useTranslation('helmet')
   // const [runJoyride, setRunJoyride] = useState(false)
+  const { userInfo } = useUserStore()
+  const { addCustomerInfo } = useCartItemStore()
+
+  // addCustomerInfo when mount
+  useEffect(() => {
+    if (userInfo) {
+      addCustomerInfo(userInfo)
+    }
+  }, [userInfo, addCustomerInfo])
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -59,7 +68,11 @@ export default function ClientCartPage() {
     cartItems?.orderItems,
     (item) => item.price * item.quantity,
   )
-  const discount = (subTotal * (cartItems?.voucher?.value || 0)) / 100
+  // check if voucher is percent order
+  const isPercentOrder = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+  const discount = isPercentOrder
+    ? (subTotal * (cartItems?.voucher?.value || 0)) / 100
+    : cartItems?.voucher?.value
   const totalAfterDiscount =
     subTotal - (subTotal * (cartItems?.voucher?.value || 0)) / 100
 
@@ -205,7 +218,7 @@ export default function ClientCartPage() {
                         {t('order.usedVoucher')}:&nbsp;
                       </span>
                       <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                        -{`${formatCurrency(discount)}`}
+                        -{`${formatCurrency(discount || 0)}`}
                       </span>
                     </div>
                   </div>
@@ -224,7 +237,7 @@ export default function ClientCartPage() {
                       {t('order.discount')}:&nbsp;
                     </span>
                     <span className="italic text-green-500">
-                      -{`${formatCurrency(discount)}`}
+                      -{`${formatCurrency(discount || 0)}`}
                     </span>
                   </div>
                   <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">

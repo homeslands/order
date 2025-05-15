@@ -141,7 +141,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
           {/* {t('menu.addToCart')} */}
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%] drawer-content">
+      <DrawerContent className="h-[95%] drawer-content">
         <DrawerHeader>
           <DrawerTitle>{t('menu.confirmProduct')}</DrawerTitle>
           <DrawerDescription>{t('menu.confirmProductDescription')}</DrawerDescription>
@@ -154,7 +154,7 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
                 <img
                   src={`${publicFileURL}/${product.product.image}`}
                   alt={product.product.name}
-                  className="object-cover w-full h-48 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
+                  className="object-cover w-full h-44 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
                 />
               ) : (
                 <div className="w-full rounded-md bg-muted/50" />

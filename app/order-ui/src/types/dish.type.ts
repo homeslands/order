@@ -40,6 +40,7 @@ export interface ICartItem {
     isVerificationIdentity: boolean
     isPrivate: boolean
     code: string
+    type: string
   } | null
   note?: string
   approvalBy?: string
