@@ -7,6 +7,7 @@ import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
 import { IPromotion } from './promotion.type'
 import { IChefOrderItemStatus, IChefOrders } from './area.type'
+import { IRole } from './role.type'
 
 export interface IDish {
   id: number
@@ -88,6 +89,7 @@ export interface IOrderOwner {
   lastName: string
   createdAt: string
   slug: string
+  role: IRole
 }
 
 export interface IPayment extends IBase {

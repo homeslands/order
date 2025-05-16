@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react'
 import _ from 'lodash'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
@@ -11,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
+import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
 import { VoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
@@ -20,7 +21,6 @@ import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
-import { useCallback, useEffect, useState } from 'react'
 import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
@@ -49,9 +49,12 @@ export default function ClientUpdateOrderPage() {
         ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
         : 0;
 
-    const discount = orderItems
+    const voucherValue = orderItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
         ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
-        : 0;
+        : orderItems?.voucher?.value || 0;
+
+    // calculate discount base on promotion
+    const discount = orderItems?.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -208,22 +211,6 @@ export default function ClientUpdateOrderPage() {
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
                                 <VoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
-                                <div>
-                                    {orderItems?.voucher && (
-                                        <div className="flex justify-start w-full">
-                                            <div className="flex flex-col items-start">
-                                                <div className="flex gap-2 items-center mt-2">
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {t('order.usedVoucher')}:&nbsp;
-                                                    </span>
-                                                    <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                                                        - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">
@@ -235,9 +222,9 @@ export default function ClientUpdateOrderPage() {
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-5">
-                                            <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
-                                            <span className="col-span-2 text-sm italic text-right text-green-500">
-                                                - {formatCurrency(discount)}
+                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                            <span className="col-span-2 text-sm text-right text-muted-foreground">
+                                                - {formatCurrency(discount || 0)}
                                                 {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                             </span>
                                         </div>
@@ -247,7 +234,7 @@ export default function ClientUpdateOrderPage() {
                                                     {t('order.voucher')}
                                                 </h3>
                                                 <p className="text-sm italic font-semibold text-green-500">
-                                                    - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                                    - {`${formatCurrency(voucherValue)}`}
                                                 </p>
                                             </div>}
 

@@ -8,7 +8,7 @@ import { CircleX, SquareMenu } from 'lucide-react'
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE } from '@/constants'
+import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
@@ -38,10 +38,14 @@ export function ClientPaymentPage() {
   const originalTotal = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
 
-  const discount = order?.result.orderItems ?
-    order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
+  const isPercentOrder = order?.result.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
 
-  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+  // calculate voucher base on promotion
+  const voucherDiscount = isPercentOrder
+    ? (originalTotal * (order?.result.voucher?.value || 0)) / 100
+    : order?.result.voucher?.value
+
+  const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -335,7 +339,7 @@ export function ClientPaymentPage() {
                       {t('order.discount')}
                     </h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      - {`${formatCurrency(discount || 0)}`}
+                      - {`${formatCurrency(promotionDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">

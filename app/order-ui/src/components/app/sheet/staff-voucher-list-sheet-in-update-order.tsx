@@ -38,7 +38,7 @@ import {
   useUpdateOrderType,
   useValidatePublicVoucher,
   useValidateVoucher,
-  useVouchersForOrder,
+  useVouchersForOrder
 } from '@/hooks'
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
@@ -48,6 +48,7 @@ import {
   IVoucher,
 } from '@/types'
 import { useThemeStore, useUserStore } from '@/stores'
+import { Role, VOUCHER_TYPE } from '@/constants'
 
 interface IVoucherListSheetProps {
   defaultValue?: IOrder | undefined
@@ -74,8 +75,19 @@ export default function StaffVoucherListSheetInUpdateOrder({
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
-  const subTotal = defaultValue?.subtotal || 0
+  const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
+    const price = item.variant.price;
+    const quantity = item.quantity;
+    const discount = item.promotion ? item.promotion.value : 0;
 
+    const itemTotal = price * quantity * (1 - discount / 100);
+    return acc + itemTotal;
+  }, 0) || 0;
+
+  const voucherValue = defaultValue?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+    ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
+    : defaultValue?.voucher?.value || 0
+  // console.log("voucherValue", voucherValue, (defaultValue?.voucher?.value || 0) / 100 * subTotal)
   // Add useEffect to check voucher validation
   // useEffect(() => {
   //   if (defaultValue?.voucher) {
@@ -93,17 +105,29 @@ export default function StaffVoucherListSheetInUpdateOrder({
   //   }
   // }, [userInfo, cartItems?.voucher, removeVoucher])
 
+  const owner = defaultValue?.owner;
+
+  const isNotCustomer = owner?.role?.name !== Role.CUSTOMER;
+  const isDefaultCustomer =
+    owner?.role?.name === Role.CUSTOMER &&
+    owner?.firstName === 'Default' &&
+    owner?.lastName === 'Customer';
+
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    sheetOpen && defaultValue?.owner
+    sheetOpen && owner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
+        ...(isNotCustomer || isDefaultCustomer
+          ? { isVerificationIdentity: false }
+          : {}),
       }
       : undefined,
     !!sheetOpen
-  )
+  );
+
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -147,7 +171,7 @@ export default function StaffVoucherListSheetInUpdateOrder({
   }, [defaultValue?.voucher, refetchSpecificVoucher]);
 
   useEffect(() => {
-    const baseList = (userInfo ? voucherList?.result.items : []) || []
+    const baseList = voucherList?.result.items || []
     let newList = [...baseList]
 
     if (specificVoucher?.result) {
@@ -321,6 +345,8 @@ export default function StaffVoucherListSheetInUpdateOrder({
       : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
       } border`
 
+
+
     return (
       <div className={baseCardClass} key={voucher.slug}>
         {isBest && (
@@ -338,10 +364,17 @@ export default function StaffVoucherListSheetInUpdateOrder({
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            <span className="text-xs italic text-primary">
-              {t('voucher.discountValue')}
-              {voucher.value}% {t('voucher.orderValue')}
-            </span>
+            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+              </span>
+            )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
@@ -531,6 +564,15 @@ export default function StaffVoucherListSheetInUpdateOrder({
                 {t('voucher.useVoucher')}
               </span>
             </div>
+            {defaultValue?.voucher && (
+              <div className="flex justify-start w-full">
+                <div className="flex gap-2 items-center w-full">
+                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
+                    -{`${formatCurrency(voucherValue)}`}
+                  </span>
+                </div>
+              </div>
+            )}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

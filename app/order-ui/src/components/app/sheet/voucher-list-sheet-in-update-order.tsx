@@ -50,6 +50,7 @@ import {
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
+import { VOUCHER_TYPE } from '@/constants'
 
 interface IVoucherListSheetInUpdateOrderProps {
   defaultValue?: IOrder | undefined
@@ -75,12 +76,19 @@ export default function VoucherListSheetInUpdateOrder({
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
-  const subTotal = defaultValue
-    ? defaultValue?.subtotal
-    : cartItems?.orderItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    ) || 0
+  const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
+    const price = item.variant.price;
+    const quantity = item.quantity;
+    const discount = item.promotion ? item.promotion.value : 0;
+
+    const itemTotal = price * quantity * (1 - discount / 100);
+    return acc + itemTotal;
+  }, 0) || 0;
+
+
+  const voucherValue = defaultValue?.type === VOUCHER_TYPE.PERCENT_ORDER
+    ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
+    : defaultValue?.voucher?.value || 0
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -616,6 +624,15 @@ export default function VoucherListSheetInUpdateOrder({
                 {t('voucher.useVoucher')}
               </span>
             </div>
+            {defaultValue?.voucher && (
+              <div className="flex justify-start w-full">
+                <div className="flex gap-2 items-center w-full">
+                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
+                    -{`${formatCurrency(voucherValue)}`}
+                  </span>
+                </div>
+              </div>
+            )}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

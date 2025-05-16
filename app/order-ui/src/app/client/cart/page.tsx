@@ -74,7 +74,7 @@ export default function ClientCartPage() {
     ? (subTotal * (cartItems?.voucher?.value || 0)) / 100
     : cartItems?.voucher?.value
   const totalAfterDiscount =
-    subTotal - (subTotal * (cartItems?.voucher?.value || 0)) / 100
+    subTotal - (discount || 0)
 
   if (_.isEmpty(cartItems?.orderItems)) {
     return (

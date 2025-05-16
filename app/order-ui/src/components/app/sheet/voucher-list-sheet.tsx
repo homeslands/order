@@ -68,8 +68,6 @@ export default function VoucherListSheet() {
     0,
   ) || 0
 
-
-
   // Add useEffect to check voucher validation
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -305,13 +303,18 @@ export default function VoucherListSheet() {
           user: userInfo.slug || '',
         };
 
-        validateVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(voucher);
-            setSheetOpen(false);
-            showToast(tToast('toast.applyVoucherSuccess'));
-          },
-        });
+        const onValidated = () => {
+          addVoucher(voucher);
+          setSheetOpen(false);
+          showToast(tToast('toast.applyVoucherSuccess'));
+        }
+
+        if (userInfo) {
+          validateVoucher(validateVoucherParam, { onSuccess: onValidated })
+        } else {
+          validatePublicVoucher(validateVoucherParam, { onSuccess: onValidated })
+        }
+
       } else {
         showErrorToast(1000);
       }
