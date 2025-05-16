@@ -125,6 +125,11 @@ export class PaymentService {
       relations: ['owner', 'payment'],
     });
 
+    // if order subtotal is less than 2000,
+    // set loss === subtotal
+    // set subtotal === 0
+    // set payment method === CASH
+
     this.logger.log(
       `Initiate payment for order: ${JSON.stringify(order)}`,
       context,
@@ -147,6 +152,13 @@ export class PaymentService {
     if (user.role?.name === RoleEnum.Customer) {
       switch (createPaymentDto.paymentMethod) {
         case PaymentMethod.BANK_TRANSFER:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+            createPaymentDto.paymentMethod = PaymentMethod.CASH;
+            payment = await this.cashStrategy.process(order);
+            break;
+          }
           payment = await this.bankTransferStrategy.process(order);
           break;
         default:
@@ -163,6 +175,13 @@ export class PaymentService {
     ) {
       switch (createPaymentDto.paymentMethod) {
         case PaymentMethod.BANK_TRANSFER:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+            createPaymentDto.paymentMethod = PaymentMethod.CASH;
+            payment = await this.cashStrategy.process(order);
+            break;
+          }
           payment = await this.bankTransferStrategy.process(order);
           break;
         case PaymentMethod.CASH:
@@ -229,6 +248,13 @@ export class PaymentService {
 
     switch (createPaymentDto.paymentMethod) {
       case PaymentMethod.BANK_TRANSFER:
+        if (order.subtotal < 2000) {
+          order.loss = order.subtotal;
+          order.subtotal = 0;
+          createPaymentDto.paymentMethod = PaymentMethod.CASH;
+          payment = await this.cashStrategy.process(order);
+          break;
+        }
         payment = await this.bankTransferStrategy.process(order);
         break;
       default:
@@ -245,6 +271,11 @@ export class PaymentService {
     // Update order
     order.payment = payment;
     await this.orderRepository.save(order);
+
+    if (payment.paymentMethod === PaymentMethod.CASH) {
+      // Update order status
+      this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, { orderId: order.id });
+    }
     return this.mapper.map(payment, Payment, PaymentResponseDto);
   }
 

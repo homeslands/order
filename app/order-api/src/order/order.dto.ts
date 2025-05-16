@@ -173,6 +173,9 @@ export class OrderResponseDto extends BaseResponseDto {
   subtotal: number;
 
   @AutoMap()
+  loss: number;
+
+  @AutoMap()
   status: string;
 
   @AutoMap()

@@ -21,6 +21,10 @@ export class Invoice extends Base {
   amount: number;
 
   @AutoMap()
+  @Column({ name: 'loss_column', default: 0 })
+  loss: number;
+
+  @AutoMap()
   @Column({ name: 'voucher_value_column', default: 0 })
   voucherValue: number;
 

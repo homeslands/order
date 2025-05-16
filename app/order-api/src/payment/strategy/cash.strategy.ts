@@ -23,6 +23,7 @@ export class CashStrategy implements IPaymentStrategy {
     const payment = {
       paymentMethod: PaymentMethod.CASH,
       amount: order.subtotal,
+      loss: order.loss,
       message: 'hoa don thanh toan',
       userId: order.owner.id,
       transactionId: uuidv4(),
