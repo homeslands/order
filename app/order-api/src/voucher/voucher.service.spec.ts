@@ -435,6 +435,7 @@ describe('VoucherService', () => {
         menu: new Menu(),
         quantity: 1,
         subtotal: 100,
+        loss: 0,
         orderItems: [],
         payment: new Payment(),
         table: null,
