@@ -361,6 +361,7 @@
     "printerWriteError": "Failed to write to printer",
     "chefOrderMustBeAccepted": "Chef order must be accepted",
     "voucherGroupAlreadyExists": "Voucher group already exists",
-    "voucherVerificationIdentity": "This voucher requires login to use!"
+    "voucherVerificationIdentity": "This voucher requires login to use!",
+    "updateOrderSuccess": "Order updated successfully"
   }
 }

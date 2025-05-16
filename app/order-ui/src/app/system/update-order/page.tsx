@@ -98,17 +98,18 @@ export default function UpdateOrderPage() {
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
     }, [])
+
     const handleClickPayment = () => {
         // Update order type
         let params: IUpdateOrderTypeRequest | null = null
         if (type === OrderTypeEnum.AT_TABLE) {
-            params = { type: type, table: selectedTable?.slug || null }
+            params = { type: type, table: selectedTable?.slug || null, voucher: orderItems?.voucher?.slug || null }
         } else {
-            params = { type: type, table: null }
+            params = { type: type, table: null, voucher: orderItems?.voucher?.slug || null }
         }
         updateOrderType({ slug: slug as string, params }, {
             onSuccess: () => {
-                showToast(tToast('order.updateOrderTypeSuccess'))
+                showToast(tToast('order.updateOrderSuccess'))
                 navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
                 refetch()
             }

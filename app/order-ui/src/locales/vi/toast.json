@@ -300,6 +300,7 @@
     "updateOrderError": "Lỗi cập nhật đơn hàng",
     "invalidOrderSlug": "Mã đơn hàng không hợp lệ",
     "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
-    "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!"
+    "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!",
+    "updateOrderSuccess": "Cập nhật đơn hàng thành công"
   }
 }

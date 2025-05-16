@@ -50,7 +50,7 @@ import {
   IVoucher,
 } from '@/types'
 import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
-import { VOUCHER_TYPE } from '@/constants'
+import { Role, VOUCHER_TYPE } from '@/constants'
 
 interface IVoucherListSheetInUpdateOrderProps {
   defaultValue?: IOrder | undefined
@@ -86,7 +86,7 @@ export default function VoucherListSheetInUpdateOrder({
   }, 0) || 0;
 
 
-  const voucherValue = defaultValue?.type === VOUCHER_TYPE.PERCENT_ORDER
+  const voucherValue = defaultValue?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
     ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
     : defaultValue?.voucher?.value || 0
 
@@ -107,8 +107,17 @@ export default function VoucherListSheetInUpdateOrder({
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
+  const owner = defaultValue?.owner;
+
+  // const isNotCustomer = owner?.role?.name !== Role.CUSTOMER;
+  const isDefaultCustomer =
+    owner?.role?.name === Role.CUSTOMER &&
+    owner?.phonenumber === 'default-customer';
+
+  const isLoggedInNormalCustomer = userInfo && !isDefaultCustomer;
+
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    sheetOpen && userInfo
+    sheetOpen && isLoggedInNormalCustomer
       ? {
         isActive: true,
         hasPaging: true,
@@ -119,12 +128,13 @@ export default function VoucherListSheetInUpdateOrder({
     !!sheetOpen
   )
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && !userInfo
+    sheetOpen && (!userInfo || isDefaultCustomer)
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
+        isVerificationIdentity: false,
       }
       : undefined,
     !!sheetOpen
@@ -431,10 +441,17 @@ export default function VoucherListSheetInUpdateOrder({
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            <span className="text-xs italic text-primary">
-              {t('voucher.discountValue')}
-              {voucher.value}% {t('voucher.orderValue')}
-            </span>
+            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : (
+              <span className="text-xs italic text-primary">
+                {t('voucher.discountValue')}
+                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+              </span>
+            )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>

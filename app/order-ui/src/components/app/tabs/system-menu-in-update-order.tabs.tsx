@@ -26,7 +26,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-0">
+      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-2">
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
