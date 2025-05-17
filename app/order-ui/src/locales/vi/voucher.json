@@ -23,6 +23,7 @@
     "enterVoucherDescription": "Nhập mô tả voucher",
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
+    "outOfStock": "Hết hạn",
     "time": "Thời gian",
     "type": "Loại voucher",
     "enterVoucherType": "Chọn loại voucher",
