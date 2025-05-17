@@ -313,7 +313,31 @@ export default function UpdateVoucherSheet({
         )}
       />
     ),
-
+    remainingUsage: (
+      <FormField
+        control={form.control}
+        name="remainingUsage"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.remainingUsage')}</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                disabled
+                {...field}
+                placeholder={t('voucher.enterRemainingUsage')}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     maxUsage: (
       <FormField
         control={form.control}
@@ -526,8 +550,9 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                  <div className={`grid grid-cols-3 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
+                    {formFields.remainingUsage}
                     {formFields.numberOfUsagePerUser}
                   </div>
 
