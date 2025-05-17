@@ -551,6 +551,7 @@ export default function VoucherListSheet() {
           )}
           {isVoucherValid(voucher) ? (
             <Button
+              disabled={voucher.remainingUsage === 0}
               onClick={() => handleToggleVoucher(voucher)}
               variant={
                 isVoucherSelected(voucher.slug) ? 'destructive' : 'default'

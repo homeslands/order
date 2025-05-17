@@ -88,6 +88,14 @@ export const updateVoucherSchema = z
         })
       }
     }
+
+    if (data.maxUsage < data.remainingUsage) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['maxUsage'],
+        message: 'Số lượng tối đa không thể nhỏ hơn số lượng còn lại',
+      })
+    }
   })
 
 export type TCreateVoucherGroupSchema = z.infer<typeof createVoucherGroupSchema>
