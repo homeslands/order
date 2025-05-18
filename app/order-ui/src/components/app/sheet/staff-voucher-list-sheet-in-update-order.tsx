@@ -163,41 +163,46 @@ export default function StaffVoucherListSheetInUpdateOrder({
     if (defaultValue?.voucher) {
       const code = defaultValue.voucher.code;
       setSelectedVoucher(code);
-
-      if (defaultValue.voucher.isPrivate) {
-        refetchSpecificVoucher();
-      }
     }
-  }, [defaultValue?.voucher, refetchSpecificVoucher]);
+  }, [defaultValue?.voucher]);
 
   useEffect(() => {
     const baseList = voucherList?.result.items || []
     let newList = [...baseList]
 
+    // Add specific voucher to list if it exists and isn't already in the list
     if (specificVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
-      if (existingIndex === -1) {
+      if (existingIndex === -1 && specificVoucher.result.code === selectedVoucher) {
         newList = [specificVoucher.result, ...newList]
       }
     }
 
-    setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result])
+    // Always keep the currently applied voucher in the list
+    if (defaultValue?.voucher) {
+      const appliedVoucherIndex = newList.findIndex(v => v.slug === defaultValue.voucher?.slug)
+      if (appliedVoucherIndex === -1) {
+        newList = [defaultValue.voucher, ...newList]
+      }
+    }
 
-  // Add useEffect to update voucher list with specific voucher
+    setLocalVoucherList(newList)
+  }, [voucherList?.result?.items, specificVoucher?.result, defaultValue?.voucher, selectedVoucher])
+
+  // Remove duplicate useEffect for specific voucher
   useEffect(() => {
     if (userInfo && specificVoucher?.result) {
       setLocalVoucherList(prevList => {
         const existingVoucherIndex = prevList?.findIndex(
           (v) => v.slug === specificVoucher.result.slug
         )
-        if (existingVoucherIndex === -1) {
+        if (existingVoucherIndex === -1 && specificVoucher.result.code === selectedVoucher) {
           return [specificVoucher.result, ...prevList || []]
         }
         return prevList
       })
     }
-  }, [specificVoucher?.result, userInfo])
+  }, [specificVoucher?.result, userInfo, selectedVoucher])
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -334,16 +339,36 @@ export default function StaffVoucherListSheetInUpdateOrder({
 
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
+    const isRemainingUsage = voucher.remainingUsage > 0
     const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount && isValidDate
+    // const isRequiredLogin = voucher.isVerificationIdentity
+    const isUserLoggedIn = defaultValue?.owner?.phonenumber && defaultValue?.owner?.phonenumber !== 'default-customer' && defaultValue?.owner?.role?.name === Role.CUSTOMER
+    const isIdentityValid = !voucher.isVerificationIdentity || (voucher.isVerificationIdentity && isUserLoggedIn)
+    return isValidAmount && isValidDate && isIdentityValid && isRemainingUsage
   }
+
+  const isRequiredLogin = (voucher: IVoucher) => {
+    const isUserLoggedIn = defaultValue?.owner?.phonenumber && defaultValue?.owner?.phonenumber !== 'default-customer' && defaultValue?.owner?.role?.name === Role.CUSTOMER
+    return voucher.isVerificationIdentity && !isUserLoggedIn
+  }
+
+  // const isCustomerOwner =
+  //   sheetOpen &&
+  //   !!defaultValue?.owner && // Check khác null, undefined, ""
+  //   defaultValue?.owner?.role?.name === Role.CUSTOMER;
+
+  // console.log("isCustomerOwner", isCustomerOwner, defaultValue?.owner?.role?.name)
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
+  `
 
 
 
@@ -523,7 +548,7 @@ export default function StaffVoucherListSheetInUpdateOrder({
               </PopoverContent>
             </Popover>
           )}
-          {isVoucherValid(voucher) ? (
+          {(isVoucherSelected(voucher.slug) && voucher.remainingUsage > 0) || isVoucherValid(voucher) ? (
             <Button
               onClick={() => handleToggleVoucher(voucher)}
               variant={
@@ -542,9 +567,15 @@ export default function StaffVoucherListSheetInUpdateOrder({
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
-                  ? t('voucher.minOrderNotMet')
-                  : t('voucher.expired')}
+                {voucher.isVerificationIdentity && isRequiredLogin(voucher)
+                  ? t('voucher.needVerifyIdentity')
+                  : voucher.remainingUsage === 0
+                    ? t('voucher.outOfStock')
+                    : !moment().isBefore(moment(voucher.endDate))
+                      ? t('voucher.expired')
+                      : voucher.minOrderValue > subTotal
+                        ? t('voucher.minOrderNotMet')
+                        : ''}
               </span>
             </div>
           )}
