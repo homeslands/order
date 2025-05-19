@@ -169,7 +169,7 @@ export default function VoucherListSheet() {
   }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
 
   useEffect(() => {
-    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.ownerRole === Role.CUSTOMER)
+    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.owner !== '' && cartItems?.ownerRole === Role.CUSTOMER)
 
     const baseList = (isCustomer ? voucherList?.result.items : publicVoucherList?.result.items) || []
 
@@ -190,7 +190,7 @@ export default function VoucherListSheet() {
     }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole])
+  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole, selectedVoucher, cartItems?.owner])
 
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -357,10 +357,14 @@ export default function VoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 ? 'opacity-50' : ''}
+  `
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -416,7 +420,9 @@ export default function VoucherListSheet() {
             <div className="flex justify-between items-center">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
-                  ? t('voucher.outOfStock')
+                  ? <span className="text-xs italic text-destructive">
+                    {t('voucher.outOfStock')}
+                  </span>
                   : `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`}
               </span>
             </div>
