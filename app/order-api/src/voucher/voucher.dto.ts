@@ -2,6 +2,8 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsBoolean,
   IsDate,
   IsEnum,
@@ -11,6 +13,7 @@ import {
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { VoucherType } from './voucher.constant';
+import { INVALID_VOUCHER_SLUGS } from './voucher.validation';
 
 export class CreateVoucherDto {
   @ApiProperty()
@@ -437,4 +440,13 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   numberOfUsagePerUser: number;
+}
+
+export class ExportPdfVoucherDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty({ message: INVALID_VOUCHER_SLUGS })
+  @IsArray({ message: INVALID_VOUCHER_SLUGS })
+  @ArrayNotEmpty({ message: INVALID_VOUCHER_SLUGS })
+  vouchers: string[];
 }
