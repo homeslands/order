@@ -52,6 +52,7 @@
     "complete": "Complete",
     "minOrderNotMet": "Minimum order value not met",
     "expired": "Voucher has expired",
-    "noVoucher": "No voucher available"
+    "noVoucher": "No voucher available",
+    "needVerifyIdentity": "Please register as a member to use the voucher"
   }
 }
