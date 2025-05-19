@@ -33,7 +33,6 @@ import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
 import {
   useIsMobile,
   usePagination,
-  useSpecificPublicVoucher,
   useSpecificVoucher,
   useValidatePublicVoucher,
   useValidateVoucher,
@@ -103,17 +102,9 @@ export default function StaffVoucherListSheet() {
     }
   )
 
-  const { data: specificPublicVoucher, refetch: refetchSpecificPublicVoucher } = useSpecificPublicVoucher(
-    {
-      code: selectedVoucher
-    },
-  )
-
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
-    const vouchers = userInfo
-      ? [specificVoucher?.result].filter((v): v is IVoucher => !!v)
-      : [specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+    const vouchers = [specificVoucher?.result].filter((v): v is IVoucher => !!v)
 
     if (vouchers.length > 0) {
       setLocalVoucherList(prevList => {
@@ -127,7 +118,7 @@ export default function StaffVoucherListSheet() {
         return newList;
       });
     }
-  }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
+  }, [userInfo, specificVoucher?.result]);
 
   useEffect(() => {
     const baseList = (userInfo ? voucherList?.result.items : []) || []
@@ -140,15 +131,9 @@ export default function StaffVoucherListSheet() {
       }
     }
 
-    if (!userInfo && specificPublicVoucher?.result) {
-      const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
-      if (existingIndex === -1) {
-        newList = [specificPublicVoucher.result, ...newList]
-      }
-    }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
+  }, [userInfo, voucherList?.result?.items, specificVoucher?.result])
 
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -165,15 +150,11 @@ export default function StaffVoucherListSheet() {
   useEffect(() => {
     if (userInfo && specificVoucher?.result?.isPrivate) {
       refetchSpecificVoucher();
-    } else if (!userInfo && specificPublicVoucher?.result) {
-      refetchSpecificPublicVoucher();
     }
   }, [
     userInfo,
     specificVoucher?.result?.isPrivate,
-    specificPublicVoucher?.result,
-    refetchSpecificVoucher,
-    refetchSpecificPublicVoucher
+    refetchSpecificVoucher
   ]);
 
   const handleCopyCode = (code: string) => {
@@ -184,10 +165,11 @@ export default function StaffVoucherListSheet() {
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
     const isValidDate = moment().isBefore(moment(voucher.endDate))
+    const isRemainingUsage = voucher.remainingUsage > 0
     const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!userInfo
+    const isUserLoggedIn = !!cartItems?.owner && cartItems.ownerRole === Role.CUSTOMER
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
-    return isValidAmount && isValidDate && isIdentityValid
+    return isValidAmount && isValidDate && isIdentityValid && isRemainingUsage
   }
 
   // Filter and sort vouchers to get the best one
@@ -280,7 +262,7 @@ export default function StaffVoucherListSheet() {
       return
     }
 
-    if (userInfo) {
+    if (cartItems?.ownerPhoneNumber) {
       const { data } = await refetchSpecificVoucher();
       const voucher = data?.result;
 
@@ -301,7 +283,7 @@ export default function StaffVoucherListSheet() {
         showErrorToast(1000);
       }
     } else {
-      const { data } = await refetchSpecificPublicVoucher(); // Gọi fetch thủ công
+      const { data } = await refetchSpecificVoucher();
       const publicVoucher = data?.result;
 
       if (publicVoucher) {
@@ -327,10 +309,18 @@ export default function StaffVoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 py-2 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
+  `
+
+    // const needsLogin = voucher.isVerificationIdentity && !cartItems?.ownerPhoneNumber
+    // const isVoucherUsable = isVoucherValid(voucher) && !needsLogin
+
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -449,6 +439,11 @@ export default function StaffVoucherListSheet() {
                           {t('voucher.minOrderValue')}:{' '}
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
+                        {voucher.isVerificationIdentity && (
+                          <li className="text-destructive">
+                            {t('voucher.isVerificationIdentity')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -502,6 +497,11 @@ export default function StaffVoucherListSheet() {
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}
                       </li>
+                      {voucher.isVerificationIdentity && (
+                        <li className="text-destructive">
+                          {t('voucher.isVerificationIdentity')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -527,9 +527,10 @@ export default function StaffVoucherListSheet() {
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
-                  ? t('voucher.minOrderNotMet')
-                  : t('voucher.expired')}
+                {voucher.isVerificationIdentity && !isCustomerOwner
+                  ? t('voucher.needVerifyIdentity')
+                  : voucher.minOrderValue > subTotal
+                  && t('voucher.minOrderNotMet')}
               </span>
             </div>
           )}
