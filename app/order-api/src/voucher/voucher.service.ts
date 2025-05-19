@@ -387,6 +387,7 @@ export class VoucherService {
         where: findOptionsWhere,
         order: {
           createdAt: 'DESC',
+          code: 'ASC',
         },
       };
       if (options.hasPaging) {
