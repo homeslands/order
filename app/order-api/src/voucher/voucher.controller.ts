@@ -10,11 +10,13 @@ import {
   HttpCode,
   ValidationPipe,
   Query,
+  StreamableFile,
 } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import {
   BulkCreateVoucherDto,
   CreateVoucherDto,
+  ExportPdfVoucherDto,
   GetAllVoucherDto,
   GetAllVoucherForUserDto,
   GetAllVoucherForUserPublicDto,
@@ -279,5 +281,21 @@ export class VoucherController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;
+  }
+
+  @Post('export-pdf')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @ApiOperation({ summary: 'Export chef order item ticket' })
+  @HttpCode(HttpStatus.OK)
+  async exportChefOrderItemTicket(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    exportVoucherDto: ExportPdfVoucherDto,
+  ): Promise<StreamableFile> {
+    const result = await this.voucherService.exportPdf(exportVoucherDto);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="Chef-order-${new Date().toISOString()}.pdf"`,
+    });
   }
 }

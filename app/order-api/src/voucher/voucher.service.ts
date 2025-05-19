@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   BulkCreateVoucherDto,
   CreateVoucherDto,
+  ExportPdfVoucherDto,
   GetAllVoucherDto,
   GetAllVoucherForUserDto,
   GetAllVoucherForUserPublicDto,
@@ -16,6 +17,7 @@ import { Voucher } from './voucher.entity';
 import {
   FindManyOptions,
   FindOptionsWhere,
+  In,
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -34,6 +36,10 @@ import { getRandomString } from 'src/helper';
 import { VoucherType, VoucherValueType } from './voucher.constant';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
 import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
+import { PdfService } from 'src/pdf/pdf.service';
+import moment from 'moment';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { PDFDocument } from 'pdf-lib';
 
 @Injectable()
 export class VoucherService {
@@ -48,6 +54,8 @@ export class VoucherService {
     private readonly voucherUtils: VoucherUtils,
     private readonly orderUtils: OrderUtils,
     private readonly voucherGroupUtils: VoucherGroupUtils,
+    private readonly pdfService: PdfService,
+    private readonly qrCodeService: QrCodeService,
   ) {}
 
   async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
@@ -508,5 +516,61 @@ export class VoucherService {
       },
     );
     return this.mapper.map(deletedVoucher, Voucher, VoucherResponseDto);
+  }
+
+  async exportPdf(exportPdfVoucherDto: ExportPdfVoucherDto) {
+    const context = `${VoucherService.name}.${this.exportPdf.name}`;
+
+    const vouchers = await this.voucherRepository.find({
+      where: { slug: In(exportPdfVoucherDto.vouchers) },
+    });
+    if (_.isEmpty(vouchers)) {
+      this.logger.error('Vouchers not found', null, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND);
+    }
+
+    const buffers: Buffer[] = [];
+    for (const voucher of vouchers) {
+      const qrCode = await this.qrCodeService.generateQRCode(voucher.code);
+      const data = await this.pdfService.generatePdf(
+        'voucher-ticket',
+        {
+          code: voucher.code,
+          startDate: moment(voucher.startDate).format('DD/MM/YYYY'),
+          endDate: moment(voucher.endDate).format('DD/MM/YYYY'),
+          qrCode,
+        },
+        {
+          width: '50mm',
+          height: '30mm',
+          preferCSSPageSize: true,
+          margin: {
+            top: '0cm',
+            bottom: '0cm',
+            left: '0cm',
+            right: '0cm',
+          },
+          scale: 1,
+        },
+      );
+      buffers.push(data);
+    }
+
+    const mergedPdf = await this.mergePdfBuffers(buffers);
+
+    return mergedPdf;
+  }
+
+  public async mergePdfBuffers(buffers: Buffer[]): Promise<Buffer> {
+    const mergedPdf = await PDFDocument.create();
+
+    for (const buffer of buffers) {
+      const pdf = await PDFDocument.load(buffer);
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
+
+    const finalPdf = await mergedPdf.save();
+    return Buffer.from(finalPdf);
   }
 }
