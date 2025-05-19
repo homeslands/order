@@ -195,44 +195,41 @@ export default function VoucherListSheetInUpdateOrder({
   }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
 
   useEffect(() => {
+    if (defaultValue?.voucher) {
+      const code = defaultValue.voucher.code;
+      setSelectedVoucher(code);
+    }
+  }, [defaultValue?.voucher]);
+
+  useEffect(() => {
     const baseList = (userInfo ? voucherList?.result.items : publicVoucherList?.result.items) || []
     let newList = [...baseList]
 
+    // Add specific voucher to list if it exists and isn't already in the list
     if (userInfo && specificVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
-      if (existingIndex === -1) {
+      if (existingIndex === -1 && specificVoucher.result.code === selectedVoucher) {
         newList = [specificVoucher.result, ...newList]
       }
     }
 
     if (!userInfo && specificPublicVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
-      if (existingIndex === -1) {
+      if (existingIndex === -1 && specificPublicVoucher.result.code === selectedVoucher) {
         newList = [specificPublicVoucher.result, ...newList]
       }
     }
 
-    setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
-
-  useEffect(() => {
+    // Always keep the currently applied voucher in the list
     if (defaultValue?.voucher) {
-      const code = defaultValue.voucher.code;
-      setSelectedVoucher(code);
-
-      if (defaultValue.voucher.isPrivate) {
-        refetchSpecificVoucher();
+      const appliedVoucherIndex = newList.findIndex(v => v.slug === defaultValue.voucher?.slug)
+      if (appliedVoucherIndex === -1) {
+        newList = [defaultValue.voucher, ...newList]
       }
     }
-  }, [defaultValue?.voucher, refetchSpecificVoucher]);
 
-  // useEffect(() => {
-  //   if (defaultValue?.voucher?.slug) {
-  //     setSelectedVoucher(defaultValue.voucher.slug)
-  //   } else {
-  //     setSelectedVoucher('')
-  //   }
-  // }, [defaultValue?.voucher?.slug, sheetOpen])
+    setLocalVoucherList(newList)
+  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, defaultValue?.voucher, selectedVoucher])
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -388,7 +385,7 @@ export default function VoucherListSheetInUpdateOrder({
         showErrorToast(1000);
       }
     } else {
-      const { data } = await refetchSpecificPublicVoucher(); // Gọi fetch thủ công
+      const { data } = await refetchSpecificPublicVoucher();
       const publicVoucher = data?.result;
 
       if (publicVoucher) {
@@ -413,16 +410,21 @@ export default function VoucherListSheetInUpdateOrder({
 
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
+    const isRemainingUsage = voucher.remainingUsage > 0
     const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount && isValidDate
+    return isValidAmount && isValidDate && isRemainingUsage
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
+  `
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -600,7 +602,7 @@ export default function VoucherListSheetInUpdateOrder({
               </PopoverContent>
             </Popover>
           )}
-          {isVoucherValid(voucher) ? (
+          {(isVoucherSelected(voucher.slug) || isVoucherValid(voucher)) ? (
             <Button
               onClick={() => handleToggleVoucher(voucher)}
               variant={
@@ -619,9 +621,15 @@ export default function VoucherListSheetInUpdateOrder({
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
-                  ? t('voucher.minOrderNotMet')
-                  : t('voucher.expired')}
+                {voucher.isVerificationIdentity && !userInfo
+                  ? t('voucher.needVerifyIdentity')
+                  : voucher.remainingUsage === 0
+                    ? t('voucher.outOfStock')
+                    : !moment().isBefore(moment(voucher.endDate))
+                      ? t('voucher.expired')
+                      : voucher.minOrderValue > subTotal
+                        ? t('voucher.minOrderNotMet')
+                        : ''}
               </span>
             </div>
           )}

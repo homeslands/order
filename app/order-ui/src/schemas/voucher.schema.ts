@@ -70,7 +70,7 @@ export const updateVoucherSchema = z
       }),
     maxUsage: z.number().int().positive(),
     minOrderValue: z.number().int().nonnegative(),
-    remainingUsage: z.number().int().positive(),
+    remainingUsage: z.number().int().nonnegative(),
     isActive: z.boolean(),
     isPrivate: z.boolean(),
     startDate: z.string(),

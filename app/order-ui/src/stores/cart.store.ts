@@ -13,6 +13,7 @@ import {
   OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
+import { Role } from '@/constants'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
@@ -90,6 +91,7 @@ export const useCartItemStore = create<ICartItemStore>()(
             approvalBy: '',
             ownerPhoneNumber: '',
             ownerFullName: '',
+            ownerRole: Role.CUSTOMER,
           }
 
           set({

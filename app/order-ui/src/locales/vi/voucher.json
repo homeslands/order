@@ -23,7 +23,7 @@
     "enterVoucherDescription": "Nhập mô tả voucher",
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
-    "outOfStock": "Hết hạn",
+    "outOfStock": "Số lượng voucher đã hết",
     "time": "Thời gian",
     "type": "Loại voucher",
     "enterVoucherType": "Chọn loại voucher",
@@ -72,6 +72,6 @@
     "expired": "Voucher đã hết hạn",
     "noVoucher": "Không có mã giảm giá hợp lệ",
     "isVerificationIdentity": "Kiểm tra định danh (Voucher sẽ khả dụng đối với khách hàng đã đăng ký tài khoản)",
-    "needVerifyIdentity": "Vui lòng đăng nhập để sử dụng voucher"
+    "needVerifyIdentity": "Hãy đăng ký thành viên để sử dụng voucher"
   }
 }
