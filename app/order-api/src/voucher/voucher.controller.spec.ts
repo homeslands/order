@@ -21,6 +21,8 @@ import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
 import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -36,6 +38,8 @@ describe('VoucherController', () => {
         MenuItemUtils,
         UserUtils,
         VoucherGroupUtils,
+        PdfService,
+        QrCodeService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
