@@ -86,7 +86,6 @@ export default function ClientUpdateOrderPage() {
     //         }
     //     })
     // }
-
     const handleClickPayment = () => {
         navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`)
     }
