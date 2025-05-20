@@ -49,12 +49,19 @@ export const useCartItemStore = create<ICartItemStore>()(
       removeCustomerInfo: () => {
         const { cartItems } = get()
         if (cartItems) {
+          // Check if current voucher requires verification
+          const requiresVerification =
+            cartItems.voucher?.isVerificationIdentity === true
+
           set({
             cartItems: {
               ...cartItems,
               owner: '',
               ownerFullName: '',
               ownerPhoneNumber: '',
+              ownerRole: '',
+              // Remove voucher if it requires verification
+              voucher: requiresVerification ? null : cartItems.voucher,
             },
             lastModified: moment().valueOf(),
           })
