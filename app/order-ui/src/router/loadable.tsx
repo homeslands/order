@@ -375,3 +375,10 @@ export const BannerPage = React.lazy(() =>
 //     default: module.VoucherAndPromotionPage,
 //   })),
 // )
+
+//Gift card page
+export const GiftCardPage = React.lazy(() =>
+  import('@/app/system/gift-card').then((module) => ({
+    default: module.GiftCardPage,
+  })),
+)
