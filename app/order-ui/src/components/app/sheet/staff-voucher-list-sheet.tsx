@@ -139,10 +139,15 @@ export default function StaffVoucherListSheet() {
     if (cartItems?.voucher) {
       const code = cartItems.voucher.code;
       setSelectedVoucher(code);
+      setAppliedVoucher(cartItems.voucher.slug);
 
       if (cartItems.voucher.isPrivate) {
         refetchSpecificVoucher();
       }
+    } else {
+      // Clear selected and applied voucher when cart voucher is removed
+      setSelectedVoucher('');
+      setAppliedVoucher('');
     }
   }, [cartItems?.voucher, refetchSpecificVoucher]);
 
@@ -217,6 +222,7 @@ export default function StaffVoucherListSheet() {
         // Remove voucher
         removeVoucher()
         setAppliedVoucher('')
+        setSelectedVoucher('')
         showToast(tToast('toast.removeVoucherSuccess'))
       } else {
         // Apply voucher
@@ -235,6 +241,7 @@ export default function StaffVoucherListSheet() {
             onSuccess: () => {
               addVoucher(voucher)
               setAppliedVoucher(voucher.slug)
+              setSelectedVoucher(voucher.code)
               setSheetOpen(false)
               showToast(tToast('toast.applyVoucherSuccess'))
             },
@@ -244,6 +251,7 @@ export default function StaffVoucherListSheet() {
             onSuccess: () => {
               addVoucher(voucher)
               setAppliedVoucher(voucher.slug)
+              setSelectedVoucher(voucher.code)
               setSheetOpen(false)
               showToast(tToast('toast.applyVoucherSuccess'))
             },
