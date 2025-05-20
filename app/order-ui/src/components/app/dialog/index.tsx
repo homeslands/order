@@ -55,6 +55,8 @@ export { default as UpdateOrderItemDialog } from './update-order-item-dialog'
 export { default as CancelOrderDialog } from './cancel-order-dialog'
 export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
 
+export { default as ConfirmExportOrderInvoiceDialog } from './confirm-export-order-invoice-dialog'
+
 export { default as AddNewOrderItemDialog } from './client-add-to-current-order-dialog'
 export { default as SystemAddToCurrentOrderDialog } from './system-add-to-current-order-dialog'
 

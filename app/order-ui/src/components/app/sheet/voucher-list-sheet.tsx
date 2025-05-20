@@ -71,11 +71,6 @@ export default function VoucherListSheet() {
   // Add useEffect to check voucher validation
   useEffect(() => {
     if (cartItems?.voucher) {
-      // If user is logged in but voucher doesn't require verification
-      // if (userInfo && !cartItems.voucher.isVerificationIdentity) {
-      //   showErrorToast(1003) // Show error toast
-      //   removeVoucher() // Remove invalid voucher
-      // }
       // If user is not logged in but voucher requires verification
       if (!userInfo && cartItems.voucher.isVerificationIdentity) {
         // console.log('cartItems.voucher', cartItems.voucher)
