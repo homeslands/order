@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@types/pdfmake": "^0.2.11",
+    "pdfmake": "^0.2.20"
+  }
+}

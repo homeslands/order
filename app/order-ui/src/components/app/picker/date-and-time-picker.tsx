@@ -115,22 +115,33 @@ export default function DateAndTimePicker({
     }
   }
 
-
   const handleTimeChange = (newHour: number) => {
     setHour(newHour)
-    setMinute(0)
 
-    if (!showTime) return // ❌ Không xử lý nếu không hiển thị chọn giờ
+    if (!showTime) return
 
     if (selectedDate) {
       const momentDate = moment(selectedDate)
       momentDate.hours(newHour)
-      momentDate.minutes(0)
+      momentDate.minutes(minute)
       momentDate.seconds(0)
       onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
     }
   }
 
+  const handleMinuteChange = (newMinute: number) => {
+    setMinute(newMinute)
+
+    if (!showTime) return
+
+    if (selectedDate) {
+      const momentDate = moment(selectedDate)
+      momentDate.hours(hour)
+      momentDate.minutes(newMinute)
+      momentDate.seconds(0)
+      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
+    }
+  }
 
   const handleTodayClick = () => {
     const today = new Date()
@@ -151,9 +162,9 @@ export default function DateAndTimePicker({
     if (!date) return ''
     const momentDate = moment(date)
     momentDate.hours(hour)
-    momentDate.minutes(0)
+    momentDate.minutes(minute)
     momentDate.seconds(0)
-    return momentDate.format('YYYY-MM-DD HH:mm:ss')
+    return momentDate.format('DD/MM/YYYY HH:mm')
   }
 
   // validate if end date is greater than or equal to start date
@@ -283,7 +294,7 @@ export default function DateAndTimePicker({
                   </span>
                   <Select
                     value={minute.toString()}
-                    onValueChange={(value) => handleTimeChange(parseInt(value))}
+                    onValueChange={(value) => handleMinuteChange(parseInt(value))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="MM" />
