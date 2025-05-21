@@ -156,7 +156,7 @@ export class InvoiceService {
     );
 
     Object.assign(invoice, {
-      subtotalBeforeVoucher: order.invoice.amount + voucherValue,
+      subtotalBeforeVoucher: invoice.amount + voucherValue,
       // (invoice.amount * 100) /
       // (invoice.voucherValue !== 0 ? invoice.voucherValue : 100),
     });
