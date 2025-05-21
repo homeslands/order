@@ -99,6 +99,13 @@ export class VoucherService {
     voucher.voucherGroup = voucherGroup;
     if (voucher.type === VoucherType.PERCENT_ORDER) {
       voucher.valueType = VoucherValueType.PERCENTAGE;
+      if (voucher.value > 100) {
+        this.logger.warn(
+          VoucherValidation.INVALID_VOUCHER_VALUE.message,
+          context,
+        );
+        throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
+      }
     } else if (voucher.type === VoucherType.FIXED_VALUE) {
       voucher.valueType = VoucherValueType.AMOUNT;
     } else {
@@ -172,6 +179,13 @@ export class VoucherService {
 
     if (voucherTemplate.type === VoucherType.PERCENT_ORDER) {
       voucherTemplate.valueType = VoucherValueType.PERCENTAGE;
+      if (voucherTemplate.value > 100) {
+        this.logger.warn(
+          VoucherValidation.INVALID_VOUCHER_VALUE.message,
+          context,
+        );
+        throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
+      }
     } else if (voucherTemplate.type === VoucherType.FIXED_VALUE) {
       voucherTemplate.valueType = VoucherValueType.AMOUNT;
     } else {
@@ -446,6 +460,16 @@ export class VoucherService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: updateVoucherDto.voucherGroup },
     });
+
+    if (voucher.type === VoucherType.PERCENT_ORDER) {
+      if (voucher.value > 100) {
+        this.logger.warn(
+          VoucherValidation.INVALID_VOUCHER_VALUE.message,
+          context,
+        );
+        throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
+      }
+    }
 
     if (voucher.maxUsage !== updateVoucherDto.maxUsage) {
       const orders = await this.orderUtils.getBulkOrders({

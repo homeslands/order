@@ -23,6 +23,7 @@ export const VOUCHER_HAS_ORDERS = 'VOUCHER_HAS_ORDERS';
 export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
   'VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE';
 export const INVALID_VOUCHER_SLUGS = 'INVALID_VOUCHER_SLUGS';
+export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -42,7 +43,8 @@ export type TVoucherErrorCodeKey =
   | typeof MUST_VERIFY_IDENTITY_TO_USE_VOUCHER
   | typeof VOUCHER_HAS_ORDERS
   | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE
-  | typeof INVALID_VOUCHER_SLUGS;
+  | typeof INVALID_VOUCHER_SLUGS
+  | typeof INVALID_VOUCHER_VALUE;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -91,4 +93,5 @@ export const VoucherValidation: TVoucherErrorCode = {
     'Voucher has used can not update max usage',
   ),
   INVALID_VOUCHER_SLUGS: createErrorCode(143419, 'Invalid voucher slugs'),
+  INVALID_VOUCHER_VALUE: createErrorCode(143420, 'Invalid voucher value'),
 };
