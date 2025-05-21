@@ -1,0 +1,29 @@
+{    "giftCard": {
+        "pageTitle": "Quản lý thẻ quà tặng",
+        
+        "title": "Tiêu đề",
+        "description": "Mô tả",
+        "image": "Hình ảnh",
+        "price": "Giá",
+        "points": "Xu quy đổi",
+        "slug": "Mã thẻ quà tặng",
+        "status": "Trạng thái",
+        "isActive": "Trạng thái",
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        
+        "create": "Tạo thẻ quà tặng",
+        "createTitle": "Tạo thẻ quà tặng mới",
+        "createDescription": "Điền thông tin để tạo thẻ quà tặng mới",
+        "enterGiftCardTitle": "Nhập tiêu đề thẻ quà tặng",
+        "enterGiftCardDescription": "Nhập mô tả thẻ quà tặng",
+        
+        "update": "Cập nhật thẻ quà tặng",
+        
+        "delete": "Xóa thẻ quà tặng",
+        "deleteTitle": "Xóa thẻ quà tặng",
+        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",
+        "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
+        "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+    }
+}

@@ -11,6 +11,7 @@
     "menuManagement": "Menu Management",
     "dishManagement": "Dish Management",
     "customerManagement": "Customer Management",
+    "giftCardManagement": "Gift Card Management",
     "userManagement": "Employee Management",
     "roleManagement": "Role Management",
     "branchManagement": "Branch Management",

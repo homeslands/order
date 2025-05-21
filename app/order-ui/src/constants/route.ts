@@ -40,6 +40,7 @@ export const ROUTE = {
   STAFF_CHEF_AREA_MANAGEMENT: '/system/area',
   STAFF_BANNER: '/system/banner',
   STAFF_CONFIG: '/system/config',
+  STAFF_GIFT_CARD: '/system/gift-card',
 
   //Client Routes
   CLIENT_HOME: '/',
