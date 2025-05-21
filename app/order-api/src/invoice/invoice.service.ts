@@ -84,7 +84,12 @@ export class InvoiceService {
 
     let voucherValue = 0;
     if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue = (order.subtotal * 100) / order.voucher.value + order.loss;
+      let voucherPercent = 100;
+      if (order.voucher.value > 0) {
+        voucherPercent = order.voucher.value;
+      }
+      const subtotalBeforeVoucher = (order.subtotal * 100) / voucherPercent;
+      voucherValue = subtotalBeforeVoucher - order.subtotal + order.loss;
     }
     if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
       voucherValue = order.voucher.value + order.loss;
