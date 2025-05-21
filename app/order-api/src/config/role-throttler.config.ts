@@ -8,7 +8,7 @@ export interface IRoleThrottlerConfig {
 export const roleThrottlerConfig: Record<string, IRoleThrottlerConfig> = {
   GUEST: {
     ttl: 60000,
-    limit: 10,
+    limit: 15,
   },
   [RoleEnum.Customer]: {
     ttl: 60000,

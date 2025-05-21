@@ -5,7 +5,7 @@ import {
   ThrottlerRequest,
   ThrottlerStorage,
 } from '@nestjs/throttler';
-import { roleThrottlerConfig } from '../config/role-throttler.config';
+import { roleThrottlerConfig } from 'src/config/role-throttler.config';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
@@ -26,7 +26,22 @@ export class RoleThrottlerGuard extends ThrottlerGuard {
     const { req } = this.getRequestResponse(context);
     const role = req?.user?.scope?.role || 'GUEST';
 
-    const { limit, ttl } = roleThrottlerConfig[role];
+    // Get limit and ttl from decorator
+    // @Throttle({ default: { limit: <a>, ttl: <b> } })
+    const name = 'default';
+    const limitFromDecorator = this.reflector.getAllAndOverride<number>(
+      'THROTTLER:LIMIT' + name,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const ttlFromDecorator = this.reflector.getAllAndOverride<number>(
+      'THROTTLER:TTL' + name,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const fallbackConfig = roleThrottlerConfig[role];
+    const limit = limitFromDecorator ?? fallbackConfig.limit;
+    const ttl = ttlFromDecorator ?? fallbackConfig.ttl;
 
     const tracker = await this.getTracker(req);
     const handler = context.getHandler();
