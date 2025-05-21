@@ -14,7 +14,6 @@ import {
   VoucherResponseDto,
 } from './voucher.dto';
 import { baseMapper } from 'src/app/base.mapper';
-import moment from 'moment';
 
 @Injectable()
 export class VoucherProfile extends AutomapperProfile {
@@ -29,24 +28,26 @@ export class VoucherProfile extends AutomapperProfile {
         Voucher,
         VoucherResponseDto,
         extend(baseMapper(mapper)),
-        forMember(
-          (destination) => destination.startDate,
-          mapFrom((source) => {
-            // Date format: YYYY-MM-DDT00:00:00Z
-            // Example: source.date = 2024-12-25T17:00:00.000Z
-            // destination.date: 2024-12-26T00:00:00.000Z
-            return moment(source.startDate).add(7, 'hours').toDate();
-          }),
-        ),
-        forMember(
-          (destination) => destination.endDate,
-          mapFrom((source) => {
-            // Date format: YYYY-MM-DDT00:00:00Z
-            // Example: source.date = 2024-12-25T17:00:00.000Z
-            // destination.date: 2024-12-26T00:00:00.000Z
-            return moment(source.endDate).add(7, 'hours').toDate();
-          }),
-        ),
+        // forMember(
+        //   (destination) => destination.startDate,
+        //   mapFrom((source) => {
+        //     // Date format: YYYY-MM-DDT00:00:00Z
+        //     // Example: source.date = 2024-12-25T17:00:00.000Z
+        //     // destination.date: 2024-12-26T00:00:00.000Z
+        //     // return moment(source.startDate).add(7, 'hours').toDate();
+        //     return moment(source.startDate).toDate();
+        //   }),
+        // ),
+        // forMember(
+        //   (destination) => destination.endDate,
+        //   mapFrom((source) => {
+        //     // Date format: YYYY-MM-DDT00:00:00Z
+        //     // Example: source.date = 2024-12-25T17:00:00.000Z
+        //     // destination.date: 2024-12-26T00:00:00.000Z
+        //     // return moment(source.endDate).add(7, 'hours').toDate();
+        //     return moment(source.endDate).toDate();
+        //   }),
+        // ),
       );
       createMap(
         mapper,
