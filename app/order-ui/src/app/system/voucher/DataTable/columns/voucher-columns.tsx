@@ -101,6 +101,26 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       },
     },
     {
+      accessorKey: 'private',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.privateType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isPrivate ? t('voucher.private') : t('voucher.public')}</div>
+      },
+    },
+    {
+      accessorKey: 'verificationIdentity',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.verificationIdentityType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isVerificationIdentity ? t('voucher.verificationIdentity') : t('voucher.noVerificationIdentity')}</div>
+      },
+    },
+    {
       accessorKey: 'type',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('voucher.type')} />
