@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Logo } from '@/assets/images';
 import { formatCurrency } from '@/utils';
 import { IOrder } from '@/types';
-import { PaymentMethod } from '@/constants';
+import { PaymentMethod, VOUCHER_TYPE } from '@/constants';
 
 interface InvoiceProps {
     order: IOrder | undefined
@@ -56,7 +56,7 @@ export default function Invoice({
             {/* Invoice items */}
             <table className="mt-4 min-w-full text-sm border-collapse table-auto">
                 <thead>
-                    <tr className="border-b border-black bg-white-100">
+                    <tr className="border-b border-black border-dashed bg-white-100">
                         <th className="py-2 w-2/3 text-left">Món</th>
                         <th className="px-1 py-2 text-left">SL</th>
                         <th className="px-2 py-2 text-left">Đ.Giá</th>
@@ -66,7 +66,7 @@ export default function Invoice({
                 </thead>
                 <tbody>
                     {order?.orderItems.map((item, idx) => (
-                        <tr key={idx} className="border-b border-black hover:bg-gray-50">
+                        <tr key={idx} className="border-b border-black border-dashed hover:bg-gray-50">
                             <td className="py-2 w-2/3 text-xs">
                                 {item?.variant?.product?.name}{' '}
                                 <span className="uppercase">({item?.variant?.size?.name})</span>
@@ -84,19 +84,23 @@ export default function Invoice({
                             {order?.payment?.paymentMethod === PaymentMethod.CASH ? t('order.cash') : t('order.transfer')}
                         </td>
                     </tr>
-                    <tr className="border-t border-black">
+                    <tr className="border-black">
                         <td className="py-2 text-left">Tổng cộng</td>
                         <td className="py-2 text-right" colSpan={4}>
                             {formatCurrency(subtotalBeforeVoucher || 0)}
                         </td>
                     </tr>
-                    <tr className="border-t border-black">
-                        <td className="py-2 text-left">Giảm giá(%)</td>
+                    <tr className="border-black">
+                        <td className="py-2 text-left">Giảm giá</td>
                         <td className="py-2 text-right" colSpan={4}>
-                            {voucherValue}
+                            {order?.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ?
+                                `${voucherValue}%`
+                                :
+                                `${formatCurrency(voucherValue || 0)}`
+                            }
                         </td>
                     </tr>
-                    <tr className="border-t border-black">
+                    <tr className="border-black">
                         <td className="py-2 text-left">Thành tiền</td>
                         <td className="py-2 text-xl font-bold text-right" colSpan={4}>
                             {formatCurrency(order?.subtotal || 0)}
@@ -106,10 +110,10 @@ export default function Invoice({
             </table>
 
             {/* Invoice footer */}
-            <p className="mt-2 text-xs">
+            {/* <p className="mt-2 text-xs">
                 Giá sản phẩm đã bao gồm VAT 10%. Vui lòng giữ lại hóa đơn, để
                 xác thực đó là đơn hàng của bạn.
-            </p>
+            </p> */}
             <span className='text-sm italic text-destructive'>
                 {t('order.invoiceNote')}
             </span>

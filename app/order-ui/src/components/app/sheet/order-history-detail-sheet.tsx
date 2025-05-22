@@ -285,13 +285,13 @@ export default function OrderHistoryDetailSheet({
                         - {`${formatCurrency(voucherDiscount || 0)}`}
                       </p>
                     </div>}
-                  {orderDetail?.loss &&
-                    <div className="flex justify-between pb-4 w-full border-b">
+                  {orderDetail?.loss > 0 &&
+                    <div className="flex justify-between pb-4 w-full">
                       <h3 className="text-sm italic font-medium text-green-500">
                         {t('order.invoiceAutoDiscountUnderThreshold')}
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency(orderDetail?.loss || 0)}`}
+                        - {`${formatCurrency(orderDetail?.loss)}`}
                       </p>
                     </div>}
                   {/* <Separator /> */}
