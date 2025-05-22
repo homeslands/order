@@ -28,6 +28,7 @@ import { TUpdateGiftCardSchema, updateGiftCardSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { GiftCardStatusSelect } from '@/components/app/select'
 import { useUpdateGiftCard } from '@/hooks'
+import { showToast } from '@/utils'
 
 interface IUpdateGiftCardSheetProps {
   giftCard: IGiftCard
@@ -36,22 +37,32 @@ interface IUpdateGiftCardSheetProps {
 export default function UpdateGiftCardSheet({
   giftCard,
 }: IUpdateGiftCardSheetProps) {
-  const { t } = useTranslation(['giftCard'])
+  const { t } = useTranslation(['giftCard', 'common'])
+  const { t: tToast } = useTranslation('toast')
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
   const { mutate, isPending } = useUpdateGiftCard()
 
+  const defaultFormValues = {
+    slug: giftCard.slug,
+    title: giftCard.title,
+    description: giftCard.description,
+    file: undefined,
+    points: Number(giftCard.points),
+    price: Number(giftCard.price),
+    isActive: giftCard.isActive,
+  }
+
+  const handleSheetOpenChange = (open: boolean) => {
+    setSheetOpen(open)
+    if (!open) {
+      form.reset(defaultFormValues)
+    }
+  }
+
   const form = useForm<TUpdateGiftCardSchema>({
     resolver: zodResolver(updateGiftCardSchema),
-    defaultValues: {
-      slug: giftCard.slug,
-      title: giftCard.title,
-      description: giftCard.description,
-      file: undefined,
-      points: Number(giftCard.points),
-      price: Number(giftCard.price),
-      isActive: giftCard.isActive,
-    },
+    defaultValues: defaultFormValues,
   })
 
   const handleSubmit = (data: TUpdateGiftCardSchema) => {
@@ -78,20 +89,10 @@ export default function UpdateGiftCardSheet({
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: [QUERYKEY.giftCards] })
           setSheetOpen(false)
-          resetForm()
+          showToast(tToast('toast.updateGiftCardSuccess'))
         },
       },
     )
-  }
-  const resetForm = () => {
-    form.reset({
-      title: '',
-      description: '',
-      points: 0,
-      price: 0,
-      file: undefined,
-      isActive: true,
-    })
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -174,7 +175,22 @@ export default function UpdateGiftCardSheet({
               {t('giftCard.points')}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="number" min={1} />
+              <Input
+                {...field}
+                type="number"
+                min={1000}
+                max={10000000}
+                onFocus={() => {
+                  if (field.value === 0) {
+                    field.onChange('')
+                  }
+                }}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === '' ? 0 : Number(e.target.value)
+                  field.onChange(value)
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -192,7 +208,22 @@ export default function UpdateGiftCardSheet({
               {t('giftCard.price')}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="number" min={1} />
+              <Input
+                {...field}
+                type="number"
+                min={1000}
+                max={10000000}
+                onFocus={() => {
+                  if (field.value === 0) {
+                    field.onChange('')
+                  }
+                }}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === '' ? 0 : Number(e.target.value)
+                  field.onChange(value)
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -206,8 +237,7 @@ export default function UpdateGiftCardSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('giftCard.isActive')}
+              <span className="text-destructive">*</span> {t('giftCard.status')}
             </FormLabel>
             <FormControl>
               <GiftCardStatusSelect
@@ -225,9 +255,8 @@ export default function UpdateGiftCardSheet({
       />
     ),
   }
-
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
         <Button variant="ghost" className="gap-1 px-2" onClick={handleClick}>
           <PenLine className="icon" />
