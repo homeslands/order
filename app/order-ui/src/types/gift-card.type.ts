@@ -36,3 +36,10 @@ export interface IGiftCardUpdateRequest {
   file?: File
   isActive?: boolean
 }
+
+export interface IGetGiftCardsRequest {
+  page?: number
+  size?: number
+  sort?: string
+  isActive?: boolean
+}

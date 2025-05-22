@@ -1,12 +1,15 @@
 import { QUERYKEY } from '@/constants'
-import { IGiftCardCreateRequest, IGiftCardUpdateRequest } from '@/types'
+import {
+  IGiftCardCreateRequest,
+  IGiftCardUpdateRequest,
+  IGetGiftCardsRequest,
+} from '@/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   getGiftCards,
   createGiftCard,
   updateGiftCard,
   deleteGiftCard,
-  IGetGiftCardsRequest,
 } from '@/api'
 
 export const useGetGiftCards = (params: IGetGiftCardsRequest) => {
