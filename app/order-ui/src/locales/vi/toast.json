@@ -303,6 +303,9 @@
     "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!",
     "minOrderValueNotMet": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
     "updateOrderSuccess": "Cập nhật đơn hàng thành công",
-    "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng"
+    "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng",
+    "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
+    "exportPDFVouchersSuccess": "Xuất hóa đơn voucher thành công",
+    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!"
   }
 }

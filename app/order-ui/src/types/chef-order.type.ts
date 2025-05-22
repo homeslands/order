@@ -35,3 +35,17 @@ export interface IChefOrdersQuery {
   hasPaging?: boolean
   enabled?: boolean
 }
+
+export interface IExportChefOrderTicketParams {
+  logoString: string
+  logo: string
+  referenceNumber: number
+  orderItem: {
+    variant: {
+      name: string
+      size?: string
+      note?: string
+    }
+    quantity: number
+  }
+}

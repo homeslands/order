@@ -10,7 +10,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import jsPDF from 'jspdf'
 import moment from 'moment'
-import { QRCodeSVG } from 'qrcode.react'
+import ejs from 'ejs'
+import QRCode from 'qrcode';
 
 import {
   Button,
@@ -20,14 +21,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
-import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
+import { IExportOrderInvoiceParams, IOrder, OrderStatus, OrderTypeEnum } from '@/types'
+import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { useExportPayment, useGetAuthorityGroup } from '@/hooks'
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
 import { useUserStore } from '@/stores'
 import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64'
+import { Logo } from '@/assets/images'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -57,93 +59,102 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     showToast(tToast('toast.exportPDFVouchersSuccess'))
   }
 
-  const exportOrderInvoices = async (order: IOrder | undefined) => {
-    if (!order) return
+  const generateQRCodeBase64 = async (slug: string): Promise<string> => {
+    try {
+      const dataUrl = await QRCode.toDataURL(slug, { width: 128 });
+      return dataUrl; // base64 string
+    } catch {
+      return '';
+    }
+  };
 
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'cm',
-      format: [5, 3],
-    })
+  const generateInvoiceHTML = async (data: IExportOrderInvoiceParams): Promise<string> => {
+    const templateText = await fetch('/templates/invoice-template.html').then(res => res.text());
+    return ejs.render(templateText, data);
+  };
+
+  const exportOrderInvoices = async (order: IOrder | undefined) => {
+    if (!order) return;
+
+    let voucherValue = 0;
+    let orderPromotionValue = 0;
+
+    if (order?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      const voucherPercent = order.voucher.value;
+      const subtotalBeforeVoucher =
+        (order.subtotal * 100) / (100 - voucherPercent);
+      voucherValue += subtotalBeforeVoucher - order.subtotal;
+    }
+    if (order?.voucher?.type === VOUCHER_TYPE.FIXED_VALUE) {
+      voucherValue += order.voucher.value;
+    }
+
+    const subtotalBeforeVoucher = order.orderItems?.reduce(
+      (total, current) => total + current.subtotal,
+      0,
+    );
+
+    // Calculate promotion value 
+    orderPromotionValue = order.orderItems.reduce((acc, item) => acc + (item.promotion?.value || 0) * item.quantity, 0);
 
     try {
-      // Add font directly since it's already base64 encoded
-      pdf.addFileToVFS('BeVietnamPro-Regular.ttf', Be_Vietnam_Pro_base64)
-      pdf.addFont('BeVietnamPro-Regular.ttf', 'BeVietnamPro', 'normal')
-      pdf.setFont('BeVietnamPro', 'normal')
-      pdf.setFontSize(6)
+      const htmlContent = await generateInvoiceHTML({
+        logoString: Be_Vietnam_Pro_base64,
+        logo: Logo,
+        branchAddress: order.invoice.branchAddress || '',
+        referenceNumber: order.invoice.referenceNumber,
+        createdAt: order.createdAt,
+        type: order.type,
+        tableName: order.type === OrderTypeEnum.AT_TABLE ? order.table?.name || '' : 'Mang đi',
+        customer: order.owner?.firstName + ' ' + order.owner?.lastName || 'Khách lẻ',
+        cashier: order.approvalBy?.firstName + ' ' + order.approvalBy?.lastName || '',
+        invoiceItems: order.orderItems.map(item => ({
+          variant: {
+            name: item.variant.product?.name || '',
+            originalPrice: item.variant.price,
+            price: item.subtotal,
+            size: item.variant.size?.name || ''
+          },
+          quantity: item.quantity,
+          promotionValue: (item.promotion?.value || 0) * item.quantity
+        })),
+        promotionDiscount: orderPromotionValue,
+        paymentMethod: order.payment?.paymentMethod || '',
+        subtotalBeforeVoucher: subtotalBeforeVoucher,
+        voucherType: order.voucher?.type || '',
+        voucherValue: voucherValue,
+        amount: order.invoice.amount,
+        loss: order.loss,
+        qrcode: await generateQRCodeBase64(order.slug),
+        formatCurrency: (v: number) => new Intl.NumberFormat().format(v) + '₫',
+        formatDate: (date: string, fmt: string) => moment(date).format(fmt),
+        formatPaymentMethod: (method: string) => method === 'CASH' ? 'Tiền mặt' : 'Khác',
+      });
 
-      // Create temporary container for QR code
-      const container = document.createElement('div')
-      const root = createRoot(container)
-      root.render(
-        <QRCodeSVG
-          value={order.slug || ''}
-          size={96}
-          level="H"
-          includeMargin={true}
-          bgColor="#ffffff"
-          fgColor="#000000"
-        />
-      )
+      // Create a new window for printing
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToast(tToast('toast.exportPDFVouchersError'));
+        return;
+      }
 
-      // Wait for QR code to be rendered
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Write the HTML content to the new window
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
 
-      const pageWidth = 5
-      const qrSize = 1.6
-      const qrX = (pageWidth - qrSize) / 2
-      const qrY = 0.3
-      const textYStart = qrY + qrSize + 0.4
-      const lineSpacing = 0.3
-
-      // Convert SVG to PNG
-      const svgElement = container.querySelector('svg')
-      if (!svgElement) throw new Error('QR code SVG not found')
-
-      const svgData = new XMLSerializer().serializeToString(svgElement)
-      const canvas = document.createElement('canvas')
-      canvas.width = 96
-      canvas.height = 96
-      const ctx = canvas.getContext('2d')
-      if (!ctx) throw new Error('Could not get canvas context')
-
-      const img = new Image()
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-      const url = URL.createObjectURL(svgBlob)
-
-      await new Promise((resolve, reject) => {
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0)
-          URL.revokeObjectURL(url)
-          resolve(null)
-        }
-        img.onerror = () => {
-          URL.revokeObjectURL(url)
-          reject(new Error('Failed to load SVG image'))
-        }
-        img.src = url
-      })
-
-      // Add QR code to PDF
-      const pngData = canvas.toDataURL('image/png')
-      pdf.addImage(pngData, 'PNG', qrX, qrY, qrSize, qrSize)
-
-      // Text config
-      const codeLine = `Thời gian: ${moment(order.createdAt).format('DD/MM/YYYY')}`
-      const dateLine = `Hóa đơn: ${order.referenceNumber}`
-      const textX = pageWidth / 2
-
-      pdf.text(codeLine, textX, textYStart, { align: 'center' })
-      pdf.text(dateLine, textX, textYStart + lineSpacing, { align: 'center' })
-
-      const pdfBlob = pdf.output('blob')
-      loadDataToPrinter(pdfBlob)
+      // Wait for resources to load
+      printWindow.onload = () => {
+        // Print the window
+        printWindow.print();
+        // Close the window after printing
+        printWindow.onafterprint = () => {
+          printWindow.close();
+        };
+      };
     } catch {
-      showToast(tToast('toast.exportPDFVouchersError'))
+      showToast(tToast('toast.exportPDFVouchersError'));
     }
-  }
-
+  };
 
   return [
     {
@@ -160,16 +171,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
-    // {
-    //   accessorKey: 'slug',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.slug')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const order = row.original
-    //     return <div className="text-sm">{order?.slug || 'N/A'}</div>
-    //   },
-    // },
     {
       accessorKey: 'orderReferenceNumber',
       header: ({ column }) => (
@@ -226,19 +227,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         return <div className="text-sm">{location}</div>
       },
     },
-    // {
-    //   accessorKey: 'paymentStatus',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     return (
-    //       <div className="flex flex-col">
-    //         <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
-    //       </div>
-    //     )
-    //   },
-    // },
     {
       accessorKey: 'orderStatus',
       header: ({ column }) => (
@@ -285,19 +273,21 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 </DropdownMenuLabel>
 
                 {/* Export invoice */}
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="ghost"
-                    className="flex gap-1 justify-start px-2 w-full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExportOrderInvoice(order);
-                    }}
-                  >
-                    <DownloadIcon />
-                    {t('order.exportInvoice')}
-                  </Button>
-                </div>
+                {(order.status !== OrderStatus.SHIPPING) && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      className="flex gap-1 justify-start px-2 w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportOrderInvoice(order);
+                      }}
+                    >
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  </div>
+                )}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
                   (!order?.payment?.statusCode ||
