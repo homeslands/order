@@ -2,14 +2,12 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { PlusCircle } from 'lucide-react'
 
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   Button,
   ScrollArea,
   Input,
@@ -30,12 +28,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
 
-export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => void }) {
+export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
   const { t } = useTranslation(['voucher'])
   const { slug } = useParams()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenDialog, setIsOpenDialog] = useState(false)
   const [formData, setFormData] = useState<ICreateVoucherRequest | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
+  // const [sheetOpen, setSheetOpen] = useState(openChange)
   const form = useForm<TCreateVoucherSchema>({
     resolver: zodResolver(createVoucherSchema),
     defaultValues: {
@@ -77,7 +75,7 @@ export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => voi
 
   const handleSubmit = (data: ICreateVoucherRequest) => {
     setFormData(data)
-    setIsOpen(true)
+    setIsOpenDialog(true)
   }
 
   const resetForm = () => {
@@ -429,13 +427,7 @@ export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => voi
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <PlusCircle size={16} />
-          {t('voucher.create')}
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={openChange}>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
@@ -491,12 +483,12 @@ export default function CreateVoucherSheet({ onSuccess }: { onSuccess: () => voi
             <Button type="submit" form="voucher-form">
               {t('voucher.create')}
             </Button>
-            {isOpen && (
+            {isOpenDialog && (
               <CreateVoucherDialog
                 voucher={formData}
-                isOpen={isOpen}
-                onOpenChange={setIsOpen}
-                onCloseSheet={() => setSheetOpen(false)}
+                isOpen={isOpenDialog}
+                onOpenChange={setIsOpenDialog}
+                onCloseSheet={() => openChange(false)}
                 onSuccess={handleCreateVoucherSuccess}
               />
             )}

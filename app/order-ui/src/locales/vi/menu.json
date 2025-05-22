@@ -108,6 +108,7 @@
     "unitPrice": "Đơn giá",
     "quantity": "Số lượng",
     "voucher": "Mã giảm giá",
+    "invoiceAutoDiscountUnderThreshold": "Giảm giá cho đơn hàng dưới 2000đ",
     "totalPrice": "Thành tiền",
     "orderInformation": "Thông tin đơn hàng",
     "customerName": "Tên khách hàng",

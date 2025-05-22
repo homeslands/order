@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
@@ -6,12 +8,14 @@ import { DataTable } from '@/components/ui'
 import { usePagination, useVouchers } from '@/hooks'
 import { VoucherAction } from '../DataTable/actions'
 import { useVoucherColumns } from '../DataTable/columns'
-import { useParams } from 'react-router-dom'
+import { IVoucher } from '@/types'
 
 export default function VoucherPage() {
     const { t } = useTranslation(['voucher'])
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
+    const [isOpen, setIsOpen] = useState(false)
+    const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
     const { data, isLoading, refetch } = useVouchers({
         order: 'DESC',
@@ -21,7 +25,12 @@ export default function VoucherPage() {
         hasPaging: true
     })
 
+    const handleSelectionChange = useCallback((selectedSlugs: IVoucher[]) => {
+        setSelectedVouchers(selectedSlugs)
+    }, [])
+
     const handleCreateVoucherSuccess = () => {
+        setSelectedVouchers([])
         refetch()
     }
 
@@ -44,12 +53,12 @@ export default function VoucherPage() {
             </span>
             <div className="grid grid-cols-1 gap-2 mt-4 h-full">
                 <DataTable
-                    columns={useVoucherColumns(handleUpdateVoucherSuccess)}
+                    columns={useVoucherColumns(handleUpdateVoucherSuccess, handleSelectionChange, selectedVouchers)}
                     data={data?.result.items || []}
                     isLoading={isLoading}
                     pages={data?.result.totalPages || 1}
                     hiddenInput={true}
-                    actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} />}
+                    actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} selectedVouchers={selectedVouchers} onOpenChange={setIsOpen} isConfirmExportVoucherDialogOpen={isOpen} />}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
                 />

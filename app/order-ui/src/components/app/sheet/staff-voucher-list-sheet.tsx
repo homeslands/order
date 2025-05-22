@@ -168,13 +168,14 @@ export default function StaffVoucherListSheet() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
+    const isActive = voucher.isActive
     const isValidAmount = voucher.minOrderValue <= subTotal
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
-    const isRemainingUsage = voucher.remainingUsage > 0
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
     const requiresLogin = voucher.isVerificationIdentity === true
     const isUserLoggedIn = !!cartItems?.owner && cartItems.ownerRole === Role.CUSTOMER
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
-    return isValidAmount && isValidDate && isIdentityValid && isRemainingUsage
+    return isActive && isValidAmount && isValidDate && isIdentityValid
   }
 
   // Filter and sort vouchers to get the best one
@@ -232,7 +233,7 @@ export default function StaffVoucherListSheet() {
         }
 
         if (voucher.isVerificationIdentity && !cartItems.owner) {
-          showErrorToast(1003) // Show error if voucher requires verification but no owner
+          showErrorToast(1004) // Show error if voucher requires verification but no owner
           return
         }
 
