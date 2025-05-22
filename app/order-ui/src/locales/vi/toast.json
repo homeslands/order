@@ -306,6 +306,9 @@
     "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng",
     "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
     "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
-    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công"
+    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công",
+    "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
+    "exportPDFVouchersSuccess": "Xuất hóa đơn voucher thành công",
+    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!"
   }
 }
