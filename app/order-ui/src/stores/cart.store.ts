@@ -20,6 +20,7 @@ export const useCartItemStore = create<ICartItemStore>()(
     (set, get) => ({
       cartItems: null,
       lastModified: null,
+      isHydrated: false,
 
       getCartItems: () => get().cartItems,
 
@@ -79,6 +80,9 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addCartItem: (item: ICartItem) => {
+        if (!get().isHydrated) {
+          return
+        }
         const timestamp = moment().valueOf()
         const { cartItems } = get()
 
@@ -293,15 +297,19 @@ export const useCartItemStore = create<ICartItemStore>()(
     }),
     {
       name: 'cart-store',
-      storage: createJSONStorage(() => localStorage),
       version: 1,
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         cartItems: state.cartItems,
         lastModified: state.lastModified,
       }),
-      // onRehydrateStorage: () => (state) => {
-      //   console.log('Rehydrated state:', state)
-      // },
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          setTimeout(() => {
+            useCartItemStore.setState({ isHydrated: true })
+          }, 0)
+        }
+      },
     },
   ),
 )
