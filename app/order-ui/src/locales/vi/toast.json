@@ -301,6 +301,9 @@
     "invalidOrderSlug": "Mã đơn hàng không hợp lệ",
     "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
     "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!",
-    "updateOrderSuccess": "Cập nhật đơn hàng thành công"
+    "updateOrderSuccess": "Cập nhật đơn hàng thành công",
+    "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
+    "exportPDFVouchersSuccess": "Xuất hóa đơn voucher thành công",
+    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!"
   }
 }

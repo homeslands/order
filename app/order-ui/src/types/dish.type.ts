@@ -119,6 +119,7 @@ export interface IOrder extends IBase {
   branch: string
   owner: IOrderOwner
   subtotal: number
+  loss: number
   orderItems: IOrderDetail[]
   status: OrderStatus
   invoice: IOrderInvoice
@@ -323,9 +324,11 @@ export interface ICreateOrderTrackingRequest {
 export interface IOrderInvoice {
   paymentMethod: string
   amount: number
+  loss: number
   status: paymentStatus
   logo: string
   tableName: string
+  referenceNumber: number
   branchAddress: string
   cashier: string
   customer: string
