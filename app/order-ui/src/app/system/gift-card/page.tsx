@@ -29,7 +29,7 @@ export default function GiftCardPage() {
   const { data: giftCardData, isLoading } = useGetGiftCards({
     page,
     size,
-    sort: 'point.desc',
+    sort: 'createdAt.desc',
     isActive: true,
   })
 

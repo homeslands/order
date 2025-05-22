@@ -29,13 +29,21 @@ import { QUERYKEY } from '@/constants'
 import { GiftCardStatusSelect } from '@/components/app/select'
 import { GiftCardStatus } from '@/constants'
 import { IGiftCardCreateRequest } from '@/types'
+import { showToast } from '@/utils'
 
 export default function CreateGiftCardSheet() {
   const { t } = useTranslation(['giftCard', 'common'])
+  const { t: tToast } = useTranslation('toast')
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
-
   const { mutate, isPending } = useCreateGiftCard()
+
+  const handleSheetOpenChange = (open: boolean) => {
+    setSheetOpen(open)
+    if (!open) {
+      form.reset()
+    }
+  }
 
   const form = useForm<TCreateGiftCardSchema>({
     resolver: zodResolver(createGiftCardSchema),
@@ -67,6 +75,7 @@ export default function CreateGiftCardSheet() {
         queryClient.invalidateQueries({ queryKey: [QUERYKEY.giftCards] })
         setSheetOpen(false)
         form.reset()
+        showToast(tToast('toast.createGiftCardSuccess'))
       },
     })
   }
@@ -145,7 +154,22 @@ export default function CreateGiftCardSheet() {
               {t('giftCard.points')}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="number" min={1} />
+              <Input
+                {...field}
+                type="number"
+                min={1000}
+                max={10000000}
+                onFocus={() => {
+                  if (field.value === 0) {
+                    field.onChange('')
+                  }
+                }}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === '' ? 0 : Number(e.target.value)
+                  field.onChange(value)
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -163,7 +187,22 @@ export default function CreateGiftCardSheet() {
               {t('giftCard.price')}
             </FormLabel>
             <FormControl>
-              <Input {...field} type="number" min={1} />
+              <Input
+                {...field}
+                type="number"
+                min={1000}
+                max={10000}
+                onFocus={() => {
+                  if (field.value === 0) {
+                    field.onChange('')
+                  }
+                }}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === '' ? 0 : Number(e.target.value)
+                  field.onChange(value)
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -198,7 +237,7 @@ export default function CreateGiftCardSheet() {
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+    <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
         <Button>
           <PlusCircle size={16} />

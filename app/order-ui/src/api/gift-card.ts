@@ -4,15 +4,9 @@ import {
   IGiftCardCreateRequest,
   IGiftCardUpdateRequest,
   IPaginationResponse,
+  IGetGiftCardsRequest,
 } from '@/types'
 import { http } from '@/utils'
-
-export interface IGetGiftCardsRequest {
-  page?: number
-  size?: number
-  sort?: string
-  isActive?: boolean
-}
 
 export async function getGiftCards(
   params: IGetGiftCardsRequest,
