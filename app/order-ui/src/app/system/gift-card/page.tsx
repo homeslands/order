@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { Gift } from 'lucide-react'
@@ -8,6 +8,8 @@ import { useGetGiftCards, usePagination } from '@/hooks'
 import { DataTable } from '@/components/ui'
 import { useGiftCardListColumns } from './DataTable/columns'
 import { GiftCardAction } from './DataTable/actions'
+import { SortOperation } from '@/constants'
+import { SortContext } from '@/contexts'
 
 export default function GiftCardPage() {
   const { t } = useTranslation(['giftCard'])
@@ -25,11 +27,20 @@ export default function GiftCardPage() {
       return prev
     })
   }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+  const [sortField, setSortField] = useState('createdAt,desc') // Function to update sort field based on operation
+  const handleSortChange = (operation: SortOperation) => {
+    // Sort field updated based on operation type
+    if (operation === SortOperation.CREATE) {
+      setSortField('createdAt,desc')
+    } else if (operation === SortOperation.UPDATE) {
+      setSortField('updatedAt,desc')
+    }
+  }
 
   const { data: giftCardData, isLoading } = useGetGiftCards({
     page,
     size,
-    sort: 'createdAt.desc',
+    sort: sortField,
     isActive: true,
   })
 
@@ -49,15 +60,17 @@ export default function GiftCardPage() {
         </div>
       </span>
       <div className="mt-4">
-        <DataTable
-          columns={useGiftCardListColumns()}
-          data={giftCards}
-          isLoading={isLoading}
-          pages={giftCardData?.result.totalPages || 0}
-          actionOptions={GiftCardAction}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-        />
+        <SortContext.Provider value={{ onSort: handleSortChange }}>
+          <DataTable
+            columns={useGiftCardListColumns()}
+            data={giftCards}
+            isLoading={isLoading}
+            pages={giftCardData?.result.totalPages || 0}
+            actionOptions={GiftCardAction}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </SortContext.Provider>
       </div>
     </div>
   )
