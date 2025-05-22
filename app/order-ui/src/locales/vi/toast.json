@@ -302,6 +302,9 @@
     "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
     "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!",
     "updateOrderSuccess": "Cập nhật đơn hàng thành công",
-    "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng"
+    "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng",
+    "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
+    "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
+    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công"
   }
 }
