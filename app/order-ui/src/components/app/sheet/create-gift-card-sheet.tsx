@@ -28,8 +28,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { QUERYKEY } from '@/constants'
 import { GiftCardStatusSelect } from '@/components/app/select'
 import { GiftCardStatus } from '@/constants'
+import { SortOperation } from '@/constants'
 import { IGiftCardCreateRequest } from '@/types'
 import { showToast } from '@/utils'
+import { useSortContext } from '@/contexts'
 
 export default function CreateGiftCardSheet() {
   const { t } = useTranslation(['giftCard', 'common'])
@@ -37,7 +39,7 @@ export default function CreateGiftCardSheet() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
   const { mutate, isPending } = useCreateGiftCard()
-
+  const { onSort } = useSortContext()
   const handleSheetOpenChange = (open: boolean) => {
     setSheetOpen(open)
     if (!open) {
@@ -76,6 +78,9 @@ export default function CreateGiftCardSheet() {
         setSheetOpen(false)
         form.reset()
         showToast(tToast('toast.createGiftCardSuccess'))
+        if (onSort) {
+          onSort(SortOperation.CREATE)
+        }
       },
     })
   }
@@ -191,7 +196,7 @@ export default function CreateGiftCardSheet() {
                 {...field}
                 type="number"
                 min={1000}
-                max={10000}
+                max={10000000}
                 onFocus={() => {
                   if (field.value === 0) {
                     field.onChange('')
