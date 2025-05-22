@@ -2,14 +2,12 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { PlusCircle } from 'lucide-react'
 
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   Button,
   ScrollArea,
   Input,
@@ -30,12 +28,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
 
-export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: () => void }) {
+export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
   const { t } = useTranslation(['voucher'])
   const { slug } = useParams()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenDialog, setIsOpenDialog] = useState(isOpen)
   const [formData, setFormData] = useState<ICreateMultipleVoucherRequest | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
+  // const [sheetOpen, setSheetOpen] = useState(isOpen)
   const form = useForm<TCreateMultipleVoucherSchema>({
     resolver: zodResolver(createMultipleVoucherSchema),
     defaultValues: {
@@ -77,7 +75,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
 
   const handleSubmit = (data: ICreateMultipleVoucherRequest) => {
     setFormData(data)
-    setIsOpen(true)
+    setIsOpenDialog(true)
   }
 
   const resetForm = () => {
@@ -410,13 +408,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <PlusCircle size={16} />
-          {t('voucher.createMultiple')}
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={openChange}>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
@@ -472,12 +464,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
             <Button type="submit" form="voucher-form">
               {t('voucher.create')}
             </Button>
-            {isOpen && (
+            {isOpenDialog && (
               <ConfirmCreateMultipleVoucherDialog
                 voucher={formData}
-                isOpen={isOpen}
-                onOpenChange={setIsOpen}
-                onCloseSheet={() => setSheetOpen(false)}
+                isOpen={isOpenDialog}
+                onOpenChange={setIsOpenDialog}
+                onCloseSheet={() => openChange(false)}
                 onSuccess={handleCreateVoucherSuccess}
               />
             )}
