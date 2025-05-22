@@ -1,8 +1,7 @@
-import jsPDF from 'jspdf'
-import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
-import { createRoot } from 'react-dom/client'
 import { Download, TriangleAlert } from 'lucide-react'
+import jsPDF from 'jspdf'
+import QRCode from 'qrcode'
 
 import {
   Button,
@@ -56,43 +55,31 @@ export default function ConfirmExportVoucherDialog({
     for (const [index, voucher] of vouchers.entries()) {
       if (index !== 0) pdf.addPage()
 
-      // Create temporary container for QR code
-      const container = document.createElement('div')
-      const root = createRoot(container)
-      root.render(
-        <QRCodeSVG
-          value={voucher.slug || ''}
-          size={96}
-          level="H"
-          includeMargin={true}
-          bgColor="#ffffff"
-          fgColor="#000000"
-        />
-      )
-
-      // Wait for QR code to render
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Convert SVG to data URL
-      const svgElement = container.querySelector('svg')
-      const svgData = new XMLSerializer().serializeToString(svgElement!)
-      const qrDataUrl = 'data:image/svg+xml;base64,' + btoa(svgData)
+      // QR code
+      const qrDataUrl = await QRCode.toDataURL(voucher.slug || '', {
+        width: 96,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
+      })
 
       // ==== Layout constants ====
       const pageWidth = 5
       const qrSize = 1.6
       const qrX = (pageWidth - qrSize) / 2
 
-      const qrY = 0.3
-      const textYStart = qrY + qrSize + 0.4
-      const lineSpacing = 0.3
+      const qrY = 0.3          // tăng lên để qr hơi cao hơn
+      const textYStart = qrY + qrSize + 0.4  // tăng khoảng cách qr -> text thành 0.4cm
+      const lineSpacing = 0.3   // giảm khoảng cách 2 dòng text xuống còn 0.3cm
 
       // Draw QR
-      pdf.addImage(qrDataUrl, 'SVG', qrX, qrY, qrSize, qrSize)
+      pdf.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
 
       // Text config
       pdf.setFont('helvetica', 'normal')
-      pdf.setFontSize(6)
+      pdf.setFontSize(6) // font size 6pt
       pdf.setTextColor(0, 0, 0)
 
       const codeLine = `Code: ${voucher.code}`
@@ -103,9 +90,6 @@ export default function ConfirmExportVoucherDialog({
       // Draw centered text
       pdf.text(codeLine, textX, textYStart, { align: 'center' })
       pdf.text(dateLine, textX, textYStart + lineSpacing, { align: 'center' })
-
-      // Cleanup
-      root.unmount()
     }
 
     pdf.save('Voucher-tickets.pdf')
@@ -121,7 +105,7 @@ export default function ConfirmExportVoucherDialog({
           onClick={() => onOpenChange(true)}
         >
           <Download className="w-4 h-4" />
-          {t('voucher.exportPDF')}
+          {t('voucher.exportVoucher')}
         </Button>
       </DialogTrigger>
 

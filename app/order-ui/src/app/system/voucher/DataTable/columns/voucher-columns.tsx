@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { MoreHorizontal, Copy } from 'lucide-react'
@@ -13,15 +14,15 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Checkbox,
 } from '@/components/ui'
 import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
-import moment from 'moment'
 import { VOUCHER_TYPE } from '@/constants'
 
-export const useVoucherColumns = (onSuccess: () => void): ColumnDef<IVoucher>[] => {
+export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (selectedSlugs: IVoucher[]) => void, selectedVouchers: IVoucher[]): ColumnDef<IVoucher>[] => {
   const { t } = useTranslation(['voucher'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
@@ -35,7 +36,43 @@ export const useVoucherColumns = (onSuccess: () => void): ColumnDef<IVoucher>[] 
     onSuccess()
   }
 
+  const updateSelectedVouchers = (updatedSlugs: IVoucher[]) => {
+    onSelectionChange?.(updatedSlugs)
+  }
+
   return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={selectedVouchers && selectedVouchers.length === table.getRowModel().rows.length}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value)
+            const rows = table.getRowModel().rows
+            const updatedSlugs = value ? rows.map((row) => row.original) : []
+            updateSelectedVouchers(updatedSlugs)
+          }}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return (
+          <Checkbox
+            checked={selectedVouchers && selectedVouchers.some(v => v.slug === voucher.slug)}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value)
+              updateSelectedVouchers(
+                value ? [...selectedVouchers, voucher] : selectedVouchers && selectedVouchers.filter((v) => v.slug !== voucher.slug)
+              )
+            }}
+            aria-label="Select row"
+          />
+        )
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'slug',
       header: ({ column }) => (
@@ -71,6 +108,26 @@ export const useVoucherColumns = (onSuccess: () => void): ColumnDef<IVoucher>[] 
       cell: ({ row }) => {
         const voucher = row.original
         return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : t('voucher.percentOrder')}</div>
+      },
+    },
+    {
+      accessorKey: 'private',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.privateType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isPrivate ? t('voucher.private') : t('voucher.public')}</div>
+      },
+    },
+    {
+      accessorKey: 'verificationIdentity',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.verificationIdentityType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isVerificationIdentity ? t('voucher.verificationIdentity') : t('voucher.noVerificationIdentity')}</div>
       },
     },
     {
