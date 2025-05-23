@@ -24,11 +24,13 @@ import {
 } from '@/components/ui'
 import { IGiftCard, IGiftCardUpdateRequest } from '@/types'
 import { GiftCardStatus, QUERYKEY } from '@/constants'
+import { SortOperation } from '@/constants'
 import { TUpdateGiftCardSchema, updateGiftCardSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { GiftCardStatusSelect } from '@/components/app/select'
 import { useUpdateGiftCard } from '@/hooks'
 import { showToast } from '@/utils'
+import { useSortContext } from '@/contexts'
 
 interface IUpdateGiftCardSheetProps {
   giftCard: IGiftCard
@@ -42,6 +44,7 @@ export default function UpdateGiftCardSheet({
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
   const { mutate, isPending } = useUpdateGiftCard()
+  const { onSort } = useSortContext()
 
   const defaultFormValues = {
     slug: giftCard.slug,
@@ -90,6 +93,9 @@ export default function UpdateGiftCardSheet({
           queryClient.invalidateQueries({ queryKey: [QUERYKEY.giftCards] })
           setSheetOpen(false)
           showToast(tToast('toast.updateGiftCardSuccess'))
+          if (onSort) {
+            onSort(SortOperation.UPDATE)
+          }
         },
       },
     )
