@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   CreateSystemConfigDto,
   DeleteSystemConfigDto,
@@ -15,9 +15,10 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as _ from 'lodash';
 import { SystemConfigException } from './system-config.exception';
 import { SystemConfigValidation } from './system-config.validation';
+import { SystemConfigKey } from './system-config.constant';
 
 @Injectable()
-export class SystemConfigService {
+export class SystemConfigService implements OnModuleInit {
   constructor(
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
@@ -26,6 +27,53 @@ export class SystemConfigService {
     @InjectMapper()
     private readonly mapper: Mapper,
   ) {}
+
+  public requestTtl: number;
+  public blockRequestDuration: number;
+  public guestLimitTime: number;
+  public customerLimitTime: number;
+  public staffLimitTime: number;
+  public chefLimitTime: number;
+  public managerLimitTime: number;
+  public adminLimitTime: number;
+  public superAdminLimitTime: number;
+
+  async onModuleInit() {
+    const context = `${SystemConfigService.name}.${this.onModuleInit.name}`;
+    this.logger.log(
+      'Starting load the value from system config for role throttler',
+      context,
+    );
+    this.requestTtl = Number(await this.get(SystemConfigKey.REQUEST_TTL));
+    this.blockRequestDuration = Number(
+      await this.get(SystemConfigKey.BLOCK_REQUEST_DURATION),
+    );
+    this.guestLimitTime = Number(
+      await this.get(SystemConfigKey.GUEST_LIMIT_TIME),
+    );
+    this.customerLimitTime = Number(
+      await this.get(SystemConfigKey.CUSTOMER_LIMIT_TIME),
+    );
+    this.staffLimitTime = Number(
+      await this.get(SystemConfigKey.STAFF_LIMIT_TIME),
+    );
+    this.chefLimitTime = Number(
+      await this.get(SystemConfigKey.CHEF_LIMIT_TIME),
+    );
+    this.managerLimitTime = Number(
+      await this.get(SystemConfigKey.MANAGER_LIMIT_TIME),
+    );
+    this.adminLimitTime = Number(
+      await this.get(SystemConfigKey.ADMIN_LIMIT_TIME),
+    );
+    this.superAdminLimitTime = Number(
+      await this.get(SystemConfigKey.SUPER_ADMIN_LIMIT_TIME),
+    );
+    this.logger.log(
+      `System config loaded for role throttler successfully`,
+      context,
+    );
+  }
 
   async create(createSystemConfigDto: CreateSystemConfigDto) {
     const context = `${SystemConfigService.name}.${this.create.name}`;

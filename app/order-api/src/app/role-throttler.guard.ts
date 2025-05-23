@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   ThrottlerGuard,
   ThrottlerModuleOptions,
   ThrottlerRequest,
   ThrottlerStorage,
 } from '@nestjs/throttler';
-import { roleThrottlerConfig } from 'src/config/role-throttler.config';
 import { Reflector } from '@nestjs/core';
 import * as _ from 'lodash';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { RoleEnum } from 'src/role/role.enum';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 // Apply cases:
 // Api private: check role
@@ -15,13 +17,54 @@ import * as _ from 'lodash';
 // Api public(use only for no login user - api has the tail is 'public'): role is 'GUEST'
 // get from roleThrottlerConfig
 @Injectable()
-export class RoleThrottlerGuard extends ThrottlerGuard {
+export class RoleThrottlerGuard extends ThrottlerGuard implements OnModuleInit {
   constructor(
     options: ThrottlerModuleOptions,
     storageService: ThrottlerStorage,
     reflector: Reflector,
+    private readonly systemConfigService: SystemConfigService,
   ) {
     super(options, storageService, reflector);
+  }
+
+  async getConfigRateLimit(role: string) {
+    switch (role) {
+      case RoleEnum.Customer:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.customerLimitTime,
+        };
+      case RoleEnum.Staff:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.staffLimitTime,
+        };
+      case RoleEnum.Chef:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.chefLimitTime,
+        };
+      case RoleEnum.Manager:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.managerLimitTime,
+        };
+      case RoleEnum.Admin:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.adminLimitTime,
+        };
+      case RoleEnum.SuperAdmin:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.superAdminLimitTime,
+        };
+      default:
+        return {
+          ttl: await this.systemConfigService.requestTtl,
+          limit: await this.systemConfigService.guestLimitTime,
+        };
+    }
   }
 
   // if use @SkipThrottle() => handleRequest will be skipped
@@ -48,7 +91,7 @@ export class RoleThrottlerGuard extends ThrottlerGuard {
     }
 
     const { req } = this.getRequestResponse(context);
-    const role = req?.user?.scope?.role || 'GUEST';
+    const role = req?.user?.scope?.role;
 
     // Get limit and ttl from decorator
     // @Throttle({ default: { limit: <a>, ttl: <b> } })
@@ -63,7 +106,9 @@ export class RoleThrottlerGuard extends ThrottlerGuard {
       [context.getHandler(), context.getClass()],
     );
 
-    const fallbackConfig = roleThrottlerConfig[role];
+    // const fallbackConfig = roleThrottlerConfig[role];
+    const fallbackConfig = await this.getConfigRateLimit(role);
+
     const limit =
       limitFromDecorator ?? fallbackConfig.limit ?? globalOptions.limit;
     const ttl = ttlFromDecorator ?? fallbackConfig.ttl ?? globalOptions.ttl;
@@ -73,7 +118,7 @@ export class RoleThrottlerGuard extends ThrottlerGuard {
     const classRef = context.getClass();
     const routeKey = this.generateKey(context, handler.name, classRef.name);
     const key = `${tracker}_${routeKey}`;
-    const blockDuration = ttl;
+    const blockDuration = await this.systemConfigService.blockRequestDuration;
 
     const { totalHits, timeToExpire, isBlocked, timeToBlockExpire } =
       await this.storageService.increment(
