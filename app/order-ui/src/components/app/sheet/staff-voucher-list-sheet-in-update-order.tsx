@@ -340,10 +340,11 @@ export default function StaffVoucherListSheetInUpdateOrder({
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
     const isRemainingUsage = voucher.remainingUsage > 0
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
-    // const isRequiredLogin = voucher.isVerificationIdentity
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
+    const isRequiredLogin = voucher.isVerificationIdentity
     const isUserLoggedIn = defaultValue?.owner?.phonenumber && defaultValue?.owner?.phonenumber !== 'default-customer' && defaultValue?.owner?.role?.name === Role.CUSTOMER
-    const isIdentityValid = !voucher.isVerificationIdentity || (voucher.isVerificationIdentity && isUserLoggedIn)
+    const isIdentityValid = !isRequiredLogin || (isRequiredLogin && isUserLoggedIn)
     return isValidAmount && isValidDate && isIdentityValid && isRemainingUsage
   }
 

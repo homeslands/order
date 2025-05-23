@@ -73,15 +73,19 @@ export default function VoucherListSheet() {
     if (cartItems?.voucher) {
       // If user is not logged in but voucher requires verification
       if (!userInfo && cartItems.voucher.isVerificationIdentity) {
-        // console.log('cartItems.voucher', cartItems.voucher)
         showErrorToast(1003) // Show error toast
         removeVoucher() // Remove invalid voucher
       }
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
+  const isCustomerOwner =
+    sheetOpen &&
+    !!cartItems?.owner && // Check khác null, undefined, ""
+    cartItems.ownerRole === Role.CUSTOMER;
+
   const { data: voucherList } = useVouchersForOrder(
-    sheetOpen && userInfo && userInfo?.role.name === Role.CUSTOMER
+    isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
@@ -92,20 +96,14 @@ export default function VoucherListSheet() {
     !!sheetOpen
   )
   const { data: publicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && !userInfo && cartItems?.ownerRole === Role.CUSTOMER
+    !isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
       }
-      : {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        isVerificationIdentity: false,
-      },
+      : undefined,
     !!sheetOpen
   )
 
@@ -339,10 +337,11 @@ export default function VoucherListSheet() {
 
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
 
     const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!userInfo
+    const isUserLoggedIn = !!userInfo?.slug
 
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
 
@@ -572,12 +571,14 @@ export default function VoucherListSheet() {
               <span className="text-xs text-destructive">
                 {voucher.minOrderValue > subTotal
                   ? t('voucher.minOrderNotMet')
-                  : moment().isAfter(moment(voucher.endDate))
+                  : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                     ? t('voucher.expired')
-                    : voucher.isVerificationIdentity && !userInfo
+                    : voucher.isVerificationIdentity && !userInfo?.slug
                       ? t('voucher.needVerifyIdentity')
                       : ''}
               </span>
+
+
 
             </div>
           )}
