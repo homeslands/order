@@ -107,17 +107,23 @@ export default function VoucherListSheetInUpdateOrder({
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
-  const owner = defaultValue?.owner;
+  // const owner = defaultValue?.owner;
 
   // const isNotCustomer = owner?.role?.name !== Role.CUSTOMER;
-  const isDefaultCustomer =
-    owner?.role?.name === Role.CUSTOMER &&
-    owner?.phonenumber === 'default-customer';
+  // const isDefaultCustomer =
+  //   owner?.role?.name === Role.CUSTOMER &&
+  //   owner?.phonenumber === 'default-customer';
 
-  const isLoggedInNormalCustomer = userInfo && !isDefaultCustomer;
+  // const isLoggedInNormalCustomer = userInfo && !isDefaultCustomer;
+
+  const isCustomerOwner =
+    sheetOpen &&
+    !!defaultValue?.owner && // Check khác null, undefined, ""
+    defaultValue?.owner?.role?.name === Role.CUSTOMER &&
+    defaultValue?.owner?.phonenumber !== 'default-customer';
 
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    sheetOpen && isLoggedInNormalCustomer
+    isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
@@ -128,13 +134,12 @@ export default function VoucherListSheetInUpdateOrder({
     !!sheetOpen
   )
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && (!userInfo || isDefaultCustomer)
+    !isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
-        isVerificationIdentity: false,
       }
       : undefined,
     !!sheetOpen
@@ -411,8 +416,12 @@ export default function VoucherListSheetInUpdateOrder({
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount = voucher.minOrderValue <= subTotal
     const isRemainingUsage = voucher.remainingUsage > 0
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
-    return isValidAmount && isValidDate && isRemainingUsage
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
+    const isRequiredLogin = voucher.isVerificationIdentity
+    const isUserLoggedIn = !!userInfo
+    const isIdentityValid = !isRequiredLogin || (isRequiredLogin && isUserLoggedIn)
+    return isValidAmount && isValidDate && isRemainingUsage && isIdentityValid
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
