@@ -102,7 +102,7 @@ import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
       throttlers: [
         {
           ttl: 60000,
-          limit: 100000,
+          limit: 1000,
         },
       ],
     }),
