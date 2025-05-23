@@ -28,6 +28,7 @@ import {
 } from './variant.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Variant')
 @Controller('variants')
@@ -35,8 +36,10 @@ import { AppResponseDto } from 'src/app/app.dto';
 export class VariantController {
   constructor(private variantService: VariantService) {}
 
-  @Post()
+  @SkipThrottle()
   @Public()
+  @Post()
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
     status: HttpStatus.CREATED,
@@ -64,8 +67,9 @@ export class VariantController {
     } as AppResponseDto<VariantResponseDto>;
   }
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -92,8 +96,10 @@ export class VariantController {
     } as AppResponseDto<VariantResponseDto[]>;
   }
 
-  @Patch(':slug')
+  @SkipThrottle()
   @Public()
+  @Patch(':slug')
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -131,9 +137,11 @@ export class VariantController {
     } as AppResponseDto<VariantResponseDto>;
   }
 
+  @SkipThrottle()
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Delete(':slug')
-  @Public()
+  // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Delete variant successfully',

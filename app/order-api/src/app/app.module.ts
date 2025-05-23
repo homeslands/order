@@ -62,9 +62,10 @@ import { ChefOrderModule } from 'src/chef-order/chef-order.module';
 import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module';
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobModule } from 'src/job/job.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { VoucherGroupModule } from 'src/voucher-group/voucher-group.module';
 import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
+import { RoleThrottlerGuard } from './role-throttler.guard';
 
 @Module({
   imports: [
@@ -171,7 +172,7 @@ import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: RoleThrottlerGuard,
     },
   ],
 })

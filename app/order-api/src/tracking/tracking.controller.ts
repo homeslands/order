@@ -28,6 +28,7 @@ import {
 } from './tracking.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Tracking')
 @Controller('trackings')
@@ -35,8 +36,9 @@ import { Public } from 'src/auth/decorator/public.decorator';
 export class TrackingController {
   constructor(private readonly trackingService: TrackingService) {}
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all trackings' })
   @ApiResponse({ status: 200, description: 'Get all trackings successfully' })
@@ -89,8 +91,9 @@ export class TrackingController {
     } as AppResponseDto<TrackingResponseDto>;
   }
 
-  @Patch(':slug')
+  @SkipThrottle()
   @Public()
+  @Patch(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -128,8 +131,9 @@ export class TrackingController {
     } as AppResponseDto<TrackingResponseDto>;
   }
 
-  @Delete(':slug')
+  @SkipThrottle()
   @Public()
+  @Delete(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

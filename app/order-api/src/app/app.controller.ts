@@ -4,12 +4,14 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { TErrorCode } from './app.validation';
 import { AppResponseDto } from './app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('App')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @SkipThrottle()
   @Get('hello')
   @Public()
   @ApiExcludeEndpoint()
@@ -17,6 +19,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @SkipThrottle()
   @Get('error-codes')
   @Public()
   getErrorCodes(): AppResponseDto<TErrorCode> {

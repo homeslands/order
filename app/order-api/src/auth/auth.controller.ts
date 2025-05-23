@@ -40,6 +40,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { CurrentUser } from '../user/user.decorator';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CustomFileInterceptor } from 'src/file/custom-interceptor';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Authentication')
 @ApiBearerAuth()
@@ -47,9 +48,10 @@ import { CustomFileInterceptor } from 'src/file/custom-interceptor';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
-  @Post('login')
+  @SkipThrottle()
   @Public()
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
@@ -75,9 +77,10 @@ export class AuthController {
     return response;
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post('register')
+  @SkipThrottle()
   @Public()
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register account' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
@@ -120,8 +123,9 @@ export class AuthController {
     return response;
   }
 
-  @HttpCode(HttpStatus.OK)
+  @SkipThrottle()
   @Public()
+  @HttpCode(HttpStatus.OK)
   @Post('confirm-email-verification')
   @ApiOperation({ summary: 'Confirm email verification' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
@@ -187,6 +191,8 @@ export class AuthController {
     } as AppResponseDto<AuthProfileResponseDto>;
   }
 
+  @SkipThrottle()
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh token' })
@@ -195,7 +201,6 @@ export class AuthController {
     type: LoginAuthResponseDto,
     description: 'User refreshed token successfully',
   })
-  @Public()
   async refresh(
     @Body(new ValidationPipe({ transform: true }))
     requestData: AuthRefreshRequestDto,
@@ -233,6 +238,7 @@ export class AuthController {
   }
 
   @Public()
+  @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   @ApiOperation({ summary: 'Forgot password' })
@@ -254,6 +260,7 @@ export class AuthController {
   }
 
   @Public()
+  @SkipThrottle()
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password/token')
   @ApiOperation({ summary: 'Create forgot password token' })

@@ -28,8 +28,8 @@ export class FileController {
   constructor(private fileService: FileService) {}
 
   @SkipThrottle()
-  @Get(':filename')
   @Public()
+  @Get(':filename')
   @ApiOperation({ summary: 'Get file by filename' })
   async getFile(@Param('filename') filename: string): Promise<StreamableFile> {
     const result = await this.fileService.getFile(filename);
@@ -40,6 +40,7 @@ export class FileController {
     });
   }
 
+  @SkipThrottle()
   @Public()
   @ApiConsumes('multipart/form-data')
   @ApiBody({

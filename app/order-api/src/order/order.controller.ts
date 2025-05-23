@@ -31,7 +31,7 @@ import {
 } from './order.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 @ApiTags('Order')
@@ -70,7 +70,6 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
-  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post('public')
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -161,8 +160,9 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto[]>;
   }
 
-  @Get(':slug')
+  @SkipThrottle()
   @Public()
+  @Get(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve order by slug' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })

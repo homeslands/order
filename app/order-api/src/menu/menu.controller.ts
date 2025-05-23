@@ -23,6 +23,7 @@ import {
 } from './menu.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Menu')
 @Controller('menu')
@@ -30,6 +31,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 export class MenuController {
   constructor(private menuService: MenuService) {}
 
+  @SkipThrottle()
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -53,8 +55,9 @@ export class MenuController {
     } as AppResponseDto<AppPaginatedResponseDto<MenuResponseDto>>;
   }
 
-  @Get('specific')
+  @SkipThrottle()
   @Public()
+  @Get('specific')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve specific menu' })
   @ApiResponseWithType({

@@ -27,6 +27,7 @@ import { CatalogService } from './catalog.service';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Catalog')
 @Controller('catalogs')
@@ -34,6 +35,7 @@ import { AppResponseDto } from 'src/app/app.dto';
 export class CatalogController {
   constructor(private catalogService: CatalogService) {}
 
+  @SkipThrottle()
   @Post()
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -66,8 +68,9 @@ export class CatalogController {
     } as AppResponseDto<CatalogResponseDto>;
   }
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -126,6 +129,7 @@ export class CatalogController {
     } as AppResponseDto<CatalogResponseDto>;
   }
 
+  @SkipThrottle()
   @Delete(':slug')
   @Public()
   @HttpCode(HttpStatus.OK)

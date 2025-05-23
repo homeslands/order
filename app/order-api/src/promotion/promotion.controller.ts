@@ -28,7 +28,6 @@ import {
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { AppResponseDto } from 'src/app/app.dto';
-import { Public } from 'src/auth/decorator/public.decorator';
 
 @ApiTags('Promotion')
 @Controller('promotion')
@@ -37,6 +36,7 @@ export class PromotionController {
   constructor(private promotionService: PromotionService) {}
 
   @Post(':branchSlug')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -51,8 +51,6 @@ export class PromotionController {
     required: true,
     example: 'branch-slug',
   })
-  @Public()
-  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   async createPromotion(
     @Param('branchSlug') branchSlug: string,
     @Body(

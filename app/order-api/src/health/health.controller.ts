@@ -6,6 +6,7 @@ import {
   HealthCheckService,
   HttpHealthIndicator,
 } from '@nestjs/terminus';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Public } from 'src/auth/decorator/public.decorator';
 
 @ApiTags('Healthcheck')
@@ -20,6 +21,7 @@ export class HealthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @SkipThrottle()
   @Get()
   @HealthCheck()
   @Public()

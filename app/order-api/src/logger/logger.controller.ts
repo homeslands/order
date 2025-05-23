@@ -16,6 +16,7 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { GetLoggerRequestDto, LoggerResponseDto } from './logger.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('logger')
 @ApiBearerAuth()
@@ -23,6 +24,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 export class LoggerController {
   constructor(private readonly loggerService: LoggerService) {}
 
+  @SkipThrottle()
   @Get()
   @Public()
   @ApiQuery({ name: 'level', required: false, type: String })

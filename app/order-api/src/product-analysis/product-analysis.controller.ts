@@ -18,6 +18,7 @@ import {
 } from './product-analysis.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('product-analysis')
 export class ProductAnalysisController {
@@ -25,8 +26,9 @@ export class ProductAnalysisController {
     private readonly productAnalysisService: ProductAnalysisService,
   ) {}
 
-  @Get('top-sell')
+  @SkipThrottle()
   @Public()
+  @Get('top-sell')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -48,8 +50,9 @@ export class ProductAnalysisController {
     } as AppResponseDto<AppPaginatedResponseDto<ProductAnalysisResponseDto>>;
   }
 
-  @Get('top-sell/branch/:branch')
+  @SkipThrottle()
   @Public()
+  @Get('top-sell/branch/:branch')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -75,8 +78,9 @@ export class ProductAnalysisController {
     } as AppResponseDto<AppPaginatedResponseDto<ProductAnalysisResponseDto>>;
   }
 
-  @Post('refresh')
+  @SkipThrottle()
   @Public()
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

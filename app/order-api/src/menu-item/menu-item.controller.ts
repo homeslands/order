@@ -30,6 +30,7 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('menu-item')
 @ApiTags('Menu Item')
@@ -84,6 +85,8 @@ export class MenuItemController {
     } as AppResponseDto<MenuItemResponseDto[]>;
   }
 
+  @SkipThrottle()
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Retrieve all menu items' })
   @ApiResponseWithType({
@@ -91,7 +94,6 @@ export class MenuItemController {
     isArray: true,
     description: 'Retrieve all menu items',
   })
-  @Public()
   async findAll(
     @Query(new ValidationPipe({ transform: true })) query: GetMenuItemQueryDto,
   ) {
@@ -104,13 +106,14 @@ export class MenuItemController {
     } as AppResponseDto<MenuItemResponseDto[]>;
   }
 
+  @SkipThrottle()
+  @Public()
   @Get(':slug')
   @ApiOperation({ summary: 'Retrieve specific menu item' })
   @ApiResponseWithType({
     type: MenuItemResponseDto,
     description: 'Retrieve specific menu item',
   })
-  @Public()
   async findOne(@Param('slug') slug: string) {
     const result = await this.menuItemService.findOne(slug);
     return {
@@ -122,6 +125,7 @@ export class MenuItemController {
   }
 
   @Patch(':slug')
+  @SkipThrottle()
   @Public()
   @ApiOperation({ summary: 'Update menu item' })
   @ApiResponseWithType({

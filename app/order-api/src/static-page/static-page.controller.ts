@@ -27,6 +27,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { RoleEnum } from 'src/role/role.enum';
 import { HasRoles } from 'src/role/roles.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('static-page')
 @ApiBearerAuth()
@@ -57,8 +58,9 @@ export class StaticPageController {
     } as AppResponseDto<StaticPageResponseDto>;
   }
 
-  @Get(':key')
+  @SkipThrottle()
   @Public()
+  @Get(':key')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

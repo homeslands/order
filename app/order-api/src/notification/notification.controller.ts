@@ -16,6 +16,7 @@ import {
 } from './notification.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('notification')
 @ApiTags('Notification')
@@ -23,9 +24,10 @@ import { Public } from 'src/auth/decorator/public.decorator';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
+  @SkipThrottle()
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all notifications' })
-  @Public()
   @HttpCode(HttpStatus.OK)
   async findAll(
     @Query(new ValidationPipe({ transform: true, whitelist: true }))

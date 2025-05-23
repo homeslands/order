@@ -26,7 +26,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CurrentUser } from 'src/user/user.decorator';
 @ApiTags('Payment')
@@ -86,7 +86,6 @@ export class PaymentController {
     } as AppResponseDto<PaymentResponseDto>;
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('initiate/public')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -110,8 +109,9 @@ export class PaymentController {
     } as AppResponseDto<PaymentResponseDto>;
   }
 
-  @Post('callback/status')
+  @SkipThrottle()
   @Public()
+  @Post('callback/status')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Callback' })
   // @ApiResponseWithType({
@@ -139,7 +139,6 @@ export class PaymentController {
     });
   }
 
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Post(':slug/export/public')
   @Public()
   @HttpCode(HttpStatus.OK)

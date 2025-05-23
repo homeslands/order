@@ -35,6 +35,7 @@ import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { CustomFileInterceptor } from 'src/file/custom-interceptor';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Banner')
 @Controller('banner')
@@ -42,8 +43,9 @@ import { CustomFileInterceptor } from 'src/file/custom-interceptor';
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -66,8 +68,9 @@ export class BannerController {
     } as AppResponseDto<BannerResponseDto[]>;
   }
 
-  @Get(':slug')
+  @SkipThrottle()
   @Public()
+  @Get(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

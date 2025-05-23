@@ -42,6 +42,7 @@ import {
 } from 'src/file/custom-interceptor';
 import { FileException } from 'src/file/file.exception';
 import FileValidation from 'src/file/file.validation';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Product')
 @Controller('products')
@@ -68,6 +69,8 @@ export class ProductController {
     });
   }
 
+  @SkipThrottle()
+  @Public()
   @Get('import-template')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
@@ -77,7 +80,6 @@ export class ProductController {
   })
   @ApiOperation({ summary: 'Get import products template' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Public()
   async getTemplateImportProducts() {
     const result = await this.productService.getTemplateImportProducts();
 
@@ -140,8 +142,9 @@ export class ProductController {
   //   } as AppResponseDto<ProductResponseDto[]>;
   // }
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -367,8 +370,9 @@ export class ProductController {
     } as AppResponseDto<string>;
   }
 
-  @Get(':slug')
+  @SkipThrottle()
   @Public()
+  @Get(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

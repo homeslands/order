@@ -27,6 +27,7 @@ import { SizeService } from './size.service';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Size')
 @Controller('sizes')
@@ -62,8 +63,9 @@ export class SizeController {
     } as AppResponseDto<SizeResponseDto>;
   }
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,

@@ -22,6 +22,7 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('branch')
 @ApiBearerAuth()
@@ -29,6 +30,7 @@ import { RoleEnum } from 'src/role/role.enum';
 export class BranchController {
   constructor(private branchService: BranchService) {}
 
+  @SkipThrottle()
   @Post()
   // @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
   @Public()
@@ -52,6 +54,8 @@ export class BranchController {
     } as AppResponseDto<BranchResponseDto>;
   }
 
+  @SkipThrottle()
+  @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all branch' })
@@ -61,7 +65,6 @@ export class BranchController {
     type: BranchResponseDto,
     isArray: true,
   })
-  @Public()
   async getAllBranchs() {
     const result = await this.branchService.getAllBranches();
     return {

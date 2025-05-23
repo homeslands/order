@@ -24,7 +24,6 @@ import {
 } from './invoice.dto';
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
-import { Throttle } from '@nestjs/throttler';
 
 @Controller('invoice')
 @ApiTags('Invoice')
@@ -55,7 +54,6 @@ export class InvoiceController {
     } as AppResponseDto<InvoiceResponseDto>;
   }
 
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Get('specific/public')
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -95,7 +93,6 @@ export class InvoiceController {
     });
   }
 
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Post('export/public')
   @Public()
   @ApiOperation({ summary: 'Export invoice public' })

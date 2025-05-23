@@ -33,6 +33,7 @@ import { AppResponseDto } from 'src/app/app.dto';
 import { QRLocationResponseDto } from 'src/robot-connector/robot-connector.dto';
 import { RoleEnum } from 'src/role/role.enum';
 import { HasRoles } from 'src/role/roles.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Table')
 @Controller('tables')
@@ -106,8 +107,9 @@ export class TableController {
     } as AppResponseDto<TableResponseDto[]>;
   }
 
-  @Get()
+  @SkipThrottle()
   @Public()
+  @Get()
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -226,8 +228,9 @@ export class TableController {
     } as AppResponseDto<string>;
   }
 
-  @Get('locations')
+  @SkipThrottle()
   @Public()
+  @Get('locations')
   @HttpCode(HttpStatus.OK)
   @ApiResponseWithType({
     status: HttpStatus.OK,
