@@ -41,5 +41,5 @@ export interface IGetGiftCardsRequest {
   page?: number
   size?: number
   sort?: string
-  isActive?: boolean
+  isActive?: boolean | null
 }

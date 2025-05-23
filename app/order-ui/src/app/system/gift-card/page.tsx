@@ -17,6 +17,7 @@ export default function GiftCardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
+  const [sortField, setSortField] = useState('createdAt,desc')
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
 
   // add page size to query params
@@ -27,7 +28,7 @@ export default function GiftCardPage() {
       return prev
     })
   }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
-  const [sortField, setSortField] = useState('createdAt,desc') // Function to update sort field based on operation
+
   const handleSortChange = (operation: SortOperation) => {
     // Sort field updated based on operation type
     if (operation === SortOperation.CREATE) {
@@ -41,7 +42,7 @@ export default function GiftCardPage() {
     page,
     size,
     sort: sortField,
-    isActive: true,
+    isActive: null,
   })
 
   const giftCards = giftCardData?.result.items || []
