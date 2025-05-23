@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   ThrottlerGuard,
   ThrottlerModuleOptions,
@@ -9,7 +9,6 @@ import { Reflector } from '@nestjs/core';
 import * as _ from 'lodash';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { RoleEnum } from 'src/role/role.enum';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 // Apply cases:
 // Api private: check role
