@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Trash2, TriangleAlert } from 'lucide-react'
 
 import {
@@ -17,15 +18,18 @@ import { IOrderDetail } from '@/types'
 import { useDeleteOrderItem } from '@/hooks'
 import { showToast } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
+import { ROUTE } from '@/constants'
 
 interface DialogDeleteCartItemProps {
   onSubmit: () => void
   orderItem: IOrderDetail
+  totalOrderItems: number
 }
 
 export default function RemoveOrderItemInUpdateOrderDialog({
   onSubmit,
   orderItem,
+  totalOrderItems,
 }: DialogDeleteCartItemProps) {
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
@@ -33,13 +37,23 @@ export default function RemoveOrderItemInUpdateOrderDialog({
   const [isOpen, setIsOpen] = useState(false)
   const { mutate: deleteOrderItem } = useDeleteOrderItem()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  const isLastItem = totalOrderItems === 1
+
   const handleDelete = (orderItemSlug: string) => {
     deleteOrderItem(orderItemSlug, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
-        showToast(tToast('toast.deleteOrderItemSuccess'))
-        setIsOpen(false)
-        onSubmit()
+
+        if (isLastItem) {
+          showToast(tToast('toast.orderCanceled'))
+          navigate(ROUTE.CLIENT_MENU)
+        } else {
+          showToast(tToast('toast.deleteOrderItemSuccess'))
+          setIsOpen(false)
+          onSubmit()
+        }
       }
     })
   }
@@ -51,33 +65,40 @@ export default function RemoveOrderItemInUpdateOrderDialog({
           <Trash2 size={20} className="text-muted-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
+      <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[36rem]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="flex gap-2 items-center text-destructive">
             <TriangleAlert />
-            {t('order.deleteItem')}
+            {isLastItem ? t('order.cancelOrder') : t('order.deleteItem')}
           </DialogTitle>
           <DialogDescription className="p-2 rounded-md bg-destructive/10 text-destructive">
-            {t('order.deleteNote')}
+            {isLastItem ? t('order.cancelOrderNote') : t('order.deleteNote')}
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex gap-4 items-center mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
-              {t('order.deleteContent')} <strong>{orderItem.variant.product.name}</strong>
-              {t('order.deleteContent2')}
+              {isLastItem ? (
+                <>
+                  {t('order.cancelOrderContent')} <strong>{orderItem.variant.product.name}</strong> {t('order.cancelOrderContent2')}
+                </>
+              ) : (
+                <>
+                  {t('order.deleteContent')} <strong>{orderItem.variant.product.name}</strong> {t('order.deleteContent2')}
+                </>
+              )}
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row justify-end gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-end">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
           <Button
             variant="destructive"
-            onClick={() => handleDelete(orderItem.slug)} // Truyền vào đúng id của orderItem
+            onClick={() => handleDelete(orderItem.slug)}
           >
-            {tCommon('common.confirmDelete')}
+            {isLastItem ? tCommon('common.confirmCancel') : tCommon('common.confirmDelete')}
           </Button>
         </DialogFooter>
       </DialogContent>
