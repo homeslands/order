@@ -14,28 +14,21 @@ import {
 } from '@/components/ui'
 
 import { IOrder } from '@/types'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { formatCurrency, showToast, exportOrderInvoices } from '@/utils'
 import { PaymentStatusBadge } from '../badge'
-import { useExportOrderInvoice } from '@/hooks'
 
 export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
   const [isOpen, setIsOpen] = useState(false)
-  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
 
   if (!order) return null
 
   const { orderItems, payment, owner, subtotal, createdAt, voucher } = order
 
-  const handleExportOrderInvoice = (slug: string) => {
-    exportOrderInvoice(slug, {
-      onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportInvoiceSuccess'))
-        // Load data to print
-        loadDataToPrinter(data)
-      },
-    })
+  const handleExportOrderInvoice = async (order: IOrder) => {
+    await exportOrderInvoices(order)
+    showToast(tToast('toast.exportPDFVouchersSuccess'))
   }
 
   return (
@@ -127,7 +120,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
           <span className="text-lg font-bold text-primary">{formatCurrency(subtotal)}</span>
         </div>
         <DialogFooter className="px-4">
-          <Button className='w-full' onClick={() => handleExportOrderInvoice(order.slug)}>
+          <Button className='w-full' onClick={() => handleExportOrderInvoice(order)}>
             <DownloadIcon />
             {t('order.exportInvoice')}
           </Button>
