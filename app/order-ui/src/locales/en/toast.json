@@ -362,6 +362,7 @@
     "chefOrderMustBeAccepted": "Chef order must be accepted",
     "voucherGroupAlreadyExists": "Voucher group already exists",
     "voucherVerificationIdentity": "This voucher requires login to use!",
+    "minOrderValueNotMet": "Order value must be greater than minimum required",
     "createGiftCardSuccess": "Gift card created successfully",
     "updateGiftCardSuccess": "Gift card updated successfully",
     "deleteGiftCardSuccess": "Gift card deleted successfully"

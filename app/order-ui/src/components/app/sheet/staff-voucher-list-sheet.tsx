@@ -262,59 +262,57 @@ export default function StaffVoucherListSheet() {
     }
   }
 
-  const handleApplyVoucher = async () => {
-    if (!selectedVoucher) return;
+  // const handleApplyVoucher = async () => {
+  //   if (!selectedVoucher) return;
 
-    if (appliedVoucher) {
-      removeVoucher()
-      setAppliedVoucher('')
-      return
-    }
+  //   if (appliedVoucher) {
+  //     removeVoucher()
+  //     setAppliedVoucher('')
+  //     return
+  //   }
 
-    if (cartItems?.ownerPhoneNumber) {
-      const { data } = await refetchSpecificVoucher();
-      const voucher = data?.result;
+  //   if (cartItems?.ownerPhoneNumber) {
+  //     const { data } = await refetchSpecificVoucher();
+  //     const voucher = data?.result;
 
-      if (voucher) {
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: voucher.slug,
-          user: cartItems?.owner || '',
-        };
+  //     if (voucher) {
+  //       const validateVoucherParam: IValidateVoucherRequest = {
+  //         voucher: voucher.slug,
+  //         user: cartItems?.owner || '',
+  //       };
 
-        validateVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(voucher);
-            setSheetOpen(false);
-            showToast(tToast('toast.applyVoucherSuccess'));
-          },
-        });
-      } else {
-        showErrorToast(1000);
-      }
-    } else {
-      const { data } = await refetchSpecificVoucher();
-      const publicVoucher = data?.result;
+  //       validateVoucher(validateVoucherParam, {
+  //         onSuccess: () => {
+  //           addVoucher(voucher);
+  //           setSheetOpen(false);
+  //           showToast(tToast('toast.applyVoucherSuccess'));
+  //         },
+  //       });
+  //     } else {
+  //       showErrorToast(1000);
+  //     }
+  //   } else {
+  //     const { data } = await refetchSpecificVoucher();
+  //     const publicVoucher = data?.result;
 
-      if (publicVoucher) {
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: publicVoucher.slug,
-          user: '',
-        };
+  //     if (publicVoucher) {
+  //       const validateVoucherParam: IValidateVoucherRequest = {
+  //         voucher: publicVoucher.slug,
+  //         user: '',
+  //       };
 
-        validatePublicVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(publicVoucher);
-            setSheetOpen(false);
-            showToast(tToast('toast.applyVoucherSuccess'));
-          },
-        });
-      } else {
-        showErrorToast(1000);
-      }
-    }
-  };
-
-
+  //       validatePublicVoucher(validateVoucherParam, {
+  //         onSuccess: () => {
+  //           addVoucher(publicVoucher);
+  //           setSheetOpen(false);
+  //           showToast(tToast('toast.applyVoucherSuccess'));
+  //         },
+  //       });
+  //     } else {
+  //       showErrorToast(1000);
+  //     }
+  //   }
+  // };
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
@@ -584,7 +582,7 @@ export default function StaffVoucherListSheet() {
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
+              {/* <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
                 <div className="relative col-span-3 p-1 sm:col-span-4">
                   <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
@@ -601,6 +599,17 @@ export default function StaffVoucherListSheet() {
                 >
                   {t('voucher.apply')}
                 </Button>
+              </div> */}
+              <div className="grid grid-cols-1 gap-2 items-center">
+                <div className="relative p-1">
+                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
+                  <Input
+                    placeholder={t('voucher.enterVoucher')}
+                    className="pl-10"
+                    onChange={(e) => setSelectedVoucher(e.target.value)}
+                    value={selectedVoucher}
+                  />
+                </div>
               </div>
             </div>
             {/* Voucher list */}
