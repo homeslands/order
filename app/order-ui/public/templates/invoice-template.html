@@ -128,7 +128,7 @@
         <td class="text-xs"><%= item.quantity %></td>
         <td class="text-xs"><%= formatCurrency(item.variant.originalPrice) %></td>
         <td class="text-xs"><%= item.promotionValue %></td>
-        <td class="text-xs"><%= formatCurrency(item.variant.price * item.quantity) %></td>
+        <td class="text-xs"><%= formatCurrency(item.subtotal) %></td>
       </tr>
       <% }); %>
     </tbody>
@@ -149,7 +149,7 @@
     <tr>
       <td class="text-left">
         Mãi giảm giá 
-        (<%= voucherType === 'PERCENT_ORDER' ? '%' : 'đ' %>)
+        <!-- (<%= voucherType === 'PERCENT_ORDER' ? '%' : 'đ' %>) -->
       </td>
       <td class="text-right" colspan="4"><%= formatCurrency(voucherValue) %></td>
     </tr>
