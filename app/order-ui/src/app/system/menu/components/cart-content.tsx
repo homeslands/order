@@ -9,7 +9,7 @@ import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
@@ -22,6 +22,18 @@ export function CartContent() {
   const cartItems = useCartItemStore((state) => state.cartItems)
   const { removeVoucher } = useCartItemStore()
   const removeCartItem = useCartItemStore((state) => state.removeCartItem)
+
+  // use useEffect to check if subtotal is less than minOrderValue of voucher
+  useEffect(() => {
+    if (cartItems) {
+      const subtotal = cartItems.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+      const voucher = cartItems.voucher
+      if (subtotal < (voucher?.minOrderValue || 0)) {
+        removeVoucher()
+        showErrorToast(1004)
+      }
+    }
+  }, [cartItems, removeVoucher])
 
   const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
   const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? subTotal * (cartItems?.voucher?.value || 0) / 100 : cartItems?.voucher?.value || 0

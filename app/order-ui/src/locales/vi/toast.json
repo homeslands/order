@@ -301,6 +301,7 @@
     "invalidOrderSlug": "Mã đơn hàng không hợp lệ",
     "orderValueLessThanMinOrderValue": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
     "voucherVerificationIdentity": "Voucher này yêu cầu đăng nhập để sử dụng!",
+    "minOrderValueNotMet": "Giá trị đơn hàng phải lớn hơn giá trị tối thiểu",
     "updateOrderSuccess": "Cập nhật đơn hàng thành công",
     "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng",
     "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
