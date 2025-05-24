@@ -75,6 +75,7 @@ export default function VoucherListSheetInUpdateOrder({
   const queryClient = useQueryClient()
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
+  const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
   const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
     const price = item.variant.price;
@@ -157,6 +158,15 @@ export default function VoucherListSheetInUpdateOrder({
     },
   )
 
+  // check if defaultValue?.voucher is null, then set the voucher list to the local voucher list
+  useEffect(() => {
+    if (!defaultValue?.voucher) {
+      setLocalVoucherList(voucherList?.result?.items || [])
+      setSelectedVoucher('')
+      setAppliedVoucher('')
+    }
+  }, [defaultValue?.voucher, voucherList?.result?.items])
+
   // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
   useEffect(() => {
     if (specificVoucher?.result?.isPrivate) {
@@ -225,7 +235,7 @@ export default function VoucherListSheetInUpdateOrder({
       }
     }
 
-    // Always keep the currently applied voucher in the list
+    // Always keep the currently applied voucher in the list, use useEffect to check if the voucher is not in the list, then add it to the list
     if (defaultValue?.voucher) {
       const appliedVoucherIndex = newList.findIndex(v => v.slug === defaultValue.voucher?.slug)
       if (appliedVoucherIndex === -1) {
@@ -277,7 +287,8 @@ export default function VoucherListSheetInUpdateOrder({
     return (
       defaultValue?.voucher?.slug === voucherSlug ||
       cartItems?.voucher?.slug === voucherSlug ||
-      selectedVoucher === voucherSlug
+      selectedVoucher === voucherSlug ||
+      appliedVoucher === voucherSlug
     )
   }
 
@@ -290,6 +301,7 @@ export default function VoucherListSheetInUpdateOrder({
       if (shouldCloseSheet) setSheetOpen(false)
       showToast(message)
       onSuccess?.()
+      setAppliedVoucher('')
     }
 
     // Nếu đang bỏ chọn
@@ -368,6 +380,12 @@ export default function VoucherListSheetInUpdateOrder({
 
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
+
+    if (appliedVoucher) {
+      // removeVoucher()
+      setAppliedVoucher('')
+      return
+    }
 
     if (userInfo) {
       const { data } = await refetchSpecificVoucher();
@@ -634,7 +652,7 @@ export default function VoucherListSheetInUpdateOrder({
                   ? t('voucher.needVerifyIdentity')
                   : voucher.remainingUsage === 0
                     ? t('voucher.outOfStock')
-                    : !moment().isBefore(moment(voucher.endDate))
+                    : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                       ? t('voucher.expired')
                       : voucher.minOrderValue > subTotal
                         ? t('voucher.minOrderNotMet')

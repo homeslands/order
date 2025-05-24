@@ -142,6 +142,15 @@ export default function StaffVoucherListSheetInUpdateOrder({
     }
   }, [specificVoucher?.result?.isPrivate, refetchSpecificVoucher])
 
+  // check if defaultValue?.voucher is null, then set the voucher list to the local voucher list
+  useEffect(() => {
+    if (!defaultValue?.voucher) {
+      setLocalVoucherList(voucherList?.result?.items || [])
+      setSelectedVoucher('')
+      setAppliedVoucher('')
+    }
+  }, [defaultValue?.voucher, voucherList?.result?.items])
+
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
     const vouchers = [specificVoucher?.result].filter((v): v is IVoucher => !!v);
@@ -572,7 +581,7 @@ export default function StaffVoucherListSheetInUpdateOrder({
                   ? t('voucher.needVerifyIdentity')
                   : voucher.remainingUsage === 0
                     ? t('voucher.outOfStock')
-                    : !moment().isBefore(moment(voucher.endDate))
+                    : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                       ? t('voucher.expired')
                       : voucher.minOrderValue > subTotal
                         ? t('voucher.minOrderNotMet')

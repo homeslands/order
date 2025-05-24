@@ -266,6 +266,7 @@ export const useCartItemStore = create<ICartItemStore>()(
                 isPrivate: voucher.isPrivate || false,
                 code: voucher.code,
                 type: voucher.type,
+                minOrderValue: voucher.minOrderValue || 0,
               },
             },
             lastModified: moment().valueOf(),

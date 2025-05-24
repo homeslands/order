@@ -42,6 +42,7 @@ export interface ICartItem {
     isPrivate: boolean
     code: string
     type: string
+    minOrderValue: number
   } | null
   note?: string
   approvalBy?: string

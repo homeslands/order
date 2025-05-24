@@ -362,6 +362,7 @@
     "chefOrderMustBeAccepted": "Chef order must be accepted",
     "voucherGroupAlreadyExists": "Voucher group already exists",
     "voucherVerificationIdentity": "This voucher requires login to use!",
+    "minOrderValueNotMet": "Order value must be greater than minimum required",
     "updateOrderSuccess": "Order updated successfully"
   }
 }
