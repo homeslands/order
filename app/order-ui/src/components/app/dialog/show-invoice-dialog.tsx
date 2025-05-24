@@ -14,15 +14,13 @@ import {
 } from '@/components/ui'
 
 import { IOrder } from '@/types'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { formatCurrency, showToast, exportOrderInvoices } from '@/utils'
 import { PaymentStatusBadge } from '../badge'
-import { useExportOrderInvoice } from '@/hooks'
 
 export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
   const [isOpen, setIsOpen] = useState(false)
-  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
 
   if (!order) return null
 
