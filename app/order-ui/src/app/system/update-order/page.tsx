@@ -224,7 +224,7 @@ export default function UpdateOrderPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex col-span-1 justify-center items-end h-full" >
-                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
+                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} totalOrderItems={orderItems?.orderItems.length || 0} />
                                                 </div>
                                             </div>
                                             <UpdateOrderItemNoteInput orderItem={item} />
