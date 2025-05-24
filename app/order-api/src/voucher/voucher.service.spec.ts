@@ -35,6 +35,8 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -54,6 +56,8 @@ describe('VoucherService', () => {
         MenuItemUtils,
         UserUtils,
         VoucherGroupUtils,
+        PdfService,
+        QrCodeService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
