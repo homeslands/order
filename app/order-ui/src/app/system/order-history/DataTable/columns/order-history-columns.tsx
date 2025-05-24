@@ -1,4 +1,3 @@
-import { createRoot } from 'react-dom/client'
 import { NavLink } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
 import {
@@ -8,7 +7,6 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import jsPDF from 'jspdf'
 import moment from 'moment'
 
 import {
@@ -21,8 +19,8 @@ import {
 } from '@/components/ui'
 import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
 import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
-import { useExportPayment, useGetAuthorityGroup } from '@/hooks'
-import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast, exportOrderInvoices } from '@/utils'
+import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup } from '@/hooks'
+import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
 import { useUserStore } from '@/stores'
@@ -38,6 +36,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const userPermissionCodes = userInfo?.role.permissions.map(p => p.authority.code) ?? [];
   const isDeletePermissionValid = hasPermissionInBoth("DELETE_ORDER", authorityGroupCodes, userPermissionCodes);
   const { mutate: exportPayment } = useExportPayment()
+  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -50,9 +49,19 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   }
 
   const handleExportOrderInvoice = async (order: IOrder | undefined) => {
-    await exportOrderInvoices(order)
-    showToast(tToast('toast.exportPDFVouchersSuccess'))
+    exportOrderInvoice(order?.slug || '', {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportPDFVouchersSuccess'))
+        // Load data to print
+        loadDataToPrinter(data)
+      },
+    })
   }
+
+  // const handleExportOrderInvoice = async (order: IOrder | undefined) => {
+  //   await exportOrderInvoices(order)
+  //   showToast(tToast('toast.exportPDFVouchersSuccess'))
+  // }
 
   return [
     {

@@ -111,7 +111,7 @@ export default function CustomerOrderTabsContent({
 
                 <div className="flex gap-2 justify-between items-center pt-4 bg-gray-50 sm:flex-row">
                   <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`}>
-                    <Button disabled={moment(orderItem.createdAt).isBefore(moment().subtract(10, 'minutes'))}>{t('order.viewDetail')}</Button>
+                    <Button>{t('order.viewDetail')}</Button>
                   </NavLink>
                   {orderItem.status === OrderStatus.PENDING && (
                     <div className="flex gap-2 sm:mt-0">
