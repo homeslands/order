@@ -33,7 +33,6 @@ import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
 import {
   useIsMobile,
   usePagination,
-  useSpecificPublicVoucher,
   useSpecificVoucher,
   useValidatePublicVoucher,
   useValidateVoucher,
@@ -103,17 +102,9 @@ export default function StaffVoucherListSheet() {
     }
   )
 
-  const { data: specificPublicVoucher, refetch: refetchSpecificPublicVoucher } = useSpecificPublicVoucher(
-    {
-      code: selectedVoucher
-    },
-  )
-
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
-    const vouchers = userInfo
-      ? [specificVoucher?.result].filter((v): v is IVoucher => !!v)
-      : [specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+    const vouchers = [specificVoucher?.result].filter((v): v is IVoucher => !!v)
 
     if (vouchers.length > 0) {
       setLocalVoucherList(prevList => {
@@ -127,7 +118,7 @@ export default function StaffVoucherListSheet() {
         return newList;
       });
     }
-  }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
+  }, [userInfo, specificVoucher?.result]);
 
   useEffect(() => {
     const baseList = (userInfo ? voucherList?.result.items : []) || []
@@ -140,24 +131,23 @@ export default function StaffVoucherListSheet() {
       }
     }
 
-    if (!userInfo && specificPublicVoucher?.result) {
-      const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
-      if (existingIndex === -1) {
-        newList = [specificPublicVoucher.result, ...newList]
-      }
-    }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result])
+  }, [userInfo, voucherList?.result?.items, specificVoucher?.result])
 
   useEffect(() => {
     if (cartItems?.voucher) {
       const code = cartItems.voucher.code;
       setSelectedVoucher(code);
+      setAppliedVoucher(cartItems.voucher.slug);
 
       if (cartItems.voucher.isPrivate) {
         refetchSpecificVoucher();
       }
+    } else {
+      // Clear selected and applied voucher when cart voucher is removed
+      setSelectedVoucher('');
+      setAppliedVoucher('');
     }
   }, [cartItems?.voucher, refetchSpecificVoucher]);
 
@@ -165,15 +155,11 @@ export default function StaffVoucherListSheet() {
   useEffect(() => {
     if (userInfo && specificVoucher?.result?.isPrivate) {
       refetchSpecificVoucher();
-    } else if (!userInfo && specificPublicVoucher?.result) {
-      refetchSpecificPublicVoucher();
     }
   }, [
     userInfo,
     specificVoucher?.result?.isPrivate,
-    specificPublicVoucher?.result,
-    refetchSpecificVoucher,
-    refetchSpecificPublicVoucher
+    refetchSpecificVoucher
   ]);
 
   const handleCopyCode = (code: string) => {
@@ -182,12 +168,14 @@ export default function StaffVoucherListSheet() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
+    const isActive = voucher.isActive
     const isValidAmount = voucher.minOrderValue <= subTotal
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
     const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!userInfo
+    const isUserLoggedIn = !!cartItems?.owner && cartItems.ownerRole === Role.CUSTOMER
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
-    return isValidAmount && isValidDate && isIdentityValid
+    return isActive && isValidAmount && isValidDate && isIdentityValid
   }
 
   // Filter and sort vouchers to get the best one
@@ -235,6 +223,7 @@ export default function StaffVoucherListSheet() {
         // Remove voucher
         removeVoucher()
         setAppliedVoucher('')
+        setSelectedVoucher('')
         showToast(tToast('toast.removeVoucherSuccess'))
       } else {
         // Apply voucher
@@ -244,7 +233,7 @@ export default function StaffVoucherListSheet() {
         }
 
         if (voucher.isVerificationIdentity && !cartItems.owner) {
-          showErrorToast(1003) // Show error if voucher requires verification but no owner
+          showErrorToast(1004) // Show error if voucher requires verification but no owner
           return
         }
 
@@ -253,6 +242,7 @@ export default function StaffVoucherListSheet() {
             onSuccess: () => {
               addVoucher(voucher)
               setAppliedVoucher(voucher.slug)
+              setSelectedVoucher(voucher.code)
               setSheetOpen(false)
               showToast(tToast('toast.applyVoucherSuccess'))
             },
@@ -262,6 +252,7 @@ export default function StaffVoucherListSheet() {
             onSuccess: () => {
               addVoucher(voucher)
               setAppliedVoucher(voucher.slug)
+              setSelectedVoucher(voucher.code)
               setSheetOpen(false)
               showToast(tToast('toast.applyVoucherSuccess'))
             },
@@ -271,66 +262,72 @@ export default function StaffVoucherListSheet() {
     }
   }
 
-  const handleApplyVoucher = async () => {
-    if (!selectedVoucher) return;
+  // const handleApplyVoucher = async () => {
+  //   if (!selectedVoucher) return;
 
-    if (appliedVoucher) {
-      removeVoucher()
-      setAppliedVoucher('')
-      return
-    }
+  //   if (appliedVoucher) {
+  //     removeVoucher()
+  //     setAppliedVoucher('')
+  //     return
+  //   }
 
-    if (userInfo) {
-      const { data } = await refetchSpecificVoucher();
-      const voucher = data?.result;
+  //   if (cartItems?.ownerPhoneNumber) {
+  //     const { data } = await refetchSpecificVoucher();
+  //     const voucher = data?.result;
 
-      if (voucher) {
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: voucher.slug,
-          user: cartItems?.owner || '',
-        };
+  //     if (voucher) {
+  //       const validateVoucherParam: IValidateVoucherRequest = {
+  //         voucher: voucher.slug,
+  //         user: cartItems?.owner || '',
+  //       };
 
-        validateVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(voucher);
-            setSheetOpen(false);
-            showToast(tToast('toast.applyVoucherSuccess'));
-          },
-        });
-      } else {
-        showErrorToast(1000);
-      }
-    } else {
-      const { data } = await refetchSpecificPublicVoucher(); // Gọi fetch thủ công
-      const publicVoucher = data?.result;
+  //       validateVoucher(validateVoucherParam, {
+  //         onSuccess: () => {
+  //           addVoucher(voucher);
+  //           setSheetOpen(false);
+  //           showToast(tToast('toast.applyVoucherSuccess'));
+  //         },
+  //       });
+  //     } else {
+  //       showErrorToast(1000);
+  //     }
+  //   } else {
+  //     const { data } = await refetchSpecificVoucher();
+  //     const publicVoucher = data?.result;
 
-      if (publicVoucher) {
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: publicVoucher.slug,
-          user: '',
-        };
+  //     if (publicVoucher) {
+  //       const validateVoucherParam: IValidateVoucherRequest = {
+  //         voucher: publicVoucher.slug,
+  //         user: '',
+  //       };
 
-        validatePublicVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(publicVoucher);
-            setSheetOpen(false);
-            showToast(tToast('toast.applyVoucherSuccess'));
-          },
-        });
-      } else {
-        showErrorToast(1000);
-      }
-    }
-  };
-
-
+  //       validatePublicVoucher(validateVoucherParam, {
+  //         onSuccess: () => {
+  //           addVoucher(publicVoucher);
+  //           setSheetOpen(false);
+  //           showToast(tToast('toast.applyVoucherSuccess'));
+  //         },
+  //       });
+  //     } else {
+  //       showErrorToast(1000);
+  //     }
+  //   }
+  // };
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 py-2 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
+  `
+
+    // const needsLogin = voucher.isVerificationIdentity && !cartItems?.ownerPhoneNumber
+    // const isVoucherUsable = isVoucherValid(voucher) && !needsLogin
+
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -449,6 +446,11 @@ export default function StaffVoucherListSheet() {
                           {t('voucher.minOrderValue')}:{' '}
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
+                        {voucher.isVerificationIdentity && (
+                          <li className="text-destructive">
+                            {t('voucher.isVerificationIdentity')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -502,6 +504,11 @@ export default function StaffVoucherListSheet() {
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}
                       </li>
+                      {voucher.isVerificationIdentity && (
+                        <li className="text-destructive">
+                          {t('voucher.isVerificationIdentity')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -527,9 +534,10 @@ export default function StaffVoucherListSheet() {
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
-                  ? t('voucher.minOrderNotMet')
-                  : t('voucher.expired')}
+                {voucher.isVerificationIdentity && !isCustomerOwner
+                  ? t('voucher.needVerifyIdentity')
+                  : voucher.minOrderValue > subTotal
+                  && t('voucher.minOrderNotMet')}
               </span>
             </div>
           )}
@@ -574,7 +582,7 @@ export default function StaffVoucherListSheet() {
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
+              {/* <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
                 <div className="relative col-span-3 p-1 sm:col-span-4">
                   <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
@@ -591,6 +599,17 @@ export default function StaffVoucherListSheet() {
                 >
                   {t('voucher.apply')}
                 </Button>
+              </div> */}
+              <div className="grid grid-cols-1 gap-2 items-center">
+                <div className="relative p-1">
+                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
+                  <Input
+                    placeholder={t('voucher.enterVoucher')}
+                    className="pl-10"
+                    onChange={(e) => setSelectedVoucher(e.target.value)}
+                    value={selectedVoucher}
+                  />
+                </div>
               </div>
             </div>
             {/* Voucher list */}

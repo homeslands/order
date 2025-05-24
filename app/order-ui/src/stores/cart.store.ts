@@ -13,6 +13,7 @@ import {
   OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
+import { Role } from '@/constants'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
@@ -48,12 +49,19 @@ export const useCartItemStore = create<ICartItemStore>()(
       removeCustomerInfo: () => {
         const { cartItems } = get()
         if (cartItems) {
+          // Check if current voucher requires verification
+          const requiresVerification =
+            cartItems.voucher?.isVerificationIdentity === true
+
           set({
             cartItems: {
               ...cartItems,
               owner: '',
               ownerFullName: '',
               ownerPhoneNumber: '',
+              ownerRole: '',
+              // Remove voucher if it requires verification
+              voucher: requiresVerification ? null : cartItems.voucher,
             },
             lastModified: moment().valueOf(),
           })
@@ -90,6 +98,7 @@ export const useCartItemStore = create<ICartItemStore>()(
             approvalBy: '',
             ownerPhoneNumber: '',
             ownerFullName: '',
+            ownerRole: Role.CUSTOMER,
           }
 
           set({
@@ -257,6 +266,7 @@ export const useCartItemStore = create<ICartItemStore>()(
                 isPrivate: voucher.isPrivate || false,
                 code: voucher.code,
                 type: voucher.type,
+                minOrderValue: voucher.minOrderValue || 0,
               },
             },
             lastModified: moment().valueOf(),
