@@ -46,3 +46,36 @@ export enum DeliveryOrderType {
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
 }
+
+export interface IExportOrderInvoiceParams {
+  logoString: string
+  logo: string
+  branchAddress: string
+  referenceNumber: number
+  createdAt: string
+  type: string
+  tableName: string
+  customer: string
+  cashier: string
+  invoiceItems: Array<{
+    variant: {
+      name: string
+      originalPrice: number
+      price: number
+      size?: string
+    }
+    quantity: number
+    promotionValue?: number
+  }>
+  paymentMethod: string
+  subtotalBeforeVoucher: number
+  voucherType: string
+  voucherValue: number
+  promotionDiscount: number
+  amount: number
+  loss: number
+  qrcode: string
+  formatCurrency: (value: number) => string
+  formatDate: (date: string, format: string) => string
+  formatPaymentMethod: (method: string) => string
+}

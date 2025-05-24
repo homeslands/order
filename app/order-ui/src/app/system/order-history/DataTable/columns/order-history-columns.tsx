@@ -1,4 +1,3 @@
-import { createRoot } from 'react-dom/client'
 import { NavLink } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
 import {
@@ -8,9 +7,7 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import jsPDF from 'jspdf'
 import moment from 'moment'
-import { QRCodeSVG } from 'qrcode.react'
 
 import {
   Button,
@@ -22,12 +19,11 @@ import {
 } from '@/components/ui'
 import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
 import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
-import { useExportPayment, useGetAuthorityGroup } from '@/hooks'
+import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup } from '@/hooks'
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
 import { useUserStore } from '@/stores'
-import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t } = useTranslation(['menu'])
@@ -39,8 +35,8 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const authorityGroupCodes = authorityGroup.flatMap(group => group.authorities.map(auth => auth.code));
   const userPermissionCodes = userInfo?.role.permissions.map(p => p.authority.code) ?? [];
   const isDeletePermissionValid = hasPermissionInBoth("DELETE_ORDER", authorityGroupCodes, userPermissionCodes);
-  // const { mutate: exportOrderInvoice } = useExportOrderInvoice()
   const { mutate: exportPayment } = useExportPayment()
+  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -53,97 +49,19 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   }
 
   const handleExportOrderInvoice = async (order: IOrder | undefined) => {
-    await exportOrderInvoices(order)
-    showToast(tToast('toast.exportPDFVouchersSuccess'))
-  }
-
-  const exportOrderInvoices = async (order: IOrder | undefined) => {
-    if (!order) return
-
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'cm',
-      format: [5, 3],
+    exportOrderInvoice(order?.slug || '', {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportPDFVouchersSuccess'))
+        // Load data to print
+        loadDataToPrinter(data)
+      },
     })
-
-    try {
-      // Add font directly since it's already base64 encoded
-      pdf.addFileToVFS('BeVietnamPro-Regular.ttf', Be_Vietnam_Pro_base64)
-      pdf.addFont('BeVietnamPro-Regular.ttf', 'BeVietnamPro', 'normal')
-      pdf.setFont('BeVietnamPro', 'normal')
-      pdf.setFontSize(6)
-
-      // Create temporary container for QR code
-      const container = document.createElement('div')
-      const root = createRoot(container)
-      root.render(
-        <QRCodeSVG
-          value={order.slug || ''}
-          size={96}
-          level="H"
-          includeMargin={true}
-          bgColor="#ffffff"
-          fgColor="#000000"
-        />
-      )
-
-      // Wait for QR code to be rendered
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      const pageWidth = 5
-      const qrSize = 1.6
-      const qrX = (pageWidth - qrSize) / 2
-      const qrY = 0.3
-      const textYStart = qrY + qrSize + 0.4
-      const lineSpacing = 0.3
-
-      // Convert SVG to PNG
-      const svgElement = container.querySelector('svg')
-      if (!svgElement) throw new Error('QR code SVG not found')
-
-      const svgData = new XMLSerializer().serializeToString(svgElement)
-      const canvas = document.createElement('canvas')
-      canvas.width = 96
-      canvas.height = 96
-      const ctx = canvas.getContext('2d')
-      if (!ctx) throw new Error('Could not get canvas context')
-
-      const img = new Image()
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-      const url = URL.createObjectURL(svgBlob)
-
-      await new Promise((resolve, reject) => {
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0)
-          URL.revokeObjectURL(url)
-          resolve(null)
-        }
-        img.onerror = () => {
-          URL.revokeObjectURL(url)
-          reject(new Error('Failed to load SVG image'))
-        }
-        img.src = url
-      })
-
-      // Add QR code to PDF
-      const pngData = canvas.toDataURL('image/png')
-      pdf.addImage(pngData, 'PNG', qrX, qrY, qrSize, qrSize)
-
-      // Text config
-      const codeLine = `Thời gian: ${moment(order.createdAt).format('DD/MM/YYYY')}`
-      const dateLine = `Hóa đơn: ${order.referenceNumber}`
-      const textX = pageWidth / 2
-
-      pdf.text(codeLine, textX, textYStart, { align: 'center' })
-      pdf.text(dateLine, textX, textYStart + lineSpacing, { align: 'center' })
-
-      const pdfBlob = pdf.output('blob')
-      loadDataToPrinter(pdfBlob)
-    } catch {
-      showToast(tToast('toast.exportPDFVouchersError'))
-    }
   }
 
+  // const handleExportOrderInvoice = async (order: IOrder | undefined) => {
+  //   await exportOrderInvoices(order)
+  //   showToast(tToast('toast.exportPDFVouchersSuccess'))
+  // }
 
   return [
     {
@@ -160,16 +78,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
-    // {
-    //   accessorKey: 'slug',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.slug')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const order = row.original
-    //     return <div className="text-sm">{order?.slug || 'N/A'}</div>
-    //   },
-    // },
     {
       accessorKey: 'orderReferenceNumber',
       header: ({ column }) => (
@@ -226,19 +134,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         return <div className="text-sm">{location}</div>
       },
     },
-    // {
-    //   accessorKey: 'paymentStatus',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     return (
-    //       <div className="flex flex-col">
-    //         <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
-    //       </div>
-    //     )
-    //   },
-    // },
     {
       accessorKey: 'orderStatus',
       header: ({ column }) => (
@@ -285,19 +180,22 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 </DropdownMenuLabel>
 
                 {/* Export invoice */}
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="ghost"
-                    className="flex gap-1 justify-start px-2 w-full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleExportOrderInvoice(order);
-                    }}
-                  >
-                    <DownloadIcon />
-                    {t('order.exportInvoice')}
-                  </Button>
-                </div>
+                {(order.status !== OrderStatus.PENDING) && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      className="flex gap-1 justify-start px-2 w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportOrderInvoice(order);
+                      }}
+                    >
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  </div>
+                )}
+                {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
                   (!order?.payment?.statusCode ||
@@ -343,7 +241,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <div onClick={(e) => e.stopPropagation()}>
                     <CreateChefOrderDialog
                       order={order}
-                    // onOpenChange={onDialogOpenChange}
                     />
                   </div>
                 )}
@@ -362,22 +259,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     {t('order.exportPayment')}
                   </Button>
                 )}
-
-
-                {/* {order?.slug &&
-                  order?.payment?.statusCode === paymentStatus.COMPLETED && (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportOrderInvoice(order.slug);
-                      }}
-                      variant="ghost"
-                      className="flex gap-1 justify-start px-2 w-full"
-                    >
-                      <DownloadIcon />
-                      {t('order.exportInvoice')}
-                    </Button>
-                  )} */}
 
                 {/* Cancel order */}
                 {isDeletePermissionValid &&
