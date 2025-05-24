@@ -14,7 +14,7 @@ import { UpdateGiftCardSheet } from '@/components/app/sheet'
 import { DeleteGiftCardDialog } from '@/components/app/dialog'
 import { IGiftCard } from '@/types'
 import { formatCurrency } from '@/utils'
-import { publicFileURL } from '@/constants'
+import { publicFileURL, GiftCardStatus } from '@/constants'
 
 export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
   const { t } = useTranslation(['giftCard', 'common'])
@@ -101,6 +101,29 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       cell: ({ row }) => {
         const amount = row.getValue('price') as number
         return <div className="text-sm">{formatCurrency(amount)}</div>
+      },
+    },
+    {
+      accessorKey: 'isActive',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('giftCard.status')} />
+      ),
+      cell: ({ row }) => {
+        const isActive = row.getValue('isActive') as boolean
+        const status = isActive
+          ? GiftCardStatus.ACTIVE
+          : GiftCardStatus.INACTIVE
+        return (
+          <div
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              isActive
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+            }`}
+          >
+            {t(`giftCard.${status.toLowerCase()}`)}
+          </div>
+        )
       },
     },
     {

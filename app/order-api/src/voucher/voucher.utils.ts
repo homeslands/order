@@ -265,4 +265,15 @@ export class VoucherUtils {
     }
     return true;
   }
+
+  async validateMinOrderValueForUpdateOrderItem(
+    voucher: Voucher,
+    order: Order,
+  ): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateMinOrderValue.name}`;
+    const subtotal = await this.orderUtils.getOrderSubtotal(order);
+    if (voucher.minOrderValue > subtotal) return false;
+    this.logger.log('Validate voucher for update order item success', context);
+    return true;
+  }
 }
