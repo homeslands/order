@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Hóa đơn</title>
+  <style>
+    @font-face {
+      font-family: 'Be Vietnam Pro';
+      src: url('data:font/woff2;base64,<%= logoString %>') format('woff2');
+    }
+
+    @page {
+      size: 80mm auto;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      width: 80mm;
+      margin: 0 auto;
+      padding: 12px;
+      font-size: 12px;
+      color: #000;
+      line-height: 1.5;
+    }
+
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .font-bold { font-weight: bold; }
+    .text-xs { font-size: 10px; }
+    .text-sm { font-size: 12px; }
+    .text-lg { font-size: 16px; }
+
+    .qr {
+      width: 100px;
+      display: block;
+      margin: 10px auto;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #000;
+      margin: 12px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    th, td {
+      padding: 5px 4px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 11px;
+      text-align: left;
+      border-bottom: 1px solid #000;
+    }
+
+    tbody tr:not(:last-child) td {
+      border-bottom: 1px dotted #ccc;
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .total-section td {
+      padding: 6px 4px;
+    }
+
+    .total-bold {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .uppercase { text-transform: uppercase; }
+    .mt-1 { margin-top: 4px; }
+    .mb-1 { margin-bottom: 6px; }
+    .mb-2 { margin-bottom: 10px; }
+    .mb-3 { margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Logo + địa chỉ -->
+  <div class="text-center section">
+    <img src="<%= logo %>" alt="Logo" width="140">
+    <div class="mb-1 text-sm"><%= branchAddress %></div>
+    <img src="<%= qrcode %>" alt="QR Code" class="qr">
+    <div class="mt-1 text-xs">Mã đơn: <%= referenceNumber %></div>
+  </div>
+
+  <!-- Thông tin hóa đơn -->
+  <div class="section">
+    <div class="text-xs">Thời gian: <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></div>
+    <div class="text-xs">
+      Loại đơn: <%= type === 'at-table' ? 'Tại quán' : 'Mang đi' %>
+    </div>
+    <% if (type === 'at-table') { %>
+      <div class="text-xs">Bàn: <%= tableName %></div>
+    <% } %>
+    <div class="text-xs">Khách hàng: <%= customer %></div>
+    <div class="text-xs">Thu ngân: <%= cashier %></div>
+  </div>
+
+  <hr>
+
+  <!-- Danh sách món -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 38%;">Món</th>
+        <th style="width: 10%;">SL</th>
+        <th style="width: 20%;">Đ.Giá</th>
+        <th style="width: 15%;">KM(%)</th>
+        <th style="width: 17%;">T.Tiền</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% invoiceItems.forEach(function(item) { %>
+      <tr>
+        <td class="text-xs"><%= item.variant.name.toUpperCase() %> (<%= item.variant.size.toUpperCase() %>)</td>
+        <td class="text-xs"><%= item.quantity %></td>
+        <td class="text-xs"><%= formatCurrency(item.variant.originalPrice) %></td>
+        <td class="text-xs"><%= item.promotionValue %></td>
+        <td class="text-xs"><%= formatCurrency(item.subtotal) %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- Tổng kết -->
+  <table class="total-section">
+    <tr>
+      <td class="text-left">PTTT</td>
+      <td class="text-right" colspan="4"><%= formatPaymentMethod(paymentMethod) %></td>
+    </tr>
+    <tr>
+      <td class="text-left">Tổng cộng</td>
+      <td class="text-right" colspan="4"><%= formatCurrency(subtotalBeforeVoucher) %></td>
+    </tr>
+    <tr>
+      <td class="text-left">
+        Mãi giảm giá 
+        <!-- (<%= voucherType === 'PERCENT_ORDER' ? '%' : 'đ' %>) -->
+      </td>
+      <td class="text-right" colspan="4"><%= formatCurrency(voucherValue) %></td>
+    </tr>
+    <% if (loss > 0) { %>
+    <tr>
+      <td class="text-left">Miễn phí đơn nhỏ (&lt; 2.000₫)</td>
+        <td class="text-right" colspan="4">-<%= formatCurrency(loss) %></td>
+      </tr>
+    <% } %>
+    <tr>
+      <td class="font-bold text-left">Thành tiền</td>
+      <td class="text-right total-bold" colspan="4"><%= formatCurrency(amount) %></td>
+    </tr>
+  </table>
+
+  <!-- Lời cảm ơn -->
+  <div class="text-center">
+    <p class="text-sm">Cảm ơn bạn đã sử dụng dịch vụ của <strong>TREND Coffee</strong>!</p>
+  </div>
+
+</body>
+</html>

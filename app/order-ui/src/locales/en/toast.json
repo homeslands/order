@@ -57,6 +57,7 @@
     "handleCancelOrderSuccess": "Order canceled successfully",
     "addNewOrderItemSuccess": "Item added to order successfully",
     "deleteOrderItemSuccess": "Order item deleted successfully",
+    "orderCanceled": "Order has been canceled and you will be redirected to the menu",
     "updateOrderTypeSuccess": "Order type updated successfully",
     "createOrderTrackingByStaffSuccess": "Order assigned to staff successfully",
     "createOrderTrackingByRobotSuccess": "Order assigned to robot successfully",

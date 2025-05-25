@@ -329,6 +329,7 @@ export interface IOrderInvoice {
   status: paymentStatus
   logo: string
   tableName: string
+  referenceNumber: number
   branchAddress: string
   cashier: string
   customer: string

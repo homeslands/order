@@ -28,15 +28,19 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
 
   const { orderItems, payment, owner, subtotal, createdAt, voucher } = order
 
-  const handleExportOrderInvoice = (slug: string) => {
-    exportOrderInvoice(slug, {
+  const handleExportOrderInvoice = async (order: IOrder) => {
+    exportOrderInvoice(order?.slug || '', {
       onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportInvoiceSuccess'))
+        showToast(tToast('toast.exportPDFVouchersSuccess'))
         // Load data to print
         loadDataToPrinter(data)
       },
     })
   }
+  // const handleExportOrderInvoice = async (order: IOrder) => {
+  //   await exportOrderInvoices(order)
+  //   showToast(tToast('toast.exportPDFVouchersSuccess'))
+  // }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -127,7 +131,7 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
           <span className="text-lg font-bold text-primary">{formatCurrency(subtotal)}</span>
         </div>
         <DialogFooter className="px-4">
-          <Button className='w-full' onClick={() => handleExportOrderInvoice(order.slug)}>
+          <Button className='w-full' onClick={() => handleExportOrderInvoice(order)}>
             <DownloadIcon />
             {t('order.exportInvoice')}
           </Button>
