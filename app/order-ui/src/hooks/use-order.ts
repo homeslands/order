@@ -53,12 +53,15 @@ export const useOrdersPublic = () => {
   })
 }
 
-export const useOrderBySlug = (slug: string) => {
+export const useOrderBySlug = (
+  slug: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: ['order', slug],
     queryFn: () => getOrderBySlug(slug),
     placeholderData: keepPreviousData,
-    enabled: !!slug,
+    enabled: options?.enabled,
   })
 }
 

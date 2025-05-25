@@ -25,10 +25,6 @@ import { OrderScheduler } from 'src/order/order.scheduler';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Branch } from 'src/branch/branch.entity';
 import { Payment } from 'src/payment/payment.entity';
-import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { UserUtils } from 'src/user/user.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
-import { User } from 'src/user/user.entity';
 
 describe('OrderItemService', () => {
   let service: OrderItemService;
@@ -46,16 +42,6 @@ describe('OrderItemService', () => {
         PromotionUtils,
         OrderScheduler,
         SchedulerRegistry,
-        VoucherUtils,
-        UserUtils,
-        {
-          provide: getRepositoryToken(Voucher),
-          useFactory: repositoryMockFactory,
-        },
-        {
-          provide: getRepositoryToken(User),
-          useFactory: repositoryMockFactory,
-        },
         {
           provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,

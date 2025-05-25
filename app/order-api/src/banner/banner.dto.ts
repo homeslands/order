@@ -55,9 +55,7 @@ export class GetBannerQueryDto {
     example: false,
   })
   // @Type(() => Boolean)
-  @Transform(({ value }) => {
-    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
-  })
+  @Transform(({ value }) => value === 'true')
   isActive?: boolean;
 }
 

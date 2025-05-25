@@ -13,14 +13,12 @@ import {
   OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
-import { Role } from '@/constants'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
       cartItems: null,
       lastModified: null,
-      isHydrated: false,
 
       getCartItems: () => get().cartItems,
 
@@ -40,7 +38,6 @@ export const useCartItemStore = create<ICartItemStore>()(
               owner: owner.slug,
               ownerPhoneNumber: owner.phonenumber,
               ownerFullName: ownerFullName,
-              ownerRole: owner.role.name,
             },
             lastModified: moment().valueOf(),
           })
@@ -50,19 +47,12 @@ export const useCartItemStore = create<ICartItemStore>()(
       removeCustomerInfo: () => {
         const { cartItems } = get()
         if (cartItems) {
-          // Check if current voucher requires verification
-          const requiresVerification =
-            cartItems.voucher?.isVerificationIdentity === true
-
           set({
             cartItems: {
               ...cartItems,
               owner: '',
               ownerFullName: '',
               ownerPhoneNumber: '',
-              ownerRole: '',
-              // Remove voucher if it requires verification
-              voucher: requiresVerification ? null : cartItems.voucher,
             },
             lastModified: moment().valueOf(),
           })
@@ -80,9 +70,6 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addCartItem: (item: ICartItem) => {
-        if (!get().isHydrated) {
-          return
-        }
         const timestamp = moment().valueOf()
         const { cartItems } = get()
 
@@ -102,7 +89,6 @@ export const useCartItemStore = create<ICartItemStore>()(
             approvalBy: '',
             ownerPhoneNumber: '',
             ownerFullName: '',
-            ownerRole: Role.CUSTOMER,
           }
 
           set({
@@ -261,18 +247,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         const { cartItems } = get()
         if (cartItems) {
           set({
-            cartItems: {
-              ...cartItems,
-              voucher: {
-                slug: voucher.slug,
-                value: voucher.value,
-                isVerificationIdentity: voucher.isVerificationIdentity || false,
-                isPrivate: voucher.isPrivate || false,
-                code: voucher.code,
-                type: voucher.type,
-                minOrderValue: voucher.minOrderValue || 0,
-              },
-            },
+            cartItems: { ...cartItems, voucher },
             lastModified: moment().valueOf(),
           })
         }
@@ -297,19 +272,15 @@ export const useCartItemStore = create<ICartItemStore>()(
     }),
     {
       name: 'cart-store',
-      version: 1,
       storage: createJSONStorage(() => localStorage),
+      version: 1,
       partialize: (state) => ({
         cartItems: state.cartItems,
         lastModified: state.lastModified,
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          setTimeout(() => {
-            useCartItemStore.setState({ isHydrated: true })
-          }, 0)
-        }
-      },
+      // onRehydrateStorage: () => (state) => {
+      //   console.log('Rehydrated state:', state)
+      // },
     },
   ),
 )

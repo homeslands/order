@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { PlusCircle } from 'lucide-react'
 
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
   Button,
   ScrollArea,
   Input,
@@ -25,29 +26,22 @@ import { ICreateVoucherRequest } from '@/types'
 import { SimpleDatePicker } from '../picker'
 import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherTypeSelect } from '../select'
-import { VOUCHER_TYPE } from '@/constants'
 
-export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
+export default function CreateVoucherSheet() {
   const { t } = useTranslation(['voucher'])
-  const { slug } = useParams()
-  const [isOpenDialog, setIsOpenDialog] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [formData, setFormData] = useState<ICreateVoucherRequest | null>(null)
-  // const [sheetOpen, setSheetOpen] = useState(openChange)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const form = useForm<TCreateVoucherSchema>({
     resolver: zodResolver(createVoucherSchema),
     defaultValues: {
-      voucherGroup: slug as string,
       title: '',
       description: '',
-      type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
       code: '',
       value: 0,
       isActive: false,
-      isPrivate: false,
-      numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
       isVerificationIdentity: true
@@ -75,22 +69,18 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
   const handleSubmit = (data: ICreateVoucherRequest) => {
     setFormData(data)
-    setIsOpenDialog(true)
+    setIsOpen(true)
   }
 
   const resetForm = () => {
     form.reset({
-      voucherGroup: slug as string,
       title: '',
       description: '',
-      type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
       code: '',
       value: 0,
       isActive: false,
-      isPrivate: false,
-      numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
       isVerificationIdentity: true
@@ -174,31 +164,6 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         )}
       />
     ),
-    type: (
-      <FormField
-        control={form.control}
-        name="type"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
-              <span className="text-destructive">
-                *
-              </span>
-              {t('voucher.type')}</FormLabel>
-            <FormControl>
-              <VoucherTypeSelect
-                {...field}
-                onChange={(value) => {
-                  field.onChange(value);
-                  form.setValue('value', 0); // Reset value when type changes
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
     code: (
       <FormField
         control={form.control}
@@ -234,52 +199,24 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
               </span>
               {t('voucher.value')}</FormLabel>
             <FormControl>
-              {form.watch('type') === 'percent_order' ? (
-                <div className='relative'>
-                  <Input
-                    type="number"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
-                      if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
-                      } else {
-                        field.onChange(Number(value));
-                      }
-                    }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
-                    min={0}
-                    max={100}
-                    placeholder={t('voucher.enterVoucherValue')}
-                  />
-
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    %
-                  </span>
-                </div>
-              ) : (
-                <div className='relative'>
-                  <Input
-                    type="number"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
-                      if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
-                      } else {
-                        field.onChange(Number(value));
-                      }
-                    }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
-                    placeholder={t('voucher.enterVoucherValue')}
-                  />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                    ₫
-                  </span>
-                </div>
-              )}
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    const displayValue = Number(e.target.value)
+                    if (displayValue >= 0 && displayValue <= 100) {
+                      field.onChange(displayValue)
+                    }
+                  }}
+                  min={0}
+                  max={100}
+                  placeholder={t('voucher.enterVoucherValue')}
+                />
+                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -305,35 +242,6 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                 min={0}
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    numberOfUsagePerUser: (
-      <FormField
-        control={form.control}
-        name="numberOfUsagePerUser"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
-              <span className="text-destructive">
-                *
-              </span>
-              {t('voucher.numberOfUsagePerUser')}</FormLabel>
-            <FormControl>
-              <div className='relative'>
-                <Input
-                  type="number"
-                  {...field}
-                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                  {t('voucher.usage')}
-                </span>
-              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -393,41 +301,16 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         )}
       />
     ),
-    isPrivate: (
-      <FormField
-        control={form.control}
-        name="isPrivate"
-        render={({ field }) => (
-          <FormItem className='flex flex-col gap-2'>
-            <FormLabel className="flex gap-1 items-start leading-6">
-              <span className="mt-1 text-destructive">*</span>
-              {t('voucher.isPrivate')}
-            </FormLabel>
-
-            <FormControl>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is-private"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-
-  }
-
-  const handleCreateVoucherSuccess = () => {
-    resetForm()
-    onSuccess()
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={openChange}>
+    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <SheetTrigger asChild>
+        <Button>
+          <PlusCircle size={16} />
+          {t('voucher.create')}
+        </Button>
+      </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
@@ -457,7 +340,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.code}
-                    {formFields.type}
+                    {formFields.maxUsage}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
@@ -465,15 +348,9 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                     {formFields.minOrderValue}
                     {formFields.value}
                   </div>
-                  {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    {formFields.maxUsage}
-                    {formFields.numberOfUsagePerUser}
-                  </div>
                   {/* Nhóm: Kiểm tra định danh */}
-                  <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                  <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.isVerificationIdentity}
-                    {formFields.isPrivate}
                   </div>
                 </form>
               </Form>
@@ -483,13 +360,13 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
             <Button type="submit" form="voucher-form">
               {t('voucher.create')}
             </Button>
-            {isOpenDialog && (
+            {isOpen && (
               <CreateVoucherDialog
                 voucher={formData}
-                isOpen={isOpenDialog}
-                onOpenChange={setIsOpenDialog}
-                onCloseSheet={() => openChange(false)}
-                onSuccess={handleCreateVoucherSuccess}
+                isOpen={isOpen}
+                onOpenChange={setIsOpen}
+                onCloseSheet={() => setSheetOpen(false)}
+                onSuccess={resetForm} // Thêm callback onSuccess
               />
             )}
           </SheetFooter>

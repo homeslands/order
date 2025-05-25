@@ -5,11 +5,10 @@ import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { CircleX, SquareMenu } from 'lucide-react'
-import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, Role, ROUTE } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
@@ -19,7 +18,6 @@ import { usePaymentMethodStore, useUserStore } from '@/stores'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
-import LoadingAnimation from "@/assets/images/loading-animation.json"
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -34,21 +32,16 @@ export function ClientPaymentPage() {
   const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
 
   // calculate original total
   const originalTotal = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
 
-  const isPercentOrder = order?.result.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+  const discount = order?.result.orderItems ?
+    order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
-  // calculate voucher base on promotion
-  const voucherDiscount = isPercentOrder
-    ? (originalTotal * (order?.result.voucher?.value || 0)) / 100
-    : order?.result.voucher?.value
-
-  const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
+  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -69,9 +62,6 @@ export function ClientPaymentPage() {
       pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
         if (updatedOrder.data?.result?.status === OrderStatus.PAID) {
-          if (pollingInterval) clearInterval(pollingInterval)
-          // Always ensure loading is false before navigating
-          setIsLoading(false)
           navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
         }
       }, 3000)
@@ -89,9 +79,9 @@ export function ClientPaymentPage() {
   }
 
   const handleConfirmPayment = () => {
+    // console.log('handleConfirmPayment', slug, paymentMethod)
     if (!slug || !paymentMethod) return
     setIsExpired(false)
-    setIsLoading(true)
 
     if (!userInfo) {
       if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
@@ -102,14 +92,7 @@ export function ClientPaymentPage() {
               setPaymentSlug(data.result.slug)
               setQrCode(data.result.qrCode)
               setIsPolling(true)
-              // Only turn off loading if we get a QR code (amount > 2000)
-              if (data.result.qrCode) {
-                setIsLoading(false)
-              }
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       } else if (paymentMethod === PaymentMethod.CASH) {
@@ -119,9 +102,6 @@ export function ClientPaymentPage() {
             onSuccess: () => {
               navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       }
@@ -134,14 +114,7 @@ export function ClientPaymentPage() {
               setPaymentSlug(data.result.slug)
               setQrCode(data.result.qrCode)
               setIsPolling(true)
-              // Only turn off loading if we get a QR code (amount > 2000)
-              if (data.result.qrCode) {
-                setIsLoading(false)
-              }
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       } else if (paymentMethod === PaymentMethod.CASH) {
@@ -151,9 +124,6 @@ export function ClientPaymentPage() {
             onSuccess: () => {
               navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       }
@@ -166,14 +136,7 @@ export function ClientPaymentPage() {
               setPaymentSlug(data.result.slug)
               setQrCode(data.result.qrCode)
               setIsPolling(true)
-              // Only turn off loading if we get a QR code (amount > 2000)
-              if (data.result.qrCode) {
-                setIsLoading(false)
-              }
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       } else if (paymentMethod === PaymentMethod.CASH) {
@@ -183,9 +146,6 @@ export function ClientPaymentPage() {
             onSuccess: () => {
               navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
             },
-            onError: () => {
-              setIsLoading(false)
-            }
           },
         )
       }
@@ -216,13 +176,6 @@ export function ClientPaymentPage() {
   if (isPending) return <PaymentPageSkeleton />
   return (
     <div className="container py-10">
-      {isLoading && (
-        <div className="flex fixed inset-0 z-50 justify-center items-center bg-white bg-opacity-40">
-          <div className="w-64 h-64">
-            <Lottie animationData={LoadingAnimation} loop={true} />
-          </div>
-        </div>
-      )}
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -382,7 +335,7 @@ export function ClientPaymentPage() {
                       {t('order.discount')}
                     </h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      - {`${formatCurrency(promotionDiscount || 0)}`}
+                      - {`${formatCurrency(discount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">

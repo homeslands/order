@@ -19,8 +19,6 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
-import { UserUtils } from 'src/user/user.utils';
-import { User } from 'src/user/user.entity';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -37,7 +35,6 @@ describe('TransactionService', () => {
         HttpService,
         PdfService,
         SystemConfigService,
-        UserUtils,
         {
           provide: ConfigService,
           useValue: {
@@ -61,10 +58,6 @@ describe('TransactionService', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
-          useValue: repositoryMockFactory,
-        },
-        {
-          provide: getRepositoryToken(User),
           useValue: repositoryMockFactory,
         },
         {

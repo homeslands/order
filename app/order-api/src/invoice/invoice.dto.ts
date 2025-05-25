@@ -33,10 +33,6 @@ export class InvoiceResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  loss: number;
-
-  @AutoMap()
-  @ApiProperty()
   voucherValue: number;
 
   @AutoMap()

@@ -13,17 +13,7 @@ export const ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE =
   'ORDER_VALUE_LESS_THAN_MIN_ORDER_VALUE';
 export const USER_MUST_BE_CUSTOMER = 'USER_MUST_BE_CUSTOMER';
 export const VALIDATE_VOUCHER_USAGE_FAILED = 'VALIDATE_VOUCHER_USAGE_FAILED';
-export const INVALID_VOUCHER_TYPE = 'INVALID_VOUCHER_TYPE';
-export const INVALID_NUMBER_OF_USAGE_PER_USER =
-  'INVALID_NUMBER_OF_USAGE_PER_USER';
-export const DUPLICATE_VOUCHER_TITLE = 'DUPLICATE_VOUCHER_TITLE';
-export const MUST_VERIFY_IDENTITY_TO_USE_VOUCHER =
-  'MUST_VERIFY_IDENTITY_TO_USE_VOUCHER';
-export const VOUCHER_HAS_ORDERS = 'VOUCHER_HAS_ORDERS';
-export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
-  'VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE';
-export const INVALID_VOUCHER_SLUGS = 'INVALID_VOUCHER_SLUGS';
-export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
+
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -36,16 +26,7 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_HAS_NO_REMAINING_USAGE
   | typeof CREATE_VOUCHER_FAILED
   | typeof USER_MUST_BE_CUSTOMER
-  | typeof VALIDATE_VOUCHER_USAGE_FAILED
-  | typeof INVALID_VOUCHER_TYPE
-  | typeof INVALID_NUMBER_OF_USAGE_PER_USER
-  | typeof DUPLICATE_VOUCHER_TITLE
-  | typeof MUST_VERIFY_IDENTITY_TO_USE_VOUCHER
-  | typeof VOUCHER_HAS_ORDERS
-  | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE
-  | typeof INVALID_VOUCHER_SLUGS
-  | typeof INVALID_VOUCHER_VALUE;
-
+  | typeof VALIDATE_VOUCHER_USAGE_FAILED;
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
 // 143401 – 144000
@@ -77,21 +58,4 @@ export const VoucherValidation: TVoucherErrorCode = {
     143412,
     'Validate voucher usage failed',
   ),
-  INVALID_VOUCHER_TYPE: createErrorCode(143413, 'Invalid voucher type'),
-  INVALID_NUMBER_OF_USAGE_PER_USER: createErrorCode(
-    143414,
-    'Invalid number of usage per user',
-  ),
-  DUPLICATE_VOUCHER_TITLE: createErrorCode(143415, 'Duplicate voucher title'),
-  MUST_VERIFY_IDENTITY_TO_USE_VOUCHER: createErrorCode(
-    143416,
-    'Must verify identity to use voucher',
-  ),
-  VOUCHER_HAS_ORDERS: createErrorCode(143417, 'Voucher has orders'),
-  VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE: createErrorCode(
-    143418,
-    'Voucher has used can not update max usage',
-  ),
-  INVALID_VOUCHER_SLUGS: createErrorCode(143419, 'Invalid voucher slugs'),
-  INVALID_VOUCHER_VALUE: createErrorCode(143420, 'Invalid voucher value'),
 };

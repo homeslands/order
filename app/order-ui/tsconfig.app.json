@@ -34,7 +34,6 @@
     "src/**/*.tsx",
     "src/**/*.d.ts",
     ".eslintrc.js",
-    "eslint.config.js",
-    "src/components/app/sheet/staff-voucher-list-sheet.-in-update-ordertsx"
+    "eslint.config.js"
   ]
 }

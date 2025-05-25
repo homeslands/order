@@ -17,15 +17,10 @@ import {
 } from 'src/order-item/order-item.dto';
 import { Transform, Type } from 'class-transformer';
 import { InvoiceResponseDto } from 'src/invoice/invoice.dto';
-import {
-  INVALID_ORDER_ITEMS,
-  INVALID_TABLE_SLUG,
-  ORDER_TYPE_INVALID,
-} from './order.validation';
+import { INVALID_ORDER_ITEMS, ORDER_TYPE_INVALID } from './order.validation';
 import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
-import { RoleResponseDto } from 'src/role/role.dto';
 
 export class CreateOrderRequestDto {
   @AutoMap()
@@ -98,7 +93,7 @@ export class UpdateOrderRequestDto {
 
   @AutoMap()
   @ApiProperty({ description: 'The slug of table' })
-  @IsOptional({ message: INVALID_TABLE_SLUG })
+  @IsOptional()
   table?: string;
 
   @AutoMap()
@@ -121,9 +116,6 @@ export class OwnerResponseDto extends BaseResponseDto {
 
   @AutoMap()
   lastName: string;
-
-  @AutoMap(() => RoleResponseDto)
-  role: RoleResponseDto;
 }
 
 export class ApprovalUserResponseDto extends OwnerResponseDto {
@@ -171,9 +163,6 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   subtotal: number;
-
-  @AutoMap()
-  loss: number;
 
   @AutoMap()
   status: string;

@@ -16,13 +16,14 @@ export function ClientFooter() {
         <div className='flex flex-col w-full lg:flex-row-reverse'>
           <div className='flex flex-col items-start w-full sm:flex-row'>
             <div className="flex flex-col gap-4 justify-center items-start w-full">
-              <div className='flex'> <Phone /> <span className='hidden cursor-pointer ps-4 md:block'>{t('footer.contact')}: </span><b className='ps-4 md:ps-1'> 0886128008</b></div>
+              <div className='flex'> <Phone /> <span className='hidden cursor-pointer ps-4 md:block'>{t('footer.contact')}: </span><b className='ps-4 md:ps-1'> 0888022200</b></div>
               <div className='flex gap-4'>
                 <Mail />
                 <span className='cursor-pointer hover:underline' onClick={() => window.location.href = `mailto:${mail}`}>
                   <b>{mail}</b>
                 </span>
               </div>
+
             </div>
             <div className="flex flex-col gap-4 justify-center items-start mt-4 w-full sm:mt-0" >
               <div className="relative w-full">

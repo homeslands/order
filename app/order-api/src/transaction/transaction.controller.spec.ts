@@ -20,8 +20,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PdfService } from 'src/pdf/pdf.service';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
-import { UserUtils } from 'src/user/user.utils';
-import { User } from 'src/user/user.entity';
 
 describe('TransactionController', () => {
   let controller: TransactionController;
@@ -39,7 +37,6 @@ describe('TransactionController', () => {
         HttpService,
         PdfService,
         SystemConfigService,
-        UserUtils,
         {
           provide: 'AXIOS_INSTANCE_TOKEN',
           useValue: {
@@ -70,10 +67,6 @@ describe('TransactionController', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
-          useValue: repositoryMockFactory,
-        },
-        {
-          provide: getRepositoryToken(User),
           useValue: repositoryMockFactory,
         },
         {

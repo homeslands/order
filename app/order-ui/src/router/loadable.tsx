@@ -255,14 +255,8 @@ export const ConfigPage = React.lazy(() =>
   })),
 )
 
-//Voucher group page
-export const VoucherGroupPage = React.lazy(() =>
-  import('@/app/system/voucher').then((module) => ({
-    default: module.VoucherGroupPage,
-  })),
-)
 export const VoucherPage = React.lazy(() =>
-  import('@/app/system/voucher/components').then((module) => ({
+  import('@/app/system/voucher').then((module) => ({
     default: module.VoucherPage,
   })),
 )

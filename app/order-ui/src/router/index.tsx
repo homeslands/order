@@ -58,7 +58,6 @@ import {
   OrdersPublicPage,
   PublicOrderDetailPage,
   ClientOrderSuccessPage,
-  VoucherGroupPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -687,26 +686,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_VOUCHER_GROUP,
-        element: (
-          <Suspense fallback={<SkeletonCart />}>
-            <SuspenseElement component={SystemLayout} />
-          </Suspense>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <ProtectedElement
-                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
-                element={<SuspenseElement component={VoucherGroupPage} />}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        path: `${ROUTE.STAFF_VOUCHER_GROUP}/:slug`,
+        path: ROUTE.STAFF_VOUCHER,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />

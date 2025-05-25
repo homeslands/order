@@ -26,8 +26,6 @@ import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
-import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
 
 @Injectable()
 export class OrderItemService {
@@ -42,7 +40,6 @@ export class OrderItemService {
     private readonly promotionUtils: PromotionUtils,
     private readonly menuUtils: MenuUtils,
     private readonly orderScheduler: OrderScheduler,
-    private readonly voucherUtils: VoucherUtils,
   ) {}
 
   /**
@@ -206,26 +203,12 @@ export class OrderItemService {
       },
     });
 
-    const voucher: Voucher = order.voucher;
-    if (voucher) {
-      const isVoucherValid =
-        await this.voucherUtils.validateMinOrderValueForUpdateOrderItem(
-          voucher,
-          order,
-        );
-      if (!isVoucherValid) {
-        voucher.remainingUsage += 1;
-        order.voucher = null;
-      }
-    }
-
     order.subtotal = await this.orderUtils.getOrderSubtotal(
       order,
       order.voucher,
     );
     await this.transactionManagerService.execute(
       async (manager) => {
-        if (voucher) await manager.save(voucher);
         await manager.save(order);
       },
       () => {
@@ -281,28 +264,11 @@ export class OrderItemService {
         );
         await manager.remove(OrderItem, orderItem);
 
-        // validate voucher
-        const voucher: Voucher = order.voucher;
-        if (voucher) {
-          const isVoucherValid =
-            await this.voucherUtils.validateMinOrderValueForUpdateOrderItem(
-              voucher,
-              order,
-            );
-          if (!isVoucherValid) {
-            if (!_.isEmpty(order.orderItems)) {
-              voucher.remainingUsage += 1;
-              order.voucher = null;
-            }
-          }
-        }
         // Update order
         order.subtotal = await this.orderUtils.getOrderSubtotal(
           order,
           order.voucher,
         );
-        if (voucher) await manager.save(voucher);
-
         return await manager.save(order);
       },
       () => {

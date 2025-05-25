@@ -22,7 +22,7 @@ import {
 import { ShowInvoiceDialog } from '../dialog'
 import { formatCurrency } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
-import { publicFileURL, VOUCHER_TYPE } from '@/constants'
+import { publicFileURL } from '@/constants'
 
 interface IOrderHistoryDetailSheetProps {
   order: IOrder | null
@@ -59,8 +59,6 @@ export default function OrderHistoryDetailSheet({
   const originalTotal = orderDetail ? orderDetail.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0
 
   const discount = orderDetail ? orderDetail.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0) : 0
-
-  const voucherDiscount = orderDetail?.voucher && orderDetail?.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((orderDetail?.voucher.value) / 100) : orderDetail?.voucher && orderDetail?.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? orderDetail?.voucher.value : 0;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -283,16 +281,7 @@ export default function OrderHistoryDetailSheet({
                         {t('order.voucher')}
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency(voucherDiscount)}`}
-                      </p>
-                    </div>}
-                  {orderDetail?.loss > 0 &&
-                    <div className="flex justify-between pb-4 w-full">
-                      <h3 className="text-sm italic font-medium text-green-500">
-                        {t('order.invoiceAutoDiscountUnderThreshold')}
-                      </h3>
-                      <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency(orderDetail?.loss)}`}
+                        - {`${formatCurrency((originalTotal - discount) * ((orderDetail.voucher.value) / 100))}`}
                       </p>
                     </div>}
                   <Separator />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2, TriangleAlert } from 'lucide-react'
 
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui'
 import { IOrderItem } from '@/types'
 import { useCartItemStore } from '@/stores'
-import { showErrorToast } from '@/utils'
 
 interface DialogDeleteCartItemProps {
   cartItem: IOrderItem
@@ -27,25 +26,12 @@ export default function DeleteCartItemDialog({
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
-  const { removeCartItem, cartItems, removeVoucher } = useCartItemStore()
+  const { removeCartItem } = useCartItemStore()
 
   const handleDelete = (cartItemId: string) => {
     setIsOpen(false)
     removeCartItem(cartItemId)
   }
-
-  // use useEffect to check if subtotal is less than minOrderValue of voucher
-  useEffect(() => {
-    if (cartItems) {
-      const subtotal = cartItems.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-      const voucher = cartItems.voucher
-      if (subtotal < (voucher?.minOrderValue || 0)) {
-        removeVoucher()
-        showErrorToast(1004)
-        setIsOpen(false)
-      }
-    }
-  }, [cartItems, removeVoucher])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -56,23 +42,23 @@ export default function DeleteCartItemDialog({
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="flex gap-2 items-center text-destructive">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
             <TriangleAlert />
             {t('order.deleteItem')}
           </DialogTitle>
-          <DialogDescription className={`p-2 bg-red-100 rounded-md dark:bg-transparent text-destructive`}>
+          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex gap-4 items-center mt-4">
+          <div className="flex items-center gap-4 mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
               {t('order.deleteContent')} <strong>{cartItem.name}</strong>
               {t('order.deleteContent2')}
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row gap-2 justify-end">
+        <DialogFooter className="flex flex-row justify-end gap-2">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

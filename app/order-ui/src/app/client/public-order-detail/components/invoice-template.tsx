@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Logo } from '@/assets/images';
 import { formatCurrency } from '@/utils';
 import { IOrder } from '@/types';
-import { PaymentMethod, VOUCHER_TYPE } from '@/constants';
+import { PaymentMethod } from '@/constants';
 
 interface InvoiceProps {
     order: IOrder | undefined
@@ -15,19 +15,8 @@ export default function Invoice({
     order,
 }: InvoiceProps) {
     const { t } = useTranslation('menu')
-    const originalTotal = order?.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) || 0;
-
-    const discount = order
-        ? order.orderItems.reduce(
-            (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
-            0
-        )
-        : 0;
-
-    const voucherDiscount = order?.voucher && order?.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount || 0) * ((order?.voucher.value) / 100) : order?.voucher && order?.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? order?.voucher.value : 0;
-
-    // calculate loss
-    const loss = order?.loss || 0;
+    const subtotalBeforeVoucher = order?.orderItems.reduce((acc, item) => acc + item.variant.price * item.quantity, 0);
+    const voucherValue = order?.voucher?.value || 0;
 
     return (
         <div className="p-5 pt-0">
@@ -98,19 +87,13 @@ export default function Invoice({
                     <tr className="border-t border-black">
                         <td className="py-2 text-left">Tổng cộng</td>
                         <td className="py-2 text-right" colSpan={4}>
-                            {formatCurrency(originalTotal - discount || 0)}
+                            {formatCurrency(subtotalBeforeVoucher || 0)}
                         </td>
                     </tr>
                     <tr className="border-t border-black">
-                        <td className="py-2 text-left">Giảm giá </td>
+                        <td className="py-2 text-left">Giảm giá(%)</td>
                         <td className="py-2 text-right" colSpan={4}>
-                            {formatCurrency(voucherDiscount || 0)}
-                        </td>
-                    </tr>
-                    <tr className="border-t border-black">
-                        <td className="py-2 text-left">Giảm giá tự động cho đơn hàng dưới 2000đ </td>
-                        <td className="py-2 text-right" colSpan={4}>
-                            {formatCurrency(loss || 0)}
+                            {voucherValue}
                         </td>
                     </tr>
                     <tr className="border-t border-black">
@@ -123,10 +106,10 @@ export default function Invoice({
             </table>
 
             {/* Invoice footer */}
-            {/* <p className="mt-2 text-xs">
+            <p className="mt-2 text-xs">
                 Giá sản phẩm đã bao gồm VAT 10%. Vui lòng giữ lại hóa đơn, để
                 xác thực đó là đơn hàng của bạn.
-            </p> */}
+            </p>
             <span className='text-sm italic text-destructive'>
                 {t('order.invoiceNote')}
             </span>
