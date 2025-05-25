@@ -10,10 +10,13 @@ import { VoucherScheduler } from './voucher.scheduler';
 import { OrderModule } from 'src/order/order.module';
 import { VoucherSubscriber } from './voucher.subscriber';
 import { UserModule } from 'src/user/user.module';
-
+import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
+import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Voucher]),
+    TypeOrmModule.forFeature([Voucher, VoucherGroup]),
     DbModule,
     UserModule,
     forwardRef(() => OrderModule),
@@ -25,6 +28,9 @@ import { UserModule } from 'src/user/user.module';
     VoucherUtils,
     VoucherScheduler,
     VoucherSubscriber,
+    VoucherGroupUtils,
+    PdfService,
+    QrCodeService,
   ],
   exports: [VoucherUtils],
 })

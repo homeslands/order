@@ -22,6 +22,7 @@ import { readFileSync } from 'fs';
 import { InvoiceException } from './invoice.exception';
 import { InvoiceValidation } from './invoice.validation';
 import { OrderType } from 'src/order/order.constants';
+import { VoucherType } from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class InvoiceService {
@@ -81,6 +82,14 @@ export class InvoiceService {
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
 
+    let voucherValue = 0;
+    if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+      voucherValue = (order.subtotal * 100) / order.voucher.value + order.loss;
+    }
+    if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
+      voucherValue = order.voucher.value + order.loss;
+    }
+
     // invoice exists
     if (order.invoice) {
       this.logger.warn(
@@ -88,9 +97,9 @@ export class InvoiceService {
         context,
       );
       Object.assign(order.invoice, {
-        subtotalBeforeVoucher:
-          (order.invoice.amount * 100) /
-          (order.invoice.voucherValue !== 0 ? order.invoice.voucherValue : 100),
+        subtotalBeforeVoucher: order.invoice.amount + voucherValue,
+        // (order.invoice.amount * 100) /
+        // (order.invoice.voucherValue !== 0 ? order.invoice.voucherValue : 100),
       });
       return order.invoice;
     }
@@ -115,6 +124,7 @@ export class InvoiceService {
       order,
       logo: 'https://i.imgur',
       amount: order.subtotal,
+      loss: order.loss,
       paymentMethod: order.payment?.paymentMethod,
       status: order.status,
       tableName:
@@ -125,7 +135,7 @@ export class InvoiceService {
       invoiceItems,
       qrcode,
       referenceNumber: order.referenceNumber,
-      voucherValue: order.voucher?.value ?? 0,
+      voucherValue,
       voucherId: order.voucher?.id ?? null,
     });
 
@@ -146,9 +156,9 @@ export class InvoiceService {
     );
 
     Object.assign(invoice, {
-      subtotalBeforeVoucher:
-        (invoice.amount * 100) /
-        (invoice.voucherValue !== 0 ? invoice.voucherValue : 100),
+      subtotalBeforeVoucher: order.invoice.amount + voucherValue,
+      // (invoice.amount * 100) /
+      // (invoice.voucherValue !== 0 ? invoice.voucherValue : 100),
     });
 
     return invoice;

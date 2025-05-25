@@ -43,6 +43,11 @@ export class Order extends Base {
   @Column({ name: 'subtotal_column' })
   subtotal: number;
 
+  @IsNumber()
+  @AutoMap()
+  @Column({ name: 'loss_column', default: 0 })
+  loss: number;
+
   @AutoMap()
   @Column({ name: 'status_column', default: OrderStatus.PENDING })
   @IsNotEmpty({ message: ORDER_STATUS_INVALID })

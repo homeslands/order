@@ -26,6 +26,7 @@ export class VoucherScheduler {
 
     const vouchers = await this.voucherRepository.find({});
     const today = new Date(moment().format('YYYY-MM-DD'));
+    today.setHours(7, 0, 0, 0);
 
     // Filter vouchers which will be active
     const filterActiveVouchers = vouchers
@@ -69,6 +70,7 @@ export class VoucherScheduler {
 
     const vouchers = await this.voucherRepository.find({});
     const today = new Date(moment().format('YYYY-MM-DD'));
+    today.setHours(7, 0, 0, 0);
 
     // Filter vouchers which will be inactive
     const filterActiveVouchers = vouchers

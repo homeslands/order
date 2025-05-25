@@ -1,9 +1,10 @@
 name: deploy-dev
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_run:
+    workflows: ["publish-dev"]
+    types:
+      - completed
 
 jobs:
   deploy:

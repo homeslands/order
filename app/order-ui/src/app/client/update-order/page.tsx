@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react'
 import _ from 'lodash'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
@@ -7,19 +8,19 @@ import {
     Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
 import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
+import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
-import { VoucherListSheet } from '@/components/app/sheet'
-import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
+import { VoucherListSheetInUpdateOrder } from '@/components/app/sheet'
+import { useOrderBySlug } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
-import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
-import { formatCurrency, showToast } from '@/utils'
+import { ITable, OrderTypeEnum } from '@/types'
+import { formatCurrency } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
-import { useCallback, useEffect, useState } from 'react'
 import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
@@ -28,9 +29,7 @@ import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 export default function ClientUpdateOrderPage() {
     const { t } = useTranslation('menu')
     const { t: tHelmet } = useTranslation('helmet')
-    const { t: tToast } = useTranslation('toast')
     const { slug } = useParams()
-    const { mutate: updateOrderType } = useUpdateOrderType()
     const { data: order, isPending, refetch } = useOrderBySlug(slug as string)
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [type, setType] = useState<string>("")
@@ -48,9 +47,13 @@ export default function ClientUpdateOrderPage() {
         ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
         : 0;
 
-    const discount = orderItems
-        ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
-        : 0;
+
+    // calculate discount base on promotion
+    const discount = orderItems?.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
+
+    const voucherValue = orderItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+        ? (originalTotal - (discount || 0)) * (orderItems?.voucher?.value || 0) / 100
+        : orderItems?.voucher?.value || 0
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -66,21 +69,9 @@ export default function ClientUpdateOrderPage() {
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
     }, [])
+
     const handleClickPayment = () => {
-        // Update order type
-        let params: IUpdateOrderTypeRequest | null = null
-        if (type === OrderTypeEnum.AT_TABLE) {
-            params = { type: type, table: selectedTable?.slug || null }
-        } else {
-            params = { type: type, table: null }
-        }
-        updateOrderType({ slug: slug as string, params }, {
-            onSuccess: () => {
-                showToast(tToast('order.updateOrderTypeSuccess'))
-                navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`)
-                refetch()
-            }
-        })
+        navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`)
     }
     if (isPending) { return <UpdateOrderSkeleton /> }
 
@@ -89,7 +80,7 @@ export default function ClientUpdateOrderPage() {
             <div className="container py-20 lg:h-[60vh]">
                 <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
-                    <p className="text-center text-[13px]">
+                    <p className="text-center text-[13px] sm:text-sm">
                         {t('order.noOrders')}
                     </p>
                     <NavLink to={ROUTE.CLIENT_MENU}>
@@ -141,7 +132,7 @@ export default function ClientUpdateOrderPage() {
                             </div>
                         }
                         {/* Table list order items */}
-                        <ScrollArea className="h-fit sm:h-[calc(60vh)] sm:px-4">
+                        <ScrollArea className="h-fit sm:h-[calc(60vh)] sm:pr-4">
                             <div className="mt-5">
                                 <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
                                     <span className="col-span-2">{t('order.product')}</span>
@@ -163,9 +154,9 @@ export default function ClientUpdateOrderPage() {
                                                 <div className="flex col-span-2 gap-1 w-full">
                                                     <div className="flex flex-col gap-2 justify-start items-center sm:flex-row sm:justify-center">
                                                         <div className="flex flex-col">
-                                                            <span className="text-[14px] font-bold truncate sm:text-md mb-2">
+                                                            <span className="text-[14px] font-bold truncate sm:text-sm mb-2">
                                                                 {item.variant.product.name}
-                                                                <span className='font-normal uppercase'> - {item.variant.size.name}</span>
+                                                                <span className='text-muted-foreground'> - Size {item.variant.size.name.toLocaleUpperCase()}</span>
                                                             </span>
                                                             {item?.promotion ? (
                                                                 <div className='flex gap-1 items-center'>
@@ -195,7 +186,7 @@ export default function ClientUpdateOrderPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex col-span-1 justify-center items-end h-full" >
-                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
+                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} totalOrderItems={orderItems?.orderItems.length || 0} />
                                                 </div>
                                             </div>
                                             <UpdateOrderItemNoteInput orderItem={item} />
@@ -203,10 +194,10 @@ export default function ClientUpdateOrderPage() {
                                     ))}
                                 </div>
                                 {/* order note */}
-                                <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
-                                <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <VoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">
@@ -218,9 +209,9 @@ export default function ClientUpdateOrderPage() {
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-5">
-                                            <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
-                                            <span className="col-span-2 text-sm italic text-right text-green-500">
-                                                - {formatCurrency(discount)}
+                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                            <span className="col-span-2 text-sm text-right text-muted-foreground">
+                                                - {formatCurrency(discount || 0)}
                                                 {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                             </span>
                                         </div>
@@ -230,7 +221,7 @@ export default function ClientUpdateOrderPage() {
                                                     {t('order.voucher')}
                                                 </h3>
                                                 <p className="text-sm italic font-semibold text-green-500">
-                                                    - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                                    - {`${formatCurrency(voucherValue)}`}
                                                 </p>
                                             </div>}
 
@@ -242,7 +233,6 @@ export default function ClientUpdateOrderPage() {
                                         </div>
                                         {/* <span className="text-xs text-muted-foreground">({t('order.vat')})</span> */}
                                     </div>
-
                                 </div>
                             </div>
                         </ScrollArea>

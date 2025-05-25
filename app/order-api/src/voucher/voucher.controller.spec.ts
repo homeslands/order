@@ -19,6 +19,10 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
+import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
+import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -33,6 +37,9 @@ describe('VoucherController', () => {
         MenuUtils,
         MenuItemUtils,
         UserUtils,
+        VoucherGroupUtils,
+        PdfService,
+        QrCodeService,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -43,6 +50,10 @@ describe('VoucherController', () => {
         },
         {
           provide: getRepositoryToken(Voucher),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherGroup),
           useFactory: repositoryMockFactory,
         },
         {

@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { MoreHorizontal, Copy } from 'lucide-react'
@@ -13,14 +14,15 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Checkbox,
 } from '@/components/ui'
 import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
-import moment from 'moment'
+import { VOUCHER_TYPE } from '@/constants'
 
-export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
+export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (selectedSlugs: IVoucher[]) => void, selectedVouchers: IVoucher[]): ColumnDef<IVoucher>[] => {
   const { t } = useTranslation(['voucher'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
@@ -30,7 +32,47 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
     showToast(tToast('toast.copyCodeSuccess'))
   }
 
+  const handleUpdateVoucherSuccess = () => {
+    onSuccess()
+  }
+
+  const updateSelectedVouchers = (updatedSlugs: IVoucher[]) => {
+    onSelectionChange?.(updatedSlugs)
+  }
+
   return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={selectedVouchers && selectedVouchers.length === table.getRowModel().rows.length}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value)
+            const rows = table.getRowModel().rows
+            const updatedSlugs = value ? rows.map((row) => row.original) : []
+            updateSelectedVouchers(updatedSlugs)
+          }}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return (
+          <Checkbox
+            checked={selectedVouchers && selectedVouchers.some(v => v.slug === voucher.slug)}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value)
+              updateSelectedVouchers(
+                value ? [...selectedVouchers, voucher] : selectedVouchers && selectedVouchers.filter((v) => v.slug !== voucher.slug)
+              )
+            }}
+            aria-label="Select row"
+          />
+        )
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: 'slug',
       header: ({ column }) => (
@@ -59,6 +101,36 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       },
     },
     {
+      accessorKey: 'type',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.type')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : t('voucher.percentOrder')}</div>
+      },
+    },
+    {
+      accessorKey: 'private',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.privateType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isPrivate ? t('voucher.private') : t('voucher.public')}</div>
+      },
+    },
+    {
+      accessorKey: 'verificationIdentity',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('voucher.verificationIdentityType')} />
+      ),
+      cell: ({ row }) => {
+        const voucher = row.original
+        return <div className="text-xs sm:text-sm">{voucher?.isVerificationIdentity ? t('voucher.verificationIdentity') : t('voucher.noVerificationIdentity')}</div>
+      },
+    },
+    {
       accessorKey: 'startDate',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('voucher.time')} />
@@ -68,16 +140,6 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
         return <div className="text-xs min-w-[13rem] sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')} - {moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
       },
     },
-    // {
-    //   accessorKey: 'endDate',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('voucher.endDate')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const voucher = row.original
-    //     return <div className="text-xs sm:text-sm">{moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
-    //   },
-    // },
     {
       accessorKey: 'code',
       header: ({ column }) => (
@@ -86,7 +148,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div className="flex items-center gap-2 text-xs sm:text-sm">
+          <div className="flex gap-2 items-center text-xs sm:text-sm">
             {voucher?.code}
             <TooltipProvider>
               <Tooltip>
@@ -136,7 +198,9 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs sm:text-sm">{voucher?.value}%</div>
+        return <div className="text-xs sm:text-sm">
+          {voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? formatCurrency(voucher?.value) : `${voucher?.value}%`}
+        </div>
       },
     },
     {
@@ -150,7 +214,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
 
         return (
           <div
-            className={`text-xs sm:text-sm min-w-[8rem] italic font-medium ${isActive ? ' text-green-500' : ' text-destructive'
+            className={`text-xs sm:text-sm min-w-[8rem] italic font-medium ${isActive ? 'text-green-500' : 'text-destructive'
               }`}
           >
             {isActive ? t('voucher.active') : t('voucher.inactive')}
@@ -182,7 +246,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
           <div className='w-[4rem]'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -191,7 +255,7 @@ export const useVoucherColumns = (): ColumnDef<IVoucher>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <UpdateVoucherSheet voucher={voucher} />
+                <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
                 <DeleteVoucherDialog voucher={voucher} />
               </DropdownMenuContent>
             </DropdownMenu>

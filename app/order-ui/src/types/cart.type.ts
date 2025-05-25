@@ -3,6 +3,7 @@ import { ICartItem, OrderTypeEnum, ITable, IUserInfo, IVoucher } from '@/types'
 export interface ICartItemStore {
   cartItems: ICartItem | null
   lastModified: number | null
+  isHydrated: boolean
   getCartItems: () => ICartItem | null
   addCustomerInfo: (owner: IUserInfo) => void
   removeCustomerInfo: () => void

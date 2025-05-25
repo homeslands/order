@@ -53,6 +53,7 @@ export default function UpdateOrderItemNoteInput({ orderItem }: OrderItemNoteInp
                 />
                 <Button
                     size="sm"
+                    className='h-9'
                     onClick={handleUpdateOrderItemNote}
                 >
                     {t('order.updateNote')}

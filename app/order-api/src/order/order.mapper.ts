@@ -24,6 +24,8 @@ import { VoucherResponseDto } from 'src/voucher/voucher.dto';
 import { Voucher } from 'src/voucher/voucher.entity';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { RoleResponseDto } from 'src/role/role.dto';
+import { Role } from 'src/role/role.entity';
 
 @Injectable()
 export class OrderProfile extends AutomapperProfile {
@@ -68,7 +70,16 @@ export class OrderProfile extends AutomapperProfile {
         extend(baseMapper(mapper)),
       );
 
-      createMap(mapper, User, OwnerResponseDto, extend(baseMapper(mapper)));
+      createMap(
+        mapper,
+        User,
+        OwnerResponseDto,
+        forMember(
+          (destination) => destination.role,
+          mapWith(RoleResponseDto, Role, (source) => source.role),
+        ),
+        extend(baseMapper(mapper)),
+      );
 
       createMap(
         mapper,

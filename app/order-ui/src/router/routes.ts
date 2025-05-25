@@ -130,7 +130,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
   },
   {
     title: 'sidebar.voucher',
-    path: ROUTE.STAFF_VOUCHER,
+    path: ROUTE.STAFF_VOUCHER_GROUP,
     icon: Ticket,
     permission: Permission.VOUCHER_MANAGEMENT,
   },
