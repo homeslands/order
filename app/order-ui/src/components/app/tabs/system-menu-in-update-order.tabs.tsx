@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
@@ -18,15 +18,15 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
   const [activeTab, setActiveTab] = useState('menu')
 
   // check if order type is at table
-  // useEffect(() => {
-  //   if (order && order?.type === OrderTypeEnum.AT_TABLE) {
-  //     setActiveTab('table')
-  //   }
-  // }, [order])
+  useEffect(() => {
+    if (order && order?.type === OrderTypeEnum.AT_TABLE) {
+      setActiveTab('table')
+    }
+  }, [order])
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-2">
+      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-0">
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>

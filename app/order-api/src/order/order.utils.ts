@@ -2,14 +2,7 @@ import { Order } from './order.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Between,
-  FindManyOptions,
-  FindOneOptions,
-  IsNull,
-  Not,
-  Repository,
-} from 'typeorm';
+import { Between, FindOneOptions, IsNull, Not, Repository } from 'typeorm';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
 import { Voucher } from 'src/voucher/voucher.entity';
@@ -19,7 +12,6 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PaymentStatus } from 'src/payment/payment.constants';
 import * as _ from 'lodash';
-import { VoucherType } from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class OrderUtils {
@@ -35,7 +27,7 @@ export class OrderUtils {
     const order = await this.orderRepository.findOne({
       relations: [
         'payment',
-        'owner.role',
+        'owner',
         'approvalBy',
         'orderItems.chefOrderItems',
         'orderItems.variant.size',
@@ -59,32 +51,6 @@ export class OrderUtils {
     return order;
   }
 
-  async getBulkOrders(options: FindManyOptions<Order>): Promise<Order[]> {
-    const orders = await this.orderRepository.find({
-      relations: [
-        'payment',
-        'owner.role',
-        'approvalBy',
-        'orderItems.chefOrderItems',
-        'orderItems.variant.size',
-        'orderItems.variant.product',
-        'orderItems.promotion',
-        'orderItems.trackingOrderItems.tracking',
-        'invoice.invoiceItems',
-        'table',
-        'voucher',
-        'branch',
-        'chefOrders.chefOrderItems',
-      ],
-      order: {
-        createdAt: 'ASC',
-      },
-      ...options,
-    });
-
-    return orders;
-  }
-
   /**
    * Calculate the subtotal of an order.
    * @param {Order} order order.
@@ -96,23 +62,7 @@ export class OrderUtils {
       (previous, current) => previous + current.subtotal,
       0,
     );
-    if (voucher) {
-      switch (voucher.type) {
-        case VoucherType.PERCENT_ORDER:
-          if (voucher) discount = (subtotal * voucher.value) / 100;
-          break;
-        case VoucherType.FIXED_VALUE:
-          if (subtotal > voucher.value) {
-            discount = voucher.value;
-          } else {
-            discount = subtotal;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
+    if (voucher) discount = (subtotal * voucher.value) / 100;
     return subtotal - discount;
   }
 
@@ -120,31 +70,11 @@ export class OrderUtils {
     const context = `${OrderUtils.name}.${this.deleteOrder.name}`;
     this.logger.log(`Cancel order ${orderSlug}`, context);
 
-    const order = await this.orderRepository.findOne({
+    const order = await this.getOrder({
       where: {
         slug: orderSlug,
       },
-      relations: [
-        'payment',
-        'owner',
-        'approvalBy',
-        'orderItems.chefOrderItems',
-        'orderItems.variant.size',
-        'orderItems.variant.product',
-        'orderItems.promotion',
-        'orderItems.trackingOrderItems.tracking',
-        'invoice.invoiceItems',
-        'table',
-        'voucher',
-        'branch',
-        'chefOrders.chefOrderItems',
-      ],
     });
-
-    if (!order) {
-      this.logger.warn(`Order ${orderSlug} not found`, context);
-      return;
-    }
 
     if (order.status !== OrderStatus.PENDING) {
       this.logger.warn(`Order ${orderSlug} is not pending`, context);

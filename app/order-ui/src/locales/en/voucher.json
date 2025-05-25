@@ -1,6 +1,7 @@
 {
   "voucher": {
     "voucherTitle": "Voucher Management",
+
     "useVoucher": "Use Voucher",
     "slug": "Slug",
     "createdAt": "Created At",
@@ -18,7 +19,6 @@
     "enterVoucherDescription": "Enter voucher description",
     "startDate": "Start Date",
     "endDate": "End Date",
-    "condition": "Condition",
     "time": "Time",
     "type": "Voucher Type",
     "value": "Value",
@@ -35,13 +35,17 @@
     "active": "Active",
     "inactive": "Inactive",
     "bestChoice": "Best Choice",
+
     "confirmCreateVoucher": "Confirm Voucher Creation",
+
     "update": "Update Voucher",
     "updateVoucherDescription": "Update voucher information",
     "confirmUpdateVoucher": "Confirm Voucher Update",
+
     "delete": "Delete Voucher",
     "deleteVoucherWarning1": "You are about to delete the voucher ",
     "deleteVoucherConfirmation": "Are you sure you want to delete this voucher?",
+
     "list": "Voucher List",
     "search": "Search Voucher",
     "enterVoucher": "Enter Discount Code",
@@ -52,7 +56,6 @@
     "complete": "Complete",
     "minOrderNotMet": "Minimum order value not met",
     "expired": "Voucher has expired",
-    "noVoucher": "No voucher available",
-    "needVerifyIdentity": "Please register as a member to use the voucher"
+    "noVoucher": "No voucher available"
   }
 }

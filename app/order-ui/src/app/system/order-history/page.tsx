@@ -13,7 +13,6 @@ import OrderFilter from './DataTable/actions/order-filter'
 import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 import { showToast } from '@/utils'
 import { notificationSound } from '@/assets/sound'
-import { useSearchParams } from 'react-router-dom'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -24,13 +23,11 @@ export default function OrderHistoryPage() {
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [isSelected, setIsSelected] = useState(false)
-  const [searchParams] = useSearchParams()
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [previousOrderCount, setPreviousOrderCount] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const order = searchParams.get('order')
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -42,17 +39,6 @@ export default function OrderHistoryPage() {
     endDate: endDate,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
-
-  // use useEffect to check is there order param in url, then check is there order in data, if there is, then set selected order and open the dialog
-  useEffect(() => {
-    if (order) {
-      const orderData: IOrder | undefined = data?.result?.items?.find((item: IOrder) => item.slug === order)
-      if (orderData) {
-        setSelectedOrder(orderData)
-        setIsSelected(true)
-      }
-    }
-  }, [data?.result?.items, order])
 
   // Check for new orders and play sound
   useEffect(() => {

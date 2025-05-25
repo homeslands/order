@@ -111,7 +111,6 @@ describe('ProductController', () => {
         promotion: 'mock-promotion-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       const product: ProductResponseDto = {
         slug: 'mock-product-slug',
@@ -150,7 +149,6 @@ describe('ProductController', () => {
         promotion: 'mock-promotion-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       (service.getAllProductsPagination as jest.Mock).mockRejectedValue(
         new InternalServerErrorException(),

@@ -216,7 +216,6 @@ describe('ProductService', () => {
         catalog: 'mock-catalog-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       const product = {
         name: 'Mock product name',

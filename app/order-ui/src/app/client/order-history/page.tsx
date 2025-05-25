@@ -16,7 +16,7 @@ import {
   TableRow,
 } from '@/components/ui'
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
-import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { publicFileURL, ROUTE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
@@ -46,7 +46,7 @@ export default function OrderHistoryPage() {
     )
     : 0;
 
-  const voucherDiscount = orderInfo?.voucher && orderInfo.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : orderInfo?.voucher && orderInfo.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? orderInfo.voucher.value : 0;
+  const voucherDiscount = orderInfo?.voucher ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : 0;
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
@@ -262,24 +262,12 @@ export default function OrderHistoryPage() {
                   </p>
                   <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
                 </div>
-                {orderInfo?.voucher &&
-                  <div className="flex justify-between pb-4 w-full border-b">
-                    <h3 className="text-sm italic font-medium text-green-500">
-                      {t('order.voucher')}
-                    </h3>
-                    <p className="text-sm italic font-semibold text-green-500">
-                      - {`${formatCurrency(voucherDiscount || 0)}`}
-                    </p>
-                  </div>}
-                {orderInfo && orderInfo?.loss > 0 &&
-                  <div className="flex justify-between pb-4 w-full">
-                    <h3 className="text-sm italic font-medium text-green-500">
-                      {t('order.invoiceAutoDiscountUnderThreshold')}
-                    </h3>
-                    <p className="text-sm italic font-semibold text-green-500">
-                      - {`${formatCurrency(orderInfo?.loss)}`}
-                    </p>
-                  </div>}
+                <div className="flex justify-between items-center">
+                  <p className="text-sm italic text-green-500">
+                    {t('order.voucher')}
+                  </p>
+                  <p className="text-sm italic text-green-500">{`- ${formatCurrency(voucherDiscount || 0)}`}</p>
+                </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between items-center">
                   <p className="font-semibold text-md">
@@ -305,11 +293,6 @@ export default function OrderHistoryPage() {
                 <InvoiceTemplate
                   order={orderInfo}
                 />
-                <Button onClick={() => {
-                  handleExportInvoice()
-                }}>
-                  {t('order.exportInvoice')}
-                </Button>
               </div>
             )}
             {/* Return order button */}

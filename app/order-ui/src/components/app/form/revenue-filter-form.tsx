@@ -57,7 +57,6 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
 
 
     const handleSubmit = (data: IRevenueQuery) => {
-        // console.log(data)
         onSubmit(data)
     }
 

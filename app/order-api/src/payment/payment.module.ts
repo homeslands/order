@@ -11,12 +11,10 @@ import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { Order } from 'src/order/order.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PdfModule } from 'src/pdf/pdf.module';
-import { UserUtils } from 'src/user/user.utils';
-import { User } from 'src/user/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payment, Order, ACBConnectorConfig, User]),
+    TypeOrmModule.forFeature([Payment, Order, ACBConnectorConfig]),
     ACBConnectorModule,
     PdfModule,
   ],
@@ -27,7 +25,6 @@ import { User } from 'src/user/user.entity';
     BankTransferStrategy,
     CashStrategy,
     InternalStrategy,
-    UserUtils,
   ],
   exports: [PaymentService],
 })

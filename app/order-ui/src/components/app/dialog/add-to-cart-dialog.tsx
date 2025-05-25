@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-// import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -95,38 +95,37 @@ export default function AddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none">
+          <Button className="flex flex-row gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none">
+            <ShoppingCart size={12} />
             {t('menu.addToCart')}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-[42rem] rounded-lg p-6 sm:max-w-[48rem]">
+      <DialogContent className="h-[80%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[50rem] xl:max-w-[70rem]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            {t('menu.confirmProduct')}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogTitle>{t('menu.confirmProduct')}</DialogTitle>
+          <DialogDescription>
             {t('menu.confirmProductDescription')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           {/* Product Image */}
-          <div className="flex justify-center items-center">
+          <div className="relative col-span-2">
             {product.product.image ? (
               <img
                 src={`${publicFileURL}/${product.product.image}`}
                 alt={product.product.name}
-                className="object-cover w-full h-64 rounded-md border"
+                className="object-cover w-full h-56 rounded-md sm:h-64 lg:h-80"
               />
             ) : (
-              <div className="w-full h-64 rounded-md bg-muted/50" />
+              <div className="w-full rounded-md bg-muted/50" />
             )}
           </div>
 
-          {/* Product Details */}
-          <div className="flex flex-col gap-4 justify-between">
+          <div className="flex flex-col col-span-2 gap-6">
+            {/* Product Details */}
             <div>
               <h3 className="text-lg font-semibold">{product.product.name}</h3>
               <p className="text-sm text-muted-foreground">
@@ -136,8 +135,8 @@ export default function AddToCartDialog({
 
             {/* Size Selection */}
             {product.product.variants.length > 0 && (
-              <div className="space-y-1">
-                <label className="text-sm font-medium">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   {t('menu.selectSize')}
                 </label>
                 <Select
@@ -157,12 +156,8 @@ export default function AddToCartDialog({
                       .sort((a, b) => a.price - b.price)
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>
-                          {variant.size.name.toUpperCase()} –{' '}
-                          {product.promotion?.value > 0
-                            ? formatCurrency(
-                              variant.price * (1 - product.promotion.value / 100),
-                            )
-                            : formatCurrency(variant.price)}
+                          {variant.size.name.toUpperCase()} -{' '}
+                          {product?.promotion?.value > 0 ? formatCurrency((variant.price) * (1 - (product?.promotion?.value) / 100)) : formatCurrency(variant.price)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -170,21 +165,26 @@ export default function AddToCartDialog({
               </div>
             )}
 
-            {/* Note Input */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium">{t('menu.note')}</label>
+            {/* Price */}
+            {/* <div className="text-lg font-bold text-primary">
+              {t('menu.price')}
+              {selectedVariant ? `${selectedVariant.price.toLocaleString('vi-VN')}đ` : 'Liên hệ'}
+            </div> */}
+
+            {/* Note */}
+            <div className="flex flex-col items-start space-y-2">
+              <span className="text-sm">{t('menu.note')}</span>
+              {/* <NotepadText size={28} className="text-muted-foreground" /> */}
               <Textarea
                 value={note}
-                onChange={(e) => setNote(e.target.value)}
+                onChange={(e) => setNote(e.target.value)} // Cập nhật state note khi người dùng nhập
                 placeholder={t('menu.enterNote')}
-                className="resize-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <DialogFooter className="flex gap-2 justify-end pt-6">
+        <DialogFooter className="flex flex-row justify-end items-end w-full">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
@@ -194,6 +194,5 @@ export default function AddToCartDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
   )
 }

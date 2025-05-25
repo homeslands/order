@@ -1,20 +1,9 @@
-import { ConfirmExportVoucherDialog } from '@/components/app/dialog'
-import { VoucherToolDropdown } from '@/components/app/dropdown'
-import { IVoucher } from '@/types'
+import { CreateVoucherSheet } from '@/components/app/sheet'
 
-export default function VoucherAction({ onSuccess, selectedVouchers, onOpenChange, isConfirmExportVoucherDialogOpen }: { onSuccess: () => void, selectedVouchers: IVoucher[], onOpenChange: (isOpen: boolean) => void, isConfirmExportVoucherDialogOpen: boolean }) {
+export default function CustomerAction() {
   return (
     <div className="flex gap-2">
-      <ConfirmExportVoucherDialog
-        disabled={selectedVouchers && selectedVouchers.length === 0}
-        isOpen={isConfirmExportVoucherDialogOpen}
-        onOpenChange={onOpenChange}
-        selectedVouchers={selectedVouchers}
-        onSuccess={onSuccess}
-      />
-      <VoucherToolDropdown onSuccess={onSuccess} />
+      <CreateVoucherSheet />
     </div>
   )
 }
-
-
