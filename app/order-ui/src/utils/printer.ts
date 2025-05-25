@@ -1,13 +1,12 @@
-import moment from 'moment'
-import ejs from 'ejs'
-import QRCode from 'qrcode'
-import i18next from 'i18next'
-
-import { showToast } from './toast'
-import { IExportOrderInvoiceParams, IOrder, OrderTypeEnum } from '@/types'
 import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64'
 import { Logo } from '@/assets/images'
 import { VOUCHER_TYPE } from '@/constants'
+import { IExportOrderInvoiceParams, IOrder, OrderTypeEnum } from '@/types'
+import moment from 'moment'
+import { showToast } from './toast'
+import i18next from 'i18next'
+import QRCode from 'qrcode'
+import ejs from 'ejs'
 
 export const loadDataToPrinter = (blob: Blob) => {
   const blobURL = URL.createObjectURL(blob)
@@ -94,7 +93,8 @@ export const exportOrderInvoices = async (order: IOrder | undefined) => {
           size: item.variant.size?.name || '',
         },
         quantity: item.quantity,
-        promotionValue: (item.promotion?.value || 0) * item.quantity,
+        promotionValue: item.promotion?.value || 0,
+        subtotal: item.subtotal,
       })),
       promotionDiscount: orderPromotionValue,
       paymentMethod: order.payment?.paymentMethod || '',
