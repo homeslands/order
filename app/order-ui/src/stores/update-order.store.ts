@@ -18,7 +18,7 @@ const generateUniqueId = () => {
 export const useUpdateOrderStore = create<IUpdateOrderStore>()(
   persist(
     (set, get) => ({
-      orderItems: null, // Chỉ lưu một cart item hoặc null nếu không có item nào
+      orderItems: null,
 
       getOrderItems: () => get().orderItems,
       setOrderItems: (order: IOrder) => {

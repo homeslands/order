@@ -34,6 +34,10 @@ export class PaymentResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  loss: number;
+
+  @AutoMap()
+  @ApiProperty()
   message: string;
 
   @AutoMap()

@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
+import ejs from 'ejs'
 import { useTranslation } from 'react-i18next'
 import { DownloadIcon, MoreHorizontal } from 'lucide-react'
 
@@ -11,21 +12,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, OrderTypeEnum } from '@/types'
+import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, IExportChefOrderTicketParams, OrderTypeEnum } from '@/types'
 import {
   ConfirmCompleteChefOrderDialog,
   ConfirmUpdateChefOrderStatusDialog,
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
 import { loadDataToPrinter, showToast } from '@/utils'
-import { useExportChefOrder, useExportManualChefOrderTicket } from '@/hooks'
+import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64';
+import { Logo } from '@/assets/images';
+import { useExportChefOrder } from '@/hooks'
 
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
-  // const { mutate: exportAutoChefOrderTicket } = useExportAutoChefOrderTicket()
-  const { mutate: exportManualChefOrderTicket } = useExportManualChefOrderTicket()
+
   const { mutate: exportChefOrder } = useExportChefOrder()
 
   const handleExportChefOrder = (slug: string) => {
@@ -37,23 +39,59 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
     })
   }
 
-  // const handleExportAutoChefOrderTicket = (slug: string) => {
-  //   exportAutoChefOrderTicket(slug, {
-  //     onSuccess: (data: Blob) => {
-  //       showToast(tToast('toast.exportChefOrderSuccess'))
-  //       loadDataToPrinter(data)
-  //     },
-  //   })
-  // }
-
-  const handleExportManualChefOrderTicket = (slug: string) => {
-    exportManualChefOrderTicket(slug, {
-      onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportChefOrderSuccess'))
-        loadDataToPrinter(data)
-      },
-    })
+  const handleExportChefOrderTicket = async (chefOrder: IChefOrders | undefined) => {
+    await exportOrderInvoices(chefOrder)
+    showToast(tToast('toast.exportChefOrderSuccess'))
   }
+
+  const generateChefOrderTicketHTML = async (data: IExportChefOrderTicketParams): Promise<string> => {
+    const templateText = await fetch('/templates/chef-order-ticket-template.html').then(res => res.text());
+    return ejs.render(templateText, data);
+  };
+
+  const exportOrderInvoices = async (chefOrder: IChefOrders | undefined) => {
+    if (!chefOrder) return;
+
+    try {
+      let allHtmlContent = '';
+
+      for (const item of chefOrder.chefOrderItems) {
+        const html = await generateChefOrderTicketHTML({
+          logoString: Be_Vietnam_Pro_base64,
+          logo: Logo,
+          referenceNumber: chefOrder.order.referenceNumber,
+          orderItem: {
+            variant: {
+              name: item.orderItem.variant.product?.name || '',
+              size: item.orderItem.variant.size?.name || '',
+              note: item.orderItem.note || ''
+            },
+            quantity: item.orderItem.quantity,
+          }
+        });
+
+        allHtmlContent += html;
+      }
+
+      // Mở cửa sổ in 1 lần
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showToast(tToast('toast.exportChefOrderTicketError'));
+        return;
+      }
+
+      printWindow.document.write(allHtmlContent);
+      printWindow.document.close();
+
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
+      };
+    } catch {
+      showToast(tToast('toast.exportChefOrderTicketError'));
+    }
+  };
+
   return [
     {
       id: 'select',
@@ -182,7 +220,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
           chefOrder.status !== ChefOrderStatus.PENDING ? (
             <Button variant="outline" onClick={(e) => {
               e.stopPropagation()
-              handleExportManualChefOrderTicket(chefOrder.slug)
+              handleExportChefOrderTicket(chefOrder)
             }}
             >
               <DownloadIcon />

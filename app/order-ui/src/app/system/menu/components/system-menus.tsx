@@ -4,10 +4,11 @@ import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IProduct, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
 import { AddToCartDialog } from '@/components/app/dialog'
-import { Badge, Button, useSidebar } from '@/components/ui'
+import { Button, useSidebar } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
 import { StaffAddToCartDrawer } from '@/components/app/drawer'
+import { StaffPromotionTag } from '@/components/app/badge'
 
 interface IMenuProps {
   menu: ISpecificMenu | undefined
@@ -83,16 +84,21 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
             {group.items.map((item) => (
               <div
                 key={item.slug}
-                className="flex flex-col justify-between rounded-xl min-h-[14rem] border backdrop-blur-md"
+                className="flex flex-col justify-between rounded-xl min-h-[14rem] border border-primary/40 shadow-xl backdrop-blur-md"
               >
                 {/* Image Section with Discount Tag */}
                 <div className="relative">
                   {item.product.image ? (
-                    <img
-                      src={`${publicFileURL}/${item.product.image}`}
-                      alt={item.product.name}
-                      className="object-cover w-full h-28 rounded-t-md"
-                    />
+                    <>
+                      <img
+                        src={`${publicFileURL}/${item.product.image}`}
+                        alt={item.product.name}
+                        className="object-cover w-full h-28 rounded-t-md"
+                      />
+                      {item.promotion && item.promotion.value > 0 && (
+                        <StaffPromotionTag promotion={item.promotion} />
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-28 rounded-t-md bg-muted/60" />
                   )}
@@ -101,27 +107,19 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                 {/* Content Section - More compact */}
                 <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                   <div className='flex flex-col gap-1'>
-                    <h3 className="text-sm font-bold line-clamp-1">
+                    <h3 className="text-sm font-bold lg:text-[18px] truncate line-clamp-1">
                       {item.product.name}
                     </h3>
-                    <p className="text-xs text-gray-500 line-clamp-2">
+                    {/* <p className="text-xs text-gray-500 line-clamp-2">
                       {item.product.description}
-                    </p>
+                    </p> */}
                     <div className="flex gap-1 items-center">
                       <div className="flex flex-col">
                         {item.product.variants.length > 0 ? (
                           <div className="flex flex-col gap-1 justify-start items-start">
                             <div className='flex flex-row gap-1 items-center'>
                               {item?.promotion?.value > 0 ? (
-                                <div className='flex flex-col gap-1 justify-start items-start'>
-                                  <span className="text-sm sm:text-lg text-primary">
-                                    {(() => {
-                                      const range = getPriceRange(item.product.variants)
-                                      if (!range) return formatCurrency(0)
-                                      return range.isSinglePrice
-                                        ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
-                                    })()}
-                                  </span>
+                                <div className='flex gap-2 justify-start items-center'>
                                   <div className='flex flex-row gap-3 items-center w-full'>
                                     <span className="text-sm line-through text-muted-foreground/70 w-[30%]">
                                       {(() => {
@@ -131,12 +129,20 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                                           ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
                                       })()}
                                     </span>
-                                    {item?.promotion?.value > 0 && (
+                                    {/* {item?.promotion?.value > 0 && (
                                       <Badge className="text-[10px] px-1 sm:px-2 bg-destructive hover:bg-destructive">
                                         {t('menu.discount')} {item?.promotion?.value}%
                                       </Badge>
-                                    )}
+                                    )} */}
                                   </div>
+                                  <span className="text-sm font-bold sm:text-lg text-primary">
+                                    {(() => {
+                                      const range = getPriceRange(item.product.variants)
+                                      if (!range) return formatCurrency(0)
+                                      return range.isSinglePrice
+                                        ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
+                                    })()}
+                                  </span>
 
                                 </div>) : (
                                 <span className="text-sm font-bold sm:text-lg text-primary">

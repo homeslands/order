@@ -6,7 +6,7 @@ import { Button } from '@/components/ui'
 import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
 import { ROUTE } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner } from './components'
-import { AdPopup } from '@/components/app/AdPopup'
+// import { AdPopup } from '@/components/app/AdPopup'
 import { Helmet } from 'react-helmet'
 import moment from 'moment'
 import { useBranchStore } from '@/stores'
@@ -77,7 +77,7 @@ export default function HomePage() {
 
   return (
     <React.Fragment>
-      <AdPopup />
+      {/* <AdPopup /> */}
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.home.title')}</title>
@@ -92,7 +92,7 @@ export default function HomePage() {
         {menuItems.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -119,7 +119,7 @@ export default function HomePage() {
         {promotionProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -146,7 +146,7 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -171,7 +171,7 @@ export default function HomePage() {
         {newsProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[25rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}

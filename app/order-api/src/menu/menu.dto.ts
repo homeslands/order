@@ -47,7 +47,7 @@ export class GetAllMenuQueryRequestDto extends BaseQueryDto {
   @IsOptional()
   @Transform(({ value }) => {
     if (value === undefined || value === null) return undefined; // Preserve `undefined`
-    return value === 'true'; // Transform 'true' to `true` and others to `false`
+    return value === 'true' || value === true; // Transform 'true' to `true` and others to `false`
   })
   isTemplate: boolean;
 }

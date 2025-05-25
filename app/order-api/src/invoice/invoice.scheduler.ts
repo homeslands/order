@@ -6,6 +6,7 @@ import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InvoiceItem } from 'src/invoice-item/invoice-item.entity';
+import { VoucherType } from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class InvoiceScheduler {
@@ -44,6 +45,37 @@ export class InvoiceScheduler {
     });
 
     this.logger.log('QR code updated for invoices', context);
+  }
+
+  @Timeout(10000)
+  async updateVoucherValue() {
+    const context = `${InvoiceScheduler.name}.${this.updateVoucherValue.name}`;
+    this.logger.log('Updating voucher value for invoices', context);
+
+    const invoices = await this.invoiceRepository.find({
+      relations: ['order.voucher'],
+    });
+    const updatedInvoices = [];
+    for (const invoice of invoices) {
+      let voucherValue = 0;
+      if (invoice?.order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+        voucherValue =
+          (invoice.order.subtotal * 100) / invoice.order.voucher.value +
+          invoice.order.loss;
+      }
+      if (invoice?.order?.voucher?.type === VoucherType.FIXED_VALUE) {
+        voucherValue = invoice.order.voucher.value + invoice.order.loss;
+      }
+      Object.assign(invoice, {
+        voucherValue,
+      });
+      updatedInvoices.push(invoice);
+    }
+
+    await this.invoiceRepository.manager.transaction(async (manager) => {
+      await manager.save(updatedInvoices);
+    });
+    this.logger.log('Voucher value updated for invoices', context);
   }
 
   @Timeout(10000)

@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next'
 import {
     RemoveOrderItemInUpdateOrderDialog,
 } from '@/components/app/dialog'
-import { ROUTE } from '@/constants'
+import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
-import { VoucherListSheet } from '@/components/app/sheet'
+import { StaffVoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 // import UpdateOrderSkeleton from '@/components/app/skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency } from '@/utils'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
@@ -27,7 +27,6 @@ import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 export default function UpdateOrderPage() {
     const { t } = useTranslation('menu')
     const { t: tHelmet } = useTranslation('helmet')
-    const { t: tToast } = useTranslation('toast')
     const { slug } = useParams()
     const { mutate: updateOrderType } = useUpdateOrderType()
     const { data: order, refetch } = useOrderBySlug(slug as string)
@@ -35,47 +34,55 @@ export default function UpdateOrderPage() {
     const [type, setType] = useState<string>("")
     const navigate = useNavigate()
     const [isExpired, setIsExpired] = useState<boolean>(false)
+
     useEffect(() => {
         if (order?.result) {
             setSelectedTable(order?.result.table)
             setType(order?.result.type)
         }
     }, [order])
+
+    const handleTypeChange = (value: string) => {
+        setType(value)
+        let params: IUpdateOrderTypeRequest | null = null
+        if (value === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
+            params = { type: value, table: selectedTable.slug }
+        } else {
+            params = { type: value, table: null }
+        }
+        updateOrderType(
+            { slug: slug as string, params },
+            {
+                onSuccess: () => {
+                    refetch()
+                }
+            }
+        )
+    }
+
     const orderItems = order?.result
 
     const originalTotal = orderItems
         ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
         : 0;
 
-    const discount = orderItems
-        ? orderItems.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
-        : 0;
+    // calculate subTotal after promotion
+    const subTotal = orderItems?.orderItems.reduce((acc, item) => {
+        const price = item.variant.price;
+        const quantity = item.quantity;
+        const discount = item.promotion ? item.promotion.value : 0;
 
-    // check when order type change, use updateOrderType
-    useEffect(() => {
-        if (!type) return; // if type is not set, do not update order type
-        if (type === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
-            updateOrderType(
-                { slug: slug as string, params: { type, table: selectedTable.slug } },
-                {
-                    onSuccess: () => {
-                        refetch()
-                    }
-                }
-            )
-        } else if (type !== OrderTypeEnum.AT_TABLE) {
-            updateOrderType(
-                { slug: slug as string, params: { type, table: null } },
-                {
-                    onSuccess: () => {
-                        refetch()
-                    }
-                }
-            )
-        }
-    }, [type, selectedTable?.slug, refetch, slug, updateOrderType])
+        const itemTotal = price * quantity * (1 - discount / 100);
+        return acc + itemTotal;
+    }, 0) || 0;
+
+    const voucherValue = orderItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+        ? (orderItems?.voucher?.value || 0) / 100 * subTotal
+        : orderItems?.voucher?.value || 0
 
 
+    // calculate discount base on promotion
+    const discount = orderItems?.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
     const handleRemoveOrderItemSuccess = () => {
         refetch()
     }
@@ -90,21 +97,26 @@ export default function UpdateOrderPage() {
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
     }, [])
+
+    // const handleClickPayment = () => {
+    //     // Update order type
+    //     let params: IUpdateOrderTypeRequest | null = null
+    //     if (type === OrderTypeEnum.AT_TABLE) {
+    //         params = { type: type, table: selectedTable?.slug || null, voucher: orderItems?.voucher?.slug || null }
+    //     } else {
+    //         params = { type: type, table: null, voucher: orderItems?.voucher?.slug || null }
+    //     }
+    //     updateOrderType({ slug: slug as string, params }, {
+    //         onSuccess: () => {
+    //             showToast(tToast('order.updateOrderSuccess'))
+    //             navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
+    //             refetch()
+    //         }
+    //     })
+    // }
+
     const handleClickPayment = () => {
-        // Update order type
-        let params: IUpdateOrderTypeRequest | null = null
-        if (type === OrderTypeEnum.AT_TABLE) {
-            params = { type: type, table: selectedTable?.slug || null }
-        } else {
-            params = { type: type, table: null }
-        }
-        updateOrderType({ slug: slug as string, params }, {
-            onSuccess: () => {
-                showToast(tToast('order.updateOrderTypeSuccess'))
-                navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
-                refetch()
-            }
-        })
+        navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
     }
     // if (isPending) { return <UpdateOrderSkeleton /> }
 
@@ -113,7 +125,7 @@ export default function UpdateOrderPage() {
             <div className="container py-20 lg:h-[60vh]">
                 <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
-                    <p className="text-center text-[13px]">
+                    <p className="text-center text-[13px] sm:text-base">
                         {t('order.noOrders')}
                     </p>
                     <NavLink to={ROUTE.CLIENT_MENU}>
@@ -156,7 +168,7 @@ export default function UpdateOrderPage() {
                     {/* Right content */}
 
                     <div className="w-full lg:w-2/5">
-                        <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
+                        <OrderTypeInUpdateOrderSelect onChange={handleTypeChange} typeOrder={type} />
                         <ScrollArea className="h-[calc(55vh)] sm:h-[calc(73vh)] sm:px-4">
                             {/* Table list order items */}
                             <div className="mt-4">
@@ -212,7 +224,7 @@ export default function UpdateOrderPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex col-span-1 justify-center items-end h-full" >
-                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} />
+                                                    <RemoveOrderItemInUpdateOrderDialog onSubmit={handleRemoveOrderItemSuccess} orderItem={item} totalOrderItems={orderItems?.orderItems.length || 0} />
                                                 </div>
                                             </div>
                                             <UpdateOrderItemNoteInput orderItem={item} />
@@ -223,7 +235,7 @@ export default function UpdateOrderPage() {
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
-                                <VoucherListSheet defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <StaffVoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">
@@ -235,9 +247,9 @@ export default function UpdateOrderPage() {
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-5">
-                                            <span className="col-span-3 text-sm italic text-green-500">{t('order.discount')}:</span>
-                                            <span className="col-span-2 text-sm italic text-right text-green-500">
-                                                - {formatCurrency(discount)}
+                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                            <span className="col-span-2 text-sm text-right text-muted-foreground">
+                                                - {formatCurrency(discount || 0)}
                                                 {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                             </span>
                                         </div>
@@ -247,7 +259,7 @@ export default function UpdateOrderPage() {
                                                     {t('order.voucher')}
                                                 </h3>
                                                 <p className="text-sm italic font-semibold text-green-500">
-                                                    - {`${formatCurrency((originalTotal - discount) * ((order.result.voucher.value) / 100))}`}
+                                                    - {`${formatCurrency(voucherValue)}`}
                                                 </p>
                                             </div>}
 

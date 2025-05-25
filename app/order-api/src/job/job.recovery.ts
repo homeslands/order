@@ -22,18 +22,23 @@ export class JobRecoveryService implements OnModuleInit {
   async onModuleInit() {
     const context = `${JobRecoveryService.name}.${this.onModuleInit.name}`;
     this.logger.log('Starting job recovery service', context);
-    const pendingJobs = await this.jobRepository.find({
-      where: {
-        status: In([JobStatus.PENDING, JobStatus.PROCESSING]),
-      },
-      order: {
-        createdAt: 'ASC',
-      },
-    });
+    let pendingJobs: Job[] = [];
+    try {
+      pendingJobs = await this.jobRepository.find({
+        where: {
+          status: In([JobStatus.PENDING, JobStatus.PROCESSING]),
+        },
+        order: {
+          createdAt: 'ASC',
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error recovering jobs', error, context);
+    }
 
     for (const job of pendingJobs) {
       await this.jobQueue.add(job.type, { id: job.id });
-      this.logger.log(`Re-queued job ${job.id} of type ${job.type}`, context);
+      this.logger.log(`Re-queued job ${job.id} of type ${job.id}`, context);
     }
     this.logger.log(
       `${pendingJobs.length} jobs recovery service completed`,

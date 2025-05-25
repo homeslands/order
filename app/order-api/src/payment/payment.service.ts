@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Payment } from './payment.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CashStrategy } from './strategy/cash.strategy';
 import { BankTransferStrategy } from './strategy/bank-transfer.strategy';
 import { InjectMapper } from '@automapper/nestjs';
@@ -36,6 +36,9 @@ import { OrderException } from 'src/order/order.exception';
 import { OrderValidation } from 'src/order/order.validation';
 import { OrderStatus } from 'src/order/order.constants';
 import { PdfService } from 'src/pdf/pdf.service';
+import { RoleEnum } from 'src/role/role.enum';
+import { UserUtils } from 'src/user/user.utils';
+import { CurrentUserDto } from 'src/user/user.dto';
 
 @Injectable()
 export class PaymentService {
@@ -51,6 +54,7 @@ export class PaymentService {
     private readonly bankTransferStrategy: BankTransferStrategy,
     private readonly eventEmitter: EventEmitter2,
     private readonly pdfService: PdfService,
+    private readonly userUtils: UserUtils,
   ) {}
 
   async exportPayment(slug: string) {
@@ -106,13 +110,30 @@ export class PaymentService {
    */
   async initiate(
     createPaymentDto: CreatePaymentDto,
+    currentUser: CurrentUserDto,
   ): Promise<PaymentResponseDto> {
     const context = `${PaymentService.name}.${this.initiate.name}`;
+
+    // created by
+    const user = await this.userUtils.getUser({
+      where: { id: currentUser.userId ?? IsNull() },
+      relations: ['role'],
+    });
     // get order
     const order = await this.orderRepository.findOne({
       where: { slug: createPaymentDto.orderSlug },
       relations: ['owner', 'payment'],
     });
+
+    // if order subtotal is less than 2000,
+    // set loss === subtotal
+    // set subtotal === 0
+    // set payment method === CASH
+
+    this.logger.log(
+      `Initiate payment for order: ${JSON.stringify(order)}`,
+      context,
+    );
     if (!order) {
       this.logger.error('Order not found', null, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
@@ -128,17 +149,55 @@ export class PaymentService {
 
     let payment: Payment;
 
-    switch (createPaymentDto.paymentMethod) {
-      case PaymentMethod.BANK_TRANSFER:
-        payment = await this.bankTransferStrategy.process(order);
-        break;
-      case PaymentMethod.CASH:
-        payment = await this.cashStrategy.process(order);
-        break;
-      default:
-        this.logger.error('Invalid payment method', null, context);
-        throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+    if (user.role?.name === RoleEnum.Customer) {
+      switch (createPaymentDto.paymentMethod) {
+        case PaymentMethod.BANK_TRANSFER:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+            createPaymentDto.paymentMethod = PaymentMethod.CASH;
+            payment = await this.cashStrategy.process(order);
+            break;
+          }
+          payment = await this.bankTransferStrategy.process(order);
+          break;
+        default:
+          this.logger.error('Customer only use bank transfer', null, context);
+          throw new PaymentException(
+            PaymentValidation.CUSTOMER_ONLY_USE_BANK_TRANSFER,
+          );
+      }
+    } else if (
+      user.role?.name === RoleEnum.Staff ||
+      user.role?.name === RoleEnum.Manager ||
+      user.role?.name === RoleEnum.Admin ||
+      user.role?.name === RoleEnum.SuperAdmin
+    ) {
+      switch (createPaymentDto.paymentMethod) {
+        case PaymentMethod.BANK_TRANSFER:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+            createPaymentDto.paymentMethod = PaymentMethod.CASH;
+            payment = await this.cashStrategy.process(order);
+            break;
+          }
+          payment = await this.bankTransferStrategy.process(order);
+          break;
+        case PaymentMethod.CASH:
+          payment = await this.cashStrategy.process(order);
+          break;
+        default:
+          this.logger.error('Invalid payment method', null, context);
+          throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+      }
+    } else {
+      this.logger.error('Role not allowed to initiate payment', null, context);
+      throw new PaymentException(
+        PaymentValidation.ROLE_NOT_ALLOWED_TO_INITIATE_PAYMENT,
+      );
     }
+
     this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
 
     // Delete previous payment
@@ -189,10 +248,14 @@ export class PaymentService {
 
     switch (createPaymentDto.paymentMethod) {
       case PaymentMethod.BANK_TRANSFER:
+        if (order.subtotal < 2000) {
+          order.loss = order.subtotal;
+          order.subtotal = 0;
+          createPaymentDto.paymentMethod = PaymentMethod.CASH;
+          payment = await this.cashStrategy.process(order);
+          break;
+        }
         payment = await this.bankTransferStrategy.process(order);
-        break;
-      case PaymentMethod.CASH:
-        payment = await this.cashStrategy.process(order);
         break;
       default:
         this.logger.error('Invalid payment method', null, context);

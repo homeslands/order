@@ -34,21 +34,27 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className="flex flex-row sm:flex-col justify-between bg-white rounded-xl border backdrop-blur-md transition-all duration-300 ease-in-out border-muted-foreground/40 min-h-[8rem] sm:min-h-[22rem] dark:bg-transparent hover:scale-105"
+      className="flex flex-row sm:flex-col justify-between bg-white rounded-xl backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[16rem] dark:bg-transparent hover:scale-105"
     >
       {/* Image */}
       <NavLink
         to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}
         className="flex flex-row w-full sm:flex-col"
       >
-        <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-48">
+        <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
           {item.product.image ? (
             <>
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-48"
+                className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-40"
               />
+              {/* Stock */}
+              {item.product.isLimit && !isMobile && (
+                <span className="absolute bottom-1 left-1 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
+                  {t('menu.amount')} {item.currentStock}/{item.defaultStock}
+                </span>
+              )}
               {item.promotion && item.promotion.value > 0 && (
                 <PromotionTag promotion={item.promotion} />
               )}
@@ -60,11 +66,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
 
         {/* Content */}
         <div className="flex flex-col flex-1 justify-between p-2">
-          <div className="h-auto sm:h-[5rem]">
-            <h3 className="text-sm font-bold sm:text-lg line-clamp-1">{item.product.name}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-              {item.product.description}
-            </p>
+          <div className="h-auto sm:h-fit">
+            <h3 className="font-bold text-md sm:text-lg line-clamp-1">{item.product.name}</h3>
+            {/* Stock */}
+            {item.product.isLimit && isMobile && (
+              <span className="px-3 py-1 mt-1 text-xs text-white rounded-full bg-primary w-fit">
+                {t('menu.amount')} {item.currentStock}/{item.defaultStock}
+              </span>
+            )}
           </div>
 
           {item.product.variants.length > 0 ? (
@@ -99,12 +108,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                 )}
               </div>
 
-              {/* Stock */}
-              {item.product.isLimit && (
-                <span className="text-[0.65rem] text-muted-foreground">
-                  {t('menu.amount')} {item.currentStock}/{item.defaultStock}
-                </span>
-              )}
+
             </div>
           ) : (
             <span className="text-sm font-bold text-primary">{t('menu.contactForPrice')}</span>
