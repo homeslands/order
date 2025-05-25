@@ -7,6 +7,7 @@ import { ITable } from './table.type'
 import { IVoucher } from './voucher.type'
 import { IPromotion } from './promotion.type'
 import { IChefOrderItemStatus, IChefOrders } from './area.type'
+import { IRole } from './role.type'
 
 export interface IDish {
   id: number
@@ -28,6 +29,7 @@ export interface ICartItem {
   owner?: string
   ownerFullName?: string
   ownerPhoneNumber?: string
+  ownerRole?: string
   type: string
   // branch?: string
   orderItems: IOrderItem[]
@@ -36,6 +38,11 @@ export interface ICartItem {
   voucher?: {
     slug: string
     value: number
+    isVerificationIdentity: boolean
+    isPrivate: boolean
+    code: string
+    type: string
+    minOrderValue: number
   } | null
   note?: string
   approvalBy?: string
@@ -83,6 +90,7 @@ export interface IOrderOwner {
   lastName: string
   createdAt: string
   slug: string
+  role: IRole
 }
 
 export interface IPayment extends IBase {
@@ -112,6 +120,7 @@ export interface IOrder extends IBase {
   branch: string
   owner: IOrderOwner
   subtotal: number
+  loss: number
   orderItems: IOrderDetail[]
   status: OrderStatus
   invoice: IOrderInvoice
@@ -316,9 +325,11 @@ export interface ICreateOrderTrackingRequest {
 export interface IOrderInvoice {
   paymentMethod: string
   amount: number
+  loss: number
   status: paymentStatus
   logo: string
   tableName: string
+  referenceNumber: number
   branchAddress: string
   cashier: string
   customer: string

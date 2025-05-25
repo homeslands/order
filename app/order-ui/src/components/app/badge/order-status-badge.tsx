@@ -75,7 +75,7 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 w-fit min-w-32 px-3 py-1 text-center text-[0.7rem] ${getBadgeColor(
+      className={`inline-flex justify-center items-center gap-1 w-fit min-w-32 px-3 py-1 text-center text-[0.7rem] ${getBadgeColor(
         status,
       )} rounded-full`}
     >

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Label</title>
+    <% var dir=process.cwd() %>
+    <style>
+      @page {
+        size: 5cm 3cm;
+        margin: 0;
+      }
+
+      body {
+        width: 5cm;
+        height: 3cm;
+        font-family: monospace, sans-serif;
+        font-size: 10px;
+        margin: 0;
+        padding: 5px;
+        line-height: 1.2;
+      }
+      .line {
+        margin-bottom: 4px;
+        word-wrap: break-word;
+      }
+      .text-note {
+        font-size: 8px;
+      }
+    </style>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+  </head>
+  <body>
+    <div class="p-1">
+      <div class="flex justify-center">
+        <img src="<%= qrCode %>" alt="QR Code" class="w-12 h-12" />
+      </div>
+      <div class="text-[8px]">
+        <span class="font-bold">Code: </span> <span><%= code %></span>
+      </div>
+      <div class="text-[8px]">
+        <span class="font-bold">Hiệu lực: </span>
+        <span class="font-bold"><%= startDate %></span> -
+        <span class="font-bold"><%= endDate %></span>
+      </div>
+    </div>
+  </body>
+</html>

@@ -83,8 +83,8 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                 return (
                     <SwiperSlide key={index} className="py-2 w-full h-full">
                         {!isMobile ? (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-sm bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
-                                <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                                <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`} className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                                     <>
                                         <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
                                         {item.promotion && item.promotion.value > 0 && (
@@ -99,9 +99,9 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                     <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                         <div>
                                             <h3 className="text-lg font-bold line-clamp-1">{item.product.name}</h3>
-                                            <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
+                                            {/* <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
                                                 {item?.product?.description || "Hương vị đặc biệt"}
-                                            </p>
+                                            </p> */}
                                         </div>
                                         <div className="flex gap-1 justify-between items-center h-full">
                                             <div className="flex flex-col">

@@ -63,6 +63,7 @@ import { ChefOrderItemModule } from 'src/chef-order-item/chef-order-item.module'
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobModule } from 'src/job/job.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { VoucherGroupModule } from 'src/voucher-group/voucher-group.module';
 
 @Module({
   imports: [
@@ -148,6 +149,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     ChefOrderItemModule,
     NotificationModule,
     JobModule,
+    VoucherGroupModule,
   ],
   controllers: [AppController],
   providers: [

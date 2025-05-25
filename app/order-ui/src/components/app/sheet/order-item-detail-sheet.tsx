@@ -58,10 +58,7 @@ export default function OrderItemDetailSheet({
 
   // Polling: main order
   const { data: selectedOrder, refetch: refetchSelectedOrder } = useOrderBySlug(
-    orderSlug,
-    {
-      enabled: !!orderSlug,
-    },
+    orderSlug
   )
 
   useEffect(() => {

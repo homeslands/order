@@ -10,6 +10,10 @@ export class Payment extends Base {
   amount: number;
 
   @AutoMap()
+  @Column({ name: 'loss_column', default: 0 })
+  loss: number;
+
+  @AutoMap()
   @Column({ name: 'message_column' })
   message: string;
 

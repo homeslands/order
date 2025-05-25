@@ -18,8 +18,9 @@ import { loginSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import { useLogin, useProfile } from '@/hooks'
-import { useAuthStore, useUserStore } from '@/stores'
+import { useAuthStore, useCartItemStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
+
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
   const {
@@ -28,6 +29,7 @@ export const LoginForm: React.FC = () => {
     setExpireTime,
     setExpireTimeRefreshToken,
   } = useAuthStore()
+  const { clearCart } = useCartItemStore()
   const { setUserInfo } = useUserStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
@@ -42,6 +44,7 @@ export const LoginForm: React.FC = () => {
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     login(data, {
       onSuccess: async (response) => {
+        clearCart()
         setToken(response.result.accessToken)
         setRefreshToken(response.result.refreshToken)
         setExpireTime(response.result.expireTime)

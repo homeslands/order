@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
+import Lottie from "lottie-react";
 import { Helmet } from 'react-helmet'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CircleX, SquareMenu } from 'lucide-react'
@@ -8,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
 import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, ROUTE } from '@/constants'
+import { PaymentMethod, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
@@ -17,6 +18,7 @@ import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 import { useCartItemStore, usePaymentMethodStore, usePaymentStore } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
+import LoadingAnimation from "@/assets/images/loading-animation.json"
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -36,6 +38,7 @@ export default function PaymentPage() {
 
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
   const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
@@ -46,7 +49,8 @@ export default function PaymentPage() {
   const discount = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
-  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+  const voucherDiscount = order?.result.voucher && order.result.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : order?.result.voucher && order.result.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? order.result.voucher.value : 0;
+
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
@@ -71,6 +75,8 @@ export default function PaymentPage() {
           if (pollingInterval) clearInterval(pollingInterval)
           setOrderSlug('')
           clearCart()
+          // Always ensure loading is false before navigating
+          setIsLoading(false)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         }
       }, 3000)
@@ -89,6 +95,7 @@ export default function PaymentPage() {
 
   const handleConfirmPayment = () => {
     if (!slug || !paymentMethod) return
+    setIsLoading(true)
 
     if (paymentMethod === PaymentMethod.BANK_TRANSFER) {
       initiatePayment(
@@ -98,8 +105,15 @@ export default function PaymentPage() {
             setPaymentSlug(data.result.slug)
             setQrCode(data.result.qrCode)
             setOrderSlug(slug)
-            setIsPolling(true) // Start polling after initiating payment
+            setIsPolling(true)
+            // Only turn off loading if we get a QR code (amount > 2000)
+            if (data.result.qrCode) {
+              setIsLoading(false)
+            }
           },
+          onError: () => {
+            setIsLoading(false)
+          }
         },
       )
     } else if (paymentMethod === PaymentMethod.CASH) {
@@ -110,6 +124,9 @@ export default function PaymentPage() {
             clearCart()
             navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
           },
+          onError: () => {
+            setIsLoading(false)
+          }
         },
       )
     }
@@ -147,6 +164,13 @@ export default function PaymentPage() {
 
   return (
     <div>
+      {isLoading && (
+        <div className="flex fixed inset-0 z-50 justify-center items-center bg-white bg-opacity-40">
+          <div className="w-64 h-64">
+            <Lottie animationData={LoadingAnimation} loop={true} />
+          </div>
+        </div>
+      )}
       <Helmet>
         <meta charSet='utf-8' />
         <title>

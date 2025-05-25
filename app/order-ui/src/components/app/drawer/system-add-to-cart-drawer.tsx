@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart } from 'lucide-react';
+// import { ShoppingCart } from 'lucide-react';
 
 import {
   Button,
@@ -120,7 +120,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
         <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-          <ShoppingCart className='icon' />
+          {/* <ShoppingCart className='icon' /> */}
           {t('menu.addToCart')}
         </Button>
       </DrawerTrigger>

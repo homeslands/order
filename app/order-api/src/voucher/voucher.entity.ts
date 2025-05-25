@@ -1,7 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Order } from 'src/order/order.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { VoucherType, VoucherValueType } from './voucher.constant';
+import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 
 @Entity('voucher_tbl')
 export class Voucher extends Base {
@@ -26,7 +28,7 @@ export class Voucher extends Base {
   remainingUsage: number;
 
   @AutoMap()
-  @Column({ name: 'value_type_column', default: 'percentage' })
+  @Column({ name: 'value_type_column', default: VoucherValueType.PERCENTAGE })
   valueType: string;
 
   @AutoMap()
@@ -55,4 +57,21 @@ export class Voucher extends Base {
   @AutoMap()
   @Column({ name: 'is_verification_identity_column', default: true })
   isVerificationIdentity: boolean;
+
+  // display or not for all user
+  @AutoMap()
+  @Column({ name: 'is_private_column', default: false })
+  isPrivate: boolean;
+
+  @AutoMap()
+  @Column({ name: 'type_column', default: VoucherType.PERCENT_ORDER })
+  type: string;
+
+  @AutoMap()
+  @Column({ name: 'number_of_usage_per_user_column', default: 1 })
+  numberOfUsagePerUser: number;
+
+  @ManyToOne(() => VoucherGroup, (voucherGroup) => voucherGroup.vouchers)
+  @JoinColumn({ name: 'voucher_group_column' })
+  voucherGroup?: VoucherGroup;
 }

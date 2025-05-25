@@ -79,7 +79,7 @@ export function BottomBar() {
                 {/* Cart */}
                 <NavLink
                     to={ROUTE.CLIENT_CART}
-                    className={`inline-flex rounded-md flex-col items-center gap-1 justify-center px-5 relative ${location.pathname.includes(`${ROUTE.CLIENT_PROFILE}`) && location.search.includes('order') ? 'text-primary' : ''} ${getCartItems()?.orderItems?.length ? 'bg-primary/10 text-primary' : ''}`}
+                    className={`inline-flex rounded-md flex-col items-center gap-1 justify-center px-5 relative ${location.pathname.includes(`${ROUTE.CLIENT_CART}`) ? 'text-primary' : ''} ${getCartItems()?.orderItems?.length ? 'bg-primary/10 text-primary' : ''}`}
                 >
                     <ShoppingCart className="w-5 h-5" />
                     <span className="text-[0.5rem]">

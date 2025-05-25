@@ -49,6 +49,7 @@ export default function UpdateOrderNoteInput({ order, onSuccess }: OrderNoteInpu
                 />
                 <Button
                     size="sm"
+                    className='h-9'
                     onClick={handleUpdateNote}
                 >
                     {t('order.updateNote')}

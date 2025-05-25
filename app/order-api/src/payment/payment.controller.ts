@@ -27,7 +27,8 @@ import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
 import { Throttle } from '@nestjs/throttler';
-
+import { CurrentUserDto } from 'src/user/user.dto';
+import { CurrentUser } from 'src/user/user.decorator';
 @ApiTags('Payment')
 @ApiBearerAuth()
 @Controller('payment')
@@ -71,10 +72,12 @@ export class PaymentController {
     isArray: true,
   })
   async initiate(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
     @Body(new ValidationPipe({ transform: true }))
     createPaymentDto: CreatePaymentDto,
   ) {
-    const result = await this.paymentService.initiate(createPaymentDto);
+    const result = await this.paymentService.initiate(createPaymentDto, user);
     return {
       message: 'Payment has been initiated successfully',
       statusCode: HttpStatus.OK,

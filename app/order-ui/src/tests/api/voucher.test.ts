@@ -10,6 +10,7 @@ import {
   validateVoucher,
 } from '@/api'
 import { SERVER_ERROR } from '../constants'
+import { VOUCHER_TYPE } from '@/constants'
 
 vi.mock('@/utils', () => ({
   http: httpMock,
@@ -135,7 +136,13 @@ describe('Voucher API', () => {
   describe('updateVoucher', () => {
     const updateData = {
       slug: 'voucher-1',
+      voucherGroup: 'voucher-group-1',
+      remainingUsage: 100,
+      isPrivate: true,
+      isVerificationIdentity: true,
       title: 'Updated Voucher',
+      type: VOUCHER_TYPE.PERCENT_ORDER,
+      numberOfUsagePerUser: 1,
       code: 'UPD2024',
       value: 75000,
       maxUsage: 150,
