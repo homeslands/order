@@ -43,8 +43,14 @@ export interface IGetAllVoucherRequest {
   isActive?: boolean
   isPrivate?: boolean
   hasPaging?: boolean
-  page?: number
-  size?: number
+  page?: number | 1
+  size?: number | 10
+}
+
+export interface IGetAllVoucherGroupRequest {
+  hasPaging?: boolean
+  page?: number | 1
+  size?: number | 10
 }
 
 export interface ICreateVoucherRequest {
