@@ -51,7 +51,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const handleExportOrderInvoice = async (order: IOrder | undefined) => {
     exportOrderInvoice(order?.slug || '', {
       onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportPDFVouchersSuccess'))
+        showToast(tToast('toast.exportInvoiceSuccess'))
         // Load data to print
         loadDataToPrinter(data)
       },

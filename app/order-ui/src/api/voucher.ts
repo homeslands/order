@@ -3,6 +3,7 @@ import {
   ICreateMultipleVoucherRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
   IPaginationResponse,
@@ -15,7 +16,7 @@ import {
 import { http } from '@/utils'
 
 export async function getVoucherGroups(
-  params?: IGetAllVoucherRequest,
+  params?: IGetAllVoucherGroupRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucherGroup>>> {
   const response = await http.get<
     IApiResponse<IPaginationResponse<IVoucherGroup>>
