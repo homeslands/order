@@ -305,6 +305,11 @@ export default function OrderHistoryPage() {
                 <InvoiceTemplate
                   order={orderInfo}
                 />
+                <Button onClick={() => {
+                  handleExportInvoice()
+                }}>
+                  {t('order.exportInvoice')}
+                </Button>
               </div>
             )}
             {/* Return order button */}

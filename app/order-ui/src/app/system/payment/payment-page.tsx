@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
 import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, ROUTE } from '@/constants'
+import { PaymentMethod, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
@@ -49,7 +49,8 @@ export default function PaymentPage() {
   const discount = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
 
-  const voucherDiscount = order?.result.voucher ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : 0;
+  const voucherDiscount = order?.result.voucher && order.result.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((order.result.voucher.value) / 100) : order?.result.voucher && order.result.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? order.result.voucher.value : 0;
+
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
