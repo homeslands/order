@@ -63,7 +63,7 @@ export default function ConfirmUpdateVoucherGroupDialog({
           className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
           onClick={() => onOpenChange(true)}
         >
-          {t('voucher.update')}
+          {t('voucher.updateVoucherGroup')}
         </Button>
       </DialogTrigger>
 
@@ -72,7 +72,7 @@ export default function ConfirmUpdateVoucherGroupDialog({
           <DialogTitle className="pb-4 border-b">
             <div className="flex gap-2 items-center text-primary">
               <ShoppingCart className="w-6 h-6" />
-              {t('voucher.update')}
+              {t('voucher.updateVoucherGroup')}
             </div>
           </DialogTitle>
 
@@ -90,7 +90,7 @@ export default function ConfirmUpdateVoucherGroupDialog({
             {tCommon('common.cancel')}
           </Button>
           <Button onClick={() => voucherGroup && handleSubmit(voucherGroup)}>
-            {t('voucher.update')}
+            {t('voucher.updateVoucherGroup')}
           </Button>
         </DialogFooter>
       </DialogContent>
