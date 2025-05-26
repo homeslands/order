@@ -185,6 +185,10 @@ export class PaymentService {
           payment = await this.bankTransferStrategy.process(order);
           break;
         case PaymentMethod.CASH:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+          }
           payment = await this.cashStrategy.process(order);
           break;
         default:
