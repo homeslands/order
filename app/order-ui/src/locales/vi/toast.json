@@ -57,6 +57,7 @@
     "handleCancelOrderSuccess": "Hủy đơn hàng thành công",
     "addNewOrderItemSuccess": "Thêm món vào đơn hàng thành công",
     "deleteOrderItemSuccess": "Xóa món khỏi đơn hàng thành công",
+    "orderCanceled": "Đơn hàng đã được hủy và bạn sẽ được chuyển hướng về thực đơn",
     "updateOrderTypeSuccess": "Cập nhật loại đơn hàng thành công",
     "createOrderTrackingByStaffSuccess": "Phân công đơn hàng cho nhân viên thành công",
     "createOrderTrackingByRobotSuccess": "Phân công đơn hàng cho robot thành công",
@@ -306,6 +307,9 @@
     "voucherNoRemainingUsage": "Voucher đã hết số lần sử dụng",
     "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
     "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
-    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công"
+    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công",
+    "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
+    "exportPDFVouchersSuccess": "Xuất hóa đơn voucher thành công",
+    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!"
   }
 }

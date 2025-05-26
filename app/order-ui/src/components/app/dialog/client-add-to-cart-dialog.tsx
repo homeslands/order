@@ -39,15 +39,27 @@ export default function ClientAddToCartDialog({
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  const { addCartItem } = useCartItemStore()
+  const { addCartItem, isHydrated } = useCartItemStore()
   const { getUserInfo } = useUserStore()
 
   const generateCartItemId = () => {
     return Date.now().toString(36)
   }
 
+  // useEffect(() => {
+  //   if (!isHydrated) {
+  //     console.log('⏳ Chờ rehydrate...')
+  //   } else {
+  //     console.log('✅ Store đã sẵn sàng!')
+  //   }
+  // }, [isHydrated])
+
+
   const handleAddToCart = () => {
     if (!selectedVariant) return
+    if (!isHydrated) {
+      return
+    }
 
     const finalPrice = product.promotion && product?.promotion?.value > 0
       ? selectedVariant.price * (1 - product?.promotion?.value / 100)
