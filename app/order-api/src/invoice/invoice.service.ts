@@ -82,12 +82,17 @@ export class InvoiceService {
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
 
-    let voucherValue = 0;
+    const subtotalBeforeVoucher = order.orderItems?.reduce(
+      (total, current) => total + current.subtotal,
+      0,
+    );
+
+    let voucherValue = order.loss;
     if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue = (order.subtotal * 100) / order.voucher.value + order.loss;
+      voucherValue += (subtotalBeforeVoucher * order.voucher.value) / 100;
     }
     if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
-      voucherValue = order.voucher.value + order.loss;
+      voucherValue += order.voucher.value;
     }
 
     // invoice exists
@@ -97,9 +102,7 @@ export class InvoiceService {
         context,
       );
       Object.assign(order.invoice, {
-        subtotalBeforeVoucher: order.invoice.amount + voucherValue,
-        // (order.invoice.amount * 100) /
-        // (order.invoice.voucherValue !== 0 ? order.invoice.voucherValue : 100),
+        subtotalBeforeVoucher,
       });
       return order.invoice;
     }
@@ -156,9 +159,7 @@ export class InvoiceService {
     );
 
     Object.assign(invoice, {
-      subtotalBeforeVoucher: order.invoice.amount + voucherValue,
-      // (invoice.amount * 100) /
-      // (invoice.voucherValue !== 0 ? invoice.voucherValue : 100),
+      subtotalBeforeVoucher,
     });
 
     return invoice;
