@@ -21,6 +21,7 @@ import {
   ICreateMultipleVoucherRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
   IUpdateVoucherGroupRequest,
@@ -28,9 +29,9 @@ import {
   IValidateVoucherRequest,
 } from '@/types'
 
-export const useVoucherGroups = (params?: IGetAllVoucherRequest) => {
+export const useVoucherGroups = (params?: IGetAllVoucherGroupRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.voucherGroups],
+    queryKey: [QUERYKEY.voucherGroups, params],
     queryFn: () => getVoucherGroups(params),
     placeholderData: keepPreviousData,
     // enabled: !!params,

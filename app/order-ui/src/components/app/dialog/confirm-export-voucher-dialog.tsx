@@ -1,7 +1,7 @@
+import jsPDF from 'jspdf'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { Download, TriangleAlert } from 'lucide-react'
-import jsPDF from 'jspdf'
-import QRCode from 'qrcode'
 
 import {
   Button,
@@ -40,60 +40,50 @@ export default function ConfirmExportVoucherDialog({
     await exportVouchersAsPDF(selectedVouchers)
     onOpenChange(false)
     onSuccess()
-    showToast(tToast('toast.exportPDFVouchersSuccess'))
+    showToast(tToast('toast.exportVouchersSuccess'))
   }
 
   const exportVouchersAsPDF = async (vouchers: IVoucher[]) => {
-    if (!vouchers || vouchers.length === 0) return
+    if (!vouchers || vouchers.length === 0) return;
 
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'cm',
-      format: [5, 3], // 5cm x 3cm
-    })
+      format: [5, 2], // Kích thước nhãn 5cm x 2cm
+    });
 
     for (const [index, voucher] of vouchers.entries()) {
-      if (index !== 0) pdf.addPage()
-
-      // QR code
-      const qrDataUrl = await QRCode.toDataURL(voucher.slug || '', {
-        width: 96,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#ffffff',
-        },
-      })
+      if (index !== 0) pdf.addPage();
 
       // ==== Layout constants ====
-      const pageWidth = 5
-      const qrSize = 1.6
-      const qrX = (pageWidth - qrSize) / 2
+      const pageWidth = 5;
+      const pageHeight = 2;
 
-      const qrY = 0.3          // tăng lên để qr hơi cao hơn
-      const textYStart = qrY + qrSize + 0.4  // tăng khoảng cách qr -> text thành 0.4cm
-      const lineSpacing = 0.3   // giảm khoảng cách 2 dòng text xuống còn 0.3cm
+      const fontSize = 8; // Font lớn hơn để dễ đọc
+      const lineSpacing = 0.3; // Khoảng cách giữa 2 dòng (cm)
+      const lineHeight = fontSize * 0.035; // Ước lượng chiều cao 1 dòng (cm)
 
-      // Draw QR
-      pdf.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
+      const totalTextHeight = lineHeight * 2 + lineSpacing; // Tổng chiều cao 2 dòng và khoảng cách
+      const textYStart = (pageHeight - totalTextHeight) / 2 + lineHeight; // Vị trí dòng đầu tiên (căn giữa dọc)
 
-      // Text config
-      pdf.setFont('helvetica', 'normal')
-      pdf.setFontSize(6) // font size 6pt
-      pdf.setTextColor(0, 0, 0)
+      const textX = pageWidth / 2; // Căn giữa ngang
 
-      const codeLine = `Code: ${voucher.code}`
-      const dateLine = `HSD: ${new Date(voucher.startDate).toLocaleDateString()} - ${new Date(voucher.endDate).toLocaleDateString()}`
+      // Text content
+      const codeLine = `Code: ${voucher.code}`;
+      const dateLine = `HSD: ${moment(voucher.startDate).format('DD/MM/YYYY')} - ${moment(voucher.endDate).format('DD/MM/YYYY')}`;
 
-      const textX = pageWidth / 2
+      // Set font
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(fontSize);
+      pdf.setTextColor(0, 0, 0);
 
-      // Draw centered text
-      pdf.text(codeLine, textX, textYStart, { align: 'center' })
-      pdf.text(dateLine, textX, textYStart + lineSpacing, { align: 'center' })
+      // Draw text (centered)
+      pdf.text(codeLine, textX, textYStart, { align: 'center' });
+      pdf.text(dateLine, textX, textYStart + lineHeight + lineSpacing, { align: 'center' });
     }
 
-    pdf.save('Voucher-tickets.pdf')
-  }
+    pdf.save('Voucher-tickets.pdf');
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -105,7 +95,7 @@ export default function ConfirmExportVoucherDialog({
           onClick={() => onOpenChange(true)}
         >
           <Download className="w-4 h-4" />
-          {t('voucher.exportVoucher')}
+          {t('voucher.exportVouchers')}
         </Button>
       </DialogTrigger>
 
@@ -114,7 +104,7 @@ export default function ConfirmExportVoucherDialog({
           <DialogTitle className="pb-4 border-b border-primary text-primary">
             <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
-              {t('voucher.exportPDF')}
+              {t('voucher.exportVouchers')}
             </div>
           </DialogTitle>
           <DialogDescription className="p-2 rounded-md bg-primary/10 text-primary">
@@ -122,7 +112,7 @@ export default function ConfirmExportVoucherDialog({
           </DialogDescription>
 
           <div className="py-4 text-sm text-gray-500">
-            {t('voucher.confirmExportPDF')}
+            {t('voucher.confirmExportVouchers')}
             <br />
           </div>
         </DialogHeader>
@@ -137,7 +127,7 @@ export default function ConfirmExportVoucherDialog({
           <Button
             onClick={handleExport}
           >
-            {t('voucher.exportPDF')}
+            {t('voucher.exportVouchers')}
           </Button>
         </DialogFooter>
       </DialogContent>

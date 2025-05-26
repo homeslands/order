@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
@@ -8,15 +8,28 @@ import { useVoucherGroupColumns } from './DataTable/columns'
 import { usePagination, useVoucherGroups } from '@/hooks'
 import { VoucherGroupAction } from './DataTable/actions'
 import { ROUTE } from '@/constants'
+import { useEffect } from 'react'
 
 export default function VoucherGroupPage() {
     const navigate = useNavigate()
     const { t } = useTranslation(['voucher'])
     const { t: tHelmet } = useTranslation('helmet')
+    const [searchParams, setSearchParams] = useSearchParams()
+    const page = Number(searchParams.get('page')) || 1
+    const size = Number(searchParams.get('size')) || 10
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
+    // add page size to query params
+    useEffect(() => {
+        setSearchParams((prev) => {
+            prev.set('page', pagination.pageIndex.toString())
+            prev.set('size', pagination.pageSize.toString())
+            return prev
+        })
+    }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+
     const { data, isLoading } = useVoucherGroups({
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
+        page,
+        size,
         hasPaging: true
     })
 

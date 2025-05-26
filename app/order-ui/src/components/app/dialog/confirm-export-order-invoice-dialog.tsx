@@ -42,7 +42,7 @@ export default function ConfirmExportOrderInvoiceDialog({
     await exportOrderInvoices(order)
     onOpenChange?.(false)
     onSuccess?.()
-    showToast(tToast('toast.exportPDFVouchersSuccess'))
+    showToast(tToast('toast.exportInvoiceSuccess'))
   }
 
   const exportOrderInvoices = async (order: IOrder | undefined) => {

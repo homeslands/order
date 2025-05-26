@@ -63,6 +63,7 @@
     "confirmCreateMultipleVoucher": "Bạn sắp sửa tạo ",
     "vouchers": "voucher. Bạn có chắc chắn muốn tạo voucher này không?",
     "update": "Cập nhật voucher",
+    "updateVoucherGroup": "Cập nhật nhóm voucher",
     "updateVoucherDescription": "Cập nhật thông tin voucher",
     "confirmUpdateVoucher": "Xác nhận cập nhật voucher",
     "delete": "Xóa voucher",
@@ -81,6 +82,8 @@
     "expired": "Voucher đã hết hạn",
     "noVoucher": "Không có mã giảm giá hợp lệ",
     "isVerificationIdentity": "Kiểm tra định danh (Voucher sẽ khả dụng đối với khách hàng đã đăng ký tài khoản)",
-    "needVerifyIdentity": "Hãy đăng ký thành viên để sử dụng voucher"
+    "needVerifyIdentity": "Hãy đăng ký thành viên để sử dụng voucher",
+    "exportVouchers": "Xuất voucher",
+    "confirmExportVouchers": "Bạn có chắc chắn muốn xuất voucher này không?"
   }
 }
