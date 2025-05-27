@@ -90,7 +90,11 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       ),
       cell: ({ row }) => {
         const points = row.getValue('points') as number
-        return <div className="text-sm">{Number(points)}</div>
+        return (
+          <div className="text-sm">
+            {new Intl.NumberFormat().format(Number(points))}
+          </div>
+        )
       },
     },
     {

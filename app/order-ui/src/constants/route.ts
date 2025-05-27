@@ -53,6 +53,7 @@ export const ROUTE = {
   CLIENT_UPDATE_ORDER: '/update-order',
   CLIENT_PROFILE: '/profile',
   CLIENT_ORDERS_PUBLIC: '/orders-public',
+  CLIENT_GIFT_CARD: '/gift-card',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes

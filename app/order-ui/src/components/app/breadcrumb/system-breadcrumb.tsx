@@ -63,11 +63,13 @@ export default function SystemBreadcrumb() {
         {pathnames.map((name, index) => {
           const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`
           const isLast = index === pathnames.length - 1
+          const isSystem = name.toLowerCase() === 'system'
+
           return (
             <React.Fragment key={name}>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                {isLast ? (
+                {isLast || isSystem ? (
                   <BreadcrumbPage>{getBreadcrumbText(name)}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
