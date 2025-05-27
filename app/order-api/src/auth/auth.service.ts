@@ -19,10 +19,12 @@ import {
   UpdateAuthProfileRequestDto,
   EmailVerificationRequestDto,
   ConFirmEmailVerificationRequestDto,
+  InitiateVerifyEmailRequestDto,
+  ConfirmEmailVerificationCodeRequestDto,
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { MoreThan, Not, Repository } from 'typeorm';
+import { IsNull, MoreThan, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { InjectMapper } from '@automapper/nestjs';
@@ -53,6 +55,7 @@ import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
+import { getRandomString } from 'src/helper';
 
 @Injectable()
 export class AuthService {
@@ -367,6 +370,98 @@ export class AuthService {
     return url;
   }
 
+  async initiateVerifyEmail(
+    currentUserDto: CurrentUserDto,
+    requestData: InitiateVerifyEmailRequestDto,
+  ): Promise<boolean> {
+    const context = `${AuthService.name}.${this.initiateVerifyEmail.name}`;
+    this.logger.log(
+      `Request initiate verify email ${JSON.stringify(requestData)}`,
+      context,
+    );
+    const user = await this.userUtils.getUser({
+      where: {
+        id: currentUserDto.userId ?? IsNull(),
+        phonenumber: Not('default-customer'),
+      },
+    });
+
+    const existingToken = await this.verifyEmailRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        expiresAt: MoreThan(new Date()),
+      },
+    });
+    if (existingToken) {
+      this.logger.warn(`User ${user.id} already has a valid token`, context);
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_ALREADY_EXISTS);
+    }
+
+    // Check email in system except current user
+    const existedEmailInSystem = await this.userRepository.findOne({
+      where: {
+        email: requestData.email,
+        id: Not(user.id),
+      },
+    });
+    if (existedEmailInSystem) {
+      this.logger.warn(AuthValidation.EMAIL_ALREADY_EXISTS.message, context);
+      throw new AuthException(AuthValidation.EMAIL_ALREADY_EXISTS);
+    }
+
+    const existedEmailCurrentUser = await this.userRepository.findOne({
+      where: {
+        email: requestData.email,
+        id: user.id,
+      },
+    });
+    if (existedEmailCurrentUser) {
+      if (user.isVerifiedEmail) {
+        this.logger.warn(
+          AuthValidation.THIS_EMAIL_ALREADY_VERIFY.message,
+          context,
+        );
+        throw new AuthException(AuthValidation.THIS_EMAIL_ALREADY_VERIFY);
+      }
+    }
+
+    const token = getRandomString().slice(0, 6);
+    const verifyEmailToken = new VerifyEmailToken();
+    Object.assign(verifyEmailToken, {
+      expiresAt: moment()
+        .add(60 * 10, 'seconds')
+        .toDate(),
+      token,
+      user,
+      email: requestData.email,
+    } as VerifyEmailToken);
+
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(verifyEmailToken);
+        await this.mailService.sendVerifyEmail(user, token, requestData.email);
+      },
+      () => {
+        this.logger.log(
+          `User ${user.id} created initiate verify email token`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when create initiate verify email token`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+      },
+    );
+
+    return true;
+  }
+
   /**
    * Confirm email verification.
    * This method verifies the email verification token and updates the user's email.
@@ -416,6 +511,70 @@ export class AuthService {
     });
 
     user.email = requestData.email;
+    user.isVerifiedEmail = true;
+
+    // Set token expired after forgot password successfully
+    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
+
+    await this.transactionManagerService.execute(
+      async (manager) => {
+        await manager.save(user);
+        await manager.save(existToken);
+      },
+      () => {
+        this.logger.log(
+          `User ${user.id} confirmed email verification token`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.error(
+          `Error when confirm email verification`,
+          error.stack,
+          context,
+        );
+        throw new AuthException(
+          AuthValidation.CONFIRM_EMAIL_VERIFICATION_ERROR,
+        );
+      },
+    );
+
+    return true;
+  }
+
+  async confirmEmailVerificationCode(
+    currentUserDto: CurrentUserDto,
+    requestData: ConfirmEmailVerificationCodeRequestDto,
+  ): Promise<boolean> {
+    const context = `${AuthService.name}.${this.confirmEmailVerification.name}`;
+
+    const user = await this.userUtils.getUser({
+      where: {
+        id: currentUserDto.userId ?? IsNull(),
+        phonenumber: Not('default-customer'),
+      },
+    });
+    const existToken = await this.verifyEmailRepository.findOne({
+      where: {
+        token: requestData.code,
+        // expiresAt: MoreThan(new Date()),
+        user: { id: user.id },
+      },
+    });
+    if (!existToken) {
+      this.logger.warn(`Verify token is not existed`, context);
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+    }
+
+    if (new Date().getTime() > existToken.expiresAt.getTime()) {
+      this.logger.warn(
+        AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED.message,
+        context,
+      );
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED);
+    }
+
+    user.email = existToken.email;
     user.isVerifiedEmail = true;
 
     // Set token expired after forgot password successfully

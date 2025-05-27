@@ -112,6 +112,12 @@ export class EmailVerificationRequestDto {
   @IsString()
   accessToken: string;
 }
+export class InitiateVerifyEmailRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  email: string;
+}
 
 export class ConFirmEmailVerificationRequestDto {
   @ApiProperty()
@@ -123,6 +129,12 @@ export class ConFirmEmailVerificationRequestDto {
   @AutoMap()
   @IsString()
   token: string;
+}
+export class ConfirmEmailVerificationCodeRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  code: string;
 }
 
 export class UpdateAuthProfileRequestDto {
