@@ -279,7 +279,7 @@ export class OrderItemService {
         order.orderItems = order.orderItems.filter(
           (item) => item.slug !== orderItem.slug,
         );
-        await manager.remove(OrderItem, orderItem);
+        await manager.softRemove(orderItem);
 
         // validate voucher
         const voucher: Voucher = order.voucher;
