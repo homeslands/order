@@ -141,6 +141,7 @@ export default function CreateGiftCardSheet() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => field.onChange(e.target.files?.[0] || null)}
+                className="cursor-pointer"
               />
             </FormControl>
             <FormMessage />

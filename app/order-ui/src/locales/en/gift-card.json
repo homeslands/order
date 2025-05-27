@@ -1,6 +1,10 @@
 {
     "giftCard": {
         "pageTitle": "Gift Card Management",
+        "clientPageTitle": "Gift Cards",
+        "noGiftCardsAvailable": "No gift cards available at the moment",
+        "buyNow": "Buy Now",
+        "coin": "Points",
         
         "title": "Title",
         "description": "Description",
@@ -25,6 +29,12 @@
         "deleteTitle": "Delete Gift Card",
         "deleteDescription": "Are you sure you want to delete this gift card?",
         "deleteGiftCardWarning1": "You are about to delete the gift card:",
-        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?"
+        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?",
+
+        "filterByPrice": "Filter by Price",
+        "priceAscending": "Price Ascending",
+        "priceDescending": "Price Descending",
+        "pointsAscending": "Points Ascending",
+        "pointsDescending": "Points Descending"
     }
 }
