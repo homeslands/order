@@ -134,22 +134,6 @@ services:
     depends_on:
       - postgres
 
-  nginx-proxy-manager:
-    image: jc21/nginx-proxy-manager:2.9.22
-    ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:81/"]
-      interval: 10s
-      timeout: 3s
-    volumes:
-      - nginx_proxy_manager_data:/data
-      - letsencrypt:/etc/letsencrypt
-    deploy:
-      restart_policy:
-        condition: on-failure
   otel-lgtm:
     image: grafana/otel-lgtm:latest
     environment:
