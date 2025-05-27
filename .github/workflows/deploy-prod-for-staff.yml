@@ -37,11 +37,11 @@ jobs:
 
           # Export env. Docker swarm is not able to read .env file
           set -o allexport
-          source .deploy/cloud/.env
+          source .deploy/prod-for-staff/.env
           set +o allexport
 
-          docker compose -f .deploy/cloud/docker-compose.yml pull
-          docker stack deploy -c .deploy/cloud/docker-compose.yml order_stack --detach=true
+          docker compose -f .deploy/prod-for-staff/docker-compose.yml pull
+          docker stack deploy -c .deploy/prod-for-staff/docker-compose.yml order_stack --detach=true
 
           # Remove exited containers
           docker rm $(docker ps -aq -f status=exited)
