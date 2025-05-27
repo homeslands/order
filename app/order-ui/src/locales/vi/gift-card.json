@@ -1,5 +1,10 @@
-{    "giftCard": {
+{    
+    "giftCard": {
         "pageTitle": "Quản lý thẻ quà tặng",
+        "clientPageTitle": "Thẻ quà tặng",
+        "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
+        "buyNow": "Mua ngay",
+        "coin": "Xu",
         
         "title": "Tiêu đề",
         "description": "Mô tả",
@@ -22,8 +27,13 @@
         
         "delete": "Xóa thẻ quà tặng",
         "deleteTitle": "Xóa thẻ quà tặng",
-        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",
-        "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
-        "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",        "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
+        "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?",
+        
+        "filterByPrice": "Lọc theo giá",
+        "priceAscending": "Giá tăng dần",
+        "priceDescending": "Giá giảm dần",
+        "pointsAscending": "Xu tăng dần",
+        "pointsDescending": "Xu giảm dần"
     }
 }
