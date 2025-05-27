@@ -69,7 +69,7 @@ export default function UpdateGiftCardSheet({
   const form = useForm<TUpdateGiftCardSchema>({
     resolver: zodResolver(updateGiftCardSchema(t)),
     defaultValues: defaultFormValues,
-    mode: 'onChange'
+    mode: 'onChange',
   })
 
   const handleSubmit = (data: TUpdateGiftCardSchema) => {
@@ -152,7 +152,9 @@ export default function UpdateGiftCardSheet({
         control={form.control}
         name="file"
         render={({ field }) => {
-          const initialImage = giftCard.image ? `${publicFileURL}/${giftCard.image}` : null
+          const initialImage = giftCard.image
+            ? `${publicFileURL}/${giftCard.image}`
+            : null
           return (
             <FormItem>
               <FormLabel className="flex items-center gap-1">
@@ -186,7 +188,7 @@ export default function UpdateGiftCardSheet({
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
                 value={field.value}
               />
@@ -212,7 +214,7 @@ export default function UpdateGiftCardSheet({
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
                 value={field.value}
               />
@@ -250,9 +252,12 @@ export default function UpdateGiftCardSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
-        <div data-tooltip-id="update-card" data-tooltip-content={t('giftCard.update')}>
+        <div
+          data-tooltip-id="update-card"
+          data-tooltip-content={t('giftCard.update')}
+        >
           <PenLine className="icon text-blue-500" />
-          <Tooltip id="update-card" variant='light' />
+          <Tooltip id="update-card" variant="light" />
         </div>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
@@ -270,21 +275,21 @@ export default function UpdateGiftCardSheet({
                   onSubmit={form.handleSubmit(handleSubmit)}
                   className="space-y-4"
                 >
-                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
+                  <div className="rounded-md border bg-white p-4 dark:bg-muted-foreground/10">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
                       {formFields.file}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
+                  <div className="rounded-md border bg-white p-4 dark:bg-muted-foreground/10">
                     {' '}
                     <div className="grid grid-cols-2 gap-2">
                       {formFields.points}
                       {formFields.price}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
+                  <div className="rounded-md border bg-white p-4 dark:bg-muted-foreground/10">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.isActive}
                     </div>
@@ -294,7 +299,11 @@ export default function UpdateGiftCardSheet({
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="gift-card-form" disabled={isPending || !form.formState.isValid}>
+            <Button
+              type="submit"
+              form="gift-card-form"
+              disabled={isPending || !form.formState.isValid}
+            >
               {t('giftCard.update')}
             </Button>
           </SheetFooter>
