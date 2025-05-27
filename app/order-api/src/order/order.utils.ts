@@ -171,14 +171,14 @@ export class OrderUtils {
         );
 
         // Remove order items
-        if (order.orderItems) await manager.remove(order.orderItems);
+        if (order.orderItems) await manager.softRemove(order.orderItems);
 
         // Remove order
-        const removedOrder = await manager.remove(order);
+        const removedOrder = await manager.softRemove(order);
 
         // Remove payment
         if (payment) {
-          await manager.remove(payment);
+          await manager.softRemove(payment);
           this.logger.log(`Payment has been removed`, context);
         }
 
