@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import _ from 'lodash'
-import { Info, ShoppingCart, Trash2 } from 'lucide-react'
+import { ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -17,13 +17,13 @@ import {
 import { useCartItemStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
-import { publicFileURL } from '@/constants'
+import { publicFileURL, VOUCHER_TYPE } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateCustomerDialog, CreateOrderDialog } from '../dialog'
 import { OrderTypeSelect } from '../select'
-import { VoucherListSheet } from '../sheet'
+import { StaffVoucherListSheet } from '../sheet'
 import TableSelect from '../select/table-select'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
@@ -36,8 +36,8 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
   const cartItems = getCartItems()
 
   const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
-  const discount = subTotal * (cartItems?.voucher?.value || 0) / 100
-  const totalAfterDiscount = subTotal - (subTotal * (cartItems?.voucher?.value || 0) / 100)
+  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? subTotal * (cartItems?.voucher?.value || 0) / 100 : cartItems?.voucher?.value || 0
+  const totalAfterDiscount = subTotal - discount
 
   // check if cartItems is null, setSelectedUser to null
   useEffect(() => {
@@ -61,44 +61,47 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
         </div>
       </DrawerTrigger>
       <DrawerContent className="h-[90%] ">
-        <div className="pb-10 mx-4 overflow-y-scroll scrollbar-hidden [&::-webkit-scrollbar]:hidden">
+        <div className="pb-8 overflow-y-scroll scrollbar-hidden [&::-webkit-scrollbar]:hidden">
           <DrawerHeader>
             <DrawerTitle>{t('menu.order')}</DrawerTitle>
             <DrawerDescription>{t('menu.orderDescription')}</DrawerDescription>
+            {cartItems && cartItems?.orderItems?.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {/* Order type selection */}
+                <div className="flex flex-col gap-2">
+                  <CreateCustomerDialog />
+                  <CustomerSearchInput />
+                  <div className='grid grid-cols-2 gap-1'>
+                    <OrderTypeSelect />
+                    {/* <span className='text-sm text-muted-foreground'>
+                      {t('menu.table')}
+                    </span> */}
+                    <TableSelect />
+                  </div>
+                </div>
+                {/* Selected table */}
+                {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
+                  <div className="flex items-center text-sm">
+                    {getCartItems()?.table ? (
+                      <div className='flex gap-1 items-center'>
+                        <p>{t('menu.selectedTable')} </p>
+                        <p className="px-3 py-1 text-white rounded bg-primary">
+                          {t('menu.tableName')} {getCartItems()?.tableName}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        {t('menu.noSelectedTable')}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </DrawerHeader>
           {cartItems && cartItems?.orderItems?.length > 0 ? (
-            <div className='flex flex-col gap-3  min-h-[55%]'>
-              {/* Order type selection */}
-              <div className="flex flex-col gap-4 py-2">
-                <div className='flex gap-2 items-center'>
-                  <CustomerSearchInput />
-                  <CreateCustomerDialog />
-                </div>
-                <OrderTypeSelect />
-                <div className='flex flex-col gap-1'>
-                  <span className='text-sm text-muted-foreground'>
-                    {t('menu.table')}
-                  </span>
-                  <TableSelect />
-                </div>
-              </div>
-              {/* Selected table */}
-              {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
-                <div className="flex items-center text-sm">
-                  {getCartItems()?.table ? (
-                    <div className='flex gap-1 items-center'>
-                      <p>{t('menu.selectedTable')} </p>
-                      <p className="px-3 py-1 text-white rounded bg-primary">
-                        {t('menu.tableName')} {getCartItems()?.tableName}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      {t('menu.noSelectedTable')}
-                    </p>
-                  )}
-                </div>
-              )}
+            <div className='flex flex-col gap-3 px-4 min-h-[55%]'>
+
               <div className="overflow-y-scroll [&::-webkit-scrollbar]:hidden scrollbar-hiden flex flex-col gap-4 py-2 space-y-2">
                 {cartItems ? (
                   cartItems?.orderItems?.map((item) => (
@@ -119,21 +122,18 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                         <div className="flex flex-col flex-1 gap-2">
                           <div className="flex flex-row justify-between items-start">
                             <div className="flex flex-col flex-1 gap-1 min-w-0">
-                              <span className="font-bold truncate">
+                              <span className="font-bold truncate max-w-[13rem]">
                                 {item.name}
                               </span>
                               <span className="text-sm text-muted-foreground">
                                 Size {item.size && item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
                               </span>
-                              {/* <span className="text-xs font-thin text-muted-foreground">
-                              {`${formatCurrency(item.price || 0)}`}
-                            </span> */}
                             </div>
                             <Button
                               variant="ghost"
                               onClick={() => removeCartItem(item.id)}
                             >
-                              <Trash2 size={20} className="text-muted-foreground" />
+                              <Trash2 className="text-destructive" />
                             </Button>
                           </div>
 
@@ -152,7 +152,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                   </p>
                 )}
               </div>
-              <VoucherListSheet />
+              <StaffVoucherListSheet />
             </div>
           ) : (
             <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
@@ -169,10 +169,10 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                     <span>{`${formatCurrency(subTotal || 0)}`}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      {t('menu.discount')}
+                    <span className="italic text-green-600">
+                      {t('menu.voucher')}
                     </span>
-                    <span className="text-xs text-green-600">
+                    <span className="text-sm italic text-green-600">
                       - {`${formatCurrency(discount)}`}
                     </span>
                   </div>
@@ -187,23 +187,16 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
 
                 {/* Order button */}
                 <div className='flex gap-4 justify-end mt-2 w-full h-24'>
-
-                  <div className='flex gap-2 justify-end items-center w-full h-fit'>
-                    {cartItems && (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) && (
-                      <span className='flex gap-1 items-center text-xs text-destructive'>
-                        <Info size={18} />
-                        {t('menu.noSelectedTable')}
-                      </span>
-                    )}
+                  <div className='grid grid-cols-2 gap-2 items-center w-full h-fit'>
                     <DrawerClose ref={drawerCloseRef} asChild>
                       <Button
                         variant="outline"
-                        className="rounded-full border border-gray-400 w-fit"
+                        className="rounded-full"
                       >
                         {tCommon('common.close')}
                       </Button>
                     </DrawerClose>
-                    <div className='flex justify-end w-fit'>
+                    <div className='flex justify-end w-full'>
                       <CreateOrderDialog
                         onSuccess={() => {
                           drawerCloseRef.current?.click();

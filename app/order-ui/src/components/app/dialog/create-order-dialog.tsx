@@ -143,7 +143,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         </DialogHeader>
 
         {/* Order Items List */}
-        <ScrollArea className="h-[calc(100vh-30rem)] sm:h-[calc(100vh-28rem)] px-4 flex flex-col gap-4">
+        <ScrollArea className="h-[calc(100vh-30rem)] sm:max-h-[calc(100vh-16rem)] px-4 flex flex-col gap-4">
           {/* Order Info */}
           <div className="p-2 space-y-2 text-sm rounded-md border border-primary/60 bg-primary/5">
             <div className="flex justify-between">

@@ -74,28 +74,29 @@ export default function CustomerSearchInput() {
     return (
         <div className='flex relative flex-col gap-3'>
             {/* Customer Information */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
                 <div className="relative">
                     <Input
+                        className='h-8 text-xs xl:text-sm'
                         placeholder={t('order.enterPhoneNumber')}
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                     />
                 </div>
                 {(cartItems?.ownerFullName || cartItems?.ownerPhoneNumber) && (
-                    <div className='flex gap-2 justify-between items-center p-2 w-full rounded-md border'>
+                    <div className='flex gap-2 justify-between items-center w-full'>
                         <div className='flex flex-col gap-1 justify-center items-start py-1 text-sm w-fit'>
-                            <span className='font-bold text-md'>
+                            <span className='text-xs font-bold xl:text-sm'>
                                 {cartItems?.ownerFullName}
                             </span>
-                            <span className='text-sm text-muted-foreground'>
+                            <span className='text-xs xl:text-sm text-muted-foreground'>
                                 {cartItems?.ownerPhoneNumber}
                             </span>
                         </div>
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button variant="outline" onClick={() => handleRemoveOwner()}>
+                                    <Button variant="outline" className='text-destructive bg-destructive/10 border-destructive hover:bg-destructive/10 hover:text-destructive' onClick={() => handleRemoveOwner()}>
                                         <CircleX />
                                     </Button>
                                 </TooltipTrigger>
@@ -113,7 +114,7 @@ export default function CustomerSearchInput() {
                 <div
                     ref={userListRef}
                     onScroll={handleScroll}
-                    className="overflow-y-auto absolute z-50 p-2 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-transparent"
+                    className="overflow-y-auto absolute z-50 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-transparent"
                 >
                     {users.map((user, index) => (
                         <div
@@ -125,10 +126,10 @@ export default function CustomerSearchInput() {
                                 <User2Icon className='w-4 h-4 text-primary' />
                             </div>
                             <div className='flex flex-col'>
-                                <div className="font-bold text-muted-foreground">
+                                <div className="text-sm font-bold text-muted-foreground">
                                     {user.firstName} {user.lastName}
                                 </div>
-                                <div className="text-sm text-muted-foreground">
+                                <div className="text-xs xl:text-sm text-muted-foreground">
                                     {user.phonenumber}
                                 </div>
                             </div>
