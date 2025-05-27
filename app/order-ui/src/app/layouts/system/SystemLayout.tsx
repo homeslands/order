@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { SidebarProvider, ScrollArea } from '@/components/ui'
@@ -7,7 +8,6 @@ import { cn } from '@/lib'
 import { DownloadProgress } from '@/components/app/progress'
 import { useDownloadStore, usePaymentMethodStore } from '@/stores'
 import { AppHeader, AppSidebar } from './components'
-import { useEffect } from 'react'
 import { ROUTE } from '@/constants'
 import StoreHydrationProvider from './store-hydration-provider'
 
