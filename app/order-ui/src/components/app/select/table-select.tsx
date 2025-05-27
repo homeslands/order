@@ -26,7 +26,7 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
     const { cartItems, addTable } = useCartItemStore()
     const { userInfo } = useUserStore()
     const { branch } = useBranchStore()
-    const { data: tables } = useTables(branch?.slug || userInfo?.branch?.slug || '')
+    const { data: tables } = useTables(userInfo?.branch?.slug || branch?.slug || '')
 
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>()
