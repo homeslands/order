@@ -56,31 +56,31 @@ export function SkeletonCart() {
 
 export function SkeletonMenuList() {
   return (
-    <div className="flex flex-row sm:flex-col justify-between bg-white rounded-xl border backdrop-blur-md border-muted-foreground/40 min-h-[8rem] sm:min-h-[22rem] dark:bg-transparent">
+    <div className="flex flex-row sm:flex-col justify-between bg-white rounded-xl border backdrop-blur-md border-muted-foreground/40 min-h-[8rem] sm:min-h-[13rem] dark:bg-transparent">
       {/* Image Section */}
-      <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-48">
-        <Skeleton className="w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-48 bg-muted-foreground/20" />
+      <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-24">
+        <Skeleton className="w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-24 bg-muted-foreground/20" />
       </div>
 
       {/* Content Section */}
       <div className="flex flex-col flex-1 justify-between p-2">
-        <div className="h-auto sm:h-[5rem]">
+        <div className="h-auto sm:h-[2rem]">
           <Skeleton className="mb-2 w-3/4 h-4 bg-muted-foreground/20" />
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <Skeleton className="w-full h-3 bg-muted-foreground/20" />
             <Skeleton className="w-2/3 h-3 bg-muted-foreground/20" />
-          </div>
+          </div> */}
         </div>
 
         <div className="flex flex-col gap-1">
           <Skeleton className="w-1/3 h-4 bg-muted-foreground/20" />
-          <Skeleton className="w-1/4 h-3 bg-muted-foreground/20" />
+          {/* <Skeleton className="w-1/4 h-3 bg-muted-foreground/20" /> */}
         </div>
       </div>
 
       {/* Action Button */}
       <div className="flex justify-end items-end p-2 sm:w-full">
-        <Skeleton className="w-8 h-8 rounded-full bg-muted-foreground/20" />
+        <Skeleton className="w-full h-9 rounded-full bg-muted-foreground/20" />
       </div>
     </div>
   )
