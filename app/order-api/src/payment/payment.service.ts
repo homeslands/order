@@ -142,7 +142,8 @@ export class PaymentService {
     if (order.payment) {
       if (
         order.payment.paymentMethod === PaymentMethod.BANK_TRANSFER &&
-        createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER
+        createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER &&
+        order.subtotal === order.payment.amount
       ) {
         this.logger.warn(
           `Order ${order.slug} already has a payment`,
@@ -219,9 +220,9 @@ export class PaymentService {
     this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
 
     // Delete previous payment
-    // if (order.payment) {
-    //   await this.paymentRepository.softRemove(order.payment);
-    // }
+    if (order.payment) {
+      await this.paymentRepository.softRemove(order.payment);
+    }
 
     // Update order
     order.payment = payment;
