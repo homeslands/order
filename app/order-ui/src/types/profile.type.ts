@@ -10,7 +10,6 @@ export interface IVerifyEmailRequest {
 }
 
 export interface IConfirmEmailVerificationRequest {
-  token: string // token get from url in email
   email: string
 }
 

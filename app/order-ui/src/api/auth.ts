@@ -3,7 +3,6 @@ import {
   ILoginResponse,
   IForgotPasswordRequest,
   IVerifyEmailRequest,
-  IConfirmEmailVerificationRequest,
   IGetAuthorityGroupsRequest,
   IAuthorityGroup,
   ICreatePermissionRequest,
@@ -54,18 +53,18 @@ export async function verifyEmail(
   verifyParams: IVerifyEmailRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
-    `/auth/request-verify-email`,
+    `/auth/initiate-verify-email`,
     verifyParams,
   )
   return response.data
 }
 
 export async function confirmEmailVerification(
-  confirmEmailVerificationParams: IConfirmEmailVerificationRequest,
+  code: string,
 ): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
-    `/auth/confirm-email-verification`,
-    confirmEmailVerificationParams,
+    `/auth/confirm-email-verification/code`,
+    { code },
   )
   return response.data
 }

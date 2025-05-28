@@ -52,7 +52,21 @@ export interface IThemeStore {
 export interface IUserStore {
   userInfo: IUserInfo | null
   setUserInfo: (userInfo: IUserInfo) => void
+  isVerifyingEmail: boolean
+  emailVerificationStatus: {
+    startedAt: number // timestamp
+  } | null
+  setEmailVerificationStatus: (
+    emailVerificationStatus: {
+      startedAt: number // timestamp
+    } | null,
+  ) => void
+  getEmailVerificationStatus: () => {
+    startedAt: number // timestamp
+  } | null
   getUserInfo: () => IUserInfo | null
+  getIsVerifyingEmail: () => boolean
+  setIsVerifyingEmail: (isVerifyingEmail: boolean) => void
   removeUserInfo: () => void
 }
 
