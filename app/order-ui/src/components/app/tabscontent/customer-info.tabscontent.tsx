@@ -16,16 +16,32 @@ import {
   UpdateCustomerProfileDialog,
   UpdatePasswordDialog,
 } from '../dialog'
+import { useUserStore } from '@/stores'
+import { useEffect, useState } from 'react'
 
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
-  const { data } = useProfile()
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
+  const { data, refetch } = useProfile()
+  const { emailVerificationStatus } = useUserStore()
+
+  // check if emailVerificationStatus is not null, then set isVerifyingEmail to true
+  useEffect(() => {
+    if (emailVerificationStatus?.startedAt) {
+      setIsVerifyingEmail(true)
+    }
+  }, [emailVerificationStatus?.startedAt])
 
   const handleCopyEmail = () => {
     if (userProfile?.email) {
       navigator.clipboard.writeText(userProfile.email)
       showToast(t('toast.copyEmailSuccess'))
     }
+  }
+
+  const handleVerifyEmailSuccess = () => {
+    setIsVerifyingEmail(false)
+    refetch()
   }
 
   const userProfile = data?.result
@@ -63,7 +79,7 @@ export function CustomerInfoTabsContent() {
             </div>
           ) : (
             <div className="flex items-center text-destructive">
-              <span className="text-xs">{t('profile.notVerified')}</span>
+              <span className="text-xs">{isVerifyingEmail ? t('profile.verifyingEmail') : t('profile.notVerified')}</span>
             </div>
           )}
         </div>
@@ -73,23 +89,25 @@ export function CustomerInfoTabsContent() {
             readOnly
             disabled
             placeholder={t('profile.email')}
-            className={`border bg-gray-100 ${userProfile?.isVerifiedEmail ? 'border-green-500' : 'border-destructive'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
+            className={`border ${userProfile?.isVerifiedEmail ? 'border-green-500 text-green-600 bg-green-50' : 'border-destructive text-destructive bg-destructive/10'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
           />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleCopyEmail}
-                  className="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2 hover:text-gray-700 dark:hover:text-gray-300"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                {t('profile.copyEmail')}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {userProfile?.email && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleCopyEmail}
+                    className="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2 hover:text-gray-700 dark:hover:text-gray-300"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {t('profile.copyEmail')}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
     ),
@@ -132,7 +150,9 @@ export function CustomerInfoTabsContent() {
     <div className="flex flex-col gap-4">
       <div className="flex gap-4 justify-center md:justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
-        <SendVerifyEmailDialog />
+        {!userProfile?.isVerifiedEmail && (
+          <SendVerifyEmailDialog onSuccess={handleVerifyEmailSuccess} />
+        )}
         <UpdatePasswordDialog />
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

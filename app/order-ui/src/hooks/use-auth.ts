@@ -15,7 +15,6 @@ import {
   IRegisterRequest,
   IForgotPasswordRequest,
   IVerifyEmailRequest,
-  IConfirmEmailVerificationRequest,
   IGetAuthorityGroupsRequest,
   ICreatePermissionRequest,
 } from '@/types'
@@ -64,8 +63,8 @@ export const useVerifyEmail = () => {
 
 export const useConfirmEmailVerification = () => {
   return useMutation({
-    mutationFn: async (data: IConfirmEmailVerificationRequest) => {
-      return confirmEmailVerification(data)
+    mutationFn: async (code: string) => {
+      return confirmEmailVerification(code)
     },
   })
 }
