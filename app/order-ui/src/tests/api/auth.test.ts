@@ -221,7 +221,7 @@ describe('Auth API', () => {
       const result = await verifyEmail(verifyParams)
 
       expect(http.post).toHaveBeenCalledWith(
-        '/auth/request-verify-email',
+        '/auth/initiate-verify-email',
         verifyParams,
       )
       expect(result).toEqual(mockResponse.data)
@@ -258,12 +258,12 @@ describe('Auth API', () => {
       const mockResponse = { data: { success: true } }
       ;(http.post as Mock).mockResolvedValue(mockResponse)
 
-      const token = 'verify-token'
-      const result = await confirmEmailVerification(token)
+      const code = 'verify-token'
+      const result = await confirmEmailVerification(code)
 
       expect(http.post).toHaveBeenCalledWith(
-        '/auth/confirm-email-verification',
-        { token },
+        '/auth/confirm-email-verification/code',
+        { code },
       )
       expect(result).toEqual(mockResponse.data)
     })
@@ -277,16 +277,16 @@ describe('Auth API', () => {
       }
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const token = 'expired-token'
-      await expect(confirmEmailVerification(token)).rejects.toEqual(mockError)
+      const code = 'expired-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(mockError)
     })
 
     it('should handle network error', async () => {
       const mockError = new Error('Network Error')
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const token = 'test-token'
-      await expect(confirmEmailVerification(token)).rejects.toEqual(mockError)
+      const code = 'test-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(mockError)
     })
 
     it('should handle server error', async () => {
