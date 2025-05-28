@@ -364,7 +364,7 @@ export class OrderService {
         // Cancel order after 10 minutes
         this.orderScheduler.handleDeleteOrder(
           createdOrder.slug,
-          10 * 60 * 1000,
+          15 * 60 * 1000,
         );
         return createdOrder;
       },
