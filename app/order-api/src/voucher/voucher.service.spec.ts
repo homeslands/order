@@ -324,7 +324,7 @@ describe('VoucherService', () => {
       mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
         ...queryRunner,
         manager: {
-          remove: jest.fn().mockResolvedValue(mockVoucherRepo),
+          softRemove: jest.fn().mockResolvedValue(mockVoucherRepo),
         },
       });
       mapperMock.map.mockReturnValue(mockVoucherOutput);
