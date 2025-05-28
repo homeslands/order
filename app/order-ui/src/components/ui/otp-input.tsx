@@ -157,7 +157,7 @@ export const OTPInput = React.forwardRef<HTMLDivElement, OTPInputProps>(
                         onClick={() => handleClick(index)}
                         disabled={disabled}
                         className={cn(
-                            'w-12 h-12 text-center text-lg font-semibold rounded-lg border-2 transition-all duration-200',
+                            'w-11 h-11 text-center text-lg font-semibold rounded-lg border-2 transition-all duration-200',
                             'focus:outline-none focus:ring-2 focus:ring-primary/20',
                             'disabled:cursor-not-allowed disabled:opacity-50',
                             'cursor-pointer',
