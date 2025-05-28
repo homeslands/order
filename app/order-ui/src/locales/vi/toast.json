@@ -311,6 +311,9 @@
     "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
     "exportVouchersSuccess": "Xuất voucher thành công",
     "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!",
-    "emailTokenExists": "Mã OTP chưa hết hạn. Vui lòng kiểm tra email để lấy mã OTP."
+    "emailTokenExists": "Mã OTP chưa hết hạn. Vui lòng kiểm tra email để lấy mã OTP.",
+    "emailTokenNotFound": "Mã OTP không tồn tại",
+    "emailTokenExpired": "Mã OTP đã hết hạn",
+    "errorWhenConfirmEmailVerification": "Lỗi khi xác thực email"
   }
 }

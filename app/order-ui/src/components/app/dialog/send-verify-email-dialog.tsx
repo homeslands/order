@@ -119,18 +119,18 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
     }
   }
 
-  const handleResendOtp = () => {
-    const data = form.getValues()
-    verifyEmail(data, {
-      onSuccess: (response) => {
-        setEmailVerificationStatus({
-          startedAt: response.timestamp,
-        })
-        showToast(t('toast.sendVerifyEmailSuccess'))
-        setOtpValue('')
-      },
-    })
-  }
+  // const handleResendOtp = () => {
+  //   const data = form.getValues()
+  //   verifyEmail(data, {
+  //     onSuccess: (response) => {
+  //       setEmailVerificationStatus({
+  //         startedAt: response.timestamp,
+  //       })
+  //       showToast(t('toast.sendVerifyEmailSuccess'))
+  //       setOtpValue('')
+  //     },
+  //   })
+  // }
 
   const handleCountdownExpired = () => {
     setEmailVerificationStatus(null)
@@ -211,23 +211,21 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
               )}
             </div>
 
-            <div className="flex flex-col gap-3">
-              <Button
-                onClick={handleVerifyOtp}
-                disabled={isVerifyingOtp || otpValue.length !== 6 || isConfirmingEmailVerification}
-                className="w-full"
-              >
-                {isVerifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : isConfirmingEmailVerification ? <Loader2 className="w-4 h-4 animate-spin" /> : t('profile.verifyOtp')}
-              </Button>
+            <Button
+              onClick={handleVerifyOtp}
+              disabled={isVerifyingOtp || otpValue.length !== 6 || isConfirmingEmailVerification}
+              className="w-full"
+            >
+              {isVerifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : isConfirmingEmailVerification ? <Loader2 className="w-4 h-4 animate-spin" /> : t('profile.verifyOtp')}
+            </Button>
 
-              <Button
+            {/* <Button
                 variant="outline"
                 onClick={handleResendOtp}
                 className="w-full"
               >
                 {t('profile.resendOtp')}
-              </Button>
-            </div>
+              </Button> */}
           </div>
         ) : (
           // Email Input Section
