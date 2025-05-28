@@ -1,0 +1,50 @@
+name: deploy-prod-for-staff
+
+on:
+  push:
+    branches:
+      - prod-for-staff
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production-staff
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Copy Environment Configuration
+        env:
+          ENV: ${{ secrets.ENV_PROD }}
+        run: |
+          echo "$ENV" > .deploy/prod-for-staff/.env
+
+      - name: Deploy with Docker Compose
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST_PROD_FOR_STAFF }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER_PROD_FOR_STAFF }}
+          SSH_PORT: ${{ secrets.SSH_PORT_PROD_FOR_STAFF }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_PROD_FOR_STAFF }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SSH_PORT $REMOTE_HOST >> ~/.ssh/known_hosts
+          export DOCKER_HOST="ssh://$REMOTE_USER@$REMOTE_HOST:$SSH_PORT"
+
+          # Export env. Docker swarm is not able to read .env file
+          set -o allexport
+          source .deploy/prod-for-staff/.env
+          set +o allexport
+
+          docker compose -f .deploy/prod-for-staff/docker-compose.yml pull
+          docker stack deploy -c .deploy/prod-for-staff/docker-compose.yml order_stack --detach=true
+
+          # Remove exited containers
+          docker rm $(docker ps -aq -f status=exited)
+
+          # clean up none image after built
+          docker image prune -f
