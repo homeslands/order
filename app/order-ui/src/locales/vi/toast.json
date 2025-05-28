@@ -310,6 +310,7 @@
     "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công",
     "exportPDFVouchersError": "Lỗi khi xuất hóa đơn voucher",
     "exportVouchersSuccess": "Xuất voucher thành công",
-    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!"
+    "ownerNotFoundForVoucher": "Vui lòng đăng nhập để dùng cho voucher này!",
+    "emailTokenExists": "Mã OTP chưa hết hạn. Vui lòng kiểm tra email để lấy mã OTP."
   }
 }
