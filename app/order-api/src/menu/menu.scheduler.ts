@@ -86,6 +86,7 @@ export class MenuScheduler {
             const newItem = new MenuItem();
             newItem.promotion = promotion;
             newItem.product = item.product;
+            newItem.isLocked = item.isLocked;
 
             // Assign stock if product is limited
             if (item.product.isLimit) {
