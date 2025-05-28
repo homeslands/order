@@ -525,7 +525,7 @@ export class VoucherService {
       throw new VoucherException(VoucherValidation.VOUCHER_HAS_ORDERS);
     }
     const deletedVoucher = await this.transactionService.execute<Voucher>(
-      async (manager) => await manager.remove(voucher),
+      async (manager) => await manager.softRemove(voucher),
       (result) =>
         this.logger.log(`Voucher deleted successfully: ${result}`, context),
       (error) => {

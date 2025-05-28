@@ -24,6 +24,8 @@ export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
   'VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE';
 export const INVALID_VOUCHER_SLUGS = 'INVALID_VOUCHER_SLUGS';
 export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
+export const MUST_VERIFY_EMAIL_TO_USE_VOUCHER =
+  'MUST_VERIFY_EMAIL_TO_USE_VOUCHER';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -44,7 +46,8 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_HAS_ORDERS
   | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE
   | typeof INVALID_VOUCHER_SLUGS
-  | typeof INVALID_VOUCHER_VALUE;
+  | typeof INVALID_VOUCHER_VALUE
+  | typeof MUST_VERIFY_EMAIL_TO_USE_VOUCHER;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -94,4 +97,8 @@ export const VoucherValidation: TVoucherErrorCode = {
   ),
   INVALID_VOUCHER_SLUGS: createErrorCode(143419, 'Invalid voucher slugs'),
   INVALID_VOUCHER_VALUE: createErrorCode(143420, 'Invalid voucher value'),
+  MUST_VERIFY_EMAIL_TO_USE_VOUCHER: createErrorCode(
+    143421,
+    'User must verify email to use voucher',
+  ),
 };
