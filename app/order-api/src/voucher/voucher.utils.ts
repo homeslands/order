@@ -100,6 +100,18 @@ export class VoucherUtils {
       if (user.role.name === RoleEnum.Customer) {
         // user order
         if (voucher.isVerificationIdentity) {
+          // check user already verify email or not
+          if (!user.isVerifiedEmail) {
+            this.logger.warn(
+              `User ${user.slug} must verify email to use voucher`,
+              context,
+            );
+            throw new VoucherException(
+              VoucherValidation.MUST_VERIFY_EMAIL_TO_USE_VOUCHER,
+            );
+          }
+
+          // check number of voucher used by user
           const orders = await this.orderUtils.getBulkOrders({
             where: {
               owner: {
