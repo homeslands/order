@@ -366,6 +366,8 @@
     "minOrderValueNotMet": "Order value must be greater than minimum required",
     "createGiftCardSuccess": "Gift card created successfully",
     "updateGiftCardSuccess": "Gift card updated successfully",
-    "deleteGiftCardSuccess": "Gift card deleted successfully"
+    "deleteGiftCardSuccess": "Gift card deleted successfully",
+    "emailVerified": "Email verified successfully",
+    "emailTokenExists": "OTP is still valid. Please check your email for the code"
   }
 }

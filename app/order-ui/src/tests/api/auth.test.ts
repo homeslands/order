@@ -258,12 +258,12 @@ describe('Auth API', () => {
       const mockResponse = { data: { success: true } }
       ;(http.post as Mock).mockResolvedValue(mockResponse)
 
-      const confirmParams = { token: 'verify-token', email: 'test@example.com' }
-      const result = await confirmEmailVerification(confirmParams)
+      const token = 'verify-token'
+      const result = await confirmEmailVerification(token)
 
       expect(http.post).toHaveBeenCalledWith(
         '/auth/confirm-email-verification',
-        confirmParams,
+        { token },
       )
       expect(result).toEqual(mockResponse.data)
     })
@@ -277,31 +277,22 @@ describe('Auth API', () => {
       }
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const confirmParams = {
-        token: 'expired-token',
-        email: 'test@example.com',
-      }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        mockError,
-      )
+      const token = 'expired-token'
+      await expect(confirmEmailVerification(token)).rejects.toEqual(mockError)
     })
 
     it('should handle network error', async () => {
       const mockError = new Error('Network Error')
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const confirmParams = { token: 'test-token', email: 'test@example.com' }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        mockError,
-      )
+      const token = 'test-token'
+      await expect(confirmEmailVerification(token)).rejects.toEqual(mockError)
     })
 
     it('should handle server error', async () => {
       ;(http.post as Mock).mockRejectedValue(serverError)
-      const confirmParams = { token: 'verify-token', email: 'test@example.com' }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        serverError,
-      )
+      const code = 'test-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(serverError)
     })
   })
 })
