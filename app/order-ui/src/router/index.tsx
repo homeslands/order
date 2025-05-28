@@ -59,6 +59,7 @@ import {
   PublicOrderDetailPage,
   ClientOrderSuccessPage,
   VoucherGroupPage,
+  GiftCardPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -82,7 +83,9 @@ export const router = createBrowserRouter([
       },
       {
         path: `${ROUTE.RESET_PASSWORD}`,
-        element: <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />,
+        element: (
+          <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />
+        ),
       },
       {
         path: ROUTE.VERIFY_EMAIL,
@@ -440,7 +443,9 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 // allowedRoles={[Role.CHEF, Role.MANAGER]}
-                element={<SuspenseElement component={MenuDetailManagementPage} />}
+                element={
+                  <SuspenseElement component={MenuDetailManagementPage} />
+                }
               />
             ),
           },
@@ -579,7 +584,9 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER]}
-                element={<SuspenseElement component={StaticPageManagementPage} />}
+                element={
+                  <SuspenseElement component={StaticPageManagementPage} />
+                }
               />
             ),
           },
@@ -738,6 +745,25 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={PromotionPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_GIFT_CARD,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={GiftCardPage} />}
               />
             ),
           },
