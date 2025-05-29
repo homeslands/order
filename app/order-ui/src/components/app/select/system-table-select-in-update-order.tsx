@@ -17,8 +17,7 @@ export default function SystemTableSelectInUpdateOrder({ order, onSuccess }: { o
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
     )
-    // const { getCartItems, addTable, removeTable } = useCartItemStore()
-    // const cartItems = getCartItems()
+
     const [reservedTable, setReservedTable] = useState<ITable | null>(null)
 
     // default selected table
@@ -27,13 +26,6 @@ export default function SystemTableSelectInUpdateOrder({ order, onSuccess }: { o
             setSelectedTableId(order.table?.slug)
         }
     }, [order])
-
-    // useEffect(() => {
-    //     const addedTable = cartItems?.table
-    //     if (addedTable) {
-    //         setSelectedTableId(addedTable)
-    //     }
-    // }, [cartItems?.table])
 
     const handleTableClick = (table: ITable) => {
         if (selectedTableId === table.slug) {

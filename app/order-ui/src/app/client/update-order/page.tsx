@@ -15,11 +15,11 @@ import {
 import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
 import { VoucherListSheetInUpdateOrder } from '@/components/app/sheet'
-import { useOrderBySlug } from '@/hooks'
+import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, OrderTypeEnum } from '@/types'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
 import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
@@ -27,20 +27,39 @@ import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 
 export default function ClientUpdateOrderPage() {
+    const navigate = useNavigate()
     const { t } = useTranslation('menu')
+    const { t: tToast } = useTranslation('toast')
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
     const { data: order, isPending, refetch } = useOrderBySlug(slug as string)
+    const { mutate: updateOrderType } = useUpdateOrderType()
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [type, setType] = useState<string>("")
-    const navigate = useNavigate()
+
     const [isExpired, setIsExpired] = useState<boolean>(false)
+
     useEffect(() => {
         if (order?.result) {
             setSelectedTable(order?.result.table)
             setType(order?.result.type)
         }
     }, [order])
+
+    // Add useEffect to trigger updateVoucherInOrder when selectedTable changes
+    useEffect(() => {
+        if (selectedTable && order?.result) {
+            // Only update if the selected table is different from the current order table
+            if (selectedTable.slug !== order?.result.table?.slug) {
+                updateOrderType({ slug: slug as string, params: { type, table: selectedTable?.slug || null } }, {
+                    onSuccess: () => {
+                        showToast(tToast('toast.updateOrderSuccess'))
+                    }
+                })
+            }
+        }
+    }, [selectedTable, updateOrderType, slug, order?.result, type, tToast])
+
     const orderItems = order?.result
 
     const originalTotal = orderItems
