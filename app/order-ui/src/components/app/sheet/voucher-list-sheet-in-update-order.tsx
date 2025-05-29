@@ -37,7 +37,7 @@ import {
   usePublicVouchersForOrder,
   useSpecificPublicVoucher,
   useSpecificVoucher,
-  useUpdateOrderType,
+  useUpdateVoucherInOrder,
   useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder,
@@ -45,7 +45,6 @@ import {
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IOrder,
-  IUpdateOrderTypeRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
@@ -69,7 +68,7 @@ export default function VoucherListSheetInUpdateOrder({
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
-  const { mutate: updateOrderType } = useUpdateOrderType()
+  const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -307,14 +306,8 @@ export default function VoucherListSheetInUpdateOrder({
     // Nếu đang bỏ chọn
     if (isSelected) {
       if (defaultValue) {
-        const params: IUpdateOrderTypeRequest = {
-          type: defaultValue.type,
-          table: defaultValue.table?.slug || null,
-          voucher: null,
-        }
-
-        updateOrderType(
-          { slug: defaultValue.slug, params },
+        updateVoucherInOrder(
+          { slug: defaultValue.slug, voucher: null },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -339,14 +332,8 @@ export default function VoucherListSheetInUpdateOrder({
 
     const onValidated = () => {
       if (defaultValue) {
-        const params: IUpdateOrderTypeRequest = {
-          type: defaultValue.type,
-          table: defaultValue.table?.slug || null,
-          voucher: voucher.slug,
-        }
-
-        updateOrderType(
-          { slug: defaultValue.slug, params },
+        updateVoucherInOrder(
+          { slug: defaultValue.slug, voucher: voucher.slug },
           {
             onSuccess: () => {
               if (userInfo) {

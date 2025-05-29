@@ -18,7 +18,7 @@ import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 // import UpdateOrderSkeleton from '@/components/app/skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
@@ -27,6 +27,7 @@ import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
 export default function UpdateOrderPage() {
     const { t } = useTranslation('menu')
     const { t: tHelmet } = useTranslation('helmet')
+    const { t: tToast } = useTranslation('toast')
     const { slug } = useParams()
     const { mutate: updateOrderType } = useUpdateOrderType()
     const { data: order, refetch } = useOrderBySlug(slug as string)
@@ -88,6 +89,7 @@ export default function UpdateOrderPage() {
     }
 
     const handleUpdateOrderTypeSuccess = () => {
+        showToast(tToast('toast.updateOrderSuccess'))
         refetch()
     }
 
