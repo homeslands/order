@@ -55,7 +55,7 @@ export class MailService {
     this.logger.log(`Email sent to ${user.email}`, context);
   }
 
-  async sendVerifyEmail(user: User, url: string, email: string) {
+  async sendVerifyEmail(user: User, code: string, email: string) {
     const context = `${MailService.name}.${this.sendVerifyEmail.name}`;
     await this.mailProducer.sendMail({
       to: email,
@@ -63,7 +63,7 @@ export class MailService {
       template: resolve('public/templates/mail/verify-email'),
       context: {
         name: `${user.firstName} ${user.lastName}`,
-        url,
+        code,
       },
     });
     this.logger.log(`Email is sending to ${email}`, context);
