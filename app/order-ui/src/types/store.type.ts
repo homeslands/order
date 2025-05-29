@@ -73,15 +73,24 @@ export interface IUserStore {
 export interface IPaymentMethodStore {
   paymentMethod: PaymentMethod
   setPaymentMethod: (paymentMethod: PaymentMethod) => void
+  orderSlug: string
+  setOrderSlug: (orderSlug: string) => void
   qrCode: string
   setQrCode: (qrCode: string) => void
   paymentSlug: string
   setPaymentSlug: (paymentSlug: string) => void
+  clearPaymentData: () => void
   clearStore: () => void
 }
 
 export interface IPaymentStore {
+  paymentMethod: PaymentMethod
+  setPaymentMethod: (paymentMethod: PaymentMethod) => void
   orderSlug: string
   setOrderSlug: (orderSlug: string) => void
+  qrCode: string
+  setQrCode: (qrCode: string) => void
+  paymentSlug: string
+  setPaymentSlug: (paymentSlug: string) => void
   clearStore: () => void
 }

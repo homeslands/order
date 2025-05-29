@@ -311,6 +311,8 @@
     "emailTokenExists": "Mã OTP chưa hết hạn. Vui lòng kiểm tra email để lấy mã OTP.",
     "emailTokenNotFound": "Mã OTP không tồn tại",
     "emailTokenExpired": "Mã OTP đã hết hạn",
-    "errorWhenConfirmEmailVerification": "Lỗi khi xác thực email"
+    "errorWhenConfirmEmailVerification": "Lỗi khi xác thực email",
+    "orderAlreadyHasPayment": "Đơn hàng đã có QR code thanh toán!",
+    "qrCodeRestored": "QR code thanh toán đã được khôi phục"
   }
 }
