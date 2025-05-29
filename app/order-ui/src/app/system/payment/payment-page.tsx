@@ -275,7 +275,7 @@ export default function PaymentPage() {
                         <div className="flex col-span-1 items-center">
                           <span className="flex gap-2 items-center text-sm">
                             {item?.promotion?.value &&
-                              <span className='line-through text-muted-foreground/70 sm:block'>
+                              <span className='text-xs line-through sm:text-sm text-muted-foreground/70 sm:block'>
                                 {`${formatCurrency(item.variant.price || 0)}`}
                               </span>}
                             <span className="text-sm font-bold text-primary">
@@ -365,7 +365,8 @@ export default function PaymentPage() {
               {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
                 paymentMethod === PaymentMethod.CASH) && (
                   <div className="flex gap-2 justify-end">
-                    {paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER ?
+                    {(paymentSlug && qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER) || (order?.result?.payment?.amount != null && order?.result?.subtotal != null &&
+                      order.result.payment.amount === order.result.subtotal) ?
                       <>
                         <DownloadQrCode qrCode={qrCode} slug={slug} />
                         <Button
