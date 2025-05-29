@@ -427,7 +427,7 @@ export class AuthService {
       }
     }
 
-    const token = getRandomString().slice(0, 6);
+    const token = getRandomString().slice(0, 6).toUpperCase();
     const verifyEmailToken = new VerifyEmailToken();
     Object.assign(verifyEmailToken, {
       expiresAt: moment()
