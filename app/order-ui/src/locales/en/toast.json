@@ -371,6 +371,8 @@
     "emailTokenExists": "OTP is still valid. Please check your email for the code",
     "emailTokenNotFound": "OTP not found",
     "emailTokenExpired": "OTP expired",
-    "errorWhenConfirmEmailVerification": "Error when confirming email verification"
+    "errorWhenConfirmEmailVerification": "Error when confirming email verification",
+    "orderAlreadyHasPayment": "Order already has payment QR code!",
+    "qrCodeRestored": "Payment QR code has been restored"
   }
 }
