@@ -4,16 +4,16 @@ import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { OrderTypeEnum } from '@/types'
-import { useThemeStore } from '@/stores'
+import { useOrderTypeStore, useThemeStore } from '@/stores'
 
 interface OrderTypeSelectProps {
   typeOrder?: string
-  onChange?: (orderType: string) => void
 }
 
-export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelectProps) {
+export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
   const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
+  const { orderType, addOrderType } = useOrderTypeStore()
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
     return [
       {
@@ -26,28 +26,15 @@ export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelect
       },
     ]
   })
-  // const [selectedType, setSelectedType] = useState<{
-  //   value: string
-  //   label: string
-  // }>()
-
-  // useEffect(() => {
-  //   const result = orderTypes.find((type) => type.value === typeOrder)
-  //   setSelectedType(result)
-  // }, [])
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
   ) => {
     if (selectedOption) {
-      if (onChange) {
-        onChange(selectedOption.value)
-      }
-      if (selectedOption && selectedOption.value === OrderTypeEnum.TAKE_OUT) {
-        if (onChange) {
-          onChange(selectedOption.value)
-        }
-      }
+      addOrderType(selectedOption.value as OrderTypeEnum)
+      // if (onChange) {
+      //   onChange(selectedOption.value)
+      // }
     }
   }
   return (
@@ -84,7 +71,7 @@ export default function OrderTypeSelect({ typeOrder, onChange }: OrderTypeSelect
           color: getTheme() === 'light' ? 'black' : 'white',
         }),
       }}
-      value={orderTypes.find((type) => type.value === typeOrder)}
+      value={orderTypes.find((type) => type.value === (orderType || typeOrder))}
       options={orderTypes}
       onChange={handleChange}
     />
