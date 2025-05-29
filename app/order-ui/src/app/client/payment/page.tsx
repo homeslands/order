@@ -85,13 +85,16 @@ export function ClientPaymentPage() {
       } else if (orderData?.payment && orderData.payment.amount !== orderData.subtotal) {
         // Case 2: Payment exists but amount doesn't match - start polling for status updates
         setIsPolling(true)
+      } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
+        // Case 3: Payment exists but no QR code (amount < 2000) - start polling
+        setIsPolling(true)
       } else {
         setIsPolling(false)
       }
     } else {
       setIsPolling(false)
     }
-  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod])
+  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -104,6 +107,13 @@ export function ClientPaymentPage() {
           // Always ensure loading is false before navigating
           setIsLoading(false)
           navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+        } else {
+          // Turn off loading if order is updated but not yet paid (for orders without QR code)
+          const updatedOrderData = updatedOrder.data?.result
+          if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
+            updatedOrderData.payment.amount === updatedOrderData.subtotal) {
+            setIsLoading(false)
+          }
         }
       }, 2000)
     }
@@ -128,10 +138,13 @@ export function ClientPaymentPage() {
         initiatePublicPayment(
           { orderSlug: slug, paymentMethod },
           {
-            onSuccess: () => {
+            onSuccess: (data) => {
               refetchOrder()
               setIsPolling(true)
-              setIsLoading(false)
+              // Only turn off loading if we get a QR code (amount > 2000)
+              if (data.result.qrCode) {
+                setIsLoading(false)
+              }
             },
             onError: () => {
               setIsLoading(false)
@@ -156,10 +169,13 @@ export function ClientPaymentPage() {
         initiatePayment(
           { orderSlug: slug, paymentMethod },
           {
-            onSuccess: () => {
+            onSuccess: (data) => {
               refetchOrder()
               setIsPolling(true)
-              setIsLoading(false)
+              // Only turn off loading if we get a QR code (amount > 2000)
+              if (data.result.qrCode) {
+                setIsLoading(false)
+              }
             },
             onError: () => {
               setIsLoading(false)
@@ -184,10 +200,13 @@ export function ClientPaymentPage() {
         initiatePayment(
           { orderSlug: slug, paymentMethod },
           {
-            onSuccess: () => {
+            onSuccess: (data) => {
               refetchOrder()
               setIsPolling(true)
-              setIsLoading(false)
+              // Only turn off loading if we get a QR code (amount > 2000)
+              if (data.result.qrCode) {
+                setIsLoading(false)
+              }
             },
             onError: () => {
               setIsLoading(false)
