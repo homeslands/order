@@ -101,34 +101,11 @@ export class ForgotPasswordRequestDto {
   newPassword: string;
 }
 
-export class EmailVerificationRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsString()
-  email: string;
-
-  @ApiProperty()
-  @AutoMap()
-  @IsString()
-  accessToken: string;
-}
 export class InitiateVerifyEmailRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()
   email: string;
-}
-
-export class ConFirmEmailVerificationRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsString()
-  email: string;
-
-  @ApiProperty()
-  @AutoMap()
-  @IsString()
-  token: string;
 }
 export class ConfirmEmailVerificationCodeRequestDto {
   @ApiProperty()
