@@ -14,8 +14,14 @@ export default function ClientViewLayout() {
   const { clearStore } = usePaymentMethodStore()
 
   useEffect(() => {
+    // Chỉ clear store khi rời khỏi trang payment hoàn toàn
+    // Không clear khi đang ở trang payment để payment page tự quản lý
     if (!location.pathname.startsWith(ROUTE.STAFF_ORDER_PAYMENT)) {
-      clearStore()
+      // Chỉ clear khi thực sự rời khỏi payment flow
+      const isLeavingPaymentFlow = !location.pathname.includes('payment')
+      if (isLeavingPaymentFlow) {
+        clearStore()
+      }
     }
   }, [location.pathname, clearStore])
   return (
