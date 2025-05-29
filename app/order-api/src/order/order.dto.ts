@@ -102,14 +102,16 @@ export class UpdateOrderRequestDto {
   table?: string;
 
   @AutoMap()
-  @ApiProperty({ description: 'The slug of voucher' })
-  @IsOptional()
-  voucher?: string;
-
-  @AutoMap()
   @ApiProperty({ description: 'The description of order' })
   @IsOptional()
   description?: string;
+}
+
+export class UpdateVoucherOrderRequestDto {
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of voucher' })
+  @IsOptional()
+  voucher?: string;
 }
 
 export class OwnerResponseDto extends BaseResponseDto {
