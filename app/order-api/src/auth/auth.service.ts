@@ -17,8 +17,6 @@ import {
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   UpdateAuthProfileRequestDto,
-  EmailVerificationRequestDto,
-  ConFirmEmailVerificationRequestDto,
   InitiateVerifyEmailRequestDto,
   ConfirmEmailVerificationCodeRequestDto,
 } from './auth.dto';
@@ -250,126 +248,6 @@ export class AuthService {
     return url;
   }
 
-  /**
-   * Handles the creation of a verify email token.
-   * This method creates a new verify email token for the user and sends an email to the user with the verification link.
-   * @param {EmailVerificationRequestDto} requestData
-   * @returns {Promise<string>} Return URL to help client verify email
-   * @throws {AuthException} throws exception if user not found, token is invalid
-   * @throws {BranchException} throws exception if branch is not found
-   * @memberof AuthService
-   */
-  async createVerifyEmail(
-    requestData: EmailVerificationRequestDto,
-  ): Promise<string> {
-    const context = `${AuthService.name}.${this.createVerifyEmail.name}`;
-    this.logger.log(
-      `Request verify email ${JSON.stringify(requestData)}`,
-      context,
-    );
-
-    try {
-      this.jwtService.verify(requestData.accessToken);
-    } catch (error) {
-      this.logger.error(
-        AuthValidation.INVALID_TOKEN.message,
-        error.stack,
-        context,
-      );
-      throw new AuthException(AuthValidation.INVALID_TOKEN);
-    }
-    const payload: AuthJwtPayload = this.jwtService.decode(
-      requestData.accessToken,
-    );
-    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
-
-    const user = await this.userUtils.getUser({
-      where: {
-        id: payload.sub,
-      },
-    });
-
-    const existingToken = await this.verifyEmailRepository.findOne({
-      where: {
-        user: {
-          id: user.id,
-        },
-        expiresAt: MoreThan(new Date()),
-      },
-    });
-    if (existingToken) {
-      this.logger.warn(`User ${user.id} already has a valid token`, context);
-      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_ALREADY_EXISTS);
-    }
-
-    // Check email in system except current user
-    const existedEmailInSystem = await this.userRepository.findOne({
-      where: {
-        email: requestData.email,
-        id: Not(user.id),
-      },
-    });
-    if (existedEmailInSystem) {
-      this.logger.warn(AuthValidation.EMAIL_ALREADY_EXISTS.message, context);
-      throw new AuthException(AuthValidation.EMAIL_ALREADY_EXISTS);
-    }
-
-    const existedEmailCurrentUser = await this.userRepository.findOne({
-      where: {
-        email: requestData.email,
-        id: user.id,
-      },
-    });
-    if (existedEmailCurrentUser) {
-      if (user.isVerifiedEmail) {
-        this.logger.warn(
-          AuthValidation.THIS_EMAIL_ALREADY_VERIFY.message,
-          context,
-        );
-        throw new AuthException(AuthValidation.THIS_EMAIL_ALREADY_VERIFY);
-      }
-    }
-
-    const generatedPayload = { sub: user.id, jti: uuidv4() };
-    const expiresIn = 120; // 2 minutes
-    const token = this.jwtService.sign(generatedPayload, {
-      expiresIn: expiresIn,
-    });
-
-    const verifyEmailToken = new VerifyEmailToken();
-    Object.assign(verifyEmailToken, {
-      expiresAt: moment().add(expiresIn, 'seconds').toDate(),
-      token,
-      user,
-      email: requestData.email,
-    } as VerifyEmailToken);
-
-    const url = `${await this.getFrontendUrl()}/verify-email?token=${token}&email=${requestData.email}`;
-
-    await this.transactionManagerService.execute(
-      async (manager) => {
-        await manager.save(verifyEmailToken);
-        await this.mailService.sendVerifyEmail(user, url, requestData.email);
-      },
-      () => {
-        this.logger.log(
-          `User ${user.id} created verified email token`,
-          context,
-        );
-      },
-      (error) => {
-        this.logger.error(
-          `Error when create verify email token`,
-          error.stack,
-          context,
-        );
-        throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
-      },
-    );
-
-    return url;
-  }
-
   async initiateVerifyEmail(
     currentUserDto: CurrentUserDto,
     requestData: InitiateVerifyEmailRequestDto,
@@ -462,91 +340,11 @@ export class AuthService {
     return true;
   }
 
-  /**
-   * Confirm email verification.
-   * This method verifies the email verification token and updates the user's email.
-   * @param {ConFirmEmailVerificationRequestDto} requestData
-   * @returns {Promise<boolean>} Return true if email is verified successfully
-   * @throws {AuthException} throws exception if token is invalid, expired, user not found
-   */
-  async confirmEmailVerification(
-    requestData: ConFirmEmailVerificationRequestDto,
-  ): Promise<boolean> {
-    const context = `${AuthService.name}.${this.confirmEmailVerification.name}`;
-
-    const existToken = await this.verifyEmailRepository.findOne({
-      where: {
-        token: requestData.token,
-        expiresAt: MoreThan(new Date()),
-      },
-    });
-    if (!existToken) {
-      this.logger.warn(`Verify token is not existed`, context);
-      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
-    }
-
-    let isExpiredToken = false;
-    try {
-      this.jwtService.verify(requestData.token);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      isExpiredToken = true;
-    }
-    if (isExpiredToken) {
-      this.logger.warn(
-        AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED.message,
-        context,
-      );
-      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED);
-    }
-
-    // Get payload
-    const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
-    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
-
-    const user = await this.userUtils.getUser({
-      where: {
-        id: payload.sub,
-      },
-    });
-
-    user.email = requestData.email;
-    user.isVerifiedEmail = true;
-
-    // Set token expired after forgot password successfully
-    existToken.expiresAt = new Date(Date.now() - 120000); // Set expiry time to the past
-
-    await this.transactionManagerService.execute(
-      async (manager) => {
-        await manager.save(user);
-        await manager.save(existToken);
-      },
-      () => {
-        this.logger.log(
-          `User ${user.id} confirmed email verification token`,
-          context,
-        );
-      },
-      (error) => {
-        this.logger.error(
-          `Error when confirm email verification`,
-          error.stack,
-          context,
-        );
-        throw new AuthException(
-          AuthValidation.CONFIRM_EMAIL_VERIFICATION_ERROR,
-        );
-      },
-    );
-
-    return true;
-  }
-
   async confirmEmailVerificationCode(
     currentUserDto: CurrentUserDto,
     requestData: ConfirmEmailVerificationCodeRequestDto,
   ): Promise<boolean> {
-    const context = `${AuthService.name}.${this.confirmEmailVerification.name}`;
+    const context = `${AuthService.name}.${this.confirmEmailVerificationCode.name}`;
 
     const user = await this.userUtils.getUser({
       where: {
