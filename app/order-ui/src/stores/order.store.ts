@@ -1,4 +1,11 @@
-import { IOrder, IOrderDetail, IOrderStore, IOrderTrackingStore } from '@/types'
+import {
+  IOrder,
+  IOrderDetail,
+  IOrderStore,
+  IOrderTrackingStore,
+  IOrderTypeStore,
+  OrderTypeEnum,
+} from '@/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -102,6 +109,51 @@ export const useOrderTrackingStore = create<IOrderTrackingStore>()(
     }),
     {
       name: 'order-tracking-store',
+    },
+  ),
+)
+
+export const useOrderTypeStore = create<IOrderTypeStore>()(
+  persist(
+    (set, get) => ({
+      orderType: OrderTypeEnum.AT_TABLE,
+      table: null,
+      getOrderType: () => get().orderType,
+      getTable: () => get().table,
+      addOrderType: (orderType: OrderTypeEnum) => {
+        set((state) => ({
+          ...state,
+          orderType,
+          ...(orderType === OrderTypeEnum.TAKE_OUT && { table: '' }),
+        }))
+      },
+      removeOrderType: () => {
+        set((state) => ({
+          ...state,
+          orderType: OrderTypeEnum.AT_TABLE,
+        }))
+      },
+      addTable: (table: string) => {
+        set((state) => ({
+          ...state,
+          table,
+        }))
+      },
+      removeTable: () => {
+        set((state) => ({
+          ...state,
+          table: null,
+        }))
+      },
+      clearStore: () => {
+        set({
+          orderType: OrderTypeEnum.AT_TABLE,
+          table: null,
+        })
+      },
+    }),
+    {
+      name: 'order-type-store',
     },
   ),
 )

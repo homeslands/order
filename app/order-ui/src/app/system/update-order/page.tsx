@@ -17,12 +17,13 @@ import { StaffVoucherListSheetInUpdateOrder } from '@/components/app/sheet'
 import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 // import UpdateOrderSkeleton from '@/components/app/skeleton/page'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
-import { ITable, IUpdateOrderTypeRequest, OrderTypeEnum } from '@/types'
+import { OrderTypeEnum } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
+import { useOrderTypeStore } from '@/stores'
 
 export default function UpdateOrderPage() {
     const { t } = useTranslation('menu')
@@ -31,35 +32,33 @@ export default function UpdateOrderPage() {
     const { slug } = useParams()
     const { mutate: updateOrderType } = useUpdateOrderType()
     const { data: order, refetch } = useOrderBySlug(slug as string)
-    const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
-    const [type, setType] = useState<string>("")
+    const { orderType, table, addOrderType, addTable, clearStore } = useOrderTypeStore()
     const navigate = useNavigate()
     const [isExpired, setIsExpired] = useState<boolean>(false)
 
     useEffect(() => {
         if (order?.result) {
-            setSelectedTable(order?.result.table)
-            setType(order?.result.type)
+            addOrderType(order?.result.type as OrderTypeEnum)
+            addTable(order?.result.table?.slug || "")
         }
-    }, [order])
+    }, [order, addOrderType, addTable])
 
-    const handleTypeChange = (value: string) => {
-        setType(value)
-        let params: IUpdateOrderTypeRequest | null = null
-        if (value === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
-            params = { type: value, table: selectedTable.slug }
-        } else {
-            params = { type: value, table: null }
-        }
-        updateOrderType(
-            { slug: slug as string, params },
-            {
-                onSuccess: () => {
-                    refetch()
-                }
-            }
-        )
-    }
+    // const handleTypeChange = (value: string) => {
+    //     let params: IUpdateOrderTypeRequest | null = null
+    //     if (value === OrderTypeEnum.AT_TABLE && selectedTable?.slug) {
+    //         params = { type: value, table: selectedTable.slug }
+    //     } else {
+    //         params = { type: value, table: null }
+    //     }
+    //     updateOrderType(
+    //         { slug: slug as string, params },
+    //         {
+    //             onSuccess: () => {
+    //                 refetch()
+    //             }
+    //         }
+    //     )
+    // }
 
     const orderItems = order?.result
 
@@ -100,27 +99,15 @@ export default function UpdateOrderPage() {
         setIsExpired(value)
     }, [])
 
-    // const handleClickPayment = () => {
-    //     // Update order type
-    //     let params: IUpdateOrderTypeRequest | null = null
-    //     if (type === OrderTypeEnum.AT_TABLE) {
-    //         params = { type: type, table: selectedTable?.slug || null, voucher: orderItems?.voucher?.slug || null }
-    //     } else {
-    //         params = { type: type, table: null, voucher: orderItems?.voucher?.slug || null }
-    //     }
-    //     updateOrderType({ slug: slug as string, params }, {
-    //         onSuccess: () => {
-    //             showToast(tToast('order.updateOrderSuccess'))
-    //             navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
-    //             refetch()
-    //         }
-    //     })
-    // }
-
     const handleClickPayment = () => {
-        navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
+        updateOrderType({ slug: slug as string, params: { type: orderType, table: table } }, {
+            onSuccess: () => {
+                clearStore()
+                showToast(tToast('toast.updateOrderSuccess'))
+                navigate(`${ROUTE.STAFF_ORDER_PAYMENT}?order=${orderItems?.slug}`)
+            }
+        })
     }
-    // if (isPending) { return <UpdateOrderSkeleton /> }
 
     if (isExpired) {
         return (
@@ -163,14 +150,14 @@ export default function UpdateOrderPage() {
                     <div className="w-full lg:w-3/5">
                         {/* Menu & Table select */}
                         <ScrollArea className="h-[calc(100vh-9rem)]">
-                            <SystemMenuInUpdateOrderTabs type={type} order={order.result} onSuccess={handleUpdateOrderTypeSuccess} />
+                            <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleUpdateOrderTypeSuccess} />
                         </ScrollArea>
                     </div>
 
                     {/* Right content */}
 
                     <div className="w-full lg:w-2/5">
-                        <OrderTypeInUpdateOrderSelect onChange={handleTypeChange} typeOrder={type} />
+                        <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
                         <ScrollArea className="h-[calc(55vh)] sm:h-[calc(73vh)] sm:px-4">
                             {/* Table list order items */}
                             <div className="mt-4">
@@ -281,7 +268,7 @@ export default function UpdateOrderPage() {
                         {order?.result?.status === "pending" &&
                             <div className="flex justify-end mt-3 w-full">
                                 <Button
-                                    disabled={(type === OrderTypeEnum.AT_TABLE && !selectedTable) || orderItems?.orderItems.length === 0}
+                                    disabled={(orderType === OrderTypeEnum.AT_TABLE && !table) || orderItems?.orderItems.length === 0}
                                     onClick={handleClickPayment}>{t('order.continueToPayment')}</Button>
                             </div>}
                     </div>

@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { useTables, useUpdateOrderType } from '@/hooks'
-import { useUserStore } from '@/stores'
+import { useTables } from '@/hooks'
+import { useOrderTypeStore, useUserStore } from '@/stores'
 import { IOrder, ITable, OrderTypeEnum } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
 import { NonResizableTableItem } from '../../../app/system/table'
 
-export default function SystemTableSelectInUpdateOrder({ order, onSuccess }: { order: IOrder, onSuccess: () => void }) {
+export default function SystemTableSelectInUpdateOrder({ order }: { order: IOrder }) {
     const { t } = useTranslation(['table'])
     const { getUserInfo } = useUserStore()
-    const { slug } = useParams()
-    const { mutate: updateOrderType } = useUpdateOrderType()
+    const { addTable } = useOrderTypeStore()
     const { data: tables } = useTables(getUserInfo()?.branch.slug)
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
@@ -31,34 +29,24 @@ export default function SystemTableSelectInUpdateOrder({ order, onSuccess }: { o
         if (selectedTableId === table.slug) {
             // Remove table for any status
             setSelectedTableId(undefined)
-            updateOrderType({ slug: slug as string, params: { type: OrderTypeEnum.AT_TABLE, table: null } }, {
-                onSuccess: () => {
-                    onSuccess()
-                }
-            })
+            // updateOrderType({ slug: slug as string, params: { type: OrderTypeEnum.AT_TABLE, table: null } }, {
+            //     onSuccess: () => {
+            //         onSuccess()
+            //     }
+            // })
         } else {
             if (table.status === 'reserved') {
                 setReservedTable(table) // Show confirmation dialog
             } else if (table.status === 'available') {
                 setSelectedTableId(table.slug)
-                // addTable(table)
-                updateOrderType({ slug: slug as string, params: { type: OrderTypeEnum.AT_TABLE, table: table.slug } }, {
-                    onSuccess: () => {
-                        onSuccess()
-                    }
-                })
+                addTable(table.slug)
             }
         }
     }
 
     const confirmAddReservedTable = (table: ITable) => {
         setSelectedTableId(table.slug)
-        // addTable(table)
-        updateOrderType({ slug: slug as string, params: { type: OrderTypeEnum.AT_TABLE, table: table.slug } }, {
-            onSuccess: () => {
-                onSuccess()
-            }
-        })
+        addTable(table.slug)
         setReservedTable(null) // Close the dialog
     }
 

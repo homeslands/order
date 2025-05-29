@@ -1,10 +1,22 @@
-import { IOrder, IOrderDetail } from './dish.type'
+import { IOrder, IOrderDetail, OrderTypeEnum } from './dish.type'
 
 export interface IOrderStore {
   order: IOrder | null
   getOrder: () => IOrder | null
   addOrder: (order: IOrder) => void
   removeOrder: () => void
+}
+
+export interface IOrderTypeStore {
+  orderType: OrderTypeEnum
+  table: string | null
+  getOrderType: () => OrderTypeEnum
+  getTable: () => string | null
+  addOrderType: (orderType: OrderTypeEnum) => void
+  addTable: (table: string) => void
+  removeOrderType: () => void
+  removeTable: () => void
+  clearStore: () => void
 }
 
 export interface ISelectedOrderStore {
