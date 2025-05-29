@@ -1,20 +1,12 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import { MoreHorizontal } from 'lucide-react'
-
-import {
-  Button,
-  DataTableColumnHeader,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui'
+import { CoinsIcon } from 'lucide-react'
 import { UpdateGiftCardSheet } from '@/components/app/sheet'
 import { DeleteGiftCardDialog } from '@/components/app/dialog'
 import { IGiftCard } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL, GiftCardStatus } from '@/constants'
+
 
 export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
   const { t } = useTranslation(['giftCard', 'common'])
@@ -23,9 +15,7 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
   return [
     {
       accessorKey: 'slug',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.slug')} />
-      ),
+      header: () => <div className="">{t('giftCard.slug')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
         return <div className="text-sm">{giftCard?.slug}</div>
@@ -33,19 +23,18 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
     },
     {
       accessorKey: 'image',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.image')} />
-      ),
+      header: () => <div className="w-28">{t('giftCard.image')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
+        const url = giftCard?.image ? `${publicFileURL}/${giftCard.image}` : ''
         return (
           <div className="flex items-center gap-2">
             <img
-              src={giftCard?.image ? `${publicFileURL}/${giftCard.image}` : ''}
+              src={url}
               alt={giftCard?.title}
               className="h-20 w-20 rounded-md object-cover"
               onError={(e) => {
-                e.currentTarget.src = 'https://placehold.co/40x40?text=No+Image'
+                e.currentTarget.src = 'https://placehold.co/41x40?text=No+Image'
               }}
             />
           </div>
@@ -54,13 +43,11 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
     },
     {
       accessorKey: 'title',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.title')} />
-      ),
+      header: () => <div className="w-52">{t('giftCard.title')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-52">
             <span className="text-sm">{giftCard.title}</span>
           </div>
         )
@@ -68,16 +55,11 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
     },
     {
       accessorKey: 'description',
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t('giftCard.description')}
-        />
-      ),
+      header: () => <div className="w-96">{t('giftCard.description')}</div>,
       cell: ({ row }) => {
         const description = row.getValue('description')
         return (
-          <div className="max-w-[200px] truncate text-sm">
+          <div className="w-96 text-sm">
             {String(description)}
           </div>
         )
@@ -85,33 +67,28 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
     },
     {
       accessorKey: 'points',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.points')} />
-      ),
+      header: () => <div className="w-28">{t('giftCard.points')}</div>,
       cell: ({ row }) => {
         const points = row.getValue('points') as number
-        return (
-          <div className="text-sm">
-            {new Intl.NumberFormat().format(Number(points))}
-          </div>
-        )
+        return <div className="text-sm flex items-center gap-2">
+          {formatCurrency(points, '')}
+          <CoinsIcon className="w-5 h-5 text-yellow-500" />
+        </div>
       },
     },
     {
       accessorKey: 'price',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.price')} />
-      ),
+      header: () => <div className="w-28">{t('giftCard.price')}</div>,
       cell: ({ row }) => {
         const amount = row.getValue('price') as number
-        return <div className="text-sm">{formatCurrency(amount)}</div>
+        return <div className="text-sm flex items-center gap-2">
+          {formatCurrency(amount)}
+        </div>
       },
     },
     {
       accessorKey: 'isActive',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('giftCard.status')} />
-      ),
+      header: () => <div className="w-32">{t('giftCard.status')}</div>,
       cell: ({ row }) => {
         const isActive = row.getValue('isActive') as boolean
         const status = isActive
@@ -119,11 +96,10 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
           : GiftCardStatus.INACTIVE
         return (
           <div
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              isActive
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-            }`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive
+              ? 'bg-green-500 text-white '
+              : 'bg-yellow-500 text-white'
+              }`}
           >
             {t(`giftCard.${status.toLowerCase()}`)}
           </div>
@@ -136,22 +112,9 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       cell: ({ row }) => {
         const giftCard = row.original
         return (
-          <div className="w-[4rem]">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">{tCommon('common.action')}</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="flex flex-col gap-2">
-                <DropdownMenuLabel>
-                  {tCommon('common.action')}
-                </DropdownMenuLabel>
-                <UpdateGiftCardSheet giftCard={giftCard} />
-                <DeleteGiftCardDialog giftCard={giftCard} />
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex gap-2 items-center w-20">
+            <UpdateGiftCardSheet giftCard={giftCard} />
+            <DeleteGiftCardDialog giftCard={giftCard} />
           </div>
         )
       },
