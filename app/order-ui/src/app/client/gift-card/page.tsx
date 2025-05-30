@@ -2,22 +2,30 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { Gift } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 import { useGetGiftCards } from '@/hooks'
-import { GiftCardItem, GiftCardPagination, GiftCardHeader } from './components'
+import {
+  GiftCardItem,
+  GiftCardPagination,
+  GiftCardHeader,
+  GiftCardSelected,
+} from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
+import { IGiftCard } from '@/types'
 
 export default function ClientGiftCardPage() {
   const { t } = useTranslation(['giftCard', 'common'])
   const { t: tHelmet } = useTranslation('helmet')
   const [sortOption, setSortOption] = useState<string>('price,asc')
+  const [selectedCard, setSelectedCard] = useState<IGiftCard | null>(null)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(8)
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+    setSelectedCard(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -34,7 +42,7 @@ export default function ClientGiftCardPage() {
 
   const giftCards = giftCardData?.result.items || []
   const totalPages = giftCardData?.result.totalPages || 1
-  // Animation variants
+  // Animation variants  // Animation variants
   const fadeInVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -42,6 +50,15 @@ export default function ClientGiftCardPage() {
       y: 0,
       transition: { duration: 0.6, ease: 'easeOut' },
     },
+  }
+
+  // Handle card selection
+  const handleSelectCard = (card: IGiftCard) => {
+    if (selectedCard?.slug === card.slug) {
+      setSelectedCard(null)
+    } else {
+      setSelectedCard(card)
+    }
   }
 
   if (isLoading) {
@@ -67,17 +84,24 @@ export default function ClientGiftCardPage() {
         />{' '}
       </Helmet>
       <GiftCardHeader sortOption={sortOption} onSortChange={setSortOption} />
-      {/* Gift Cards Grid */}
+      {/* Gift Cards Grid */}{' '}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={fadeInVariants}
-        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
         {giftCards.map((card, index) => (
-          <GiftCardItem key={card.slug} card={card} index={index} />
+          <GiftCardItem
+            key={card.slug}
+            card={card}
+            index={index}
+            isSelected={selectedCard?.slug === card.slug}
+            onSelect={handleSelectCard}
+            onClose={() => setSelectedCard(null)}
+          />
         ))}
-      </motion.div>{' '}
+      </motion.div>
       {/* Empty State */}
       {giftCards.length === 0 && (
         <motion.div
@@ -91,7 +115,7 @@ export default function ClientGiftCardPage() {
             {t('giftCard.noGiftCardsAvailable')}
           </h3>
         </motion.div>
-      )}
+      )}{' '}
       {/* Pagination component từ DataTable */}
       {giftCards.length > 0 && (
         <motion.div
@@ -108,6 +132,15 @@ export default function ClientGiftCardPage() {
           />
         </motion.div>
       )}
+      {/* Selected Card Details */}
+      <AnimatePresence>
+        {selectedCard && (
+          <GiftCardSelected
+            selectedCard={selectedCard}
+            onClose={() => setSelectedCard(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
