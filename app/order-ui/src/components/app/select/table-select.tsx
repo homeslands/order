@@ -11,7 +11,7 @@ import {
     SelectValue,
 } from "@/components/ui"
 import { useTables } from "@/hooks"
-import { useBranchStore, useCartItemStore, useUserStore } from "@/stores"
+import { useCartItemStore, useUserStore } from "@/stores"
 import { OrderTypeEnum, ITable } from "@/types"
 import { TableStatus } from "@/constants"
 import { SelectReservedTableDialog } from "../dialog"
@@ -25,8 +25,7 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
     const { t } = useTranslation('table')
     const { cartItems, addTable } = useCartItemStore()
     const { userInfo } = useUserStore()
-    const { branch } = useBranchStore()
-    const { data: tables } = useTables(branch?.slug || userInfo?.branch?.slug || '')
+    const { data: tables } = useTables(userInfo?.branch?.slug || '')
 
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>()

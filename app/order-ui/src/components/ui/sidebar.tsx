@@ -22,7 +22,7 @@ import {
 const SIDEBAR_COOKIE_NAME = 'sidebar:state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = '15rem'
-const POS_SIDEBAR_WIDTH = '16rem'
+const POS_SIDEBAR_WIDTH = '12rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
@@ -71,6 +71,19 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
+    // Custom hook to detect POS screen size (< 1024px)
+    const [isPOSScreen, setIsPOSScreen] = React.useState(false)
+
+    React.useEffect(() => {
+      const checkPOSScreen = () => {
+        setIsPOSScreen(window.innerWidth < 1024)
+      }
+
+      checkPOSScreen()
+      window.addEventListener('resize', checkPOSScreen)
+      return () => window.removeEventListener('resize', checkPOSScreen)
+    }, [])
+
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
@@ -117,6 +130,17 @@ const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? 'expanded' : 'collapsed'
 
+    // Determine sidebar width based on screen size and state
+    const getSidebarWidth = () => {
+      if (state === 'collapsed') {
+        return SIDEBAR_WIDTH_ICON
+      }
+
+      // For POS/smaller screens (< 1024px), use smaller width
+      // For larger screens, use full width
+      return isPOSScreen ? POS_SIDEBAR_WIDTH : SIDEBAR_WIDTH
+    }
+
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
         state,
@@ -144,7 +168,7 @@ const SidebarProvider = React.forwardRef<
           <div
             style={
               {
-                '--sidebar-width': state === 'expanded' ? POS_SIDEBAR_WIDTH : SIDEBAR_WIDTH,
+                '--sidebar-width': getSidebarWidth(),
                 '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
                 ...style,
               } as React.CSSProperties
