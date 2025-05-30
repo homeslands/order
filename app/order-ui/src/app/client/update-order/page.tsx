@@ -152,7 +152,7 @@ export default function ClientUpdateOrderPage() {
 
                         {orderType === OrderTypeEnum.AT_TABLE &&
                             <div className='mt-5'>
-                                <ClientTableSelectInUpdateOrder order={orderItems} tableOrder={orderItems?.table} onTableSelect={(table: ITable) => addTable(table.slug)} />
+                                <ClientTableSelectInUpdateOrder tableOrder={orderItems?.table} orderType={orderType} onTableSelect={(table: ITable) => addTable(table.slug)} />
                             </div>
                         }
                         {/* Table list order items */}
