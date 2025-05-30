@@ -12,17 +12,17 @@ import {
 } from "@/components/ui"
 import { useTables } from "@/hooks"
 import { useBranchStore, useOrderTypeStore, useUserStore } from "@/stores"
-import { OrderTypeEnum, ITable, IOrder } from "@/types"
+import { OrderTypeEnum, ITable } from "@/types"
 import { TableStatus } from "@/constants"
 import { SelectReservedTableDialog } from "../dialog"
 
 interface IClientTableSelectInUpdateOrderProps {
-    order: IOrder | undefined
     tableOrder?: ITable | null
+    orderType: OrderTypeEnum
     onTableSelect?: (table: ITable) => void
 }
 
-export default function ClientTableSelectInUpdateOrder({ order, tableOrder, onTableSelect }: IClientTableSelectInUpdateOrderProps) {
+export default function ClientTableSelectInUpdateOrder({ tableOrder, orderType, onTableSelect }: IClientTableSelectInUpdateOrderProps) {
     const { t } = useTranslation('table')
     const { addTable } = useOrderTypeStore()
     const { userInfo } = useUserStore()
@@ -44,7 +44,7 @@ export default function ClientTableSelectInUpdateOrder({ order, tableOrder, onTa
         }
     }, [tableOrder])
 
-    if (order?.type === OrderTypeEnum.TAKE_OUT) {
+    if (orderType === OrderTypeEnum.TAKE_OUT) {
         return null
     }
 
@@ -70,7 +70,7 @@ export default function ClientTableSelectInUpdateOrder({ order, tableOrder, onTa
     return (
         <>
             <Select onValueChange={handleTableSelect} value={selectedTableId} >
-                <SelectTrigger className={`w-full ${!selectedTableId ? 'highlight-blink-border' : ''}`}>
+                <SelectTrigger className={`w-full ${!selectedTableId ? 'highlight-blink-border' : 'border-primary'}`}>
                     <SelectValue placeholder={t('table.title')} />
                 </SelectTrigger>
                 <SelectContent>
