@@ -32,7 +32,7 @@ export default function ProfilePage() {
         <meta name="description" content={tHelmet('helmet.profile.title')} />
       </Helmet>
       <div className="flex flex-col gap-10 items-start lg:flex-row">
-        {/* ProfilePicture */}
+        {/* Profile picture */}
         <div
           className={`flex justify-between w-full bg-white rounded-sm shadow-lg dark:border lg:w-1/4`}
         >

@@ -38,12 +38,6 @@ export const ForgotPasswordAndResetPasswordPage = React.lazy(() =>
   })),
 )
 
-export const EmailVerificationPage = React.lazy(() =>
-  import('@/app/auth').then((module) => ({
-    default: module.EmailVerificationPage,
-  })),
-)
-
 //Views
 //----------------------------------------------//
 //Admin
