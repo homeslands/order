@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Toaster } from 'react-hot-toast'
 import 'nprogress/nprogress.css'
 import '../node_modules/swiper/swiper-bundle.min.css';
+import 'react-tooltip/dist/react-tooltip.css'
 import './index.css'
 import App from './app/App.tsx'
 

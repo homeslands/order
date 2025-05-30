@@ -32,6 +32,8 @@ import { SortOperation } from '@/constants'
 import { IGiftCardCreateRequest } from '@/types'
 import { showToast } from '@/utils'
 import { useSortContext } from '@/contexts'
+import { NumberFormatValues, NumericFormat } from 'react-number-format';
+import { ImageUploader } from '../upload'
 
 export default function CreateGiftCardSheet() {
   const { t } = useTranslation(['giftCard', 'common'])
@@ -137,11 +139,9 @@ export default function CreateGiftCardSheet() {
               {t('giftCard.image')}
             </FormLabel>
             <FormControl>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => field.onChange(e.target.files?.[0] || null)}
-                className="cursor-pointer"
+              <ImageUploader
+                initialImage={null}
+                onFileChange={(file) => field.onChange(file)}
               />
             </FormControl>
             <FormMessage />
@@ -160,20 +160,12 @@ export default function CreateGiftCardSheet() {
               {t('giftCard.points')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                type="number"
-                min={1000}
-                max={10000000}
-                onFocus={() => {
-                  if (field.value === 0) {
-                    field.onChange('')
-                  }
-                }}
-                onChange={(e) => {
-                  const value =
-                    e.target.value === '' ? 0 : Number(e.target.value)
-                  field.onChange(value)
+              <NumericFormat
+                thousandSeparator
+                allowNegative={false}
+                customInput={Input}
+                onValueChange={(values: NumberFormatValues) => {
+                  field.onChange(values.floatValue ?? 0);
                 }}
               />
             </FormControl>
@@ -193,20 +185,12 @@ export default function CreateGiftCardSheet() {
               {t('giftCard.price')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                type="number"
-                min={1000}
-                max={10000000}
-                onFocus={() => {
-                  if (field.value === 0) {
-                    field.onChange('')
-                  }
-                }}
-                onChange={(e) => {
-                  const value =
-                    e.target.value === '' ? 0 : Number(e.target.value)
-                  field.onChange(value)
+              <NumericFormat
+                thousandSeparator
+                allowNegative={false}
+                customInput={Input}
+                onValueChange={(values: NumberFormatValues) => {
+                  field.onChange(values.floatValue ?? 0);
                 }}
               />
             </FormControl>
@@ -265,9 +249,7 @@ export default function CreateGiftCardSheet() {
                   onSubmit={form.handleSubmit(handleSubmit)}
                   className="space-y-4"
                 >
-                  {' '}
                   <div className="rounded-md border bg-white p-4">
-                    {' '}
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
