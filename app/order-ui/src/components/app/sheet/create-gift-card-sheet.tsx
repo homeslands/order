@@ -102,6 +102,7 @@ export default function CreateGiftCardSheet() {
               <Input
                 {...field}
                 placeholder={t('giftCard.enterGiftCardTitle')}
+                maxLength={256}
               />
             </FormControl>
             <FormMessage />

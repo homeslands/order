@@ -8,7 +8,6 @@ import { formatCurrency } from '@/utils'
 import { publicFileURL, GiftCardStatus } from '@/constants'
 import { Tooltip } from 'react-tooltip'
 
-
 export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
   const { t } = useTranslation(['giftCard', 'common'])
   const { t: tCommon } = useTranslation(['common'])
@@ -49,13 +48,18 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
         const giftCard = row.original
         return (
           <>
-            <div className="w-52 line-clamp-3"
-              data-tooltip-id='title-tooltip'
+            <div
+              className="line-clamp-3 w-52"
+              data-tooltip-id="title-tooltip"
               data-tooltip-content={String(giftCard.title)}
             >
               {giftCard.title}
             </div>
-            <Tooltip id="title-tooltip" variant='light' style={{ width: '15rem' }} />
+            <Tooltip
+              id="title-tooltip"
+              variant="light"
+              style={{ width: '15rem' }}
+            />
           </>
         )
       },
@@ -68,12 +72,17 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
         return (
           <>
             <div
-              className="w-96 text-sm line-clamp-4"
-              data-tooltip-id='description-tooltip'
-              data-tooltip-content={String(description)}>
+              className="line-clamp-4 w-96 text-sm"
+              data-tooltip-id="description-tooltip"
+              data-tooltip-content={String(description)}
+            >
               {String(description)}
             </div>
-            <Tooltip id="description-tooltip" style={{ width: '25rem' }} variant='light' />
+            <Tooltip
+              id="description-tooltip"
+              style={{ width: '25rem' }}
+              variant="light"
+            />
           </>
         )
       },
@@ -83,10 +92,12 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       header: () => <div className="w-28">{t('giftCard.points')}</div>,
       cell: ({ row }) => {
         const points = row.getValue('points') as number
-        return <div className="text-sm flex items-center gap-2">
-          {formatCurrency(points, '')}
-          <CoinsIcon className="w-5 h-5 text-yellow-500" />
-        </div>
+        return (
+          <div className="flex items-center gap-2 text-sm">
+            {formatCurrency(points, '')}
+            <CoinsIcon className="h-5 w-5 text-yellow-500" />
+          </div>
+        )
       },
     },
     {
@@ -94,9 +105,11 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       header: () => <div className="w-28">{t('giftCard.price')}</div>,
       cell: ({ row }) => {
         const amount = row.getValue('price') as number
-        return <div className="text-sm flex items-center gap-2">
-          {formatCurrency(amount)}
-        </div>
+        return (
+          <div className="flex items-center gap-2 text-sm">
+            {formatCurrency(amount)}
+          </div>
+        )
       },
     },
     {
@@ -109,10 +122,9 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
           : GiftCardStatus.INACTIVE
         return (
           <div
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive
-              ? 'bg-green-500 text-white '
-              : 'bg-yellow-500 text-white'
-              }`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              isActive ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+            }`}
           >
             {t(`giftCard.${status.toLowerCase()}`)}
           </div>
@@ -125,7 +137,7 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       cell: ({ row }) => {
         const giftCard = row.original
         return (
-          <div className="flex gap-2 items-center w-20">
+          <div className="flex w-20 items-center gap-2">
             <UpdateGiftCardSheet giftCard={giftCard} />
             <DeleteGiftCardDialog giftCard={giftCard} />
           </div>

@@ -11,9 +11,18 @@ import { useIsMobile } from '@/hooks'
 interface GiftCardItemProps {
   card: IGiftCard
   index: number
+  isSelected: boolean
+  onSelect: (card: IGiftCard) => void
+  onClose: () => void
 }
 
-export default function GiftCardItem({ card, index }: GiftCardItemProps) {
+export default function GiftCardItem({
+  card,
+  index,
+  isSelected,
+  onSelect,
+  onClose,
+}: GiftCardItemProps) {
   const { t } = useTranslation(['giftCard', 'common'])
   const isMobile = useIsMobile()
 
@@ -41,6 +50,7 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
           ? 'flex min-h-[8rem] flex-row justify-between'
           : 'flex min-h-[16rem] flex-col'
       }`}
+      onClick={() => onSelect(card)}
     >
       {/* Card Image */}
       <div
@@ -65,13 +75,15 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
 
       {/* Card Content */}
       <div
-        className={`${isMobile ? 'flex flex-1 flex-col justify-between p-2' : 'p-6'}`}
+        className={`${isMobile ? 'flex flex-1 flex-col justify-between p-2' : 'p-4'}`}
       >
         <div>
           <h3
             className={`${isMobile ? 'text-md line-clamp-1 font-bold' : 'mb-2 text-xl font-bold'} text-gray-900 dark:text-white`}
           >
-            {card.title}
+            {card.title.length > 20
+              ? `${card.title.substring(0, 20)}...`
+              : card.title}
           </h3>{' '}
           {!isMobile && card.description ? (
             <p className="mb-4 line-clamp-2 h-10 overflow-hidden text-ellipsis text-sm text-gray-600 dark:text-gray-300">
@@ -93,7 +105,7 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
         <div
           className={`flex ${isMobile ? 'flex-col' : 'items-center justify-between'}`}
         >
-          <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : ''}`}>
+          <div className={`flex items-center gap-1 ${isMobile ? 'mb-1' : ''}`}>
             <Star className="h-4 w-4 text-yellow-500" />
             <span
               className={`${isMobile ? 'text-sm' : 'text-xl'} font-bold text-primary`}
@@ -116,9 +128,13 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
         <Button
           size={isMobile ? 'sm' : 'lg'}
           className={`${isMobile ? '' : 'mx-4 w-full'} flex items-center justify-center gap-2 rounded-full`}
+          onClick={() => {
+            onSelect(card)
+            onClose()
+          }}
         >
           <ShoppingCart className="h-4 w-4" />
-          {isMobile ? '' : t('giftCard.buyNow')}
+          {isSelected ? t('giftCard.selected') : t('giftCard.buyNow')}
         </Button>
       </div>
     </motion.div>
