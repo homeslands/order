@@ -95,7 +95,7 @@ export default function AddToCartDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none">
+          <Button className="flex gap-1 justify-center items-center px-4 w-full text-sm xl:text-sm text-white rounded-full shadow-none sm:text-[11px]">
             {t('menu.addToCart')}
           </Button>
         )}
