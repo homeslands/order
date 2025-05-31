@@ -48,7 +48,7 @@ export default function GiftCardPage() {
   const giftCards = giftCardData?.result.items || []
 
   return (
-    <div className="flex w-full flex-1 flex-col">
+    <div className="grid grid-cols-1 gap-2 h-full">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.giftCard.title')}</title>

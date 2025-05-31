@@ -23,7 +23,7 @@ import {
   Textarea,
 } from '@/components/ui'
 import { IGiftCard, IGiftCardUpdateRequest } from '@/types'
-import { GiftCardStatus, QUERYKEY } from '@/constants'
+import { GiftCardStatus, publicFileURL, QUERYKEY } from '@/constants'
 import { SortOperation } from '@/constants'
 import { TUpdateGiftCardSchema, updateGiftCardSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -31,6 +31,9 @@ import { GiftCardStatusSelect } from '@/components/app/select'
 import { useUpdateGiftCard } from '@/hooks'
 import { showToast } from '@/utils'
 import { useSortContext } from '@/contexts'
+import { Tooltip } from 'react-tooltip'
+import { ImageUploader } from '../upload'
+import { NumberFormatValues, NumericFormat } from 'react-number-format'
 
 interface IUpdateGiftCardSheetProps {
   giftCard: IGiftCard
@@ -101,12 +104,6 @@ export default function UpdateGiftCardSheet({
     )
   }
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setSheetOpen(true)
-  }
-
   const formFields = {
     title: (
       <FormField
@@ -153,21 +150,23 @@ export default function UpdateGiftCardSheet({
       <FormField
         control={form.control}
         name="file"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              {t('giftCard.image')}
-            </FormLabel>
-            <FormControl>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => field.onChange(e.target.files?.[0] || null)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const initialImage = giftCard.image ? `${publicFileURL}/${giftCard.image}` : null
+          return (
+            <FormItem>
+              <FormLabel className="flex items-center gap-1">
+                {t('giftCard.image')}
+              </FormLabel>
+              <FormControl>
+                <ImageUploader
+                  initialImage={initialImage}
+                  onFileChange={(file) => field.onChange(file)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
       />
     ),
     points: (
@@ -181,21 +180,14 @@ export default function UpdateGiftCardSheet({
               {t('giftCard.points')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                type="number"
-                min={1000}
-                max={10000000}
-                onFocus={() => {
-                  if (field.value === 0) {
-                    field.onChange('')
-                  }
+              <NumericFormat
+                thousandSeparator
+                allowNegative={false}
+                customInput={Input}
+                onValueChange={(values: NumberFormatValues) => {
+                  field.onChange(values.floatValue ?? 0);
                 }}
-                onChange={(e) => {
-                  const value =
-                    e.target.value === '' ? 0 : Number(e.target.value)
-                  field.onChange(value)
-                }}
+                value={field.value}
               />
             </FormControl>
             <FormMessage />
@@ -214,21 +206,14 @@ export default function UpdateGiftCardSheet({
               {t('giftCard.price')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                type="number"
-                min={1000}
-                max={10000000}
-                onFocus={() => {
-                  if (field.value === 0) {
-                    field.onChange('')
-                  }
+              <NumericFormat
+                thousandSeparator
+                allowNegative={false}
+                customInput={Input}
+                onValueChange={(values: NumberFormatValues) => {
+                  field.onChange(values.floatValue ?? 0);
                 }}
-                onChange={(e) => {
-                  const value =
-                    e.target.value === '' ? 0 : Number(e.target.value)
-                  field.onChange(value)
-                }}
+                value={field.value}
               />
             </FormControl>
             <FormMessage />
@@ -264,10 +249,10 @@ export default function UpdateGiftCardSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="gap-1 px-2" onClick={handleClick}>
-          <PenLine className="icon" />
-          {t('giftCard.update')}
-        </Button>
+        <div data-tooltip-id="update-card" data-tooltip-content={t('giftCard.update')}>
+          <PenLine className="icon text-blue-500" />
+          <Tooltip id="update-card" variant='light' />
+        </div>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">

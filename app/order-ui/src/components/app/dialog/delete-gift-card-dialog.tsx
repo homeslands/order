@@ -19,6 +19,7 @@ import { IGiftCard } from '@/types'
 import { useDeleteGiftCard } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
+import { Tooltip } from 'react-tooltip'
 
 export default function DeleteGiftCardDialog({
   giftCard,
@@ -47,14 +48,10 @@ export default function DeleteGiftCardDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex w-full justify-start" asChild>
-        <Button
-          variant="ghost"
-          className="gap-1 bg-destructive/10 px-2 text-sm text-destructive"
-          onClick={() => setIsOpen(true)}
-        >
-          <Trash2 className="icon" />
-          {t('giftCard.delete')}
-        </Button>
+        <div data-tooltip-id="delete-card" data-tooltip-content={t('giftCard.delete')}>
+          <Trash2 className="icon text-destructive" />
+          <Tooltip id="delete-card" variant='light' />
+        </div>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
