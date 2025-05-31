@@ -23,8 +23,8 @@ import {
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   UpdateAuthProfileRequestDto,
-  EmailVerificationRequestDto,
-  ConFirmEmailVerificationRequestDto,
+  InitiateVerifyEmailRequestDto,
+  ConfirmEmailVerificationCodeRequestDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -99,47 +99,50 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('request-verify-email')
-  @ApiOperation({ summary: 'Send request verify email' })
+  @Post('initiate-verify-email')
+  @ApiOperation({ summary: 'Initiate verify email' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: EmailVerificationRequestDto,
-    description: 'Send request successful',
+    type: String,
+    description: 'Initiate verify email successful',
   })
-  async sendVerifyEmail(
+  async initiateVerifyEmail(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
     @Body(new ValidationPipe({ transform: true }))
-    requestData: EmailVerificationRequestDto,
+    requestData: InitiateVerifyEmailRequestDto,
   ) {
-    const result = await this.authService.createVerifyEmail(requestData);
+    await this.authService.initiateVerifyEmail(user, requestData);
     const response = {
-      message: 'Send request successful',
+      message: 'Initiate verify email successful',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result,
+      result: 'Initiate verify email successful',
     } as AppResponseDto<string>;
     return response;
   }
 
   @HttpCode(HttpStatus.OK)
-  @Public()
-  @Post('confirm-email-verification')
+  @Post('confirm-email-verification/code')
   @ApiOperation({ summary: 'Confirm email verification' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: ConFirmEmailVerificationRequestDto,
+    type: String,
     description: 'Confirm email verification successful',
   })
-  async confirmVerifyEmail(
+  async confirmVerifyEmailCode(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
     @Body(new ValidationPipe({ transform: true }))
-    requestData: ConFirmEmailVerificationRequestDto,
+    requestData: ConfirmEmailVerificationCodeRequestDto,
   ) {
-    const result = await this.authService.confirmEmailVerification(requestData);
+    await this.authService.confirmEmailVerificationCode(user, requestData);
     const response = {
       message: 'Confirm email verification successful',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result,
-    } as AppResponseDto<boolean>;
+      result: 'Confirm email verification successful',
+    } as AppResponseDto<string>;
     return response;
   }
 

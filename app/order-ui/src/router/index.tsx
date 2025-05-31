@@ -45,7 +45,6 @@ import {
   VoucherPage,
   PromotionPage,
   BannerPage,
-  EmailVerificationPage,
   RolePage,
   RoleDetailPage,
   ChefAreaPage,
@@ -83,10 +82,6 @@ export const router = createBrowserRouter([
       {
         path: `${ROUTE.RESET_PASSWORD}`,
         element: <SuspenseElement component={ForgotPasswordAndResetPasswordPage} />,
-      },
-      {
-        path: ROUTE.VERIFY_EMAIL,
-        element: <SuspenseElement component={EmailVerificationPage} />,
       },
       {
         path: ROUTE.ABOUT,

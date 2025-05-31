@@ -35,7 +35,7 @@ export function SystemMenuTabs() {
         <SystemMenuTabscontent />
       </TabsContent>
       {cartItems?.type === OrderTypeEnum.AT_TABLE && (
-        <TabsContent value="table" className="p-0">
+        <TabsContent value="table" className="p-0 w-full sm:w-[90%] xl:w-full">
           <SystemTableSelect />
         </TabsContent>
       )}

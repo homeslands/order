@@ -24,8 +24,8 @@ interface ITableSelectProps {
 export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectProps) {
     const { t } = useTranslation('table')
     const { cartItems, addTable } = useCartItemStore()
-    const { userInfo } = useUserStore()
     const { branch } = useBranchStore()
+    const { userInfo } = useUserStore()
     const { data: tables } = useTables(branch?.slug || userInfo?.branch?.slug || '')
 
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
@@ -41,13 +41,6 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
             setSelectedTableId(tableOrder.slug)
         }
     }, [tableOrder])
-    // const tableList = [...(tables?.result || [])].sort((a, b) => {
-    //     if (a.status !== b.status) {
-    //         // Đảo ngược thứ tự: RESERVED < AVAILABLE
-    //         return a.status === TableStatus.RESERVED ? -1 : 1
-    //     }
-    //     return Number(a.name) - Number(b.name)
-    // })
 
     if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
         return null

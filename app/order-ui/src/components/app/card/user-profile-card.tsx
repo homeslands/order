@@ -1,6 +1,16 @@
+import { Copy, ShieldCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Input, Card, CardContent } from '@/components/ui'
+import {
+  Card,
+  CardContent,
+  Input,
+  Textarea,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui'
 import { ProfilePicture } from '@/components/app/avatar'
 import { useProfile, useUploadProfilePicture } from '@/hooks'
 import { publicFileURL } from '@/constants'
@@ -11,12 +21,20 @@ import {
 } from '@/components/app/dialog'
 import { showToast } from '@/utils'
 import { useUserStore } from '@/stores'
+import { useEffect, useState } from 'react'
 
 export default function UserProfileCard() {
   const { t } = useTranslation(['profile', 'toast'])
-  const { data } = useProfile()
-  const { userInfo, setUserInfo } = useUserStore()
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
+  const { data, refetch } = useProfile()
+  const { userInfo, setUserInfo, emailVerificationStatus } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
+
+  useEffect(() => {
+    if (emailVerificationStatus?.startedAt) {
+      setIsVerifyingEmail(true)
+    }
+  }, [emailVerificationStatus?.startedAt])
 
   const handleUploadProfilePicture = (file: File) => {
     uploadProfilePicture(file, {
@@ -25,6 +43,18 @@ export default function UserProfileCard() {
         setUserInfo(data.result)
       },
     })
+  }
+
+  const handleCopyEmail = () => {
+    if (userProfile?.email) {
+      navigator.clipboard.writeText(userProfile.email)
+      showToast(t('toast.copyEmailSuccess'))
+    }
+  }
+
+  const handleVerifyEmailSuccess = () => {
+    setIsVerifyingEmail(false)
+    refetch()
   }
 
   const userProfile = data?.result
@@ -43,8 +73,45 @@ export default function UserProfileCard() {
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal">{t('profile.email')}</span>
-        <Input className="" value={userProfile?.email} readOnly />
+        <div className="flex gap-2 items-center">
+          <span className="text-sm font-medium">{t('profile.email')}</span>
+          {userProfile?.isVerifiedEmail ? (
+            <div className="flex items-center text-green-500">
+              <ShieldCheck className="w-4 h-4" />
+              <span className="text-xs">{t('profile.verified')}</span>
+            </div>
+          ) : (
+            <div className="flex items-center text-destructive">
+              <span className="text-xs">{isVerifyingEmail ? t('profile.verifyingEmail') : t('profile.notVerified')}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex relative gap-2">
+          <Input
+            value={userProfile?.email}
+            readOnly
+            disabled
+            placeholder={t('profile.email')}
+            className={`border ${userProfile?.isVerifiedEmail ? 'border-green-500 text-green-600 bg-green-50' : 'border-destructive text-destructive bg-destructive/5'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
+          />
+          {userProfile?.email && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleCopyEmail}
+                    className="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2 hover:text-gray-700 dark:hover:text-gray-300"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {t('profile.copyEmail')}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </div>
     ),
     phonenumber: (
@@ -62,7 +129,12 @@ export default function UserProfileCard() {
     address: (
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.address')}</span>
-        <Input className="" value={userProfile?.address} readOnly />
+        <Textarea
+          value={userProfile?.address}
+          readOnly
+          disabled
+          placeholder={`${t('profile.address')}`}
+        />
       </div>
     ),
     branch: (
@@ -99,15 +171,17 @@ export default function UserProfileCard() {
           <div className="grid grid-cols-1 gap-3 rounded-md border">
             <div
               className={
-                'flex flex-col lg:flex-row justify-start lg:justify-between items-start lg:items-center px-6 py-6 w-full bg-muted-foreground/5'
+                'flex flex-col justify-start items-start px-6 py-6 w-full lg:flex-row lg:justify-between lg:items-center bg-muted-foreground/5'
               }
             >
               <span className="font-semibold text-md">
                 {t('profile.profile')}
               </span>
-              <div className="flex gap-2 ">
+              <div className="flex gap-2">
                 <UpdateProfileDialog userProfile={userProfile} />
-                <SendVerifyEmailDialog />
+                {!userProfile?.isVerifiedEmail && (
+                  <SendVerifyEmailDialog onSuccess={handleVerifyEmailSuccess} />
+                )}
                 <UpdatePasswordDialog />
               </div>
             </div>

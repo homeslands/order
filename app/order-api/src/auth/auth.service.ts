@@ -17,12 +17,12 @@ import {
   RegisterAuthRequestDto,
   RegisterAuthResponseDto,
   UpdateAuthProfileRequestDto,
-  EmailVerificationRequestDto,
-  ConFirmEmailVerificationRequestDto,
+  InitiateVerifyEmailRequestDto,
+  ConfirmEmailVerificationCodeRequestDto,
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { MoreThan, Not, Repository } from 'typeorm';
+import { IsNull, MoreThan, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { InjectMapper } from '@automapper/nestjs';
@@ -53,6 +53,7 @@ import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
+import { getRandomString } from 'src/helper';
 
 @Injectable()
 export class AuthService {
@@ -247,42 +248,19 @@ export class AuthService {
     return url;
   }
 
-  /**
-   * Handles the creation of a verify email token.
-   * This method creates a new verify email token for the user and sends an email to the user with the verification link.
-   * @param {EmailVerificationRequestDto} requestData
-   * @returns {Promise<string>} Return URL to help client verify email
-   * @throws {AuthException} throws exception if user not found, token is invalid
-   * @throws {BranchException} throws exception if branch is not found
-   * @memberof AuthService
-   */
-  async createVerifyEmail(
-    requestData: EmailVerificationRequestDto,
-  ): Promise<string> {
-    const context = `${AuthService.name}.${this.createVerifyEmail.name}`;
+  async initiateVerifyEmail(
+    currentUserDto: CurrentUserDto,
+    requestData: InitiateVerifyEmailRequestDto,
+  ): Promise<boolean> {
+    const context = `${AuthService.name}.${this.initiateVerifyEmail.name}`;
     this.logger.log(
-      `Request verify email ${JSON.stringify(requestData)}`,
+      `Request initiate verify email ${JSON.stringify(requestData)}`,
       context,
     );
-
-    try {
-      this.jwtService.verify(requestData.accessToken);
-    } catch (error) {
-      this.logger.error(
-        AuthValidation.INVALID_TOKEN.message,
-        error.stack,
-        context,
-      );
-      throw new AuthException(AuthValidation.INVALID_TOKEN);
-    }
-    const payload: AuthJwtPayload = this.jwtService.decode(
-      requestData.accessToken,
-    );
-    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
-
     const user = await this.userUtils.getUser({
       where: {
-        id: payload.sub,
+        id: currentUserDto.userId ?? IsNull(),
+        phonenumber: Not('default-customer'),
       },
     });
 
@@ -327,36 +305,31 @@ export class AuthService {
       }
     }
 
-    const generatedPayload = { sub: user.id, jti: uuidv4() };
-    const expiresIn = 120; // 2 minutes
-    const token = this.jwtService.sign(generatedPayload, {
-      expiresIn: expiresIn,
-    });
-
+    const token = getRandomString().slice(0, 6).toUpperCase();
     const verifyEmailToken = new VerifyEmailToken();
     Object.assign(verifyEmailToken, {
-      expiresAt: moment().add(expiresIn, 'seconds').toDate(),
+      expiresAt: moment()
+        .add(60 * 10, 'seconds')
+        .toDate(),
       token,
       user,
       email: requestData.email,
     } as VerifyEmailToken);
 
-    const url = `${await this.getFrontendUrl()}/verify-email?token=${token}&email=${requestData.email}`;
-
     await this.transactionManagerService.execute(
       async (manager) => {
         await manager.save(verifyEmailToken);
-        await this.mailService.sendVerifyEmail(user, url, requestData.email);
+        await this.mailService.sendVerifyEmail(user, token, requestData.email);
       },
       () => {
         this.logger.log(
-          `User ${user.id} created verified email token`,
+          `User ${user.id} created initiate verify email token`,
           context,
         );
       },
       (error) => {
         this.logger.error(
-          `Error when create verify email token`,
+          `Error when create initiate verify email token`,
           error.stack,
           context,
         );
@@ -364,25 +337,26 @@ export class AuthService {
       },
     );
 
-    return url;
+    return true;
   }
 
-  /**
-   * Confirm email verification.
-   * This method verifies the email verification token and updates the user's email.
-   * @param {ConFirmEmailVerificationRequestDto} requestData
-   * @returns {Promise<boolean>} Return true if email is verified successfully
-   * @throws {AuthException} throws exception if token is invalid, expired, user not found
-   */
-  async confirmEmailVerification(
-    requestData: ConFirmEmailVerificationRequestDto,
+  async confirmEmailVerificationCode(
+    currentUserDto: CurrentUserDto,
+    requestData: ConfirmEmailVerificationCodeRequestDto,
   ): Promise<boolean> {
-    const context = `${AuthService.name}.${this.confirmEmailVerification.name}`;
+    const context = `${AuthService.name}.${this.confirmEmailVerificationCode.name}`;
 
+    const user = await this.userUtils.getUser({
+      where: {
+        id: currentUserDto.userId ?? IsNull(),
+        phonenumber: Not('default-customer'),
+      },
+    });
     const existToken = await this.verifyEmailRepository.findOne({
       where: {
-        token: requestData.token,
-        expiresAt: MoreThan(new Date()),
+        token: requestData.code,
+        // expiresAt: MoreThan(new Date()),
+        user: { id: user.id },
       },
     });
     if (!existToken) {
@@ -390,14 +364,7 @@ export class AuthService {
       throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
     }
 
-    let isExpiredToken = false;
-    try {
-      this.jwtService.verify(requestData.token);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      isExpiredToken = true;
-    }
-    if (isExpiredToken) {
+    if (new Date().getTime() > existToken.expiresAt.getTime()) {
       this.logger.warn(
         AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED.message,
         context,
@@ -405,17 +372,7 @@ export class AuthService {
       throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_IS_EXPIRED);
     }
 
-    // Get payload
-    const payload: AuthJwtPayload = this.jwtService.decode(requestData.token);
-    this.logger.log(`Payload: ${JSON.stringify(payload)}`);
-
-    const user = await this.userUtils.getUser({
-      where: {
-        id: payload.sub,
-      },
-    });
-
-    user.email = requestData.email;
+    user.email = existToken.email;
     user.isVerifiedEmail = true;
 
     // Set token expired after forgot password successfully

@@ -364,6 +364,11 @@
     "voucherGroupAlreadyExists": "Voucher group already exists",
     "voucherVerificationIdentity": "This voucher requires login to use!",
     "minOrderValueNotMet": "Order value must be greater than minimum required",
-    "updateOrderSuccess": "Order updated successfully"
+    "updateOrderSuccess": "Order updated successfully",
+    "emailVerified": "Email verified successfully",
+    "emailTokenExists": "OTP is still valid. Please check your email for the code",
+    "emailTokenNotFound": "OTP not found",
+    "emailTokenExpired": "OTP expired",
+    "errorWhenConfirmEmailVerification": "Error when confirming email verification"
   }
 }

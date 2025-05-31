@@ -179,35 +179,35 @@ export default function StaffVoucherListSheet() {
   }
 
   // Filter and sort vouchers to get the best one
-  const getBestVoucher = () => {
-    if (!Array.isArray(localVoucherList)) {
-      return null
-    }
+  // const getBestVoucher = () => {
+  //   if (!Array.isArray(localVoucherList)) {
+  //     return null
+  //   }
 
-    const currentDate = new Date()
+  //   const currentDate = new Date()
 
-    const validVouchers = localVoucherList
-      .filter((voucher) => {
-        const isValid = voucher.isActive &&
-          moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
-          moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
-          voucher.remainingUsage > 0 &&
-          (!userInfo ? voucher.isVerificationIdentity === false : true)
-        return isValid
-      })
-      .sort((a, b) => {
-        const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-        if (endDateDiff !== 0) return endDateDiff
-        if (a.minOrderValue !== b.minOrderValue) {
-          return a.minOrderValue - b.minOrderValue
-        }
-        return b.value - a.value
-      })
+  //   const validVouchers = localVoucherList
+  //     .filter((voucher) => {
+  //       const isValid = voucher.isActive &&
+  //         moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
+  //         moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
+  //         voucher.remainingUsage > 0 &&
+  //         (!userInfo ? voucher.isVerificationIdentity === false : true)
+  //       return isValid
+  //     })
+  //     .sort((a, b) => {
+  //       const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
+  //       if (endDateDiff !== 0) return endDateDiff
+  //       if (a.minOrderValue !== b.minOrderValue) {
+  //         return a.minOrderValue - b.minOrderValue
+  //       }
+  //       return b.value - a.value
+  //     })
 
-    return validVouchers.length > 0 ? validVouchers[0] : null
-  }
+  //   return validVouchers.length > 0 ? validVouchers[0] : null
+  // }
 
-  const bestVoucher = getBestVoucher()
+  // const bestVoucher = getBestVoucher()
 
   const isVoucherSelected = (voucherSlug: string) => {
     return (
@@ -314,7 +314,7 @@ export default function StaffVoucherListSheet() {
   //   }
   // };
 
-  const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
+  const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
     const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
     ${isVoucherSelected(voucher.slug)
@@ -331,11 +331,11 @@ export default function StaffVoucherListSheet() {
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
-        {isBest && (
+        {/* {isBest && (
           <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
-        )}
+        )} */}
         <div
           className={`col-span-2 flex w-full items-center justify-center rounded-md ${isVoucherSelected(voucher.slug) ? `bg-${getTheme() === 'light' ? 'white' : 'black'}` : 'bg-muted-foreground/10'}`}
         >
@@ -560,7 +560,7 @@ export default function StaffVoucherListSheet() {
             {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex gap-2 items-center w-full">
-                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
+                  <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
                     -{`${formatCurrency(discount || 0)}`}
                   </span>
                 </div>
@@ -625,10 +625,7 @@ export default function StaffVoucherListSheet() {
               <div className="grid grid-cols-1 gap-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
                   localVoucherList?.map((voucher) =>
-                    renderVoucherCard(
-                      voucher,
-                      bestVoucher?.slug === voucher.slug,
-                    ),
+                    renderVoucherCard(voucher),
                   )
                 ) : (
                   <div>{t('voucher.noVoucher')}</div>
