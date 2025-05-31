@@ -17,6 +17,13 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
   const [activeTab, setActiveTab] = useState('menu')
 
+  // check if order type is at table
+  // useEffect(() => {
+  //   if (order && order?.type === OrderTypeEnum.AT_TABLE) {
+  //     setActiveTab('table')
+  //   }
+  // }, [order])
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-2">
@@ -34,7 +41,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
       </TabsContent>
       {type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0">
-          <SystemTableSelectInUpdateOrder order={order} />
+          <SystemTableSelectInUpdateOrder order={order} onSuccess={onSuccess} />
         </TabsContent>
       )}
     </Tabs>

@@ -13,16 +13,6 @@ import {
   getOrderInvoice,
   initiatePayment,
   updateOrderType,
-  createOrderWithoutLogin,
-  deleteOrderWithoutLogin,
-  exportPublicOrderInvoice,
-  getAllOrdersPublic,
-  getAllOrderWithoutLogin,
-  getPublicOrderInvoice,
-  initiatePublicPayment,
-  updateNoteOrderItem,
-  updateOrderItem,
-  updateVoucherInOrder,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -35,6 +25,17 @@ import {
   IUpdateOrderItemRequest,
   IUpdateNoteRequest,
 } from '@/types'
+import {
+  createOrderWithoutLogin,
+  deleteOrderWithoutLogin,
+  exportPublicOrderInvoice,
+  getAllOrdersPublic,
+  getAllOrderWithoutLogin,
+  getPublicOrderInvoice,
+  initiatePublicPayment,
+  updateNoteOrderItem,
+  updateOrderItem,
+} from '../api/order'
 
 export const useOrders = (q: IOrdersQuery) => {
   return useQuery({
@@ -173,21 +174,6 @@ export const useDeleteOrderItem = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return deleteOrderItem(slug)
-    },
-  })
-}
-
-// update voucher
-export const useUpdateVoucherInOrder = () => {
-  return useMutation({
-    mutationFn: async ({
-      slug,
-      voucher,
-    }: {
-      slug: string
-      voucher: string | null
-    }) => {
-      return updateVoucherInOrder(slug, voucher)
     },
   })
 }
