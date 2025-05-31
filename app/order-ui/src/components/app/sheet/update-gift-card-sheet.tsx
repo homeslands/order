@@ -251,7 +251,7 @@ export default function UpdateGiftCardSheet({
       <SheetTrigger asChild>
         <div data-tooltip-id="update-card" data-tooltip-content={t('giftCard.update')}>
           <PenLine className="icon text-blue-500" />
-          <Tooltip id="update-card" />
+          <Tooltip id="update-card" variant='light' />
         </div>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
