@@ -50,7 +50,7 @@ export default function DeleteGiftCardDialog({
       <DialogTrigger className="flex w-full justify-start" asChild>
         <div data-tooltip-id="delete-card" data-tooltip-content={t('giftCard.delete')}>
           <Trash2 className="icon text-destructive" />
-          <Tooltip id="delete-card" />
+          <Tooltip id="delete-card" variant='light' />
         </div>
       </DialogTrigger>
 
