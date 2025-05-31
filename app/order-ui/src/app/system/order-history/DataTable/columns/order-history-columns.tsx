@@ -31,8 +31,18 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t: tCommon } = useTranslation(['common'])
   const { userInfo } = useUserStore()
   const { data: authorityData } = useGetAuthorityGroup({})
+
   const authorityGroup = authorityData?.result ?? [];
-  const authorityGroupCodes = authorityGroup.flatMap(group => group.authorities.map(auth => auth.code));
+  const authorityGroupCodes = Array.isArray(authorityGroup)
+    ? authorityGroup.flatMap(group =>
+      Array.isArray(group.authorities)
+        ? group.authorities
+          .filter(auth => auth != null && typeof auth.code !== 'undefined')
+          .map(auth => auth.code)
+        : []
+    )
+    : [];
+
   const userPermissionCodes = userInfo?.role.permissions.map(p => p.authority.code) ?? [];
   const isDeletePermissionValid = hasPermissionInBoth("DELETE_ORDER", authorityGroupCodes, userPermissionCodes);
   const { mutate: exportPayment } = useExportPayment()
