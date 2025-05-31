@@ -121,7 +121,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                               {item?.promotion?.value > 0 ? (
                                 <div className='flex gap-2 justify-start items-center'>
                                   <div className='flex flex-row gap-3 items-center w-full'>
-                                    <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70 w-[30%]">
+                                    <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70">
                                       {(() => {
                                         const range = getPriceRange(item.product.variants)
                                         if (!range) return formatCurrency(0)
@@ -129,21 +129,15 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                                           ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
                                       })()}
                                     </span>
-                                    {/* {item?.promotion?.value > 0 && (
-                                      <Badge className="text-[10px] px-1 sm:px-2 bg-destructive hover:bg-destructive">
-                                        {t('menu.discount')} {item?.promotion?.value}%
-                                      </Badge>
-                                    )} */}
+                                    <span className="text-sm font-bold sm:text-[0.8rem] xl:text-lg text-primary">
+                                      {(() => {
+                                        const range = getPriceRange(item.product.variants)
+                                        if (!range) return formatCurrency(0)
+                                        return range.isSinglePrice
+                                          ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
+                                      })()}
+                                    </span>
                                   </div>
-                                  <span className="text-sm font-bold sm:text-[0.8rem] xl:text-lg text-primary">
-                                    {(() => {
-                                      const range = getPriceRange(item.product.variants)
-                                      if (!range) return formatCurrency(0)
-                                      return range.isSinglePrice
-                                        ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
-                                    })()}
-                                  </span>
-
                                 </div>) : (
                                 <span className="text-sm font-bold sm:text-sm text-primary">
                                   {(() => {
