@@ -70,11 +70,9 @@ export default function ClientCartPage() {
   )
   // check if voucher is percent order
   const isPercentOrder = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-
   const discount = isPercentOrder
     ? (subTotal * (cartItems?.voucher?.value || 0)) / 100
     : cartItems?.voucher?.value
-
   const totalAfterDiscount =
     subTotal - (discount || 0)
 
