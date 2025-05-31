@@ -22,7 +22,7 @@ import {
 
 import { IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types'
 import { publicFileURL } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { useAddNewOrderItem } from '@/hooks'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -39,7 +39,7 @@ export default function SystemAddToCurrentOrderDialog({
 }: AddToCurrentOrderDialogProps) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
-  // const { t: tToast } = useTranslation('toast')
+  const { t: tToast } = useTranslation('toast')
   const { slug } = useParams()
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
@@ -62,7 +62,7 @@ export default function SystemAddToCurrentOrderDialog({
         setIsOpen(false)
         queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         onSuccess?.()
-        // showToast(tToast('toast.addNewOrderItemSuccess'))
+        showToast(tToast('toast.addNewOrderItemSuccess'))
       },
     })
     // Reset states
