@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 // import { ShoppingCart } from 'lucide-react';
 
@@ -25,8 +23,10 @@ import {
 import { OrderTypeEnum, IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types';
 import { useCartItemStore, useUserStore } from '@/stores';
 import { publicFileURL } from '@/constants';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, showToast } from '@/utils';
 import { useAddNewOrderItem } from '@/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 interface AddToCartDialogProps {
   product: IMenuItem;
@@ -38,7 +38,7 @@ interface AddToCartDialogProps {
 export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrder }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
-  // const { t: tToast } = useTranslation('toast')
+  const { t: tToast } = useTranslation('toast')
   const { slug } = useParams()
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
@@ -107,7 +107,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
         setIsOpen(false)
         queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
         onSuccess?.()
-        // showToast(tToast('toast.addNewOrderItemSuccess'))
+        showToast(tToast('toast.addNewOrderItemSuccess'))
       },
     })
     // Reset states

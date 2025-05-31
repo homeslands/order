@@ -37,7 +37,7 @@ import {
   usePublicVouchersForOrder,
   useSpecificPublicVoucher,
   useSpecificVoucher,
-  useUpdateVoucherInOrder,
+  useUpdateOrderType,
   useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder,
@@ -45,6 +45,7 @@ import {
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IOrder,
+  IUpdateOrderTypeRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
@@ -68,7 +69,7 @@ export default function VoucherListSheetInUpdateOrder({
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
-  const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updateOrderType } = useUpdateOrderType()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -306,8 +307,14 @@ export default function VoucherListSheetInUpdateOrder({
     // Nếu đang bỏ chọn
     if (isSelected) {
       if (defaultValue) {
-        updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: null },
+        const params: IUpdateOrderTypeRequest = {
+          type: defaultValue.type,
+          table: defaultValue.table?.slug || null,
+          voucher: null,
+        }
+
+        updateOrderType(
+          { slug: defaultValue.slug, params },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -332,8 +339,14 @@ export default function VoucherListSheetInUpdateOrder({
 
     const onValidated = () => {
       if (defaultValue) {
-        updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: voucher.slug },
+        const params: IUpdateOrderTypeRequest = {
+          type: defaultValue.type,
+          table: defaultValue.table?.slug || null,
+          voucher: voucher.slug,
+        }
+
+        updateOrderType(
+          { slug: defaultValue.slug, params },
           {
             onSuccess: () => {
               if (userInfo) {

@@ -35,7 +35,7 @@ import {
   useIsMobile,
   usePagination,
   useSpecificVoucher,
-  useUpdateVoucherInOrder,
+  useUpdateOrderType,
   useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder
@@ -43,6 +43,7 @@ import {
 import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IOrder,
+  IUpdateOrderTypeRequest,
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
@@ -66,7 +67,7 @@ export default function StaffVoucherListSheetInUpdateOrder({
   // const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
-  const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updateOrderType } = useUpdateOrderType()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -272,8 +273,14 @@ export default function StaffVoucherListSheetInUpdateOrder({
     }
 
     if (defaultValue) {
-      updateVoucherInOrder(
-        { slug: defaultValue.slug, voucher: isSelected ? null : voucher.slug },
+      const params: IUpdateOrderTypeRequest = {
+        type: defaultValue.type,
+        table: defaultValue.table?.slug || null,
+        voucher: isSelected ? null : voucher.slug,
+      }
+
+      updateOrderType(
+        { slug: defaultValue.slug, params },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['orders'] })

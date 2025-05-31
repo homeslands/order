@@ -15,50 +15,32 @@ import {
 import { ROUTE, VOUCHER_TYPE } from '@/constants'
 import { Button, ScrollArea } from '@/components/ui'
 import { VoucherListSheetInUpdateOrder } from '@/components/app/sheet'
-import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
+import { useOrderBySlug } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
-import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
+import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, OrderTypeEnum } from '@/types'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
+import TableSelect from '@/components/app/select/table-select'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
 import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
-import { useOrderTypeStore } from '@/stores'
 
 export default function ClientUpdateOrderPage() {
-    const navigate = useNavigate()
     const { t } = useTranslation('menu')
-    const { t: tToast } = useTranslation('toast')
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
     const { data: order, isPending, refetch } = useOrderBySlug(slug as string)
-    const { mutate: updateOrderType } = useUpdateOrderType()
-    const { orderType, table, addOrderType, addTable, clearStore } = useOrderTypeStore()
-
+    const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
+    const [type, setType] = useState<string>("")
+    const navigate = useNavigate()
     const [isExpired, setIsExpired] = useState<boolean>(false)
-
     useEffect(() => {
         if (order?.result) {
-            addOrderType(order?.result.type as OrderTypeEnum)
-            addTable(order?.result.table?.slug || "")
+            setSelectedTable(order?.result.table)
+            setType(order?.result.type)
         }
-    }, [order, addOrderType, addTable])
-
-    // Add useEffect to trigger updateVoucherInOrder when selectedTable changes
-    // useEffect(() => {
-    //     if (selectedTable && order?.result) {
-    //         // Only update if the selected table is different from the current order table
-    //         if (selectedTable.slug !== order?.result.table?.slug) {
-    //             updateOrderType({ slug: slug as string, params: { type: orderType, table: selectedTable?.slug || null } }, {
-    //                 onSuccess: () => {
-    //                     showToast(tToast('toast.updateOrderSuccess'))
-    //                 }
-    //             })
-    //         }
-    //     }
-    // }, [selectedTable, updateOrderType, slug, order?.result, type, tToast])
-
+    }, [order])
     const orderItems = order?.result
 
     const originalTotal = orderItems
@@ -106,13 +88,7 @@ export default function ClientUpdateOrderPage() {
     // }
 
     const handleClickPayment = () => {
-        updateOrderType({ slug: slug as string, params: { type: orderType, table: table } }, {
-            onSuccess: () => {
-                clearStore()
-                showToast(tToast('toast.updateOrderSuccess'))
-                navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`)
-            }
-        })
+        navigate(`${ROUTE.CLIENT_PAYMENT}?order=${orderItems?.slug}`)
     }
     if (isPending) { return <UpdateOrderSkeleton /> }
 
@@ -165,11 +141,11 @@ export default function ClientUpdateOrderPage() {
 
                     {/* Right content */}
                     <div className="w-full sm:mt-8 lg:w-2/5">
-                        <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
+                        <OrderTypeInUpdateOrderSelect onChange={(value: string) => setType(value)} typeOrder={type} />
 
-                        {orderType === OrderTypeEnum.AT_TABLE &&
+                        {type === OrderTypeEnum.AT_TABLE &&
                             <div className='mt-5'>
-                                <ClientTableSelectInUpdateOrder order={orderItems} tableOrder={orderItems?.table} onTableSelect={(table: ITable) => addTable(table.slug)} />
+                                <TableSelect tableOrder={orderItems?.table} onTableSelect={(table: ITable) => setSelectedTable(table)} />
                             </div>
                         }
                         {/* Table list order items */}
@@ -281,7 +257,7 @@ export default function ClientUpdateOrderPage() {
                         {order?.result?.status === "pending" &&
                             <div className="flex justify-end mt-4 w-full">
                                 <Button
-                                    disabled={(orderType === OrderTypeEnum.AT_TABLE && !table) || orderItems?.orderItems.length === 0}
+                                    disabled={(type === OrderTypeEnum.AT_TABLE && !selectedTable) || orderItems?.orderItems.length === 0}
                                     onClick={handleClickPayment}>{t('order.continueToPayment')}</Button>
                             </div>}
                     </div>
