@@ -1,9 +1,10 @@
 name: deploy-prod-for-staff
 
 on:
-  push:
-    branches:
-      - prod-for-staff
+  workflow_run:
+    workflows: ["publish-prod-for-staff"]
+    types:
+      - completed
 
 jobs:
   deploy:
