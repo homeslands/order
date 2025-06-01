@@ -152,7 +152,9 @@ export default function UpdateGiftCardSheet({
         control={form.control}
         name="file"
         render={({ field }) => {
-          const initialImage = giftCard.image ? `${publicFileURL}/${giftCard.image}` : null
+          const initialImage = giftCard.image
+            ? `${publicFileURL}/${giftCard.image}`
+            : null
           return (
             <FormItem>
               <FormLabel className="flex items-center gap-1">
@@ -186,7 +188,7 @@ export default function UpdateGiftCardSheet({
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
                 value={field.value}
               />
@@ -212,7 +214,7 @@ export default function UpdateGiftCardSheet({
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
                 value={field.value}
               />
@@ -250,9 +252,12 @@ export default function UpdateGiftCardSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
-        <div data-tooltip-id="update-card" data-tooltip-content={t('giftCard.update')}>
+        <div
+          data-tooltip-id="update-card"
+          data-tooltip-content={t('giftCard.update')}
+        >
           <PenLine className="icon text-blue-500" />
-          <Tooltip id="update-card" variant='light' />
+          <Tooltip id="update-card" variant="light" />
         </div>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">

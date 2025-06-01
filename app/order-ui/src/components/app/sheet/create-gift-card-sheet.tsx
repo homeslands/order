@@ -32,7 +32,7 @@ import { SortOperation } from '@/constants'
 import { IGiftCardCreateRequest } from '@/types'
 import { showToast } from '@/utils'
 import { useSortContext } from '@/contexts'
-import { NumberFormatValues, NumericFormat } from 'react-number-format';
+import { NumberFormatValues, NumericFormat } from 'react-number-format'
 import { ImageUploader } from '../upload'
 
 export default function CreateGiftCardSheet() {
@@ -166,7 +166,7 @@ export default function CreateGiftCardSheet() {
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
               />
             </FormControl>
@@ -191,7 +191,7 @@ export default function CreateGiftCardSheet() {
                 allowNegative={false}
                 customInput={Input}
                 onValueChange={(values: NumberFormatValues) => {
-                  field.onChange(values.floatValue ?? 0);
+                  field.onChange(values.floatValue ?? 0)
                 }}
               />
             </FormControl>
