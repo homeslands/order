@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { CoinsIcon } from 'lucide-react'
+
 import { UpdateGiftCardSheet } from '@/components/app/sheet'
 import { DeleteGiftCardDialog } from '@/components/app/dialog'
 import { IGiftCard } from '@/types'
@@ -49,16 +50,16 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
         return (
           <>
             <div
-              className="line-clamp-3 w-52"
+              className="max-w-[200px] gap-2 truncate"
               data-tooltip-id="title-tooltip"
-              data-tooltip-content={String(giftCard.title)}
+              data-tooltip-content={giftCard.title}
             >
-              {giftCard.title}
+              <span className="text-sm">{giftCard.title}</span>
             </div>
             <Tooltip
               id="title-tooltip"
               variant="light"
-              style={{ width: '15rem' }}
+              style={{ width: '30rem' }}
             />
           </>
         )
@@ -72,7 +73,7 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
         return (
           <>
             <div
-              className="line-clamp-4 w-96 text-sm"
+              className="max-w-[200px] truncate text-sm"
               data-tooltip-id="description-tooltip"
               data-tooltip-content={String(description)}
             >
@@ -80,8 +81,8 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
             </div>
             <Tooltip
               id="description-tooltip"
-              style={{ width: '25rem' }}
               variant="light"
+              style={{ width: '30rem' }}
             />
           </>
         )
