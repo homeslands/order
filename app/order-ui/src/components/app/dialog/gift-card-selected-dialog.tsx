@@ -59,10 +59,10 @@ export function GiftCardSelectedDialog({
             {t('giftCard.viewDetails')}
           </Button>
         )}
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+      </DialogTrigger>{' '}
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
-          <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-lg">
+          <div className="h-48 w-48 flex-shrink-0 overflow-hidden rounded-lg">
             {selectedCard.image ? (
               <img
                 src={`${publicFileURL}/${selectedCard.image}`}
@@ -85,7 +85,7 @@ export function GiftCardSelectedDialog({
 
             <div
               title={selectedCard.description}
-              className="mb-4 mt-2 h-48 overflow-auto whitespace-normal break-words text-sm text-gray-600 md:text-base"
+              className="mb-4 mt-2 max-h-[50vh] overflow-auto whitespace-normal break-words text-sm text-gray-600 md:text-base"
             >
               {selectedCard.description}
             </div>
