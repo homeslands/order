@@ -6,6 +6,7 @@ import { DeleteGiftCardDialog } from '@/components/app/dialog'
 import { IGiftCard } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL, GiftCardStatus } from '@/constants'
+import { Tooltip } from 'react-tooltip'
 
 
 export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
@@ -47,9 +48,15 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       cell: ({ row }) => {
         const giftCard = row.original
         return (
-          <div className="flex items-center gap-2 w-52">
-            <span className="text-sm">{giftCard.title}</span>
-          </div>
+          <>
+            <div className="w-52 line-clamp-3"
+              data-tooltip-id='title-tooltip'
+              data-tooltip-content={String(giftCard.title)}
+            >
+              {giftCard.title}
+            </div>
+            <Tooltip id="title-tooltip" variant='light' style={{ width: '15rem' }} />
+          </>
         )
       },
     },
@@ -59,9 +66,15 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       cell: ({ row }) => {
         const description = row.getValue('description')
         return (
-          <div className="w-96 text-sm">
-            {String(description)}
-          </div>
+          <>
+            <div
+              className="w-96 text-sm line-clamp-4"
+              data-tooltip-id='description-tooltip'
+              data-tooltip-content={String(description)}>
+              {String(description)}
+            </div>
+            <Tooltip id="description-tooltip" style={{ width: '25rem' }} variant='light' />
+          </>
         )
       },
     },
