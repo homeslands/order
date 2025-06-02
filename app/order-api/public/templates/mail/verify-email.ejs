@@ -23,7 +23,10 @@
             <%= locals.code %>
           </p>
         </div>
-        <p class="text-gray-600 mt-4">This code will expire in 10 minutes.</p>
+        <p class="text-gray-600 mt-4">
+          This code will expire at
+          <span class="font-bold"><%= locals.expiresAt %></span>.
+        </p>
         <p class="text-gray-600 mt-4">
           If you didn’t request verify email, please ignore this email.
         </p>
