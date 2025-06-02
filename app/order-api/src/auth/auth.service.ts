@@ -19,6 +19,7 @@ import {
   UpdateAuthProfileRequestDto,
   InitiateVerifyEmailRequestDto,
   ConfirmEmailVerificationCodeRequestDto,
+  VerifyEmailResponseDto,
 } from './auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
@@ -54,7 +55,6 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { getRandomString } from 'src/helper';
-
 @Injectable()
 export class AuthService {
   private saltOfRounds: number;
@@ -251,7 +251,7 @@ export class AuthService {
   async initiateVerifyEmail(
     currentUserDto: CurrentUserDto,
     requestData: InitiateVerifyEmailRequestDto,
-  ): Promise<boolean> {
+  ): Promise<VerifyEmailResponseDto> {
     const context = `${AuthService.name}.${this.initiateVerifyEmail.name}`;
     this.logger.log(
       `Request initiate verify email ${JSON.stringify(requestData)}`,
@@ -316,33 +316,40 @@ export class AuthService {
       email: requestData.email,
     } as VerifyEmailToken);
 
-    await this.transactionManagerService.execute(
-      async (manager) => {
-        await manager.save(verifyEmailToken);
-        await this.mailService.sendVerifyEmail(user, token, requestData.email);
-      },
-      () => {
-        this.logger.log(
-          `User ${user.id} created initiate verify email token`,
-          context,
-        );
-      },
-      (error) => {
-        this.logger.error(
-          `Error when create initiate verify email token`,
-          error.stack,
-          context,
-        );
-        throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
-      },
-    );
+    const result =
+      await this.transactionManagerService.execute<VerifyEmailToken>(
+        async (manager) => {
+          const createdToken = await manager.save(verifyEmailToken);
+          await this.mailService.sendVerifyEmail(
+            user,
+            token,
+            requestData.email,
+            moment(createdToken.expiresAt).format('DD/MM/YYYY HH:mm'),
+          );
+          return createdToken;
+        },
+        () => {
+          this.logger.log(
+            `User ${user.id} created initiate verify email token`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error when create initiate verify email token`,
+            error.stack,
+            context,
+          );
+          throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+        },
+      );
 
-    return true;
+    return this.mapper.map(result, VerifyEmailToken, VerifyEmailResponseDto);
   }
 
   async resendVerifyEmailCode(
     currentUserDto: CurrentUserDto,
-  ): Promise<boolean> {
+  ): Promise<VerifyEmailResponseDto> {
     const context = `${AuthService.name}.${this.initiateVerifyEmail.name}`;
     this.logger.log(
       `Request resend verify email code ${JSON.stringify(currentUserDto)}`,
@@ -360,14 +367,15 @@ export class AuthService {
       throw new AuthException(AuthValidation.USER_ALREADY_VERIFIED_EMAIL);
     }
 
-    const existingToken = await this.verifyEmailRepository.findOne({
-      where: {
-        user: {
-          id: user.id,
+    const existingToken: VerifyEmailToken =
+      await this.verifyEmailRepository.findOne({
+        where: {
+          user: {
+            id: user.id,
+          },
+          expiresAt: MoreThan(new Date()),
         },
-        expiresAt: MoreThan(new Date()),
-      },
-    });
+      });
     if (!existingToken) {
       this.logger.warn(`Verify email token is not existed`, context);
       throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
@@ -377,9 +385,14 @@ export class AuthService {
       user,
       existingToken.token,
       existingToken.email,
+      moment(existingToken.expiresAt).format('DD/MM/YYYY HH:mm'),
     );
 
-    return true;
+    return this.mapper.map(
+      existingToken,
+      VerifyEmailToken,
+      VerifyEmailResponseDto,
+    );
   }
 
   async confirmEmailVerificationCode(

@@ -8,7 +8,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { resolve } from 'path';
 import { User } from 'src/user/user.entity';
 import { MailProducer } from './mail.producer';
-
 @Injectable()
 export class MailService {
   constructor(
@@ -55,7 +54,12 @@ export class MailService {
     this.logger.log(`Email sent to ${user.email}`, context);
   }
 
-  async sendVerifyEmail(user: User, code: string, email: string) {
+  async sendVerifyEmail(
+    user: User,
+    code: string,
+    email: string,
+    expiresAt: string,
+  ) {
     const context = `${MailService.name}.${this.sendVerifyEmail.name}`;
     await this.mailProducer.sendMail({
       to: email,
@@ -64,6 +68,7 @@ export class MailService {
       context: {
         name: `${user.firstName} ${user.lastName}`,
         code,
+        expiresAt,
       },
     });
     this.logger.log(`Email is sending to ${email}`, context);
