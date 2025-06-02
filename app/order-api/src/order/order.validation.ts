@@ -26,6 +26,8 @@ export const INVALID_TABLE_SLUG = 'INVALID_TABLE_SLUG';
 export const INVALID_VOUCHER_SLUG = 'INVALID_VOUCHER_SLUG';
 export const ORDER_IS_NOT_PENDING = 'ORDER_IS_NOT_PENDING';
 export const ERROR_WHEN_CANCEL_ORDER = 'ERROR_WHEN_CANCEL_ORDER';
+export const VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER =
+  'VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -50,7 +52,8 @@ export type TOrderErrorCodeKey =
   | typeof INVALID_TABLE_SLUG
   | typeof INVALID_VOUCHER_SLUG
   | typeof ORDER_IS_NOT_PENDING
-  | typeof ERROR_WHEN_CANCEL_ORDER;
+  | typeof ERROR_WHEN_CANCEL_ORDER
+  | typeof VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -94,4 +97,8 @@ export const OrderValidation: TOrderErrorCode = {
   INVALID_VOUCHER_SLUG: createErrorCode(1010020, 'Invalid voucher slug'),
   ORDER_IS_NOT_PENDING: createErrorCode(1010021, 'Order is not pending'),
   ERROR_WHEN_CANCEL_ORDER: createErrorCode(1010022, 'Error when cancel order'),
+  VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER: createErrorCode(
+    1010023,
+    'Voucher is the same previous voucher',
+  ),
 };
