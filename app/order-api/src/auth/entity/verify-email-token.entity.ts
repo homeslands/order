@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { User } from 'src/user/user.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('verify_email_token_tbl')
 export class VerifyEmailToken extends Base {
@@ -16,6 +17,7 @@ export class VerifyEmailToken extends Base {
   @Column({ name: 'email_column' })
   email: string;
 
+  @AutoMap()
   @Column({ name: 'expires_at_column' })
   expiresAt: Date;
 }

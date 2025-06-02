@@ -25,6 +25,7 @@ import {
   UpdateAuthProfileRequestDto,
   InitiateVerifyEmailRequestDto,
   ConfirmEmailVerificationCodeRequestDto,
+  VerifyEmailResponseDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -113,13 +114,16 @@ export class AuthController {
     @Body(new ValidationPipe({ transform: true }))
     requestData: InitiateVerifyEmailRequestDto,
   ) {
-    await this.authService.initiateVerifyEmail(user, requestData);
+    const result = await this.authService.initiateVerifyEmail(
+      user,
+      requestData,
+    );
     const response = {
       message: 'Initiate verify email successful',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result: 'Initiate verify email successful',
-    } as AppResponseDto<string>;
+      result,
+    } as AppResponseDto<VerifyEmailResponseDto>;
     return response;
   }
 
@@ -136,13 +140,13 @@ export class AuthController {
     @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
     user: CurrentUserDto,
   ) {
-    await this.authService.resendVerifyEmailCode(user);
+    const result = await this.authService.resendVerifyEmailCode(user);
     const response = {
       message: 'Resend verify email code successful',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result: 'Resend verify email code successful',
-    } as AppResponseDto<string>;
+      result,
+    } as AppResponseDto<VerifyEmailResponseDto>;
     return response;
   }
 
