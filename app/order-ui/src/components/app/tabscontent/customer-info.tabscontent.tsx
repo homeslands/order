@@ -27,10 +27,10 @@ export function CustomerInfoTabsContent() {
 
   // check if emailVerificationStatus is not null, then set isVerifyingEmail to true
   useEffect(() => {
-    if (emailVerificationStatus?.startedAt) {
+    if (emailVerificationStatus?.expiresAt) {
       setIsVerifyingEmail(true)
     }
-  }, [emailVerificationStatus?.startedAt])
+  }, [emailVerificationStatus?.expiresAt])
 
   const handleCopyEmail = () => {
     if (userProfile?.email) {

@@ -19,7 +19,8 @@ export const useUserStore = create<IUserStore>()(
       getIsVerifyingEmail: () => get().isVerifyingEmail,
       setEmailVerificationStatus: (
         emailVerificationStatus: {
-          startedAt: number // timestamp
+          expiresAt: string // ISO string timestamp when OTP expires
+          slug?: string // verification slug from response
         } | null,
       ) => set({ emailVerificationStatus }),
       getEmailVerificationStatus: () => get().emailVerificationStatus,

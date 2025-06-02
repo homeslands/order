@@ -3,15 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 interface CountdownTimerProps {
-    startTime: number | string // timestamp in milliseconds or ISO string
-    duration: number // duration in minutes
+    expiresAt: string // ISO string timestamp when the timer expires
     onExpired?: () => void
     className?: string
 }
 
 export const CountdownTimer: React.FC<CountdownTimerProps> = ({
-    startTime,
-    duration,
+    expiresAt,
     onExpired,
     className
 }) => {
@@ -21,12 +19,10 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
     useEffect(() => {
         const calculateTimeLeft = () => {
             const now = Date.now()
-            // Convert startTime to number if it's a string
-            const startTimeMs = typeof startTime === 'string' ? new Date(startTime).getTime() : startTime
-            const endTime = startTimeMs + (duration * 60 * 1000) // Convert minutes to milliseconds
-            const remaining = Math.max(0, endTime - now)
+            const expiresAtMs = new Date(expiresAt).getTime()
+            const remaining = Math.max(0, expiresAtMs - now)
 
-            // Subtract 1 minute (60000ms) as buffer to account for network delays
+            // Subtract 30 seconds as buffer to account for network delays
             const bufferedRemaining = Math.max(0, remaining - 30000) // 30 seconds buffer
             return bufferedRemaining
         }
@@ -47,7 +43,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
         const interval = setInterval(updateTimer, 1000)
 
         return () => clearInterval(interval)
-    }, [startTime, duration, onExpired])
+    }, [expiresAt, onExpired])
 
     const formatTime = (milliseconds: number) => {
         const totalSeconds = Math.floor(milliseconds / 1000)
