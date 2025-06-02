@@ -340,6 +340,48 @@ export class AuthService {
     return true;
   }
 
+  async resendVerifyEmailCode(
+    currentUserDto: CurrentUserDto,
+  ): Promise<boolean> {
+    const context = `${AuthService.name}.${this.initiateVerifyEmail.name}`;
+    this.logger.log(
+      `Request resend verify email code ${JSON.stringify(currentUserDto)}`,
+      context,
+    );
+    const user = await this.userUtils.getUser({
+      where: {
+        id: currentUserDto.userId ?? IsNull(),
+        phonenumber: Not('default-customer'),
+      },
+    });
+
+    if (user.isVerifiedEmail) {
+      this.logger.warn(`User ${user.id} already verified email`, context);
+      throw new AuthException(AuthValidation.USER_ALREADY_VERIFIED_EMAIL);
+    }
+
+    const existingToken = await this.verifyEmailRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        expiresAt: MoreThan(new Date()),
+      },
+    });
+    if (!existingToken) {
+      this.logger.warn(`Verify email token is not existed`, context);
+      throw new AuthException(AuthValidation.VERIFY_EMAIL_TOKEN_NOT_FOUND);
+    }
+
+    await this.mailService.sendVerifyEmail(
+      user,
+      existingToken.token,
+      existingToken.email,
+    );
+
+    return true;
+  }
+
   async confirmEmailVerificationCode(
     currentUserDto: CurrentUserDto,
     requestData: ConfirmEmailVerificationCodeRequestDto,
