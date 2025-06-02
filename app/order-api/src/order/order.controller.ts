@@ -28,6 +28,7 @@ import {
   GetOrderRequestDto,
   OrderResponseDto,
   UpdateOrderRequestDto,
+  UpdateVoucherOrderRequestDto,
 } from './order.dto';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
@@ -203,6 +204,31 @@ export class OrderController {
     const result = await this.orderService.updateOrder(slug, requestData);
     return {
       message: 'Update order status successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<OrderResponseDto>;
+  }
+
+  @Patch(':slug/voucher')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update voucher order' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update voucher order successfully',
+    type: OrderResponseDto,
+  })
+  async updateVoucherOrder(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: UpdateVoucherOrderRequestDto,
+  ) {
+    const result = await this.orderService.updateVoucherOrder(
+      slug,
+      requestData,
+    );
+    return {
+      message: 'Update voucher order successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
