@@ -54,15 +54,18 @@ export interface IUserStore {
   setUserInfo: (userInfo: IUserInfo) => void
   isVerifyingEmail: boolean
   emailVerificationStatus: {
-    startedAt: number // timestamp
+    expiresAt: string // ISO string timestamp when OTP expires
+    slug?: string // verification slug from response
   } | null
   setEmailVerificationStatus: (
     emailVerificationStatus: {
-      startedAt: number // timestamp
+      expiresAt: string // ISO string timestamp when OTP expires
+      slug?: string // verification slug from response
     } | null,
   ) => void
   getEmailVerificationStatus: () => {
-    startedAt: number // timestamp
+    expiresAt: string // ISO string timestamp when OTP expires
+    slug?: string // verification slug from response
   } | null
   getUserInfo: () => IUserInfo | null
   getIsVerifyingEmail: () => boolean
