@@ -7,6 +7,7 @@ import {
   forgotPasswordAndResetPassword,
   login,
   register,
+  resendEmailVerification,
   verifyEmail,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
@@ -65,6 +66,14 @@ export const useConfirmEmailVerification = () => {
   return useMutation({
     mutationFn: async (code: string) => {
       return confirmEmailVerification(code)
+    },
+  })
+}
+
+export const useResendEmailVerification = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return resendEmailVerification()
     },
   })
 }
