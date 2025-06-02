@@ -7,6 +7,7 @@ import {
   IAuthorityGroup,
   ICreatePermissionRequest,
   IRegisterRequest,
+  IEmailVerificationResponse,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -51,8 +52,8 @@ export async function forgotPasswordAndResetPassword(data: {
 
 export async function verifyEmail(
   verifyParams: IVerifyEmailRequest,
-): Promise<IApiResponse<null>> {
-  const response = await http.post<IApiResponse<null>>(
+): Promise<IApiResponse<IEmailVerificationResponse>> {
+  const response = await http.post<IApiResponse<IEmailVerificationResponse>>(
     `/auth/initiate-verify-email`,
     verifyParams,
   )
@@ -69,8 +70,10 @@ export async function confirmEmailVerification(
   return response.data
 }
 
-export async function resendEmailVerification(): Promise<IApiResponse<null>> {
-  const response = await http.post<IApiResponse<null>>(
+export async function resendEmailVerification(): Promise<
+  IApiResponse<IEmailVerificationResponse>
+> {
+  const response = await http.post<IApiResponse<IEmailVerificationResponse>>(
     `/auth/resend-verify-email`,
   )
   return response.data

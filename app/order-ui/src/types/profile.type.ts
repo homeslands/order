@@ -36,3 +36,7 @@ export interface ICreatePermissionRequest {
   createAuthorities: string[]
   deleteAuthorities: string[]
 }
+
+export interface IEmailVerificationResponse extends IBase {
+  expiresAt: string
+}

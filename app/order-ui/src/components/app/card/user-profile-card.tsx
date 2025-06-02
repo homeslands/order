@@ -31,10 +31,10 @@ export default function UserProfileCard() {
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
 
   useEffect(() => {
-    if (emailVerificationStatus?.startedAt) {
+    if (emailVerificationStatus?.expiresAt) {
       setIsVerifyingEmail(true)
     }
-  }, [emailVerificationStatus?.startedAt])
+  }, [emailVerificationStatus?.expiresAt])
 
   const handleUploadProfilePicture = (file: File) => {
     uploadProfilePicture(file, {

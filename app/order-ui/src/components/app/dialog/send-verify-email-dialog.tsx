@@ -53,10 +53,10 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
 
   // use useEffect to check if emailVerificationStatus is not null, then set isOpen to true
   useEffect(() => {
-    if (emailVerificationStatus?.startedAt) {
+    if (emailVerificationStatus?.expiresAt) {
       setIsOpen(true)
     }
-  }, [emailVerificationStatus?.startedAt])
+  }, [emailVerificationStatus?.expiresAt])
 
   useEffect(() => {
     // Update form values when userInfo changes
@@ -70,7 +70,7 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
     setIsOpen(true)
     // Don't reset store - let existing state determine which component to show
     // Only reset local OTP input value if no verification is in progress
-    if (!emailVerificationStatus?.startedAt) {
+    if (!emailVerificationStatus?.expiresAt) {
       setOtpValue('')
     }
   }
@@ -81,9 +81,10 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
         queryClient.invalidateQueries({
           queryKey: [QUERYKEY.profile],
         })
-        // get current url and set to store
+        // Store the expiration time and slug from response
         setEmailVerificationStatus({
-          startedAt: response.timestamp,
+          expiresAt: response.result.expiresAt,
+          slug: response.result.slug,
         })
         showToast(t('toast.sendVerifyEmailSuccess'))
         // Don't close dialog, show OTP input instead
@@ -124,7 +125,8 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
     resendEmailVerification(undefined, {
       onSuccess: (response) => {
         setEmailVerificationStatus({
-          startedAt: response.timestamp,
+          expiresAt: response.result.expiresAt,
+          slug: response.result.slug,
         })
         showToast(t('toast.resendVerifyEmailSuccess'))
         setOtpValue('')
@@ -156,7 +158,7 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
   }
 
   // Show OTP input if verification has started
-  const showOtpInput = emailVerificationStatus?.startedAt
+  const showOtpInput = emailVerificationStatus?.expiresAt
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -201,10 +203,9 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
                 allowText={true}
               />
 
-              {emailVerificationStatus?.startedAt && (
+              {emailVerificationStatus?.expiresAt && (
                 <CountdownTimer
-                  startTime={emailVerificationStatus.startedAt}
-                  duration={10} // 10 minutes
+                  expiresAt={emailVerificationStatus.expiresAt}
                   onExpired={handleCountdownExpired}
                   className="mt-2"
                 />
