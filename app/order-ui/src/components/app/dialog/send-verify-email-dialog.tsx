@@ -24,7 +24,7 @@ import {
 } from '@/components/ui'
 
 import { IVerifyEmailRequest } from '@/types'
-import { useConfirmEmailVerification, useVerifyEmail } from '@/hooks'
+import { useConfirmEmailVerification, useResendEmailVerification, useVerifyEmail } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 import { useAuthStore, useUserStore } from '@/stores'
@@ -41,6 +41,7 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const { mutate: verifyEmail } = useVerifyEmail()
   const { mutate: confirmEmailVerification, isPending: isConfirmingEmailVerification } = useConfirmEmailVerification()
+  const { mutate: resendEmailVerification, isPending: isResendingEmailVerification } = useResendEmailVerification()
 
   const form = useForm<TVerifyEmailSchema>({
     resolver: zodResolver(verifyEmailSchema),
@@ -119,18 +120,17 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
     }
   }
 
-  // const handleResendOtp = () => {
-  //   const data = form.getValues()
-  //   verifyEmail(data, {
-  //     onSuccess: (response) => {
-  //       setEmailVerificationStatus({
-  //         startedAt: response.timestamp,
-  //       })
-  //       showToast(t('toast.sendVerifyEmailSuccess'))
-  //       setOtpValue('')
-  //     },
-  //   })
-  // }
+  const handleResendOtp = () => {
+    resendEmailVerification(undefined, {
+      onSuccess: (response) => {
+        setEmailVerificationStatus({
+          startedAt: response.timestamp,
+        })
+        showToast(t('toast.resendVerifyEmailSuccess'))
+        setOtpValue('')
+      },
+    })
+  }
 
   const handleCountdownExpired = () => {
     setEmailVerificationStatus(null)
@@ -219,13 +219,14 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
               {isVerifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : isConfirmingEmailVerification ? <Loader2 className="w-4 h-4 animate-spin" /> : t('profile.verifyOtp')}
             </Button>
 
-            {/* <Button
-                variant="outline"
-                onClick={handleResendOtp}
-                className="w-full"
-              >
-                {t('profile.resendOtp')}
-              </Button> */}
+            <Button
+              variant="outline"
+              onClick={handleResendOtp}
+              className="w-full"
+              disabled={isResendingEmailVerification}
+            >
+              {isResendingEmailVerification ? <Loader2 className="w-4 h-4 animate-spin" /> : t('profile.resendOtp')}
+            </Button>
           </div>
         ) : (
           // Email Input Section
