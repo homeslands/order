@@ -149,6 +149,12 @@ export class OrderPaymentResponseDto extends BaseResponseDto {
 
   @AutoMap()
   statusMessage: string;
+
+  @AutoMap()
+  amount: number;
+
+  @AutoMap()
+  qrCode?: string;
 }
 
 export class OrderTableResponseDto extends BaseResponseDto {

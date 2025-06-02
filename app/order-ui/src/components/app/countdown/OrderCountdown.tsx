@@ -27,7 +27,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
             const createTime = moment(createdAt)
             const now = moment()
             const timePassed = now.diff(createTime, 'seconds')
-            const remainingTime = 600 - timePassed // 10 minutes
+            const remainingTime = 900 - timePassed // 15 minutes
             setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
             setIsExpired(remainingTime <= 0)
         }

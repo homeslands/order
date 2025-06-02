@@ -9,7 +9,7 @@ import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE, paymentStatus } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
@@ -31,11 +31,23 @@ export function ClientPaymentPage() {
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
-  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
+  const { paymentMethod, setPaymentMethod } = usePaymentMethodStore()
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
+
+  const orderData = order?.result
+
+  // Get QR code from orderData
+  const qrCode = orderData?.payment?.qrCode || ''
+  // const paymentSlug = orderData?.payment?.slug || ''
+
+  // Check if payment amount matches order subtotal and QR code is valid
+  const hasValidPaymentAndQr = orderData?.payment?.amount != null &&
+    orderData?.subtotal != null &&
+    orderData.payment.amount === orderData.subtotal &&
+    qrCode && qrCode.trim() !== ''
 
   // calculate original total
   const originalTotal = order?.result.orderItems ?
@@ -57,10 +69,32 @@ export function ClientPaymentPage() {
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
-    } else if (qrCode && paymentSlug) {
-      setIsPolling(true)
     }
-  }, [isExpired, qrCode, paymentSlug])
+  }, [isExpired])
+
+  // Start polling when QR code exists and payment is valid, or when payment method is selected
+  useEffect(() => {
+    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+      if (hasValidPaymentAndQr) {
+        // Case 1: Valid QR code - check if payment is completed
+        if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
+          setIsPolling(false)
+        } else {
+          setIsPolling(true)
+        }
+      } else if (orderData?.payment && orderData.payment.amount !== orderData.subtotal) {
+        // Case 2: Payment exists but amount doesn't match - start polling for status updates
+        setIsPolling(true)
+      } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
+        // Case 3: Payment exists but no QR code (amount < 2000) - start polling
+        setIsPolling(true)
+      } else {
+        setIsPolling(false)
+      }
+    } else {
+      setIsPolling(false)
+    }
+  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -73,8 +107,15 @@ export function ClientPaymentPage() {
           // Always ensure loading is false before navigating
           setIsLoading(false)
           navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+        } else {
+          // Turn off loading if order is updated but not yet paid (for orders without QR code)
+          const updatedOrderData = updatedOrder.data?.result
+          if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
+            updatedOrderData.payment.amount === updatedOrderData.subtotal) {
+            setIsLoading(false)
+          }
         }
-      }, 3000)
+      }, 2000)
     }
 
     return () => {
@@ -84,8 +125,7 @@ export function ClientPaymentPage() {
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
-    if (selectedPaymentMethod === PaymentMethod.BANK_TRANSFER && qrCode) setIsPolling(true)
-    else setIsPolling(false) // Stop polling after selecting payment method
+    // Polling logic is handled in useEffect above based on paymentMethod and payment status
   }
 
   const handleConfirmPayment = () => {
@@ -99,8 +139,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -131,8 +170,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -163,8 +201,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -414,7 +451,7 @@ export function ClientPaymentPage() {
         {/* Payment method */}
         <ClientPaymentMethodSelect
           paymentMethod={paymentMethod}
-          qrCode={qrCode}
+          qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
         />
@@ -422,13 +459,15 @@ export function ClientPaymentPage() {
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) &&
             <div className="flex gap-2">
-              {paymentSlug ? <DownloadQrCode qrCode={qrCode} slug={slug} /> :
+              {(hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER) ?
+                <DownloadQrCode qrCode={qrCode} slug={slug} />
+                :
                 <Button
                   disabled={isPendingInitiatePayment || isPendingInitiatePublicPayment}
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >
-                  {isPendingInitiatePayment || isPendingInitiatePublicPayment && <ButtonLoading />}
+                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment) && <ButtonLoading />}
                   {t('paymentMethod.confirmPayment')}
                 </Button>}
             </div>}
