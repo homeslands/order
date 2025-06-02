@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import {
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
@@ -106,6 +106,12 @@ export class InitiateVerifyEmailRequestDto {
   @AutoMap()
   @IsString()
   email: string;
+}
+export class VerifyEmailResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsDate()
+  expiresAt: Date;
 }
 export class ConfirmEmailVerificationCodeRequestDto {
   @ApiProperty()

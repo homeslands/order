@@ -25,6 +25,7 @@ import {
   UpdateAuthProfileRequestDto,
   InitiateVerifyEmailRequestDto,
   ConfirmEmailVerificationCodeRequestDto,
+  VerifyEmailResponseDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -40,6 +41,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 import { CurrentUser } from '../user/user.decorator';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CustomFileInterceptor } from 'src/file/custom-interceptor';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Authentication')
 @ApiBearerAuth()
@@ -112,13 +114,39 @@ export class AuthController {
     @Body(new ValidationPipe({ transform: true }))
     requestData: InitiateVerifyEmailRequestDto,
   ) {
-    await this.authService.initiateVerifyEmail(user, requestData);
+    const result = await this.authService.initiateVerifyEmail(
+      user,
+      requestData,
+    );
     const response = {
       message: 'Initiate verify email successful',
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
-      result: 'Initiate verify email successful',
-    } as AppResponseDto<string>;
+      result,
+    } as AppResponseDto<VerifyEmailResponseDto>;
+    return response;
+  }
+
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-verify-email')
+  @ApiOperation({ summary: 'Resend verify email' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: String,
+    description: 'Resend verify email code successful',
+  })
+  async resendVerifyEmailCode(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
+  ) {
+    const result = await this.authService.resendVerifyEmailCode(user);
+    const response = {
+      message: 'Resend verify email code successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<VerifyEmailResponseDto>;
     return response;
   }
 

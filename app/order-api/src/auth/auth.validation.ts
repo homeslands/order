@@ -28,6 +28,7 @@ export const ERROR_REGISTER_USER = 'ERROR_REGISTER_USER';
 export const ERROR_UPDATE_PASSWORD = 'ERROR_UPDATE_PASSWORD';
 export const ERROR_CREATE_FORGOT_PASSWORD_TOKEN =
   'ERROR_CREATE_FORGOT_PASSWORD_TOKEN';
+export const USER_ALREADY_VERIFIED_EMAIL = 'USER_ALREADY_VERIFIED_EMAIL';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -54,7 +55,8 @@ export type TAuthErrorCodeKey =
   | typeof ERROR_REGISTER_USER
   | typeof ERROR_UPDATE_PASSWORD
   | typeof ERROR_CREATE_FORGOT_PASSWORD_TOKEN
-  | typeof INVALID_FIRSTNAME;
+  | typeof INVALID_FIRSTNAME
+  | typeof USER_ALREADY_VERIFIED_EMAIL;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -105,5 +107,9 @@ export const AuthValidation: TAuthErrorCode = {
   ERROR_CREATE_FORGOT_PASSWORD_TOKEN: createErrorCode(
     119024,
     'Error when creating forgot password token',
+  ),
+  USER_ALREADY_VERIFIED_EMAIL: createErrorCode(
+    119025,
+    'User already verified email',
   ),
 };
