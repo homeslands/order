@@ -69,6 +69,13 @@ export async function confirmEmailVerification(
   return response.data
 }
 
+export async function resendEmailVerification(): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    `/auth/resend-verify-email`,
+  )
+  return response.data
+}
+
 export async function authorityGroup(
   params: IGetAuthorityGroupsRequest,
 ): Promise<IApiResponse<IAuthorityGroup[]>> {
