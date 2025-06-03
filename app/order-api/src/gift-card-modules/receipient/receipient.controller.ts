@@ -10,8 +10,11 @@ import {
 import { ReceipientService } from './receipient.service';
 import { CreateReceipientDto } from './dto/create-receipient.dto';
 import { UpdateReceipientDto } from './dto/update-receipient.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('receipient')
+@ApiTags('Receipient Resource')
+@ApiBearerAuth()
 export class ReceipientController {
   constructor(private readonly receipientService: ReceipientService) {}
 

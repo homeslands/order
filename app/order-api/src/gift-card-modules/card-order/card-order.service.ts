@@ -6,18 +6,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
-import { UpdateCardOrderDto } from './dto/update-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
 import { User } from 'src/user/user.entity';
 import { Receipient } from '../receipient/entities/receipient.entity';
-import { PaymentStatus } from 'src/payment/payment.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { Mapper } from '@automapper/core';
 import { CardOrderResponseDto } from './dto/card-order-response.dto';
+import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
+import { InjectMapper } from '@automapper/nestjs';
+import { CreateReceipientDto } from '../receipient/dto/create-receipient.dto';
 
 @Injectable()
 export class CardOrderService {
@@ -30,12 +31,14 @@ export class CardOrderService {
     private userRepository: Repository<User>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
   ) {}
 
   async create(createCardOrderDto: CreateCardOrderDto) {
     const context = `${CardOrderService.name}.${this.create.name}`;
+    console.log({createCardOrderDto, receipients: createCardOrderDto.receipients});
     this.logger.debug(
       `Creating card order: ${JSON.stringify(createCardOrderDto)}`,
       context,
@@ -53,7 +56,7 @@ export class CardOrderService {
 
     const customer = await this.userRepository.findOne({
       where: {
-        slug: createCardOrderDto.customerSlug,
+        slug: createCardOrderDto.customerSlug || IsNull(),
       },
     });
 
@@ -63,12 +66,13 @@ export class CardOrderService {
 
     const cashier = await this.userRepository.findOne({
       where: {
-        slug: createCardOrderDto.cashierSlug,
+        slug: createCardOrderDto.cashierSlug || IsNull(),
       },
     });
 
     if (!cashier) {
-      throw new NotFoundException('Cashier not found');
+      this.logger.warn('Cashier not found', context);
+      // throw new NotFoundException('Cashier not found');
     }
 
     const totalAmount = card.price * createCardOrderDto.quantity;
@@ -87,23 +91,21 @@ export class CardOrderService {
       throw new BadRequestException('Total quantity is not correct');
     }
 
-    const ReceipientPromiseSettledResult: PromiseSettledResult<
-      Partial<Receipient>
-    >[] = await Promise.allSettled(
-      createCardOrderDto.receipients.map(async (recipient) => {
+    const receipients:Receipient[] = await Promise.all(
+      createCardOrderDto.receipients.map(async (createReceipientDto) => {
         const receipient = await this.userRepository.findOne({
           where: {
-            slug: recipient.recipientSlug,
+            slug: createReceipientDto.recipientSlug,
           },
         });
 
         if (!receipient) {
-          throw new NotFoundException('Receipient not found');
+          throw new NotFoundException(`Receipient ${createReceipientDto.recipientSlug} not found`);
         }
 
-        const receipientItem: Partial<Receipient> = {
-          quantity: recipient.quantity,
-          message: recipient.message,
+        const receipientItem = this.mapper.map(createReceipientDto, CreateReceipientDto, Receipient);
+
+        Object.assign(receipientItem, {
           status: 'pending',
 
           name: `${receipient.firstName} ${receipient.lastName}`,
@@ -111,34 +113,28 @@ export class CardOrderService {
           recipientId: receipient.id,
           recipient: receipient,
 
-          senderId: cashier.id,
-          senderName: `${cashier.firstName} ${cashier.lastName}`,
-          senderPhone: cashier.phonenumber,
-          sender: cashier,
-        };
+          senderId: customer.id,
+          senderName: `${customer.firstName} ${customer.lastName}`,
+          senderPhone: customer.phonenumber,
+          sender: customer
+        } as Partial<Receipient>);
 
         return receipientItem;
       }),
     );
 
-    const receipients = ReceipientPromiseSettledResult.map((result) => {
-      if (result.status === 'fulfilled') {
-        return result.value;
-      }
-    });
 
-    const cardOrder: Partial<CardOrder> = {
+    const cardOrder = this.mapper.map(createCardOrderDto, CreateCardOrderDto, CardOrder);
+
+    Object.assign(cardOrder, {
       type: createCardOrderDto.cardOrderType,
       status: 'pending',
-      totalAmount,
-      orderDate: new Date(),
-      // sequence: '',
-      quantity: totalQuantity,
+      receipients,
 
       cardId: card.id,
       cardPoint: card.points,
       cardTitle: card.title,
-      cardImage: card.image,
+      cardImage: card.image || 'no-image.png',
       cardPrice: card.price,
       card,
 
@@ -147,26 +143,27 @@ export class CardOrderService {
       customerPhone: customer.phonenumber,
       customer,
 
-      cashierId: cashier.id,
-      cashierName: `${cashier.firstName} ${cashier.lastName}`,
-      cashierPhone: cashier.phonenumber,
-      cashier,
+      cashierId: cashier ? cashier.id : null,
+      cashierName: cashier ? `${cashier.firstName} ${cashier.lastName}` : null,
+      cashierPhone: cashier ? cashier.phonenumber : null,
+      cashier: cashier ? cashier : null,
 
-      paymentStatus: PaymentStatus.PENDING,
+    } as Partial<CardOrder>);
 
-      receipients: receipients.filter(
-        (receipient) => receipient !== undefined,
-      ) as Receipient[],
-    };
+    console.log({cardOrder});
 
     const createdCardOrder = await this.transactionService.execute<CardOrder>(
       async (manager) => {
         const createdCardOrder = await manager.save(cardOrder as CardOrder);
         return createdCardOrder;
       },
+      (result) => {
+        this.logger.debug(`Created card order: ${JSON.stringify(result)}`, context);
+      },
       (error) => {
         this.logger.error(
           `Error creating card order: ${JSON.stringify(error)}`,
+          error.stack,
           context,
         );
         throw error;
@@ -175,19 +172,27 @@ export class CardOrderService {
     return this.mapper.map(createdCardOrder, CardOrder, CardOrderResponseDto);
   }
 
-  findAll() {
-    return `This action returns all cardOrder`;
+  async findAll(payload: FindAllCardOrderDto) {
+    const context = `${CardOrderService.name}.${this.findAll.name}`;
+    this.logger.debug(`Find all card order: ${JSON.stringify(payload)}`, context);
+
+    const cardOrders = await this.cardOrderRepository.find({});
+
+    return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cardOrder`;
-  }
+  async findOne(slug: string) {
+    const context = `${CardOrderService.name}.${this.findOne.name}`;
+    this.logger.debug(`Find one card order: ${slug}`, context);
 
-  update(id: number, updateCardOrderDto: UpdateCardOrderDto) {
-    return `This action updates a #${id} cardOrder`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cardOrder`;
+    const cardOrder = await this.cardOrderRepository.findOne({
+      where: {
+        slug,
+      },
+    });
+    if (!cardOrder) {
+      throw new NotFoundException('Card order not found');
+    }
+    return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
   }
 }

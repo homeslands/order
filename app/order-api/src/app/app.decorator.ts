@@ -4,7 +4,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from './app.dto';
 
 export interface IApiResponseOptions<TModel> {
   type: TModel;
-  description: string;
+  description?: string;
   status?: HttpStatus;
 }
 
