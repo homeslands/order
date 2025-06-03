@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, Star, ShoppingCart, FileText } from 'lucide-react'
+import { Gift, Star, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -95,12 +95,11 @@ export function GiftCardSelectedDrawer({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
+                <CoinsIcon className="h-5 w-5 text-yellow-500" />
                 <span className="text-lg font-bold text-primary">
                   {new Intl.NumberFormat().format(
                     Number(selectedCard.points * quantity),
                   )}{' '}
-                  {t('giftCard.coin')}
                 </span>
               </div>
               <span className="text-lg font-bold text-primary">
