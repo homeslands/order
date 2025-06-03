@@ -67,6 +67,7 @@
     "profile": "Profile",
     "cart": "Cart",
     "history": "Order history",
-    "order": "Order"
+    "order": "Order",
+    "giftCard": "Gift Card"
   }
 }
