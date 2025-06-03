@@ -234,6 +234,18 @@ export async function deleteOrderItem(
   return response.data
 }
 
+// update voucher
+export async function updateVoucherInOrder(
+  slug: string,
+  voucher: string | null, // voucher: null for remove voucher
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.patch<IApiResponse<IOrder>>(
+    `/orders/${slug}/voucher`,
+    { voucher },
+  )
+  return response.data
+}
+
 export async function updateOrderType(
   slug: string,
   params: IUpdateOrderTypeRequest,
