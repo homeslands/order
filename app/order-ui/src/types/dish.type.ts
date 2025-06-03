@@ -269,7 +269,6 @@ export interface IAddNewOrderItemRequest {
 export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
-  voucher?: string | null
   description?: string
 }
 
