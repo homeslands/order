@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
-import { CoinsIcon, Gift, Star } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { CoinsIcon, Gift } from 'lucide-react'
 import { formatCurrency } from '@/utils'
 import { publicFileURL } from '@/constants'
 import { IGiftCard } from '@/types'
@@ -17,14 +16,7 @@ interface GiftCardItemProps {
   onClose: () => void
 }
 
-export default function GiftCardItem({
-  card,
-  index,
-  isSelected,
-  onSelect,
-  onClose,
-}: GiftCardItemProps) {
-  const { t } = useTranslation(['giftCard', 'common'])
+export default function GiftCardItem({ card, index }: GiftCardItemProps) {
   const isMobile = useIsMobile()
 
   const cardVariants = {
