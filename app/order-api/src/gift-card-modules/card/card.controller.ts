@@ -31,7 +31,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 
 @Controller('card')
 @ApiBearerAuth()
-@ApiTags('Card')
+@ApiTags('Card Resource')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
 
