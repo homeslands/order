@@ -7,11 +7,16 @@ import {
   Param,
   Delete,
   ValidationPipe,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { CardOrderService } from './card-order.service';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
-import { UpdateCardOrderDto } from './dto/update-card-order.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AppResponseDto } from 'src/app/app.dto';
+import { CardOrderResponseDto } from './dto/card-order-response.dto';
+import { ApiResponseWithType } from 'src/app/app.decorator';
+import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 
 @Controller('card-order')
 @ApiTags('Card Order Resource')
@@ -21,33 +26,48 @@ export class CardOrderController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new card order' })
-  create(
+  @ApiResponseWithType({
+    status: HttpStatus.CREATED,
+    type: CardOrderResponseDto,
+  })
+  async create(
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     createCardOrderDto: CreateCardOrderDto,
   ) {
-    return this.cardOrderService.create(createCardOrderDto);
+    const result = await this.cardOrderService.create(createCardOrderDto);
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<CardOrderResponseDto>;
   }
 
   @Get()
-  findAll() {
-    return this.cardOrderService.findAll();
+  @ApiOperation({ summary: 'Retrieve all card orders' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    type: CardOrderResponseDto,
+    isArray: true,
+  })
+  async findAll(@Query(new ValidationPipe({ transform: true, whitelist: true })) payload: FindAllCardOrderDto) {
+    const result = await this.cardOrderService.findAll(payload);
+
+    return {
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<CardOrderResponseDto[]>;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cardOrderService.findOne(+id);
-  }
+  @Get(':slug')
+  async findOne(@Param('slug') slug: string) {
+    const result = await this.cardOrderService.findOne(slug);
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCardOrderDto: UpdateCardOrderDto,
-  ) {
-    return this.cardOrderService.update(+id, updateCardOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cardOrderService.remove(+id);
+    return {
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<CardOrderResponseDto>;
   }
 }
