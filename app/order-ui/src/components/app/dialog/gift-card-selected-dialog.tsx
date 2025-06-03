@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, Star, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
+import { Gift, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 // import { truncate } from 'lodash' - không sử dụng
 
