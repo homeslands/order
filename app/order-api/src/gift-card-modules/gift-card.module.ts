@@ -20,7 +20,8 @@ import { GiftCard } from './gift-card/entities/gift-card.entity';
 import { CardOrder } from './card-order/entities/card-order.entity';
 import { BalanceProfile } from './balance/balance.mapper';
 import { User } from 'src/user/user.entity';
-
+import { CardOrderProfile } from './card-order/card-order.mapper';
+import { ReceipientProfile } from './receipient/receipient.mapper';
 const controllers = [
   CardController,
   BalanceController,
@@ -36,7 +37,7 @@ const providers = [
   ReceipientService,
 ];
 
-const mappers = [BalanceProfile, CardProfile];
+const mappers = [BalanceProfile, CardProfile, CardOrderProfile, ReceipientProfile];
 
 const modules = [
   TypeOrmModule.forFeature([
@@ -50,7 +51,8 @@ const modules = [
   FileModule,
   DbModule,
 ];
-const exportComponents = [
+
+const exportServices = [
   CardService,
   BalanceService,
   CardOrderService,
@@ -58,10 +60,12 @@ const exportComponents = [
   ReceipientService,
 ];
 
+const exportMappers = [];
+
 @Module({
   imports: [...modules],
   controllers: [...controllers],
   providers: [...providers, ...mappers],
-  exports: [...exportComponents],
+  exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}
