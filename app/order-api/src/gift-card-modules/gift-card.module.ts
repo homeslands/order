@@ -21,6 +21,7 @@ import { CardOrder } from './card-order/entities/card-order.entity';
 import { BalanceProfile } from './balance/balance.mapper';
 import { User } from 'src/user/user.entity';
 import { CardOrderProfile } from './card-order/card-order.mapper';
+import { GiftCardProfile } from './gift-card/gift-card.mapper';
 import { ReceipientProfile } from './receipient/receipient.mapper';
 const controllers = [
   CardController,
@@ -37,7 +38,13 @@ const providers = [
   ReceipientService,
 ];
 
-const mappers = [BalanceProfile, CardProfile, CardOrderProfile, ReceipientProfile];
+const mappers = [
+  BalanceProfile,
+  CardProfile,
+  CardOrderProfile,
+  ReceipientProfile,
+  GiftCardProfile
+];
 
 const modules = [
   TypeOrmModule.forFeature([
@@ -68,4 +75,4 @@ const exportMappers = [];
   providers: [...providers, ...mappers],
   exports: [...exportServices, ...exportMappers],
 })
-export class GiftCardModule {}
+export class GiftCardModule { }
