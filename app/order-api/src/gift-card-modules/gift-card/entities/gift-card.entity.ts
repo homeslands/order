@@ -1,22 +1,28 @@
+import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('gift_card_tbl')
 export class GiftCard extends Base {
   @Column({ name: 'card_name_column' })
+  @AutoMap()
   cardName: string;
 
   @Column({ name: 'card_points_column' })
+  @AutoMap()
   cardPoints: number;
 
   @Column({ name: 'status_column' })
+  @AutoMap()
   status: string;
 
   @Column({ name: 'serial_number_column', unique: true })
+  @AutoMap()
   serial: string;
 
   @Column({ name: 'code_column', unique: true })
+  @AutoMap()
   code: string;
 
   @Column({ name: 'card_order_id_column' })
@@ -26,9 +32,10 @@ export class GiftCard extends Base {
   @JoinColumn({ name: 'card_order_column' })
   cardOrder: CardOrder;
 
-  @Column({ name: 'used_at_column' })
+  @CreateDateColumn({ type: 'timestamp', name: 'used_at_column' })
   usedAt: Date;
 
-  @Column({ name: 'used_by_column' })
+  @Column({ name: 'used_by_column', nullable: true })
+  @AutoMap()
   usedBy: string;
 }
