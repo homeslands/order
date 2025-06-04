@@ -41,7 +41,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
       </TabsContent>
       {type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0">
-          <SystemTableSelectInUpdateOrder order={order} onSuccess={onSuccess} />
+          <SystemTableSelectInUpdateOrder order={order} />
         </TabsContent>
       )}
     </Tabs>

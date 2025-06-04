@@ -372,6 +372,7 @@
     "emailTokenExpired": "OTP expired",
     "errorWhenConfirmEmailVerification": "Error when confirming email verification",
     "orderAlreadyHasPayment": "Order already has payment QR code!",
-    "qrCodeRestored": "Payment QR code has been restored"
+    "qrCodeRestored": "Payment QR code has been restored",
+    "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!"
   }
 }
