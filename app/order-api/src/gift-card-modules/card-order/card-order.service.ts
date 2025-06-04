@@ -19,6 +19,8 @@ import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { CreateReceipientDto } from '../receipient/dto/create-receipient.dto';
+import { GiftCard } from '../gift-card/entities/gift-card.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CardOrderService {
@@ -34,12 +36,12 @@ export class CardOrderService {
     @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async create(createCardOrderDto: CreateCardOrderDto) {
     const context = `${CardOrderService.name}.${this.create.name}`;
-    console.log({createCardOrderDto, receipients: createCardOrderDto.receipients});
-    this.logger.debug(
+    console.log({ createCardOrderDto, receipients: createCardOrderDto.receipients });
+    this.logger.log(
       `Creating card order: ${JSON.stringify(createCardOrderDto)}`,
       context,
     );
@@ -91,7 +93,7 @@ export class CardOrderService {
       throw new BadRequestException('Total quantity is not correct');
     }
 
-    const receipients:Receipient[] = await Promise.all(
+    const receipients: Receipient[] = await Promise.all(
       createCardOrderDto.receipients.map(async (createReceipientDto) => {
         const receipient = await this.userRepository.findOne({
           where: {
@@ -123,18 +125,30 @@ export class CardOrderService {
       }),
     );
 
+    const giftCards: GiftCard[] = await Promise.all(
+      Array.from({ length: createCardOrderDto.quantity }).map(async (item) => {
+        const giftCard = new GiftCard();
+        Object.assign(giftCard, {
+          cardPoints: card.points,
+          cardName: card.title,
+          status: 'available',
+          serial: uuidv4().replace(/-/g, '').slice(0, 10).toUpperCase(),
+          code: uuidv4().replace(/-/g, '').slice(0, 10).toUpperCase(),
+        } as Partial<GiftCard>);
+        return giftCard;
+      }),
+    );
 
     const cardOrder = this.mapper.map(createCardOrderDto, CreateCardOrderDto, CardOrder);
 
     Object.assign(cardOrder, {
       type: createCardOrderDto.cardOrderType,
       status: 'pending',
-      receipients,
 
       cardId: card.id,
       cardPoint: card.points,
       cardTitle: card.title,
-      cardImage: card.image || 'no-image.png',
+      cardImage: card.image,
       cardPrice: card.price,
       card,
 
@@ -150,15 +164,30 @@ export class CardOrderService {
 
     } as Partial<CardOrder>);
 
-    console.log({cardOrder});
-
     const createdCardOrder = await this.transactionService.execute<CardOrder>(
       async (manager) => {
         const createdCardOrder = await manager.save(cardOrder as CardOrder);
+
+        receipients.forEach((item: Receipient) => {
+          item.cardOrder = createdCardOrder;
+          item.cardOrderId = createdCardOrder.id;
+        });
+
+        giftCards.forEach((item: GiftCard) => {
+          item.cardOrder = createdCardOrder;
+          item.cardOrderId = createdCardOrder.id;
+        });
+
+
+        await manager.save(receipients);
+        await manager.save(giftCards);
+
+        // createdCardOrder.receipients = receipients;
+        // createdCardOrder.giftCards = giftCards;
         return createdCardOrder;
       },
       (result) => {
-        this.logger.debug(`Created card order: ${JSON.stringify(result)}`, context);
+        this.logger.log(`Created card order: ${JSON.stringify(result)}`, context);
       },
       (error) => {
         this.logger.error(
@@ -174,21 +203,24 @@ export class CardOrderService {
 
   async findAll(payload: FindAllCardOrderDto) {
     const context = `${CardOrderService.name}.${this.findAll.name}`;
-    this.logger.debug(`Find all card order: ${JSON.stringify(payload)}`, context);
+    this.logger.log(`Find all card order: ${JSON.stringify(payload)}`, context);
 
-    const cardOrders = await this.cardOrderRepository.find({});
+    const cardOrders = await this.cardOrderRepository.find({
+      relations: ['receipients', 'giftCards'],
+    });
 
     return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
   }
 
   async findOne(slug: string) {
     const context = `${CardOrderService.name}.${this.findOne.name}`;
-    this.logger.debug(`Find one card order: ${slug}`, context);
+    this.logger.log(`Find one card order: ${slug}`, context);
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: {
         slug,
       },
+      relations: ['receipients', 'giftCards'],
     });
     if (!cardOrder) {
       throw new NotFoundException('Card order not found');
