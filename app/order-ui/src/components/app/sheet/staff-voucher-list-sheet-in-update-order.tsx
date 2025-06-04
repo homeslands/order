@@ -48,7 +48,7 @@ import {
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
-import { useCartItemStore, useThemeStore, useUserStore } from '@/stores'
+import { useThemeStore, useUserStore } from '@/stores'
 import { Role, VOUCHER_TYPE } from '@/constants'
 
 interface IVoucherListSheetInUpdateOrderProps {
@@ -65,7 +65,7 @@ export default function VoucherListSheetInUpdateOrder({
   const { t } = useTranslation(['voucher'])
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
-  const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
+  // const { addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
@@ -92,20 +92,20 @@ export default function VoucherListSheetInUpdateOrder({
 
   // Add useEffect to check voucher validation
   useEffect(() => {
-    if (cartItems?.voucher) {
+    if (defaultValue?.voucher) {
       // If user is logged in but voucher doesn't require verification
       // if (userInfo && !cartItems.voucher.isVerificationIdentity) {
       //   showErrorToast(1003) // Show error toast
       //   removeVoucher() // Remove invalid voucher
       // }
       // If user is not logged in but voucher requires verification
-      if (!userInfo && cartItems.voucher.isVerificationIdentity) {
+      if (!userInfo && defaultValue?.voucher.isVerificationIdentity) {
         // console.log('cartItems.voucher', cartItems.voucher)
         showErrorToast(1003) // Show error toast
-        removeVoucher() // Remove invalid voucher
+        // removeVoucher() // Remove invalid voucher
       }
     }
-  }, [userInfo, cartItems?.voucher, removeVoucher])
+  }, [userInfo, defaultValue?.voucher])
 
   // const owner = defaultValue?.owner;
 
@@ -165,6 +165,29 @@ export default function VoucherListSheetInUpdateOrder({
       setAppliedVoucher('')
     }
   }, [defaultValue?.voucher, voucherList?.result?.items])
+
+  // Check voucher validity when orderItems change
+  useEffect(() => {
+    if (defaultValue?.voucher && defaultValue?.orderItems) {
+      const currentVoucher = defaultValue.voucher;
+      const isValidAmount = currentVoucher.minOrderValue <= subTotal;
+
+      // If voucher is no longer valid due to order amount, remove it
+      if (!isValidAmount) {
+        updateVoucherInOrder(
+          { slug: defaultValue.slug, voucher: null },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ['orders'] });
+              setSelectedVoucher('');
+              setAppliedVoucher('');
+              showErrorToast(1004); // Show error toast for voucher removed due to order change
+            },
+          },
+        );
+      }
+    }
+  }, [defaultValue?.orderItems, defaultValue?.voucher, subTotal, updateVoucherInOrder, queryClient, defaultValue?.slug]);
 
   // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -285,7 +308,6 @@ export default function VoucherListSheetInUpdateOrder({
   const isVoucherSelected = (voucherSlug: string) => {
     return (
       defaultValue?.voucher?.slug === voucherSlug ||
-      cartItems?.voucher?.slug === voucherSlug ||
       selectedVoucher === voucherSlug ||
       appliedVoucher === voucherSlug
     )
@@ -317,7 +339,7 @@ export default function VoucherListSheetInUpdateOrder({
           },
         )
       } else {
-        removeVoucher()
+        // removeVoucher()
         setSelectedVoucher('')
         showToast(removeMessage)
       }
@@ -327,7 +349,7 @@ export default function VoucherListSheetInUpdateOrder({
     // Đang chọn voucher mới → luôn validate
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
-      user: userInfo?.slug || '',
+      user: defaultValue?.owner?.slug || '',
     }
 
     const onValidated = () => {
@@ -350,7 +372,7 @@ export default function VoucherListSheetInUpdateOrder({
           },
         )
       } else {
-        addVoucher(voucher)
+        // addVoucher(voucher)
         setSelectedVoucher(voucher.slug)
         handleApplySuccess(applyMessage)
       }
@@ -386,7 +408,7 @@ export default function VoucherListSheetInUpdateOrder({
 
         validateVoucher(validateVoucherParam, {
           onSuccess: () => {
-            addVoucher(voucher);
+            // addVoucher(voucher);
             setSheetOpen(false);
             showToast(tToast('toast.applyVoucherSuccess'));
           },
@@ -406,7 +428,7 @@ export default function VoucherListSheetInUpdateOrder({
 
         validatePublicVoucher(validateVoucherParam, {
           onSuccess: () => {
-            addVoucher(publicVoucher);
+            // addVoucher(publicVoucher);
             setSheetOpen(false);
             showToast(tToast('toast.applyVoucherSuccess'));
           },
