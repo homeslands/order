@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Loader2, MapPin, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
+import { Loader2, MapPin, Notebook, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
 
 import {
   Button,
@@ -180,6 +180,15 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   {t('order.phoneNumber')}
                 </span>
                 <span className="font-medium">{order.ownerPhoneNumber}</span>
+              </div>
+            )}
+            {order?.description && (
+              <div className="flex justify-between">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Notebook className="w-4 h-4" />
+                  {t('order.note')}
+                </span>
+                <span className="font-medium">{order.description}</span>
               </div>
             )}
           </div>

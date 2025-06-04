@@ -13,18 +13,18 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
+  ScrollArea,
 } from '@/components/ui'
 import { useCartItemStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
-import { CartNoteInput, CustomerSearchInput } from '@/components/app/input'
+import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { publicFileURL, VOUCHER_TYPE } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateCustomerDialog, CreateOrderDialog } from '../dialog'
-import { OrderTypeSelect } from '../select'
+import { OrderTypeSelect, SystemTableSelectInCartDrawer } from '../select'
 import { StaffVoucherListSheet } from '../sheet'
-import TableSelect from '../select/table-select'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
@@ -61,48 +61,48 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
         </div>
       </DrawerTrigger>
       <DrawerContent className="h-[90%] ">
-        <div className="pb-8 overflow-y-scroll scrollbar-hidden [&::-webkit-scrollbar]:hidden">
+        <div className="pb-8">
           <DrawerHeader>
             <DrawerTitle>{t('menu.order')}</DrawerTitle>
             <DrawerDescription>{t('menu.orderDescription')}</DrawerDescription>
-            {cartItems && cartItems?.orderItems?.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {/* Order type selection */}
-                <div className="flex flex-col gap-2">
-                  <CreateCustomerDialog />
-                  <CustomerSearchInput />
-                  <div className='grid grid-cols-2 gap-1'>
-                    <OrderTypeSelect />
-                    {/* <span className='text-sm text-muted-foreground'>
-                      {t('menu.table')}
-                    </span> */}
-                    <TableSelect />
-                  </div>
-                </div>
-                {/* Selected table */}
-                {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
-                  <div className="flex items-center text-sm">
-                    {getCartItems()?.table ? (
-                      <div className='flex gap-1 items-center'>
-                        <p>{t('menu.selectedTable')} </p>
-                        <p className="px-3 py-1 text-white rounded bg-primary">
-                          {t('menu.tableName')} {getCartItems()?.tableName}
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground">
-                        {t('menu.noSelectedTable')}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+
           </DrawerHeader>
           {cartItems && cartItems?.orderItems?.length > 0 ? (
-            <div className='flex flex-col gap-3 px-4 min-h-[55%]'>
-
-              <div className="overflow-y-scroll [&::-webkit-scrollbar]:hidden scrollbar-hiden flex flex-col gap-4 py-2 space-y-2">
+            <ScrollArea className='h-[35%] px-4'>
+              {cartItems && cartItems?.orderItems?.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {/* Order type selection */}
+                  <div className="flex flex-col gap-2">
+                    <CreateCustomerDialog />
+                    <CustomerSearchInput />
+                    <div className='grid grid-cols-2 gap-1'>
+                      <OrderTypeSelect />
+                      {/* <span className='text-sm text-muted-foreground'>
+                      {t('menu.table')}
+                    </span> */}
+                      <SystemTableSelectInCartDrawer />
+                    </div>
+                  </div>
+                  {/* Selected table */}
+                  {getCartItems()?.type === OrderTypeEnum.AT_TABLE && (
+                    <div className="flex items-center text-sm">
+                      {getCartItems()?.table ? (
+                        <div className='flex gap-1 items-center'>
+                          <p>{t('menu.selectedTable')} </p>
+                          <p className="px-3 py-1 text-white rounded bg-primary">
+                            {t('menu.tableName')} {getCartItems()?.tableName}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">
+                          {t('menu.noSelectedTable')}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="overflow-y-scroll [&::-webkit-scrollbar]:hidden scrollbar-hidden flex flex-col gap-4 py-2 space-y-2">
                 {cartItems ? (
                   cartItems?.orderItems?.map((item) => (
                     <div
@@ -152,8 +152,9 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                   </p>
                 )}
               </div>
+              <OrderNoteInput order={cartItems} />
               <StaffVoucherListSheet />
-            </div>
+            </ScrollArea>
           ) : (
             <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
               {tCommon('common.noData')}
