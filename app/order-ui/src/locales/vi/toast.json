@@ -314,6 +314,7 @@
     "emailTokenExpired": "Mã OTP đã hết hạn",
     "errorWhenConfirmEmailVerification": "Lỗi khi xác thực email",
     "orderAlreadyHasPayment": "Đơn hàng đã có QR code thanh toán!",
-    "qrCodeRestored": "QR code thanh toán đã được khôi phục"
+    "qrCodeRestored": "QR code thanh toán đã được khôi phục",
+    "mustVerifyEmailToUseVoucher": "Vui lòng xác thực email để sử dụng voucher này!"
   }
 }
