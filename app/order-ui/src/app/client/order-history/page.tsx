@@ -97,13 +97,19 @@ export default function OrderHistoryPage() {
                     #{orderInfo?.slug}
                   </span>
                 </p>
-                <div className="flex flex-col gap-1 text-sm font-thin sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-1 text-sm font-thin">
                   <p>
                     {t('order.orderTime')}{' '}
                     <span className="text-muted-foreground">
                       {moment(orderInfo?.createdAt).format(
                         'hh:mm:ss DD/MM/YYYY',
                       )}
+                    </span>
+                  </p>
+                  <p>
+                    {t('order.note')}:{' '}
+                    <span className="text-muted-foreground">
+                      {orderInfo?.description || t('order.noNote')}
                     </span>
                   </p>
                 </div>
@@ -138,7 +144,6 @@ export default function OrderHistoryPage() {
             <div className="overflow-x-auto">
               <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
-
                 {/* Header */}
                 <TableHeader className="rounded bg-muted-foreground/10">
                   <TableRow>
@@ -180,8 +185,13 @@ export default function OrderHistoryPage() {
                                 </span>
                               </div>
                             ) : (
-                              <div className="text-xs text-muted-foreground">
-                                Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+                              <div className="flex flex-col text-xs text-muted-foreground">
+                                <span>
+                                  Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+                                </span>
+                                <span>
+                                  {t('order.note')}: {item?.note}
+                                </span>
                               </div>
                             )}
                           </div>
