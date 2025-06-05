@@ -382,6 +382,10 @@ describe('AuthService', () => {
       isVerifiedEmail: false,
       isVerifiedPhonenumber: false,
       verifyEmailTokens: [],
+      customerCardOrders: [],
+      cashierCardOrders: [],
+      recipientCardOrders: [],
+      senderCardOrders: [],
     };
 
     const mockExistToken: ForgotPasswordToken = {
@@ -471,6 +475,10 @@ describe('AuthService', () => {
       isVerifiedEmail: false,
       isVerifiedPhonenumber: false,
       verifyEmailTokens: [],
+      customerCardOrders: [],
+      cashierCardOrders: [],
+      recipientCardOrders: [],
+      senderCardOrders: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -558,6 +566,10 @@ describe('AuthService', () => {
       isVerifiedEmail: false,
       isVerifiedPhonenumber: false,
       verifyEmailTokens: [],
+      customerCardOrders: [],
+      cashierCardOrders: [],
+      recipientCardOrders: [],
+      senderCardOrders: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {
