@@ -12,17 +12,18 @@ import { CardOrderController } from './card-order/card-order.controller';
 import { GiftCardController } from './gift-card/gift-card.controller';
 import { CardOrderService } from './card-order/card-order.service';
 import { GiftCardService } from './gift-card/gift-card.service';
-import { ReceipientController } from './receipient/receipient.controller';
-import { ReceipientService } from './receipient/receipient.service';
+import { ReceipientController } from './receipient/recipient.controller';
 import { Balance } from './balance/entities/balance.entity';
-import { Receipient } from './receipient/entities/receipient.entity';
 import { GiftCard } from './gift-card/entities/gift-card.entity';
 import { CardOrder } from './card-order/entities/card-order.entity';
 import { BalanceProfile } from './balance/balance.mapper';
 import { User } from 'src/user/user.entity';
 import { CardOrderProfile } from './card-order/card-order.mapper';
 import { GiftCardProfile } from './gift-card/gift-card.mapper';
-import { ReceipientProfile } from './receipient/receipient.mapper';
+import { RecipientService } from './receipient/recipient.service';
+import { RecipientProfile } from './receipient/recipient.mapper';
+import { Recipient } from './receipient/entities/receipient.entity';
+
 const controllers = [
   CardController,
   BalanceController,
@@ -35,15 +36,15 @@ const providers = [
   BalanceService,
   CardOrderService,
   GiftCardService,
-  ReceipientService,
+  RecipientService,
 ];
 
 const mappers = [
   BalanceProfile,
   CardProfile,
   CardOrderProfile,
-  ReceipientProfile,
-  GiftCardProfile
+  RecipientProfile,
+  GiftCardProfile,
 ];
 
 const modules = [
@@ -52,7 +53,7 @@ const modules = [
     Balance,
     CardOrder,
     GiftCard,
-    Receipient,
+    Recipient,
     User,
   ]),
   FileModule,
@@ -64,7 +65,7 @@ const exportServices = [
   BalanceService,
   CardOrderService,
   GiftCardService,
-  ReceipientService,
+  RecipientService,
 ];
 
 const exportMappers = [];
@@ -75,4 +76,4 @@ const exportMappers = [];
   providers: [...providers, ...mappers],
   exports: [...exportServices, ...exportMappers],
 })
-export class GiftCardModule { }
+export class GiftCardModule {}

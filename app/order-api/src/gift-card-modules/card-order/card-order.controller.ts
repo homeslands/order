@@ -3,9 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   ValidationPipe,
   HttpStatus,
   Query,
@@ -50,7 +48,10 @@ export class CardOrderController {
     type: CardOrderResponseDto,
     isArray: true,
   })
-  async findAll(@Query(new ValidationPipe({ transform: true, whitelist: true })) payload: FindAllCardOrderDto) {
+  async findAll(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    payload: FindAllCardOrderDto,
+  ) {
     const result = await this.cardOrderService.findAll(payload);
 
     return {

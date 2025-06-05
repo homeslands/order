@@ -1,3 +1,1 @@
-export class FindAllCardOrderDto {
-    
-}
+export class FindAllCardOrderDto {}

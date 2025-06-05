@@ -6,7 +6,6 @@ import { baseMapper } from 'src/app/base.mapper';
 import { GiftCard } from './entities/gift-card.entity';
 import { GiftCardResponseDto } from './dto/gift-card-response.dto';
 
-
 @Injectable()
 export class GiftCardProfile extends AutomapperProfile {
   constructor(@InjectMapper() mapper: Mapper) {
@@ -15,7 +14,12 @@ export class GiftCardProfile extends AutomapperProfile {
 
   override get profile() {
     return (mapper: Mapper) => {
-      createMap(mapper, GiftCard, GiftCardResponseDto, extend(baseMapper(mapper)));
+      createMap(
+        mapper,
+        GiftCard,
+        GiftCardResponseDto,
+        extend(baseMapper(mapper)),
+      );
     };
   }
 }

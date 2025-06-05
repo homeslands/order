@@ -1,7 +1,14 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
+import { GiftCardStatus } from '../gift-card.enum';
 
 @Entity('gift_card_tbl')
 export class GiftCard extends Base {
@@ -13,7 +20,7 @@ export class GiftCard extends Base {
   @AutoMap()
   cardPoints: number;
 
-  @Column({ name: 'status_column' })
+  @Column({ name: 'status_column', default: GiftCardStatus.AVAILABLE })
   @AutoMap()
   status: string;
 
@@ -38,4 +45,8 @@ export class GiftCard extends Base {
   @Column({ name: 'used_by_column', nullable: true })
   @AutoMap()
   usedBy: string;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'expired_at_column' })
+  @AutoMap()
+  expiredAt: Date;
 }
