@@ -2,7 +2,6 @@ import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Card } from 'src/gift-card-modules/card/entities/card.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
-import { Receipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 import { PaymentStatus } from 'src/payment/payment.constants';
 import { Payment } from 'src/payment/payment.entity';
 import { User } from 'src/user/user.entity';
@@ -16,6 +15,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { CardOrderStatus } from '../card-order.enum';
+import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 
 @Entity('card_order_tbl')
 export class CardOrder extends Base {
@@ -98,11 +98,11 @@ export class CardOrder extends Base {
   @AutoMap()
   cashierPhone?: string;
 
-  @OneToMany(() => Receipient, (receipient) => receipient.cardOrder, {
+  @OneToMany(() => Recipient, (receipient) => receipient.cardOrder, {
     onDelete: 'SET NULL',
   })
-  @AutoMap(() => Receipient)
-  receipients: Receipient[];
+  @AutoMap(() => Recipient)
+  receipients: Recipient[];
 
   @OneToMany(() => GiftCard, (giftCard) => giftCard.cardOrder, {
     onDelete: 'SET NULL',
