@@ -1,15 +1,15 @@
+import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponseDto } from 'src/app/base.dto';
-import { AutoMap } from '@automapper/classes';
 
-export class GiftCardResponseDto extends BaseResponseDto {
+export class RecipientResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
-  cardName: string;
+  name: string;
 
   @AutoMap()
   @ApiProperty()
-  cardPoints: number;
+  quantity: number;
 
   @AutoMap()
   @ApiProperty()
@@ -17,17 +17,25 @@ export class GiftCardResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  serial: string;
+  message?: string;
 
   @AutoMap()
   @ApiProperty()
-  code: string;
+  phone: string;
 
   @AutoMap()
   @ApiProperty()
-  usedAt: string;
+  recipientId: string;
 
   @AutoMap()
   @ApiProperty()
-  usedBy: string;
+  senderId: string;
+
+  @AutoMap()
+  @ApiProperty()
+  senderName: string;
+
+  @AutoMap()
+  @ApiProperty()
+  senderPhone: string;
 }

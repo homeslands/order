@@ -1,3 +1,5 @@
+import { CreateRecipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
+import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 import {
   BadRequestException,
   Inject,
@@ -12,15 +14,11 @@ import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
 import { User } from 'src/user/user.entity';
-import { Receipient } from '../receipient/entities/receipient.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { Mapper } from '@automapper/core';
 import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InjectMapper } from '@automapper/nestjs';
-import { CreateReceipientDto } from '../receipient/dto/create-receipient.dto';
-import { GiftCard } from '../gift-card/entities/gift-card.entity';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CardOrderService {
@@ -36,11 +34,10 @@ export class CardOrderService {
     @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async create(createCardOrderDto: CreateCardOrderDto) {
     const context = `${CardOrderService.name}.${this.create.name}`;
-    console.log({ createCardOrderDto, receipients: createCardOrderDto.receipients });
     this.logger.log(
       `Creating card order: ${JSON.stringify(createCardOrderDto)}`,
       context,
@@ -93,7 +90,7 @@ export class CardOrderService {
       throw new BadRequestException('Total quantity is not correct');
     }
 
-    const receipients: Receipient[] = await Promise.all(
+    const receipients: Recipient[] = await Promise.all(
       createCardOrderDto.receipients.map(async (createReceipientDto) => {
         const receipient = await this.userRepository.findOne({
           where: {
@@ -102,14 +99,18 @@ export class CardOrderService {
         });
 
         if (!receipient) {
-          throw new NotFoundException(`Receipient ${createReceipientDto.recipientSlug} not found`);
+          throw new NotFoundException(
+            `Receipient ${createReceipientDto.recipientSlug} not found`,
+          );
         }
 
-        const receipientItem = this.mapper.map(createReceipientDto, CreateReceipientDto, Receipient);
+        const receipientItem = this.mapper.map(
+          createReceipientDto,
+          CreateRecipientDto,
+          Recipient,
+        );
 
         Object.assign(receipientItem, {
-          status: 'pending',
-
           name: `${receipient.firstName} ${receipient.lastName}`,
           phone: receipient.phonenumber,
           recipientId: receipient.id,
@@ -118,32 +119,21 @@ export class CardOrderService {
           senderId: customer.id,
           senderName: `${customer.firstName} ${customer.lastName}`,
           senderPhone: customer.phonenumber,
-          sender: customer
-        } as Partial<Receipient>);
+          sender: customer,
+        } as Partial<Recipient>);
 
         return receipientItem;
       }),
     );
 
-    const giftCards: GiftCard[] = await Promise.all(
-      Array.from({ length: createCardOrderDto.quantity }).map(async (item) => {
-        const giftCard = new GiftCard();
-        Object.assign(giftCard, {
-          cardPoints: card.points,
-          cardName: card.title,
-          status: 'available',
-          serial: uuidv4().replace(/-/g, '').slice(0, 10).toUpperCase(),
-          code: uuidv4().replace(/-/g, '').slice(0, 10).toUpperCase(),
-        } as Partial<GiftCard>);
-        return giftCard;
-      }),
+    const cardOrder = this.mapper.map(
+      createCardOrderDto,
+      CreateCardOrderDto,
+      CardOrder,
     );
-
-    const cardOrder = this.mapper.map(createCardOrderDto, CreateCardOrderDto, CardOrder);
 
     Object.assign(cardOrder, {
       type: createCardOrderDto.cardOrderType,
-      status: 'pending',
 
       cardId: card.id,
       cardPoint: card.points,
@@ -161,33 +151,25 @@ export class CardOrderService {
       cashierName: cashier ? `${cashier.firstName} ${cashier.lastName}` : null,
       cashierPhone: cashier ? cashier.phonenumber : null,
       cashier: cashier ? cashier : null,
-
     } as Partial<CardOrder>);
 
     const createdCardOrder = await this.transactionService.execute<CardOrder>(
       async (manager) => {
         const createdCardOrder = await manager.save(cardOrder as CardOrder);
 
-        receipients.forEach((item: Receipient) => {
+        receipients.forEach((item: Recipient) => {
           item.cardOrder = createdCardOrder;
           item.cardOrderId = createdCardOrder.id;
         });
-
-        giftCards.forEach((item: GiftCard) => {
-          item.cardOrder = createdCardOrder;
-          item.cardOrderId = createdCardOrder.id;
-        });
-
 
         await manager.save(receipients);
-        await manager.save(giftCards);
-
-        // createdCardOrder.receipients = receipients;
-        // createdCardOrder.giftCards = giftCards;
         return createdCardOrder;
       },
       (result) => {
-        this.logger.log(`Created card order: ${JSON.stringify(result)}`, context);
+        this.logger.log(
+          `Created card order: ${JSON.stringify(result)}`,
+          context,
+        );
       },
       (error) => {
         this.logger.error(

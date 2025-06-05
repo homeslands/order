@@ -15,6 +15,7 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { CardOrderStatus } from '../card-order.enum';
 
 @Entity('card_order_tbl')
 export class CardOrder extends Base {
@@ -22,7 +23,7 @@ export class CardOrder extends Base {
   @AutoMap()
   type: string;
 
-  @Column({ name: 'status_column' })
+  @Column({ name: 'status_column', default: CardOrderStatus.PENDING })
   @AutoMap()
   status: string;
 
@@ -82,7 +83,7 @@ export class CardOrder extends Base {
   customerPhone: string;
 
   @ManyToOne(() => User, (user) => user.cashierCardOrders)
-  @JoinColumn({ name: 'cashier_column', })
+  @JoinColumn({ name: 'cashier_column' })
   cashier: User;
 
   @Column({ name: 'cashier_id_column', nullable: true })
