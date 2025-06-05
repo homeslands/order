@@ -3,12 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { CreateReceipientDto } from 'src/gift-card-modules/receipient/dto/create-receipient.dto';
+import { CreateReceipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
+import { CardOrderType } from '../card-order.enum';
 
 export class CreateCardOrderDto {
   @IsString()
@@ -23,6 +25,7 @@ export class CreateCardOrderDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
+  @IsEnum(CardOrderType)
   cardOrderType: string;
 
   @IsString()
@@ -47,5 +50,3 @@ export class CreateCardOrderDto {
   @Type(() => CreateReceipientDto)
   receipients: CreateReceipientDto[];
 }
-
-
