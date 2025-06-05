@@ -7,7 +7,7 @@ import { ForgotPasswordToken } from 'src/auth/entity/forgot-password-token.entit
 import { Role } from 'src/role/role.entity';
 import { VerifyEmailToken } from 'src/auth/entity/verify-email-token.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { Receipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
+import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -90,13 +90,13 @@ export class User extends Base {
   })
   cashierCardOrders: CardOrder[];
 
-  @OneToMany(() => Receipient, (receipient) => receipient.recipient, {
+  @OneToMany(() => Recipient, (receipient) => receipient.recipient, {
     onDelete: 'SET NULL',
   })
-  recipientCardOrders: Receipient[];
+  recipientCardOrders: Recipient[];
 
-  @OneToMany(() => Receipient, (receipient) => receipient.sender, {
+  @OneToMany(() => Recipient, (receipient) => receipient.sender, {
     onDelete: 'SET NULL',
   })
-  senderCardOrders: Receipient[];
+  senderCardOrders: Recipient[];
 }

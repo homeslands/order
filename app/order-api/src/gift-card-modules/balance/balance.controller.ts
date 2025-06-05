@@ -1,16 +1,12 @@
 import {
   Controller,
   Get,
-  Body,
-  Patch,
-  Param,
   Query,
   HttpCode,
   HttpStatus,
   ValidationPipe,
 } from '@nestjs/common';
 import { BalanceService } from './balance.service';
-import { UpdateBalanceDto } from './dto/update-balance.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindByFieldDto } from './dto/find-by-field.dto';
 import { AppResponseDto } from 'src/app/app.dto';
@@ -43,9 +39,4 @@ export class BalanceController {
       result,
     } as AppResponseDto<BalanceResponseDto>;
   }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateBalanceDto: UpdateBalanceDto) {
-  //   return this.balanceService.update(+id, updateBalanceDto);
-  // }
 }

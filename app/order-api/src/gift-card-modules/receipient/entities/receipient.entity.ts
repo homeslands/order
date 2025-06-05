@@ -3,14 +3,15 @@ import { Base } from 'src/app/base.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 import { User } from 'src/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { RecipientStatus } from '../recipient.enum';
 
-@Entity('receipient_tbl')
-export class Receipient extends Base {
+@Entity('recipient_tbl')
+export class Recipient extends Base {
   @Column({ name: 'quantity_column' })
   @AutoMap()
   quantity: number;
 
-  @Column({ name: 'status_column' })
+  @Column({ name: 'status_column', default: RecipientStatus.PENDING })
   @AutoMap()
   status: string;
 
@@ -30,7 +31,7 @@ export class Receipient extends Base {
   @AutoMap()
   recipientId: string;
 
-  @ManyToOne(() => User, (user) => user.recipientCardOrders, {cascade: ['insert', 'update']})
+  @ManyToOne(() => User, (user) => user.recipientCardOrders)
   @JoinColumn({ name: 'recipient_column' })
   @AutoMap(() => User)
   recipient: User;
