@@ -9,8 +9,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { CreateReceipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
 import { CardOrderType } from '../card-order.enum';
+import { CreateRecipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
 
 export class CreateCardOrderDto {
   @IsString()
@@ -47,6 +47,6 @@ export class CreateCardOrderDto {
 
   @IsArray()
   @ApiProperty()
-  @Type(() => CreateReceipientDto)
-  receipients: CreateReceipientDto[];
+  @Type(() => CreateRecipientDto)
+  receipients: CreateRecipientDto[];
 }

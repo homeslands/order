@@ -1,12 +1,6 @@
 import { CreateRecipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
@@ -19,6 +13,8 @@ import { Mapper } from '@automapper/core';
 import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InjectMapper } from '@automapper/nestjs';
+import { CardOrderException } from './card-order.exception';
+import { CardOrderValidation } from './card-order.validation';
 
 @Injectable()
 export class CardOrderService {
@@ -50,7 +46,7 @@ export class CardOrderService {
     });
 
     if (!card) {
-      throw new NotFoundException('Card not found');
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
     }
 
     const customer = await this.userRepository.findOne({
@@ -60,7 +56,9 @@ export class CardOrderService {
     });
 
     if (!customer) {
-      throw new NotFoundException('Customer not found');
+      throw new CardOrderException(
+        CardOrderValidation.CARD_ORDER_CUSTOMER_NOT_FOUND,
+      );
     }
 
     const cashier = await this.userRepository.findOne({
@@ -76,7 +74,9 @@ export class CardOrderService {
 
     const totalAmount = card.price * createCardOrderDto.quantity;
     if (totalAmount !== createCardOrderDto.totalAmount) {
-      throw new BadRequestException('Total amount is not correct');
+      throw new CardOrderException(
+        CardOrderValidation.CARD_ORDER_TOTAL_AMOUNT_NOT_CORRECT,
+      );
     }
 
     const totalQuantity = createCardOrderDto.receipients.reduce(
@@ -87,7 +87,9 @@ export class CardOrderService {
     );
 
     if (totalQuantity > createCardOrderDto.quantity) {
-      throw new BadRequestException('Total quantity is not correct');
+      throw new CardOrderException(
+        CardOrderValidation.CARD_ORDER_TOTAL_QUANTITY_NOT_CORRECT,
+      );
     }
 
     const receipients: Recipient[] = await Promise.all(
@@ -99,8 +101,8 @@ export class CardOrderService {
         });
 
         if (!receipient) {
-          throw new NotFoundException(
-            `Receipient ${createReceipientDto.recipientSlug} not found`,
+          throw new CardOrderException(
+            CardOrderValidation.CARD_ORDER_RECIPIENT_NOT_FOUND,
           );
         }
 
@@ -205,7 +207,7 @@ export class CardOrderService {
       relations: ['receipients', 'giftCards'],
     });
     if (!cardOrder) {
-      throw new NotFoundException('Card order not found');
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
     }
     return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
   }
