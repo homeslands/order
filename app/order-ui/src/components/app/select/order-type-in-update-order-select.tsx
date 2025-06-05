@@ -44,7 +44,7 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
     <ReactSelect
       isSearchable={false}
       placeholder={t('menu.selectOrderType')}
-      className="w-full text-sm border-muted-foreground text-muted-foreground"
+      className="pr-4 w-full text-sm border-muted-foreground text-muted-foreground"
       styles={{
         control: (baseStyles) => ({
           ...baseStyles,
