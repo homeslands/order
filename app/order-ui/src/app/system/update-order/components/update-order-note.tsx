@@ -44,7 +44,7 @@ export default function UpdateOrderNoteInput({ order, onSuccess }: OrderNoteInpu
                     defaultValue={order?.description || ''}
                     value={note}
                     type="text"
-                    className='shadow-none'
+                    className='text-xs shadow-none'
                     placeholder={t('order.enterOrderNote')}
                     onChange={(e) => setNote(e.target.value)}
                 />
