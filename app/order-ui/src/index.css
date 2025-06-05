@@ -25,6 +25,10 @@ input[type='number']::-webkit-outer-spin-button {
   }
 }
 
+.bg-white-light {
+  background-color: #ebebeb;
+}
+
 .highlight-blink-border {
   animation: blinkBorder 1s infinite;
   border: 2px solid #ff0000;

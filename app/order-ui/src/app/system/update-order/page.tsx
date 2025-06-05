@@ -149,16 +149,15 @@ export default function UpdateOrderPage() {
                     {/* Left content */}
                     <div className="w-full lg:w-3/5">
                         {/* Menu & Table select */}
-                        <ScrollArea className="h-[calc(100vh-9rem)]">
+                        <ScrollArea className="h-[calc(100vh-9rem)] pr-4">
                             <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleUpdateOrderTypeSuccess} />
                         </ScrollArea>
                     </div>
 
                     {/* Right content */}
-
                     <div className="w-full lg:w-2/5">
                         <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
-                        <ScrollArea className="h-[calc(55vh)] sm:h-[calc(73vh)] sm:px-4">
+                        <ScrollArea className="h-[calc(55vh)] sm:h-[calc(73vh)] sm:pr-4">
                             {/* Table list order items */}
                             <div className="mt-4">
                                 <div className="grid grid-cols-7 px-4 py-3 mb-4 text-sm font-thin rounded-md border bg-muted/60">
@@ -221,7 +220,7 @@ export default function UpdateOrderPage() {
                                     ))}
                                 </div>
                                 {/* order note */}
-                                <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
+                                <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
                                 </div>
                                 <StaffVoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
