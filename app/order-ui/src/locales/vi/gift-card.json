@@ -1,5 +1,5 @@
-{    
-    "giftCard": {
+{      "giftCard": {
+        "giftCard": "Thẻ quà tặng",
         "pageTitle": "Quản lý thẻ quà tặng",
         "clientPageTitle": "Thẻ quà tặng",
         "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
@@ -29,13 +29,48 @@
         
         "delete": "Xóa thẻ quà tặng",
         "deleteTitle": "Xóa thẻ quà tặng",
-        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",        "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
+        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",        
+        "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
         "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?",
-        
         "filterByPrice": "Lọc theo giá",
         "priceAscending": "Giá tăng dần",
         "priceDescending": "Giá giảm dần",
         "pointsAscending": "Xu tăng dần",
-        "pointsDescending": "Xu giảm dần"
+        "pointsDescending": "Xu giảm dần",
+        
+        "giftCardCart": "Giỏ hàng thẻ quà tặng",        
+        "availableGiftCards": "Thẻ quà tặng có sẵn",
+        "noGiftCardsInCart": "Không có thẻ quà tặng trong giỏ hàng",
+        "addGiftCardsToCart": "Thêm thẻ quà tặng vào giỏ hàng để bắt đầu",
+        "chooseUsageType": "Chọn cách bạn muốn sử dụng thẻ quà tặng",
+        "buyForSelf": "Mua cho bản thân",
+        "giftToOthers": "Tặng cho người khác",
+        "quantity": "Số lượng",
+        "total": "Tổng cộng",
+        "totalPoints": "Tổng số xu",
+        "checkout": "Thanh toán",        
+        "receiver": "Người nhận",
+        "receiverPhone": "Số điện thoại người nhận",
+        "enterReceiverPhone": "Nhập số điện thoại người nhận",
+        "enterQuantity": "Nhập số lượng",
+        "note": "Ghi chú",
+        "enterNote": "Nhập ghi chú (tùy chọn)",        
+        "addReceiver": "Thêm người nhận",
+        "availableQuantity": "Số lượng có sẵn",        
+        "totalReceiverQuantity": "Tổng số lượng người nhận",
+        "quantityExceedsAvailable": "Tổng số lượng người nhận vượt quá số lượng thẻ quà tặng có sẵn",        
+        "checkoutSuccess": "Thanh toán thành công!",
+        "createGiftCardOrderSuccess": "Đặt hàng thẻ quà tặng thành công!",
+        
+        "confirmCheckout": "Xác nhận mua hàng",
+        "confirmCheckoutDescription": "Vui lòng xác nhận rằng bạn đã kiểm tra đầy đủ thông tin trước khi tiến hành mua hàng.",
+        "confirmPurchase": "Xác nhận mua hàng",
+        "redirectingToCheckout": "Đang chuyển hướng đến trang thanh toán...",
+        "paymentProcessing": "Đang xử lý thanh toán của bạn...",
+        
+        "checkoutTitle": "Thanh toán thẻ quà tặng",
+        "checkoutDescription": "Hoàn tất việc mua thẻ quà tặng của bạn",
+        "checkoutPageComingSoon": "Trang thanh toán sẽ sớm có mặt",
+        "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng."
     }
 }
