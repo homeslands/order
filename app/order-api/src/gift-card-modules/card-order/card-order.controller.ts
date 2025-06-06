@@ -7,6 +7,7 @@ import {
   ValidationPipe,
   HttpStatus,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { CardOrderService } from './card-order.service';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
@@ -70,5 +71,20 @@ export class CardOrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<CardOrderResponseDto>;
+  }
+
+  @Post(':slug/cancel')
+  @ApiOperation({ summary: 'Cancel a card order' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    type: CardOrderResponseDto,
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async cancel(@Param('slug') slug: string) {
+    await this.cardOrderService.cancel(slug);
+    return {
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
   }
 }
