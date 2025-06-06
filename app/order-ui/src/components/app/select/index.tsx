@@ -25,3 +25,4 @@ export { default as DeliveryOrderTypeSelect } from './delivery-order-type-select
 export { default as SystemTableSelectInUpdateOrder } from './system-table-select-in-update-order'
 export { default as ClientTableSelectInUpdateOrder } from './client-table-select-in-update-order'
 export { default as GiftCardStatusSelect } from './gift-card-status-select'
+export { default as GiftCardTypeSelect } from './gift-card-type-select'
