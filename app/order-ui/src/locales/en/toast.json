@@ -379,6 +379,9 @@
       "voucherProductNotApplicable": "Some products in the cart are not applicable to this voucher.",
       "createGiftCardSuccess": "Gift card created successfully",
       "updateGiftCardSuccess": "Gift card updated successfully",
-      "deleteGiftCardSuccess": "Gift card deleted successfully"
+      "deleteGiftCardSuccess": "Gift card deleted successfully",
+      "addGiftCardSuccess": "Gift card added to cart successfully",
+      "removeGiftCardSuccess": "Gift card removed from cart successfully",
+      "giftCardValidationError": "Please check information gift card"
     }
   }

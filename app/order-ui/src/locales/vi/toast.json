@@ -1,10 +1,12 @@
 {
   "toast": {
     "unauthorized": "Không có quyền truy cập. Vui lòng đăng nhập lại!",
-    "invalidCredentials": "Đăng nhập thất bại. Thông tin đăng nhập không hợp lệ",
+    "invalidCredentials": "Đăng nhập thất bại. Thông tin đăng nhập không hợp lệ",    
     "addSuccess": "Thêm sản phẩm vào giỏ hàng thành công",
+    "addGiftCardSuccess": "Thêm thẻ quà tặng vào giỏ hàng thành công",
     "itemAlreadyExists": "Sản phẩm đã tồn tại trong giỏ hàng",
     "removeSuccess": "Xóa sản phẩm khỏi giỏ hàng thành công",
+    "removeGiftCardSuccess": "Xóa thẻ quà tặng khỏi giỏ hàng thành công",
     "loginSuccess": "Đăng nhập thành công",
     "logoutSuccess": "Đăng xuất thành công",
     "loginFailed": "Đăng nhập thất bại",
@@ -321,6 +323,7 @@
     "voucherProductNotApplicable": "Một số sản phẩm trong giỏ hàng không áp dụng được voucher này.",
     "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
     "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
-    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công"
+    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công",
+    "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng"
   }
 }

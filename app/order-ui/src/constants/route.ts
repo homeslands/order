@@ -54,6 +54,7 @@ export const ROUTE = {
   CLIENT_PROFILE: '/profile',
   CLIENT_ORDERS_PUBLIC: '/orders-public',
   CLIENT_GIFT_CARD: '/gift-card',
+  CLIENT_GIFT_CARD_CHECKOUT: '/gift-card/checkout',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes
