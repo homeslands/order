@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { CardOrderType } from '../card-order.enum';
 import { CreateRecipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
+import { INVALID_CARD_ORDER_TYPE } from '../card-order.validation';
 
 export class CreateCardOrderDto {
   @IsString()
@@ -25,8 +26,8 @@ export class CreateCardOrderDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  @IsEnum(CardOrderType)
-  cardOrderType: string;
+  @IsEnum(CardOrderType, { message: INVALID_CARD_ORDER_TYPE })
+  cardOrderType: CardOrderType;
 
   @IsString()
   @IsNotEmpty()
