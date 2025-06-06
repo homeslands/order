@@ -279,7 +279,7 @@ export class OrderService {
         },
       });
 
-      if (previousVoucher?.id === voucher?.id) {
+      if (order.voucher?.id === voucher?.id) {
         this.logger.warn(
           `Voucher ${voucher.code} is the same as the previous voucher`,
           context,
