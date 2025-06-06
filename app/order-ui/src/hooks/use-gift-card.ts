@@ -3,6 +3,7 @@ import {
   IGiftCardCreateRequest,
   IGiftCardUpdateRequest,
   IGetGiftCardsRequest,
+  ICardOrderRequest,
 } from '@/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
@@ -10,6 +11,7 @@ import {
   createGiftCard,
   updateGiftCard,
   deleteGiftCard,
+  createCardOrder,
 } from '@/api'
 
 export const useGetGiftCards = (params: IGetGiftCardsRequest) => {
@@ -45,6 +47,14 @@ export const useDeleteGiftCard = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return deleteGiftCard(slug)
+    },
+  })
+}
+
+export const useCreateCardOrder = () => {
+  return useMutation({
+    mutationFn: async (data: ICardOrderRequest) => {
+      return createCardOrder(data)
     },
   })
 }

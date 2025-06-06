@@ -10,6 +10,7 @@ import {
   GiftCardPagination,
   GiftCardHeader,
   GiftCardSelected,
+  GiftCardSheet,
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IGiftCard } from '@/types'
@@ -132,15 +133,7 @@ export default function ClientGiftCardPage() {
           />
         </motion.div>
       )}
-      {/* Selected Card Details */}
-      <AnimatePresence>
-        {selectedCard && (
-          <GiftCardSelected
-            selectedCard={selectedCard}
-            onClose={() => setSelectedCard(null)}
-          />
-        )}
-      </AnimatePresence>
+      <GiftCardSheet />
     </div>
   )
 }

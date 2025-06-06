@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Gift, ShoppingCart, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-// import { truncate } from 'lodash' - không sử dụng
 
 import {
   Dialog,
@@ -14,6 +13,7 @@ import {
 import { IGiftCard } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL } from '@/constants'
+import { useGiftCardStore } from '@/stores'
 
 interface GiftCardSelectedDialogProps {
   selectedCard: IGiftCard
@@ -28,6 +28,7 @@ export function GiftCardSelectedDialog({
   const { t } = useTranslation(['giftCard', 'common'])
   const [quantity, setQuantity] = useState(1)
   const [isOpen, setIsOpen] = useState(false)
+  const { setGiftCardItem } = useGiftCardStore()
 
   const handleIncrement = () => {
     setQuantity((prev) => Math.min(prev + 1, 10)) // Limit to 10 items max
@@ -35,10 +36,20 @@ export function GiftCardSelectedDialog({
   const handleDecrement = () => {
     setQuantity((prev) => Math.max(prev - 1, 1)) // Minimum 1 item
   }
-
   const handleAddToCart = () => {
+    const cartItem = {
+      id: `gift_card_${Date.now().toString(36)}`,
+      slug: selectedCard.slug,
+      title: selectedCard.title,
+      image: selectedCard.image,
+      description: selectedCard.description,
+      points: selectedCard.points,
+      price: selectedCard.price,
+      quantity,
+    }
+
+    setGiftCardItem(cartItem)
     setIsOpen(false)
-    // showToast(t('giftCard.addedToCart'))
   }
 
   // Reset quantity when selectedCard changes
@@ -48,10 +59,8 @@ export function GiftCardSelectedDialog({
     }
     setIsOpen(open)
   }
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      {' '}
       <DialogTrigger asChild>
         {trigger || (
           <Button size="lg" className="rounded-full px-4">
@@ -59,7 +68,7 @@ export function GiftCardSelectedDialog({
             {t('giftCard.viewDetails')}
           </Button>
         )}
-      </DialogTrigger>{' '}
+      </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
           <div className="h-48 w-48 flex-shrink-0 overflow-hidden rounded-lg">

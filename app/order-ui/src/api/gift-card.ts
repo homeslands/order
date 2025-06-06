@@ -5,6 +5,8 @@ import {
   IGiftCardUpdateRequest,
   IPaginationResponse,
   IGetGiftCardsRequest,
+  ICardOrderRequest,
+  ICardOrderResponse,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -39,4 +41,11 @@ export async function updateGiftCard(
 
 export async function deleteGiftCard(slug: string): Promise<void> {
   await http.delete(`/card/${slug}`)
+}
+
+export async function createCardOrder(
+  data: ICardOrderRequest,
+): Promise<IApiResponse<ICardOrderResponse>> {
+  const response = await http.post('/card-order', data)
+  return response.data
 }
