@@ -23,6 +23,7 @@ import { GiftCardProfile } from './gift-card/gift-card.mapper';
 import { RecipientService } from './receipient/recipient.service';
 import { RecipientProfile } from './receipient/recipient.mapper';
 import { Recipient } from './receipient/entities/receipient.entity';
+import { CardOrderSubscriber } from './card-order/card-order.subscriber';
 
 const controllers = [
   CardController,
@@ -31,6 +32,7 @@ const controllers = [
   GiftCardController,
   ReceipientController,
 ];
+
 const providers = [
   CardService,
   BalanceService,
@@ -70,10 +72,12 @@ const exportServices = [
 
 const exportMappers = [];
 
+const subscribers = [CardOrderSubscriber];
+
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [...providers, ...mappers],
+  providers: [...providers, ...mappers, ...subscribers],
   exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}

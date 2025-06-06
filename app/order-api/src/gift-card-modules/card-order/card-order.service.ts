@@ -3,7 +3,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { FindOptionsWhere, IsNull, Repository } from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
@@ -15,6 +15,8 @@ import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { CardOrderException } from './card-order.exception';
 import { CardOrderValidation } from './card-order.validation';
+import { CardOrderStatus } from './card-order.enum';
+import { createSortOptions } from 'src/shared/utils/obj.util';
 
 @Injectable()
 export class CardOrderService {
@@ -31,6 +33,29 @@ export class CardOrderService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
   ) {}
+
+  async cancel(slug: string): Promise<void> {
+    const context = `${CardOrderService.name}.${this.cancel.name}`;
+    this.logger.log(`Cancelling card order: ${slug}`, context);
+
+    const cardOrder = await this.cardOrderRepository.findOne({
+      where: { slug },
+    });
+
+    if (!cardOrder) {
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+    }
+
+    if (cardOrder.status !== CardOrderStatus.PENDING) {
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+    }
+
+    Object.assign(cardOrder, {
+      status: CardOrderStatus.CANCELLED,
+      deletedAt: new Date(),
+    });
+    await this.cardOrderRepository.save(cardOrder);
+  }
 
   async create(createCardOrderDto: CreateCardOrderDto) {
     const context = `${CardOrderService.name}.${this.create.name}`;
@@ -69,7 +94,6 @@ export class CardOrderService {
 
     if (!cashier) {
       this.logger.warn('Cashier not found', context);
-      // throw new NotFoundException('Cashier not found');
     }
 
     const totalAmount = card.price * createCardOrderDto.quantity;
@@ -189,8 +213,22 @@ export class CardOrderService {
     const context = `${CardOrderService.name}.${this.findAll.name}`;
     this.logger.log(`Find all card order: ${JSON.stringify(payload)}`, context);
 
+    const { page, size, sort } = payload;
+
+    const whereOpts: FindOptionsWhere<CardOrder> = {};
+    if (payload.customerSlug) {
+      whereOpts.customer = {
+        slug: payload.customerSlug,
+      };
+    }
+    const sortOpts = createSortOptions<CardOrder>(sort);
+
     const cardOrders = await this.cardOrderRepository.find({
       relations: ['receipients', 'giftCards'],
+      where: whereOpts,
+      order: sortOpts,
+      take: size,
+      skip: (page - 1) * size,
     });
 
     return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
