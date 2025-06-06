@@ -23,6 +23,7 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
+import { Role } from 'src/role/role.entity';
 
 @Controller('user')
 @ApiTags('User')
@@ -31,12 +32,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @HasRoles(
-    RoleEnum.SuperAdmin,
-    RoleEnum.Admin,
-    RoleEnum.Manager,
-    RoleEnum.Staff,
-  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all user' })
   @ApiResponseWithType({
