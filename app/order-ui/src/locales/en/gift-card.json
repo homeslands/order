@@ -1,5 +1,5 @@
-{
-    "giftCard": {
+{    "giftCard": {
+        "giftCard": "Gift Card",
         "pageTitle": "Gift Card Management",
         "clientPageTitle": "Gift Cards",
         "noGiftCardsAvailable": "No gift cards available at the moment",
@@ -31,12 +31,46 @@
         "deleteTitle": "Delete Gift Card",
         "deleteDescription": "Are you sure you want to delete this gift card?",
         "deleteGiftCardWarning1": "You are about to delete the gift card:",
-        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?",
-
-        "filterByPrice": "Filter by Price",
+        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?",        "filterByPrice": "Filter by Price",
         "priceAscending": "Price Ascending",
         "priceDescending": "Price Descending",
         "pointsAscending": "Points Ascending",
-        "pointsDescending": "Points Descending"
+        "pointsDescending": "Points Descending",
+        
+        "giftCardCart": "Gift Card Cart",        
+        "availableGiftCards": "Available Gift Cards",
+        "noGiftCardsInCart": "No Gift Cards in Cart",
+        "addGiftCardsToCart": "Add gift cards to your cart to get started",
+        "chooseUsageType": "Choose how you want to use your gift cards",
+        "buyForSelf": "Buy for myself",
+        "giftToOthers": "Gift to others",
+        "quantity": "Quantity",
+        "total": "Total",
+        "totalPoints": "Total Points",
+        "checkout": "Checkout",        
+        "receiver": "Receiver",
+        "receiverPhone": "Receiver Phone",
+        "enterReceiverPhone": "Enter receiver phone number",
+        "enterQuantity": "Enter quantity",
+        "note": "Note",
+        "enterNote": "Enter note (optional)",        
+        "addReceiver": "Add Receiver",
+        "availableQuantity": "Available Quantity",        
+        "totalReceiverQuantity": "Total Receiver Quantity",        
+        "quantityExceedsAvailable": "Total receiver quantities exceed available gift card quantity",
+        
+        "confirmCheckout": "Confirm Purchase",
+        "confirmCheckoutDescription": "Please confirm that you have reviewed all information before proceeding with your purchase.",
+        "confirmPurchase": "Confirm Purchase",
+        
+        "checkoutSuccess": "Checkout completed successfully!",
+        "createGiftCardOrderSuccess": "Gift card order created successfully!",
+        "redirectingToCheckout": "Redirecting to checkout page...",
+        "paymentProcessing": "Processing your payment...",
+        
+        "checkoutTitle": "Gift Card Checkout",
+        "checkoutDescription": "Complete your gift card purchase",
+        "checkoutPageComingSoon": "Checkout Page Coming Soon",
+        "checkoutPageDescription": "This checkout page is currently under development. You can complete your gift card purchase through the gift card cart."
     }
 }

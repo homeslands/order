@@ -14,6 +14,7 @@ import {
 import { IGiftCard } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL } from '@/constants'
+import { useGiftCardStore } from '@/stores'
 
 interface GiftCardSelectedDrawerProps {
   selectedCard: IGiftCard
@@ -28,6 +29,7 @@ export function GiftCardSelectedDrawer({
   const { t } = useTranslation(['giftCard', 'common'])
   const [quantity, setQuantity] = useState(1)
   const [isOpen, setIsOpen] = useState(false)
+  const { setGiftCardItem } = useGiftCardStore()
 
   const handleIncrement = () => {
     setQuantity((prev) => Math.min(prev + 1, 10)) // Limit to 10 items max
@@ -36,10 +38,20 @@ export function GiftCardSelectedDrawer({
   const handleDecrement = () => {
     setQuantity((prev) => Math.max(prev - 1, 1)) // Minimum 1 item
   }
-
   const handleAddToCart = () => {
+    const cartItem = {
+      id: `gift_card_${Date.now().toString(36)}`,
+      slug: selectedCard.slug,
+      title: selectedCard.title,
+      image: selectedCard.image,
+      description: selectedCard.description,
+      points: selectedCard.points,
+      price: selectedCard.price,
+      quantity,
+    }
+
+    setGiftCardItem(cartItem)
     setIsOpen(false)
-    // showToast(t('giftCard.addedToCart'))
   }
 
   // Reset quantity when selectedCard changes or drawer opens
@@ -49,10 +61,8 @@ export function GiftCardSelectedDrawer({
     }
     setIsOpen(open)
   }
-
   return (
     <Drawer open={isOpen} onOpenChange={handleOpenChange}>
-      {' '}
       <DrawerTrigger asChild>
         {trigger || (
           <Button size="sm" className="rounded-full px-4">

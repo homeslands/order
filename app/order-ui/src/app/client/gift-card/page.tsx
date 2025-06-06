@@ -5,7 +5,12 @@ import { Gift } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import { useGetGiftCards } from '@/hooks'
-import { GiftCardItem, GiftCardPagination, GiftCardHeader } from './components'
+import {
+  GiftCardSheet,
+  GiftCardItem,
+  GiftCardPagination,
+  GiftCardHeader,
+} from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 
 export default function ClientGiftCardPage() {
@@ -91,7 +96,7 @@ export default function ClientGiftCardPage() {
             {t('giftCard.noGiftCardsAvailable')}
           </h3>
         </motion.div>
-      )}
+      )}{' '}
       {/* Pagination component từ DataTable */}
       {giftCards.length > 0 && (
         <motion.div
@@ -108,6 +113,7 @@ export default function ClientGiftCardPage() {
           />
         </motion.div>
       )}
+      <GiftCardSheet />
     </div>
   )
 }

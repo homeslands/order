@@ -1,10 +1,12 @@
 {
   "toast": {
     "unauthorized": "Unauthorized access. Please log in again!",
-    "invalidCredentials": "Login failed. Invalid credentials",
+    "invalidCredentials": "Login failed. Invalid credentials",    
     "addSuccess": "Successfully added product to cart",
+    "addGiftCardSuccess": "Gift card added to cart successfully",
     "itemAlreadyExists": "Product already exists in the cart",
     "removeSuccess": "Successfully removed product from cart",
+    "removeGiftCardSuccess": "Gift card removed from cart successfully",
     "loginSuccess": "Login successful",
     "logoutSuccess": "Logout successful",
     "loginFailed": "Login failed",
@@ -375,6 +377,7 @@
     "errorWhenConfirmEmailVerification": "Error when confirming email verification",
     "orderAlreadyHasPayment": "Order already has payment QR code!",
     "qrCodeRestored": "Payment QR code has been restored",
-    "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!"
+    "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!",
+    "giftCardValidationError": "Please check information gift card"
   }
 }

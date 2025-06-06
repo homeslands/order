@@ -118,6 +118,7 @@ export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'
 export { default as DeleteGiftCardDialog } from './delete-gift-card-dialog'
 export { default as GiftCardSelectedDialog } from './gift-card-selected-dialog'
+export { default as ConfirmGiftCardCheckoutDialog } from './confirm-gift-card-checkout-dialog'
 
 export { default as UpdateRoleDialog } from './update-role-dialog'
 export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'
