@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
+import { DiscountType } from 'src/order/order.constants';
 import { Order } from 'src/order/order.entity';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { TrackingOrderItem } from 'src/tracking-order-item/tracking-order-item.entity';
@@ -41,6 +42,14 @@ export class OrderItem extends Base {
     (trackingOrderItem) => trackingOrderItem.orderItem,
   )
   trackingOrderItems: TrackingOrderItem[];
+
+  @AutoMap()
+  @Column({ name: 'discount_type_column', default: DiscountType.NONE })
+  discountType: string;
+
+  @AutoMap()
+  @Column({ name: 'voucher_value_column', default: 0 })
+  voucherValue: number;
 
   @ManyToOne(() => Promotion, (promotion) => promotion.orderItems, {
     nullable: true,

@@ -5,6 +5,7 @@ import {
   forMember,
   mapFrom,
   Mapper,
+  mapWith,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { Voucher } from './voucher.entity';
@@ -14,6 +15,8 @@ import {
   VoucherResponseDto,
 } from './voucher.dto';
 import { baseMapper } from 'src/app/base.mapper';
+import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 @Injectable()
 export class VoucherProfile extends AutomapperProfile {
@@ -28,6 +31,14 @@ export class VoucherProfile extends AutomapperProfile {
         Voucher,
         VoucherResponseDto,
         extend(baseMapper(mapper)),
+        forMember(
+          (destination) => destination.voucherProducts,
+          mapWith(
+            VoucherProductResponseDto,
+            VoucherProduct,
+            (source) => source.voucherProducts,
+          ),
+        ),
         // forMember(
         //   (destination) => destination.startDate,
         //   mapFrom((source) => {

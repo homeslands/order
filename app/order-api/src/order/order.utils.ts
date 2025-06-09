@@ -44,7 +44,7 @@ export class OrderUtils {
         'orderItems.trackingOrderItems.tracking',
         'invoice.invoiceItems',
         'table',
-        'voucher',
+        'voucher.voucherProducts.product',
         'branch',
         'chefOrders.chefOrderItems',
       ],
@@ -90,10 +90,20 @@ export class OrderUtils {
    * @param {Order} order order.
    * @returns {Promise<number>} The subtotal of order
    */
-  async getOrderSubtotal(order: Order, voucher?: Voucher): Promise<number> {
+  async getOrderSubtotal(
+    order: Order,
+    voucher?: Voucher,
+  ): Promise<{
+    subtotal: number;
+    voucherValueItemsTotal: number;
+  }> {
     let discount = 0;
     const subtotal = order.orderItems?.reduce(
       (previous, current) => previous + current.subtotal,
+      0,
+    );
+    const voucherValueItemsTotal = order.orderItems?.reduce(
+      (previous, current) => previous + current.voucherValue,
       0,
     );
     if (voucher) {
@@ -113,7 +123,10 @@ export class OrderUtils {
       }
     }
 
-    return subtotal - discount;
+    return {
+      subtotal: subtotal - discount,
+      voucherValueItemsTotal,
+    };
   }
 
   async deleteOrder(orderSlug: string) {
