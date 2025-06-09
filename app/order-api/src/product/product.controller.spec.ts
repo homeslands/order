@@ -27,6 +27,13 @@ import { Order } from 'src/order/order.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { User } from 'src/user/user.entity';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
+import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
+import { ProductUtils } from './product.utils';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
+import { Product } from './product.entity';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -43,6 +50,7 @@ describe('ProductController', () => {
         UserUtils,
         MenuItemUtils,
         TransactionManagerService,
+        ProductUtils,
         {
           provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,
@@ -76,6 +84,22 @@ describe('ProductController', () => {
             deleteProduct: jest.fn(),
             getAllProductsPagination: jest.fn(),
           },
+        },
+        {
+          provide: MAPPER_MODULE_PROVIDER,
+          useFactory: mapperMockFactory,
+        },
+        {
+          provide: WINSTON_MODULE_NEST_PROVIDER,
+          useValue: console,
+        },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
@@ -146,7 +170,6 @@ describe('ProductController', () => {
         promotion: 'mock-promotion-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       const product: ProductResponseDto = {
         slug: 'mock-product-slug',
@@ -185,7 +208,6 @@ describe('ProductController', () => {
         promotion: 'mock-promotion-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       (service.getAllProductsPagination as jest.Mock).mockRejectedValue(
         new InternalServerErrorException(),
