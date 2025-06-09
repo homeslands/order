@@ -21,6 +21,9 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
 
 describe('VoucherGroupService', () => {
   let service: VoucherGroupService;
@@ -37,6 +40,7 @@ describe('VoucherGroupService', () => {
         UserUtils,
         MenuUtils,
         MenuItemUtils,
+        ProductUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(VoucherGroup),
@@ -69,6 +73,14 @@ describe('VoucherGroupService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
