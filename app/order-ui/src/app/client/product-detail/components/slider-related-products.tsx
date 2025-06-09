@@ -63,7 +63,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
                 return (
                     <SwiperSlide key={index} className="py-2 mt-4 w-full h-full">
                         <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-                            <div className="flex flex-col w-full min-h-[16rem] transition-all duration-300 bg-white rounded-xl shadow-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
+                            <div className="flex flex-col w-full min-h-[16rem] transition-all duration-300 bg-white border rounded-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
                                 <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
 
                                 {item.promotion && item.promotion.value > 0 && (
