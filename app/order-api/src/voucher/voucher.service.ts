@@ -121,7 +121,10 @@ export class VoucherService {
         );
         throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
       }
-    } else if (voucher.type === VoucherType.FIXED_VALUE) {
+    } else if (
+      voucher.type === VoucherType.FIXED_VALUE ||
+      voucher.type === VoucherType.SAME_PRICE_PRODUCT
+    ) {
       voucher.valueType = VoucherValueType.AMOUNT;
     } else {
       throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
@@ -216,7 +219,10 @@ export class VoucherService {
         );
         throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
       }
-    } else if (voucherTemplate.type === VoucherType.FIXED_VALUE) {
+    } else if (
+      voucherTemplate.type === VoucherType.FIXED_VALUE ||
+      voucherTemplate.type === VoucherType.SAME_PRICE_PRODUCT
+    ) {
       voucherTemplate.valueType = VoucherValueType.AMOUNT;
     } else {
       throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
