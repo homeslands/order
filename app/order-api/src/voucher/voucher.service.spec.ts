@@ -37,6 +37,9 @@ import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
 import { PdfService } from 'src/pdf/pdf.service';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -58,6 +61,7 @@ describe('VoucherService', () => {
         VoucherGroupUtils,
         PdfService,
         QrCodeService,
+        ProductUtils,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -92,6 +96,14 @@ describe('VoucherService', () => {
         },
         TransactionManagerService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 
