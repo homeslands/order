@@ -6,6 +6,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsDefined,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -119,12 +120,13 @@ export class CreateVoucherDto {
     required: true,
     example: ['product-slug'],
   })
+  @IsDefined({ message: 'The slug array of the products is not defined' })
   @IsArray({
     message: 'The slug array of the applicable object must be an array',
   })
-  @ArrayNotEmpty({
-    message: 'The slug array of the applicable object is not empty',
-  })
+  // @ArrayNotEmpty({
+  //   message: 'The slug array of the applicable object is not empty',
+  // })
   @IsString({ each: true, message: 'Each slug in the array must be a string' })
   @Type(() => String)
   products: string[];
@@ -228,12 +230,13 @@ export class BulkCreateVoucherDto {
     required: true,
     example: ['product-slug'],
   })
+  @IsDefined({ message: 'The slug array of the products is not defined' })
   @IsArray({
     message: 'The slug array of the products must be an array',
   })
-  @ArrayNotEmpty({
-    message: 'The slug array of the products is not empty',
-  })
+  // @ArrayNotEmpty({
+  //   message: 'The slug array of the products is not empty',
+  // })
   @IsString({ each: true, message: 'Each slug in the array must be a string' })
   @Type(() => String)
   products: string[];
