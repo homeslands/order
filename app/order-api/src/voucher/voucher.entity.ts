@@ -4,6 +4,7 @@ import { Order } from 'src/order/order.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { VoucherType, VoucherValueType } from './voucher.constant';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 @Entity('voucher_tbl')
 export class Voucher extends Base {
@@ -74,4 +75,7 @@ export class Voucher extends Base {
   @ManyToOne(() => VoucherGroup, (voucherGroup) => voucherGroup.vouchers)
   @JoinColumn({ name: 'voucher_group_column' })
   voucherGroup?: VoucherGroup;
+
+  @OneToMany(() => VoucherProduct, (voucherProduct) => voucherProduct.voucher)
+  voucherProducts: VoucherProduct[];
 }

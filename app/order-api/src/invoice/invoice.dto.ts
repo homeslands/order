@@ -74,4 +74,12 @@ export class InvoiceResponseDto extends BaseResponseDto {
   @AutoMap(() => InvoiceItemResponseDto)
   @ApiProperty()
   invoiceItems: InvoiceItemResponseDto[];
+
+  @AutoMap()
+  @ApiProperty()
+  voucherType?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  valueEachVoucher?: number;
 }

@@ -201,6 +201,28 @@ export class GetProductRequestDto extends BaseQueryDto {
 
   @AutoMap()
   @ApiProperty({
+    description: 'Get products base on voucher',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  voucher?: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Get products that are either applied to a voucher or not',
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isAppliedVoucher?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
     description:
       'Get products base on branch is applied for chef area or create menu item',
     example: '',

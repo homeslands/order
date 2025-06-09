@@ -20,6 +20,9 @@ import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
 
 @Module({
   imports: [
@@ -31,6 +34,8 @@ import { User } from 'src/user/user.entity';
       Menu,
       Voucher,
       User,
+      VoucherProduct,
+      Product,
     ]),
     DbModule,
     OrderModule,
@@ -47,6 +52,7 @@ import { User } from 'src/user/user.entity';
     OrderItemScheduler,
     VoucherUtils,
     UserUtils,
+    ProductUtils,
   ],
   exports: [OrderItemService, OrderItemUtils],
 })

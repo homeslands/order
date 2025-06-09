@@ -16,6 +16,16 @@ import { ProductUtils } from './product.utils';
 import { MenuModule } from 'src/menu/menu.module';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { OrderUtils } from 'src/order/order.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { Order } from 'src/order/order.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { DbModule } from 'src/db/db.module';
+import { User } from 'src/user/user.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
 
 @Module({
   imports: [
@@ -27,9 +37,15 @@ import { Branch } from 'src/branch/branch.entity';
       Promotion,
       ApplicablePromotion,
       Branch,
+      Voucher,
+      VoucherProduct,
+      Order,
+      User,
+      MenuItem,
     ]),
     FileModule,
     MenuModule,
+    DbModule,
   ],
   controllers: [ProductController],
   providers: [
@@ -38,6 +54,10 @@ import { Branch } from 'src/branch/branch.entity';
     PromotionUtils,
     ProductUtils,
     BranchUtils,
+    VoucherUtils,
+    OrderUtils,
+    UserUtils,
+    MenuItemUtils,
   ],
   exports: [ProductService, ProductUtils],
 })
