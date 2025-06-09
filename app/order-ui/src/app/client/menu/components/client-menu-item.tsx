@@ -34,7 +34,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className="flex flex-row sm:flex-col justify-between bg-white rounded-xl backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[16rem] dark:bg-transparent hover:scale-105"
+      className="flex flex-row sm:flex-col justify-between bg-white border-none sm:border sm:shadow-xl rounded-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[15rem] dark:bg-transparent hover:shadow-2xl"
     >
       {/* Image */}
       <NavLink
@@ -47,11 +47,11 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-40"
+                className="object-cover w-full h-full rounded-md sm:rounded-xl sm:h-40 sm:p-1.5"
               />
               {/* Stock */}
               {item.product.isLimit && !isMobile && (
-                <span className="absolute bottom-1 left-1 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
+                <span className="absolute bottom-3 left-3 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
                   {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                 </span>
               )}
@@ -65,7 +65,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
         </div>
 
         {/* Content */}
-        <div className="flex flex-col flex-1 justify-between p-2">
+        <div className="flex flex-col flex-1 justify-between px-2 py-4 sm:p-2">
           <div className="h-auto sm:h-fit">
             <h3 className="font-bold text-md sm:text-lg line-clamp-1">{item.product.name}</h3>
             {/* Stock */}
@@ -89,7 +89,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                         return formatCurrency(range.min)
                       })()}
                     </span>
-                    <span className="text-sm font-bold sm:text-lg text-primary">
+                    <span className="font-bold text-md sm:text-lg text-primary">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
                         if (!range) return formatCurrency(0)
@@ -98,7 +98,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                     </span>
                   </div>
                 ) : (
-                  <span className="text-sm font-bold sm:text-lg text-primary">
+                  <span className="text-lg font-bold text-primary">
                     {(() => {
                       const range = getPriceRange(item.product.variants)
                       if (!range) return formatCurrency(0)
@@ -107,8 +107,6 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
                   </span>
                 )}
               </div>
-
-
             </div>
           ) : (
             <span className="text-sm font-bold text-primary">{t('menu.contactForPrice')}</span>
@@ -126,7 +124,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           )
         ) : (
           <Button
-            className="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
+            className="px-3 py-1 text-xs font-semibold text-white rounded-full bg-destructive"
             disabled
           >
             {t('menu.outOfStock')}
