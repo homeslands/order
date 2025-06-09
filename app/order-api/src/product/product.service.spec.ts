@@ -41,6 +41,7 @@ import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { ProductUtils } from './product.utils';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -63,6 +64,7 @@ describe('ProductService', () => {
         UserUtils,
         MenuItemUtils,
         TransactionManagerService,
+        ProductUtils,
         {
           provide: FileService,
           useValue: {
@@ -137,6 +139,10 @@ describe('ProductService', () => {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console, // Mock logger (or a custom mock)
         },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
       ],
     }).compile();
 
@@ -180,6 +186,7 @@ describe('ProductService', () => {
         isNew: false,
         saleQuantityHistory: 0,
         productChefAreas: [],
+        voucherProducts: [],
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);
@@ -251,7 +258,6 @@ describe('ProductService', () => {
         catalog: 'mock-catalog-slug',
         page: 0,
         size: 0,
-        sort: ['createdAt', 'desc'],
       };
       const product = {
         name: 'Mock product name',

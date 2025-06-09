@@ -65,6 +65,10 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { Mutex } from 'async-mutex';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { ProductUtils } from 'src/product/product.utils';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -108,6 +112,7 @@ describe('OrderService', () => {
         OrderItemUtils,
         PromotionUtils,
         SchedulerRegistry,
+        ProductUtils,
         {
           provide: ConfigService,
           useValue: {
@@ -200,6 +205,14 @@ describe('OrderService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
@@ -609,6 +622,7 @@ describe('OrderService', () => {
         variant: 'mock-variant-slug',
       } as CreateOrderItemRequestDto;
       const mockInput: CreateOrderRequestDto = {
+        voucher: '',
         type: 'mock-type-order',
         table: 'mock-table-slug',
         branch: 'mock-branch-slug',
@@ -616,6 +630,12 @@ describe('OrderService', () => {
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
       };
+
+      jest
+        .spyOn(voucherUtils, 'getVoucher')
+        .mockRejectedValue(
+          new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND),
+        );
 
       jest
         .spyOn(service, 'constructOrder')
@@ -655,6 +675,11 @@ describe('OrderService', () => {
       } as Order;
 
       jest.spyOn(service, 'constructOrder').mockResolvedValue(order);
+      jest
+        .spyOn(voucherUtils, 'getVoucher')
+        .mockRejectedValue(
+          new VoucherException(VoucherValidation.VOUCHER_NOT_FOUND),
+        );
       jest
         .spyOn(service, 'constructOrderItems')
         .mockRejectedValue(
@@ -707,9 +732,10 @@ describe('OrderService', () => {
       jest.spyOn(service, 'constructOrder').mockResolvedValue(mockOutput);
       jest.spyOn(service, 'constructOrderItems').mockResolvedValue(orderItems);
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(null);
-      jest
-        .spyOn(orderUtils, 'getOrderSubtotal')
-        .mockResolvedValue(mockOutput.subtotal);
+      jest.spyOn(orderUtils, 'getOrderSubtotal').mockResolvedValue({
+        subtotal: mockOutput.subtotal,
+        voucherValueItemsTotal: 0,
+      });
       jest
         .spyOn(orderScheduler, 'handleDeleteOrder')
         .mockImplementation(() => {});
