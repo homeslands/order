@@ -32,6 +32,7 @@ import { TableValidation } from 'src/table/table.validation';
 import { TrackingValidation } from 'src/tracking/tracking.validation';
 import { UserValidation } from 'src/user/user.validation';
 import { VariantValidation } from 'src/variant/variant.validation';
+import { VoucherProductValidation } from 'src/voucher-product/voucher-product.validation';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
 import { WorkflowValidation } from 'src/workflow/workflow.validation';
 
@@ -86,6 +87,7 @@ export const AppValidation: TErrorCode = {
   ...ProductChefAreaValidation,
   ...ChefOrderValidation,
   ...NotificationValidation,
+  ...VoucherProductValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

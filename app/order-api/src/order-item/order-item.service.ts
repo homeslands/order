@@ -28,6 +28,9 @@ import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
+import { DiscountType } from 'src/order/order.constants';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OrderItemService {
@@ -43,7 +46,61 @@ export class OrderItemService {
     private readonly menuUtils: MenuUtils,
     private readonly orderScheduler: OrderScheduler,
     private readonly voucherUtils: VoucherUtils,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
+
+  async updateDiscountTypeForExistedOrderItem() {
+    const context = `${OrderItemService.name}.${this.updateDiscountTypeForExistedOrderItem.name}`;
+    const batchSize = 500;
+    let offset = 0;
+    let totalUpdated = 0;
+
+    while (true) {
+      const batch = await this.orderItemRepository.find({
+        where: { discountType: DiscountType.NONE },
+        relations: ['promotion'],
+        take: batchSize,
+        skip: offset,
+        order: { id: 'ASC' },
+      });
+
+      if (batch.length === 0) break;
+
+      const updatedBatch: OrderItem[] = [];
+      for (const item of batch) {
+        if (item.promotion) {
+          item.discountType = DiscountType.PROMOTION;
+          updatedBatch.push(item);
+        }
+      }
+
+      await this.transactionManagerService.execute<void>(
+        async (manager) => {
+          await manager.save(updatedBatch);
+        },
+        () => {
+          this.logger.log(
+            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error updating batch at offset ${offset}: ${error.message}`,
+            context,
+          );
+        },
+      );
+
+      totalUpdated += updatedBatch.length;
+      offset += batchSize;
+    }
+    this.logger.log(
+      `Finished updating total ${totalUpdated} invoice items.`,
+      context,
+    );
+  }
 
   /**
    * Handles order item note update
@@ -119,9 +176,17 @@ export class OrderItemService {
       throw new OrderItemException(OrderItemValidation.INVALID_ACTION);
     }
 
-    const orderItem = await this.orderItemUtils.getOrderItem({
+    let orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
     });
+
+    if (!orderItem.order) {
+      this.logger.warn('Order item not found', context);
+      throw new OrderItemException(OrderItemValidation.ORDER_ITEM_NOT_FOUND);
+    }
+
+    // Đổi variant => đổi size trong cùng sản phẩm đó
+    // => Không cần check lại voucher có hiệu lực cho sản phẩm hay không
     const variant = await this.variantUtils.getVariant({
       where: { slug: requestData.variant },
     });
@@ -159,10 +224,22 @@ export class OrderItemService {
     orderItem.variant = variant;
     orderItem.quantity = requestData.quantity;
     orderItem.promotion = menuItem.promotion;
-    orderItem.subtotal = this.orderItemUtils.calculateSubTotal(
+    // const { subtotal: subtotalOrderItem, voucherValue } =
+    //   this.orderItemUtils.calculateSubTotal(
+    //     orderItem,
+    //     menuItem.promotion,
+    //     orderItem.order?.voucher,
+    //   );
+    // orderItem.subtotal = subtotalOrderItem;
+    // orderItem.voucherValue = voucherValue;
+
+    //update: subtotal, voucherValue, discountType, originalSubtotal
+    orderItem = this.orderItemUtils.getUpdatedOrderItem(
+      orderItem.order?.voucher,
       orderItem,
-      menuItem.promotion,
+      true, // isAddVoucher
     );
+
     if (requestData.note) orderItem.note = requestData.note;
 
     const updatedOrderItem =
@@ -219,10 +296,11 @@ export class OrderItemService {
       }
     }
 
-    order.subtotal = await this.orderUtils.getOrderSubtotal(
+    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
       order,
-      order.voucher,
+      voucher,
     );
+    order.subtotal = subtotalOrder;
     await this.transactionManagerService.execute(
       async (manager) => {
         if (voucher) await manager.save(voucher);
@@ -297,10 +375,10 @@ export class OrderItemService {
           }
         }
         // Update order
-        order.subtotal = await this.orderUtils.getOrderSubtotal(
-          order,
-          order.voucher,
-        );
+        const { subtotal: subtotalOrder } =
+          await this.orderUtils.getOrderSubtotal(order, voucher);
+        order.subtotal = subtotalOrder;
+
         if (voucher) await manager.save(voucher);
 
         return await manager.save(order);
@@ -340,6 +418,12 @@ export class OrderItemService {
         slug: requestData.order,
       },
     });
+
+    if (order.voucher) {
+      await this.voucherUtils.validateVoucherProduct(order.voucher, [
+        requestData.variant,
+      ]);
+    }
 
     if (requestData.quantity === Infinity) {
       this.logger.warn(
@@ -387,7 +471,7 @@ export class OrderItemService {
       menuItem,
     );
 
-    const orderItem = this.mapper.map(
+    let orderItem = this.mapper.map(
       requestData,
       CreateOrderItemRequestDto,
       OrderItem,
@@ -395,17 +479,28 @@ export class OrderItemService {
     orderItem.variant = variant;
     orderItem.order = order;
     orderItem.promotion = menuItem.promotion;
-    orderItem.subtotal = this.orderItemUtils.calculateSubTotal(
+    // const { subtotal, voucherValue } = this.orderItemUtils.calculateSubTotal(
+    //   orderItem,
+    //   menuItem.promotion,
+    //   order.voucher,
+    // );
+    // orderItem.subtotal = subtotal;
+    // orderItem.voucherValue = voucherValue;
+
+    //add: subtotal, voucherValue, discountType, originalSubtotal
+    orderItem = this.orderItemUtils.getUpdatedOrderItem(
+      order.voucher,
       orderItem,
-      menuItem.promotion,
+      true, // isAddVoucher
     );
 
     // Update order
     order.orderItems.push(orderItem);
-    order.subtotal = await this.orderUtils.getOrderSubtotal(
+    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
       order,
       order.voucher,
     );
+    order.subtotal = subtotalOrder;
 
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(

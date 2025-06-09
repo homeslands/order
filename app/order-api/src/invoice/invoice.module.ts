@@ -8,11 +8,13 @@ import { InvoiceProfile } from './invoice.mapper';
 import { PdfModule } from 'src/pdf/pdf.module';
 import { QrCodeModule } from 'src/qr-code/qr-code.module';
 import { InvoiceScheduler } from './invoice.scheduler';
+import { DbModule } from 'src/db/db.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Invoice, Order]),
     PdfModule,
     QrCodeModule,
+    DbModule,
   ],
   controllers: [InvoiceController],
   providers: [InvoiceService, InvoiceProfile, InvoiceScheduler],

@@ -26,4 +26,12 @@ export class InvoiceItemResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   size: string;
+
+  @AutoMap()
+  @ApiProperty()
+  discountType: string;
+
+  @AutoMap()
+  @ApiProperty()
+  voucherValue: number;
 }

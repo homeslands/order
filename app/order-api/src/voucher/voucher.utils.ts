@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindManyOptions,
   FindOneOptions,
+  In,
   IsNull,
   Not,
   Repository,
@@ -16,16 +17,22 @@ import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { RoleEnum } from 'src/role/role.enum';
 import _ from 'lodash';
+import { ProductUtils } from 'src/product/product.utils';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { VoucherType } from './voucher.constant';
 
 @Injectable()
 export class VoucherUtils {
   constructor(
     @InjectRepository(Voucher)
     private readonly voucherRepository: Repository<Voucher>,
+    @InjectRepository(VoucherProduct)
+    private readonly voucherProductRepository: Repository<VoucherProduct>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly orderUtils: OrderUtils,
     private readonly userUtils: UserUtils,
+    private readonly productUtils: ProductUtils,
   ) {}
 
   async getVoucher(options: FindOneOptions<Voucher>): Promise<Voucher> {
@@ -87,6 +94,7 @@ export class VoucherUtils {
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateVoucherUsage.name}`;
 
+    // validate voucher for user
     if (userSlug) {
       // user login
       const user = await this.userUtils.getUser({
@@ -164,100 +172,63 @@ export class VoucherUtils {
     }
   }
 
-  // validate how to use voucher
-  // user is null when validate voucher for guest (default customer) - no login
-  // user is not null when validate voucher for user (customer) - login
-  // async validateVoucherUsage(
-  //   voucher: Voucher,
-  //   user?: string,
-  // ): Promise<boolean> {
-  //   const context = `${VoucherUtils.name}.${this.validateVoucherUsage.name}`;
-  //   if (user) {
-  //     switch (voucher.type) {
-  //       case VoucherType.PERCENT_ORDER:
-  //         if (voucher.isVerificationIdentity) {
-  //           await this.validateVerificationIdentityVoucher(voucher, user);
-  //         }
+  async validateVoucherProduct(
+    voucher: Voucher,
+    variants: string[],
+  ): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateVoucherProduct.name}`;
+    const productSlugs: string[] = [];
+    for (const variant of variants) {
+      const product = await this.productUtils.getProduct({
+        where: { variants: { slug: variant } },
+      });
+      productSlugs.push(product.slug);
+    }
+    switch (voucher.type) {
+      case VoucherType.SAME_PRICE_PRODUCT:
+        const voucherProducts = await this.voucherProductRepository.find({
+          where: {
+            product: {
+              slug: In(productSlugs),
+            },
+            voucher: {
+              slug: voucher.slug,
+            },
+          },
+        });
 
-  //         this.logger.log('Validate voucher success', context);
-  //         return true;
-  //       case VoucherType.FIXED_VALUE:
-  //         if (voucher.isVerificationIdentity) {
-  //           await this.validateVerificationIdentityVoucher(voucher, user);
-  //         }
-
-  //         this.logger.log('Validate voucher success', context);
-  //         return true;
-  //       default:
-  //         this.logger.warn(
-  //           VoucherValidation.INVALID_VOUCHER_TYPE.message,
-  //           context,
-  //         );
-  //         throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
-  //     }
-  //   } else {
-  //     if (voucher.isVerificationIdentity) {
-  //       this.logger.warn(
-  //         `Voucher ${voucher.slug} must verify identity to use voucher`,
-  //         context,
-  //       );
-  //       throw new VoucherException(
-  //         VoucherValidation.MUST_VERIFY_IDENTITY_TO_USE_VOUCHER,
-  //       );
-  //     }
-
-  //     this.logger.log('Validate voucher success', context);
-  //     return true;
-  //   }
-  // }
-
-  // async validateVerificationIdentityVoucher(voucher: Voucher, user: string) {
-  //   const context = `${VoucherUtils.name}.${this.validateVerificationIdentityVoucher.name}`;
-  //   try {
-  //     // We will check customer has already used voucher
-  //     // If User are employee, admin, ... roles => No login. Can't use voucher directly
-  //     // that must verify by owner is customer
-
-  //     // Include exception found user or not found user
-  //     const owner = await this.userUtils.getUser({
-  //       where: {
-  //         slug: user ?? IsNull(),
-  //       },
-  //       relations: ['role'],
-  //     });
-
-  //     if (owner.role.name !== RoleEnum.Customer) {
-  //       this.logger.warn(`User ${owner.slug} is not customer`, context);
-  //       throw new VoucherException(VoucherValidation.USER_MUST_BE_CUSTOMER);
-  //     }
-
-  //     const orders = await this.orderUtils.getBulkOrders({
-  //       where: {
-  //         owner: {
-  //           slug: owner.slug,
-  //         },
-  //         voucher: {
-  //           slug: voucher.slug,
-  //         },
-  //       },
-  //     });
-
-  //     if (_.size(orders) >= voucher.numberOfUsagePerUser) {
-  //       this.logger.warn(`Voucher ${voucher.slug} is already used`, context);
-  //       throw new VoucherException(VoucherValidation.VOUCHER_ALREADY_USED);
-  //     }
-  //   } catch (error) {
-  //     this.logger.error(
-  //       VoucherValidation.VALIDATE_VOUCHER_USAGE_FAILED.message,
-  //       error.stack,
-  //       context,
-  //     );
-  //     throw new VoucherException(
-  //       VoucherValidation.VALIDATE_VOUCHER_USAGE_FAILED,
-  //       error.message,
-  //     );
-  //   }
-  // }
+        if (_.size(voucherProducts) < 1) {
+          this.logger.warn(
+            `Product not applied to voucher ${voucher.slug}`,
+            context,
+          );
+          throw new VoucherException(
+            VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
+          );
+        }
+        return true;
+      case VoucherType.PERCENT_ORDER:
+      case VoucherType.FIXED_VALUE:
+        for (const productSlug of productSlugs) {
+          const voucherProduct = voucher?.voucherProducts.find(
+            (voucherProduct) => voucherProduct.product.slug === productSlug,
+          );
+          if (!voucherProduct) {
+            this.logger.warn(
+              `Product ${productSlug} not applied to voucher ${voucher.slug}`,
+              context,
+            );
+            throw new VoucherException(
+              VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
+            );
+          }
+        }
+        return true;
+      default:
+        this.logger.warn(`Invalid voucher type ${voucher.slug}`, context);
+        throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
+    }
+  }
 
   // validate min order value
   async validateMinOrderValue(
@@ -265,7 +236,9 @@ export class VoucherUtils {
     order: Order,
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateMinOrderValue.name}`;
-    const subtotal = await this.orderUtils.getOrderSubtotal(order);
+    if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) return true;
+
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order);
     if (voucher.minOrderValue > subtotal) {
       this.logger.warn(
         `Order value is less than min order value of voucher`,
@@ -283,7 +256,9 @@ export class VoucherUtils {
     order: Order,
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateMinOrderValue.name}`;
-    const subtotal = await this.orderUtils.getOrderSubtotal(order);
+    if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) return true;
+
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order);
     if (voucher.minOrderValue > subtotal) return false;
     this.logger.log('Validate voucher for update order item success', context);
     return true;

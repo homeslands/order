@@ -6,6 +6,7 @@ import { AutoMap } from '@automapper/classes';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { ProductAnalysis } from 'src/product-analysis/product-analysis.entity';
 import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 @Entity('product_tbl')
 export class Product extends Base {
@@ -69,4 +70,7 @@ export class Product extends Base {
 
   @OneToMany(() => ProductChefArea, (p) => p.product)
   productChefAreas: ProductChefArea[];
+
+  @OneToMany(() => VoucherProduct, (voucherProduct) => voucherProduct.product)
+  voucherProducts: VoucherProduct[];
 }
