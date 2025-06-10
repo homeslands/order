@@ -5,6 +5,6 @@ import { BaseQueryDto } from 'src/app/base.dto';
 export class FindAllCardOrderDto extends BaseQueryDto {
   @IsString()
   @IsOptional()
-  @ApiProperty()
-  customerSlug: string;
+  @ApiProperty({ required: false })
+  customerSlug?: string;
 }
