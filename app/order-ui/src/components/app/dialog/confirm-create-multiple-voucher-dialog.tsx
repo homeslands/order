@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui'
 
 import { ICreateMultipleVoucherRequest } from '@/types'
@@ -31,7 +30,6 @@ export default function ConfirmCreateMultipleVoucherDialog({
   onOpenChange,
   onCloseSheet, // Add this
   voucher,
-  disabled,
   onSuccess
 }: IConfirmCreateMultipleVoucherDialogProps) {
   const queryClient = useQueryClient()
@@ -59,16 +57,6 @@ export default function ConfirmCreateMultipleVoucherDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
-          onClick={() => onOpenChange(true)}
-        >
-          {t('voucher.create')}
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
@@ -81,6 +69,10 @@ export default function ConfirmCreateMultipleVoucherDialog({
           <div className="py-4 text-sm text-gray-500">
             {t('voucher.confirmCreateMultipleVoucher')} {voucher?.numberOfVoucher} {t('voucher.vouchers')}
             <br />
+            <br />
+            <span className="text-sm italic text-destructive">
+              {t('voucher.createMultipleVoucherNote')}
+            </span>
           </div>
         </DialogHeader>
         <DialogFooter className="flex flex-row gap-2 justify-center">

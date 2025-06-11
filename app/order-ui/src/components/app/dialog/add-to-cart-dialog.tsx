@@ -60,24 +60,24 @@ export default function AddToCartDialog({
 
     const cartItem: ICartItem = {
       id: cartId,
-      slug: product.slug,
+      slug: product?.product?.slug,
       owner: '',
       type: OrderTypeEnum.AT_TABLE,
       orderItems: [
         {
           id: generateOrderItemId(cartId),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
+          slug: product?.product?.slug,
+          image: product?.product?.image,
+          name: product?.product?.name,
           quantity: 1,
-          size: selectedVariant.size.name,
-          variant: selectedVariant.slug,
-          originalPrice: selectedVariant.price,
+          size: selectedVariant?.size?.name,
+          variant: selectedVariant?.slug,
+          originalPrice: selectedVariant?.price,
           price: finalPrice,
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
-          promotionValue: product.promotion ? product.promotion?.value : 0,
+          description: product?.product?.description,
+          isLimit: product?.product?.isLimit,
+          promotion: product?.promotion ? product?.promotion?.slug : '',
+          promotionValue: product?.promotion ? product?.promotion?.value : 0,
           note,
         },
       ],
@@ -87,7 +87,7 @@ export default function AddToCartDialog({
     addCartItem(cartItem)
     // Reset states
     setNote('')
-    setSelectedVariant(product.product.variants?.[0] || null)
+    setSelectedVariant(product?.product?.variants?.[0] || null)
     setIsOpen(false)
   }
 
@@ -114,10 +114,10 @@ export default function AddToCartDialog({
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Product Image */}
           <div className="flex justify-center items-center">
-            {product.product.image ? (
+            {product?.product?.image ? (
               <img
-                src={`${publicFileURL}/${product.product.image}`}
-                alt={product.product.name}
+                src={`${publicFileURL}/${product?.product?.image}`}
+                alt={product?.product?.name}
                 className="object-cover w-full h-64 rounded-md border"
               />
             ) : (
@@ -128,14 +128,14 @@ export default function AddToCartDialog({
           {/* Product Details */}
           <div className="flex flex-col gap-4 justify-between">
             <div>
-              <h3 className="text-lg font-semibold">{product.product.name}</h3>
+              <h3 className="text-lg font-semibold">{product?.product?.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {product.product.description}
+                {product?.product?.description}
               </p>
             </div>
 
             {/* Size Selection */}
-            {product.product.variants.length > 0 && (
+            {product?.product?.variants?.length && product?.product?.variants?.length > 0 && (
               <div className="space-y-1">
                 <label className="text-sm font-medium">
                   {t('menu.selectSize')}
@@ -143,7 +143,7 @@ export default function AddToCartDialog({
                 <Select
                   value={selectedVariant?.slug}
                   onValueChange={(value) => {
-                    const variant = product.product.variants.find(
+                    const variant = product?.product?.variants?.find(
                       (v) => v.slug === value,
                     )
                     setSelectedVariant(variant || null)
@@ -153,16 +153,16 @@ export default function AddToCartDialog({
                     <SelectValue placeholder={t('menu.selectSize')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.product.variants
+                    {product?.product?.variants
                       .sort((a, b) => a.price - b.price)
                       .map((variant) => (
                         <SelectItem key={variant.slug} value={variant.slug}>
                           {variant.size.name.toUpperCase()} –{' '}
-                          {product.promotion?.value > 0
+                          {product?.promotion?.value > 0
                             ? formatCurrency(
-                              variant.price * (1 - product.promotion.value / 100),
+                              variant?.price * (1 - product?.promotion?.value / 100),
                             )
-                            : formatCurrency(variant.price)}
+                            : formatCurrency(variant?.price)}
                         </SelectItem>
                       ))}
                   </SelectContent>

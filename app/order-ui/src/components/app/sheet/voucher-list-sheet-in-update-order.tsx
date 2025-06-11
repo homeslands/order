@@ -328,6 +328,7 @@ export default function VoucherListSheetInUpdateOrder({
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
       user: userInfo?.slug || '',
+      orderItems: cartItems?.orderItems || []
     }
 
     const onValidated = () => {
@@ -382,6 +383,7 @@ export default function VoucherListSheetInUpdateOrder({
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
           user: userInfo.slug || '',
+          orderItems: cartItems?.orderItems || []
         };
 
         validateVoucher(validateVoucherParam, {
@@ -402,6 +404,7 @@ export default function VoucherListSheetInUpdateOrder({
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: publicVoucher.slug,
           user: '',
+          orderItems: cartItems?.orderItems || []
         };
 
         validatePublicVoucher(validateVoucherParam, {

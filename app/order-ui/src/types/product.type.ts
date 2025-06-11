@@ -26,8 +26,10 @@ export interface IProductRequest {
   size?: number
   catalog?: string
   promotion?: string // get all products base on promotion
+  voucher?: string // get all products base on voucher
   isAppliedPromotion?: boolean
   isAppliedBranchForChefArea?: boolean
+  isAppliedVoucher?: boolean
   isTopSell?: boolean
   isNew?: boolean
   inMenu?: boolean

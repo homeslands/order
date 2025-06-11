@@ -13,23 +13,26 @@ import {
   SheetFooter,
   DataTable,
 } from '@/components/ui'
-import { ConfirmApplyPromotionDialog } from '@/components/app/dialog'
-import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { useProducts } from '@/hooks'
-import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
+import { IApplyVoucherRequest, IVoucher } from '@/types'
+import { useCatalogs, useProducts } from '@/hooks'
+import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
+import { ConfirmApplyVoucherDialog } from '@/components/app/dialog'
+import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
 
-interface IApplyPromotionSheetProps {
-  promotion: IPromotion
+interface IApplyVoucherSheetProps {
+  voucher: IVoucher
 }
 
-export default function ApplyPromotionSheet({
-  promotion,
-}: IApplyPromotionSheetProps) {
-  const { t } = useTranslation(['promotion'])
+export default function ApplyVoucherSheet({
+  voucher,
+}: IApplyVoucherSheetProps) {
+  const { t } = useTranslation(['voucher'])
+  const { t: tCommon } = useTranslation(['common'])
   const [isOpen, setIsOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [applyPromotionRequest, setApplyPromotionRequest] =
-    useState<IApplyPromotionRequest | null>(null)
+  const [catalog, setCatalog] = useState<string | null>(null)
+  const [applyVoucherRequest, setApplyVoucherRequest] =
+    useState<IApplyVoucherRequest | null>(null)
 
   // Separate pagination state for sheet
   const [sheetPagination, setSheetPagination] = useState({
@@ -38,14 +41,20 @@ export default function ApplyPromotionSheet({
   })
 
   const { data: products, isLoading } = useProducts({
-    promotion: promotion?.slug,
-    isAppliedPromotion: false,
+    voucher: voucher?.slug,
+    isAppliedVoucher: false,
     page: sheetPagination.pageIndex,
     size: sheetPagination.pageSize,
     hasPaging: true,
-  }, !sheetOpen)
+    catalog: catalog || undefined,
+  },
+    !!sheetOpen
+  )
+
+  const { data: catalogs } = useCatalogs()
 
   const productsData = products?.result.items
+  const catalogsData = catalogs?.result
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -54,12 +63,11 @@ export default function ApplyPromotionSheet({
   }, [])
 
   const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
-    setApplyPromotionRequest({
-      applicableSlugs: selectedSlugs,
-      promotion: promotion?.slug,
-      type: 'product',
+    setApplyVoucherRequest({
+      products: selectedSlugs,
+      vouchers: [voucher?.slug],
     })
-  }, [promotion?.slug])
+  }, [voucher?.slug])
 
   const handleSheetPageChange = useCallback((page: number) => {
     setSheetPagination(prev => ({
@@ -79,6 +87,26 @@ export default function ApplyPromotionSheet({
     setSheetOpen(open)
   }, [])
 
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
@@ -88,13 +116,13 @@ export default function ApplyPromotionSheet({
           onClick={handleClick}
         >
           <PenLine className="icon" />
-          {t('promotion.applyPromotion')}
+          {t('voucher.applyVoucher')}
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
-            {t('promotion.applyPromotion')}
+            {t('voucher.applyVoucher')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
@@ -107,10 +135,14 @@ export default function ApplyPromotionSheet({
                 <DataTable
                   columns={useProductColumns({
                     onSelectionChange: handleSelectionChange,
+                    selectedProducts: applyVoucherRequest?.products || [],
                   })}
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={products?.result.totalPages || 1}
+                  filterOptions={ProductFilterOptions}
+                  filterConfig={filterConfig}
+                  onFilterChange={handleFilterChange}
                   onPageChange={handleSheetPageChange}
                   onPageSizeChange={handleSheetPageSizeChange}
                 />
@@ -118,11 +150,11 @@ export default function ApplyPromotionSheet({
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <ConfirmApplyPromotionDialog
+            <ConfirmApplyVoucherDialog
               disabled={
-                !applyPromotionRequest || applyPromotionRequest.applicableSlugs.length === 0
+                !applyVoucherRequest || applyVoucherRequest.products.length === 0
               }
-              applyPromotionData={applyPromotionRequest}
+              applyVoucherData={applyVoucherRequest}
               isOpen={isOpen}
               onOpenChange={setIsOpen}
               onCloseSheet={() => setSheetOpen(false)}

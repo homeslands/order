@@ -164,6 +164,7 @@ export default function VoucherListSheetInUpdateOrder({
     if (defaultValue?.voucher && defaultValue?.orderItems) {
       const isValidAmount = defaultValue.voucher.minOrderValue <= subTotal;
       if (!isValidAmount) {
+
         removeVoucherFromOrder(1004);
       }
     }
@@ -358,6 +359,13 @@ export default function VoucherListSheetInUpdateOrder({
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
       user: defaultValue?.owner?.slug || '',
+      orderItems: defaultValue?.orderItems.map(item => ({
+        variant: item.variant.slug,
+        quantity: item.quantity,
+        promotion: item.promotion?.slug,
+        note: item.note,
+        order: defaultValue.slug
+      })) || []
     }
 
     const onValidated = () => {
@@ -407,6 +415,13 @@ export default function VoucherListSheetInUpdateOrder({
       const validateVoucherParam: IValidateVoucherRequest = {
         voucher: voucher.slug,
         user: isOwnerValid ? defaultValue?.owner?.slug || '' : '',
+        orderItems: defaultValue?.orderItems.map(item => ({
+          variant: item.variant.slug,
+          quantity: item.quantity,
+          promotion: item.promotion?.slug,
+          note: item.note,
+          order: defaultValue.slug
+        })) || []
       };
 
       validateVoucher(validateVoucherParam, {
