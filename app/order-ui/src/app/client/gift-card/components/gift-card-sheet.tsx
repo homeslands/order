@@ -183,7 +183,7 @@ export default function GiftCardSheet() {
               variant="secondary"
               className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
             >
-              1
+              {giftCardItem.quantity}
             </Badge>
           )}
         </Button>

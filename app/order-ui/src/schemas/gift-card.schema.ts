@@ -21,11 +21,8 @@ export const updateGiftCardSchema = z.object({
 })
 
 export const receiverSchema = z.object({
-  recipientSlug: z.string().min(1, 'Recipient is required'),
-  quantity: z.coerce
-    .number()
-    .min(1, 'Quantity must be at least 1')
-    .max(100, 'Quantity cannot exceed 100'),
+  recipientSlug: z.string().min(1),
+  quantity: z.coerce.number().min(1).max(100),
   message: z.string().optional(),
 })
 

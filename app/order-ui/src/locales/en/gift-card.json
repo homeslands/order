@@ -51,6 +51,8 @@
         "receiver": "Receiver",
         "receiverPhone": "Receiver Phone",
         "enterReceiverPhone": "Enter receiver phone number",
+        "enterReceiverPhoneHelper": "Please enter exactly 10 digits",
+        "numbersRemaining": "numbers remaining",
         "enterQuantity": "Enter quantity",
         "note": "Note",
         "enterNote": "Enter note (optional)",        
@@ -67,10 +69,14 @@
         "createGiftCardOrderSuccess": "Gift card order created successfully!",
         "redirectingToCheckout": "Redirecting to checkout page...",
         "paymentProcessing": "Processing your payment...",
-        
         "checkoutTitle": "Gift Card Checkout",
         "checkoutDescription": "Complete your gift card purchase",
         "checkoutPageComingSoon": "Checkout Page Coming Soon",
-        "checkoutPageDescription": "This checkout page is currently under development. You can complete your gift card purchase through the gift card cart."
+        "checkoutPageDescription": "This checkout page is currently under development. You can complete your gift card purchase through the gift card cart.",
+        
+        "giftCardExistsWarning": "Gift Card Already Exists",
+        "giftCardExistsDescription": "You already have a gift card in your cart. Would you like to replace it with this gift card?",
+        "replaceGiftCard": "Replace",
+        "giftCardExistsMessage": "The current gift card will be replaced with:"
     }
 }
