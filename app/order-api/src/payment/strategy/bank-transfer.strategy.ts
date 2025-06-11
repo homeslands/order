@@ -30,6 +30,7 @@ import { ACBConnectorValidation } from 'src/acb-connector/acb-connector.validati
 import { validateOrReject } from 'class-validator';
 import { SystemConfigException } from 'src/system-config/system-config.exception';
 import { SystemConfigValidation } from 'src/system-config/system-config.validation';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 @Injectable()
 export class BankTransferStrategy implements IPaymentStrategy {
@@ -47,6 +48,93 @@ export class BankTransferStrategy implements IPaymentStrategy {
     private readonly paymentRepository: Repository<Payment>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
+
+  async processCardOrder(cardOrder: CardOrder): Promise<Payment> {
+    const context = `${BankTransferStrategy.name}.${this.processCardOrder.name}`;
+    this.logger.log(
+      `Process card order payment: ${JSON.stringify(cardOrder)}`,
+      context,
+    );
+
+    const acbConnectorConfigs = await this.acbConnectorConfigRepository.find({
+      take: 1,
+    });
+    if (_.isEmpty(acbConnectorConfigs)) {
+      this.logger.error('ACB Connector config not found', null, context);
+      throw new ACBConnectorConfigException(
+        ACBConnectorValidation.ACB_CONNECTOR_CONFIG_NOT_FOUND,
+      );
+    }
+
+    // Get token from ACB
+    const { access_token } = await this.acbConnectorClient.token({
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      grant_type: 'client_credentials',
+    });
+
+    // Call ACB API to create payment
+    const requestTrace = uuidv4();
+    const acbConnectorConfig = _.first(acbConnectorConfigs);
+    await this.validateAcbConfig(acbConnectorConfig);
+
+    const headers = {
+      [X_CLIENT_ID]: this.clientId,
+      [X_OWNER_NUMBER]: acbConnectorConfig?.xOwnerNumber,
+      [X_OWNER_TYPE]: acbConnectorConfig?.xOwnerType,
+      [X_PROVIDER_ID]: acbConnectorConfig?.xProviderId,
+      [X_REQUEST_ID]: uuidv4(),
+    };
+
+    // Convert date to with format: yyyy-MM-ddTHH:mm:ss.SSSZ
+    // example: 2024-11-09T11:03:33.033+0700
+    const requestDateTime = formatMoment();
+    const orderId = cardOrder.id.split('-')[0];
+
+    const requestData = {
+      requestDateTime: requestDateTime,
+      requestTrace: requestTrace,
+      requestParameters: {
+        traceNumber: requestTrace,
+        amount: cardOrder.totalAmount,
+        beneficiaryName: acbConnectorConfig?.beneficiaryName,
+        merchantId: getRandomString(),
+        orderId: orderId,
+        terminalId: getRandomString(),
+        userId: cardOrder.customer?.id,
+        loyaltyCode: getRandomString(),
+        virtualAccountPrefix: acbConnectorConfig?.virtualAccountPrefix,
+        voucherCode: getRandomString(),
+        description: 'Thanh toan qua tang',
+      },
+    } as ACBInitiateQRCodeRequestDto;
+
+    this.logger.log(
+      `Initiate QR Code payload: ${JSON.stringify(requestData)}`,
+      context,
+    );
+
+    const response = await this.acbConnectorClient.initiateQRCode(
+      headers,
+      requestData,
+      access_token,
+    );
+
+    // Create payment
+    const payment = new Payment();
+    Object.assign(payment, {
+      paymentMethod: PaymentMethod.BANK_TRANSFER,
+      amount: cardOrder.totalAmount,
+      message: requestData.requestParameters?.description,
+      transactionId: response.requestTrace,
+      qrCode: response.responseBody?.qrDataUrl,
+      userId: cardOrder.customerId,
+      statusCode: PaymentStatus.PENDING,
+      statusMessage: PaymentStatus.PENDING,
+    } as Partial<Payment>);
+
+    return await this.paymentRepository.save(payment);
+  }
 
   async process(order: Order): Promise<Payment> {
     const context = `${BankTransferStrategy.name}.${this.process.name}`;
