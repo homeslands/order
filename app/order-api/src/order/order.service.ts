@@ -328,9 +328,10 @@ export class OrderService {
             order.orderItems = updatedOrderItems;
           } else {
             // with other voucher type => remove voucher value
+            // calculate voucher in order
             const updatedOrderItems = order.orderItems.map((orderItem) => {
               const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
-                voucher,
+                null,
                 orderItem,
                 false, // is add voucher
               );
@@ -347,13 +348,14 @@ export class OrderService {
           await manager.save(voucher);
         } else {
           // Get previous voucher => remove voucher from order
+          // calculate voucher in order
           previousVoucher = order.voucher;
 
           // update order item => remove voucher value
           if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
             const updatedOrderItems = order.orderItems.map((orderItem) => {
               const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
-                voucher,
+                null,
                 orderItem,
                 false, // is add voucher
               );
