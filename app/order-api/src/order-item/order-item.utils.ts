@@ -91,15 +91,6 @@ export class OrderItemUtils {
     orderItem: OrderItem,
     isAddVoucher: boolean,
   ): OrderItem {
-    let appliedVoucher: Voucher = null;
-    const voucherProduct = voucher?.voucherProducts.find(
-      (voucherProduct) =>
-        voucherProduct.product.id === orderItem.variant.product.id,
-    );
-    if (voucherProduct) {
-      appliedVoucher = voucher;
-    }
-
     const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
     // default
@@ -107,6 +98,15 @@ export class OrderItemUtils {
     orderItem.discountType = DiscountType.NONE;
 
     if (isAddVoucher) {
+      let appliedVoucher: Voucher = null;
+      const voucherProduct = voucher?.voucherProducts.find(
+        (voucherProduct) =>
+          voucherProduct.product.id === orderItem.variant.product.id,
+      );
+      if (voucherProduct) {
+        appliedVoucher = voucher;
+      }
+
       // add voucher
       const { subtotal, voucherValue } = this.calculateSubTotal(
         orderItem,
