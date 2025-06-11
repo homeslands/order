@@ -52,6 +52,8 @@
         "receiver": "Người nhận",
         "receiverPhone": "Số điện thoại người nhận",
         "enterReceiverPhone": "Nhập số điện thoại người nhận",
+        "enterReceiverPhoneHelper": "Vui lòng nhập đủ 10 số điện thoại",
+        "numbersRemaining": "số còn lại",
         "enterQuantity": "Nhập số lượng",
         "note": "Ghi chú",
         "enterNote": "Nhập ghi chú (tùy chọn)",        
@@ -67,10 +69,14 @@
         "confirmPurchase": "Xác nhận mua hàng",
         "redirectingToCheckout": "Đang chuyển hướng đến trang thanh toán...",
         "paymentProcessing": "Đang xử lý thanh toán của bạn...",
-        
         "checkoutTitle": "Thanh toán thẻ quà tặng",
         "checkoutDescription": "Hoàn tất việc mua thẻ quà tặng của bạn",
         "checkoutPageComingSoon": "Trang thanh toán sẽ sớm có mặt",
-        "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng."
+        "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng.",
+        
+        "giftCardExistsWarning": "Thẻ quà tặng đã tồn tại",
+        "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
+        "replaceGiftCard": "Thay thế",
+        "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:"
     }
 }
