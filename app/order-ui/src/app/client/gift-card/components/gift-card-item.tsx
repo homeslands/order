@@ -102,7 +102,7 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
               <span
                 className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold text-primary`}
               >
-                {new Intl.NumberFormat().format(Number(card.points))}{' '}
+                {formatCurrency(card.points, '')} {t('giftCard.coin')}
               </span>
             </div>
             <div

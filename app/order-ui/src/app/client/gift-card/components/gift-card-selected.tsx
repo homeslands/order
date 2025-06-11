@@ -116,9 +116,7 @@ export function GiftCardSelected({
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-500" />
                 <span className="text-lg font-bold text-primary">
-                  {new Intl.NumberFormat().format(
-                    Number(selectedCard.points * quantity),
-                  )}{' '}
+                  {formatCurrency(selectedCard.points * quantity, '')}{' '}
                   {t('giftCard.coin')}
                 </span>
               </div>
