@@ -12,6 +12,14 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { Card } from '../card/entities/card.entity';
 import { CardOrder } from './entities/card-order.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
+import { ConfigService } from '@nestjs/config';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { HttpService } from '@nestjs/axios';
+import { SystemConfigService } from 'src/system-config/system-config.service';
 
 describe('CardOrderController', () => {
   let controller: CardOrderController;
@@ -22,6 +30,15 @@ describe('CardOrderController', () => {
       providers: [
         CardOrderService,
         TransactionManagerService,
+        ConfigService,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        HttpService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -35,6 +52,14 @@ describe('CardOrderController', () => {
           useFactory: repositoryMockFactory,
         },
         {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
           provide: MAPPER_MODULE_PROVIDER,
           useFactory: mapperMockFactory,
         },
@@ -45,6 +70,13 @@ describe('CardOrderController', () => {
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
         },
       ],
     }).compile();
