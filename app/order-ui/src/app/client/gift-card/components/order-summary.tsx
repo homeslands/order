@@ -22,7 +22,7 @@ export default function OrderSummary({
         <div className="mb-2 flex items-center justify-between">
           <span>{t('giftCard.totalPoints')}</span>
           <div className="flex items-center gap-1">
-            <span>{totalPoints}</span>
+            <span>{formatCurrency(totalPoints, '')}</span>
             <Coins className="h-5 w-5 text-yellow-500" />
           </div>
         </div>

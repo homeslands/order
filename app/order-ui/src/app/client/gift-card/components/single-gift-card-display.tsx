@@ -61,7 +61,7 @@ export default function SingleGiftCardDisplay({
               <div className="mt-1 gap-2 text-sm">
                 <span>{formatCurrency(item.price)}</span>
                 <div className="flex items-center gap-1">
-                  {new Intl.NumberFormat().format(Number(item.points))}
+                  {formatCurrency(item.points, '')}
                   <Coins className="h-5 w-5 text-yellow-500" />
                 </div>
               </div>

@@ -26,8 +26,13 @@ export default function RecipientSearchInput({
   const { pagination, setPagination } = usePagination()
   const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
   const userListRef = useRef<HTMLDivElement>(null)
+
+  // Helper function to check if we should search
+  const searchCondition =
+    debouncedInputValue && !selectedUser && debouncedInputValue.length === 10
+
   const { data: userByPhoneNumber } = useUsers(
-    debouncedInputValue && !selectedUser
+    searchCondition
       ? {
           order: 'DESC',
           page: pagination.pageIndex,
@@ -37,17 +42,16 @@ export default function RecipientSearchInput({
           hasPaging: true,
         }
       : null,
-  ) // Initialize input value from parent value only once
+  )
+  // Initialize input value from parent value only once
   useEffect(() => {
     if (value && !selectedUser && inputValue === '') {
       setInputValue(value)
     }
-  }, [value, selectedUser, inputValue, setInputValue])
-
-  // Don't sync back to parent automatically - only when user selects someone
+  }, [value, selectedUser, inputValue, setInputValue]) // Don't sync back to parent automatically - only when user selects someone
   // The parent form will handle the typing input directly
   useEffect(() => {
-    if (debouncedInputValue === '' || selectedUser) {
+    if (!searchCondition || selectedUser) {
       setUsers([])
     } else if (userByPhoneNumber?.result?.items) {
       if (pagination.pageIndex === 1) {
@@ -56,12 +60,7 @@ export default function RecipientSearchInput({
         setUsers((prev) => [...prev, ...userByPhoneNumber.result.items])
       }
     }
-  }, [
-    debouncedInputValue,
-    userByPhoneNumber,
-    pagination.pageIndex,
-    selectedUser,
-  ])
+  }, [searchCondition, userByPhoneNumber, pagination.pageIndex, selectedUser])
 
   const handleScroll = () => {
     if (userListRef.current) {
@@ -85,28 +84,44 @@ export default function RecipientSearchInput({
     <div className="relative flex flex-col gap-3">
       {/* Recipient Input */}
       <div className="flex flex-col gap-1">
+        {' '}
         <div className="relative">
-          {' '}
           <Input
             className={className}
             placeholder={placeholder || t('giftCard.enterReceiverPhone')}
             value={inputValue}
             onChange={(e) => {
               const newValue = e.target.value
-              setInputValue(newValue)
+              // Only allow numeric characters and limit to 10 digits
+              const numericValue = newValue.replace(/\D/g, '').slice(0, 10)
+              setInputValue(numericValue)
               // Clear selection if user starts typing again
               if (selectedUser) {
                 setSelectedUser(null)
               }
               // Call parent onChange directly
-              onChange(newValue)
+              onChange(numericValue)
             }}
+            maxLength={10}
+            type="tel"
           />
-        </div>
-      </div>
-
+          {/* Character counter */}
+          {inputValue && inputValue.length < 10 && (
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+              {inputValue.length}/10
+            </div>
+          )}
+        </div>{' '}
+        {/* Helper text */}
+        {inputValue && inputValue.length > 0 && inputValue.length < 10 && (
+          <div className="text-xs text-gray-500">
+            {t('giftCard.enterReceiverPhoneHelper')} ({10 - inputValue.length}{' '}
+            {t('giftCard.numbersRemaining')})
+          </div>
+        )}
+      </div>{' '}
       {/* User list dropdown */}
-      {users.length > 0 && !selectedUser && (
+      {users.length > 0 && searchCondition && (
         <div
           ref={userListRef}
           onScroll={handleScroll}
