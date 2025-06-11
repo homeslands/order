@@ -16,7 +16,11 @@ export const createVoucherSchema = z.object({
   voucherGroup: z.string(),
   title: z.string().min(1),
   description: z.optional(z.string()),
-  type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
+  type: z.enum([
+    VOUCHER_TYPE.FIXED_VALUE,
+    VOUCHER_TYPE.PERCENT_ORDER,
+    VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+  ]),
   code: z.string().min(1),
   value: z
     .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
@@ -31,6 +35,7 @@ export const createVoucherSchema = z.object({
   endDate: z.string(),
   isVerificationIdentity: z.boolean(),
   numberOfUsagePerUser: z.number().int().positive(),
+  products: z.array(z.string()),
 })
 
 export const createMultipleVoucherSchema = z.object({
@@ -38,7 +43,11 @@ export const createMultipleVoucherSchema = z.object({
   numberOfVoucher: z.number().int().positive(),
   title: z.string().min(1),
   description: z.optional(z.string()),
-  type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
+  type: z.enum([
+    VOUCHER_TYPE.FIXED_VALUE,
+    VOUCHER_TYPE.PERCENT_ORDER,
+    VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+  ]),
   startDate: z.string(),
   endDate: z.string(),
   value: z
@@ -52,6 +61,7 @@ export const createMultipleVoucherSchema = z.object({
   isPrivate: z.boolean(),
   isVerificationIdentity: z.boolean(),
   numberOfUsagePerUser: z.number().int().positive(),
+  products: z.array(z.string()),
 })
 
 export const updateVoucherSchema = z
@@ -61,7 +71,11 @@ export const updateVoucherSchema = z
     createdAt: z.string(),
     title: z.string().min(1),
     description: z.optional(z.string()),
-    type: z.enum([VOUCHER_TYPE.FIXED_VALUE, VOUCHER_TYPE.PERCENT_ORDER]),
+    type: z.enum([
+      VOUCHER_TYPE.FIXED_VALUE,
+      VOUCHER_TYPE.PERCENT_ORDER,
+      VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+    ]),
     code: z.string().min(1),
     value: z
       .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
@@ -77,6 +91,7 @@ export const updateVoucherSchema = z
     endDate: z.string(),
     isVerificationIdentity: z.boolean(),
     numberOfUsagePerUser: z.number().int().positive(),
+    products: z.array(z.string()),
   })
   .superRefine((data, ctx) => {
     if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {

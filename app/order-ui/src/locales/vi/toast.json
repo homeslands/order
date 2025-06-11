@@ -1,7 +1,7 @@
 {
   "toast": {
     "unauthorized": "Không có quyền truy cập. Vui lòng đăng nhập lại!",
-    "invalidCredentials": "Đăng nhập thất bại. Thông tin đăng nhập không hợp lệ",    
+    "invalidCredentials": "Đăng nhập thất bại. Thông tin đăng nhập không hợp lệ",
     "addSuccess": "Thêm sản phẩm vào giỏ hàng thành công",
     "addGiftCardSuccess": "Thêm thẻ quà tặng vào giỏ hàng thành công",
     "itemAlreadyExists": "Sản phẩm đã tồn tại trong giỏ hàng",
@@ -321,6 +321,7 @@
     "orderAlreadyHasPayment": "Đơn hàng đã có QR code thanh toán!",
     "qrCodeRestored": "QR code thanh toán đã được khôi phục",
     "mustVerifyEmailToUseVoucher": "Vui lòng xác thực email để sử dụng voucher này!",
-    "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng"
+    "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng",
+    "voucherProductNotApplicable": "Một số sản phẩm trong giỏ hàng không áp dụng được voucher này."
   }
 }

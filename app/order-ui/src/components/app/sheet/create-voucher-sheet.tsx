@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +19,7 @@ import {
   FormMessage,
   Form,
   Switch,
+  DataTable,
 } from '@/components/ui'
 import { CreateVoucherDialog } from '@/components/app/dialog'
 import { ICreateVoucherRequest } from '@/types'
@@ -27,12 +28,37 @@ import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
+import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
+import { useCatalogs, useProducts } from '@/hooks'
+import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
 
 export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
-  const { t } = useTranslation(['voucher'])
   const { slug } = useParams()
+  const { t } = useTranslation(['voucher'])
+  const { t: tCommon } = useTranslation(['common'])
   const [isOpenDialog, setIsOpenDialog] = useState(false)
   const [formData, setFormData] = useState<ICreateVoucherRequest | null>(null)
+  const [catalog, setCatalog] = useState<string | null>(null)
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]) // State để lưu danh sách sản phẩm đã chọn qua tất cả các trang
+  const [sheetPagination, setSheetPagination] = useState({
+    pageIndex: 1,
+    pageSize: 10
+  })
+
+  const { data: catalogs } = useCatalogs()
+
+  const { data: products, isLoading } = useProducts({
+    page: sheetPagination.pageIndex,
+    size: sheetPagination.pageSize,
+    hasPaging: true,
+    catalog: catalog || undefined,
+  },
+    !!isOpen
+  )
+
+  const productsData = products?.result.items
+  const catalogsData = catalogs?.result
+
   // const [sheetOpen, setSheetOpen] = useState(openChange)
   const form = useForm<TCreateVoucherSchema>({
     resolver: zodResolver(createVoucherSchema),
@@ -50,9 +76,24 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
-      isVerificationIdentity: true
+      isVerificationIdentity: true,
+      products: []
     }
   })
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setSheetPagination(() => ({
+      pageIndex: 1, // Reset to first page when changing page size
+      pageSize: size
+    }))
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setSheetPagination(prev => ({
+      ...prev,
+      pageIndex: page
+    }))
+  }, [])
 
   const disableStartDate = (date: Date) => {
     const today = new Date()
@@ -71,6 +112,31 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
+  }
+
+  const handleSelectionChange = (selectedSlugs: string[]) => {
+    setSelectedProducts(selectedSlugs) // Cập nhật state selectedProducts
+    form.setValue('products', selectedSlugs)
+  }
+
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
   }
 
   const handleSubmit = (data: ICreateVoucherRequest) => {
@@ -93,8 +159,10 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
-      isVerificationIdentity: true
+      isVerificationIdentity: true,
+      products: []
     })
+    setSelectedProducts([]) // Reset danh sách sản phẩm đã chọn
   }
 
   const formFields = {
@@ -234,52 +302,73 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
               </span>
               {t('voucher.value')}</FormLabel>
             <FormControl>
-              {form.watch('type') === 'percent_order' ? (
+              {form.watch('type') === VOUCHER_TYPE.PERCENT_ORDER ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
                       if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
+                        field.onChange('');
                       } else {
                         field.onChange(Number(value));
                       }
                     }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
                     min={0}
                     max={100}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
-
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     %
                   </span>
                 </div>
-              ) : (
+              ) : form.watch('type') === VOUCHER_TYPE.FIXED_VALUE ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
                       if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
+                        field.onChange('');
                       } else {
                         field.onChange(Number(value));
                       }
                     }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₫
                   </span>
                 </div>
-              )}
+              ) : form.watch('type') === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+                <div className='relative'>
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        field.onChange('');
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
+                    placeholder={t('voucher.enterFixedProductPrice')}
+                  />
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                    ₫
+                  </span>
+                </div>
+              ) : null}
+
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -296,7 +385,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
               <span className="text-destructive">
                 *
               </span>
-              {t('voucher.maxUsage')}</FormLabel>
+              {t('voucher.voucherMaxUsage')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -469,6 +558,33 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.numberOfUsagePerUser}
+                  </div>
+                  {/* Nhóm: Sản phẩm */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium'>
+                        {t('voucher.products')}
+                      </span>
+                      {selectedProducts.length > 0 && (
+                        <span className='px-2 py-1 text-xs rounded-full text-muted-foreground bg-primary/10'>
+                          {selectedProducts.length} sản phẩm đã chọn
+                        </span>
+                      )}
+                    </div>
+                    <DataTable
+                      columns={useProductColumns({
+                        onSelectionChange: handleSelectionChange,
+                        selectedProducts: selectedProducts, // Truyền danh sách sản phẩm đã chọn
+                      })}
+                      data={productsData || []}
+                      isLoading={isLoading}
+                      pages={products?.result.totalPages || 1}
+                      filterOptions={ProductFilterOptions}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                      filterConfig={filterConfig}
+                      onFilterChange={handleFilterChange}
+                    />
                   </div>
                   {/* Nhóm: Kiểm tra định danh */}
                   <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>

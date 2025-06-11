@@ -1,4 +1,5 @@
 import { IBase } from './base.type'
+import { IProduct } from './product.type'
 
 export interface IVoucherGroup extends IBase {
   title: string
@@ -32,6 +33,11 @@ export interface IVoucher extends IBase {
   startDate: string
   endDate: string
   isVerificationIdentity?: boolean
+  voucherProducts: {
+    slug: string
+    createdAt: string
+    product: IProduct
+  }[] //Product slug
 }
 
 export interface IGetAllVoucherRequest {
@@ -63,11 +69,13 @@ export interface ICreateVoucherRequest {
   isActive: boolean
   startDate: string
   endDate: string
+  products: string[] //Product slug
 }
 
 export interface IUpdateVoucherRequest {
   slug: string
   voucherGroup: string
+  createdAt: string
   title: string
   description?: string
   code: string
@@ -82,6 +90,7 @@ export interface IUpdateVoucherRequest {
   numberOfUsagePerUser: number
   startDate: string
   endDate: string
+  products: string[] //Product slug
 }
 
 export interface ICreateMultipleVoucherRequest {
@@ -99,13 +108,31 @@ export interface ICreateMultipleVoucherRequest {
   isPrivate: boolean
   isVerificationIdentity: boolean
   numberOfUsagePerUser: number
+  products: string[] //Product slug
 }
 
 export interface IValidateVoucherRequest {
   voucher: string
   user: string //user slug
+  orderItems: {
+    quantity?: number
+    variant?: string
+    note?: string
+    promotion?: string
+    order?: string
+  }[]
 }
 export interface IGetSpecificVoucherRequest {
   slug?: string
   code?: string
+}
+
+export interface IApplyVoucherRequest {
+  products: string[] //Product slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface IRemoveAppliedVoucherRequest {
+  products: string[] //Product slug
+  vouchers: string[] //Voucher slug
 }
