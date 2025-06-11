@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui'
 
 import { IUpdateVoucherRequest } from '@/types'
@@ -32,7 +31,6 @@ export default function ConfirmUpdateVoucherDialog({
   onOpenChange,
   onCloseSheet,
   voucher,
-  disabled,
   onSuccess
 }: IConfirmUpdateVoucherDialogProps) {
   const queryClient = useQueryClient()
@@ -59,15 +57,6 @@ export default function ConfirmUpdateVoucherDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
-          onClick={() => onOpenChange(true)}
-        >
-          {t('voucher.update')}
-        </Button>
-      </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>

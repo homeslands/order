@@ -40,7 +40,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
+import { formatCurrency, showErrorToast, showToast, applyVoucherToCart, calculateCartTotals } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -62,11 +62,7 @@ export default function VoucherListSheet() {
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
-  // calculate subtotal
-  const subTotal = cartItems?.orderItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  ) || 0
+  let subTotal = 0
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -266,22 +262,22 @@ export default function VoucherListSheet() {
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
       user: userInfo?.slug || '',
+      orderItems: cartItems?.orderItems || []
     }
 
     const onSuccess = () => handleApply()
+    const onError = () => handleRemove()
 
     if (isSelected) {
       handleRemove()
     } else {
       if (userInfo) {
-        validateVoucher(validateVoucherParam, { onSuccess })
+        validateVoucher(validateVoucherParam, { onSuccess, onError })
       } else {
-        validatePublicVoucher(validateVoucherParam, { onSuccess })
+        validatePublicVoucher(validateVoucherParam, { onSuccess, onError })
       }
     }
   }
-
-
 
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
@@ -294,6 +290,7 @@ export default function VoucherListSheet() {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
           user: userInfo.slug || '',
+          orderItems: cartItems?.orderItems || []
         };
 
         const onValidated = () => {
@@ -319,6 +316,7 @@ export default function VoucherListSheet() {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: publicVoucher.slug,
           user: '',
+          orderItems: cartItems?.orderItems || []
         };
 
         validatePublicVoucher(validateVoucherParam, {
@@ -334,9 +332,21 @@ export default function VoucherListSheet() {
     }
   };
 
-
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= subTotal
+    // Sử dụng applyVoucherToCart để tính đúng giống như logic chính
+    if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
+      const { cart: tempCart } = applyVoucherToCart(cartItems)
+      const tempCalculations = calculateCartTotals(tempCart, 0)
+      subTotal = tempCalculations.subTotalAfterPromotion
+    }
+
+    const isValidAmount =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+        ? true
+        : (voucher?.minOrderValue || 0) <= subTotal
+
+    // console.log('🔍 Debug isValidAmount:', voucher.title, voucher.minOrderValue, subTotal, isValidAmount)
+
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
 
@@ -348,10 +358,9 @@ export default function VoucherListSheet() {
     return isValidAmount && isValidDate && isIdentityValid
   }
 
-
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -372,7 +381,7 @@ export default function VoucherListSheet() {
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-3 justify-between w-full">
+        <div className="flex flex-col col-span-4 justify-between w-full">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -382,12 +391,17 @@ export default function VoucherListSheet() {
                 {t('voucher.discountValue')}
                 {voucher.value}% {t('voucher.orderValue')}
               </span>
+            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
+              </span>
             ) : (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
                 {formatCurrency(voucher.value)} {t('voucher.orderValue')}
               </span>
             )}
+
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
@@ -569,7 +583,7 @@ export default function VoucherListSheet() {
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
+                {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
                   ? t('voucher.minOrderNotMet')
                   : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                     ? t('voucher.expired')
@@ -577,9 +591,6 @@ export default function VoucherListSheet() {
                       ? t('voucher.needVerifyIdentity')
                       : ''}
               </span>
-
-
-
             </div>
           )}
         </div>

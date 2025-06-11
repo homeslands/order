@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PenLine } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 import {
   Sheet,
@@ -13,53 +13,57 @@ import {
   SheetFooter,
   DataTable,
 } from '@/components/ui'
-import { ConfirmApplyPromotionDialog } from '@/components/app/dialog'
-import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { useProducts } from '@/hooks'
-import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
+import { ConfirmRemoveAppliedVoucherDialog } from '@/components/app/dialog'
+import { IRemoveAppliedVoucherRequest, IVoucher } from '@/types'
+import { useCatalogs, useProducts } from '@/hooks'
+import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
+import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
 
-interface IApplyPromotionSheetProps {
-  promotion: IPromotion
+interface IRemoveAppliedVoucherSheetProps {
+  voucher: IVoucher
 }
 
-export default function ApplyPromotionSheet({
-  promotion,
-}: IApplyPromotionSheetProps) {
-  const { t } = useTranslation(['promotion'])
+export default function RemoveAppliedVoucherSheet({
+  voucher,
+}: IRemoveAppliedVoucherSheetProps) {
+  const { t } = useTranslation(['voucher'])
+  const { t: tCommon } = useTranslation(['common'])
   const [isOpen, setIsOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [applyPromotionRequest, setApplyPromotionRequest] =
-    useState<IApplyPromotionRequest | null>(null)
-
+  const [catalog, setCatalog] = useState<string | null>(null)
+  const [removeAppliedVoucherRequest, setRemoveAppliedVoucherRequest] =
+    useState<IRemoveAppliedVoucherRequest | null>(null)
   // Separate pagination state for sheet
   const [sheetPagination, setSheetPagination] = useState({
     pageIndex: 1,
     pageSize: 10
   })
-
   const { data: products, isLoading } = useProducts({
-    promotion: promotion?.slug,
-    isAppliedPromotion: false,
+    voucher: voucher?.slug,
+    isAppliedVoucher: true,
     page: sheetPagination.pageIndex,
     size: sheetPagination.pageSize,
     hasPaging: true,
-  }, !sheetOpen)
+    catalog: catalog || undefined,
+  }, !!sheetOpen)
+
+  const { data: catalogs } = useCatalogs()
 
   const productsData = products?.result.items
+  const catalogsData = catalogs?.result
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
-  }, [])
+  }
 
   const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
-    setApplyPromotionRequest({
-      applicableSlugs: selectedSlugs,
-      promotion: promotion?.slug,
-      type: 'product',
+    setRemoveAppliedVoucherRequest({
+      products: selectedSlugs,
+      vouchers: [voucher?.slug],
     })
-  }, [promotion?.slug])
+  }, [voucher?.slug])
 
   const handleSheetPageChange = useCallback((page: number) => {
     setSheetPagination(prev => ({
@@ -79,6 +83,26 @@ export default function ApplyPromotionSheet({
     setSheetOpen(open)
   }, [])
 
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
@@ -87,14 +111,14 @@ export default function ApplyPromotionSheet({
           className="gap-1 justify-start px-2 w-full"
           onClick={handleClick}
         >
-          <PenLine className="icon" />
-          {t('promotion.applyPromotion')}
+          <Trash2 className="icon" />
+          {t('voucher.removeAppliedVoucher')}
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
-            {t('promotion.applyPromotion')}
+            {t('voucher.removeAppliedVoucher')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
@@ -111,21 +135,24 @@ export default function ApplyPromotionSheet({
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={products?.result.totalPages || 1}
+                  filterOptions={ProductFilterOptions}
                   onPageChange={handleSheetPageChange}
                   onPageSizeChange={handleSheetPageSizeChange}
+                  filterConfig={filterConfig}
+                  onFilterChange={handleFilterChange}
                 />
               </div>
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <ConfirmApplyPromotionDialog
+            <ConfirmRemoveAppliedVoucherDialog
               disabled={
-                !applyPromotionRequest || applyPromotionRequest.applicableSlugs.length === 0
+                !removeAppliedVoucherRequest || removeAppliedVoucherRequest.products.length === 0
               }
-              applyPromotionData={applyPromotionRequest}
+              removeAppliedVoucherData={removeAppliedVoucherRequest}
               isOpen={isOpen}
               onOpenChange={setIsOpen}
-              onCloseSheet={() => setSheetOpen(false)}
+              onCloseSheet={() => { setSheetOpen(false) }}
             />
           </SheetFooter>
         </div>

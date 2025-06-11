@@ -67,24 +67,25 @@ export default function ClientAddToCartDialog({
 
     const cartItem: ICartItem = {
       id: generateCartItemId(),
-      slug: product.slug,
+      slug: product?.product?.slug,
       owner: getUserInfo()?.slug,
       type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
       // branch: getUserInfo()?.branch.slug, // get branch from user info
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
+          slug: product?.product?.slug,
+          image: product?.product?.image,
+          name: product?.product?.name,
           quantity: 1,
-          variant: selectedVariant.slug,
-          size: selectedVariant.size.name,
-          originalPrice: selectedVariant.price,
+          variant: selectedVariant?.slug,
+          size: selectedVariant?.size?.name,
+          originalPrice: selectedVariant?.price,
           price: finalPrice, // Use the calculated final price
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
+          description: product?.product?.description,
+          isLimit: product?.product?.isLimit,
+          promotion: product?.promotion ? product?.promotion?.slug : '',
+          promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
           // catalog: product.catalog,
           note: note,
         },

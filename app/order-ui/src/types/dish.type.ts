@@ -43,6 +43,11 @@ export interface ICartItem {
     code: string
     type: string
     minOrderValue: number
+    voucherProducts: {
+      slug: string
+      createdAt: string
+      product: IProduct
+    }[]
   } | null
   note?: string
   approvalBy?: string
@@ -75,7 +80,9 @@ export interface IOrderItem {
   size: string
   variant: string
   originalPrice?: number
-  price: number
+  promotionDiscount?: number
+  voucherDiscount?: number
+  price: number // price after discount
   description: string
   isLimit: boolean
   promotion?: string // promotion slug
