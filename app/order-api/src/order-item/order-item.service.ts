@@ -298,7 +298,7 @@ export class OrderItemService {
 
     const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
       order,
-      voucher,
+      order.voucher,
     );
     order.subtotal = subtotalOrder;
     await this.transactionManagerService.execute(
@@ -376,7 +376,7 @@ export class OrderItemService {
         }
         // Update order
         const { subtotal: subtotalOrder } =
-          await this.orderUtils.getOrderSubtotal(order, voucher);
+          await this.orderUtils.getOrderSubtotal(order, order.voucher);
         order.subtotal = subtotalOrder;
 
         if (voucher) await manager.save(voucher);
