@@ -169,18 +169,26 @@ export class InvoiceService {
       0,
     );
 
-    const subtotalBeforeVoucher =
-      order.orderItems?.reduce(
-        (total, current) => total + current.subtotal,
-        0,
-      ) + orderItemVoucherValue; // voucher in order item
+    const originalSubtotalOrder = order.orderItems?.reduce(
+      (total, current) => total + current.originalSubtotal,
+      0,
+    );
+
+    const subtotalOrderItem = order.orderItems?.reduce(
+      (total, current) => total + current.subtotal,
+      0,
+    );
 
     let voucherValue = order.loss + orderItemVoucherValue;
     if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue += (subtotalBeforeVoucher * order.voucher.value) / 100;
+      voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
     }
     if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
-      voucherValue += order.voucher.value;
+      if (subtotalOrderItem > order.voucher.value) {
+        voucherValue += order.voucher.value;
+      } else {
+        voucherValue += subtotalOrderItem;
+      }
     }
 
     // invoice exists
@@ -190,8 +198,10 @@ export class InvoiceService {
         context,
       );
       Object.assign(order.invoice, {
-        subtotalBeforeVoucher,
+        originalSubtotalOrder,
+        subtotalOrderItem,
         orderItemPromotionValue,
+        voucherCode: order.voucher?.code ?? 'N/A',
       });
       return order.invoice;
     }
@@ -256,8 +266,10 @@ export class InvoiceService {
     );
 
     Object.assign(invoice, {
-      subtotalBeforeVoucher,
+      originalSubtotalOrder,
+      subtotalOrderItem,
       orderItemPromotionValue,
+      voucherCode: order.voucher?.code ?? 'N/A',
     });
 
     return invoice;
