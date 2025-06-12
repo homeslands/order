@@ -24,6 +24,11 @@ import { RecipientService } from './receipient/recipient.service';
 import { RecipientProfile } from './receipient/recipient.mapper';
 import { Recipient } from './receipient/entities/receipient.entity';
 import { CardOrderSubscriber } from './card-order/card-order.subscriber';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { Payment } from 'src/payment/payment.entity';
+import { HttpModule } from '@nestjs/axios';
 
 const controllers = [
   CardController,
@@ -39,6 +44,8 @@ const providers = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  BankTransferStrategy,
+  ACBConnectorClient,
 ];
 
 const mappers = [
@@ -57,9 +64,12 @@ const modules = [
     GiftCard,
     Recipient,
     User,
+    ACBConnectorConfig,
+    Payment,
   ]),
   FileModule,
   DbModule,
+  HttpModule,
 ];
 
 const exportServices = [
