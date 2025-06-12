@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { Trash2, ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,7 +9,7 @@ import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useCartItemStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
-import { applyVoucherToCart, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
@@ -24,15 +24,12 @@ export function CartContent() {
 
   const cartItems = getCartItems()
 
-  // Sử dụng useMemo để force re-calculation khi orderItems hoặc voucher thay đổi
-  const { cartWithVoucher, itemLevelDiscount, calculations } = useMemo(() => {
-    const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(cartItems)
-    const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
-
-    return { cartWithVoucher, itemLevelDiscount, calculations }
-  }, [
+  const displayItems = calculateCartItemDisplay(
     cartItems,
-  ])
+    cartItems?.voucher || null
+  )
+
+  const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
 
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
@@ -59,7 +56,7 @@ export function CartContent() {
         // Tính subtotal trực tiếp từ orderItems sau promotion, không sử dụng calculations để tránh circular dependency
         const subtotalAfterPromotion = orderItems.reduce((total, item) => {
           const original = item.originalPrice || item.price
-          const afterPromotion = original - (item.promotionDiscount || 0)
+          const afterPromotion = (original || 0) - (item.promotionDiscount || 0)
           return total + afterPromotion * item.quantity
         }, 0)
 
@@ -70,16 +67,6 @@ export function CartContent() {
       }
     }
   }, [cartItems, removeVoucher])
-
-  // Destructure để dễ sử dụng từ tính toán trực tiếp
-  const { subTotalBeforeDiscount, promotionDiscount, subTotal } = calculations
-
-  // Tổng tất cả giảm giá voucher (bao gồm item-level và order-level)
-  const totalVoucherDiscount = itemLevelDiscount
-
-  // const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
-  // const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? subTotal * (cartItems?.voucher?.value || 0) / 100 : cartItems?.voucher?.value || 0
-  // const totalAfterDiscount = subTotal - discount
 
   const handleRemoveCartItem = (id: string) => {
     removeCartItem(id)
@@ -149,8 +136,8 @@ export function CartContent() {
         )} */}
         <div className="flex flex-col gap-2 p-2">
           <AnimatePresence>
-            {cartWithVoucher && cartWithVoucher?.orderItems?.length && cartWithVoucher?.orderItems?.length > 0 ? (
-              cartWithVoucher?.orderItems?.map((item, index) => (
+            {cartItems && cartItems?.orderItems?.length && cartItems?.orderItems?.length > 0 ? (
+              cartItems?.orderItems?.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -165,7 +152,7 @@ export function CartContent() {
                         <span className="text-[13px] xl:text-sm font-semibold truncate max-w-[9rem] xl:max-w-[15rem]">{item.name}</span>
                       </div>
                       <span className="text-[14px]">
-                        {`${formatCurrency(item.price)}`}
+                        {`${formatCurrency(displayItems.find(di => di.slug === item.slug)?.finalPrice || 0)}`}
                       </span>
                     </div>
                     <div className='flex justify-between items-center'>
@@ -206,7 +193,7 @@ export function CartContent() {
       </ScrollArea>
 
       {/* Footer - Payment */}
-      {cartWithVoucher && cartWithVoucher?.orderItems?.length && cartWithVoucher?.orderItems?.length > 0 && (
+      {cartItems && cartItems?.orderItems?.length && cartItems?.orderItems?.length > 0 && (
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -216,6 +203,22 @@ export function CartContent() {
             <div className="flex flex-col">
               <OrderNoteInput order={cartItems} />
               <StaffVoucherListSheet />
+            </div>
+            <div>
+              {cartItems?.voucher && (
+                <div className="flex justify-start w-full">
+                  <div className="flex flex-col items-start">
+                    <div className="flex gap-2 items-center mt-2">
+                      <span className="text-xs text-muted-foreground">
+                        {t('order.usedVoucher')}:
+                      </span>
+                      <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                        -{`${formatCurrency(cartTotals.voucherDiscount)}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* {cartItems?.voucher && (
@@ -252,28 +255,28 @@ export function CartContent() {
                 {/* Tổng giá gốc */}
                 <div className="flex justify-between">
                   <span>{t('order.subtotalBeforeDiscount')}</span>
-                  <span>{formatCurrency(subTotalBeforeDiscount)}</span>
+                  <span>{formatCurrency(cartTotals.subTotalBeforeDiscount)}</span>
                 </div>
 
                 {/* Giảm giá khuyến mãi (promotion) */}
-                {promotionDiscount > 0 && (
+                {cartTotals.promotionDiscount > 0 && (
                   <div className="flex justify-between italic text-yellow-600">
                     <span>{t('order.promotionDiscount')}</span>
-                    <span>-{formatCurrency(promotionDiscount)}</span>
+                    <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                   </div>
                 )}
 
                 {/* Tổng giảm giá voucher */}
-                {totalVoucherDiscount > 0 && (
+                {cartTotals.voucherDiscount > 0 && (
                   <div className="flex justify-between italic text-green-600">
                     <span>{t('order.voucherDiscount')}</span>
-                    <span>-{formatCurrency(totalVoucherDiscount)}</span>
+                    <span>-{formatCurrency(cartTotals.voucherDiscount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
-                  <span className="text-2xl font-bold text-primary">{formatCurrency(subTotal)}</span>
+                  <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
               </div>
               <CreateOrderDialog

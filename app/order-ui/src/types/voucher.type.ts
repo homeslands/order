@@ -33,11 +33,13 @@ export interface IVoucher extends IBase {
   startDate: string
   endDate: string
   isVerificationIdentity?: boolean
-  voucherProducts: {
-    slug: string
-    createdAt: string
-    product: IProduct
-  }[] //Product slug
+  voucherProducts: IVoucherProduct[] //Product slug
+}
+
+export interface IVoucherProduct {
+  slug: string
+  createdAt: string
+  product: IProduct
 }
 
 export interface IGetAllVoucherRequest {
@@ -118,7 +120,7 @@ export interface IValidateVoucherRequest {
     quantity?: number
     variant?: string
     note?: string
-    promotion?: string
+    promotion?: string | null
     order?: string
   }[]
 }

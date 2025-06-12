@@ -9,8 +9,8 @@ import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE, paymentStatus } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { PaymentMethod, Role, ROUTE, paymentStatus } from '@/constants'
+import { calculateVoucherDiscountFromOrder, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
@@ -41,7 +41,6 @@ export function ClientPaymentPage() {
 
   // Get QR code from orderData
   const qrCode = orderData?.payment?.qrCode || ''
-  // const paymentSlug = orderData?.payment?.slug || ''
 
   // Check if payment amount matches order subtotal and QR code is valid
   const hasValidPaymentAndQr = orderData?.payment?.amount != null &&
@@ -49,16 +48,14 @@ export function ClientPaymentPage() {
     orderData.payment.amount === orderData.subtotal &&
     qrCode && qrCode.trim() !== ''
 
+  const orderItems = order?.result?.orderItems || []
+  const voucher = order?.result?.voucher
+
+  const voucherDiscount = calculateVoucherDiscountFromOrder(orderItems, voucher)
+
   // calculate original total
   const originalTotal = order?.result.orderItems ?
     order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
-
-  const isPercentOrder = order?.result.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-
-  // calculate voucher base on promotion
-  const voucherDiscount = isPercentOrder
-    ? (originalTotal * (order?.result.voucher?.value || 0)) / 100
-    : order?.result.voucher?.value
 
   const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
 
