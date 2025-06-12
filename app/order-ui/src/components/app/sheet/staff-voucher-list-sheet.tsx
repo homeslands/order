@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -38,7 +38,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { applyVoucherToCart, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -61,8 +61,9 @@ export default function StaffVoucherListSheet() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
-  let subTotal = 0
+  // let subTotal = 0
   // calculate subtotal
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
   // const subTotal = cartItems?.orderItems.reduce(
   //   (acc, item) => acc + item.price * item.quantity,
   //   0,
@@ -78,14 +79,14 @@ export default function StaffVoucherListSheet() {
     !!cartItems?.owner && // Check khác null, undefined, ""
     cartItems.ownerRole === Role.CUSTOMER;
 
-  const { cartWithVoucher, itemLevelDiscount } = useMemo(() => {
-    const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(cartItems)
-    const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
+  // const { cartWithVoucher, itemLevelDiscount } = useMemo(() => {
+  //   const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(cartItems)
+  //   const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
 
-    return { cartWithVoucher, itemLevelDiscount, calculations }
-  }, [
-    cartItems,
-  ])
+  //   return { cartWithVoucher, itemLevelDiscount, calculations }
+  // }, [
+  //   cartItems,
+  // ])
 
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner
@@ -178,11 +179,11 @@ export default function StaffVoucherListSheet() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
-    if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
-      const { cart: tempCart } = applyVoucherToCart(cartItems)
-      const tempCalculations = calculateCartTotals(tempCart, 0)
-      subTotal = tempCalculations.subTotalAfterPromotion
-    }
+    // if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
+    //   const { cart: tempCart } = applyVoucherToCart(cartItems)
+    //   const tempCalculations = calculateCartTotals(tempCart, 0)
+    //   subTotal = tempCalculations.subTotalAfterPromotion
+    // }
 
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
@@ -581,13 +582,13 @@ export default function StaffVoucherListSheet() {
                 {t('voucher.useVoucher')}
               </span>
             </div>
-            {cartWithVoucher?.voucher && (
+            {/* {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
-                  -{`${formatCurrency(itemLevelDiscount || 0)}`}
+                  -{`${formatCurrency(cartItems?.voucher?.value || 0)}`}
                 </span>
               </div>
-            )}
+            )} */}
             {/* {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex gap-2 items-center w-full">

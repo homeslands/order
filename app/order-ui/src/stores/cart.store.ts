@@ -13,7 +13,7 @@ import {
   OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
-import { Role, VOUCHER_TYPE } from '@/constants'
+import { Role } from '@/constants'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
@@ -256,67 +256,13 @@ export const useCartItemStore = create<ICartItemStore>()(
           showToast(i18next.t('toast.removeSuccess'))
         }
       },
-
       addVoucher: (voucher: IVoucher) => {
         const { cartItems } = get()
         if (!cartItems) return
 
-        const orderItems = cartItems.orderItems
-        const applicableProducts =
-          voucher.voucherProducts?.map((p) => p.product.slug) || []
-        const updatedOrderItems = [...orderItems]
-
-        for (let i = 0; i < updatedOrderItems.length; i++) {
-          const item = updatedOrderItems[i]
-          const originalPrice = item.originalPrice ?? item.price
-          let voucherDiscount = 0
-          let finalPrice = originalPrice
-
-          if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
-            // Chỉ áp dụng nếu sản phẩm nằm trong danh sách voucherProducts
-            if (applicableProducts.includes(item.slug)) {
-              // Bỏ qua promotion, giảm theo originalPrice
-              voucherDiscount = Math.max(0, originalPrice - voucher.value)
-              finalPrice = Math.max(0, voucher.value)
-            } else {
-              // Nếu không thuộc sản phẩm trong voucher, giữ nguyên promotion nếu có
-              const promotionDiscount = item.promotionDiscount ?? 0
-              finalPrice = Math.max(0, originalPrice - promotionDiscount)
-            }
-          }
-
-          // Các type khác nếu có (giữ nguyên hoặc thêm sau)
-          else {
-            const promotionDiscount = item.promotionDiscount ?? 0
-
-            if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-              voucherDiscount =
-                ((originalPrice - promotionDiscount) * voucher.value) / 100
-            } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-              const perItemDiscount = voucher.value / orderItems.length
-              voucherDiscount = Math.min(
-                originalPrice - promotionDiscount,
-                perItemDiscount,
-              )
-            }
-
-            finalPrice = Math.max(
-              0,
-              originalPrice - promotionDiscount - voucherDiscount,
-            )
-          }
-
-          updatedOrderItems[i] = {
-            ...item,
-            voucherDiscount,
-            price: finalPrice,
-          }
-        }
-
         set({
           cartItems: {
             ...cartItems,
-            orderItems: updatedOrderItems,
             voucher: {
               slug: voucher.slug,
               value: voucher.value,
@@ -327,10 +273,90 @@ export const useCartItemStore = create<ICartItemStore>()(
               minOrderValue: voucher.minOrderValue || 0,
               voucherProducts: voucher.voucherProducts || [],
             },
+            // orderItems giữ nguyên, không tính toán gì
           },
           lastModified: moment().valueOf(),
         })
       },
+
+      // addVoucher: (voucher: IVoucher) => {
+      //   const { cartItems } = get()
+      //   if (!cartItems) return
+
+      //   const orderItems = cartItems.orderItems
+      //   const applicableProducts =
+      //     voucher.voucherProducts?.map((p) => p.product.slug) || []
+      //   const updatedOrderItems = [...orderItems]
+
+      //   for (let i = 0; i < updatedOrderItems.length; i++) {
+      //     const item = updatedOrderItems[i]
+      //     const originalPrice = item.originalPrice ?? item.price
+      //     let voucherDiscount = 0
+      //     let finalPrice = originalPrice
+
+      //     if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      //       // Chỉ áp dụng nếu sản phẩm nằm trong danh sách voucherProducts
+      //       if (applicableProducts.includes(item.slug)) {
+      //         // Bỏ qua promotion, giảm theo originalPrice
+      //         voucherDiscount = Math.max(
+      //           0,
+      //           (originalPrice || 0) - voucher.value,
+      //         )
+      //         finalPrice = Math.max(0, voucher.value)
+      //       } else {
+      //         // Nếu không thuộc sản phẩm trong voucher, giữ nguyên promotion nếu có
+      //         const promotionDiscount = item.promotionDiscount ?? 0
+      //         finalPrice = Math.max(0, (originalPrice || 0) - promotionDiscount)
+      //       }
+      //     }
+
+      //     // Các type khác nếu có (giữ nguyên hoặc thêm sau)
+      //     else {
+      //       const promotionDiscount = item.promotionDiscount ?? 0
+
+      //       if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      //         voucherDiscount =
+      //           (((originalPrice || 0) - promotionDiscount) * voucher.value) /
+      //           100
+      //       } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
+      //         const perItemDiscount = voucher.value / orderItems.length
+      //         voucherDiscount = Math.min(
+      //           (originalPrice || 0) - promotionDiscount,
+      //           perItemDiscount,
+      //         )
+      //       }
+
+      //       finalPrice = Math.max(
+      //         0,
+      //         (originalPrice || 0) - promotionDiscount - voucherDiscount,
+      //       )
+      //     }
+
+      //     updatedOrderItems[i] = {
+      //       ...item,
+      //       voucherDiscount,
+      //       price: finalPrice,
+      //     }
+      //   }
+
+      //   set({
+      //     cartItems: {
+      //       ...cartItems,
+      //       orderItems: updatedOrderItems,
+      //       voucher: {
+      //         slug: voucher.slug,
+      //         value: voucher.value,
+      //         isVerificationIdentity: voucher.isVerificationIdentity || false,
+      //         isPrivate: voucher.isPrivate || false,
+      //         code: voucher.code,
+      //         type: voucher.type,
+      //         minOrderValue: voucher.minOrderValue || 0,
+      //         voucherProducts: voucher.voucherProducts || [],
+      //       },
+      //     },
+      //     lastModified: moment().valueOf(),
+      //   })
+      // },
 
       removeVoucher: () => {
         const { cartItems } = get()
@@ -339,7 +365,10 @@ export const useCartItemStore = create<ICartItemStore>()(
         const updatedOrderItems = cartItems.orderItems.map((item) => {
           const originalPrice = item.originalPrice ?? item.price
           const promotionDiscount = item.promotionDiscount ?? 0
-          const finalPrice = Math.max(0, originalPrice - promotionDiscount)
+          const finalPrice = Math.max(
+            0,
+            (originalPrice || 0) - promotionDiscount,
+          )
 
           return {
             ...item,

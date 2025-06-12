@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -22,7 +23,6 @@ import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency } from '@/utils'
-import { useNavigate } from 'react-router-dom'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -61,10 +61,6 @@ export default function ClientAddToCartDialog({
       return
     }
 
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
-
     const cartItem: ICartItem = {
       id: generateCartItemId(),
       slug: product?.product?.slug,
@@ -81,7 +77,7 @@ export default function ClientAddToCartDialog({
           variant: selectedVariant?.slug,
           size: selectedVariant?.size?.name,
           originalPrice: selectedVariant?.price,
-          price: finalPrice, // Use the calculated final price
+          // price: finalPrice, // Use the calculated final price
           description: product?.product?.description,
           isLimit: product?.product?.isLimit,
           promotion: product?.promotion ? product?.promotion?.slug : '',

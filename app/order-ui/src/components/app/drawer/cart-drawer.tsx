@@ -18,8 +18,8 @@ import {
 import { useCartItemStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { publicFileURL, VOUCHER_TYPE } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { publicFileURL } from '@/constants'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateCustomerDialog, CreateOrderDialog } from '../dialog'
@@ -35,9 +35,12 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
   const { getCartItems, removeCartItem } = useCartItemStore()
   const cartItems = getCartItems()
 
-  const subTotal = _.sumBy(cartItems?.orderItems, (item) => item.price * item.quantity)
-  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? subTotal * (cartItems?.voucher?.value || 0) / 100 : cartItems?.voucher?.value || 0
-  const totalAfterDiscount = subTotal - discount
+  const displayItems = calculateCartItemDisplay(
+    cartItems,
+    cartItems?.voucher || null
+  )
+
+  const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
 
   // check if cartItems is null, setSelectedUser to null
   useEffect(() => {
@@ -126,7 +129,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                                 {item.name}
                               </span>
                               <span className="text-sm text-muted-foreground">
-                                Size {item.size && item.size.toUpperCase()} - {`${formatCurrency(item.price)}`}
+                                Size {item.size && item.size.toUpperCase()} - {`${formatCurrency(displayItems.find(di => di.slug === item.slug)?.finalPrice || 0)}`}
                               </span>
                             </div>
                             <Button
@@ -167,20 +170,30 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t('menu.total')}</span>
-                    <span>{`${formatCurrency(subTotal || 0)}`}</span>
+                    <span>{`${formatCurrency(cartTotals.subTotalBeforeDiscount)}`}</span>
                   </div>
+                  {cartTotals.promotionDiscount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="italic text-yellow-600">
+                        {t('order.promotionDiscount')}:&nbsp;
+                      </span>
+                      <span className="italic text-yellow-600">
+                        -{`${formatCurrency(cartTotals.promotionDiscount)}`}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="italic text-green-600">
                       {t('menu.voucher')}
                     </span>
                     <span className="text-sm italic text-green-600">
-                      - {`${formatCurrency(discount)}`}
+                      - {`${formatCurrency(cartTotals.voucherDiscount)}`}
                     </span>
                   </div>
                   <div className="flex justify-between pt-2 font-medium border-t">
                     <span className="font-semibold">{t('menu.subTotal')}</span>
                     <span className="text-lg font-bold text-primary">
-                      {`${formatCurrency(totalAfterDiscount)}`}
+                      {`${formatCurrency(cartTotals.finalTotal)}`}
                     </span>
                   </div>
                 </div>

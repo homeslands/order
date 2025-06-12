@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import _ from 'lodash'
 // import Joyride from 'react-joyride';
 import { CircleAlert, ShoppingCartIcon, Trash2 } from 'lucide-react'
@@ -18,9 +18,9 @@ import { ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
 import { Button } from '@/components/ui'
 import { OrderTypeSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
-import { formatCurrency, applyVoucherToCart, calculateCartTotals, showErrorToast } from '@/utils'
-import { OrderTypeEnum } from '@/types'
+import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay } from '@/utils'
 import { OrderNoteInput } from '@/components/app/input'
+import { OrderTypeEnum } from '@/types'
 
 export default function ClientCartPage() {
   const { t } = useTranslation('menu')
@@ -32,17 +32,16 @@ export default function ClientCartPage() {
 
   // Không dùng state nữa, tính toán trực tiếp trong render để tránh stale state
   const currentCartItems = getCartItems()
-  // console.log('🔍 [ClientCartPage] currentCartItems:', currentCartItems)
+  // console.log('currentCartItems', currentCartItems)
 
-  // Sử dụng useMemo để force re-calculation khi orderItems hoặc voucher thay đổi
-  const { cartWithVoucher, itemLevelDiscount, calculations } = useMemo(() => {
-    const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(currentCartItems)
-    const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
-
-    return { cartWithVoucher, itemLevelDiscount, calculations }
-  }, [
+  const displayItems = calculateCartItemDisplay(
     currentCartItems,
-  ])
+    currentCartItems?.voucher || null
+  )
+
+  // console.log('displayItems', displayItems)
+
+  const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
 
   // addCustomerInfo when mount
   useEffect(() => {
@@ -73,14 +72,7 @@ export default function ClientCartPage() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Destructure để dễ sử dụng từ tính toán trực tiếp
-  const { subTotalBeforeDiscount, promotionDiscount, subTotal } = calculations
-  // console.log('🔍 [ClientCartPage] calculations:', calculations)
-
-  // Tổng tất cả giảm giá voucher (bao gồm item-level và order-level)
-  const totalVoucherDiscount = itemLevelDiscount
-
-  if (_.isEmpty(cartWithVoucher?.orderItems)) {
+  if (_.isEmpty(currentCartItems?.orderItems)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
         <div className="flex flex-col gap-5 justify-center items-center">
@@ -165,9 +157,9 @@ export default function ClientCartPage() {
               </span>
             </div>
             <div className="flex flex-col mb-2 rounded-md border">
-              {cartWithVoucher?.orderItems.map((item) => (
+              {currentCartItems?.orderItems.map((item) => (
                 <div
-                  key={`${item.id}-${cartWithVoucher?.voucher?.slug || 'no-voucher'}`}
+                  key={`${item.id}-${currentCartItems?.voucher?.slug || 'no-voucher'}`}
                   className="grid grid-cols-7 gap-4 items-center p-4 pb-4 w-full rounded-md sm:grid-cols-8"
                 >
                   <img
@@ -187,41 +179,39 @@ export default function ClientCartPage() {
                             </span>
                             <span className="inline-block relative text-xs sm:text-sm text-muted-foreground">
                               {(() => {
-                                // Kiểm tra đơn giản hơn dựa trên dữ liệu thực tế
-                                const hasVoucherDiscount = item.voucherDiscount && item.voucherDiscount > 0
-                                const hasPromotionDiscount = item.promotionDiscount && item.promotionDiscount > 0
+                                const displayItem = displayItems.find(di => di.slug === item.slug)
+                                const original = item.originalPrice || item.price || 0
+                                const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                                const finalPrice = displayItem?.finalPrice || 0
+                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                                const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
 
-                                const original = item.originalPrice || item.price
-                                const price = item.price
+                                const shouldUseFinalPrice =
+                                  currentCartItems?.voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                                  currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
 
-                                // Có giảm giá nếu originalPrice khác price hoặc có discount
-                                const hasDiscount = hasVoucherDiscount || hasPromotionDiscount || (original > price)
+                                const displayPrice = shouldUseFinalPrice
+                                  ? finalPrice * item.quantity
+                                  : hasPromotionDiscount
+                                    ? priceAfterPromotion * item.quantity
+                                    : original * item.quantity
 
                                 return (
-                                  <div className="flex gap-1 items-center">
-                                    {hasDiscount && (
-                                      <span className="absolute -top-1 left-32 text-[16px] text-primary font-bold">
-                                        {hasVoucherDiscount ? '**' : '*'}
-                                      </span>
-                                    )}
-
-                                    {hasDiscount ? (
-                                      <>
-                                        <span className="mr-1 line-through text-muted-foreground/70">
-                                          {formatCurrency(original)}
-                                        </span>
-                                        <span className="font-bold text-primary">
-                                          {formatCurrency(price)}
-                                        </span>
-                                      </>
-                                    ) : (
-                                      <span className="font-bold text-primary">
-                                        {formatCurrency(price)}
-                                      </span>
-                                    )}
+                                  <div className="flex gap-1">
+                                    <span className="text-sm line-through">
+                                      {formatCurrency(original)}
+                                    </span>
+                                    <span className="font-bold text-primary">
+                                      {formatCurrency(displayPrice)}
+                                    </span>
+                                    <span className="text-sm">
+                                      {hasVoucherDiscount ? '(**)' : hasPromotionDiscount ? '(*)' : ''}
+                                    </span>
                                   </div>
                                 )
                               })()}
+
+
                             </span>
                           </div>
                         </div>
@@ -229,9 +219,33 @@ export default function ClientCartPage() {
                       <div className="flex col-span-2 justify-center">
                         <QuantitySelector cartItem={item} />
                       </div>
-                      <div className="col-span-2 text-center">
+                      <div className="col-span-2">
                         <span className="text-sm font-semibold text-primary">
-                          {`${formatCurrency((item.price || 0) * item.quantity)}`}
+                          {(() => {
+                            const displayItem = displayItems.find(di => di.slug === item.slug)
+                            const original = item.originalPrice || item.price || 0
+                            const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                            const finalPrice = displayItem?.finalPrice || 0
+                            const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                            const shouldUseFinalPrice =
+                              currentCartItems?.voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                              currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+
+                            const displayPrice = shouldUseFinalPrice
+                              ? finalPrice * item.quantity
+                              : hasPromotionDiscount
+                                ? priceAfterPromotion * item.quantity
+                                : original * item.quantity
+
+                            return (
+                              <div className="flex gap-1 justify-center">
+                                <span className="font-bold text-primary">
+                                  {formatCurrency(displayPrice)}
+                                </span>
+                              </div>
+                            )
+                          })()}
                         </span>
                       </div>
                       <div className="flex col-span-1 justify-center">
@@ -244,7 +258,7 @@ export default function ClientCartPage() {
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <OrderNoteInput order={cartWithVoucher} />
+              <OrderNoteInput order={currentCartItems} />
               {/* Chú thích bên dưới order note */}
               <div className="p-3 rounded-md border bg-primary/10 border-primary">
                 <div className="flex gap-2 items-start text-sm text-primary">
@@ -276,7 +290,7 @@ export default function ClientCartPage() {
               <VoucherListSheet />
             </div>
             <div>
-              {cartWithVoucher?.voucher && (
+              {currentCartItems?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
                     <div className="flex gap-2 items-center mt-2">
@@ -284,14 +298,14 @@ export default function ClientCartPage() {
                         {t('order.usedVoucher')}:
                       </span>
                       <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                        -{`${formatCurrency(itemLevelDiscount || 0)}`}
+                        -{`${formatCurrency(cartTotals.voucherDiscount)}`}
                       </span>
                     </div>
 
                     {/* Hiển thị nội dung chi tiết theo loại voucher */}
                     <div className="mt-1 text-xs italic text-muted-foreground">
                       {(() => {
-                        const voucher = cartWithVoucher?.voucher
+                        const voucher = currentCartItems?.voucher
                         if (!voucher) return null
 
                         switch (voucher.type) {
@@ -312,7 +326,6 @@ export default function ClientCartPage() {
                   </div>
                 </div>
               )}
-
             </div>
             <div className="flex flex-col justify-between items-end p-2 pt-4 mt-4 rounded-md border">
               <div className="flex flex-col justify-between items-start w-full">
@@ -321,28 +334,28 @@ export default function ClientCartPage() {
                   {/* Tổng giá gốc */}
                   <div className="flex justify-between">
                     <span>{t('order.subtotalBeforeDiscount')}</span>
-                    <span>{formatCurrency(subTotalBeforeDiscount)}</span>
+                    <span>{formatCurrency(cartTotals.subTotalBeforeDiscount)}</span>
                   </div>
 
                   {/* Giảm giá khuyến mãi (promotion) */}
-                  {promotionDiscount > 0 && (
+                  {cartTotals.promotionDiscount > 0 && (
                     <div className="flex justify-between italic text-yellow-600">
                       <span>{t('order.promotionDiscount')}</span>
-                      <span>-{formatCurrency(promotionDiscount)}</span>
+                      <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                     </div>
                   )}
 
                   {/* Tổng giảm giá voucher */}
-                  {totalVoucherDiscount > 0 && (
+                  {cartTotals.voucherDiscount > 0 && (
                     <div className="flex justify-between italic text-green-600">
                       <span>{t('order.voucherDiscount')}</span>
-                      <span>-{formatCurrency(totalVoucherDiscount)}</span>
+                      <span>-{formatCurrency(cartTotals.voucherDiscount)}</span>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                     <span>{t('order.totalPayment')}</span>
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(subTotal)}</span>
+                    <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                   </div>
                 </div>
               </div>
@@ -353,9 +366,9 @@ export default function ClientCartPage() {
             <div className="flex justify-end w-fit">
               <CreateOrderDialog
                 disabled={
-                  !cartWithVoucher ||
-                  (cartWithVoucher?.type === OrderTypeEnum.AT_TABLE &&
-                    !cartWithVoucher?.table)
+                  !currentCartItems ||
+                  (currentCartItems?.type === OrderTypeEnum.AT_TABLE &&
+                    !currentCartItems?.table)
                 }
               />
             </div>

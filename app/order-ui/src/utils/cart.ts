@@ -3,13 +3,13 @@ import _ from 'lodash'
 
 import { useCartItemStore } from '@/stores'
 import { VOUCHER_TYPE } from '@/constants'
-import { ICartCalculationResult, ICartItem } from '@/types'
-
-interface AppliedCartResult {
-  cart: ICartItem | null
-  itemLevelDiscount: number
-}
-
+import {
+  ICartItem,
+  IDisplayCartItem,
+  IOrderDetail,
+  IVoucher,
+  IVoucherInCart,
+} from '@/types'
 export const setupAutoClearCart = () => {
   const { clearCart, getCartItems } = useCartItemStore.getState()
   const cartItems = getCartItems()
@@ -43,182 +43,231 @@ export const setupAutoClearCart = () => {
   }
 }
 
-export function applyVoucherToCart(
+export function calculateCartItemDisplay(
   cartItems: ICartItem | null,
-): AppliedCartResult {
-  if (!cartItems || !cartItems.voucher) {
-    return { cart: cartItems, itemLevelDiscount: 0 }
-  }
+  voucher: IVoucherInCart | null,
+): IDisplayCartItem[] {
+  if (!cartItems || !cartItems.orderItems) return []
 
-  const { voucher } = cartItems
-  const voucherProductSlugs = voucher.voucherProducts.map(
-    (vp) => vp?.product?.slug,
-  )
-  let itemLevelDiscount = 0
+  const voucherProductSlugs =
+    voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
-  // Tính tổng tiền sau promotion để làm base cho order-level voucher
-  const subTotalAfterPromotion = cartItems.orderItems.reduce((total, item) => {
-    const original = item.originalPrice || item.price
-    const afterPromotion = original - (item.promotionDiscount || 0)
-    return total + afterPromotion * item.quantity
-  }, 0)
+  const displayItems = cartItems.orderItems.map((item) => {
+    const original = item.originalPrice ?? item.price ?? 0
 
-  // Tính order-level discount trước
-  let orderLevelDiscount = 0
-  if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-    orderLevelDiscount = (subTotalAfterPromotion * (voucher.value || 0)) / 100
-  } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-    orderLevelDiscount = voucher.value || 0
-  }
+    const promotionDiscount =
+      item.promotionDiscount ??
+      Math.round(original * ((item.promotionValue || 0) / 100))
 
-  // Luôn tính toán lại voucher để đảm bảo cập nhật đúng khi orderItems thay đổi
-  const updatedOrderItems = cartItems.orderItems.map((item) => {
-    const original = item.originalPrice || item.price
+    const priceAfterPromotion = Math.max(0, original - promotionDiscount)
 
-    // Xử lý SAME_PRICE_PRODUCT voucher (item-level)
+    // Nếu là voucher SAME_PRICE_PRODUCT và áp dụng cho item này
     const shouldApplyItemVoucher =
-      voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
       voucherProductSlugs.includes(item.slug)
+    const shouldApplyPercentOrderItemVoucher =
+      voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+    const shouldApplyFixedValueItemVoucher =
+      voucher?.type === VOUCHER_TYPE.FIXED_VALUE
 
     if (shouldApplyItemVoucher) {
       let newPrice = 0
-
-      // Nếu value <= 1 → phần trăm
       if (voucher.value <= 1) {
         newPrice = Math.round(original * (1 - voucher.value))
       } else {
         newPrice = Math.min(original, voucher.value)
       }
 
-      const discountAmount = original - newPrice
-      itemLevelDiscount += discountAmount * item.quantity
-
+      const voucherDiscount = original - newPrice
       return {
         ...item,
-        price: newPrice,
-        voucherDiscount: discountAmount,
-        promotionDiscount: 0, // Bỏ promotion khi có voucher
-        promotion: `same_price_${voucher.value}`,
+        finalPrice: newPrice,
+        priceAfterPromotion: priceAfterPromotion,
+        promotionDiscount: promotionDiscount,
+        voucherDiscount,
       }
     }
 
-    // Xử lý PERCENT_ORDER và FIXED_VALUE voucher (order-level)
-    if (
-      voucher.type === VOUCHER_TYPE.PERCENT_ORDER ||
-      voucher.type === VOUCHER_TYPE.FIXED_VALUE
-    ) {
-      const promotionDiscount = item.promotionDiscount || 0
-
-      const priceAfterPromotion = Math.max(0, original - promotionDiscount)
-
-      // Phân bổ order-level discount theo tỷ lệ giá trị của từng item
-      const itemRatio =
-        subTotalAfterPromotion > 0
-          ? (priceAfterPromotion * item.quantity) / subTotalAfterPromotion
-          : 0
-      const itemOrderDiscount = orderLevelDiscount * itemRatio
-      const itemVoucherDiscount = itemOrderDiscount / item.quantity // Per unit
-
-      const finalPrice = Math.max(0, priceAfterPromotion - itemVoucherDiscount)
-
+    if (shouldApplyPercentOrderItemVoucher) {
+      const voucherDiscount = (voucher.value * (item?.price ?? 0)) / 100
       return {
         ...item,
-        price: finalPrice,
+        finalPrice: priceAfterPromotion,
+        priceAfterPromotion: priceAfterPromotion,
+        promotionDiscount: promotionDiscount,
+        voucherDiscount,
+      }
+    }
+
+    if (shouldApplyFixedValueItemVoucher) {
+      const voucherDiscount = (item?.price ?? 0) - voucher.value
+      return {
+        ...item,
+        priceAfterPromotion: priceAfterPromotion,
+        finalPrice: priceAfterPromotion,
         promotionDiscount,
-        voucherDiscount: itemVoucherDiscount,
+        voucherDiscount,
       }
     }
-
-    // Không có voucher áp dụng → giữ promotion nếu có
-    const promotionDiscount = item.promotionDiscount || 0
-    const finalPrice = Math.max(0, original - promotionDiscount)
 
     return {
       ...item,
-      price: finalPrice,
+      finalPrice: priceAfterPromotion,
+      priceAfterPromotion: priceAfterPromotion,
       promotionDiscount,
-      voucherDiscount: 0, // Reset voucher discount cho items không áp dụng
+      voucherDiscount: 0,
     }
   })
 
-  // Với order-level voucher, itemLevelDiscount = orderLevelDiscount
-  if (
-    voucher.type === VOUCHER_TYPE.PERCENT_ORDER ||
-    voucher.type === VOUCHER_TYPE.FIXED_VALUE
-  ) {
-    itemLevelDiscount = orderLevelDiscount
-  }
-
-  return {
-    cart: {
-      ...cartItems,
-      orderItems: updatedOrderItems,
-    },
-    itemLevelDiscount,
-  }
+  return displayItems
 }
 
 export function calculateCartTotals(
-  cartItems: ICartItem | null,
-  itemLevelDiscount: number,
-): ICartCalculationResult {
-  const subTotalBeforeDiscount = _.sumBy(
-    cartItems?.orderItems || [],
-    (item) => (item.originalPrice || item.price) * item.quantity,
-  )
-
-  // Tổng giảm giá đến từ promotion
-  const promotionDiscount = _.sumBy(
-    cartItems?.orderItems || [],
-    (item) => (item.promotionDiscount || 0) * item.quantity,
-  )
-
-  // Tổng tiền sau promotion nhưng TRƯỚC voucher (để tính % order voucher)
-  const subTotalAfterPromotion = _.sumBy(
-    cartItems?.orderItems || [],
-    (item) => {
-      const original = item.originalPrice || item.price
-      const afterPromotion = original - (item.promotionDiscount || 0)
-      return afterPromotion * item.quantity
-    },
-  )
-
-  const voucher = cartItems?.voucher
-  let orderLevelDiscount = 0
-
-  if (voucher) {
-    if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-      // Tính % trên tổng sau promotion, trước voucher item-level
-      orderLevelDiscount = (subTotalAfterPromotion * (voucher.value || 0)) / 100
-    } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-      orderLevelDiscount = voucher.value || 0
+  displayItems: IDisplayCartItem[],
+  voucher: IVoucherInCart | null,
+) {
+  if (!voucher) {
+    return {
+      subTotalBeforeDiscount: _.sumBy(
+        displayItems,
+        (item) => (item.originalPrice || 0) * item.quantity,
+      ),
+      promotionDiscount: _.sumBy(
+        displayItems,
+        (item) => (item.promotionDiscount || 0) * item.quantity,
+      ),
+      voucherDiscount: 0,
+      finalTotal: _.sumBy(
+        displayItems,
+        (item) => (item.priceAfterPromotion || 0) * item.quantity,
+      ),
     }
-    // SAME_PRICE_PRODUCT đã được tính ở itemLevelDiscount
   }
 
-  // subTotal cuối cùng sau tất cả discount
-  const subTotal = _.sumBy(
-    cartItems?.orderItems || [],
-    (item) => item.price * item.quantity,
+  const subTotalBeforeDiscount = _.sumBy(
+    displayItems,
+    (item) => (item.originalPrice || 0) * item.quantity,
   )
-  // console.log(
-  //   '🔍 [calculateCartTotals] subTotal:',
-  //   subTotal,
-  //   'orderLevelDiscount:',
-  //   orderLevelDiscount,
-  // )
 
-  const totalDiscount = promotionDiscount + orderLevelDiscount
-  // const totalAfterDiscount = subTotalBeforeDiscount - orderLevelDiscount
+  const promotionDiscount = _.sumBy(
+    displayItems,
+    (item) => (item.promotionDiscount || 0) * item.quantity,
+  )
+  // console.log('promotionDiscount', promotionDiscount)
+  let voucherDiscount = 0
+  if (voucher?.type === VOUCHER_TYPE.PERCENT_ORDER) {
+    voucherDiscount =
+      (voucher.value * (subTotalBeforeDiscount - promotionDiscount)) / 100
+  } else if (voucher?.type === VOUCHER_TYPE.FIXED_VALUE) {
+    voucherDiscount = voucher.value
+  } else if (voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+    voucherDiscount = _.sumBy(
+      displayItems,
+      (item) =>
+        (item.priceAfterPromotion || 0) -
+        Math.min(item.priceAfterPromotion || 0, voucher.value || 0),
+    )
+  }
+
+  // Nếu chưa có giảm từng item nhưng là FIXED_VALUE thì dùng cấp độ đơn hàng
+  if (voucher?.type === VOUCHER_TYPE.FIXED_VALUE && voucherDiscount === 0) {
+    voucherDiscount = voucher.value || 0
+  }
+
+  const finalTotal =
+    subTotalBeforeDiscount - promotionDiscount - voucherDiscount
 
   return {
     subTotalBeforeDiscount,
-    subTotal,
-    subTotalAfterPromotion,
     promotionDiscount,
-    itemLevelDiscount,
-    orderLevelDiscount,
-    totalDiscount,
-    // totalAfterDiscount,
+    voucherDiscount,
+    finalTotal,
   }
+}
+
+// export function calculateCartTotals(
+//   displayItems: IDisplayCartItem[],
+//   fixedOrderLevelDiscount: number = 0, // Truyền thêm nếu dùng FIXED_VALUE không phân bổ
+// ): ICartCalculationResult {
+//   const subTotalBeforeDiscount = _.sumBy(
+//     displayItems,
+//     (item) => (item.originalPrice || 0) * item.quantity,
+//   )
+
+//   const promotionDiscount = _.sumBy(
+//     displayItems,
+//     (item) => (item.promotionDiscount || 0) * item.quantity,
+//   )
+
+//   const itemLevelDiscount = _.sumBy(
+//     displayItems,
+//     (item) => (item.voucherDiscount || 0) * item.quantity,
+//   )
+
+//   const subTotalAfterPromotion = subTotalBeforeDiscount - promotionDiscount
+
+//   const orderLevelDiscount = fixedOrderLevelDiscount // bổ sung giảm trực tiếp theo đơn
+
+//   const totalDiscount =
+//     promotionDiscount + itemLevelDiscount + orderLevelDiscount
+
+//   const subTotal =
+//     _.sumBy(displayItems, (item) => (item.finalPrice || 0) * item.quantity) -
+//     orderLevelDiscount
+
+//   return {
+//     subTotalBeforeDiscount,
+//     subTotalAfterPromotion,
+//     subTotal,
+//     promotionDiscount,
+//     itemLevelDiscount,
+//     orderLevelDiscount,
+//     totalDiscount,
+//   }
+// }
+
+export function calculateVoucherDiscountFromOrder(
+  orderItems: IOrderDetail[],
+  voucher?: IVoucher,
+): number {
+  if (!voucher || !orderItems?.length) return 0
+
+  const originalTotal = orderItems.reduce(
+    (sum, item) => sum + item.variant.price * item.quantity,
+    0,
+  )
+
+  let voucherDiscount = 0
+
+  switch (voucher.type) {
+    case VOUCHER_TYPE.PERCENT_ORDER:
+      voucherDiscount = (originalTotal * (voucher.value || 0)) / 100
+      break
+
+    case VOUCHER_TYPE.SAME_PRICE_PRODUCT: {
+      const voucherProductSlugs =
+        voucher.voucherProducts?.map((vp) => vp.product.slug) || []
+
+      for (const item of orderItems) {
+        const productSlug = item.variant.product.slug
+        const quantity = item.quantity
+        const originalPrice = item.variant.price
+
+        if (voucherProductSlugs.includes(productSlug)) {
+          const diff = (originalPrice - voucher.value) * quantity
+          if (diff > 0) voucherDiscount += diff
+        }
+      }
+      break
+    }
+
+    case VOUCHER_TYPE.FIXED_VALUE:
+      voucherDiscount = voucher.value || 0
+      break
+
+    default:
+      voucherDiscount = 0
+  }
+
+  return voucherDiscount
 }

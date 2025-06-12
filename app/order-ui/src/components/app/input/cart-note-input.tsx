@@ -26,7 +26,7 @@ export default function CartNoteInput({ cartItem }: CartNoteInputProps) {
         <Input
           defaultValue={cartItem?.note || ''}
           type="text"
-          className="h-7 text-[11px] lg:text-sm shadow-none"
+          className="h-7 text-[11px] xl:text-sm shadow-none"
           placeholder={t('order.enterNote')}
           onChange={handleNoteChange}
         />

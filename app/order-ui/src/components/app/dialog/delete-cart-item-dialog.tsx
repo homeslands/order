@@ -44,7 +44,7 @@ export default function DeleteCartItemDialog({
       const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
         const original = item.originalPrice ?? item.price
         const promotionDiscount = item.promotionDiscount ?? 0
-        return acc + (original - promotionDiscount) * item.quantity
+        return acc + ((original ?? 0) - promotionDiscount) * item.quantity
       }, 0)
 
       // Nếu không phải SAME_PRICE_PRODUCT thì mới cần check

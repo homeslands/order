@@ -52,10 +52,6 @@ export default function AddToCartDialog({
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
-
     const cartId = generateCartItemId();
 
     const cartItem: ICartItem = {
@@ -73,7 +69,7 @@ export default function AddToCartDialog({
           size: selectedVariant?.size?.name,
           variant: selectedVariant?.slug,
           originalPrice: selectedVariant?.price,
-          price: finalPrice,
+          // price: finalPrice,
           description: product?.product?.description,
           isLimit: product?.product?.isLimit,
           promotion: product?.promotion ? product?.promotion?.slug : '',

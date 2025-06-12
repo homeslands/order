@@ -40,7 +40,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast, applyVoucherToCart, calculateCartTotals } from '@/utils'
+import { formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -62,7 +62,9 @@ export default function VoucherListSheet() {
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
-  let subTotal = 0
+  // let subTotal = 0
+  // calculate subtotal
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -333,19 +335,10 @@ export default function VoucherListSheet() {
   };
 
   const isVoucherValid = (voucher: IVoucher) => {
-    // Sử dụng applyVoucherToCart để tính đúng giống như logic chính
-    if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
-      const { cart: tempCart } = applyVoucherToCart(cartItems)
-      const tempCalculations = calculateCartTotals(tempCart, 0)
-      subTotal = tempCalculations.subTotalAfterPromotion
-    }
-
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= subTotal
-
-    // console.log('🔍 Debug isValidAmount:', voucher.title, voucher.minOrderValue, subTotal, isValidAmount)
 
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
@@ -421,7 +414,7 @@ export default function VoucherListSheet() {
               </TooltipProvider>
             </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
-              Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}
+              {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
