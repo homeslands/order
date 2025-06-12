@@ -83,6 +83,7 @@ export class VoucherService {
   ) {
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug: validateVoucherPublicDto.voucher ?? IsNull() },
+      relations: ['voucherProducts.product'],
     });
 
     await this.voucherUtils.validateVoucher(voucher);
