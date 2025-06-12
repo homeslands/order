@@ -678,14 +678,18 @@ export class OrderService {
       subtotal,
       originalSubtotal,
     });
-    if (appliedVoucher) {
+    // default discount type is none
+    orderItem.voucherValue = 0;
+    orderItem.discountType = DiscountType.NONE;
+
+    if (orderItem.promotion) {
+      orderItem.voucherValue = 0;
+      orderItem.discountType = DiscountType.PROMOTION;
+    }
+    if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
       orderItem.voucherValue = voucherValue;
       orderItem.discountType = DiscountType.VOUCHER;
-    } else {
-      if (promotion) {
-        orderItem.discountType = DiscountType.PROMOTION;
-      }
-    } // default discount type is none
+    }
     return orderItem;
   }
 
