@@ -135,7 +135,7 @@ export class CardOrder extends Base {
   paymentId: string;
 
   // One to one with payment
-  @OneToOne(() => Payment, (payment) => payment.order)
+  @OneToOne(() => Payment, (payment) => payment.cardOrder)
   @JoinColumn({ name: 'payment_column' })
   @AutoMap(() => Payment)
   payment: Payment;

@@ -29,6 +29,7 @@ import { JobRecoveryService } from './job.recovery';
 import { MailModule } from 'src/mail/mail.module';
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobScheduler } from './job.scheduler';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { JobScheduler } from './job.scheduler';
       User,
       MenuItem,
       Menu,
+      CardOrder,
     ]),
     BullModule.registerQueue({
       name: QueueRegisterKey.JOB,

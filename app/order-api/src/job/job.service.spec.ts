@@ -30,6 +30,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { NotificationProducer } from 'src/notification/notification.producer';
 import { JobScheduler } from './job.scheduler';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 describe('JobService', () => {
   let service: JobService;
@@ -66,6 +67,10 @@ describe('JobService', () => {
         { provide: 'BullQueue_notification', useValue: {} },
         {
           provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(CardOrder),
           useFactory: repositoryMockFactory,
         },
         {
