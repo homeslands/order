@@ -34,6 +34,7 @@ import { Payment } from 'src/payment/payment.entity';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
       Menu,
       Payment,
       ACBConnectorConfig,
+      CardOrder,
     ]),
     BullModule.registerQueue({
       name: QueueRegisterKey.JOB,
@@ -80,4 +82,4 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })
-export class JobModule {}
+export class JobModule { }

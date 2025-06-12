@@ -45,6 +45,11 @@ export class JobConsumer extends WorkerHost {
           const result =
             await this.jobService.updateOrderStatusAfterPaymentPaid(job);
           return result;
+        case JobType.UPDATE_CARD_ORDER_STATUS_AFTER_PAYMENT_PAID:
+          await this.jobService.updateCardOrderStatusAfterPaymentCompletion({
+            orderId: job.data,
+          });
+          break;
       }
     } catch (error) {
       this.logger.error(`Error processing job`, error, context);
