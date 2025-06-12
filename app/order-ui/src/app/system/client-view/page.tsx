@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui"
-import { formatCurrency } from "@/utils"
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency } from "@/utils"
 import { useCartItemStore, usePaymentMethodStore, usePaymentStore } from "@/stores"
 import { ROUTE } from "@/constants"
 import { useOrderBySlug } from "@/hooks"
@@ -13,6 +13,13 @@ export default function ClientViewPage() {
     const { t } = useTranslation("menu")
     const { getCartItems } = useCartItemStore()
     const cartItems = getCartItems()
+
+    const displayItems = calculateCartItemDisplay(
+        cartItems,
+        cartItems?.voucher || null
+    )
+
+    const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
     const { orderSlug } = usePaymentStore()
     const { qrCode } = usePaymentMethodStore()
 
@@ -44,10 +51,10 @@ export default function ClientViewPage() {
         return () => window.removeEventListener("storage", handleStorage)
     }, [])
 
-    const totalPrice = cartItems?.orderItems.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-    ) || 0
+    // const totalPrice = cartItems?.orderItems.reduce(
+    //     (acc, item) => acc + item.price * item.quantity,
+    //     0
+    // ) || 0
 
     const renderQRCode = () => {
         if (qrCode && orderSlug) {
@@ -122,13 +129,13 @@ export default function ClientViewPage() {
                                     </td>
                                     <td className="px-4 py-2">
                                         <div className="flex gap-2 items-center">
-                                            {item.originalPrice && item.originalPrice > item.price && (
+                                            {item.originalPrice && item.originalPrice > (item.price ?? 0) && (
                                                 <span className="text-sm line-through text-muted-foreground">
                                                     {formatCurrency(item.originalPrice)}
                                                 </span>
                                             )}
                                             <span className="font-semibold text-primary">
-                                                {formatCurrency(item.price)}
+                                                {formatCurrency(displayItems.find(di => di.slug === item.slug)?.finalPrice || 0)}
                                             </span>
                                         </div>
                                     </td>
@@ -139,7 +146,7 @@ export default function ClientViewPage() {
                             <tr className="font-semibold bg-muted-foreground/10">
                                 <td colSpan={4} className="px-4 py-2 text-xl">{t("menu.total")}</td>
                                 <td colSpan={2} className="px-4 py-2 text-2xl font-bold text-primary">
-                                    {formatCurrency(totalPrice)}
+                                    {formatCurrency(cartTotals.subTotalBeforeDiscount)}
                                 </td>
                             </tr>
                         </tfoot>

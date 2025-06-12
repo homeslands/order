@@ -35,24 +35,37 @@ export interface ICartItem {
   orderItems: IOrderItem[]
   table?: string
   tableName?: string
-  voucher?: {
-    slug: string
-    value: number
-    isVerificationIdentity: boolean
-    isPrivate: boolean
-    code: string
-    type: string
-    minOrderValue: number
-    voucherProducts: {
-      slug: string
-      createdAt: string
-      product: IProduct
-    }[]
-  } | null
+  voucher?: IVoucherInCart | null
   note?: string
   approvalBy?: string
   description?: string
   paymentMethod?: string
+}
+
+export interface IVoucherInCart {
+  slug: string
+  value: number
+  isVerificationIdentity: boolean
+  isPrivate: boolean
+  code: string
+  type: string
+  minOrderValue: number
+  voucherProducts: {
+    slug: string
+    createdAt: string
+    product: IProduct
+  }[]
+}
+
+export interface IDisplayCartItem {
+  slug: string
+  name: string
+  quantity: number
+  originalPrice?: number
+  promotionDiscount?: number
+  voucherDiscount?: number
+  finalPrice?: number
+  priceAfterPromotion?: number
 }
 
 export interface IOrderToUpdate {
@@ -80,12 +93,13 @@ export interface IOrderItem {
   size: string
   variant: string
   originalPrice?: number
+  promotion?: string | null
   promotionDiscount?: number
   voucherDiscount?: number
-  price: number // price after discount
+  price?: number // price after discount
   description: string
   isLimit: boolean
-  promotion?: string // promotion slug
+  // promotion?: string // promotion slug
   promotionValue?: number
   // catalog: ICatalog
   note?: string
@@ -257,7 +271,7 @@ export interface ICreateOrderRequest {
   orderItems: {
     quantity: number
     variant: string
-    promotion?: string
+    promotion: string | null
     note: string
   }[]
   approvalBy: string
