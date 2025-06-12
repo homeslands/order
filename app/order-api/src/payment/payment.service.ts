@@ -74,13 +74,14 @@ export class PaymentService {
       where: {
         slug: slug ?? IsNull(),
       },
-      relations: ['cardOrder']
+      relations: ['cardOrder'],
     });
 
     if (!payment)
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
     payment.statusCode = PaymentStatus.COMPLETED;
+    payment.message = Math.random().toString();
 
     try {
       await this.paymentRepository.save(payment);

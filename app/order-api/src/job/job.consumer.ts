@@ -29,6 +29,7 @@ export class JobConsumer extends WorkerHost {
         id: jobData.data?.id ?? IsNull(),
       },
     });
+
     if (!job) {
       this.logger.error(
         `Job not found ${JSON.stringify(jobData)}`,
@@ -38,8 +39,6 @@ export class JobConsumer extends WorkerHost {
       return;
     }
     try {
-      Object.assign(job, { status: JobStatus.PROCESSING });
-      await this.jobRepository.save(job);
       switch (jobData.name) {
         case JobType.UPDATE_STATUS_ORDER_AFTER_PAID:
           const result =
@@ -51,6 +50,8 @@ export class JobConsumer extends WorkerHost {
           });
           break;
       }
+      Object.assign(job, { status: JobStatus.COMPLETED });
+      await this.jobRepository.save(job);
     } catch (error) {
       this.logger.error(`Error processing job`, error, context);
       Object.assign(job, { status: JobStatus.FAILED });

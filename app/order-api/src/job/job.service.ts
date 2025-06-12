@@ -146,21 +146,21 @@ export class JobService {
       this.logger.log(`Card order ${payload.orderId} not found`, context);
     }
 
-    if (
-      order.status !== CardOrderStatus.PENDING &&
-      order.payment?.statusCode !== PaymentStatus.PENDING
-    ) {
-      this.logger.log(
-        `Card order ${order.id} is not pending or payment status is pending`,
-        context,
-      );
+    if (order.status !== CardOrderStatus.PENDING) {
+      this.logger.log(`Card order ${order.id} is not pending`, context);
+      return;
+    }
+
+    if (order.payment?.statusCode === PaymentStatus.PENDING) {
+      this.logger.log(`Payment status is pending`, context);
+      return;
     }
 
     Object.assign(order, {
       status:
         order.payment?.statusCode === PaymentStatus.COMPLETED
           ? CardOrderStatus.COMPLETED
-          : CardOrderStatus.CANCELLED,
+          : CardOrderStatus.FAIL,
       paymentStatus: order.payment?.statusCode,
     } as Partial<CardOrder>);
 
