@@ -29,6 +29,8 @@ import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { HttpModule } from '@nestjs/axios';
+import { CardOrderListener } from './card-order/card-order.listener';
+import { JobModule } from 'src/job/job.module';
 
 const controllers = [
   CardController,
@@ -70,6 +72,7 @@ const modules = [
   FileModule,
   DbModule,
   HttpModule,
+  JobModule,
 ];
 
 const exportServices = [
@@ -80,6 +83,8 @@ const exportServices = [
   RecipientService,
 ];
 
+const listeners = [CardOrderListener];
+
 const exportMappers = [];
 
 const subscribers = [CardOrderSubscriber];
@@ -87,7 +92,7 @@ const subscribers = [CardOrderSubscriber];
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [...providers, ...mappers, ...subscribers],
+  providers: [...providers, ...mappers, ...subscribers, ...listeners],
   exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}

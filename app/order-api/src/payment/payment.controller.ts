@@ -9,6 +9,7 @@ import {
   Get,
   Param,
   StreamableFile,
+  Put,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import {
@@ -29,6 +30,7 @@ import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CurrentUser } from 'src/user/user.decorator';
+
 @ApiTags('Payment')
 @ApiBearerAuth()
 @Controller('payment')
@@ -151,5 +153,28 @@ export class PaymentController {
       length: result.length,
       disposition: `attachment; filename="payment-${new Date().toISOString()}.pdf"`,
     });
+  }
+
+  @Put(':slug')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Update payment' })
+  async update(@Param('slug') slug: string) {
+    await this.paymentService.update(slug);
+    return {
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve payments' })
+  async getAll() {
+    const result = await this.paymentService.getAll();
+    return {
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PaymentResponseDto[]>;
   }
 }

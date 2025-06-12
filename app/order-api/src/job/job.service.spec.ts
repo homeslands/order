@@ -40,6 +40,7 @@ import { ConfigService } from '@nestjs/config';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 describe('JobService', () => {
   let service: JobService;
@@ -107,6 +108,10 @@ describe('JobService', () => {
         { provide: 'BullQueue_notification', useValue: {} },
         {
           provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(CardOrder),
           useFactory: repositoryMockFactory,
         },
         {

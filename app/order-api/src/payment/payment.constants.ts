@@ -12,4 +12,5 @@ export const PaymentStatus = {
 
 export const PaymentAction = {
   PAYMENT_PAID: 'payment.paid',
+  CARD_ORDER_PAYMENT_PAID: 'card-order-payment.paid',
 };
