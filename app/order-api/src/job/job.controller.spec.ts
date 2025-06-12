@@ -31,6 +31,7 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { JobRecoveryService } from './job.recovery';
 import { JobScheduler } from './job.scheduler';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -68,6 +69,10 @@ describe('JobController', () => {
         { provide: 'BullQueue_notification', useValue: {} },
         {
           provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(CardOrder),
           useFactory: repositoryMockFactory,
         },
         {
