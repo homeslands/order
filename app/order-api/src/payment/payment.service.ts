@@ -55,7 +55,7 @@ export class PaymentService {
     private readonly eventEmitter: EventEmitter2,
     private readonly pdfService: PdfService,
     private readonly userUtils: UserUtils,
-  ) { }
+  ) {}
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -72,13 +72,14 @@ export class PaymentService {
       where: {
         slug: slug ?? IsNull(),
       },
-      relations: ['cardOrder']
+      relations: ['cardOrder'],
     });
 
     if (!payment)
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
     payment.statusCode = PaymentStatus.COMPLETED;
+    payment.message = Math.random().toString();
 
     try {
       await this.paymentRepository.save(payment);
@@ -410,7 +411,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-            ACBConnectorTransactionStatus.COMPLETED
+          ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,
