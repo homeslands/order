@@ -120,27 +120,32 @@
             <tr class="border-t border-black">
               <td class="py-2 text-left">Tổng cộng</td>
               <td class="py-2 text-right" colspan="4">
-                <%= formatCurrency(originalSubtotalOrder) %>
+                <%= formatCurrency(originalSubtotalOrder) %> ₫
               </td>
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left">Tổng khuyến mãi</td>
               <td class="py-2 text-right" colspan="4">
-                <%= formatCurrency(orderItemPromotionValue) %>
+                <%= formatCurrency(orderItemPromotionValue) %> ₫
               </td>
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left">
-                Tổng giảm giá 
+                Tổng giảm giá
               </td>
-              <td class="py-2 text-right" colspan="4">
-                <%= formatCurrency(voucherValue) %>
+              <td class="py-2 text-left" colspan="2">
+                <% if (voucherCode !== 'N/A') { %>
+                  <span class="text-xs italic break-all">(Mã: <%= voucherCode %>)</span>
+                <% } %>
+              </td>
+              <td class="py-2 text-right" colspan="2">
+                <%= formatCurrency(voucherValue) %> ₫
               </td>
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left">Thành tiền</td>
               <td class="py-2 text-xl font-bold text-right" colspan="4">
-                <%= formatCurrency(amount) %>
+                <%= formatCurrency(amount) %> ₫
               </td>
             </tr>
       </tbody>

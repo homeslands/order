@@ -202,6 +202,7 @@ export class InvoiceService {
         subtotalOrderItem,
         orderItemPromotionValue,
         voucherCode: order.voucher?.code ?? 'N/A',
+        valueEachVoucher: order.voucher?.value ?? 0,
       });
       return order.invoice;
     }
@@ -244,10 +245,6 @@ export class InvoiceService {
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
     });
-
-    // console.log({ order });
-    // console.log({ invoice });
-    // console.log({ invoiceItems: invoice.invoiceItems[0] });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
       try {
