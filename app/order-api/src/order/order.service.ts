@@ -290,7 +290,7 @@ export class OrderService {
       order.orderItems = updatedOrderItems;
     }
     order.voucher = null;
-    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, voucher);
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, null);
     order.subtotal = subtotal;
 
     // Get new voucher
@@ -302,7 +302,7 @@ export class OrderService {
         relations: ['voucherProducts.product'],
       });
 
-      if (order.voucher?.id === voucher?.id) {
+      if (previousVoucher?.id === voucher?.id) {
         this.logger.warn(
           `Voucher ${voucher.code} is the same as the previous voucher`,
           context,
