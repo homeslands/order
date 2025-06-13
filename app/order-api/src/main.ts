@@ -16,9 +16,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 8080;
   const version = configService.get('VERSION');
+  const allowedOrigins = configService.get('ALLOWED_ORIGINS');
 
   app.setGlobalPrefix(`api/${version}`);
-  app.enableCors(corsOptions);
+  app.enableCors(corsOptions(allowedOrigins));
   app.enableShutdownHooks();
 
   const config = new DocumentBuilder()
