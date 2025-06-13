@@ -20,6 +20,8 @@ import { createSortOptions } from 'src/shared/utils/obj.util';
 import { OrderException } from 'src/order/order.exception';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
+import { CardException } from '../card/card.exception';
+import { CardValidation } from '../card/card.validation';
 
 @Injectable()
 export class CardOrderService {
@@ -123,7 +125,7 @@ export class CardOrderService {
     });
 
     if (!card) {
-      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+      throw new CardException(CardValidation.CARD_NOT_FOUND);
     }
 
     if (!card.isActive) {
@@ -218,6 +220,7 @@ export class CardOrderService {
       type: createCardOrderDto.cardOrderType,
 
       cardId: card.id,
+      cardSlug: card.slug,
       cardPoint: card.points,
       cardTitle: card.title,
       cardImage: card.image,
