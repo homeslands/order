@@ -121,8 +121,16 @@ export interface IValidateVoucherRequest {
     variant?: string
     note?: string
     promotion?: string | null
-    order?: string
+    order?: string | null
   }[]
+}
+
+export interface IOrderItemsParam {
+  quantity?: number
+  variant?: string
+  note?: string
+  promotion?: string | null
+  order?: string | null
 }
 export interface IGetSpecificVoucherRequest {
   slug?: string

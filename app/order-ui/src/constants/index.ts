@@ -1,4 +1,5 @@
 export * from './role'
+export * from './promotion'
 export * from './env'
 export * from './logger'
 export * from './menu'
