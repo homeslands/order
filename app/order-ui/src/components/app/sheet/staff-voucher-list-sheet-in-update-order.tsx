@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
@@ -41,7 +41,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IOrder,
   IValidateVoucherRequest,
@@ -75,6 +75,20 @@ export default function VoucherListSheetInUpdateOrder({
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
+  const orderItems = useMemo(() => defaultValue?.orderItems || [], [defaultValue?.orderItems])
+  const voucher = defaultValue?.voucher || null
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
+  const orderItemsParam = useMemo(() => orderItems.map(item => ({
+    quantity: item.quantity,
+    variant: item.variant.slug,
+    note: item.note,
+    promotion: item.promotion?.slug || null,
+    order: defaultValue?.slug || null
+  })), [orderItems, defaultValue?.slug])
+
   // Helper functions
   const isValidOwner = (owner?: IOrder['owner']) => {
     return owner?.phonenumber && owner.phonenumber !== 'default-customer'
@@ -88,17 +102,17 @@ export default function VoucherListSheetInUpdateOrder({
     isCustomerRole(defaultValue.owner) && isValidOwner(defaultValue.owner)
 
   // Computed values
-  const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
-    const price = item.variant.price;
-    const quantity = item.quantity;
-    const discount = item.promotion ? item.promotion.value : 0;
-    const itemTotal = price * quantity * (1 - discount / 100);
-    return acc + itemTotal;
-  }, 0) || 0;
+  // const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
+  //   const price = item.variant.price;
+  //   const quantity = item.quantity;
+  //   const discount = item.promotion ? item.promotion.value : 0;
+  //   const itemTotal = price * quantity * (1 - discount / 100);
+  //   return acc + itemTotal;
+  // }, 0) || 0;
 
-  const voucherValue = defaultValue?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-    ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
-    : defaultValue?.voucher?.value || 0
+  // const voucherValue = defaultValue?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+  //   ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
+  //   : defaultValue?.voucher?.value || 0
 
   // Queries
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
@@ -138,7 +152,7 @@ export default function VoucherListSheetInUpdateOrder({
     if (!defaultValue?.slug) return;
 
     updateVoucherInOrder(
-      { slug: defaultValue.slug, voucher: null },
+      { slug: defaultValue.slug, voucher: null, orderItems: orderItemsParam },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -148,7 +162,7 @@ export default function VoucherListSheetInUpdateOrder({
         },
       },
     );
-  }, [defaultValue?.slug, updateVoucherInOrder, queryClient])
+  }, [defaultValue?.slug, updateVoucherInOrder, queryClient, orderItemsParam])
 
   // Effects
   // Validate voucher on owner phone change
@@ -162,13 +176,13 @@ export default function VoucherListSheetInUpdateOrder({
   // Validate voucher on order items change
   useEffect(() => {
     if (defaultValue?.voucher && defaultValue?.orderItems) {
-      const isValidAmount = defaultValue.voucher.minOrderValue <= subTotal;
+      const isValidAmount = defaultValue.voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0);
       if (!isValidAmount) {
 
         removeVoucherFromOrder(1004);
       }
     }
-  }, [defaultValue?.orderItems, defaultValue?.voucher, subTotal, removeVoucherFromOrder]);
+  }, [defaultValue?.orderItems, defaultValue?.voucher, removeVoucherFromOrder, cartTotals?.subTotalBeforeDiscount]);
 
   // Reset state when no voucher
   useEffect(() => {
@@ -305,7 +319,7 @@ export default function VoucherListSheetInUpdateOrder({
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= subTotal
+    const isValidAmount = voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0)
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
@@ -339,7 +353,7 @@ export default function VoucherListSheetInUpdateOrder({
     if (isSelected) {
       if (defaultValue) {
         updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: null },
+          { slug: defaultValue.slug, voucher: null, orderItems: orderItemsParam },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -371,7 +385,7 @@ export default function VoucherListSheetInUpdateOrder({
     const onValidated = () => {
       if (defaultValue) {
         updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: voucher.slug },
+          { slug: defaultValue.slug, voucher: voucher.slug, orderItems: orderItemsParam },
           {
             onSuccess: () => {
               if (userInfo) {
@@ -445,7 +459,7 @@ export default function VoucherListSheetInUpdateOrder({
     if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
       return t('voucher.expired')
     }
-    if (voucher.minOrderValue > subTotal) {
+    if (voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)) {
       return t('voucher.minOrderNotMet')
     }
     return ''
@@ -677,15 +691,6 @@ export default function VoucherListSheetInUpdateOrder({
                 {t('voucher.useVoucher')}
               </span>
             </div>
-            {defaultValue?.voucher && (
-              <div className="flex justify-start w-full">
-                <div className="flex gap-2 items-center w-full">
-                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
-                    -{`${formatCurrency(voucherValue)}`}
-                  </span>
-                </div>
-              </div>
-            )}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

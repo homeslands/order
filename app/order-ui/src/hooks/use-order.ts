@@ -34,6 +34,7 @@ import {
   IUpdateOrderTypeRequest,
   IUpdateOrderItemRequest,
   IUpdateNoteRequest,
+  IOrderItemsParam,
 } from '@/types'
 
 export const useOrders = (q: IOrdersQuery) => {
@@ -183,11 +184,13 @@ export const useUpdateVoucherInOrder = () => {
     mutationFn: async ({
       slug,
       voucher,
+      orderItems,
     }: {
       slug: string
       voucher: string | null
+      orderItems: IOrderItemsParam[]
     }) => {
-      return updateVoucherInOrder(slug, voucher)
+      return updateVoucherInOrder(slug, voucher, orderItems)
     },
   })
 }

@@ -68,6 +68,24 @@ export interface IDisplayCartItem {
   priceAfterPromotion?: number
 }
 
+export interface IDisplayOrderItem extends IBase {
+  chefOrderItems?: IChefOrderItemStatus[]
+  discountType?: string
+  finalPrice?: number
+  name: string
+  note?: string
+  originalPrice?: number
+  priceAfterPromotion?: number
+  productSlug: string
+  promotion?: IPromotion
+  promotionDiscount?: number
+  quantity: number
+  subtotal: number
+  variant: IProductVariant
+  voucherDiscount?: number
+  voucherValue?: number
+}
+
 export interface IOrderToUpdate {
   id: string
   slug: string
