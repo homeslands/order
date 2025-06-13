@@ -29,6 +29,10 @@ export class CardOrderResponseDto extends BaseResponseDto {
   @ApiProperty()
   cardId: string;
 
+  @ApiProperty()
+  @AutoMap()
+  cardSlug: string;
+
   @AutoMap()
   @ApiProperty()
   cardTitle: string;
