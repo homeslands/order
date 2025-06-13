@@ -268,15 +268,15 @@ export default function VoucherListSheet() {
     }
 
     const onSuccess = () => handleApply()
-    const onError = () => handleRemove()
+    // const onError = () => handleRemove()
 
     if (isSelected) {
       handleRemove()
     } else {
       if (userInfo) {
-        validateVoucher(validateVoucherParam, { onSuccess, onError })
+        validateVoucher(validateVoucherParam, { onSuccess })
       } else {
-        validatePublicVoucher(validateVoucherParam, { onSuccess, onError })
+        validatePublicVoucher(validateVoucherParam, { onSuccess })
       }
     }
   }

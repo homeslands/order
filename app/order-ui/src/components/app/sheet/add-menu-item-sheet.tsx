@@ -34,7 +34,7 @@ export default function AddMenuItemSheet({ branch, menuSlug }: IAddMenuItemSheet
     page: pagination.pageIndex,
     size: pagination.pageSize,
     hasPaging: true,
-  })
+  }, !!pagination.pageIndex)
   const [isOpen, setIsOpen] = useState(false)
   const productsData = products?.result.items
   const menuItems = getMenuItems()
