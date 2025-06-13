@@ -48,13 +48,13 @@ export class CardOrderSubscriber
 
   async addCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.addCancelCardOrderJob.name}`;
-    this.logger.log(`Add cancel card order job ${entity.id}`, context);
+    this.logger.log(`Adding cancel card order job ${entity.id}`, context);
 
     if (entity.status !== CardOrderStatus.PENDING) return;
 
     const JobName = createCancelCardOrderJobName(entity.id);
     const delay =
-      +this.configService.get('CARD_ORDER_PAYMENT_EXPIRE_TIME') ||
+      +this.configService.get('CARD_ORDER_PAYMENT_TIMEOUT') ||
       this.CANCEL_CARD_ORDER_JOB_DELAY;
     let job;
 
@@ -62,7 +62,7 @@ export class CardOrderSubscriber
       job = this.schedulerRegistry.getTimeout(JobName);
     } catch (error) {
       this.logger.error(
-        `Error when add cancel card order job ${JobName}: ${error.message}`,
+        `Error when adding cancel card order job ${JobName}: ${error.message}`,
         error.stack,
         context,
       );
@@ -87,7 +87,7 @@ export class CardOrderSubscriber
 
   async deleteCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.deleteCancelCardOrderJob.name}`;
-    this.logger.log(`Delete cancel card order job ${entity.id}`, context);
+    this.logger.log(`Deleting cancel card order job ${entity.id}`, context);
 
     if (entity.status === CardOrderStatus.PENDING) return;
 
@@ -98,7 +98,7 @@ export class CardOrderSubscriber
       job = this.schedulerRegistry.getTimeout(JobName);
     } catch (error) {
       this.logger.error(
-        `Error when delete cancel card order job ${JobName}: ${error.message}`,
+        `Error when deleting cancel card order job ${JobName}: ${error.message}`,
         error.stack,
         context,
       );
