@@ -743,6 +743,7 @@ export class OrderService {
         'table',
         'orderItems.promotion',
         'chefOrders',
+        'voucher.voucherProducts.product',
       ],
       order: { createdAt: 'DESC' },
     };
@@ -791,6 +792,7 @@ export class OrderService {
         'table',
         'orderItems.promotion',
         'chefOrders',
+        'voucher.voucherProducts.product',
       ],
       order: { createdAt: 'DESC' },
     });
