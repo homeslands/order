@@ -423,9 +423,9 @@ export class OrderItemService {
 
     if (order.voucher) {
       const isVoucherValid =
-        await this.voucherUtils.validateVoucherProductForUpdateOrderItem(
+        await this.voucherUtils.validateVoucherProductForDeleteOrderItem(
           order.voucher,
-          [requestData.variant],
+          requestData.variant,
         );
 
       if (!isVoucherValid) {
