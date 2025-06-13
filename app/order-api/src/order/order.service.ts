@@ -273,6 +273,27 @@ export class OrderService {
     // Get new voucher
     let voucher: Voucher = null;
     let previousVoucher: Voucher = null;
+
+    //Clear previous voucher
+    previousVoucher = order.voucher;
+
+    // update order item => remove voucher value
+    if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+      const updatedOrderItems = order.orderItems.map((orderItem) => {
+        const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+          null,
+          orderItem,
+          false, // is add voucher
+        );
+        return updatedOrderItem;
+      });
+      order.orderItems = updatedOrderItems;
+    }
+    order.voucher = null;
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, voucher);
+    order.subtotal = subtotal;
+
+    // Get new voucher
     if (requestData.voucher) {
       voucher = await this.voucherUtils.getVoucher({
         where: {
@@ -329,15 +350,15 @@ export class OrderService {
           } else {
             // with other voucher type => remove voucher value
             // calculate voucher in order
-            const updatedOrderItems = order.orderItems.map((orderItem) => {
-              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
-                null,
-                orderItem,
-                false, // is add voucher
-              );
-              return updatedOrderItem;
-            });
-            order.orderItems = updatedOrderItems;
+            // const updatedOrderItems = order.orderItems.map((orderItem) => {
+            //   const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+            //     null,
+            //     orderItem,
+            //     false, // is add voucher
+            //   );
+            //   return updatedOrderItem;
+            // });
+            // order.orderItems = updatedOrderItems;
           }
           const { subtotal } = await this.orderUtils.getOrderSubtotal(
             order,
@@ -347,28 +368,27 @@ export class OrderService {
 
           await manager.save(voucher);
         } else {
-          // Get previous voucher => remove voucher from order
-          // calculate voucher in order
-          previousVoucher = order.voucher;
-
-          // update order item => remove voucher value
-          if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
-            const updatedOrderItems = order.orderItems.map((orderItem) => {
-              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
-                null,
-                orderItem,
-                false, // is add voucher
-              );
-              return updatedOrderItem;
-            });
-            order.orderItems = updatedOrderItems;
-          }
-          order.voucher = null;
-          const { subtotal } = await this.orderUtils.getOrderSubtotal(
-            order,
-            voucher,
-          );
-          order.subtotal = subtotal;
+          // // Get previous voucher => remove voucher from order
+          // // calculate voucher in order
+          // previousVoucher = order.voucher;
+          // // update order item => remove voucher value
+          // if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+          //   const updatedOrderItems = order.orderItems.map((orderItem) => {
+          //     const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+          //       null,
+          //       orderItem,
+          //       false, // is add voucher
+          //     );
+          //     return updatedOrderItem;
+          //   });
+          //   order.orderItems = updatedOrderItems;
+          // }
+          // order.voucher = null;
+          // const { subtotal } = await this.orderUtils.getOrderSubtotal(
+          //   order,
+          //   voucher,
+          // );
+          // order.subtotal = subtotal;
         }
 
         if (previousVoucher) {
