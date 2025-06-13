@@ -98,40 +98,42 @@ export default function CustomerOrderTabsContent({
                             Size {product.variant.size.name.toUpperCase()}
                           </span>
                         </div>
-                        {(() => {
-                          const displayItem = displayItems.find(di => di.slug === product.slug)
-                          const original = product.variant.price || 0
-                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                          const finalPrice = displayItem?.finalPrice || 0
+                        <div className='flex col-span-3 justify-end'>
+                          {(() => {
+                            const displayItem = displayItems.find(di => di.slug === product.slug)
+                            const original = product.variant.price || 0
+                            const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                            const finalPrice = displayItem?.finalPrice || 0
 
-                          const isSamePriceVoucher =
-                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                            voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
+                            const isSamePriceVoucher =
+                              voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                              voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
 
-                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                            const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                          const displayPrice = isSamePriceVoucher
-                            ? finalPrice
-                            : hasPromotionDiscount
-                              ? priceAfterPromotion
-                              : original
+                            const displayPrice = isSamePriceVoucher
+                              ? finalPrice
+                              : hasPromotionDiscount
+                                ? priceAfterPromotion
+                                : original
 
-                          const shouldShowLineThrough =
-                            isSamePriceVoucher || hasPromotionDiscount
+                            const shouldShowLineThrough =
+                              isSamePriceVoucher || hasPromotionDiscount
 
-                          return (
-                            <div className="flex gap-1 items-center">
-                              {shouldShowLineThrough && (
-                                <span className="text-sm line-through text-muted-foreground">
-                                  {formatCurrency(original)}
+                            return (
+                              <div className="flex gap-1 items-center">
+                                {shouldShowLineThrough && (
+                                  <span className="text-sm line-through text-muted-foreground">
+                                    {formatCurrency(original)}
+                                  </span>
+                                )}
+                                <span className="font-bold text-primary">
+                                  {formatCurrency(displayPrice)}
                                 </span>
-                              )}
-                              <span className="font-bold text-primary">
-                                {formatCurrency(displayPrice)}
-                              </span>
-                            </div>
-                          )
-                        })()}
+                              </div>
+                            )
+                          })()}
+                        </div>
                       </div>
                     ))}
                   </div>

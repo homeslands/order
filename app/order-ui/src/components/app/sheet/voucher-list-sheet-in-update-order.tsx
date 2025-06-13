@@ -80,8 +80,10 @@ export default function VoucherListSheetInUpdateOrder({
   const voucher = defaultValue?.voucher || null
 
   const displayItems = calculateOrderItemDisplay(orderItems, voucher)
-
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
+  // const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  // console.log('subTotal', subTotal)
 
   // const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
   //   const price = item.variant.price;
@@ -276,12 +278,12 @@ export default function VoucherListSheetInUpdateOrder({
   const bestVoucher = getBestVoucher()
 
   const isVoucherSelected = (voucherSlug: string) => {
-    return (
-      defaultValue?.voucher?.slug === voucherSlug ||
-      cartItems?.voucher?.slug === voucherSlug ||
-      selectedVoucher === voucherSlug ||
-      appliedVoucher === voucherSlug
-    )
+    // Nếu đang trong chế độ update order
+    if (defaultValue) {
+      return defaultValue.voucher?.slug === voucherSlug
+    }
+    // Nếu đang trong chế độ tạo order mới
+    return cartItems?.voucher?.slug === voucherSlug || selectedVoucher === voucherSlug
   }
 
   const handleToggleVoucher = (voucher: IVoucher) => {
@@ -320,7 +322,7 @@ export default function VoucherListSheetInUpdateOrder({
       } else {
         removeVoucher()
         setSelectedVoucher('')
-        showToast(removeMessage)
+        // showToast(removeMessage)
       }
       return
     }
@@ -423,7 +425,10 @@ export default function VoucherListSheetInUpdateOrder({
 
 
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0 - (cartTotals?.promotionDiscount || 0))
+    const isValidAmount =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+        ? true
+        : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
@@ -435,7 +440,7 @@ export default function VoucherListSheetInUpdateOrder({
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -456,7 +461,7 @@ export default function VoucherListSheetInUpdateOrder({
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-3 justify-between w-full">
+        <div className="flex flex-col col-span-4 justify-between w-full">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -465,6 +470,10 @@ export default function VoucherListSheetInUpdateOrder({
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
                 {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
               </span>
             ) : (
               <span className="text-xs italic text-primary">
@@ -620,7 +629,7 @@ export default function VoucherListSheetInUpdateOrder({
               </PopoverContent>
             </Popover>
           )}
-          {(isVoucherSelected(voucher.slug) || isVoucherValid(voucher)) ? (
+          {isVoucherValid(voucher) ? (
             <Button
               onClick={() => handleToggleVoucher(voucher)}
               variant={
@@ -645,7 +654,7 @@ export default function VoucherListSheetInUpdateOrder({
                     ? t('voucher.outOfStock')
                     : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                       ? t('voucher.expired')
-                      : voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
+                      : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
                         ? t('voucher.minOrderNotMet')
                         : ''}
               </span>
