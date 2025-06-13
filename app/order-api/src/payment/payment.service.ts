@@ -57,6 +57,48 @@ export class PaymentService {
     private readonly userUtils: UserUtils,
   ) {}
 
+  async getAll() {
+    const payments = await this.paymentRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    return this.mapper.mapArray(payments, Payment, PaymentResponseDto);
+  }
+
+  async update(slug: string) {
+    const context = `${PaymentService.name}.${this.update.name}`;
+    const payment = await this.paymentRepository.findOne({
+      where: {
+        slug: slug ?? IsNull(),
+      },
+      relations: ['cardOrder'],
+    });
+
+    if (!payment)
+      throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
+
+    payment.statusCode = PaymentStatus.COMPLETED;
+    payment.message = Math.random().toString();
+
+    try {
+      await this.paymentRepository.save(payment);
+    } catch (error) {
+      this.logger.error(
+        `Error when updating payment: ${error.message}`,
+        error.stack,
+        context,
+      );
+      throw new PaymentException(PaymentValidation.ERROR_WHEN_UPDATE_PAYEMNT);
+    }
+
+    if (payment.cardOrder) {
+      this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
+        orderId: payment.cardOrder.id,
+      });
+    }
+  }
+
   async exportPayment(slug: string) {
     const context = `${PaymentService.name}.${this.exportPayment.name}`;
     const payment = await this.paymentRepository.findOne({
@@ -327,7 +369,7 @@ export class PaymentService {
       where: {
         transactionId: transaction.transactionEntityAttribute.traceNumber,
       },
-      relations: ['order'],
+      relations: ['order', 'cardOrder'],
     });
 
     this.logger.log(`Payment: ${JSON.stringify(payment)}`, context);
@@ -351,9 +393,16 @@ export class PaymentService {
     this.logger.log(`Payment ${updatedPayment.id}`, context);
 
     // Update order status
-    this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, {
-      orderId: payment.order?.id,
-    });
+    if (payment.order)
+      this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, {
+        orderId: payment.order?.id,
+      });
+
+    if (payment.cardOrder) {
+      this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
+        orderId: payment.cardOrder.id,
+      });
+    }
 
     // return data for acb
     const response = {

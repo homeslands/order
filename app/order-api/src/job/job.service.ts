@@ -15,6 +15,8 @@ import _ from 'lodash';
 import { Job } from './job.entity';
 import { JobStatus } from './job.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
+import { CardOrderStatus } from 'src/gift-card-modules/card-order/card-order.enum';
 
 @Injectable()
 export class JobService {
@@ -26,6 +28,8 @@ export class JobService {
     private readonly notificationUtils: NotificationUtils,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(CardOrder)
+    private readonly cardOrderRepository: Repository<CardOrder>,
     @InjectRepository(Job)
     private readonly jobRepository: Repository<Job>,
     private readonly transactionManagerService: TransactionManagerService,
@@ -120,5 +124,63 @@ export class JobService {
         context,
       );
     }
+  }
+
+  async updateCardOrderStatusAfterPaymentCompletion(payload: {
+    orderId: string;
+  }) {
+    const context = `${JobService.name}.${this.updateCardOrderStatusAfterPaymentCompletion.name}`;
+    this.logger.log(
+      `Update card order status after payment completion: ${JSON.stringify(payload)}`,
+      context,
+    );
+
+    const order = await this.cardOrderRepository.findOne({
+      where: {
+        id: payload.orderId,
+      },
+      relations: ['payment'],
+    });
+
+    if (!order) {
+      this.logger.log(`Card order ${payload.orderId} not found`, context);
+    }
+
+    if (order.status !== CardOrderStatus.PENDING) {
+      this.logger.log(`Card order ${order.id} is not pending`, context);
+      return;
+    }
+
+    if (order.payment?.statusCode === PaymentStatus.PENDING) {
+      this.logger.log(`Payment status is pending`, context);
+      return;
+    }
+
+    Object.assign(order, {
+      status:
+        order.payment?.statusCode === PaymentStatus.COMPLETED
+          ? CardOrderStatus.COMPLETED
+          : CardOrderStatus.FAIL,
+      paymentStatus: order.payment?.statusCode,
+    } as Partial<CardOrder>);
+
+    await this.transactionManagerService.execute<CardOrder>(
+      async (manager) => {
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Card order ${result.id} status ${result.status}`,
+          context,
+        );
+      },
+      (err) => {
+        this.logger.error(
+          `Error when updating card order status: ${err.message}`,
+          err.stack,
+          context,
+        );
+      },
+    );
   }
 }

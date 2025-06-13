@@ -1,6 +1,7 @@
 export enum CardOrderStatus {
   PENDING = 'pending',
-  COMPLETED = 'completed',
+  COMPLETED = 'completed', // payment success
+  FAIL = 'fail', // payment fail
   CANCELLED = 'cancelled',
 }
 
