@@ -46,7 +46,7 @@ export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) 
         <DialogTrigger asChild>
           <Button
             variant="ghost"
-            className="gap-1 px-2 text-sm"
+            className="flex gap-1 justify-start px-2 w-full text-sm transition-all duration-300 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />
@@ -58,12 +58,12 @@ export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b border-destructive text-destructive">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
               {t('voucher.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
+          <DialogDescription className={`p-2 bg-red-100 rounded-md dark:bg-transparent text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
@@ -74,7 +74,7 @@ export default function DeleteVoucherDialog({ voucher }: { voucher: IVoucher }) 
             {t('voucher.deleteVoucherConfirmation')}
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Receipt, DownloadIcon } from 'lucide-react'
+import { Receipt, DownloadIcon, Loader2 } from 'lucide-react'
 
 import {
   Button,
@@ -14,19 +14,24 @@ import {
 } from '@/components/ui'
 
 import { IOrder } from '@/types'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { PaymentStatusBadge } from '../badge'
 import { useExportOrderInvoice } from '@/hooks'
+import { VOUCHER_TYPE } from '@/constants'
 
 export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
   const { t } = useTranslation(['menu'])
   const { t: tToast } = useTranslation(['toast'])
+  const { t: tVoucher } = useTranslation('voucher')
   const [isOpen, setIsOpen] = useState(false)
-  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
+  const { mutate: exportOrderInvoice, isPending } = useExportOrderInvoice()
 
   if (!order) return null
 
   const { orderItems, payment, owner, subtotal, createdAt, voucher } = order
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
   const handleExportOrderInvoice = async (order: IOrder) => {
     exportOrderInvoice(order?.slug || '', {
@@ -97,12 +102,12 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderItems.map((item) => (
+                  {displayItems.map((item) => (
                     <tr key={item.slug} className="border-b">
                       <td className="p-2">{item.variant.product.name}</td>
                       <td className="p-2">{item.note}</td>
                       <td className="p-2 text-center">{item.quantity}</td>
-                      <td className="p-2 text-right">{formatCurrency(item.quantity * item.subtotal)}</td>
+                      <td className="p-2 text-right">{formatCurrency((item.finalPrice || 0) * item.quantity)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -121,7 +126,42 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
               <strong>{t('order.status')}:</strong>
               <PaymentStatusBadge status={payment?.statusCode} />
             </p>
-            {voucher && <p><strong>{t('order.voucher')}:</strong> {voucher?.title} - {t('order.discount')} {voucher.value}%</p>}
+            {order?.voucher && (
+              <div className="flex justify-start w-full">
+                <div className="flex flex-col items-start">
+                  <div className="flex gap-2 items-center mt-2">
+                    <span className="text-sm font-semibold">
+                      {t('order.usedVoucher')}:
+                    </span>
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                      -{`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
+                    </span>
+                  </div>
+
+                  {/* Hiển thị nội dung chi tiết theo loại voucher */}
+                  <div className="mt-1 text-xs italic text-muted-foreground">
+                    {(() => {
+                      const voucher = order?.voucher
+                      if (!voucher) return null
+
+                      switch (voucher.type) {
+                        case VOUCHER_TYPE.PERCENT_ORDER:
+                          return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+
+                        case VOUCHER_TYPE.FIXED_VALUE:
+                          return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+
+                        case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
+                          return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+
+                        default:
+                          return ''
+                      }
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
@@ -131,8 +171,8 @@ export default function ShowInvoiceDialog({ order }: { order: IOrder | null }) {
           <span className="text-lg font-bold text-primary">{formatCurrency(subtotal)}</span>
         </div>
         <DialogFooter className="px-4">
-          <Button className='w-full' onClick={() => handleExportOrderInvoice(order)}>
-            <DownloadIcon />
+          <Button className='w-full' onClick={() => handleExportOrderInvoice(order)} disabled={isPending}>
+            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadIcon />}
             {t('order.exportInvoice')}
           </Button>
         </DialogFooter>

@@ -42,3 +42,12 @@ export interface IRemoveAppliedPromotionRequest {
   applicableSlugs: string[]
   type: string
 }
+
+export interface IPromotionInOrder extends IBase {
+  title: string
+  description: string
+  startDate: string
+  endDate: string
+  type: string
+  value: number
+}

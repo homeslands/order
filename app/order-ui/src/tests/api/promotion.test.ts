@@ -6,8 +6,8 @@ import {
   createPromotion,
   updatePromotion,
   deletePromotion,
-  ApplyPromotion,
-  RemoveProductPromotion,
+  applyPromotion,
+  removeProductPromotion,
 } from '@/api'
 import { SERVER_ERROR } from '../constants'
 
@@ -38,7 +38,7 @@ describe('Promotion API', () => {
           ],
         },
       }
-        ; (http.get as Mock).mockResolvedValue(mockResponse)
+      ;(http.get as Mock).mockResolvedValue(mockResponse)
 
       const result = await getPromotions('branch-1')
       expect(http.get).toHaveBeenCalledWith('/promotion', {
@@ -48,7 +48,7 @@ describe('Promotion API', () => {
     })
 
     it('should handle server error', async () => {
-      ; (http.get as Mock).mockRejectedValue(SERVER_ERROR)
+      ;(http.get as Mock).mockRejectedValue(SERVER_ERROR)
       await expect(getPromotions('branch-1')).rejects.toEqual(SERVER_ERROR)
     })
   })
@@ -71,7 +71,7 @@ describe('Promotion API', () => {
           ...promotionData,
         },
       }
-        ; (http.post as Mock).mockResolvedValue(mockResponse)
+      ;(http.post as Mock).mockResolvedValue(mockResponse)
 
       const result = await createPromotion(promotionData)
       expect(http.post).toHaveBeenCalledWith(
@@ -88,7 +88,7 @@ describe('Promotion API', () => {
           data: { message: 'Invalid promotion data' },
         },
       }
-        ; (http.post as Mock).mockRejectedValue(mockError)
+      ;(http.post as Mock).mockRejectedValue(mockError)
       await expect(createPromotion(promotionData)).rejects.toEqual(mockError)
     })
   })
@@ -110,7 +110,7 @@ describe('Promotion API', () => {
           ...updateData,
         },
       }
-        ; (http.patch as Mock).mockResolvedValue(mockResponse)
+      ;(http.patch as Mock).mockResolvedValue(mockResponse)
 
       const result = await updatePromotion(updateData)
       expect(http.patch).toHaveBeenCalledWith('/promotion/promo-1', updateData)
@@ -124,7 +124,7 @@ describe('Promotion API', () => {
           data: { message: 'Promotion not found' },
         },
       }
-        ; (http.patch as Mock).mockRejectedValue(mockError)
+      ;(http.patch as Mock).mockRejectedValue(mockError)
       await expect(updatePromotion(updateData)).rejects.toEqual(mockError)
     })
   })
@@ -134,7 +134,7 @@ describe('Promotion API', () => {
       const mockResponse = {
         data: null,
       }
-        ; (http.delete as Mock).mockResolvedValue(mockResponse)
+      ;(http.delete as Mock).mockResolvedValue(mockResponse)
 
       const result = await deletePromotion('promo-1')
       expect(http.delete).toHaveBeenCalledWith('/promotion/promo-1')
@@ -142,7 +142,7 @@ describe('Promotion API', () => {
     })
 
     it('should handle deletion error', async () => {
-      ; (http.delete as Mock).mockRejectedValue(SERVER_ERROR)
+      ;(http.delete as Mock).mockRejectedValue(SERVER_ERROR)
       await expect(deletePromotion('promo-1')).rejects.toEqual(SERVER_ERROR)
     })
   })
@@ -159,9 +159,9 @@ describe('Promotion API', () => {
       const mockResponse = {
         data: null,
       }
-        ; (http.post as Mock).mockResolvedValue(mockResponse)
+      ;(http.post as Mock).mockResolvedValue(mockResponse)
 
-      const result = await ApplyPromotion(applyData)
+      const result = await applyPromotion(applyData)
       expect(http.post).toHaveBeenCalledWith(
         '/applicable-promotion/multi',
         applyData,
@@ -170,8 +170,8 @@ describe('Promotion API', () => {
     })
 
     it('should handle application error', async () => {
-      ; (http.post as Mock).mockRejectedValue(SERVER_ERROR)
-      await expect(ApplyPromotion(applyData)).rejects.toEqual(SERVER_ERROR)
+      ;(http.post as Mock).mockRejectedValue(SERVER_ERROR)
+      await expect(applyPromotion(applyData)).rejects.toEqual(SERVER_ERROR)
     })
   })
 
@@ -185,20 +185,20 @@ describe('Promotion API', () => {
       const mockResponse = {
         data: null,
       }
-        ; (http.delete as Mock).mockResolvedValue(mockResponse)
+      ;(http.delete as Mock).mockResolvedValue(mockResponse)
 
-      const result = await RemoveProductPromotion(applyData)
-      expect(http.delete).toHaveBeenCalledWith(
-        '/applicable-promotion/', { data: applyData },
-      )
+      const result = await removeProductPromotion(applyData)
+      expect(http.delete).toHaveBeenCalledWith('/applicable-promotion/', {
+        data: applyData,
+      })
       expect(result).toEqual(mockResponse.data)
     })
 
     it('should handle removal error', async () => {
-      ; (http.delete as Mock).mockRejectedValue(SERVER_ERROR)
-      await expect(
-        RemoveProductPromotion(applyData),
-      ).rejects.toEqual(SERVER_ERROR)
+      ;(http.delete as Mock).mockRejectedValue(SERVER_ERROR)
+      await expect(removeProductPromotion(applyData)).rejects.toEqual(
+        SERVER_ERROR,
+      )
     })
   })
 })
