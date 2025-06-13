@@ -232,9 +232,63 @@ export class VoucherUtils {
 
   async validateVoucherProductForDeleteOrderItem(
     voucher: Voucher,
-    variant: string,
+    variants: string[],
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateVoucherProductForDeleteOrderItem.name}`;
+    const productSlugs: string[] = [];
+    for (const variant of variants) {
+      const product = await this.productUtils.getProduct({
+        where: { variants: { slug: variant } },
+      });
+      productSlugs.push(product.slug);
+    }
+    switch (voucher.type) {
+      case VoucherType.SAME_PRICE_PRODUCT:
+        const voucherProducts = await this.voucherProductRepository.find({
+          where: {
+            product: {
+              slug: In(productSlugs),
+            },
+            voucher: {
+              slug: voucher.slug,
+            },
+          },
+        });
+
+        if (_.size(voucherProducts) < 1) {
+          this.logger.warn(
+            `Product not applied to voucher ${voucher.slug}`,
+            context,
+          );
+          return false;
+        }
+        return true;
+      case VoucherType.PERCENT_ORDER:
+      case VoucherType.FIXED_VALUE:
+        for (const productSlug of productSlugs) {
+          const voucherProduct = voucher?.voucherProducts.find(
+            (voucherProduct) => voucherProduct.product.slug === productSlug,
+          );
+          if (!voucherProduct) {
+            this.logger.warn(
+              `Product ${productSlug} not applied to voucher ${voucher.slug}`,
+              context,
+            );
+            return false;
+          }
+        }
+        return true;
+      default:
+        this.logger.warn(`Invalid voucher type ${voucher.slug}`, context);
+        return false;
+    }
+  }
+
+  async validateVoucherProductForCreateOrderItem(
+    voucher: Voucher,
+    variant: string,
+  ): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateVoucherProductForCreateOrderItem.name}`;
 
     const product = await this.productUtils.getProduct({
       where: { variants: { slug: variant } },
