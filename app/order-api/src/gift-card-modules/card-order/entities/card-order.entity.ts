@@ -50,6 +50,10 @@ export class CardOrder extends Base {
   @AutoMap()
   cardId: string;
 
+  @Column({ name: 'card_slug_column' })
+  @AutoMap()
+  cardSlug: string;
+
   @Column({ name: 'card_title_column' })
   @AutoMap()
   cardTitle: string;
