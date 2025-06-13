@@ -49,3 +49,23 @@ export async function createCardOrder(
   const response = await http.post('/card-order', data)
   return response.data
 }
+
+export async function getCardOrder(
+  slug: string,
+): Promise<IApiResponse<ICardOrderResponse>> {
+  const response = await http.get(`/card-order/${slug}`)
+  return response.data
+}
+
+export async function cancelCardOrder(slug: string): Promise<void> {
+  await http.post(`/card-order/${slug}/cancel`)
+}
+
+export async function initiateCardOrderPayment(
+  slug: string,
+): Promise<IApiResponse<ICardOrderResponse>> {
+  const response = await http.post(`/card-order/payment/initiate`, {
+    cardorderSlug: slug,
+  })
+  return response.data
+}
