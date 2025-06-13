@@ -38,7 +38,7 @@ export class CardOrderService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
     private readonly bankTransferStrategy: BankTransferStrategy,
-  ) {}
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -125,6 +125,7 @@ export class CardOrderService {
     });
 
     if (!card) {
+      this.logger.log(`Card not found`, context);
       throw new CardException(CardValidation.CARD_NOT_FOUND);
     }
 
