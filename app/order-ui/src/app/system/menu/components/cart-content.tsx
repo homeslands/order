@@ -97,7 +97,7 @@ export function CartContent() {
       {/* Header */}
       <div className="flex flex-col gap-2 p-2 backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex items-center'>
-          {cartItems?.orderItems && cartItems?.orderItems?.length > 0 && (
+          {cartItems?.orderItems && cartItems?.orderItems?.length > 0 && cartItems?.ownerFullName === '' && cartItems?.ownerPhoneNumber === '' && (
             <CreateCustomerDialog />
           )}
         </div>

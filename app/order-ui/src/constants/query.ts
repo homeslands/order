@@ -5,6 +5,7 @@ export const QUERYKEY = {
   productVariants: ['productVariants'],
   products: ['products'],
   giftCards: ['giftCards'],
+  cardOrder: ['cardOrder'],
   vouchers: ['vouchers'],
   voucherGroups: ['voucherGroups'],
   vouchersForOrder: ['vouchersForOrder'],
