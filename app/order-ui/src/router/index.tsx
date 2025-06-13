@@ -61,6 +61,7 @@ import {
   GiftCardPage,
   ClientGiftCardPage,
   ClientGiftCardCheckoutPage,
+  ClientGiftCardCheckoutWithSlugPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -1043,6 +1044,22 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={ClientGiftCardCheckoutPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.CLIENT_GIFT_CARD_CHECKOUT_WITH_SLUG,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={ClientLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <SuspenseElement component={ClientGiftCardCheckoutWithSlugPage} />
+            ),
           },
         ],
       },

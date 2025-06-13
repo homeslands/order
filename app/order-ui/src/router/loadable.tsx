@@ -396,3 +396,10 @@ export const ClientGiftCardCheckoutPage = React.lazy(() =>
     default: module.GiftCardCheckoutPage,
   })),
 )
+
+//Client Gift card checkout with slug page
+export const ClientGiftCardCheckoutWithSlugPage = React.lazy(() =>
+  import('@/app/client/gift-card/checkout/[slug]').then((module) => ({
+    default: module.GiftCardCheckoutPageBySlug,
+  })),
+)
