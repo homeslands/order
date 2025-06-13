@@ -11,6 +11,8 @@ export const ROLE_NOT_ALLOWED_TO_INITIATE_PAYMENT =
 export const CUSTOMER_ONLY_USE_BANK_TRANSFER =
   'CUSTOMER_ONLY_USE_BANK_TRANSFER';
 export const ORDER_ALREADY_HAS_PAYMENT = 'ORDER_ALREADY_HAS_PAYMENT';
+export const ERROR_WHEN_UPDATE_PAYEMNT = 'ERROR_WHEN_UPDATE_PAYEMNT';
+
 export type TPaymentErrorCodeKey =
   | typeof PAYMENT_QUERY_INVALID
   | typeof PAYMENT_NOT_FOUND
@@ -20,7 +22,8 @@ export type TPaymentErrorCodeKey =
   | typeof INITIATE_PUBLIC_PAYMENT_DENIED
   | typeof ROLE_NOT_ALLOWED_TO_INITIATE_PAYMENT
   | typeof CUSTOMER_ONLY_USE_BANK_TRANSFER
-  | typeof ORDER_ALREADY_HAS_PAYMENT;
+  | typeof ORDER_ALREADY_HAS_PAYMENT
+  | typeof ERROR_WHEN_UPDATE_PAYEMNT;
 
 export type TPaymentErrorCode = Record<TPaymentErrorCodeKey, TErrorCodeValue>;
 
@@ -49,5 +52,9 @@ export const PaymentValidation: TPaymentErrorCode = {
   ORDER_ALREADY_HAS_PAYMENT: createErrorCode(
     123008,
     'Order already has a payment',
+  ),
+  ERROR_WHEN_UPDATE_PAYEMNT: createErrorCode(
+    123009,
+    'Error when updating the payment',
   ),
 };
