@@ -21,7 +21,7 @@ export const updateGiftCardSchema = z.object({
 })
 
 export const receiverSchema = z.object({
-  recipientSlug: z.string().min(1),
+  recipientSlug: z.string().min(10),
   quantity: z.coerce.number().min(1).max(100),
   message: z.string().optional(),
 })

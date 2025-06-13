@@ -18,7 +18,7 @@ export default function ProductTab() {
     page,
     size,
     hasPaging: true,
-  })
+  }, !!pagination.pageIndex)
   const [, setProductName] = useState<string>('')
 
   // add page size to query params

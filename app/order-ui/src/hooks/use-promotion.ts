@@ -1,9 +1,9 @@
 import {
-  ApplyPromotion,
+  applyPromotion,
   createPromotion,
   deletePromotion,
   getPromotions,
-  RemoveProductPromotion,
+  removeProductPromotion,
   updatePromotion,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
@@ -50,7 +50,7 @@ export const useDeletePromotion = () => {
 export const useApplyPromotion = () => {
   return useMutation({
     mutationFn: async (data: IApplyPromotionRequest) => {
-      return ApplyPromotion(data)
+      return applyPromotion(data)
     },
   })
 }
@@ -58,7 +58,7 @@ export const useApplyPromotion = () => {
 export const useRemoveAppliedPromotion = () => {
   return useMutation({
     mutationFn: async (data: IRemoveAppliedPromotionRequest) => {
-      return RemoveProductPromotion(data)
+      return removeProductPromotion(data)
     },
   })
 }

@@ -19,6 +19,7 @@ import {
   IUpdateOrderTypeRequest,
   IUpdateOrderItemRequest,
   IUpdateNoteRequest,
+  IOrderItemsParam,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 
@@ -238,10 +239,11 @@ export async function deleteOrderItem(
 export async function updateVoucherInOrder(
   slug: string,
   voucher: string | null, // voucher: null for remove voucher
+  orderItems: IOrderItemsParam[],
 ): Promise<IApiResponse<IOrder>> {
   const response = await http.patch<IApiResponse<IOrder>>(
     `/orders/${slug}/voucher`,
-    { voucher },
+    { voucher, orderItems },
   )
   return response.data
 }

@@ -32,7 +32,9 @@ export default function DeleteAllCartDialog() {
       <DialogTrigger asChild>
         <Button variant="destructive">
           <Trash2 size={20} />
-          {t('order.deleteAll')}
+          <span className="hidden lg:block">
+            {t('order.deleteAll')}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">

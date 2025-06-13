@@ -362,15 +362,45 @@ export class OrderItemService {
         // validate voucher
         const voucher: Voucher = order.voucher;
         if (voucher) {
-          const isVoucherValid =
-            await this.voucherUtils.validateMinOrderValueForUpdateOrderItem(
+          // Before, check voucher product
+          const isVoucherProductValid =
+            await this.voucherUtils.validateVoucherProductForDeleteOrderItem(
               voucher,
-              order,
+              order.orderItems.map((item) => item.variant.slug),
             );
-          if (!isVoucherValid) {
-            if (!_.isEmpty(order.orderItems)) {
-              voucher.remainingUsage += 1;
-              order.voucher = null;
+
+          if (!isVoucherProductValid) {
+            // Remove voucher from order
+            order.voucher.remainingUsage += 1;
+            order.voucher = null;
+
+            const updatedOrderItems = order.orderItems.map((orderItem) => {
+              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+                null,
+                orderItem,
+                false, // is add voucher
+              );
+              return updatedOrderItem;
+            });
+            order.orderItems = updatedOrderItems;
+
+            const { subtotal } = await this.orderUtils.getOrderSubtotal(
+              order,
+              null,
+            );
+            order.subtotal = subtotal;
+          } else {
+            // After, check voucher min value
+            const isVoucherMinValueValid =
+              await this.voucherUtils.validateMinOrderValueForUpdateOrderItem(
+                voucher,
+                order,
+              );
+            if (!isVoucherMinValueValid) {
+              if (!_.isEmpty(order.orderItems)) {
+                voucher.remainingUsage += 1;
+                order.voucher = null;
+              }
             }
           }
         }
@@ -419,10 +449,37 @@ export class OrderItemService {
       },
     });
 
+    let updatedVoucher: Voucher = null;
+
     if (order.voucher) {
-      await this.voucherUtils.validateVoucherProduct(order.voucher, [
-        requestData.variant,
-      ]);
+      const isVoucherValid =
+        await this.voucherUtils.validateVoucherProductForCreateOrderItem(
+          order.voucher,
+          requestData.variant,
+        );
+
+      if (!isVoucherValid) {
+        // Remove voucher from order
+        order.voucher.remainingUsage += 1;
+        updatedVoucher = order.voucher;
+        order.voucher = null;
+
+        const updatedOrderItems = order.orderItems.map((orderItem) => {
+          const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+            null,
+            orderItem,
+            false, // is add voucher
+          );
+          return updatedOrderItem;
+        });
+        order.orderItems = updatedOrderItems;
+
+        const { subtotal } = await this.orderUtils.getOrderSubtotal(
+          order,
+          null,
+        );
+        order.subtotal = subtotal;
+      }
     }
 
     if (requestData.quantity === Infinity) {
@@ -518,6 +575,10 @@ export class OrderItemService {
 
           // Update order
           await manager.save(order);
+
+          if (updatedVoucher) {
+            await manager.save(updatedVoucher);
+          }
 
           return created;
         },

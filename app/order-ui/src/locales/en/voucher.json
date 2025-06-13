@@ -53,6 +53,10 @@
     "minOrderNotMet": "Minimum order value not met",
     "expired": "Voucher has expired",
     "noVoucher": "No voucher available",
-    "needVerifyIdentity": "Please register as a member to use the voucher"
+    "needVerifyIdentity": "Please register as a member to use the voucher",
+    "exportVouchers": "Export Vouchers",
+    "confirmExportVouchers": "Are you sure you want to export this voucher?",
+    "applyVoucher": "Apply Voucher",
+    "confirmApplyVoucher": "Are you sure you want to apply this voucher?"
   }
 }

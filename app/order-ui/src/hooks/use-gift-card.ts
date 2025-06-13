@@ -12,6 +12,9 @@ import {
   updateGiftCard,
   deleteGiftCard,
   createCardOrder,
+  getCardOrder,
+  cancelCardOrder,
+  initiateCardOrderPayment,
 } from '@/api'
 
 export const useGetGiftCards = (params: IGetGiftCardsRequest) => {
@@ -55,6 +58,30 @@ export const useCreateCardOrder = () => {
   return useMutation({
     mutationFn: async (data: ICardOrderRequest) => {
       return createCardOrder(data)
+    },
+  })
+}
+
+export const useGetCardOrder = (slug: string) => {
+  return useQuery({
+    queryKey: [QUERYKEY.cardOrder, slug],
+    queryFn: () => getCardOrder(slug),
+    enabled: !!slug,
+  })
+}
+
+export const useCancelCardOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return cancelCardOrder(slug)
+    },
+  })
+}
+
+export const useInitiateCardOrderPayment = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return initiateCardOrderPayment(slug)
     },
   })
 }

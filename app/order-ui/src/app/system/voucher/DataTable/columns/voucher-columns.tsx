@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
-import { UpdateVoucherSheet } from '@/components/app/sheet'
+import { ApplyVoucherSheet, RemoveAppliedVoucherSheet, UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
 import { VOUCHER_TYPE } from '@/constants'
 
@@ -107,7 +107,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : t('voucher.percentOrder')}</div>
+        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? t('voucher.percentOrder') : t('voucher.samePriceProduct')}</div>
       },
     },
     {
@@ -199,7 +199,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       cell: ({ row }) => {
         const voucher = row.original
         return <div className="text-xs sm:text-sm">
-          {voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? formatCurrency(voucher?.value) : `${voucher?.value}%`}
+          {voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? formatCurrency(voucher?.value) : voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? `${voucher?.value}%` : formatCurrency(voucher?.value)}
         </div>
       },
     },
@@ -243,7 +243,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       cell: ({ row }) => {
         const voucher = row.original
         return (
-          <div className='w-[4rem]'>
+          <div className='max-w-[1rem]'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="p-0 w-8 h-8">
@@ -255,6 +255,8 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
+                <ApplyVoucherSheet voucher={voucher} />
+                <RemoveAppliedVoucherSheet voucher={voucher} />
                 <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
                 <DeleteVoucherDialog voucher={voucher} />
               </DropdownMenuContent>

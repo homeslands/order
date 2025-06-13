@@ -18,7 +18,7 @@ export function BottomBar() {
         <NavLink
           to={ROUTE.HOME}
           className={cn(
-            'inline-flex flex-col items-center justify-center gap-1 rounded-md px-5',
+            'inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5',
             location.pathname === ROUTE.CLIENT_HOME && 'text-primary',
           )}
         >
@@ -29,7 +29,7 @@ export function BottomBar() {
         <NavLink
           to={ROUTE.CLIENT_MENU}
           className={cn(
-            'inline-flex flex-col items-center justify-center gap-1 rounded-md px-5',
+            'inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5',
             location.pathname.includes(ROUTE.CLIENT_MENU) && 'text-primary',
           )}
         >
@@ -56,7 +56,7 @@ export function BottomBar() {
         userInfo?.role?.name === Role.CUSTOMER ? (
           <NavLink
             to={`${ROUTE.CLIENT_PROFILE}?tab=history`}
-            className={`relative inline-flex flex-col items-center justify-center gap-1 rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_PROFILE}`) && location.search.includes('order') ? 'text-primary' : ''}`}
+            className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_PROFILE}`) && location.search.includes('order') ? 'text-primary' : ''}`}
           >
             <ShoppingBag className="h-5 w-5" />
             <span className="text-[0.5rem]">{t('bottombar.order')}</span>
@@ -73,7 +73,7 @@ export function BottomBar() {
         {/* Cart */}
         <NavLink
           to={ROUTE.CLIENT_CART}
-          className={`relative inline-flex flex-col items-center justify-center gap-1 rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_CART}`) ? 'text-primary' : ''} ${getCartItems()?.orderItems?.length ? 'bg-primary/10 text-primary' : ''}`}
+          className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_CART}`) ? 'text-primary' : ''} ${getCartItems()?.orderItems?.length ? 'bg-primary/10 text-primary' : ''}`}
         >
           <ShoppingCart className="h-5 w-5" />
           <span className="text-[0.5rem]">{t('bottombar.cart')}</span>
