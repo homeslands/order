@@ -61,21 +61,32 @@ export default function StaffVoucherListSheet() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
+  // let subTotal = 0
   // calculate subtotal
-  const subTotal = cartItems?.orderItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  ) || 0
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  // const subTotal = cartItems?.orderItems.reduce(
+  //   (acc, item) => acc + item.price * item.quantity,
+  //   0,
+  // ) || 0
 
   // calculate discount base on voucher type, voucher value and subtotal
-  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-    ? subTotal * cartItems?.voucher?.value / 100
-    : cartItems?.voucher?.value
+  // const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
+  //   ? subTotal * cartItems?.voucher?.value / 100
+  //   : cartItems?.voucher?.value
 
   const isCustomerOwner =
     sheetOpen &&
     !!cartItems?.owner && // Check khác null, undefined, ""
     cartItems.ownerRole === Role.CUSTOMER;
+
+  // const { cartWithVoucher, itemLevelDiscount } = useMemo(() => {
+  //   const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(cartItems)
+  //   const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
+
+  //   return { cartWithVoucher, itemLevelDiscount, calculations }
+  // }, [
+  //   cartItems,
+  // ])
 
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner
@@ -168,8 +179,17 @@ export default function StaffVoucherListSheet() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
+    // if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
+    //   const { cart: tempCart } = applyVoucherToCart(cartItems)
+    //   const tempCalculations = calculateCartTotals(tempCart, 0)
+    //   subTotal = tempCalculations.subTotalAfterPromotion
+    // }
+
+    const isValidAmount =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+        ? true
+        : (voucher?.minOrderValue || 0) <= subTotal
     const isActive = voucher.isActive
-    const isValidAmount = voucher.minOrderValue <= subTotal
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
     const requiresLogin = voucher.isVerificationIdentity === true
@@ -230,6 +250,7 @@ export default function StaffVoucherListSheet() {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
           user: cartItems.owner || '',
+          orderItems: cartItems?.orderItems || []
         }
 
         if (voucher.isVerificationIdentity && !cartItems.owner) {
@@ -316,7 +337,7 @@ export default function StaffVoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -341,7 +362,7 @@ export default function StaffVoucherListSheet() {
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-3 justify-between w-full">
+        <div className="flex flex-col col-span-4 justify-between w-full">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -350,6 +371,10 @@ export default function StaffVoucherListSheet() {
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
                 {voucher.value}% {t('voucher.orderValue')}
+              </span>
+            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
               </span>
             ) : (
               <span className="text-xs italic text-primary">
@@ -536,7 +561,7 @@ export default function StaffVoucherListSheet() {
               <span className="text-xs text-destructive">
                 {voucher.isVerificationIdentity && !isCustomerOwner
                   ? t('voucher.needVerifyIdentity')
-                  : voucher.minOrderValue > subTotal
+                  : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
                   && t('voucher.minOrderNotMet')}
               </span>
             </div>
@@ -550,14 +575,21 @@ export default function StaffVoucherListSheet() {
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" className="px-0 mt-3 w-full bg-primary/15 hover:bg-primary/20">
-          <div className="flex gap-3 justify-between items-center p-2 w-full rounded-md cursor-pointer">
+          <div className="flex gap-3 items-center p-2 w-full rounded-md cursor-pointer">
             <div className="flex gap-1 items-center">
               <TicketPercent className="icon text-primary" />
               <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
               </span>
             </div>
-            {cartItems?.voucher && (
+            {/* {cartItems?.voucher && (
+              <div className="flex justify-start w-full">
+                <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
+                  -{`${formatCurrency(cartItems?.voucher?.value || 0)}`}
+                </span>
+              </div>
+            )} */}
+            {/* {cartItems?.voucher && (
               <div className="flex justify-start w-full">
                 <div className="flex gap-2 items-center w-full">
                   <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
@@ -565,7 +597,7 @@ export default function StaffVoucherListSheet() {
                   </span>
                 </div>
               </div>
-            )}
+            )} */}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

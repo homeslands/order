@@ -16,6 +16,7 @@ import {
 import { IOrderItem } from '@/types'
 import { useCartItemStore } from '@/stores'
 import { showErrorToast } from '@/utils'
+import { VOUCHER_TYPE } from '@/constants'
 
 interface DialogDeleteCartItemProps {
   cartItem: IOrderItem
@@ -37,9 +38,19 @@ export default function DeleteCartItemDialog({
   // use useEffect to check if subtotal is less than minOrderValue of voucher
   useEffect(() => {
     if (cartItems) {
-      const subtotal = cartItems.orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-      const voucher = cartItems.voucher
-      if (subtotal < (voucher?.minOrderValue || 0)) {
+      const { orderItems, voucher } = cartItems
+
+      // Tính tổng tiền GỐC (chỉ trừ promotion nếu có, KHÔNG trừ voucher)
+      const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+        const original = item.originalPrice ?? item.price
+        const promotionDiscount = item.promotionDiscount ?? 0
+        return acc + ((original ?? 0) - promotionDiscount) * item.quantity
+      }, 0)
+
+      // Nếu không phải SAME_PRICE_PRODUCT thì mới cần check
+      const shouldCheckMinOrderValue = voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT
+
+      if (shouldCheckMinOrderValue && subtotalBeforeVoucher < (voucher?.minOrderValue || 0)) {
         removeVoucher()
         showErrorToast(1004)
         setIsOpen(false)

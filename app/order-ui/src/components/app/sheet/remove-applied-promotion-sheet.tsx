@@ -40,7 +40,7 @@ export default function RemoveAppliedPromotionSheet({
     page: sheetPagination.pageIndex,
     size: sheetPagination.pageSize,
     hasPaging: true,
-  })
+  }, !sheetOpen)
 
   const productsData = products?.result.items
   const handleClick = (e: React.MouseEvent) => {

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -18,10 +19,9 @@ import {
 
 import { ICartItem, ICreateOrderRequest, OrderTypeEnum } from '@/types'
 import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
-import { Role, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { Role, ROUTE } from '@/constants'
 import { useCartItemStore, useUserStore, useBranchStore } from '@/stores'
-import _ from 'lodash'
 
 interface IPlaceOrderDialogProps {
   onSuccess?: () => void
@@ -42,6 +42,13 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
   const { branch } = useBranchStore()
 
   const order = getCartItems()
+
+  const displayItems = calculateCartItemDisplay(
+    order,
+    order?.voucher || null
+  )
+
+  const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
 
   const handleSubmit = (order: ICartItem) => {
     if (!order) return
@@ -64,15 +71,18 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       branch: selectedBranch,
       owner: order.owner || getUserInfo()?.slug || '',
       approvalBy: getUserInfo()?.slug || '',
-      orderItems: order.orderItems.map((orderItem) => ({
-        quantity: orderItem.quantity,
-        variant: orderItem.variant,
-        ...(orderItem.promotion && { promotion: orderItem.promotion }),
-        note: orderItem.note || '',
-      })),
+      orderItems: order.orderItems.map((orderItem) => {
+        return {
+          quantity: orderItem.quantity,
+          variant: orderItem.variant,
+          promotion: orderItem.promotion || null, // luôn có field promotion
+          note: orderItem.note || '',
+        }
+      }),
       voucher: order.voucher?.slug || null,
       description: order.description || '',
     }
+
 
     // Call API to create order
     if (userInfo) {
@@ -105,14 +115,14 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       })
     }
   }
-  const cartItems = getCartItems()
+  // const cartItems = getCartItems()
 
-  const subTotal = _.sumBy(
-    cartItems?.orderItems,
-    (item) => item.price * item.quantity,
-  )
-  const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? (subTotal * (cartItems?.voucher?.value || 0)) / 100 : cartItems?.voucher?.value || 0
-  const totalAfterDiscount = subTotal - discount
+  // const subTotal = _.sumBy(
+  //   cartItems?.orderItems,
+  //   (item) => item.price * item.quantity,
+  // )
+  // const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? (subTotal * (cartItems?.voucher?.value || 0)) / 100 : cartItems?.voucher?.value || 0
+  // const totalAfterDiscount = subTotal - discount
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -207,9 +217,31 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">{formatCurrency(item.price)}</p>
-                </div>
+                {(() => {
+                  const finalPrice = (displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity
+                  const original = (item.originalPrice ?? item.price ?? 0) * item.quantity
+
+                  const hasDiscount = original > finalPrice
+
+                  return (
+                    <div className="flex relative gap-1 items-center">
+                      {hasDiscount ? (
+                        <>
+                          <span className="mr-1 line-through text-muted-foreground/70">
+                            {formatCurrency(original)}
+                          </span>
+                          <span className="font-bold text-primary">
+                            {formatCurrency(finalPrice)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-bold text-primary">
+                          {formatCurrency(finalPrice)}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             ))}
           </div>
@@ -219,20 +251,30 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           <div className="flex flex-col gap-1 justify-start items-start w-full">
             <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
               {t('order.subtotal')}:&nbsp;
-              <span>{`${formatCurrency(subTotal)}`}</span>
+              <span>{`${formatCurrency(cartTotals.subTotalBeforeDiscount)}`}</span>
             </div>
+            {cartTotals.promotionDiscount > 0 && (
+              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+                <span className="italic text-yellow-600">
+                  {t('order.promotionDiscount')}:&nbsp;
+                </span>
+                <span className="italic text-yellow-600">
+                  -{`${formatCurrency(cartTotals.promotionDiscount)}`}
+                </span>
+              </div>
+            )}
             <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
               <span className="italic text-green-500">
                 {t('order.voucher')}:&nbsp;
               </span>
               <span className="italic text-green-500">
-                -{`${formatCurrency(discount)}`}
+                -{`${formatCurrency(cartTotals.voucherDiscount)}`}
               </span>
             </div>
             <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
-                {`${formatCurrency(totalAfterDiscount)}`}
+                {`${formatCurrency(cartTotals.finalTotal)}`}
               </span>
             </div>
             <div className='flex flex-row gap-2 justify-end mt-4 w-full'>
