@@ -30,7 +30,6 @@ export function CartContent() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
-
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
     if (cartItems?.voucher && cartItems.voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
@@ -152,7 +151,7 @@ export function CartContent() {
                         <span className="text-[13px] xl:text-sm font-semibold truncate max-w-[9rem] xl:max-w-[15rem]">{item.name}</span>
                       </div>
                       <span className="text-[14px]">
-                        {`${formatCurrency(displayItems.find(di => di.slug === item.slug)?.finalPrice || 0)}`}
+                        {`${formatCurrency((displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity)}`}
                       </span>
                     </div>
                     <div className='flex justify-between items-center'>

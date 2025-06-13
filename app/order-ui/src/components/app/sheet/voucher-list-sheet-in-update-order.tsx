@@ -42,7 +42,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IOrder,
   IValidateVoucherRequest,
@@ -76,19 +76,21 @@ export default function VoucherListSheetInUpdateOrder({
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
-  const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
-    const price = item.variant.price;
-    const quantity = item.quantity;
-    const discount = item.promotion ? item.promotion.value : 0;
+  const orderItems = defaultValue?.orderItems || []
+  const voucher = defaultValue?.voucher || null
 
-    const itemTotal = price * quantity * (1 - discount / 100);
-    return acc + itemTotal;
-  }, 0) || 0;
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
 
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-  const voucherValue = defaultValue?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-    ? (defaultValue?.voucher?.value || 0) / 100 * subTotal
-    : defaultValue?.voucher?.value || 0
+  // const subTotal = defaultValue?.orderItems.reduce((acc, item) => {
+  //   const price = item.variant.price;
+  //   const quantity = item.quantity;
+  //   const discount = item.promotion ? item.promotion.value : 0;
+
+  //   const itemTotal = price * quantity * (1 - discount / 100);
+  //   return acc + itemTotal;
+  // }, 0) || 0;
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -106,15 +108,6 @@ export default function VoucherListSheetInUpdateOrder({
       }
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
-
-  // const owner = defaultValue?.owner;
-
-  // const isNotCustomer = owner?.role?.name !== Role.CUSTOMER;
-  // const isDefaultCustomer =
-  //   owner?.role?.name === Role.CUSTOMER &&
-  //   owner?.phonenumber === 'default-customer';
-
-  // const isLoggedInNormalCustomer = userInfo && !isDefaultCustomer;
 
   const isCustomerOwner =
     sheetOpen &&
@@ -303,11 +296,19 @@ export default function VoucherListSheetInUpdateOrder({
       setAppliedVoucher('')
     }
 
+    const orderItemsParam = orderItems.map(item => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      note: item.note,
+      promotion: item.promotion?.slug || null,
+      order: defaultValue?.slug || null
+    }))
+
     // Nếu đang bỏ chọn
     if (isSelected) {
       if (defaultValue) {
         updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: null },
+          { slug: defaultValue.slug, voucher: null, orderItems: orderItemsParam },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -328,13 +329,13 @@ export default function VoucherListSheetInUpdateOrder({
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
       user: userInfo?.slug || '',
-      orderItems: cartItems?.orderItems || []
+      orderItems: orderItemsParam || []
     }
 
     const onValidated = () => {
       if (defaultValue) {
         updateVoucherInOrder(
-          { slug: defaultValue.slug, voucher: voucher.slug },
+          { slug: defaultValue.slug, voucher: voucher.slug, orderItems: orderItemsParam },
           {
             onSuccess: () => {
               if (userInfo) {
@@ -422,7 +423,7 @@ export default function VoucherListSheetInUpdateOrder({
 
 
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= subTotal
+    const isValidAmount = voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0 - (cartTotals?.promotionDiscount || 0))
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
@@ -644,7 +645,7 @@ export default function VoucherListSheetInUpdateOrder({
                     ? t('voucher.outOfStock')
                     : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                       ? t('voucher.expired')
-                      : voucher.minOrderValue > subTotal
+                      : voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
                         ? t('voucher.minOrderNotMet')
                         : ''}
               </span>
@@ -666,15 +667,6 @@ export default function VoucherListSheetInUpdateOrder({
                 {t('voucher.useVoucher')}
               </span>
             </div>
-            {defaultValue?.voucher && (
-              <div className="flex justify-start w-full">
-                <div className="flex gap-2 items-center w-full">
-                  <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-primary/60">
-                    -{`${formatCurrency(voucherValue)}`}
-                  </span>
-                </div>
-              </div>
-            )}
             <div>
               <ChevronRight className="icon text-muted-foreground" />
             </div>

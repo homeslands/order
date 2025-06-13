@@ -197,8 +197,6 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                     </span>
                   </div>
                 </div>
-
-
                 {/* Order button */}
                 <div className='flex gap-4 justify-end mt-2 w-full h-24'>
                   <div className='grid grid-cols-2 gap-2 items-center w-full h-fit'>

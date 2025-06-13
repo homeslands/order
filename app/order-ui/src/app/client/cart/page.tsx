@@ -32,14 +32,11 @@ export default function ClientCartPage() {
 
   // Không dùng state nữa, tính toán trực tiếp trong render để tránh stale state
   const currentCartItems = getCartItems()
-  // console.log('currentCartItems', currentCartItems)
 
   const displayItems = calculateCartItemDisplay(
     currentCartItems,
     currentCartItems?.voucher || null
   )
-
-  // console.log('displayItems', displayItems)
 
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
 
@@ -183,35 +180,42 @@ export default function ClientCartPage() {
                                 const original = item.originalPrice || item.price || 0
                                 const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
                                 const finalPrice = displayItem?.finalPrice || 0
-                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
-                                const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
 
-                                const shouldUseFinalPrice =
+                                const isSamePriceVoucher =
                                   currentCartItems?.voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
                                   currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
 
-                                const displayPrice = shouldUseFinalPrice
-                                  ? finalPrice * item.quantity
+                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                                const displayPrice = isSamePriceVoucher
+                                  ? finalPrice
                                   : hasPromotionDiscount
-                                    ? priceAfterPromotion * item.quantity
-                                    : original * item.quantity
+                                    ? priceAfterPromotion
+                                    : original
+
+                                const shouldShowLineThrough =
+                                  isSamePriceVoucher || hasPromotionDiscount
+
+                                const note = isSamePriceVoucher
+                                  ? '(**)'
+                                  : hasPromotionDiscount
+                                    ? '(*)'
+                                    : ''
 
                                 return (
-                                  <div className="flex gap-1">
-                                    <span className="text-sm line-through">
-                                      {formatCurrency(original)}
-                                    </span>
+                                  <div className="flex gap-1 items-center">
+                                    {shouldShowLineThrough && original !== finalPrice && (
+                                      <span className="text-sm line-through">
+                                        {formatCurrency(original)}
+                                      </span>
+                                    )}
                                     <span className="font-bold text-primary">
                                       {formatCurrency(displayPrice)}
                                     </span>
-                                    <span className="text-sm">
-                                      {hasVoucherDiscount ? '(**)' : hasPromotionDiscount ? '(*)' : ''}
-                                    </span>
+                                    {note && <span className="text-sm">{note}</span>}
                                   </div>
                                 )
                               })()}
-
-
                             </span>
                           </div>
                         </div>

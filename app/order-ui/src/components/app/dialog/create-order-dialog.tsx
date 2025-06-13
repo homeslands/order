@@ -218,8 +218,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   </div>
                 </div>
                 {(() => {
-                  const finalPrice = displayItems.find(di => di.slug === item.slug)?.finalPrice || 0
-                  const original = item.originalPrice || item.price || 0
+                  const finalPrice = (displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity
+                  const original = (item.originalPrice ?? item.price ?? 0) * item.quantity
 
                   const hasDiscount = original > finalPrice
 
