@@ -79,6 +79,7 @@
         "replaceGiftCard": "Replace",
         "giftCardExistsMessage": "The current gift card will be replaced with:",
         "phoneNumberNotFound": "Phone number not found",
+        
         "customerInfo": "Customer Information",
         "customerName": "Customer Name",
         "orderInfo": "Order Information",

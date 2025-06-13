@@ -72,12 +72,13 @@
         "checkoutDescription": "Hoàn tất việc mua thẻ quà tặng của bạn",
         "checkoutPageComingSoon": "Trang thanh toán sẽ sớm có mặt",
         "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng.",
-        
+
         "giftCardExistsWarning": "Thẻ quà tặng đã tồn tại",
         "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
         "replaceGiftCard": "Thay thế",
         "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:",
         "phoneNumberNotFound": "Không tìm thấy số điện thoại",
+        
         "customerInfo": "Thông tin khách hàng",
         "customerName": "Tên khách hàng",
         "orderInfo": "Thông tin đơn hàng",

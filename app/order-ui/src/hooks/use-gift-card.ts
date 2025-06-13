@@ -14,6 +14,9 @@ import {
   deleteGiftCard,
   createCardOrder,
   getGiftCard,
+  getCardOrder,
+  cancelCardOrder,
+  initiateCardOrderPayment,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore } from '@/stores'
@@ -115,4 +118,28 @@ export const useSyncGiftCard = (
     ...query,
     isSynchronized: query.isFetched,
   }
+}
+
+export const useGetCardOrder = (slug: string) => {
+  return useQuery({
+    queryKey: [QUERYKEY.cardOrder, slug],
+    queryFn: () => getCardOrder(slug),
+    enabled: !!slug,
+  })
+}
+
+export const useCancelCardOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return cancelCardOrder(slug)
+    },
+  })
+}
+
+export const useInitiateCardOrderPayment = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return initiateCardOrderPayment(slug)
+    },
+  })
 }

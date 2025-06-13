@@ -55,6 +55,7 @@ export const ROUTE = {
   CLIENT_ORDERS_PUBLIC: '/orders-public',
   CLIENT_GIFT_CARD: '/gift-card',
   CLIENT_GIFT_CARD_CHECKOUT: '/gift-card/checkout',
+  CLIENT_GIFT_CARD_CHECKOUT_WITH_SLUG: '/gift-card/checkout/:slug',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes
