@@ -14,6 +14,7 @@ import {
   GetOrderRequestDto,
   OrderResponseDto,
   UpdateOrderRequestDto,
+  UpdateVoucherOrderRequestDto,
 } from './order.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import {
@@ -207,32 +208,23 @@ export class OrderService {
 
     const order = await this.orderUtils.getOrder({ where: { slug } });
 
-    const table =
-      requestData.type === OrderType.AT_TABLE
-        ? await this.tableUtils.getTable({
-            where: {
-              slug: requestData.table,
-            },
-          })
-        : null;
-    order.type = requestData.type;
-    order.table = table;
-
-    // Get new voucher
-    let voucher: Voucher = null;
-    if (requestData.voucher) {
-      voucher = await this.voucherUtils.getVoucher({
-        where: {
-          slug: requestData.voucher ?? IsNull(),
-        },
-      });
-      await this.voucherUtils.validateVoucher(voucher);
-      await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
-      await this.voucherUtils.validateMinOrderValue(voucher, order);
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${slug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
     }
 
-    // Get previous voucher
-    const previousVoucher = order.voucher;
+    order.type = requestData.type;
+
+    if (requestData.type === OrderType.AT_TABLE) {
+      const table = await this.tableUtils.getTable({
+        where: {
+          slug: requestData.table ?? IsNull(),
+        },
+      });
+      order.table = table;
+    } else {
+      order.table = null;
+    }
 
     if (requestData.description) {
       order.description = requestData.description;
@@ -241,9 +233,76 @@ export class OrderService {
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Order with slug ${result.slug} updated successfully`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.warn(
+          `Error when updating order: ${error.message}`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.UPDATE_ORDER_ERROR,
+          error.message,
+        );
+      },
+    );
+
+    return this.mapper.map(updatedOrder, Order, OrderResponseDto);
+  }
+
+  async updateVoucherOrder(
+    slug: string,
+    requestData: UpdateVoucherOrderRequestDto,
+  ): Promise<OrderResponseDto> {
+    const context = `${OrderService.name}.${this.updateOrder.name}`;
+
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${slug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    // Get new voucher
+    let voucher: Voucher = null;
+    let previousVoucher: Voucher = null;
+    if (requestData.voucher) {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+      });
+
+      if (order.voucher?.id === voucher?.id) {
+        this.logger.warn(
+          `Voucher ${voucher.code} is the same as the previous voucher`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER,
+        );
+      }
+
+      await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+    }
+
+    // Update order
+    const updatedOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
         if (voucher) {
           // Update remaining quantity of voucher
           voucher.remainingUsage -= 1;
+
+          // Get previous voucher => change voucher
+          previousVoucher = order.voucher;
 
           // Update order
           order.voucher = voucher;
@@ -254,6 +313,9 @@ export class OrderService {
 
           await manager.save(voucher);
         } else {
+          // Get previous voucher => remove voucher from order
+          previousVoucher = order.voucher;
+
           order.voucher = null;
           order.subtotal = await this.orderUtils.getOrderSubtotal(
             order,

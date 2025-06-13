@@ -84,7 +84,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
             {group.items.map((item) => (
               <div
                 key={item.slug}
-                className="flex flex-col justify-between rounded-xl min-h-[13rem] shadow-2xl"
+                className="flex flex-col justify-between rounded-xl border min-h-[12rem] xl:min-h-[15rem] shadow-xl hover:shadow-2xl transition-all duration-300"
               >
                 {/* Image Section with Discount Tag */}
                 <div className="relative">
@@ -93,7 +93,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                       <img
                         src={`${publicFileURL}/${item.product.image}`}
                         alt={item.product.name}
-                        className="object-cover w-full h-[6rem] rounded-t-md"
+                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
                       />
                       {item.promotion && item.promotion.value > 0 && (
                         <StaffPromotionTag promotion={item.promotion} />
