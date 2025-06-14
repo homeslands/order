@@ -319,7 +319,10 @@ export default function VoucherListSheetInUpdateOrder({
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0)
+    const isValidAmount =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+        ? true
+        : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
