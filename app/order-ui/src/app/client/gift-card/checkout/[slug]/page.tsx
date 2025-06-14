@@ -55,20 +55,15 @@ export default function GiftCardCheckoutWithSlugPage() {
     shouldPoll: shouldStartPolling && !isExpired,
     pollingInterval: 30000, // Poll every 30 seconds
     onPaymentSuccess: () => {
-      // Navigate to success page when payment is completed
-      navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+      // Navigate to gift card success page when payment is completed
+      navigate(`${ROUTE.CLIENT_GIFT_CARD_SUCCESS}/${slug}`)
     },
     onExpired: () => {
       setIsExpired(true)
     },
     onCancelled: () => {
       // Handle cancelled order
-      showToast(
-        t(
-          'giftCard.orderCancelledSuccessfully',
-          'Order cancelled successfully',
-        ),
-      )
+      showToast(t('giftCard.orderCancelledSuccessfully'))
       // Restore gift card to local storage
       restoreGiftCardToLocal() // Navigate back to gift card page
       navigate(ROUTE.CLIENT_GIFT_CARD)
@@ -173,7 +168,15 @@ export default function GiftCardCheckoutWithSlugPage() {
         stopPolling()
       }
     }
-  }, [currentOrderData, isExpired, isPolling, startPolling, stopPolling])
+  }, [
+    currentOrderData,
+    isExpired,
+    isPolling,
+    startPolling,
+    stopPolling,
+    navigate,
+    slug,
+  ])
   // Show loading spinner while fetching initial data
   if (isLoading) {
     return <LoadingState />
