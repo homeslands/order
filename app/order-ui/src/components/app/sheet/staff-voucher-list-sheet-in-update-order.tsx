@@ -63,7 +63,7 @@ export default function VoucherListSheetInUpdateOrder({
   const { getTheme } = useThemeStore()
   const { t } = useTranslation(['voucher'])
   const { t: tToast } = useTranslation('toast')
-  const { userInfo } = useUserStore()
+  const { userInfo, getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { pagination } = usePagination()
@@ -176,7 +176,10 @@ export default function VoucherListSheetInUpdateOrder({
   // Validate voucher on order items change
   useEffect(() => {
     if (defaultValue?.voucher && defaultValue?.orderItems) {
-      const isValidAmount = defaultValue.voucher.minOrderValue <= (cartTotals?.subTotalBeforeDiscount || 0);
+      const isValidAmount =
+        defaultValue.voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+          ? true
+          : (defaultValue.voucher.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
       if (!isValidAmount) {
 
         removeVoucherFromOrder(1004);
@@ -322,7 +325,7 @@ export default function VoucherListSheetInUpdateOrder({
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
-        : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
+        : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
@@ -375,7 +378,7 @@ export default function VoucherListSheetInUpdateOrder({
     // Apply voucher
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
-      user: defaultValue?.owner?.slug || '',
+      user: defaultValue?.owner?.slug || getUserInfo()?.slug || '',
       orderItems: defaultValue?.orderItems.map(item => ({
         variant: item.variant.slug,
         quantity: item.quantity,
@@ -453,8 +456,11 @@ export default function VoucherListSheetInUpdateOrder({
   };
 
   const getVoucherErrorMessage = (voucher: IVoucher) => {
-    if (voucher.isVerificationIdentity && !isValidOwner(defaultValue?.owner)) {
+    if (voucher.isVerificationIdentity && !isCustomerOwner) {
       return t('voucher.needVerifyIdentity')
+    }
+    if (voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))) {
+      return t('voucher.minOrderNotMet')
     }
     if (voucher.remainingUsage === 0) {
       return t('voucher.outOfStock')

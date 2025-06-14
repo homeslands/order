@@ -37,7 +37,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -52,6 +52,7 @@ export default function StaffVoucherListSheet() {
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
+  const { getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -59,9 +60,14 @@ export default function StaffVoucherListSheet() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
 
+  const voucher = cartItems?.voucher || null
+
+  const displayItems = calculateCartItemDisplay(cartItems, voucher)
+  const cartTotals = calculateCartTotals(displayItems, voucher)
+
   // let subTotal = 0
   // calculate subtotal
-  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  // const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
   // const subTotal = cartItems?.orderItems.reduce(
   //   (acc, item) => acc + item.price * item.quantity,
   //   0,
@@ -186,7 +192,7 @@ export default function StaffVoucherListSheet() {
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
-        : (voucher?.minOrderValue || 0) <= subTotal
+        : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
     const isActive = voucher.isActive
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
@@ -247,7 +253,7 @@ export default function StaffVoucherListSheet() {
         // Apply voucher
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
-          user: cartItems.owner || '',
+          user: cartItems.owner || getUserInfo()?.slug || '',
           orderItems: cartItems?.orderItems || []
         }
 
@@ -340,6 +346,25 @@ export default function StaffVoucherListSheet() {
   //     }
   //   }
   // };
+
+  const getVoucherErrorMessage = (voucher: IVoucher) => {
+    if (voucher.isVerificationIdentity && !isCustomerOwner) {
+      return t('voucher.needVerifyIdentity')
+    }
+    if (voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))) {
+      return t('voucher.minOrderNotMet')
+    }
+    if (voucher.remainingUsage === 0) {
+      return t('voucher.outOfStock')
+    }
+    if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
+      return t('voucher.expired')
+    }
+    if (voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)) {
+      return t('voucher.minOrderNotMet')
+    }
+    return ''
+  }
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
@@ -565,10 +590,7 @@ export default function StaffVoucherListSheet() {
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.isVerificationIdentity && !isCustomerOwner
-                  ? t('voucher.needVerifyIdentity')
-                  : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
-                  && t('voucher.minOrderNotMet')}
+                {getVoucherErrorMessage(voucher)}
               </span>
             </div>
           )}
