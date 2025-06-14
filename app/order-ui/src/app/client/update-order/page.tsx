@@ -183,6 +183,12 @@ export default function ClientUpdateOrderPage() {
                                                                 const shouldShowLineThrough =
                                                                     isSamePriceVoucher || hasPromotionDiscount
 
+                                                                const note = isSamePriceVoucher
+                                                                    ? '(**)'
+                                                                    : hasPromotionDiscount
+                                                                        ? '(*)'
+                                                                        : ''
+
                                                                 return (
                                                                     <div className="flex gap-1 items-center">
                                                                         {shouldShowLineThrough && original !== finalPrice && (
@@ -193,6 +199,7 @@ export default function ClientUpdateOrderPage() {
                                                                         <span className="font-bold text-primary">
                                                                             {formatCurrency(displayPrice)}
                                                                         </span>
+                                                                        {note && <span className="text-sm">{note}</span>}
                                                                     </div>
                                                                 )
                                                             })()}
@@ -216,8 +223,27 @@ export default function ClientUpdateOrderPage() {
                                     ))}
                                 </div>
                                 {/* order note */}
-                                <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
+                                <div className="flex flex-col gap-2 items-start py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
+                                    <div className="p-3 w-full rounded-md border bg-primary/10 border-primary">
+                                        <div className="flex gap-2 items-start text-sm text-primary">
+                                            <div className="flex-1">
+                                                <p className="text-xs text-primary">
+                                                    <span className="font-extrabold">{t('order.voucher')}</span>
+                                                </p>
+                                                <ul className="mt-1 space-y-1 text-xs text-primary">
+                                                    <li className="flex gap-1 items-center">
+                                                        <span className="font-bold text-primary">*</span>
+                                                        <span>{t('order.promotionDiscount')}</span>
+                                                    </li>
+                                                    <li className="flex gap-1 items-center">
+                                                        <span className="font-bold text-primary">**</span>
+                                                        <span>{t('order.itemLevelVoucher')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <VoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
                                 <div>

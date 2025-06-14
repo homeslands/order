@@ -34,7 +34,6 @@ import {
   useIsMobile,
   usePagination,
   useSpecificVoucher,
-  useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
@@ -54,7 +53,6 @@ export default function StaffVoucherListSheet() {
   const { userInfo } = useUserStore()
   const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
-  const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
@@ -257,28 +255,36 @@ export default function StaffVoucherListSheet() {
           showErrorToast(1004) // Show error if voucher requires verification but no owner
           return
         }
-
-        if (voucher.isVerificationIdentity) {
-          validateVoucher(validateVoucherParam, {
-            onSuccess: () => {
-              addVoucher(voucher)
-              setAppliedVoucher(voucher.slug)
-              setSelectedVoucher(voucher.code)
-              setSheetOpen(false)
-              showToast(tToast('toast.applyVoucherSuccess'))
-            },
-          })
-        } else {
-          validatePublicVoucher(validateVoucherParam, {
-            onSuccess: () => {
-              addVoucher(voucher)
-              setAppliedVoucher(voucher.slug)
-              setSelectedVoucher(voucher.code)
-              setSheetOpen(false)
-              showToast(tToast('toast.applyVoucherSuccess'))
-            },
-          })
-        }
+        validateVoucher(validateVoucherParam, {
+          onSuccess: () => {
+            addVoucher(voucher)
+            setAppliedVoucher(voucher.slug)
+            setSelectedVoucher(voucher.code)
+            setSheetOpen(false)
+            showToast(tToast('toast.applyVoucherSuccess'))
+          },
+        })
+        // if (voucher.isVerificationIdentity) {
+        //   validateVoucher(validateVoucherParam, {
+        //     onSuccess: () => {
+        //       addVoucher(voucher)
+        //       setAppliedVoucher(voucher.slug)
+        //       setSelectedVoucher(voucher.code)
+        //       setSheetOpen(false)
+        //       showToast(tToast('toast.applyVoucherSuccess'))
+        //     },
+        //   })
+        // } else {
+        //   validatePublicVoucher(validateVoucherParam, {
+        //     onSuccess: () => {
+        //       addVoucher(voucher)
+        //       setAppliedVoucher(voucher.slug)
+        //       setSelectedVoucher(voucher.code)
+        //       setSheetOpen(false)
+        //       showToast(tToast('toast.applyVoucherSuccess'))
+        //     },
+        //   })
+        // }
       }
     }
   }
