@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, SquareMenu } from 'lucide-react'
 
 import { Badge, Button } from '@/components/ui'
 import { useSpecificMenuItem } from '@/hooks'
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
     navigate(ROUTE.CLIENT_CART)
   }
   return (
-    <div className="container flex flex-col gap-10 items-start py-10">
+    <div className="container flex flex-col items-start">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -169,6 +169,10 @@ export default function ProductDetailPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.productDetail.title')} />
       </Helmet>
+      <span className="flex gap-1 items-center py-4 text-lg">
+        <SquareMenu />
+        {t('product.productDetail')}
+      </span>
       {/* Product detail */}
       <div className="flex flex-col gap-5 w-full lg:flex-row">
         <div className="flex flex-col col-span-1 gap-2 w-full lg:w-1/2">
@@ -217,7 +221,7 @@ export default function ProductDetailPage() {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xl font-semibold text-primary">
+                        <span className="text-2xl font-extrabold text-primary">
                           {formatCurrency(price)}
                         </span>
                       )}
@@ -308,9 +312,9 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Related products */}
-      <div className="w-full">
+      <div className="mt-4 w-full">
         <p className="flex justify-between pl-2 border-l-4 border-primary text-primary">
-          <span>
+          <span className='text-lg font-bold'>
             {t('product.relatedProducts')}
           </span>
           <NavLink to={ROUTE.CLIENT_MENU}>
