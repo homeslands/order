@@ -83,7 +83,6 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       description: order.description || '',
     }
 
-
     // Call API to create order
     if (userInfo) {
       createOrder(createOrderRequest, {
