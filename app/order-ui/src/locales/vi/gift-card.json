@@ -113,11 +113,15 @@
         "initiatePayment": "Khởi tạo thanh toán",
         "initiatingPayment": "Đang khởi tạo thanh toán...",
         "paymentInitiated": "Khởi tạo thanh toán thành công",
-        "checkingPaymentStatus": "Đang kiểm tra trạng thái thanh toán...",
-        
+        "checkingPaymentStatus": "Đang kiểm tra trạng thái thanh toán...",        
         "statusPending": "Chờ thanh toán",
         "statusCompleted": "Hoàn tất",
         "statusFailed": "Thất bại",
-        "statusPaid": "Đã thanh toán"
+        "statusPaid": "Đã thanh toán",
+        
+        "purchaseSuccess": "Mua thẻ quà tặng thành công!",
+        "backToGiftCards": "Quay lại thẻ quà tặng",
+        "paymentCompleted": "Thanh toán đã hoàn tất",
+        "paymentExpired": "Thanh toán đã hết hạn"
     }
 }

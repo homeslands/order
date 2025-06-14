@@ -114,10 +114,14 @@
         "initiatingPayment": "Initiating Payment...",
         "paymentInitiated": "Payment initiated successfully",
         "checkingPaymentStatus": "Checking payment status...",
-        
         "statusPending": "Pending",
         "statusCompleted": "Completed",
         "statusFailed": "Failed",
-        "statusPaid": "Paid"
+        "statusPaid": "Paid",
+        
+        "purchaseSuccess": "Gift Card Purchase Successful!",
+        "backToGiftCards": "Back to Gift Card",
+        "paymentCompleted": "Payment completed successfully",
+        "paymentExpired": "Payment has expired"
     }
 }

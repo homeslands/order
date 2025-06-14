@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { ICardOrderResponse } from '@/types'
 import { formatCurrency } from '@/utils'
@@ -67,16 +66,9 @@ export default function PaymentQRCodeSection({
           <Button
             onClick={onInitiatePayment}
             disabled={isPendingInitiatePayment || isExpired}
-            className="mb-4"
+            className="mb-4 w-full md:w-auto"
           >
-            {isPendingInitiatePayment ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('giftCard.initiatingPayment', 'Initiating Payment...')}
-              </>
-            ) : (
-              t('giftCard.initiatePayment', 'Initiate Payment')
-            )}
+            {t('giftCard.initiatePayment')}
           </Button>
         </>
       )}

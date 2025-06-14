@@ -14,10 +14,10 @@ export default function ExpiredState({ onNavigateBack }: ExpiredStateProps) {
       <div className="flex flex-col items-center justify-center gap-5 py-20">
         <CircleX className="h-32 w-32 text-destructive" />
         <p className="text-center text-muted-foreground">
-          {t('giftCard.paymentExpired', 'Payment time has expired')}
+          {t('giftCard.paymentExpired')}
         </p>
         <Button variant="default" onClick={onNavigateBack}>
-          {t('giftCard.backToGiftCards', 'Back to Gift Cards')}
+          {t('giftCard.backToGiftCards')}
         </Button>
       </div>
     </div>
