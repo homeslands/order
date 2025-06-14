@@ -40,6 +40,8 @@ import { PdfService } from 'src/pdf/pdf.service';
 import moment from 'moment';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { PDFDocument } from 'pdf-lib';
+import { ProductUtils } from 'src/product/product.utils';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 @Injectable()
 export class VoucherService {
@@ -56,17 +58,23 @@ export class VoucherService {
     private readonly voucherGroupUtils: VoucherGroupUtils,
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
+    private readonly productUtils: ProductUtils,
   ) {}
 
   async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug: validateVoucherDto.voucher ?? IsNull() },
+      relations: ['voucherProducts.product'],
     });
 
     await this.voucherUtils.validateVoucher(voucher);
     await this.voucherUtils.validateVoucherUsage(
       voucher,
       validateVoucherDto.user,
+    );
+    await this.voucherUtils.validateVoucherProduct(
+      voucher,
+      validateVoucherDto.orderItems.map((orderItem) => orderItem.variant) || [],
     );
   }
 
@@ -75,10 +83,17 @@ export class VoucherService {
   ) {
     const voucher = await this.voucherUtils.getVoucher({
       where: { slug: validateVoucherPublicDto.voucher ?? IsNull() },
+      relations: ['voucherProducts.product'],
     });
 
     await this.voucherUtils.validateVoucher(voucher);
     await this.voucherUtils.validateVoucherUsage(voucher);
+    await this.voucherUtils.validateVoucherProduct(
+      voucher,
+      validateVoucherPublicDto.orderItems.map(
+        (orderItem) => orderItem.variant,
+      ) || [],
+    );
   }
 
   async create(createVoucherDto: CreateVoucherDto) {
@@ -90,6 +105,7 @@ export class VoucherService {
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: createVoucherDto.voucherGroup },
     });
+    const productSlugs = createVoucherDto.products;
     const voucher = this.mapper.map(
       createVoucherDto,
       CreateVoucherDto,
@@ -106,7 +122,10 @@ export class VoucherService {
         );
         throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
       }
-    } else if (voucher.type === VoucherType.FIXED_VALUE) {
+    } else if (
+      voucher.type === VoucherType.FIXED_VALUE ||
+      voucher.type === VoucherType.SAME_PRICE_PRODUCT
+    ) {
       voucher.valueType = VoucherValueType.AMOUNT;
     } else {
       throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
@@ -127,8 +146,22 @@ export class VoucherService {
       }
     }
 
+    const voucherProducts: VoucherProduct[] = await Promise.all(
+      productSlugs.map(async (slug) => {
+        const product = await this.productUtils.getProduct({ where: { slug } });
+        const voucherProduct = new VoucherProduct();
+        voucherProduct.voucher = voucher;
+        voucherProduct.product = product;
+        return voucherProduct;
+      }),
+    );
+
     const createdVoucher = await this.transactionService.execute<Voucher>(
-      async (manager) => await manager.save(voucher),
+      async (manager) => {
+        const createdVoucher = await manager.save(voucher);
+        await manager.save(voucherProducts);
+        return createdVoucher;
+      },
       (result) => {
         this.logger.log(
           `Voucher created successfully: ${JSON.stringify(result)}`,
@@ -169,6 +202,7 @@ export class VoucherService {
     });
     const numberOfVoucher = bulkCreateVoucherDto.numberOfVoucher;
 
+    const productSlugs = bulkCreateVoucherDto.products;
     const voucherTemplate = this.mapper.map(
       bulkCreateVoucherDto,
       BulkCreateVoucherDto,
@@ -186,7 +220,10 @@ export class VoucherService {
         );
         throw new VoucherException(VoucherValidation.INVALID_VOUCHER_VALUE);
       }
-    } else if (voucherTemplate.type === VoucherType.FIXED_VALUE) {
+    } else if (
+      voucherTemplate.type === VoucherType.FIXED_VALUE ||
+      voucherTemplate.type === VoucherType.SAME_PRICE_PRODUCT
+    ) {
       voucherTemplate.valueType = VoucherValueType.AMOUNT;
     } else {
       throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
@@ -218,7 +255,26 @@ export class VoucherService {
     }
 
     const createdVouchers = await this.transactionService.execute<Voucher[]>(
-      async (manager) => await manager.save(vouchers),
+      async (manager) => {
+        const createdVouchers = await manager.save(vouchers);
+        const createdVoucherProducts: VoucherProduct[] = [];
+        for (const voucher of createdVouchers) {
+          const voucherProducts: VoucherProduct[] = await Promise.all(
+            productSlugs.map(async (slug) => {
+              const product = await this.productUtils.getProduct({
+                where: { slug },
+              });
+              const voucherProduct = new VoucherProduct();
+              voucherProduct.voucher = voucher;
+              voucherProduct.product = product;
+              return voucherProduct;
+            }),
+          );
+          createdVoucherProducts.push(...voucherProducts);
+        }
+        await manager.save(createdVoucherProducts);
+        return createdVouchers;
+      },
       (result) => {
         this.logger.log(
           `${result.length} vouchers created successfully`,
@@ -269,6 +325,7 @@ export class VoucherService {
         order: {
           createdAt: 'DESC',
         },
+        relations: ['voucherProducts.product.variants'],
       };
       if (options.hasPaging) {
         Object.assign(findManyOptions, {
@@ -332,6 +389,7 @@ export class VoucherService {
         order: {
           createdAt: 'DESC',
         },
+        relations: ['voucherProducts.product.variants'],
       };
       if (options.hasPaging) {
         Object.assign(findManyOptions, {
@@ -449,6 +507,7 @@ export class VoucherService {
 
     const voucher = await this.voucherUtils.getVoucher({
       where: findOptionsWhere,
+      relations: ['voucherProducts.product.variants'],
     });
     return this.mapper.map(voucher, Voucher, VoucherResponseDto);
   }

@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { DiscountType } from 'src/order/order.constants';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('invoice_item_tbl')
@@ -24,6 +25,14 @@ export class InvoiceItem extends Base {
   @AutoMap()
   @Column({ name: 'total_column' })
   total: number;
+
+  @AutoMap()
+  @Column({ name: 'discount_type_column', default: DiscountType.NONE })
+  discountType: string;
+
+  @AutoMap()
+  @Column({ name: 'voucher_value_column', default: 0 })
+  voucherValue: number;
 
   @AutoMap()
   @Column({ name: 'promotion_value_column', default: 0 })

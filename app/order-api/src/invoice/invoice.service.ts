@@ -21,8 +21,9 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { InvoiceException } from './invoice.exception';
 import { InvoiceValidation } from './invoice.validation';
-import { OrderType } from 'src/order/order.constants';
+import { DiscountType, OrderType } from 'src/order/order.constants';
 import { VoucherType } from 'src/voucher/voucher.constant';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class InvoiceService {
@@ -35,7 +36,61 @@ export class InvoiceService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
+    private readonly transactionManagerService: TransactionManagerService,
   ) {}
+
+  async updateDiscountTypeForExistedInvoice() {
+    const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
+    const batchSize = 500;
+    let offset = 0;
+    let totalUpdated = 0;
+
+    while (true) {
+      const batch = await this.invoiceRepository.find({
+        where: { voucherType: null },
+        relations: ['order.voucher'],
+        take: batchSize,
+        skip: offset,
+        order: { id: 'ASC' },
+      });
+
+      if (batch.length === 0) break;
+
+      const updatedBatch: Invoice[] = [];
+      for (const item of batch) {
+        if (item?.order?.voucher) {
+          item.voucherType = item.order.voucher.type;
+          item.valueEachVoucher = item.order.voucher.value;
+          updatedBatch.push(item);
+        }
+      }
+
+      await this.transactionManagerService.execute<void>(
+        async (manager) => {
+          await manager.save(updatedBatch);
+        },
+        () => {
+          this.logger.log(
+            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error updating batch at offset ${offset}: ${error.message}`,
+            context,
+          );
+        },
+      );
+
+      totalUpdated += updatedBatch.length;
+      offset += batchSize;
+    }
+    this.logger.log(
+      `Finished updating total ${totalUpdated} invoice items.`,
+      context,
+    );
+  }
 
   async exportInvoice(requestData: ExportInvoiceDto): Promise<Buffer> {
     const context = `${InvoiceService.name}.${this.exportInvoice.name}`;
@@ -82,17 +137,58 @@ export class InvoiceService {
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
 
-    const subtotalBeforeVoucher = order.orderItems?.reduce(
+    let orderItemPromotionValue = 0;
+
+    // default from order
+    orderItemPromotionValue = order.orderItems?.reduce(
+      (total, current) =>
+        current.discountType === DiscountType.PROMOTION
+          ? total +
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
+          : total,
+      0,
+    );
+
+    // from invoice
+    if (order.invoice) {
+      orderItemPromotionValue = order.invoice.invoiceItems?.reduce(
+        (total, current) =>
+          current.discountType === DiscountType.PROMOTION
+            ? total +
+              (current.price * current.promotionValue * current.quantity) / 100
+            : total,
+        0,
+      );
+    }
+
+    const orderItemVoucherValue = order.orderItems?.reduce(
+      (total, current) => total + current.voucherValue,
+      0,
+    );
+
+    const originalSubtotalOrder = order.orderItems?.reduce(
+      (total, current) => total + current.originalSubtotal,
+      0,
+    );
+
+    const subtotalOrderItem = order.orderItems?.reduce(
       (total, current) => total + current.subtotal,
       0,
     );
 
-    let voucherValue = order.loss;
+    let voucherValue = order.loss + orderItemVoucherValue;
     if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue += (subtotalBeforeVoucher * order.voucher.value) / 100;
+      voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
     }
     if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
-      voucherValue += order.voucher.value;
+      if (subtotalOrderItem > order.voucher.value) {
+        voucherValue += order.voucher.value;
+      } else {
+        voucherValue += subtotalOrderItem;
+      }
     }
 
     // invoice exists
@@ -102,7 +198,11 @@ export class InvoiceService {
         context,
       );
       Object.assign(order.invoice, {
-        subtotalBeforeVoucher,
+        originalSubtotalOrder,
+        subtotalOrderItem,
+        orderItemPromotionValue,
+        voucherCode: order.voucher?.code ?? 'N/A',
+        valueEachVoucher: order.voucher?.value ?? 0,
       });
       return order.invoice;
     }
@@ -117,6 +217,8 @@ export class InvoiceService {
         size: item.variant.size.name,
         promotionValue: item.promotion?.value ?? 0,
         promotionId: item.promotion?.id ?? null,
+        voucherValue: item.voucherValue,
+        discountType: item.discountType,
       });
       return invoiceItem;
     });
@@ -140,6 +242,8 @@ export class InvoiceService {
       referenceNumber: order.referenceNumber,
       voucherValue,
       voucherId: order.voucher?.id ?? null,
+      voucherType: order.voucher?.type ?? null,
+      valueEachVoucher: order.voucher?.value ?? null,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -159,7 +263,10 @@ export class InvoiceService {
     );
 
     Object.assign(invoice, {
-      subtotalBeforeVoucher,
+      originalSubtotalOrder,
+      subtotalOrderItem,
+      orderItemPromotionValue,
+      voucherCode: order.voucher?.code ?? 'N/A',
     });
 
     return invoice;

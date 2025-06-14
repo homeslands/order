@@ -1,25 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { InvoiceItemService } from './invoice-item.service';
+import { VoucherProductService } from './voucher-product.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { InvoiceItem } from './invoice-item.entity';
+import { VoucherProduct } from './voucher-product.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { Product } from 'src/product/product.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
-describe('InvoiceItemService', () => {
-  let service: InvoiceItemService;
+describe('VoucherProductService', () => {
+  let service: VoucherProductService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        InvoiceItemService,
+        VoucherProductService,
         TransactionManagerService,
         {
-          provide: getRepositoryToken(InvoiceItem),
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Voucher),
           useFactory: repositoryMockFactory,
         },
         {
@@ -37,7 +47,7 @@ describe('InvoiceItemService', () => {
       ],
     }).compile();
 
-    service = module.get<InvoiceItemService>(InvoiceItemService);
+    service = module.get<VoucherProductService>(VoucherProductService);
   });
 
   it('should be defined', () => {

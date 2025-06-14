@@ -9,6 +9,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Order } from 'src/order/order.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('InvoiceService', () => {
   let service: InvoiceService;
@@ -19,6 +22,7 @@ describe('InvoiceService', () => {
         InvoiceService,
         PdfService,
         QrCodeService,
+        TransactionManagerService,
         {
           provide: getRepositoryToken(Invoice),
           useFactory: repositoryMockFactory,
@@ -34,6 +38,10 @@ describe('InvoiceService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console, // Mock logger (or a custom mock)
+        },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
       ],
     }).compile();

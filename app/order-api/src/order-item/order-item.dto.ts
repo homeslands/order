@@ -123,4 +123,10 @@ export class OrderItemResponseDto extends BaseResponseDto {
 
   @AutoMap(() => [ChefOrderItemResponseDto])
   chefOrderItems: ChefOrderItemResponseDto[];
+
+  @AutoMap()
+  discountType: string;
+
+  @AutoMap()
+  voucherValue: number;
 }

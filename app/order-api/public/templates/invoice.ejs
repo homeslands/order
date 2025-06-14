@@ -84,13 +84,30 @@
               <%= item.quantity %>
             </td>
             <td class="px-2 py-2 text-xs">
-              <%= formatCurrency(item.price) %>
+              <% if (item.discountType === 'voucher' && item.price > valueEachVoucher) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(valueEachVoucher) %>
+                </span>
+              <% } else { %>
+                <%= formatCurrency(item.price) %>
+              <% } %>
             </td>
             <td class="px-2 py-2 text-xs text-center">
-              <%= item.promotionValue %>
+              <% if (item.discountType === 'voucher') { %>
+                0
+              <% } else { %>
+                <%= item.promotionValue %>
+              <% } %>
             </td>
             <td class="px-2 py-2 text-xs">
-              <%= formatCurrency(item.total) %>
+              <%= formatCurrency(item.total) %> <% if (item.discountType === 'promotion') { %>
+                (*)
+              <% } else if (item.discountType === 'voucher') { %>
+                (**)
+              <% } %>
             </td>
           </tr>
           <% }); %>
@@ -103,23 +120,42 @@
             <tr class="border-t border-black">
               <td class="py-2 text-left">Tổng cộng</td>
               <td class="py-2 text-right" colspan="4">
-                <%= formatCurrency(subtotalBeforeVoucher) %>
+                <%= formatCurrency(originalSubtotalOrder) %> ₫
               </td>
             </tr>
             <tr class="border-t border-black">
-              <td class="py-2 text-left">Giảm giá</td>
+              <td class="py-2 text-left">Tổng khuyến mãi</td>
               <td class="py-2 text-right" colspan="4">
-                <%= formatCurrency(voucherValue) %>
+                <%= formatCurrency(orderItemPromotionValue) %> ₫
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Tổng giảm giá
+              </td>
+              <td class="py-2 text-left" colspan="2">
+                <% if (voucherCode !== 'N/A') { %>
+                  <span class="text-xs italic break-all">(Mã: <%= voucherCode %>)</span>
+                <% } %>
+              </td>
+              <td class="py-2 text-right" colspan="2">
+                <%= formatCurrency(voucherValue) %> ₫
               </td>
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left">Thành tiền</td>
               <td class="py-2 text-xl font-bold text-right" colspan="4">
-                <%= formatCurrency(amount) %>
+                <%= formatCurrency(amount) %> ₫
               </td>
             </tr>
       </tbody>
     </table>
+    <p class="text-xs mt-2">
+      (*) Sản phẩm được ưu đãi theo chương trình khuyến mãi
+    </p>
+    <p class="text-xs">
+      (**) Sản phẩm được ưu đãi theo mã giảm giá
+    </p>
   </div>
 </body>
 
