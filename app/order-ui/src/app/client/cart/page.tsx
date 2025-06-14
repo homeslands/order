@@ -287,9 +287,9 @@ export default function ClientCartPage() {
                 <span className="text-xs text-muted-foreground">
                   {t('order.voucher')}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                {/* <span className="text-xs text-muted-foreground">
                   {t('order.voucher')}
-                </span>
+                </span> */}
               </div>
               <VoucherListSheet />
             </div>
