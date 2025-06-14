@@ -35,19 +35,55 @@ export interface ICartItem {
   orderItems: IOrderItem[]
   table?: string
   tableName?: string
-  voucher?: {
-    slug: string
-    value: number
-    isVerificationIdentity: boolean
-    isPrivate: boolean
-    code: string
-    type: string
-    minOrderValue: number
-  } | null
+  voucher?: IVoucherInCart | null
   note?: string
   approvalBy?: string
   description?: string
   paymentMethod?: string
+}
+
+export interface IVoucherInCart {
+  slug: string
+  value: number
+  isVerificationIdentity: boolean
+  isPrivate: boolean
+  code: string
+  type: string
+  minOrderValue: number
+  voucherProducts: {
+    slug: string
+    createdAt: string
+    product: IProduct
+  }[]
+}
+
+export interface IDisplayCartItem {
+  slug: string
+  name: string
+  quantity: number
+  originalPrice?: number
+  promotionDiscount?: number
+  voucherDiscount?: number
+  finalPrice?: number
+  priceAfterPromotion?: number
+}
+
+export interface IDisplayOrderItem extends IBase {
+  chefOrderItems?: IChefOrderItemStatus[]
+  discountType?: string
+  finalPrice?: number
+  name: string
+  note?: string
+  originalPrice?: number
+  priceAfterPromotion?: number
+  productSlug: string
+  promotion?: IPromotion
+  promotionDiscount?: number
+  quantity: number
+  subtotal: number
+  variant: IProductVariant
+  voucherDiscount?: number
+  voucherValue?: number
 }
 
 export interface IOrderToUpdate {
@@ -75,10 +111,13 @@ export interface IOrderItem {
   size: string
   variant: string
   originalPrice?: number
-  price: number
+  promotion?: string | null
+  promotionDiscount?: number
+  voucherDiscount?: number
+  price?: number // price after discount
   description: string
   isLimit: boolean
-  promotion?: string // promotion slug
+  // promotion?: string // promotion slug
   promotionValue?: number
   // catalog: ICatalog
   note?: string
@@ -250,7 +289,7 @@ export interface ICreateOrderRequest {
   orderItems: {
     quantity: number
     variant: string
-    promotion?: string
+    promotion: string | null
     note: string
   }[]
   approvalBy: string

@@ -18,7 +18,7 @@ import {
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
 import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { formatCurrency, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { InvoiceTemplate } from '../public-order-detail/components'
@@ -35,18 +35,11 @@ export default function OrderHistoryPage() {
   const { data: orderDetail } = useOrderBySlug(order || '')
 
   const orderInfo = orderDetail?.result
-  const originalTotal = orderInfo
-    ? orderInfo.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
-    : 0;
+  const voucher = orderInfo?.voucher || null
 
-  const discount = orderInfo
-    ? orderInfo.orderItems.reduce(
-      (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
-      0
-    )
-    : 0;
+  const displayItems = calculateOrderItemDisplay(orderInfo ? orderInfo?.orderItems : [], voucher)
 
-  const voucherDiscount = orderInfo?.voucher && orderInfo.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : orderInfo?.voucher && orderInfo.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? orderInfo.voucher.value : 0;
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
@@ -200,7 +193,40 @@ export default function OrderHistoryPage() {
 
                       {/* Cột tổng giá */}
                       <TableCell className="w-1/4 font-semibold text-right">
-                        {formatCurrency(item?.subtotal || 0)}
+                        {(() => {
+                          const displayItem = displayItems.find(di => di.slug === item.slug)
+                          const original = item.variant.price || 0
+                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                          const finalPrice = displayItem?.finalPrice || 0
+
+                          const isSamePriceVoucher =
+                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                          const displayPrice = isSamePriceVoucher
+                            ? finalPrice * item.quantity
+                            : hasPromotionDiscount
+                              ? priceAfterPromotion * item.quantity
+                              : original * item.quantity
+
+                          const shouldShowLineThrough =
+                            isSamePriceVoucher || hasPromotionDiscount
+
+                          return (
+                            <div className="flex gap-1 items-center">
+                              {shouldShowLineThrough && (
+                                <span className="text-sm line-through text-muted-foreground">
+                                  {formatCurrency(original * item.quantity)}
+                                </span>
+                              )}
+                              <span className="font-bold text-primary">
+                                {formatCurrency(displayPrice)}
+                              </span>
+                            </div>
+                          )
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -264,13 +290,13 @@ export default function OrderHistoryPage() {
                   <p className="text-sm text-muted-foreground">
                     {t('order.subTotal')}
                   </p>
-                  <p className="text-sm">{`${formatCurrency(originalTotal || 0)}`}</p>
+                  <p className="text-sm">{`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     {t('order.discount')}
                   </p>
-                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
+                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(cartTotals?.promotionDiscount || 0)}`}</p>
                 </div>
                 {orderInfo?.voucher &&
                   <div className="flex justify-between pb-4 w-full border-b">
@@ -278,7 +304,7 @@ export default function OrderHistoryPage() {
                       {t('order.voucher')}
                     </h3>
                     <p className="text-sm italic font-semibold text-green-500">
-                      - {`${formatCurrency(voucherDiscount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>}
                 {orderInfo && orderInfo?.loss > 0 &&
@@ -295,7 +321,7 @@ export default function OrderHistoryPage() {
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
-                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
+                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">

@@ -104,6 +104,7 @@ export default function VoucherTypeSelect({ defaultValue, onChange, ...props }: 
           <SelectLabel>{t('voucher.type')}</SelectLabel>
           <SelectItem value={VOUCHER_TYPE.FIXED_VALUE}>{t('voucher.fixedValue')}</SelectItem>
           <SelectItem value={VOUCHER_TYPE.PERCENT_ORDER}>{t('voucher.percentOrder')}</SelectItem>
+          <SelectItem value={VOUCHER_TYPE.SAME_PRICE_PRODUCT}>{t('voucher.samePriceProduct')}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

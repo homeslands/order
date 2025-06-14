@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -28,6 +28,8 @@ import { SimpleDatePicker } from '../picker'
 import { TUpdateVoucherSchema, updateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
+import { useSpecificVoucher } from '@/hooks'
+import { VOUCHER_TYPE } from '@/constants'
 
 interface IUpdateVoucherSheetProps {
   voucher: IVoucher
@@ -43,28 +45,61 @@ export default function UpdateVoucherSheet({
   const [isOpen, setIsOpen] = useState(false)
   const [formData, setFormData] = useState<IUpdateVoucherRequest | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const { data: specificVoucher } = useSpecificVoucher({ slug: voucher.slug })
+
+  const specificVoucherData = specificVoucher?.result
+
   const form = useForm<TUpdateVoucherSchema>({
     resolver: zodResolver(updateVoucherSchema),
     defaultValues: {
-      slug: voucher.slug,
+      slug: '',
       voucherGroup: slug as string,
-      createdAt: voucher.createdAt,
-      title: voucher.title,
-      description: voucher.description,
-      type: voucher.type,
-      startDate: voucher.startDate,
-      endDate: voucher.endDate,
-      code: voucher.code,
-      value: voucher.value,
-      remainingUsage: voucher.remainingUsage,
-      maxUsage: voucher.maxUsage,
-      isActive: voucher.isActive,
-      isPrivate: voucher.isPrivate,
-      numberOfUsagePerUser: voucher.numberOfUsagePerUser,
-      minOrderValue: voucher.minOrderValue,
-      isVerificationIdentity: voucher.isVerificationIdentity,
+      createdAt: '',
+      title: '',
+      description: '',
+      type: '',
+      startDate: '',
+      endDate: '',
+      code: '',
+      value: 0,
+      remainingUsage: 0,
+      maxUsage: 0,
+      isActive: false,
+      isPrivate: false,
+      numberOfUsagePerUser: 0,
+      minOrderValue: 0,
+      isVerificationIdentity: false,
+      products: [],
     },
   })
+
+  // Chỉ cập nhật form values khi specificVoucherData được load lần đầu
+  useEffect(() => {
+    if (specificVoucherData) {
+      form.reset({
+        slug: specificVoucherData.slug,
+        voucherGroup: slug as string,
+        createdAt: specificVoucherData.createdAt,
+        title: specificVoucherData.title,
+        description: specificVoucherData.description,
+        type: specificVoucherData.type,
+        startDate: specificVoucherData.startDate,
+        endDate: specificVoucherData.endDate,
+        code: specificVoucherData.code,
+        value: specificVoucherData.value,
+        remainingUsage: specificVoucherData.remainingUsage,
+        maxUsage: specificVoucherData.maxUsage,
+        isActive: specificVoucherData.isActive,
+        isPrivate: specificVoucherData.isPrivate,
+        numberOfUsagePerUser: specificVoucherData.numberOfUsagePerUser,
+        minOrderValue: specificVoucherData.minOrderValue,
+        isVerificationIdentity: specificVoucherData.isVerificationIdentity,
+        products: (specificVoucherData.voucherProducts || []).map((item: { slug?: string; product?: { slug?: string } } | string) =>
+          typeof item === 'string' ? item : item.slug || item.product?.slug || ''
+        ).filter(Boolean),
+      })
+    }
+  }, [specificVoucherData, form, slug])
 
   // Use useWatch to watch type field without causing re-renders
   // const voucherType = useWatch({
@@ -130,7 +165,7 @@ export default function UpdateVoucherSheet({
               {t('voucher.title')}
             </FormLabel>
             <FormControl>
-              <Input {...field} placeholder={t('voucher.enterVoucherTitle')} />
+              <Input {...field} placeholder={t('voucher.enterVoucherName')} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -261,22 +296,23 @@ export default function UpdateVoucherSheet({
               {t('voucher.value')}
             </FormLabel>
             <FormControl>
-              {form.watch('type') === 'percent_order' ? (
+              {form.watch('type') === VOUCHER_TYPE.PERCENT_ORDER ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
-                      if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
+                      // Chỉ set number, không set empty string để tránh validation fail
+                      if (value === '' || Number(value) <= 0) {
+                        field.onChange(1); // Set minimum valid value for percent
                       } else {
-                        field.onChange(Number(value));
+                        const numValue = Number(value);
+                        field.onChange(numValue > 100 ? 100 : numValue);
                       }
                     }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
-                    min={0}
+                    value={field.value || 1}
+                    min={1}
                     max={100}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
@@ -292,14 +328,15 @@ export default function UpdateVoucherSheet({
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Nếu người dùng xóa trắng input thì gán chuỗi rỗng
-                      if (value === '') {
-                        field.onChange(''); // hoặc null tùy theo schema
+                      // Chỉ set number, không set empty string để tránh validation fail
+                      if (value === '' || Number(value) <= 0) {
+                        field.onChange(1000); // Set minimum valid value for fixed amount
                       } else {
                         field.onChange(Number(value));
                       }
                     }}
-                    value={field.value === 0 ? '' : field.value} // giữ UI sạch khi là 0
+                    value={field.value || 1000}
+                    min={1}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
@@ -346,7 +383,7 @@ export default function UpdateVoucherSheet({
           <FormItem>
             <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
-              {t('voucher.maxUsage')}
+              {t('voucher.voucherMaxUsage')}
             </FormLabel>
             <FormControl>
               <Input
@@ -502,7 +539,7 @@ export default function UpdateVoucherSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="gap-1 px-2">
+        <Button variant="ghost" className="flex gap-1 justify-start px-2 w-full">
           <PenLine className="icon" />
           {t('voucher.update')}
         </Button>

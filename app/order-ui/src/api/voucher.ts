@@ -1,5 +1,6 @@
 import {
   IApiResponse,
+  IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
@@ -7,6 +8,7 @@ import {
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
   IPaginationResponse,
+  IRemoveAppliedVoucherRequest,
   IUpdateVoucherGroupRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
@@ -154,5 +156,21 @@ export async function validatePublicVoucher(
     '/voucher/validate/public',
     data,
   )
+  return response.data
+}
+
+export async function applyVoucher(
+  data: IApplyVoucherRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(`/voucher-product`, data)
+  return response.data
+}
+
+export async function removeAppliedVoucher(
+  data: IRemoveAppliedVoucherRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(`/voucher-product`, {
+    data,
+  })
   return response.data
 }

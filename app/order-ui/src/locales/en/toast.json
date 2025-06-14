@@ -373,6 +373,7 @@
     "errorWhenConfirmEmailVerification": "Error when confirming email verification",
     "orderAlreadyHasPayment": "Order already has payment QR code!",
     "qrCodeRestored": "Payment QR code has been restored",
-    "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!"
+    "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!",
+    "voucherProductNotApplicable": "Some products in the cart are not applicable to this voucher."
   }
 }

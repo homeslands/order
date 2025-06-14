@@ -11,7 +11,7 @@ import { Button } from '@/components/ui'
 import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
 import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
-import { formatCurrency, loadDataToPrinter, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
@@ -42,6 +42,13 @@ export default function PaymentPage() {
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
 
+  const orderItems = order?.result?.orderItems || []
+  const voucher = order?.result?.voucher || null
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
   // Get QR code from orderData
   const qrCode = orderData?.payment?.qrCode || ''
   const paymentSlug = orderData?.payment?.slug || ''
@@ -58,15 +65,6 @@ export default function PaymentPage() {
       // Remove debug logs for production
     }
   }, [orderData, qrCode, hasValidPaymentAndQr, paymentMethod])
-
-  // calculate original total
-  const originalTotal = orderData?.orderItems ?
-    orderData.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
-
-  const discount = orderData?.orderItems ?
-    orderData.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0) : 0;
-
-  const voucherDiscount = orderData?.voucher && orderData.voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (originalTotal - discount) * ((orderData.voucher.value) / 100) : orderData?.voucher && orderData.voucher.type === VOUCHER_TYPE.FIXED_VALUE ? orderData.voucher.value : 0;
 
   useEffect(() => {
     if (isExpired) {
@@ -312,15 +310,40 @@ export default function PaymentPage() {
                       </div>
                     </div>
                     <div className="flex col-span-1 items-center">
-                      <span className="flex gap-2 items-center text-[10px] sm:text-sm">
-                        {item?.promotion?.value &&
-                          <span className='line-through text-muted-foreground/70 sm:block'>
-                            {`${formatCurrency(item.variant.price || 0)}`}
-                          </span>}
-                        <span className="text-[11px] font-bold sm:text-sm text-primary">
-                          {`${formatCurrency(item.subtotal / item.quantity || 0)}`}
-                        </span>
-                      </span>
+                      {(() => {
+                        const displayItem = displayItems.find(di => di.slug === item.slug)
+                        const original = item.variant.price || 0
+                        const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                        const finalPrice = displayItem?.finalPrice || 0
+
+                        const isSamePriceVoucher =
+                          voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                          voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                        const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                        const displayPrice = isSamePriceVoucher
+                          ? finalPrice
+                          : hasPromotionDiscount
+                            ? priceAfterPromotion
+                            : original
+
+                        const shouldShowLineThrough =
+                          isSamePriceVoucher || hasPromotionDiscount
+
+                        return (
+                          <div className="flex gap-1 items-center">
+                            {shouldShowLineThrough && original !== finalPrice && (
+                              <span className="text-sm line-through text-muted-foreground">
+                                {formatCurrency(original)}
+                              </span>
+                            )}
+                            <span className="font-bold text-primary">
+                              {formatCurrency(displayPrice)}
+                            </span>
+                          </div>
+                        )
+                      })()}
                     </div>
                     <div className="flex col-span-1 justify-center">
                       <span className="text-sm">
@@ -348,27 +371,25 @@ export default function PaymentPage() {
                       {t('order.total')}
                     </h3>
                     <p className="text-sm font-semibold">
-                      {`${formatCurrency(originalTotal || 0)}`}
+                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full">
                     <h3 className="text-sm font-medium text-muted-foreground">
-                      {t('order.discount')}
+                      {t('order.promotionDiscount')}
                     </h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      - {`${formatCurrency(discount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.promotionDiscount || 0)}`}
                     </p>
                   </div>
-                  {voucherDiscount > 0 && (
-                    <div className="flex justify-between pb-4 w-full">
-                      <h3 className="text-sm italic font-medium text-green-500">
-                        {t('order.voucher')}
-                      </h3>
-                      <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency(voucherDiscount || 0)}`}
-                      </p>
-                    </div>
-                  )}
+                  <div className="flex justify-between pb-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-green-500">
+                      {t('order.voucher')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-green-500">
+                      - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
+                    </p>
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">

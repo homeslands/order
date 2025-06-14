@@ -19,7 +19,7 @@ import { useOrderBySlug, useUpdateOrderType } from '@/hooks'
 import UpdateOrderSkeleton from '../skeleton/page'
 import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { ITable, OrderTypeEnum } from '@/types'
-import { formatCurrency, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showToast } from '@/utils'
 import { ClientMenuTabs } from '@/components/app/tabs'
 import UpdateOrderQuantity from './components/update-quantity'
 import { UpdateOrderItemNoteInput, UpdateOrderNoteInput } from './components'
@@ -29,6 +29,7 @@ import { useOrderTypeStore } from '@/stores'
 export default function ClientUpdateOrderPage() {
     const navigate = useNavigate()
     const { t } = useTranslation('menu')
+    const { t: tVoucher } = useTranslation('voucher')
     const { t: tToast } = useTranslation('toast')
     const { t: tHelmet } = useTranslation('helmet')
     const { slug } = useParams()
@@ -45,33 +46,12 @@ export default function ClientUpdateOrderPage() {
         }
     }, [order, addOrderType, addTable])
 
-    // Add useEffect to trigger updateVoucherInOrder when selectedTable changes
-    // useEffect(() => {
-    //     if (selectedTable && order?.result) {
-    //         // Only update if the selected table is different from the current order table
-    //         if (selectedTable.slug !== order?.result.table?.slug) {
-    //             updateOrderType({ slug: slug as string, params: { type: orderType, table: selectedTable?.slug || null } }, {
-    //                 onSuccess: () => {
-    //                     showToast(tToast('toast.updateOrderSuccess'))
-    //                 }
-    //             })
-    //         }
-    //     }
-    // }, [selectedTable, updateOrderType, slug, order?.result, type, tToast])
-
     const orderItems = order?.result
+    const voucher = orderItems?.voucher || null
 
-    const originalTotal = orderItems
-        ? orderItems.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
-        : 0;
+    const displayItems = calculateOrderItemDisplay(orderItems ? orderItems?.orderItems : [], voucher)
 
-
-    // calculate discount base on promotion
-    const discount = orderItems?.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0)
-
-    const voucherValue = orderItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-        ? (originalTotal - (discount || 0)) * (orderItems?.voucher?.value || 0) / 100
-        : orderItems?.voucher?.value || 0
+    const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
     const handleRemoveOrderItemSuccess = () => {
         refetch()
@@ -182,22 +162,47 @@ export default function ClientUpdateOrderPage() {
                                                                 {item.variant.product.name}
                                                                 <span className='text-muted-foreground'> - Size {item.variant.size.name.toLocaleUpperCase()}</span>
                                                             </span>
-                                                            {item?.promotion ? (
-                                                                <div className='flex gap-1 items-center'>
-                                                                    <span className="text-xs line-through text-muted-foreground sm:text-sm">
-                                                                        {`${formatCurrency(item?.variant?.price)}`}
-                                                                    </span>
-                                                                    <span className="text-xs font-extrabold text-primary sm:text-base">
-                                                                        {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) : item?.variant?.price)}`}
-                                                                    </span>
-                                                                </div>
-                                                            ) : (
-                                                                <div className='flex gap-1 items-center'>
-                                                                    <span className="text-xs text-primary sm:text-base">
-                                                                        {`${formatCurrency(item?.variant?.price)}`}
-                                                                    </span>
-                                                                </div>
-                                                            )}
+                                                            {(() => {
+                                                                const displayItem = displayItems.find(di => di.slug === item.slug)
+                                                                const original = item.variant.price || 0
+                                                                const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                                                                const finalPrice = displayItem?.finalPrice || 0
+
+                                                                const isSamePriceVoucher =
+                                                                    voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                                                                    voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                                                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                                                                const displayPrice = isSamePriceVoucher
+                                                                    ? finalPrice
+                                                                    : hasPromotionDiscount
+                                                                        ? priceAfterPromotion
+                                                                        : original
+
+                                                                const shouldShowLineThrough =
+                                                                    isSamePriceVoucher || hasPromotionDiscount
+
+                                                                const note = isSamePriceVoucher
+                                                                    ? '(**)'
+                                                                    : hasPromotionDiscount
+                                                                        ? '(*)'
+                                                                        : ''
+
+                                                                return (
+                                                                    <div className="flex gap-1 items-center">
+                                                                        {shouldShowLineThrough && original !== finalPrice && (
+                                                                            <span className="text-sm line-through text-muted-foreground">
+                                                                                {formatCurrency(original)}
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="font-bold text-primary">
+                                                                            {formatCurrency(displayPrice)}
+                                                                        </span>
+                                                                        {note && <span className="text-sm">{note}</span>}
+                                                                    </div>
+                                                                )
+                                                            })()}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -206,7 +211,7 @@ export default function ClientUpdateOrderPage() {
                                                 </div>
                                                 <div className="col-span-2 h-full">
                                                     <span className="flex justify-center items-end h-full text-sm font-semibold text-primary">
-                                                        {`${formatCurrency(item?.promotion ? item?.variant?.price * (1 - item?.promotion?.value / 100) * item.quantity : item?.variant?.price * item.quantity)}`}
+                                                        {`${formatCurrency((item.subtotal || 0))}`}
                                                     </span>
                                                 </div>
                                                 <div className="flex col-span-1 justify-center items-end h-full" >
@@ -218,10 +223,67 @@ export default function ClientUpdateOrderPage() {
                                     ))}
                                 </div>
                                 {/* order note */}
-                                <div className="flex flex-col items-end py-4 mt-4 border-t border-muted-foreground/40">
+                                <div className="flex flex-col gap-2 items-start py-4 mt-4 border-t border-muted-foreground/40">
                                     <UpdateOrderNoteInput onSuccess={handleUpdateOrderNoteSuccess} order={orderItems} />
+                                    <div className="p-3 w-full rounded-md border bg-primary/10 border-primary">
+                                        <div className="flex gap-2 items-start text-sm text-primary">
+                                            <div className="flex-1">
+                                                <p className="text-xs text-primary">
+                                                    <span className="font-extrabold">{t('order.voucher')}</span>
+                                                </p>
+                                                <ul className="mt-1 space-y-1 text-xs text-primary">
+                                                    <li className="flex gap-1 items-center">
+                                                        <span className="font-bold text-primary">*</span>
+                                                        <span>{t('order.promotionDiscount')}</span>
+                                                    </li>
+                                                    <li className="flex gap-1 items-center">
+                                                        <span className="font-bold text-primary">**</span>
+                                                        <span>{t('order.itemLevelVoucher')}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <VoucherListSheetInUpdateOrder defaultValue={orderItems || undefined} onSuccess={refetch} />
+                                <div>
+                                    {orderItems?.voucher && (
+                                        <div className="flex justify-start w-full">
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex gap-2 items-center mt-2">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {t('order.usedVoucher')}:
+                                                    </span>
+                                                    <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                                                        -{`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
+                                                    </span>
+                                                </div>
+
+                                                {/* Hiển thị nội dung chi tiết theo loại voucher */}
+                                                <div className="mt-1 text-xs italic text-muted-foreground">
+                                                    {(() => {
+                                                        const voucher = orderItems?.voucher
+                                                        if (!voucher) return null
+
+                                                        switch (voucher.type) {
+                                                            case VOUCHER_TYPE.PERCENT_ORDER:
+                                                                return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+
+                                                            case VOUCHER_TYPE.FIXED_VALUE:
+                                                                return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+
+                                                            case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
+                                                                return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+
+                                                            default:
+                                                                return ''
+                                                        }
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex flex-col items-end pt-4 mt-4 border-t border-muted-foreground/40">
                                     <div className="space-y-1 w-2/3">
                                         <div className="grid grid-cols-5">
@@ -229,30 +291,29 @@ export default function ClientUpdateOrderPage() {
                                             <span className="col-span-2 text-sm text-right text-muted-foreground">
                                                 {/* {formatCurrency(orderItems ? orderItems.subtotal : 0)} */}
                                                 {/* {formatCurrency(orderItems?.subtotal || 0)} */}
-                                                {formatCurrency(originalTotal)}
+                                                {formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-5">
-                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.discount')}:</span>
+                                            <span className="col-span-3 text-sm text-muted-foreground">{t('order.promotionDiscount')}</span>
                                             <span className="col-span-2 text-sm text-right text-muted-foreground">
-                                                - {formatCurrency(discount || 0)}
+                                                - {formatCurrency(cartTotals?.promotionDiscount || 0)}
                                                 {/* {formatCurrency(orderItems?.voucher ? (orderItems.subtotal * (orderItems.voucher.value || 0)) / 100 : 0)} */}
                                             </span>
                                         </div>
-                                        {order?.result.voucher &&
-                                            <div className="flex justify-between pb-4 w-full border-b">
-                                                <h3 className="text-sm italic font-medium text-green-500">
-                                                    {t('order.voucher')}
-                                                </h3>
-                                                <p className="text-sm italic font-semibold text-green-500">
-                                                    - {`${formatCurrency(voucherValue)}`}
-                                                </p>
-                                            </div>}
+                                        <div className="flex justify-between pb-4 w-full border-b">
+                                            <h3 className="text-sm italic font-medium text-green-500">
+                                                {t('order.voucher')}
+                                            </h3>
+                                            <p className="text-sm italic font-semibold text-green-500">
+                                                - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
+                                            </p>
+                                        </div>
 
                                         <div className="grid grid-cols-5 pt-2 mt-4 border-t">
                                             <span className="col-span-3 text-lg font-bold">{t('order.subtotal')}:</span>
                                             <span className="col-span-2 font-semibold text-right text-md text-primary sm:text-2xl">
-                                                {formatCurrency(orderItems ? (orderItems.subtotal) : 0)}
+                                                {formatCurrency(cartTotals?.finalTotal || 0)}
                                             </span>
                                         </div>
                                         {/* <span className="text-xs text-muted-foreground">({t('order.vat')})</span> */}
