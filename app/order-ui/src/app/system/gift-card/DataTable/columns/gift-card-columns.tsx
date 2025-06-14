@@ -15,11 +15,24 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
 
   return [
     {
+      id: 'actions',
+      header: tCommon('common.action'),
+      cell: ({ row }) => {
+        const giftCard = row.original
+        return (
+          <div className="flex gap-2 items-center w-20">
+            <UpdateGiftCardSheet giftCard={giftCard} />
+            <DeleteGiftCardDialog giftCard={giftCard} />
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'slug',
       header: () => <div className="">{t('giftCard.slug')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
-        return <div className="text-sm">{giftCard?.slug}</div>
+        return <div className="text-sm w-28">{giftCard?.slug}</div>
       },
     },
     {
@@ -123,24 +136,10 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
           : GiftCardStatus.INACTIVE
         return (
           <div
-            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              isActive ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
-            }`}
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+              }`}
           >
             {t(`giftCard.${status.toLowerCase()}`)}
-          </div>
-        )
-      },
-    },
-    {
-      id: 'actions',
-      header: tCommon('common.action'),
-      cell: ({ row }) => {
-        const giftCard = row.original
-        return (
-          <div className="flex w-20 items-center gap-2">
-            <UpdateGiftCardSheet giftCard={giftCard} />
-            <DeleteGiftCardDialog giftCard={giftCard} />
           </div>
         )
       },
