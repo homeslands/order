@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { getCardOrder } from '@/api'
 import { QUERYKEY } from '@/constants'
 import { ICardOrderResponse, IApiResponse, OrderStatus } from '@/types'
+import { orderExpirationTimeInSeconds } from '@/constants/env'
 
 interface UseGiftCardPollingProps {
   slug: string
@@ -19,6 +20,7 @@ export function useGiftCardPolling({
   pollingInterval = 30000, // 30 seconds default
   onPaymentSuccess,
   onExpired,
+  onCancelled,
 }: UseGiftCardPollingProps) {
   const [isPolling, setIsPolling] = useState(shouldPoll)
   const [pollAttempts, setPollAttempts] = useState(0)
@@ -27,9 +29,7 @@ export function useGiftCardPolling({
     queryFn: () => getCardOrder(slug),
     refetchInterval: (data) => {
       // Stop polling if payment is completed or if we're not supposed to poll
-      if (!isPolling) return false
-
-      // Cast data properly - it's IApiResponse<ICardOrderResponse>
+      if (!isPolling) return false // Cast data properly - it's IApiResponse<ICardOrderResponse>
       const response = data as unknown as IApiResponse<ICardOrderResponse>
       const cardOrder = response?.result // Check if payment is completed
       if (cardOrder?.paymentStatus === OrderStatus.COMPLETED) {
@@ -65,15 +65,30 @@ export function useGiftCardPolling({
 
     if (cardOrder) {
       const orderDate = new Date(cardOrder.orderDate)
-      const expiryDate = new Date(orderDate.getTime() + 15 * 60 * 1000) // 15 minutes
+      // Get expiry time from env (in minutes), fallback to 15 minutes
+      const expiryMinutes = orderExpirationTimeInSeconds
+      const expiryDate = new Date(orderDate.getTime() + expiryMinutes * 1000)
       const now = new Date()
 
       if (now > expiryDate) {
         setIsPolling(false)
         onExpired?.()
       }
+
+      if (cardOrder?.paymentStatus === OrderStatus.COMPLETED) {
+        setIsPolling(false)
+        onPaymentSuccess?.()
+      }
+
+      if (
+        cardOrder?.status === OrderStatus.FAILED ||
+        cardOrder?.paymentStatus === OrderStatus.FAILED
+      ) {
+        setIsPolling(false)
+        onCancelled?.()
+      }
     }
-  }, [query.data, onExpired])
+  }, [query.data, onExpired, onPaymentSuccess, onCancelled])
 
   const startPolling = () => {
     setIsPolling(true)
