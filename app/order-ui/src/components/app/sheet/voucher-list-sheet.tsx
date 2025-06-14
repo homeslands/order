@@ -273,7 +273,7 @@ export default function VoucherListSheet() {
     if (isSelected) {
       handleRemove()
     } else {
-      if (userInfo) {
+      if (userInfo && voucher?.isVerificationIdentity) {
         validateVoucher(validateVoucherParam, { onSuccess })
       } else {
         validatePublicVoucher(validateVoucherParam, { onSuccess })
