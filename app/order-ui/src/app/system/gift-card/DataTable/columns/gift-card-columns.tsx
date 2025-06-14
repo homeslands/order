@@ -15,11 +15,24 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
 
   return [
     {
+      id: 'actions',
+      header: tCommon('common.action'),
+      cell: ({ row }) => {
+        const giftCard = row.original
+        return (
+          <div className="flex gap-2 items-center w-20">
+            <UpdateGiftCardSheet giftCard={giftCard} />
+            <DeleteGiftCardDialog giftCard={giftCard} />
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: 'slug',
       header: () => <div className="">{t('giftCard.slug')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
-        return <div className="text-sm">{giftCard?.slug}</div>
+        return <div className="text-sm w-28">{giftCard?.slug}</div>
       },
     },
     {
@@ -115,19 +128,6 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
               }`}
           >
             {t(`giftCard.${status.toLowerCase()}`)}
-          </div>
-        )
-      },
-    },
-    {
-      id: 'actions',
-      header: tCommon('common.action'),
-      cell: ({ row }) => {
-        const giftCard = row.original
-        return (
-          <div className="flex gap-2 items-center w-20">
-            <UpdateGiftCardSheet giftCard={giftCard} />
-            <DeleteGiftCardDialog giftCard={giftCard} />
           </div>
         )
       },
