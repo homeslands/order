@@ -15,11 +15,16 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
 
   return [
     {
-      accessorKey: 'slug',
-      header: () => <div className="">{t('giftCard.slug')}</div>,
+      id: 'actions',
+      header: tCommon('common.action'),
       cell: ({ row }) => {
         const giftCard = row.original
-        return <div className="text-sm">{giftCard?.slug}</div>
+        return (
+          <div className="flex gap-2 items-center w-20">
+            <UpdateGiftCardSheet giftCard={giftCard} />
+            <DeleteGiftCardDialog giftCard={giftCard} />
+          </div>
+        )
       },
     },
     {
@@ -44,36 +49,36 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
     },
     {
       accessorKey: 'title',
-      header: () => <div className="w-52">{t('giftCard.title')}</div>,
+      header: () => <div className="w-40">{t('giftCard.title')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
         return (
           <>
-            <div className="w-52 line-clamp-3"
+            <div className="w-40 line-clamp-3"
               data-tooltip-id='title-tooltip'
               data-tooltip-content={String(giftCard.title)}
             >
               {giftCard.title}
             </div>
-            <Tooltip id="title-tooltip" variant='light' style={{ width: '15rem' }} />
+            <Tooltip id="title-tooltip" variant='light' style={{ width: '10rem' }} />
           </>
         )
       },
     },
     {
       accessorKey: 'description',
-      header: () => <div className="w-96">{t('giftCard.description')}</div>,
+      header: () => <div className="w-52">{t('giftCard.description')}</div>,
       cell: ({ row }) => {
         const description = row.getValue('description')
         return (
           <>
             <div
-              className="w-96 text-sm line-clamp-4"
+              className="w-52 text-sm line-clamp-4"
               data-tooltip-id='description-tooltip'
               data-tooltip-content={String(description)}>
               {String(description)}
             </div>
-            <Tooltip id="description-tooltip" style={{ width: '25rem' }} variant='light' />
+            <Tooltip id="description-tooltip" style={{ width: '13rem' }} variant='light' />
           </>
         )
       },
@@ -120,16 +125,11 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
       },
     },
     {
-      id: 'actions',
-      header: tCommon('common.action'),
+      accessorKey: 'slug',
+      header: () => <div className="">{t('giftCard.slug')}</div>,
       cell: ({ row }) => {
         const giftCard = row.original
-        return (
-          <div className="flex gap-2 items-center w-20">
-            <UpdateGiftCardSheet giftCard={giftCard} />
-            <DeleteGiftCardDialog giftCard={giftCard} />
-          </div>
-        )
+        return <div className="text-sm w-28">{giftCard?.slug}</div>
       },
     },
   ]
