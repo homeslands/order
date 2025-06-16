@@ -23,7 +23,9 @@ export default function ReceiversSection({
   form,
   onQuantityChange,
 }: ReceiversSectionProps) {
-  const { t } = useTranslation(['giftCard']) // Watch receivers to get current values
+  const { t } = useTranslation(['giftCard']) 
+  
+  // Watch receivers to get current values
   const receivers = form.watch('receivers') || []
 
   // Calculate total receiver quantities
