@@ -66,7 +66,7 @@ export const useGetCardOrder = (slug: string) => {
   return useQuery({
     queryKey: [QUERYKEY.cardOrder, slug],
     queryFn: () => getCardOrder(slug),
-    enabled: !!slug,
+    refetchOnWindowFocus: false,
   })
 }
 
