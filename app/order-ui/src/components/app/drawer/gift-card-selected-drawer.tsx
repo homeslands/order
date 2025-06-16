@@ -131,33 +131,34 @@ export function GiftCardSelectedDrawer({
                     {selectedCard.description}
                   </div>
 
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CoinsIcon className="h-5 w-5 text-primary" />
-                    <span className="text-lg font-bold text-primary">
-                      {formatCurrency(selectedCard.points * quantity, '')}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <QuantityControl
-                        quantity={quantity}
-                        onIncrease={handleIncrement}
-                        onDecrease={handleDecrement}
-                        min={1}
-                        max={10}
-                      />
+                      <CoinsIcon className="h-5 w-5 text-primary" />
+                      <span className="text-lg font-bold text-primary">
+                        {formatCurrency(selectedCard.points * quantity, '')}
+                      </span>
                     </div>
 
-                    <Button
-                      size="lg"
-                      className="whitespace-nowrap rounded-full"
-                      onClick={handleAddToCart}
-                    >
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      <span>{t('giftCard.addToCart')}</span>
-                    </Button>
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <QuantityControl
+                          quantity={quantity}
+                          onIncrease={handleIncrement}
+                          onDecrease={handleDecrement}
+                          min={1}
+                          max={10}
+                        />
+                      </div>
+
+                      <Button
+                        size="lg"
+                        className="whitespace-nowrap rounded-full"
+                        onClick={handleAddToCart}
+                      >
+                        <ShoppingCart className="mr-2 h-5 w-5" />
+                        <span>{t('giftCard.addToCart')}</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
