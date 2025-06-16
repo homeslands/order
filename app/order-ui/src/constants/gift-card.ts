@@ -4,8 +4,8 @@ export enum GiftCardStatus {
 }
 
 export enum GiftCardType {
-  SELF = 'self_use',
-  GIFT = 'send_to_friend',
+  SELF = 'SELF',
+  GIFT = 'GIFT',
 }
 
 export enum ReceiverField {
