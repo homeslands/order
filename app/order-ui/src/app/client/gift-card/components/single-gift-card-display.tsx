@@ -28,13 +28,7 @@ export default function SingleGiftCardDisplay({
         <span className="col-span-3">{t('giftCard.giftCard')}</span>
         <span className="col-span-2 text-center">{t('giftCard.quantity')}</span>
         <span className="col-span-2 text-center">{t('giftCard.total')}</span>
-        <span className="col-span-1 flex justify-center">
-          <Trash2
-            size={18}
-            onClick={onClear}
-            className="cursor-pointer hover:text-destructive"
-          />
-        </span>
+        <span className="col-span-1 flex justify-center"></span>
       </div>
 
       <div className="mb-2 flex flex-col rounded-md border">

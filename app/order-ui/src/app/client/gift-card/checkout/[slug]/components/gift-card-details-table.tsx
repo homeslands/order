@@ -33,7 +33,7 @@ export default function GiftCardDetailsTable({
             </td>
             <td className="border px-2 py-1 text-center">
               <CoinsIcon className="inline h-4 w-4 text-primary" />{' '}
-              {orderData.cardPoint}
+              {formatCurrency(orderData.cardPoint, '')}
             </td>
             <td className="border px-2 py-1 text-center">
               {formatCurrency(orderData.cardPrice)}
