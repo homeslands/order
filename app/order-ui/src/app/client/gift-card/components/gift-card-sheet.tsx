@@ -44,6 +44,13 @@ export default function GiftCardSheet() {
     clearGiftCard,
   } = useGiftCardStore()
 
+  // Wrapper function for clearGiftCard to also reset the receivers section
+  const handleClearGiftCard = (showNotification = true) => {
+    clearGiftCard(showNotification)
+    // Reset receivers array to empty
+    form.setValue('receivers', [])
+  }
+
   // Create dynamic schema with max quantity validation
   const dynamicSchema = useMemo(() => {
     return createGiftCardCheckoutSchema(giftCardItem?.quantity)
@@ -148,7 +155,7 @@ export default function GiftCardSheet() {
       {
         onSuccess: (response) => {
           showToast(t('giftCard.createGiftCardOrderSuccess'))
-          clearGiftCard(false)
+          handleClearGiftCard(false)
           handleSheetOpenChange(false)
           setConfirmDialogOpen(false)
 
@@ -219,7 +226,7 @@ export default function GiftCardSheet() {
                         item={giftCardItem}
                         onIncrement={handleIncrement}
                         onDecrement={handleDecrement}
-                        onClear={clearGiftCard}
+                        onClear={handleClearGiftCard}
                       />
 
                       <FormField
@@ -268,12 +275,16 @@ export default function GiftCardSheet() {
                   />
                 )}
               </div>
+              </div>{' '}
               {/* Fixed Footer - Total Section */}{' '}
               {giftCardItem && (
                 <OrderSummary
                   totalPoints={totalPoints}
                   totalAmount={totalAmount}
                   onCheckout={handleShowConfirmDialog}
+                  disabled={
+                    !form.formState.isValid || form.formState.isSubmitting
+                  }
                 />
               )}
             </form>
