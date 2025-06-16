@@ -1,6 +1,5 @@
 import { Minus, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { GiftCardType } from '@/constants'
 
 interface QuantityControlProps {
   quantity: number
@@ -11,7 +10,6 @@ interface QuantityControlProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
   orientation?: 'horizontal' | 'vertical'
-  giftCardType?: string
 }
 
 export function QuantityControl({
@@ -19,13 +17,11 @@ export function QuantityControl({
   onIncrease,
   onDecrease,
   min = 1,
-  max = 100,
+  max = 10,
   size = 'md',
   className,
   orientation = 'horizontal',
-  giftCardType
 }: QuantityControlProps) {
-
   const sizes = {
     sm: {
       button: 'h-7 w-7',
@@ -53,18 +49,19 @@ export function QuantityControl({
         isVertical ? 'flex-col' : 'flex-row',
         className,
       )}
-    >      <button
-      type="button"
-      onClick={onDecrease}
-      disabled={quantity <= min || (giftCardType === GiftCardType.GIFT)}
-      className={cn(
-        'flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50',
-        isVertical
-          ? 'rounded-t-md border border-input'
-          : 'rounded-l-md border border-input',
-        sizes[size].button,
-      )}
     >
+      <button
+        type="button"
+        onClick={onDecrease}
+        disabled={quantity <= min}
+        className={cn(
+          'flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50',
+          isVertical
+            ? 'rounded-t-md border border-input'
+            : 'rounded-l-md border border-input',
+          sizes[size].button,
+        )}
+      >
         <Minus className={sizes[size].icon} />
       </button>
       <span
@@ -82,7 +79,7 @@ export function QuantityControl({
       <button
         type="button"
         onClick={onIncrease}
-        disabled={quantity >= max || (giftCardType === GiftCardType.GIFT)}
+        disabled={quantity >= max}
         className={cn(
           'flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50',
           isVertical

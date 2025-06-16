@@ -7,14 +7,12 @@ interface OrderSummaryProps {
   totalPoints: number
   totalAmount: number
   onCheckout: () => void
-  disabled?: boolean
 }
 
 export default function OrderSummary({
   totalPoints,
   totalAmount,
   onCheckout,
-  disabled,
 }: OrderSummaryProps) {
   const { t } = useTranslation(['giftCard'])
 
@@ -34,7 +32,7 @@ export default function OrderSummary({
         </div>
       </div>
       <div className="mt-4 flex justify-end">
-        <Button className="w-max rounded-full" onClick={onCheckout} disabled={disabled}>
+        <Button className="w-max rounded-full" onClick={onCheckout}>
           {t('giftCard.checkout')}
         </Button>
       </div>
