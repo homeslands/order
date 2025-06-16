@@ -51,11 +51,10 @@ export function GiftCardSelected({
       }}
       exit={{ opacity: 0, y: '100%' }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className={`fixed z-[100] overflow-y-auto bg-white shadow-lg ${
-        isFullScreen
+      className={`fixed z-[100] overflow-y-auto bg-white shadow-lg ${isFullScreen
           ? 'inset-0 px-4 pb-6 pt-4'
           : 'bottom-0 left-0 right-0 border-t border-primary/20 px-4 pb-6 pt-4 md:px-8'
-      }`}
+        }`}
     >
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">

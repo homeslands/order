@@ -44,6 +44,13 @@ export default function GiftCardSheet() {
     clearGiftCard,
   } = useGiftCardStore()
 
+  // Wrapper function for clearGiftCard to also reset the receivers section
+  const handleClearGiftCard = (showNotification = true) => {
+    clearGiftCard(showNotification)
+    // Reset receivers array to empty
+    form.setValue('receivers', [])
+  }
+
   // Create dynamic schema with max quantity validation
   const dynamicSchema = useMemo(() => {
     return createGiftCardCheckoutSchema(giftCardItem?.quantity)
@@ -82,16 +89,28 @@ export default function GiftCardSheet() {
         giftType: GiftCardType.SELF,
         receivers: [],
       })
+    } else {
+      // Ensure form has default value when opening
+      if (!form.getValues('giftType')) {
+        form.setValue('giftType', GiftCardType.SELF)
+      }
     }
   }
-
   // Reset receivers when gift type changes to SELF
   useEffect(() => {
+    // Ensure form always has a default giftType value
+    if (!watchedGiftType) {
+      form.setValue('giftType', GiftCardType.SELF)
+      return
+    }
+
     if (watchedGiftType === GiftCardType.SELF) {
       // Clear any existing validation errors for receivers
       form.clearErrors('receivers')
       // Reset receivers array to empty when SELF is selected
       form.setValue('receivers', [])
+      // Reset item quantity to 1
+      updateQuantity(1)
     } else if (watchedGiftType === GiftCardType.GIFT) {
       // Ensure at least one receiver when GIFT is selected
       const receivers = form.getValues('receivers')
@@ -101,7 +120,7 @@ export default function GiftCardSheet() {
         ])
       }
     }
-  }, [watchedGiftType, form])
+  }, [watchedGiftType, form, updateQuantity])
 
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(
@@ -148,7 +167,7 @@ export default function GiftCardSheet() {
       {
         onSuccess: () => {
           showToast(t('giftCard.createGiftCardOrderSuccess'))
-          clearGiftCard(false)
+          handleClearGiftCard(false)
           handleSheetOpenChange(false)
           setConfirmDialogOpen(false)
 
@@ -159,7 +178,7 @@ export default function GiftCardSheet() {
   }
 
   const handleIncrement = () => {
-    if (giftCardItem && giftCardItem.quantity < 10) {
+    if (giftCardItem && giftCardItem.quantity < 100) {
       updateQuantity(giftCardItem.quantity + 1)
     }
   }
@@ -217,7 +236,8 @@ export default function GiftCardSheet() {
                         item={giftCardItem}
                         onIncrement={handleIncrement}
                         onDecrement={handleDecrement}
-                        onClear={clearGiftCard}
+                        onClear={handleClearGiftCard}
+                        giftCardType={watchedGiftType}
                       />
 
                       <FormField
@@ -261,17 +281,24 @@ export default function GiftCardSheet() {
                     fields={fields}
                     append={append}
                     remove={remove}
-                    quantity={giftCardItem?.quantity || 1}
                     form={form}
+                    onQuantityChange={(newQuantity) => {
+                      if (giftCardItem && newQuantity !== giftCardItem.quantity) {
+                        updateQuantity(newQuantity)
+                      }
+                    }}
                   />
                 )}
-              </div>
+              </div>{' '}
               {/* Fixed Footer - Total Section */}{' '}
               {giftCardItem && (
                 <OrderSummary
                   totalPoints={totalPoints}
                   totalAmount={totalAmount}
                   onCheckout={handleShowConfirmDialog}
+                  disabled={
+                    !form.formState.isValid || form.formState.isSubmitting
+                  }
                 />
               )}
             </form>
