@@ -23,7 +23,7 @@ export default function ReceiversSection({
   form,
   onQuantityChange,
 }: ReceiversSectionProps) {
-  const { t } = useTranslation(['giftCard'])  // Watch receivers to get current values
+  const { t } = useTranslation(['giftCard']) // Watch receivers to get current values
   const receivers = form.watch('receivers') || []
 
   // Calculate total receiver quantities
@@ -42,8 +42,8 @@ export default function ReceiversSection({
   return (
     <div className="mt-6 flex flex-col gap-4 overflow-hidden pb-6">
       {receivers.length > 0 && (
-        <>          
-        {fields.map((field, index) => (
+        <>
+          {fields.map((field, index) => (
             <ReceiverForm
               key={field.id}
               index={index}
