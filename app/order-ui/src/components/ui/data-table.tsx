@@ -290,7 +290,7 @@ export function DataTable<TData, TValue>({
             />
           )}
           {/* View options */}
-          <DataTableViewOptions table={table} />
+          {/* <DataTableViewOptions table={table} /> */}
         </div>
       </div>
 

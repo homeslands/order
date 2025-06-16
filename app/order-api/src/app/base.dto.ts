@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsOptional, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsOptional, IsString, Min } from 'class-validator';
 
 export class BaseResponseDto {
   @AutoMap()
@@ -32,4 +32,20 @@ export class BaseQueryDto {
   @Type(() => Number)
   @Min(1)
   size: number = 10;
+
+  @AutoMap()
+  @ApiProperty({
+    example: ['createdAt:desc'],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return [value]; // or split it into multiple parts
+    }
+    return value;
+  })
+  sort: string[] = [];
 }

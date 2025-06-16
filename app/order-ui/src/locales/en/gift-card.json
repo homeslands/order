@@ -1,0 +1,30 @@
+{
+    "giftCard": {
+        "pageTitle": "Gift Card Management",
+        
+        "title": "Title",
+        "description": "Description",
+        "image": "Image",
+        "price": "Price",
+        "points": "Points",
+        "slug": "Gift Card Code",
+        "status": "Status",
+        "isActive": "Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        
+        "create": "Create Gift Card",
+        "createTitle": "Create New Gift Card",
+        "createDescription": "Fill in the information to create a new gift card",
+        "enterGiftCardTitle": "Enter gift card title",
+        "enterGiftCardDescription": "Enter gift card description",
+        
+        "update": "Update Gift Card",
+        
+        "delete": "Delete Gift Card",
+        "deleteTitle": "Delete Gift Card",
+        "deleteDescription": "Are you sure you want to delete this gift card?",
+        "deleteGiftCardWarning1": "You are about to delete the gift card:",
+        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?"
+    }
+}
