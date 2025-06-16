@@ -291,6 +291,7 @@ export default function GiftCardSheet() {
                     }}
                   />
                 )}
+              </div>
               </div>{' '}
               {/* Fixed Footer - Total Section */}{' '}
               {giftCardItem && (
