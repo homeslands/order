@@ -196,54 +196,56 @@ export default function GiftCardCheckoutWithSlugPage() {
   // Extract order data from response
   const orderData = currentOrderData
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-white p-6 dark:bg-gray-900">
-      {/* Order countdown component */}
-      <OrderCountdown
-        createdAt={orderData.orderDate}
-        setIsExpired={handleExpired}
-      />
-
-      {/* Page title with order slug and polling indicator */}
-      <CheckoutHeader
-        orderData={orderData}
-        isPolling={isPolling}
-        pollAttempts={pollAttempts}
-      />
-
-      {/* Two-column grid layout for customer and order information */}
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-        {/* Customer Information Section */}
-        <CustomerInfo orderData={orderData} />
-
-        {/* Order Information Section */}
-        <OrderInfo orderData={orderData} />
-      </div>
-
-      {/* Gift Card Details Table */}
-      <GiftCardDetailsTable orderData={orderData} />
-
-      {/* Payment Method Section */}
-      <PaymentMethodSection />
-
-      {/* QR Code and Payment Summary Section */}
-      <div className="flex justify-between gap-6">
-        {/* Cancel order button - only show if order is pending */}
-        {orderData.status === OrderStatus.PENDING && (
-          <CancelCardOrderDialog
-            onConfirm={handleCancelOrder}
-            isLoading={cancelCardOrderMutation.isPending}
-            disabled={cancelCardOrderMutation.isPending || isExpired}
-          />
-        )}
-
-        <PaymentQRCodeSection
-          orderData={orderData}
-          isSuccessInitiatePayment={isSuccessInitiatePayment}
-          initiatePaymentData={initiatePaymentData}
-          isPendingInitiatePayment={isPendingInitiatePayment}
-          isExpired={isExpired}
-          onInitiatePayment={handleInitiatePayment}
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="mx-auto max-w-5xl p-6">
+        {/* Order countdown component */}
+        <OrderCountdown
+          createdAt={orderData.orderDate}
+          setIsExpired={handleExpired}
         />
+
+        {/* Page title with order slug and polling indicator */}
+        <CheckoutHeader
+          orderData={orderData}
+          isPolling={isPolling}
+          pollAttempts={pollAttempts}
+        />
+
+        {/* Two-column grid layout for customer and order information */}
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Customer Information Section */}
+          <CustomerInfo orderData={orderData} />
+
+          {/* Order Information Section */}
+          <OrderInfo orderData={orderData} />
+        </div>
+
+        {/* Gift Card Details Table */}
+        <GiftCardDetailsTable orderData={orderData} />
+
+        {/* Payment Method Section */}
+        <PaymentMethodSection />
+
+        {/* QR Code and Payment Summary Section */}
+        <div className="flex justify-between gap-6">
+          {/* Cancel order button - only show if order is pending */}
+          {orderData.status === OrderStatus.PENDING && (
+            <CancelCardOrderDialog
+              onConfirm={handleCancelOrder}
+              isLoading={cancelCardOrderMutation.isPending}
+              disabled={cancelCardOrderMutation.isPending || isExpired}
+            />
+          )}
+
+          <PaymentQRCodeSection
+            orderData={orderData}
+            isSuccessInitiatePayment={isSuccessInitiatePayment}
+            initiatePaymentData={initiatePaymentData}
+            isPendingInitiatePayment={isPendingInitiatePayment}
+            isExpired={isExpired}
+            onInitiatePayment={handleInitiatePayment}
+          />
+        </div>
       </div>
     </div>
   )
