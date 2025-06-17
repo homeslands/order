@@ -8,13 +8,12 @@ interface CustomerInfoProps {
 
 export default function CustomerInfo({ orderData }: CustomerInfoProps) {
   const { t } = useTranslation(['giftCard'])
-
   return (
-    <div className="rounded border bg-gray-50">
-      <div className="bg-gray-300 px-3 py-2 font-semibold">
+    <div className="rounded border bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+      <div className="bg-gray-300 px-3 py-2 font-semibold text-gray-900 dark:bg-gray-700 dark:text-white">
         {t('giftCard.customerInfo')}
       </div>
-      <div className="space-y-1 p-3 text-sm">
+      <div className="space-y-1 p-3 text-sm text-gray-700 dark:text-gray-300">
         {/* Customer name display */}
         <div className="flex justify-between">
           <span>{t('giftCard.customerName')}</span>

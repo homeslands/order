@@ -193,11 +193,10 @@ export default function GiftCardCheckoutWithSlugPage() {
       <ExpiredState onNavigateBack={() => navigate(ROUTE.CLIENT_GIFT_CARD)} />
     )
   }
-
   // Extract order data from response
   const orderData = currentOrderData
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-white p-6">
+    <div className="mx-auto min-h-screen max-w-5xl bg-white p-6 dark:bg-gray-900">
       {/* Order countdown component */}
       <OrderCountdown
         createdAt={orderData.orderDate}
@@ -224,7 +223,7 @@ export default function GiftCardCheckoutWithSlugPage() {
       <GiftCardDetailsTable orderData={orderData} />
 
       {/* Payment Method Section */}
-      <PaymentMethodSection orderData={orderData} />
+      <PaymentMethodSection />
 
       {/* QR Code and Payment Summary Section */}
       <div className="flex justify-between gap-6">
