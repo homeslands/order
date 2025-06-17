@@ -84,16 +84,16 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
             {group.items.map((item) => (
               <div
                 key={item.slug}
-                className="flex flex-row sm:flex-col justify-between bg-white rounded-xl backdrop-blur-md shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[16rem] dark:bg-transparent hover:scale-105"
+                className="flex flex-row sm:flex-col justify-between bg-white border shadow-xl dark:bg-transparent rounded-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[14rem] hover:shadow-2xl"
               >
                 <div className="flex flex-row w-full sm:flex-col">
-                  <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
+                  <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-24">
                     {item.product.image ? (
                       <>
                         <img
                           src={`${publicFileURL}/${item.product.image}`}
                           alt={item.product.name}
-                          className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-40"
+                          className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-24"
                         />
                         {item.product.isLimit && !isMobile && (
                           <span className="absolute bottom-1 left-1 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">

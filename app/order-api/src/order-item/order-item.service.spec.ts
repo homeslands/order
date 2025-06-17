@@ -25,6 +25,13 @@ import { OrderScheduler } from 'src/order/order.scheduler';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Branch } from 'src/branch/branch.entity';
 import { Payment } from 'src/payment/payment.entity';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { User } from 'src/user/user.entity';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 describe('OrderItemService', () => {
   let service: OrderItemService;
@@ -42,6 +49,17 @@ describe('OrderItemService', () => {
         PromotionUtils,
         OrderScheduler,
         SchedulerRegistry,
+        VoucherUtils,
+        UserUtils,
+        ProductUtils,
+        {
+          provide: getRepositoryToken(Voucher),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,
@@ -93,6 +111,14 @@ describe('OrderItemService', () => {
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

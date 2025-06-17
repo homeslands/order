@@ -1,15 +1,13 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { PlusCircle } from 'lucide-react'
 
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   Button,
   ScrollArea,
   Input,
@@ -21,6 +19,7 @@ import {
   FormMessage,
   Form,
   Switch,
+  DataTable,
 } from '@/components/ui'
 import { ConfirmCreateMultipleVoucherDialog } from '@/components/app/dialog'
 import { ICreateMultipleVoucherRequest } from '@/types'
@@ -29,13 +28,37 @@ import { createMultipleVoucherSchema, TCreateMultipleVoucherSchema } from '@/sch
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
+import { useCatalogs, useProducts } from '@/hooks'
+import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
+import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
 
-export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: () => void }) {
+export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
   const { t } = useTranslation(['voucher'])
+  const { t: tCommon } = useTranslation(['common'])
   const { slug } = useParams()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenDialog, setIsOpenDialog] = useState(isOpen)
+  const [catalog, setCatalog] = useState<string | null>(null)
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [formData, setFormData] = useState<ICreateMultipleVoucherRequest | null>(null)
-  const [sheetOpen, setSheetOpen] = useState(false)
+  const [sheetPagination, setSheetPagination] = useState({
+    pageIndex: 1,
+    pageSize: 10
+  })
+
+  const { data: catalogs } = useCatalogs()
+
+  const { data: products, isLoading } = useProducts({
+    page: sheetPagination.pageIndex,
+    size: sheetPagination.pageSize,
+    hasPaging: true,
+    catalog: catalog || undefined,
+  },
+    !!isOpen
+  )
+
+  const productsData = products?.result.items
+  const catalogsData = catalogs?.result
+  // const [sheetOpen, setSheetOpen] = useState(isOpen)
   const form = useForm<TCreateMultipleVoucherSchema>({
     resolver: zodResolver(createMultipleVoucherSchema),
     defaultValues: {
@@ -52,9 +75,49 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
-      isVerificationIdentity: true
+      isVerificationIdentity: true,
+      products: []
     }
   })
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setSheetPagination(() => ({
+      pageIndex: 1, // Reset to first page when changing page size
+      pageSize: size
+    }))
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setSheetPagination(prev => ({
+      ...prev,
+      pageIndex: page
+    }))
+  }, [])
+
+  const handleSelectionChange = (selectedSlugs: string[]) => {
+    setSelectedProducts(selectedSlugs) // Cập nhật state selectedProducts
+    form.setValue('products', selectedSlugs)
+  }
+
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
+  }
 
   const disableStartDate = (date: Date) => {
     const today = new Date()
@@ -77,7 +140,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
 
   const handleSubmit = (data: ICreateMultipleVoucherRequest) => {
     setFormData(data)
-    setIsOpen(true)
+    setIsOpenDialog(true)
   }
 
   const resetForm = () => {
@@ -94,7 +157,8 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
       numberOfUsagePerUser: 1,
       maxUsage: 0,
       minOrderValue: 0,
-      isVerificationIdentity: true
+      isVerificationIdentity: true,
+      products: []
     })
   }
 
@@ -237,12 +301,21 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
               </span>
               {t('voucher.value')}</FormLabel>
             <FormControl>
-              {form.watch('type') === 'percent_order' ? (
+              {form.watch('type') === VOUCHER_TYPE.PERCENT_ORDER ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        field.onChange('');
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
                     min={0}
                     max={100}
                     placeholder={t('voucher.enterVoucherValue')}
@@ -251,19 +324,50 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
                     %
                   </span>
                 </div>
-              ) : (
+              ) : form.watch('type') === VOUCHER_TYPE.FIXED_VALUE ? (
                 <div className='relative'>
                   <Input
                     type="number"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        field.onChange('');
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₫
                   </span>
                 </div>
-              )}
+              ) : form.watch('type') === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+                <div className='relative'>
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '') {
+                        field.onChange('');
+                      } else {
+                        field.onChange(Number(value));
+                      }
+                    }}
+                    className='text-sm'
+                    value={field.value === 0 ? '' : field.value}
+                    placeholder={t('voucher.enterFixedProductPrice')}
+                  />
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                    ₫
+                  </span>
+                </div>
+              ) : null}
+
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -280,7 +384,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
               <span className="text-destructive">
                 *
               </span>
-              {t('voucher.maxUsage')}</FormLabel>
+              {t('voucher.voucherMaxUsage')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -410,13 +514,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
   }
 
   return (
-    <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <PlusCircle size={16} />
-          {t('voucher.createMultiple')}
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={openChange}>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
@@ -459,6 +557,33 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
                     {formFields.maxUsage}
                     {formFields.numberOfUsagePerUser}
                   </div>
+                  {/* Nhóm: Sản phẩm */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium'>
+                        {t('voucher.products')}
+                      </span>
+                      {selectedProducts.length > 0 && (
+                        <span className='px-2 py-1 text-xs rounded-full text-muted-foreground bg-primary/10'>
+                          {selectedProducts.length} sản phẩm đã chọn
+                        </span>
+                      )}
+                    </div>
+                    <DataTable
+                      columns={useProductColumns({
+                        onSelectionChange: handleSelectionChange,
+                        selectedProducts: selectedProducts, // Truyền danh sách sản phẩm đã chọn
+                      })}
+                      data={productsData || []}
+                      isLoading={isLoading}
+                      pages={products?.result.totalPages || 1}
+                      filterOptions={ProductFilterOptions}
+                      onPageChange={handlePageChange}
+                      onPageSizeChange={handlePageSizeChange}
+                      filterConfig={filterConfig}
+                      onFilterChange={handleFilterChange}
+                    />
+                  </div>
                   {/* Nhóm: Kiểm tra định danh */}
                   <div className={`flex flex-col gap-4 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.isVerificationIdentity}
@@ -472,12 +597,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess }: { onSuccess: (
             <Button type="submit" form="voucher-form">
               {t('voucher.create')}
             </Button>
-            {isOpen && (
+            {isOpenDialog && (
               <ConfirmCreateMultipleVoucherDialog
                 voucher={formData}
-                isOpen={isOpen}
-                onOpenChange={setIsOpen}
-                onCloseSheet={() => setSheetOpen(false)}
+                isOpen={isOpenDialog}
+                onOpenChange={setIsOpenDialog}
+                onCloseSheet={() => openChange(false)}
                 onSuccess={handleCreateVoucherSuccess}
               />
             )}

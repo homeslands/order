@@ -13,12 +13,14 @@ import {
   OrderTypeEnum,
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
+import { Role } from '@/constants'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
     (set, get) => ({
       cartItems: null,
       lastModified: null,
+      isHydrated: false,
 
       getCartItems: () => get().cartItems,
 
@@ -48,12 +50,19 @@ export const useCartItemStore = create<ICartItemStore>()(
       removeCustomerInfo: () => {
         const { cartItems } = get()
         if (cartItems) {
+          // Check if current voucher requires verification
+          const requiresVerification =
+            cartItems.voucher?.isVerificationIdentity === true
+
           set({
             cartItems: {
               ...cartItems,
               owner: '',
               ownerFullName: '',
               ownerPhoneNumber: '',
+              ownerRole: '',
+              // Remove voucher if it requires verification
+              voucher: requiresVerification ? null : cartItems.voucher,
             },
             lastModified: moment().valueOf(),
           })
@@ -71,6 +80,9 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addCartItem: (item: ICartItem) => {
+        if (!get().isHydrated) {
+          return
+        }
         const timestamp = moment().valueOf()
         const { cartItems } = get()
 
@@ -90,6 +102,7 @@ export const useCartItemStore = create<ICartItemStore>()(
             approvalBy: '',
             ownerPhoneNumber: '',
             ownerFullName: '',
+            ownerRole: Role.CUSTOMER,
           }
 
           set({
@@ -243,35 +256,135 @@ export const useCartItemStore = create<ICartItemStore>()(
           showToast(i18next.t('toast.removeSuccess'))
         }
       },
-
       addVoucher: (voucher: IVoucher) => {
         const { cartItems } = get()
-        if (cartItems) {
-          set({
-            cartItems: {
-              ...cartItems,
-              voucher: {
-                slug: voucher.slug,
-                value: voucher.value,
-                isVerificationIdentity: voucher.isVerificationIdentity || false,
-                isPrivate: voucher.isPrivate || false,
-                code: voucher.code,
-                type: voucher.type,
-              },
+        if (!cartItems) return
+
+        set({
+          cartItems: {
+            ...cartItems,
+            voucher: {
+              slug: voucher.slug,
+              value: voucher.value,
+              isVerificationIdentity: voucher.isVerificationIdentity || false,
+              isPrivate: voucher.isPrivate || false,
+              code: voucher.code,
+              type: voucher.type,
+              minOrderValue: voucher.minOrderValue || 0,
+              voucherProducts: voucher.voucherProducts || [],
             },
-            lastModified: moment().valueOf(),
-          })
-        }
+            // orderItems giữ nguyên, không tính toán gì
+          },
+          lastModified: moment().valueOf(),
+        })
       },
+
+      // addVoucher: (voucher: IVoucher) => {
+      //   const { cartItems } = get()
+      //   if (!cartItems) return
+
+      //   const orderItems = cartItems.orderItems
+      //   const applicableProducts =
+      //     voucher.voucherProducts?.map((p) => p.product.slug) || []
+      //   const updatedOrderItems = [...orderItems]
+
+      //   for (let i = 0; i < updatedOrderItems.length; i++) {
+      //     const item = updatedOrderItems[i]
+      //     const originalPrice = item.originalPrice ?? item.price
+      //     let voucherDiscount = 0
+      //     let finalPrice = originalPrice
+
+      //     if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      //       // Chỉ áp dụng nếu sản phẩm nằm trong danh sách voucherProducts
+      //       if (applicableProducts.includes(item.slug)) {
+      //         // Bỏ qua promotion, giảm theo originalPrice
+      //         voucherDiscount = Math.max(
+      //           0,
+      //           (originalPrice || 0) - voucher.value,
+      //         )
+      //         finalPrice = Math.max(0, voucher.value)
+      //       } else {
+      //         // Nếu không thuộc sản phẩm trong voucher, giữ nguyên promotion nếu có
+      //         const promotionDiscount = item.promotionDiscount ?? 0
+      //         finalPrice = Math.max(0, (originalPrice || 0) - promotionDiscount)
+      //       }
+      //     }
+
+      //     // Các type khác nếu có (giữ nguyên hoặc thêm sau)
+      //     else {
+      //       const promotionDiscount = item.promotionDiscount ?? 0
+
+      //       if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      //         voucherDiscount =
+      //           (((originalPrice || 0) - promotionDiscount) * voucher.value) /
+      //           100
+      //       } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
+      //         const perItemDiscount = voucher.value / orderItems.length
+      //         voucherDiscount = Math.min(
+      //           (originalPrice || 0) - promotionDiscount,
+      //           perItemDiscount,
+      //         )
+      //       }
+
+      //       finalPrice = Math.max(
+      //         0,
+      //         (originalPrice || 0) - promotionDiscount - voucherDiscount,
+      //       )
+      //     }
+
+      //     updatedOrderItems[i] = {
+      //       ...item,
+      //       voucherDiscount,
+      //       price: finalPrice,
+      //     }
+      //   }
+
+      //   set({
+      //     cartItems: {
+      //       ...cartItems,
+      //       orderItems: updatedOrderItems,
+      //       voucher: {
+      //         slug: voucher.slug,
+      //         value: voucher.value,
+      //         isVerificationIdentity: voucher.isVerificationIdentity || false,
+      //         isPrivate: voucher.isPrivate || false,
+      //         code: voucher.code,
+      //         type: voucher.type,
+      //         minOrderValue: voucher.minOrderValue || 0,
+      //         voucherProducts: voucher.voucherProducts || [],
+      //       },
+      //     },
+      //     lastModified: moment().valueOf(),
+      //   })
+      // },
 
       removeVoucher: () => {
         const { cartItems } = get()
-        if (cartItems) {
-          set({
-            cartItems: { ...cartItems, voucher: null },
-            lastModified: moment().valueOf(),
-          })
-        }
+        if (!cartItems) return
+
+        const updatedOrderItems = cartItems.orderItems.map((item) => {
+          const originalPrice = item.originalPrice ?? item.price
+          const promotionDiscount = item.promotionDiscount ?? 0
+          const finalPrice = Math.max(
+            0,
+            (originalPrice || 0) - promotionDiscount,
+          )
+
+          return {
+            ...item,
+            voucherDiscount: 0,
+            price: finalPrice,
+          }
+        })
+
+        set({
+          cartItems: {
+            ...cartItems,
+            orderItems: updatedOrderItems,
+            voucher: null,
+          },
+          lastModified: moment().valueOf(),
+        })
       },
 
       clearCart: () => {
@@ -283,15 +396,19 @@ export const useCartItemStore = create<ICartItemStore>()(
     }),
     {
       name: 'cart-store',
-      storage: createJSONStorage(() => localStorage),
       version: 1,
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         cartItems: state.cartItems,
         lastModified: state.lastModified,
       }),
-      // onRehydrateStorage: () => (state) => {
-      //   console.log('Rehydrated state:', state)
-      // },
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          setTimeout(() => {
+            useCartItemStore.setState({ isHydrated: true })
+          }, 0)
+        }
+      },
     },
   ),
 )

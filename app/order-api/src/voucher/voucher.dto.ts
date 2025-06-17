@@ -2,15 +2,24 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsBoolean,
   IsDate,
+  IsDefined,
   IsEnum,
   IsNotEmpty,
   IsOptional,
+  IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { VoucherType } from './voucher.constant';
+import { INVALID_VOUCHER_SLUGS } from './voucher.validation';
+import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
+import { INVALID_ORDER_ITEMS } from 'src/order/order.validation';
+import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
 
 export class CreateVoucherDto {
   @ApiProperty()
@@ -94,7 +103,8 @@ export class CreateVoucherDto {
   })
   @IsNotEmpty({ message: 'INVALID_VOUCHER_TYPE' })
   @IsEnum(VoucherType, {
-    message: 'Voucher type must be percent_order or fixed_value',
+    message:
+      'Voucher type must be percent_order or fixed_value or same_price_product',
   })
   type: string;
 
@@ -103,6 +113,23 @@ export class CreateVoucherDto {
   @IsNotEmpty({ message: 'INVALID_NUMBER_OF_USAGE_PER_USER' })
   @Min(1)
   numberOfUsagePerUser: number;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the object to be created applicable promotion',
+    required: true,
+    example: ['product-slug'],
+  })
+  @IsDefined({ message: 'The slug array of the products is not defined' })
+  @IsArray({
+    message: 'The slug array of the applicable object must be an array',
+  })
+  // @ArrayNotEmpty({
+  //   message: 'The slug array of the applicable object is not empty',
+  // })
+  @IsString({ each: true, message: 'Each slug in the array must be a string' })
+  @Type(() => String)
+  products: string[];
 }
 
 export class BulkCreateVoucherDto {
@@ -186,7 +213,8 @@ export class BulkCreateVoucherDto {
   })
   @IsNotEmpty({ message: 'INVALID_VOUCHER_TYPE' })
   @IsEnum(VoucherType, {
-    message: 'Voucher type must be percent_order or fixed_value',
+    message:
+      'Voucher type must be percent_order or fixed_value or same_price_product',
   })
   type: string;
 
@@ -195,6 +223,23 @@ export class BulkCreateVoucherDto {
   @IsNotEmpty({ message: 'INVALID_NUMBER_OF_USAGE_PER_USER' })
   @Min(1)
   numberOfUsagePerUser: number;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of the products to be created voucher product',
+    required: true,
+    example: ['product-slug'],
+  })
+  @IsDefined({ message: 'The slug array of the products is not defined' })
+  @IsArray({
+    message: 'The slug array of the products must be an array',
+  })
+  // @ArrayNotEmpty({
+  //   message: 'The slug array of the products is not empty',
+  // })
+  @IsString({ each: true, message: 'Each slug in the array must be a string' })
+  @Type(() => String)
+  products: string[];
 }
 
 export class UpdateVoucherDto extends CreateVoucherDto {
@@ -373,12 +418,48 @@ export class ValidateVoucherDto {
   @AutoMap()
   @IsNotEmpty({ message: 'INVALID_USER_SLUG' })
   user: string;
+
+  @ApiProperty({
+    description: 'The array of order items',
+    example: [
+      {
+        quantity: 2,
+        variant: '',
+        note: '',
+        promotion: '',
+        order: '',
+      },
+    ],
+  })
+  @IsArray({ message: INVALID_ORDER_ITEMS })
+  @ArrayNotEmpty({ message: INVALID_ORDER_ITEMS })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemRequestDto)
+  orderItems: CreateOrderItemRequestDto[];
 }
 export class ValidateVoucherPublicDto {
   @ApiProperty()
   @AutoMap()
   @IsNotEmpty({ message: 'INVALID_VOUCHER_SLUG' })
   voucher: string;
+
+  @ApiProperty({
+    description: 'The array of order items',
+    example: [
+      {
+        quantity: 2,
+        variant: '',
+        note: '',
+        promotion: '',
+        order: '',
+      },
+    ],
+  })
+  @IsArray({ message: INVALID_ORDER_ITEMS })
+  @ArrayNotEmpty({ message: INVALID_ORDER_ITEMS })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemRequestDto)
+  orderItems: CreateOrderItemRequestDto[];
 }
 
 export class VoucherResponseDto extends BaseResponseDto {
@@ -437,4 +518,17 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   numberOfUsagePerUser: number;
+
+  @ApiProperty()
+  @AutoMap()
+  voucherProducts: VoucherProductResponseDto[];
+}
+
+export class ExportPdfVoucherDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty({ message: INVALID_VOUCHER_SLUGS })
+  @IsArray({ message: INVALID_VOUCHER_SLUGS })
+  @ArrayNotEmpty({ message: INVALID_VOUCHER_SLUGS })
+  vouchers: string[];
 }

@@ -22,6 +22,9 @@ import { Order } from 'src/order/order.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { Product } from 'src/product/product.entity';
+import { ProductUtils } from 'src/product/product.utils';
 describe('VoucherGroupController', () => {
   let controller: VoucherGroupController;
 
@@ -38,6 +41,7 @@ describe('VoucherGroupController', () => {
         UserUtils,
         MenuUtils,
         MenuItemUtils,
+        ProductUtils,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(VoucherGroup),
@@ -70,6 +74,14 @@ describe('VoucherGroupController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

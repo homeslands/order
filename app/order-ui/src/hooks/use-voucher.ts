@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
 import {
+  applyVoucher,
   createMultipleVoucher,
   createVoucher,
   createVoucherGroup,
@@ -11,6 +12,7 @@ import {
   getVoucherGroups,
   getVouchers,
   getVouchersForOrder,
+  removeAppliedVoucher,
   updateVoucher,
   updateVoucherGroup,
   validatePublicVoucher,
@@ -18,19 +20,22 @@ import {
 } from '@/api'
 import { QUERYKEY } from '@/constants'
 import {
+  IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
+  IRemoveAppliedVoucherRequest,
   IUpdateVoucherGroupRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
 } from '@/types'
 
-export const useVoucherGroups = (params?: IGetAllVoucherRequest) => {
+export const useVoucherGroups = (params?: IGetAllVoucherGroupRequest) => {
   return useQuery({
-    queryKey: [QUERYKEY.voucherGroups],
+    queryKey: [QUERYKEY.voucherGroups, params],
     queryFn: () => getVoucherGroups(params),
     placeholderData: keepPreviousData,
     // enabled: !!params,
@@ -90,7 +95,7 @@ export const useSpecificVoucher = (data: IGetSpecificVoucherRequest) => {
   return useQuery({
     queryKey: [QUERYKEY.vouchers, data],
     queryFn: () => getSpecificVoucher(data),
-    enabled: !!data.code,
+    enabled: !!data.code || !!data.slug,
   })
 }
 
@@ -146,6 +151,22 @@ export const useValidatePublicVoucher = () => {
   return useMutation({
     mutationFn: async (data: IValidateVoucherRequest) => {
       return validatePublicVoucher(data)
+    },
+  })
+}
+
+export const useApplyVoucher = () => {
+  return useMutation({
+    mutationFn: async (data: IApplyVoucherRequest) => {
+      return applyVoucher(data)
+    },
+  })
+}
+
+export const useRemoveAppliedVoucher = () => {
+  return useMutation({
+    mutationFn: async (data: IRemoveAppliedVoucherRequest) => {
+      return removeAppliedVoucher(data)
     },
   })
 }

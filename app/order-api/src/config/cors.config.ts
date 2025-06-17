@@ -7,6 +7,7 @@ export const corsOptions: CorsOptions = {
     'https://sandbox.order.cmsiot.net',
     'https://order-staging.cmsiot.net',
     'https://trendcoffee.net',
+    'https://staff.trendcoffee.net',
   ],
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
   credentials: true,

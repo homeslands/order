@@ -1,11 +1,14 @@
 import {
   IApiResponse,
+  IApplyVoucherRequest,
   ICreateMultipleVoucherRequest,
   ICreateVoucherGroupRequest,
   ICreateVoucherRequest,
+  IGetAllVoucherGroupRequest,
   IGetAllVoucherRequest,
   IGetSpecificVoucherRequest,
   IPaginationResponse,
+  IRemoveAppliedVoucherRequest,
   IUpdateVoucherGroupRequest,
   IUpdateVoucherRequest,
   IValidateVoucherRequest,
@@ -15,7 +18,7 @@ import {
 import { http } from '@/utils'
 
 export async function getVoucherGroups(
-  params?: IGetAllVoucherRequest,
+  params?: IGetAllVoucherGroupRequest,
 ): Promise<IApiResponse<IPaginationResponse<IVoucherGroup>>> {
   const response = await http.get<
     IApiResponse<IPaginationResponse<IVoucherGroup>>
@@ -153,5 +156,21 @@ export async function validatePublicVoucher(
     '/voucher/validate/public',
     data,
   )
+  return response.data
+}
+
+export async function applyVoucher(
+  data: IApplyVoucherRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(`/voucher-product`, data)
+  return response.data
+}
+
+export async function removeAppliedVoucher(
+  data: IRemoveAppliedVoucherRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(`/voucher-product`, {
+    data,
+  })
   return response.data
 }

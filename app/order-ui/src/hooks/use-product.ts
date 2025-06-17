@@ -28,11 +28,12 @@ import {
 } from '@/types'
 import { useQuery, keepPreviousData, useMutation } from '@tanstack/react-query'
 
-export const useProducts = (params?: IProductRequest) => {
+export const useProducts = (params?: IProductRequest, enabled?: boolean) => {
   return useQuery({
     queryKey: ['products', params],
     queryFn: () => getAllProducts(params),
     placeholderData: keepPreviousData,
+    enabled: !!params && !!enabled,
   })
 }
 

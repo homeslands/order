@@ -12,6 +12,7 @@ import {
 } from '@/components/ui'
 
 import { CreateCustomerForm } from '@/components/app/form'
+
 export default function CreateCustomerDialog() {
   const { t } = useTranslation(['customer'])
   const [isOpen, setIsOpen] = useState(false)
@@ -22,7 +23,9 @@ export default function CreateCustomerDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-1" onClick={() => setIsOpen(true)}>
+        <Button
+          // disabled={cartItems?.ownerFullName !== '' && cartItems?.ownerPhoneNumber !== ''}
+          className="gap-1 w-full" onClick={() => setIsOpen(true)}>
           {t('customer.create')}
         </Button>
       </DialogTrigger>

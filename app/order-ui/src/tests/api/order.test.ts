@@ -106,6 +106,7 @@ describe('Order API', () => {
           quantity: 1,
           variant: 'variant-1',
           note: 'test note',
+          promotion: null,
         },
       ],
       approvalBy: 'user-1',

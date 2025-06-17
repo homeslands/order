@@ -7,6 +7,7 @@ import {
   forgotPasswordAndResetPassword,
   login,
   register,
+  resendEmailVerification,
   verifyEmail,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
@@ -15,7 +16,6 @@ import {
   IRegisterRequest,
   IForgotPasswordRequest,
   IVerifyEmailRequest,
-  IConfirmEmailVerificationRequest,
   IGetAuthorityGroupsRequest,
   ICreatePermissionRequest,
 } from '@/types'
@@ -64,8 +64,16 @@ export const useVerifyEmail = () => {
 
 export const useConfirmEmailVerification = () => {
   return useMutation({
-    mutationFn: async (data: IConfirmEmailVerificationRequest) => {
-      return confirmEmailVerification(data)
+    mutationFn: async (code: string) => {
+      return confirmEmailVerification(code)
+    },
+  })
+}
+
+export const useResendEmailVerification = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return resendEmailVerification()
     },
   })
 }

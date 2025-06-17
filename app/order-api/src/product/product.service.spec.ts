@@ -31,6 +31,17 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { User } from 'src/user/user.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { Order } from 'src/order/order.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { OrderUtils } from 'src/order/order.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { ProductUtils } from './product.utils';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -48,6 +59,12 @@ describe('ProductService', () => {
         PromotionUtils,
         MenuUtils,
         BranchUtils,
+        VoucherUtils,
+        OrderUtils,
+        UserUtils,
+        MenuItemUtils,
+        TransactionManagerService,
+        ProductUtils,
         {
           provide: FileService,
           useValue: {
@@ -72,6 +89,26 @@ describe('ProductService', () => {
         },
         {
           provide: getRepositoryToken(Promotion),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Voucher),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,
         },
         {
@@ -101,6 +138,10 @@ describe('ProductService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console, // Mock logger (or a custom mock)
+        },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
       ],
     }).compile();
@@ -145,6 +186,7 @@ describe('ProductService', () => {
         isNew: false,
         saleQuantityHistory: 0,
         productChefAreas: [],
+        voucherProducts: [],
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);

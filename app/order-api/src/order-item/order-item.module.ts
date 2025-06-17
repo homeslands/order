@@ -16,6 +16,13 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { OrderItemScheduler } from './order-item.scheduler';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { UserUtils } from 'src/user/user.utils';
+import { User } from 'src/user/user.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
 
 @Module({
   imports: [
@@ -25,6 +32,10 @@ import { OrderItemScheduler } from './order-item.scheduler';
       Promotion,
       ApplicablePromotion,
       Menu,
+      Voucher,
+      User,
+      VoucherProduct,
+      Product,
     ]),
     DbModule,
     OrderModule,
@@ -39,6 +50,9 @@ import { OrderItemScheduler } from './order-item.scheduler';
     PromotionUtils,
     MenuUtils,
     OrderItemScheduler,
+    VoucherUtils,
+    UserUtils,
+    ProductUtils,
   ],
   exports: [OrderItemService, OrderItemUtils],
 })

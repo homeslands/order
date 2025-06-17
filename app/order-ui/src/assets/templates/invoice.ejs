@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+  <link rel="stylesheet" href="<%= dir %>/public/css/tailwind.min.css">
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex justify-center items-center">
+        <img src="data:image/png;base64,<%= logoString %>" alt="" class="w-52">
+      </div>
+      <p class="text-sm text-center">
+        <%= branchAddress %>
+      </p>
+      <div class="flex justify-center items-center">
+        <img src="<%= qrcode %>" alt="qrcode" class="block pt-0 mt-0 w-44" />
+      </div>
+      <p class="text-xs text-center">
+        <span class="">
+          Mã đơn:
+        </span>
+        <span class="">
+          <%= referenceNumber %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Invoive info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian:</span>
+        <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs"> 
+        <span class="font-bold">
+          Bàn:
+        </span>
+        <span class="capitalize">
+          <%= tableName %>
+        </span>
+      </p>
+      <p class="text-xs"><span class="font-bold">
+          Khách hàng:
+        </span>
+        <%= customer %>
+      </p>
+      <p class="text-xs">
+        <span class="font-bold">
+          Thu ngân:
+        </span>
+        <%= cashier %>
+      </p>
+    </div>
+
+    <!-- Invoice items -->
+     
+    <table class="mt-4 min-w-full text-sm border-collapse table-auto">
+      <thead>
+        <tr class="border-b border-black bg-white-100">
+          <th class="py-2 w-2/3 text-left">Món</th>
+          <th class="px-1 py-2 text-left">SL</th>
+          <th class="px-2 py-2 text-left">Đ.Giá</th>
+          <th class="px-2 py-2 text-left">K.Mãi(%) </th>
+          <th class="px-2 py-2 text-left">T.Tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% invoiceItems.forEach(function(item) { %>
+          <tr class="border-b border-black hover:bg-gray-50">
+            <td class="py-2 w-2/3 text-xs">
+              <%= item.productName %> <span class="uppercase">
+                  (<%= item.size %>)
+                </span>
+            </td>
+            <td class="px-1 py-2 text-xs">
+              <%= item.quantity %>
+            </td>
+            <td class="px-2 py-2 text-xs">
+              <%= formatCurrency(item.price) %>
+            </td>
+            <td class="px-2 py-2 text-xs text-center">
+              <%= item.promotionValue %>
+            </td>
+            <td class="px-2 py-2 text-xs">
+              <%= formatCurrency(item.total) %>
+            </td>
+          </tr>
+          <% }); %>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">PTTT</td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= formatPaymentMethod(paymentMethod) %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Tổng cộng</td>
+              <td class="py-2 text-right" colspan="4">
+                <%= formatCurrency(subtotalBeforeVoucher) %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Giảm giá(%)</td>
+              <td class="py-2 text-right" colspan="4">
+                <%= voucherValue %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Thành tiền</td>
+              <td class="py-2 text-xl font-bold text-right" colspan="4">
+                <%= formatCurrency(amount) %>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

@@ -14,6 +14,7 @@ import {
   GetOrderRequestDto,
   OrderResponseDto,
   UpdateOrderRequestDto,
+  UpdateVoucherOrderRequestDto,
 } from './order.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import {
@@ -25,7 +26,7 @@ import { Table } from 'src/table/table.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import { OrderStatus, OrderType } from './order.constants';
+import { DiscountType, OrderStatus, OrderType } from './order.constants';
 import { WorkflowStatus } from 'src/tracking/tracking.constants';
 import { OrderException } from './order.exception';
 import { OrderValidation } from './order.validation';
@@ -51,6 +52,7 @@ import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { RoleEnum } from 'src/role/role.enum';
 import { User } from 'src/user/user.entity';
+import { VoucherType } from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class OrderService {
@@ -148,14 +150,14 @@ export class OrderService {
         );
 
         // Remove order items
-        if (order.orderItems) await manager.remove(order.orderItems);
+        if (order.orderItems) await manager.softRemove(order.orderItems);
 
         // Remove order
-        const removedOrder = await manager.remove(order);
+        const removedOrder = await manager.softRemove(order);
 
         // Remove payment
         if (payment) {
-          await manager.remove(payment);
+          await manager.softRemove(payment);
           this.logger.log(`Payment has been removed`, context);
         }
 
@@ -207,35 +209,116 @@ export class OrderService {
 
     const order = await this.orderUtils.getOrder({ where: { slug } });
 
-    const table =
-      requestData.type === OrderType.AT_TABLE
-        ? await this.tableUtils.getTable({
-            where: {
-              slug: requestData.table,
-            },
-          })
-        : null;
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${slug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
     order.type = requestData.type;
-    order.table = table;
+
+    if (requestData.type === OrderType.AT_TABLE) {
+      const table = await this.tableUtils.getTable({
+        where: {
+          slug: requestData.table ?? IsNull(),
+        },
+      });
+      order.table = table;
+    } else {
+      order.table = null;
+    }
+
+    if (requestData.description) {
+      order.description = requestData.description;
+    }
+
+    // Update order
+    const updatedOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Order with slug ${result.slug} updated successfully`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.warn(
+          `Error when updating order: ${error.message}`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.UPDATE_ORDER_ERROR,
+          error.message,
+        );
+      },
+    );
+
+    return this.mapper.map(updatedOrder, Order, OrderResponseDto);
+  }
+
+  async updateVoucherOrder(
+    slug: string,
+    requestData: UpdateVoucherOrderRequestDto,
+  ): Promise<OrderResponseDto> {
+    const context = `${OrderService.name}.${this.updateOrder.name}`;
+
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${slug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
 
     // Get new voucher
     let voucher: Voucher = null;
+
+    // Remove voucher from order
+    const previousVoucher = order.voucher;
+
+    // update order item => remove voucher value
+    if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+      const updatedOrderItems = order.orderItems.map((orderItem) => {
+        const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+          null,
+          orderItem,
+          false, // is add voucher
+        );
+        return updatedOrderItem;
+      });
+      order.orderItems = updatedOrderItems;
+    }
+    order.voucher = null;
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, null);
+    order.subtotal = subtotal;
+
+    // Validate new voucher
     if (requestData.voucher) {
       voucher = await this.voucherUtils.getVoucher({
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
+        relations: ['voucherProducts.product'],
       });
+
+      if (previousVoucher?.id === voucher.id) {
+        this.logger.warn(
+          `Voucher ${voucher.code} is the same as the previous voucher`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER,
+        );
+      }
+
       await this.voucherUtils.validateVoucher(voucher);
       await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
       await this.voucherUtils.validateMinOrderValue(voucher, order);
-    }
 
-    // Get previous voucher
-    const previousVoucher = order.voucher;
-
-    if (requestData.description) {
-      order.description = requestData.description;
+      await this.voucherUtils.validateVoucherProduct(
+        voucher,
+        order.orderItems.map((item) => item.variant.slug),
+      );
     }
 
     // Update order
@@ -247,18 +330,26 @@ export class OrderService {
 
           // Update order
           order.voucher = voucher;
-          order.subtotal = await this.orderUtils.getOrderSubtotal(
+
+          // update order item => add voucher value
+          if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) {
+            const updatedOrderItems = order.orderItems.map((orderItem) => {
+              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+                voucher,
+                orderItem,
+                true, // is add voucher
+              );
+              return updatedOrderItem;
+            });
+            order.orderItems = updatedOrderItems;
+          }
+          const { subtotal } = await this.orderUtils.getOrderSubtotal(
             order,
             voucher,
           );
+          order.subtotal = subtotal;
 
           await manager.save(voucher);
-        } else {
-          order.voucher = null;
-          order.subtotal = await this.orderUtils.getOrderSubtotal(
-            order,
-            voucher,
-          );
         }
 
         if (previousVoucher) {
@@ -303,17 +394,6 @@ export class OrderService {
   ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.createOrder.name}`;
 
-    // Construct order
-    const order: Order = await this.constructOrder(requestData);
-
-    // Get order items
-    const orderItems = await this.constructOrderItems(
-      requestData.branch,
-      requestData.orderItems,
-    );
-    this.logger.log(`Number of order items: ${orderItems.length}`, context);
-    order.orderItems = orderItems;
-
     // Get voucher
     let voucher: Voucher = null;
     try {
@@ -321,6 +401,7 @@ export class OrderService {
         where: {
           slug: requestData.voucher ?? IsNull(),
         },
+        relations: ['voucherProducts.product'],
       });
     } catch (error) {
       this.logger.warn(`${error.message}`, context);
@@ -329,13 +410,33 @@ export class OrderService {
     if (voucher) {
       await this.voucherUtils.validateVoucher(voucher);
       await this.voucherUtils.validateVoucherUsage(voucher, requestData.owner);
+      await this.voucherUtils.validateVoucherProduct(
+        voucher,
+        requestData.orderItems.map((item) => item.variant) || [],
+      );
+    }
+
+    // Construct order
+    const order: Order = await this.constructOrder(requestData);
+
+    // Get order items
+    const orderItems = await this.constructOrderItems(
+      requestData.branch,
+      requestData.orderItems,
+      voucher,
+    );
+    this.logger.log(`Number of order items: ${orderItems.length}`, context);
+    order.orderItems = orderItems;
+
+    if (voucher) {
       await this.voucherUtils.validateMinOrderValue(voucher, order);
       // Update remaining quantity of voucher
       voucher.remainingUsage -= 1;
     }
 
     order.voucher = voucher;
-    const subtotal = await this.orderUtils.getOrderSubtotal(order, voucher);
+
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, voucher);
     order.subtotal = subtotal;
 
     order.originalSubtotal = order.orderItems.reduce(
@@ -364,7 +465,7 @@ export class OrderService {
         // Cancel order after 10 minutes
         this.orderScheduler.handleDeleteOrder(
           createdOrder.slug,
-          10 * 60 * 1000,
+          15 * 60 * 1000,
         );
         return createdOrder;
       },
@@ -453,6 +554,7 @@ export class OrderService {
   async constructOrderItems(
     branch: string,
     createOrderItemRequestDtos: CreateOrderItemRequestDto[],
+    voucher?: Voucher,
   ): Promise<OrderItem[]> {
     // Get menu
     const menu = await this.menuUtils.getMenu({
@@ -466,7 +568,7 @@ export class OrderService {
 
     return await Promise.all(
       createOrderItemRequestDtos.map(
-        async (item) => await this.constructOrderItem(item, menu),
+        async (item) => await this.constructOrderItem(item, menu, voucher),
       ),
     );
   }
@@ -474,6 +576,7 @@ export class OrderService {
   async constructOrderItem(
     item: CreateOrderItemRequestDto,
     menu: Menu,
+    voucher?: Voucher,
   ): Promise<OrderItem> {
     const context = `${OrderService.name}.${this.constructOrderItem.name}`;
     // Get variant
@@ -536,9 +639,19 @@ export class OrderService {
       promotion,
     });
 
-    const subtotal = this.orderItemUtils.calculateSubTotal(
+    // Check item is applied to voucher or not
+    let appliedVoucher: Voucher = null;
+    const voucherProduct = voucher?.voucherProducts.find(
+      (voucherProduct) => voucherProduct.product.id === variant.product.id,
+    );
+    if (voucherProduct) {
+      appliedVoucher = voucher;
+    }
+
+    const { subtotal, voucherValue } = this.orderItemUtils.calculateSubTotal(
       orderItem,
       promotion,
+      appliedVoucher,
     );
     const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
@@ -546,6 +659,18 @@ export class OrderService {
       subtotal,
       originalSubtotal,
     });
+    // default discount type is none
+    orderItem.voucherValue = 0;
+    orderItem.discountType = DiscountType.NONE;
+
+    if (orderItem.promotion) {
+      orderItem.voucherValue = 0;
+      orderItem.discountType = DiscountType.PROMOTION;
+    }
+    if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+      orderItem.voucherValue = voucherValue;
+      orderItem.discountType = DiscountType.VOUCHER;
+    }
     return orderItem;
   }
 
@@ -599,6 +724,7 @@ export class OrderService {
         'table',
         'orderItems.promotion',
         'chefOrders',
+        'voucher.voucherProducts.product',
       ],
       order: { createdAt: 'DESC' },
     };
@@ -647,6 +773,7 @@ export class OrderService {
         'table',
         'orderItems.promotion',
         'chefOrders',
+        'voucher.voucherProducts.product',
       ],
       order: { createdAt: 'DESC' },
     });

@@ -42,6 +42,7 @@ import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
 
 @Injectable()
 export class ProductService {
@@ -61,6 +62,7 @@ export class ProductService {
     private readonly promotionUtils: PromotionUtils,
     private readonly menuUtils: MenuUtils,
     private readonly branchUtils: BranchUtils,
+    private readonly voucherUtils: VoucherUtils,
   ) {}
 
   /**
@@ -335,6 +337,19 @@ export class ProductService {
         (item) => item.applicableId,
       );
       findOptionsWhere.id = query.isAppliedPromotion
+        ? In(applicableProductIds)
+        : Not(In(applicableProductIds));
+    }
+
+    if (query.voucher) {
+      const voucher = await this.voucherUtils.getVoucher({
+        where: { slug: query.voucher },
+        relations: ['voucherProducts.product'],
+      });
+      const applicableProductIds = voucher.voucherProducts.map(
+        (item) => item.product.id,
+      );
+      findOptionsWhere.id = query.isAppliedVoucher
         ? In(applicableProductIds)
         : Not(In(applicableProductIds));
     }

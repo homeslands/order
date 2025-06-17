@@ -67,22 +67,19 @@ export default function OverviewDetailPage() {
   // }, [startDate, endDate, branch, handleRefreshRevenue])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
-    const isHourly = data.type === RevenueTypeQuery.HOURLY;
+    const newStartDate = data.startDate
+      ? moment(data.startDate).format('YYYY-MM-DD HH:mm:ss')
+      : '';
 
-    setStartDate(
-      data.startDate
-        ? moment(data.startDate).startOf(isHourly ? 'hour' : 'day').format('YYYY-MM-DD HH:mm:ss')
-        : ''
-    );
+    const newEndDate = data.endDate
+      ? moment(data.endDate).format('YYYY-MM-DD HH:mm:ss')
+      : '';
 
-    setEndDate(
-      data.endDate
-        ? moment(data.endDate).endOf(isHourly ? 'hour' : 'day').format('YYYY-MM-DD HH:mm:ss')
-        : ''
-    );
-
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
     setRevenueType(data.type || RevenueTypeQuery.DAILY);
   };
+
 
   return (
     <div className="min-h-screen">

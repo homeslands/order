@@ -49,25 +49,25 @@ export default function SystemTableSelect() {
 
     return (
         <div className="mt-6 rounded-md border">
-            <div className="flex flex-col items-start justify-between gap-2 bg-muted/60 p-4 sm:flex-row">
-                <span className="text-md font-medium">{t('table.title')}</span>
+            <div className="flex flex-col gap-2 justify-between items-start p-4 bg-muted/60 sm:flex-row">
+                {/* <span className="font-medium text-md">{t('table.title')}</span> */}
                 {/* Table status */}
                 <div className="flex gap-2 text-xs sm:flex-row sm:gap-4 sm:px-4">
-                    <div className="flex flex-row items-center gap-2">
-                        <div className="h-4 w-4 rounded-sm border bg-muted-foreground/10" />
-                        <span className="sm:text-sm">{t('table.available')}</span>
+                    <div className="flex flex-row gap-2 items-center">
+                        <div className="w-4 h-4 rounded-sm border bg-muted-foreground/10" />
+                        <span className="text-xs xl:text-sm">{t('table.available')}</span>
                     </div>
-                    <div className="flex flex-row items-center gap-2">
-                        <div className="h-4 w-4 rounded-sm bg-yellow-500" />
-                        <span className="sm:text-sm">{t('table.reserved')}</span>
+                    <div className="flex flex-row gap-2 items-center">
+                        <div className="w-4 h-4 bg-yellow-500 rounded-sm" />
+                        <span className="text-xs xl:text-sm">{t('table.reserved')}</span>
                     </div>
-                    <div className="flex flex-row items-center gap-2">
-                        <div className="h-4 w-4 rounded-sm border-2 border-green-500 bg-muted-foreground/10" />
-                        <span className="sm:text-sm">{t('table.selected')}</span>
+                    <div className="flex flex-row gap-2 items-center">
+                        <div className="w-4 h-4 rounded-sm border-2 border-green-500 bg-muted-foreground/10" />
+                        <span className="text-xs xl:text-sm">{t('table.selected')}</span>
                     </div>
                 </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 p-4">
+            <div className="grid grid-cols-3 gap-4 justify-center sm:grid-cols-3 xl:grid-cols-5">
                 {tables?.result.map((table) => (
                     <NonResizableTableItem
                         key={table.slug}

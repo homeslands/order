@@ -16,9 +16,9 @@ import {
   TableRow,
 } from '@/components/ui'
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
-import { publicFileURL, ROUTE } from '@/constants'
+import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { formatCurrency, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { InvoiceTemplate } from '../public-order-detail/components'
@@ -35,18 +35,11 @@ export default function OrderHistoryPage() {
   const { data: orderDetail } = useOrderBySlug(order || '')
 
   const orderInfo = orderDetail?.result
-  const originalTotal = orderInfo
-    ? orderInfo.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0)
-    : 0;
+  const voucher = orderInfo?.voucher || null
 
-  const discount = orderInfo
-    ? orderInfo.orderItems.reduce(
-      (sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0),
-      0
-    )
-    : 0;
+  const displayItems = calculateOrderItemDisplay(orderInfo ? orderInfo?.orderItems : [], voucher)
 
-  const voucherDiscount = orderInfo?.voucher ? (originalTotal - discount) * ((orderInfo.voucher.value) / 100) : 0;
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
@@ -97,13 +90,19 @@ export default function OrderHistoryPage() {
                     #{orderInfo?.slug}
                   </span>
                 </p>
-                <div className="flex flex-col gap-1 text-sm font-thin sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-1 text-sm font-thin">
                   <p>
                     {t('order.orderTime')}{' '}
                     <span className="text-muted-foreground">
                       {moment(orderInfo?.createdAt).format(
                         'hh:mm:ss DD/MM/YYYY',
                       )}
+                    </span>
+                  </p>
+                  <p>
+                    {t('order.note')}:{' '}
+                    <span className="text-muted-foreground">
+                      {orderInfo?.description || t('order.noNote')}
                     </span>
                   </p>
                 </div>
@@ -138,7 +137,6 @@ export default function OrderHistoryPage() {
             <div className="overflow-x-auto">
               <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
-
                 {/* Header */}
                 <TableHeader className="rounded bg-muted-foreground/10">
                   <TableRow>
@@ -180,8 +178,13 @@ export default function OrderHistoryPage() {
                                 </span>
                               </div>
                             ) : (
-                              <div className="text-xs text-muted-foreground">
-                                Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+                              <div className="flex flex-col text-xs text-muted-foreground">
+                                <span>
+                                  Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+                                </span>
+                                <span>
+                                  {t('order.note')}: {item?.note}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -190,7 +193,40 @@ export default function OrderHistoryPage() {
 
                       {/* Cột tổng giá */}
                       <TableCell className="w-1/4 font-semibold text-right">
-                        {formatCurrency(item?.subtotal || 0)}
+                        {(() => {
+                          const displayItem = displayItems.find(di => di.slug === item.slug)
+                          const original = item.variant.price || 0
+                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                          const finalPrice = displayItem?.finalPrice || 0
+
+                          const isSamePriceVoucher =
+                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                          const displayPrice = isSamePriceVoucher
+                            ? finalPrice * item.quantity
+                            : hasPromotionDiscount
+                              ? priceAfterPromotion * item.quantity
+                              : original * item.quantity
+
+                          const shouldShowLineThrough =
+                            isSamePriceVoucher || hasPromotionDiscount
+
+                          return (
+                            <div className="flex gap-1 items-center">
+                              {shouldShowLineThrough && (
+                                <span className="text-sm line-through text-muted-foreground">
+                                  {formatCurrency(original * item.quantity)}
+                                </span>
+                              )}
+                              <span className="font-bold text-primary">
+                                {formatCurrency(displayPrice)}
+                              </span>
+                            </div>
+                          )
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -254,26 +290,38 @@ export default function OrderHistoryPage() {
                   <p className="text-sm text-muted-foreground">
                     {t('order.subTotal')}
                   </p>
-                  <p className="text-sm">{`${formatCurrency(originalTotal || 0)}`}</p>
+                  <p className="text-sm">{`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     {t('order.discount')}
                   </p>
-                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(discount || 0)}`}</p>
+                  <p className="text-sm text-muted-foreground">{`- ${formatCurrency(cartTotals?.promotionDiscount || 0)}`}</p>
                 </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm italic text-green-500">
-                    {t('order.voucher')}
-                  </p>
-                  <p className="text-sm italic text-green-500">{`- ${formatCurrency(voucherDiscount || 0)}`}</p>
-                </div>
+                {orderInfo?.voucher &&
+                  <div className="flex justify-between pb-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-green-500">
+                      {t('order.voucher')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-green-500">
+                      - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
+                    </p>
+                  </div>}
+                {orderInfo && orderInfo?.loss > 0 &&
+                  <div className="flex justify-between pb-4 w-full">
+                    <h3 className="text-sm italic font-medium text-green-500">
+                      {t('order.invoiceAutoDiscountUnderThreshold')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-green-500">
+                      - {`${formatCurrency(orderInfo?.loss)}`}
+                    </p>
+                  </div>}
                 <Separator className="my-2" />
                 <div className="flex justify-between items-center">
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
-                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(orderInfo?.subtotal || 0)}`}</p>
+                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
@@ -293,6 +341,11 @@ export default function OrderHistoryPage() {
                 <InvoiceTemplate
                   order={orderInfo}
                 />
+                <Button onClick={() => {
+                  handleExportInvoice()
+                }}>
+                  {t('order.exportInvoice')}
+                </Button>
               </div>
             )}
             {/* Return order button */}

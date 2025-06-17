@@ -1,4 +1,5 @@
 import { IBase } from './base.type'
+import { IProduct } from './product.type'
 
 export interface IVoucherGroup extends IBase {
   title: string
@@ -32,6 +33,13 @@ export interface IVoucher extends IBase {
   startDate: string
   endDate: string
   isVerificationIdentity?: boolean
+  voucherProducts: IVoucherProduct[] //Product slug
+}
+
+export interface IVoucherProduct {
+  slug: string
+  createdAt: string
+  product: IProduct
 }
 
 export interface IGetAllVoucherRequest {
@@ -43,8 +51,14 @@ export interface IGetAllVoucherRequest {
   isActive?: boolean
   isPrivate?: boolean
   hasPaging?: boolean
-  page?: number
-  size?: number
+  page?: number | 1
+  size?: number | 10
+}
+
+export interface IGetAllVoucherGroupRequest {
+  hasPaging?: boolean
+  page?: number | 1
+  size?: number | 10
 }
 
 export interface ICreateVoucherRequest {
@@ -57,11 +71,13 @@ export interface ICreateVoucherRequest {
   isActive: boolean
   startDate: string
   endDate: string
+  products: string[] //Product slug
 }
 
 export interface IUpdateVoucherRequest {
   slug: string
   voucherGroup: string
+  createdAt: string
   title: string
   description?: string
   code: string
@@ -76,6 +92,7 @@ export interface IUpdateVoucherRequest {
   numberOfUsagePerUser: number
   startDate: string
   endDate: string
+  products: string[] //Product slug
 }
 
 export interface ICreateMultipleVoucherRequest {
@@ -93,13 +110,39 @@ export interface ICreateMultipleVoucherRequest {
   isPrivate: boolean
   isVerificationIdentity: boolean
   numberOfUsagePerUser: number
+  products: string[] //Product slug
 }
 
 export interface IValidateVoucherRequest {
   voucher: string
   user: string //user slug
+  orderItems: {
+    quantity?: number
+    variant?: string
+    note?: string
+    promotion?: string | null
+    order?: string | null
+  }[]
+}
+
+export interface IOrderItemsParam {
+  quantity?: number
+  variant?: string
+  note?: string
+  promotion?: string | null
+  order?: string | null
 }
 export interface IGetSpecificVoucherRequest {
   slug?: string
   code?: string
+}
+
+export interface IApplyVoucherRequest {
+  products: string[] //Product slug
+  vouchers: string[] //Voucher slug
+}
+
+export interface IRemoveAppliedVoucherRequest {
+  products: string[] //Product slug
+  vouchers: string[] //Voucher slug
 }
