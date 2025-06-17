@@ -17,10 +17,9 @@ export default function OrderSummary({
   disabled,
 }: OrderSummaryProps) {
   const { t } = useTranslation(['giftCard'])
-
   return (
-    <div className="sticky bottom-0 border-t bg-white p-6 font-semibold text-primary">
-      <div className="rounded-lg border p-4">
+    <div className="sticky bottom-0 border-t bg-background p-6 font-semibold text-primary">
+      <div className="rounded-lg border p-4 bg-card text-card-foreground">
         <div className="mb-2 flex items-center justify-between">
           <span>{t('giftCard.totalPoints')}</span>
           <div className="flex items-center gap-1">

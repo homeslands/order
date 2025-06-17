@@ -29,25 +29,24 @@ export default function GiftCardCheckoutPage() {
             <div className="rounded-full bg-primary/10 p-3">
               <ShoppingCart className="h-8 w-8 text-primary" />
             </div>
-          </div>
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+          </div>          <h1 className="mb-2 text-3xl font-bold text-foreground">
             {t('giftCard.checkout') || 'Gift Card Checkout'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {t('giftCard.checkoutDescription') ||
               'Complete your gift card purchase'}
           </p>
         </div>
 
         {/* Placeholder Content */}
-        <div className="rounded-lg bg-white p-8 shadow-md">
+        <div className="rounded-lg bg-card p-8 shadow-md">
           <div className="py-20 text-center">
-            <Gift className="mx-auto mb-6 h-24 w-24 text-gray-300" />
-            <h2 className="mb-4 text-2xl font-semibold text-gray-500">
+            <Gift className="mx-auto mb-6 h-24 w-24 text-muted-foreground/50" />
+            <h2 className="mb-4 text-2xl font-semibold text-foreground">
               {t('giftCard.checkoutPageComingSoon') ||
                 'Checkout Page Coming Soon'}
             </h2>
-            <p className="mx-auto max-w-md text-gray-400">
+            <p className="mx-auto max-w-md text-muted-foreground">
               {t('giftCard.checkoutPageDescription') ||
                 'This checkout page is currently under development. You can complete your gift card purchase through the gift card cart.'}
             </p>
