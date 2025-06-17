@@ -35,9 +35,25 @@ export interface ICardOrderResponse {
   receipients: IReceiverGiftCardResponse[]
   giftCards: string[]
   cardSlug: string
-  recipients?: string[]
+  paymentStatus: string
+  paymentMethod: string
+  payment: IPaymentMenthod
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface IPaymentMenthod {
+  amount: number
   createdAt: string
-  updatedAt: string
+  loss: number
+  message: string
+  paymentMethod: string
+  qrCode: string
+  slug: string
+  statusCode: string
+  statusMessage: string
+  transactionId: string
+  userId: string
 }
 
 export interface IGiftCardCartItem {
