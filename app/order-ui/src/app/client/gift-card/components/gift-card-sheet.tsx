@@ -44,6 +44,13 @@ export default function GiftCardSheet() {
     clearGiftCard,
   } = useGiftCardStore()
 
+  // Wrapper function for clearGiftCard to also reset the receivers section
+  const handleClearGiftCard = (showNotification = true) => {
+    clearGiftCard(showNotification)
+    // Reset receivers array to empty
+    form.setValue('receivers', [])
+  }
+
   // Create dynamic schema with max quantity validation
   const dynamicSchema = useMemo(() => {
     return createGiftCardCheckoutSchema(giftCardItem?.quantity)
@@ -82,16 +89,28 @@ export default function GiftCardSheet() {
         giftType: GiftCardType.SELF,
         receivers: [],
       })
+    } else {
+      // Ensure form has default value when opening
+      if (!form.getValues('giftType')) {
+        form.setValue('giftType', GiftCardType.SELF)
+      }
     }
   }
-
   // Reset receivers when gift type changes to SELF
   useEffect(() => {
+    // Ensure form always has a default giftType value
+    if (!watchedGiftType) {
+      form.setValue('giftType', GiftCardType.SELF)
+      return
+    }
+
     if (watchedGiftType === GiftCardType.SELF) {
       // Clear any existing validation errors for receivers
       form.clearErrors('receivers')
       // Reset receivers array to empty when SELF is selected
       form.setValue('receivers', [])
+      // Reset item quantity to 1
+      updateQuantity(1)
     } else if (watchedGiftType === GiftCardType.GIFT) {
       // Ensure at least one receiver when GIFT is selected
       const receivers = form.getValues('receivers')
@@ -101,7 +120,7 @@ export default function GiftCardSheet() {
         ])
       }
     }
-  }, [watchedGiftType, form])
+  }, [watchedGiftType, form, updateQuantity])
 
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(
@@ -148,7 +167,7 @@ export default function GiftCardSheet() {
       {
         onSuccess: (response) => {
           showToast(t('giftCard.createGiftCardOrderSuccess'))
-          clearGiftCard(false)
+          handleClearGiftCard(false)
           handleSheetOpenChange(false)
           setConfirmDialogOpen(false)
 
@@ -161,7 +180,7 @@ export default function GiftCardSheet() {
   }
 
   const handleIncrement = () => {
-    if (giftCardItem && giftCardItem.quantity < 10) {
+    if (giftCardItem && giftCardItem.quantity < 100) {
       updateQuantity(giftCardItem.quantity + 1)
     }
   }
@@ -189,16 +208,16 @@ export default function GiftCardSheet() {
             </Badge>
           )}
         </Button>
-      </SheetTrigger>
+      </SheetTrigger>      
       <SheetContent
         side="right"
-        className={`w-full ${!isMobile ? 'max-w-[90%]' : ''}`}
+        className={`w-full bg-background ${!isMobile ? 'max-w-[90%]' : ''}`}
       >
         {/* Header for Mobile */}
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="mb-4 flex items-center justify-between p-6 pb-0">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold text-foreground">
               {giftCardItem
                 ? t('giftCard.giftCardCart')
                 : t('giftCard.availableGiftCards')}
@@ -208,9 +227,9 @@ export default function GiftCardSheet() {
             <form
               onSubmit={handleShowConfirmDialog}
               className="flex h-full flex-col"
-            >
+            >              
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-6 pb-16">
+              <div className="flex-1 overflow-y-auto px-6 pb-16 bg-background">
                 {/* Gift Card Items */}
                 <div className="flex flex-col gap-4">
                   {giftCardItem ? (
@@ -219,7 +238,8 @@ export default function GiftCardSheet() {
                         item={giftCardItem}
                         onIncrement={handleIncrement}
                         onDecrement={handleDecrement}
-                        onClear={clearGiftCard}
+                        onClear={handleClearGiftCard}
+                        giftCardType={watchedGiftType}
                       />
 
                       <FormField
@@ -229,7 +249,7 @@ export default function GiftCardSheet() {
                           <FormItem>
                             <FormLabel>
                               {t('giftCard.chooseUsageType')}
-                              <span className="text-destructive">*</span>
+                              <span className="text-destructive dark:text-red-400">*</span>
                             </FormLabel>
                             <FormControl>
                               <GiftCardTypeSelect
@@ -243,14 +263,13 @@ export default function GiftCardSheet() {
                           </FormItem>
                         )}
                       />
-                    </>
-                  ) : (
+                    </>                  ) : (
                     <div className="flex flex-col items-center justify-center py-20">
-                      <Gift className="mx-auto mb-6 h-24 w-24 text-gray-400" />
-                      <h3 className="mb-2 text-xl font-semibold text-gray-500">
+                      <Gift className="mx-auto mb-6 h-24 w-24 text-muted-foreground" />
+                      <h3 className="mb-2 text-xl font-semibold text-foreground">
                         {t('giftCard.noGiftCardsInCart')}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {t('giftCard.addGiftCardsToCart')}
                       </p>
                     </div>
@@ -263,17 +282,24 @@ export default function GiftCardSheet() {
                     fields={fields}
                     append={append}
                     remove={remove}
-                    quantity={giftCardItem?.quantity || 1}
                     form={form}
+                    onQuantityChange={(newQuantity) => {
+                      if (giftCardItem && newQuantity !== giftCardItem.quantity) {
+                        updateQuantity(newQuantity)
+                      }
+                    }}
                   />
                 )}
-              </div>
+              </div>{' '}
               {/* Fixed Footer - Total Section */}{' '}
               {giftCardItem && (
                 <OrderSummary
                   totalPoints={totalPoints}
                   totalAmount={totalAmount}
                   onCheckout={handleShowConfirmDialog}
+                  disabled={
+                    !form.formState.isValid || form.formState.isSubmitting
+                  }
                 />
               )}
             </form>

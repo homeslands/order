@@ -23,8 +23,8 @@ export default function ReceiversSection({
   form,
   onQuantityChange,
 }: ReceiversSectionProps) {
-  const { t } = useTranslation(['giftCard']) 
-  
+  const { t } = useTranslation(['giftCard'])
+
   // Watch receivers to get current values
   const receivers = form.watch('receivers') || []
 
