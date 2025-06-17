@@ -62,31 +62,28 @@ export default function VoucherListSheet() {
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
+  // let subTotal = 0
   // calculate subtotal
-  const subTotal = cartItems?.orderItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  ) || 0
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
 
   // Add useEffect to check voucher validation
   useEffect(() => {
     if (cartItems?.voucher) {
-      // If user is logged in but voucher doesn't require verification
-      // if (userInfo && !cartItems.voucher.isVerificationIdentity) {
-      //   showErrorToast(1003) // Show error toast
-      //   removeVoucher() // Remove invalid voucher
-      // }
       // If user is not logged in but voucher requires verification
       if (!userInfo && cartItems.voucher.isVerificationIdentity) {
-        // console.log('cartItems.voucher', cartItems.voucher)
         showErrorToast(1003) // Show error toast
         removeVoucher() // Remove invalid voucher
       }
     }
   }, [userInfo, cartItems?.voucher, removeVoucher])
 
+  const isCustomerOwner =
+    sheetOpen &&
+    !!cartItems?.owner && // Check khác null, undefined, ""
+    cartItems.ownerRole === Role.CUSTOMER;
+
   const { data: voucherList } = useVouchersForOrder(
-    sheetOpen && userInfo && userInfo?.role.name === Role.CUSTOMER
+    isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
@@ -97,20 +94,14 @@ export default function VoucherListSheet() {
     !!sheetOpen
   )
   const { data: publicVoucherList } = usePublicVouchersForOrder(
-    sheetOpen && !userInfo && cartItems?.ownerRole === Role.CUSTOMER
+    !isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
       }
-      : {
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        isVerificationIdentity: false,
-      },
+      : undefined,
     !!sheetOpen
   )
 
@@ -169,7 +160,7 @@ export default function VoucherListSheet() {
   }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
 
   useEffect(() => {
-    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.ownerRole === Role.CUSTOMER)
+    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.owner !== '' && cartItems?.ownerRole === Role.CUSTOMER)
 
     const baseList = (isCustomer ? voucherList?.result.items : publicVoucherList?.result.items) || []
 
@@ -190,7 +181,7 @@ export default function VoucherListSheet() {
     }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole])
+  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole, selectedVoucher, cartItems?.owner])
 
   useEffect(() => {
     if (cartItems?.voucher) {
@@ -273,22 +264,22 @@ export default function VoucherListSheet() {
     const validateVoucherParam: IValidateVoucherRequest = {
       voucher: voucher.slug,
       user: userInfo?.slug || '',
+      orderItems: cartItems?.orderItems || []
     }
 
     const onSuccess = () => handleApply()
+    // const onError = () => handleRemove()
 
     if (isSelected) {
       handleRemove()
     } else {
-      if (userInfo) {
+      if (userInfo && voucher?.isVerificationIdentity) {
         validateVoucher(validateVoucherParam, { onSuccess })
       } else {
         validatePublicVoucher(validateVoucherParam, { onSuccess })
       }
     }
   }
-
-
 
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
@@ -301,6 +292,7 @@ export default function VoucherListSheet() {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
           user: userInfo.slug || '',
+          orderItems: cartItems?.orderItems || []
         };
 
         const onValidated = () => {
@@ -326,6 +318,7 @@ export default function VoucherListSheet() {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: publicVoucher.slug,
           user: '',
+          orderItems: cartItems?.orderItems || []
         };
 
         validatePublicVoucher(validateVoucherParam, {
@@ -341,26 +334,33 @@ export default function VoucherListSheet() {
     }
   };
 
-
   const isVoucherValid = (voucher: IVoucher) => {
-    const isValidAmount = voucher.minOrderValue <= subTotal
-    const isValidDate = moment().isBefore(moment(voucher.endDate))
+    const isValidAmount =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+        ? true
+        : (voucher?.minOrderValue || 0) <= subTotal
+
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
 
     const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!userInfo
+    const isUserLoggedIn = !!userInfo?.slug
 
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
 
     return isValidAmount && isValidDate && isIdentityValid
   }
 
-
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-7 gap-2 p-2 rounded-md sm:h-36 relative ${isVoucherSelected(voucher.slug)
-      ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
-      : `${getTheme() === 'light' ? 'bg-white' : ' border'}`
-      } border`
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
+    ${isVoucherSelected(voucher.slug)
+        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+        : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
+      }
+    border border-muted-foreground/50
+    ${voucher.remainingUsage === 0 ? 'opacity-50' : ''}
+  `
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -374,7 +374,7 @@ export default function VoucherListSheet() {
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-3 justify-between w-full">
+        <div className="flex flex-col col-span-4 justify-between w-full">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -384,12 +384,17 @@ export default function VoucherListSheet() {
                 {t('voucher.discountValue')}
                 {voucher.value}% {t('voucher.orderValue')}
               </span>
+            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
+              <span className="text-xs italic text-primary">
+                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
+              </span>
             ) : (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
                 {formatCurrency(voucher.value)} {t('voucher.orderValue')}
               </span>
             )}
+
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
@@ -409,14 +414,16 @@ export default function VoucherListSheet() {
               </TooltipProvider>
             </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
-              Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}
+              {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
             <div className="flex justify-between items-center">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
-                  ? t('voucher.outOfStock')
+                  ? <span className="text-xs italic text-destructive">
+                    {t('voucher.outOfStock')}
+                  </span>
                   : `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`}
               </span>
             </div>
@@ -569,15 +576,14 @@ export default function VoucherListSheet() {
                 className="w-1/2"
               />
               <span className="text-xs text-destructive">
-                {voucher.minOrderValue > subTotal
+                {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
                   ? t('voucher.minOrderNotMet')
-                  : moment().isAfter(moment(voucher.endDate))
+                  : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                     ? t('voucher.expired')
-                    : voucher.isVerificationIdentity && !userInfo
+                    : voucher.isVerificationIdentity && !userInfo?.slug
                       ? t('voucher.needVerifyIdentity')
                       : ''}
               </span>
-
             </div>
           )}
         </div>

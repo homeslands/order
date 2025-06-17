@@ -4,6 +4,7 @@ export interface IApiResponse<T> {
   message: string
   method: string
   path: string
+  timestamp: number
   result: T
 }
 

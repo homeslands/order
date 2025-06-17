@@ -23,7 +23,6 @@ import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup } from '@
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
-// import { PaymentStatusBadge } from '@/components/app/badge'
 import { useUserStore } from '@/stores'
 
 export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
@@ -32,12 +31,22 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const { t: tCommon } = useTranslation(['common'])
   const { userInfo } = useUserStore()
   const { data: authorityData } = useGetAuthorityGroup({})
+
   const authorityGroup = authorityData?.result ?? [];
-  const authorityGroupCodes = authorityGroup.flatMap(group => group.authorities.map(auth => auth.code));
+  const authorityGroupCodes = Array.isArray(authorityGroup)
+    ? authorityGroup.flatMap(group =>
+      Array.isArray(group.authorities)
+        ? group.authorities
+          .filter(auth => auth != null && typeof auth.code !== 'undefined')
+          .map(auth => auth.code)
+        : []
+    )
+    : [];
+
   const userPermissionCodes = userInfo?.role.permissions.map(p => p.authority.code) ?? [];
   const isDeletePermissionValid = hasPermissionInBoth("DELETE_ORDER", authorityGroupCodes, userPermissionCodes);
-  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
   const { mutate: exportPayment } = useExportPayment()
+  const { mutate: exportOrderInvoice } = useExportOrderInvoice()
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -49,8 +58,8 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     })
   }
 
-  const handleExportOrderInvoice = (slug: string) => {
-    exportOrderInvoice(slug, {
+  const handleExportOrderInvoice = async (order: IOrder | undefined) => {
+    exportOrderInvoice(order?.slug || '', {
       onSuccess: (data: Blob) => {
         showToast(tToast('toast.exportInvoiceSuccess'))
         // Load data to print
@@ -58,6 +67,12 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     })
   }
+
+  // const handleExportOrderInvoice = async (order: IOrder | undefined) => {
+  //   await exportOrderInvoices(order)
+  //   showToast(tToast('toast.exportPDFVouchersSuccess'))
+  // }
+
   return [
     {
       accessorKey: 'createdAt',
@@ -73,16 +88,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         )
       },
     },
-    // {
-    //   accessorKey: 'slug',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.slug')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const order = row.original
-    //     return <div className="text-sm">{order?.slug || 'N/A'}</div>
-    //   },
-    // },
     {
       accessorKey: 'orderReferenceNumber',
       header: ({ column }) => (
@@ -139,19 +144,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         return <div className="text-sm">{location}</div>
       },
     },
-    // {
-    //   accessorKey: 'paymentStatus',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('order.paymentStatus')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     return (
-    //       <div className="flex flex-col">
-    //         <PaymentStatusBadge status={row?.original?.payment?.statusCode || paymentStatus.PENDING} />
-    //       </div>
-    //     )
-    //   },
-    // },
     {
       accessorKey: 'orderStatus',
       header: ({ column }) => (
@@ -196,6 +188,24 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
+
+                {/* Export invoice */}
+                {(order.status !== OrderStatus.PENDING) && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      className="flex gap-1 justify-start px-2 w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportOrderInvoice(order);
+                      }}
+                    >
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  </div>
+                )}
+                {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
                   (!order?.payment?.statusCode ||
@@ -241,7 +251,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <div onClick={(e) => e.stopPropagation()}>
                     <CreateChefOrderDialog
                       order={order}
-                    // onOpenChange={onDialogOpenChange}
                     />
                   </div>
                 )}
@@ -260,22 +269,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     {t('order.exportPayment')}
                   </Button>
                 )}
-
-                {/* Export invoice */}
-                {order?.slug &&
-                  order?.payment?.statusCode === paymentStatus.COMPLETED && (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportOrderInvoice(order.slug);
-                      }}
-                      variant="ghost"
-                      className="flex gap-1 justify-start px-2 w-full"
-                    >
-                      <DownloadIcon />
-                      {t('order.exportInvoice')}
-                    </Button>
-                  )}
 
                 {/* Cancel order */}
                 {isDeletePermissionValid &&

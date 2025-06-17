@@ -17,6 +17,23 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Menu } from 'src/menu/menu.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { OrderUtils } from 'src/order/order.utils';
+import { UserUtils } from 'src/user/user.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { Order } from 'src/order/order.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { User } from 'src/user/user.entity';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
+import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
+import { ProductUtils } from './product.utils';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
+import { Product } from './product.entity';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -28,8 +45,34 @@ describe('ProductController', () => {
       providers: [
         ProductService,
         MenuUtils,
+        VoucherUtils,
+        OrderUtils,
+        UserUtils,
+        MenuItemUtils,
+        TransactionManagerService,
+        ProductUtils,
         {
           provide: getRepositoryToken(Menu),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Voucher),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
           useFactory: repositoryMockFactory,
         },
         {
@@ -41,6 +84,22 @@ describe('ProductController', () => {
             deleteProduct: jest.fn(),
             getAllProductsPagination: jest.fn(),
           },
+        },
+        {
+          provide: MAPPER_MODULE_PROVIDER,
+          useFactory: mapperMockFactory,
+        },
+        {
+          provide: WINSTON_MODULE_NEST_PROVIDER,
+          useValue: console,
+        },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

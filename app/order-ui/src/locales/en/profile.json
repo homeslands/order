@@ -2,7 +2,6 @@
   "profile": {
     "title": "Profile",
     "profile": "Personal Information",
-
     "generalInfo": "General Information",
     "passwordAndAuthentication": "Password and Authentication",
     "firstName": "First Name",
@@ -19,27 +18,23 @@
     "dob": "Date of Birth",
     "branch": "Branch",
     "notVerified": "Not Verified",
-
     "myOrders": "My Orders",
     "all": "All",
     "shipping": "Shipping",
     "completed": "Delivered",
-
     "update": "Update",
     "updateProfile": "Update Profile",
     "updateProfileDescription": "Please. Modify the details below to update your personal information",
-
     "copyEmail": "Copy Email",
     "verifyEmail": "Verify Email",
-    "verifyEmailDescription": "Please verify your email address and make any edits if necessary. After clicking verify, a verification code will be sent to your email.",
+    "verifyEmailDescription": "Check and verify your email to receive an OTP.",
     "sendVerifyEmail": "Send Verification Email",
-    "verifyingEmail": "Verifying...",
+    "verifyingEmail": "Verification in progress. Please click 'Verify Email' again to enter your OTP",
     "verifyEmailSuccessfully": "Email verified successfully",
     "verifyEmailFailed": "Email verification failed. Please try again",
     "automaticDirectToProfilePage": "You will be automatically directed to the profile page after 5 seconds",
     "resend": "Resend",
     "resendVerificationEmail": "Resend Verification Email",
-
     "updatePassword": "Update Password",
     "updatePasswordDescription": "Please enter your current and new password to update your password",
     "oldPassword": "Current Password",
@@ -48,8 +43,15 @@
     "enterNewPassword": "Enter new password",
     "confirmPassword": "Confirm New Password",
     "enterConfirmPassword": "Re-enter new password",
-
     "notification": "Notification",
-    "history": "History"
+    "history": "History",
+    "otpCode": "OTP Code",
+    "enterOtpCode": "Enter 6-digit OTP code",
+    "otpDescription": "Please enter the 6-digit OTP code sent to your email",
+    "verifyOtp": "Verify OTP",
+    "resendOtp": "Resend OTP",
+    "otpExpiredIn": "OTP expires in",
+    "minutes": "minutes",
+    "seconds": "seconds"
   }
 }

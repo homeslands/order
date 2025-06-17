@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -22,7 +23,6 @@ import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
 import { useCartItemStore, useUserStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency } from '@/utils'
-import { useNavigate } from 'react-router-dom'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -39,40 +39,49 @@ export default function ClientAddToCartDialog({
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  const { addCartItem } = useCartItemStore()
+  const { addCartItem, isHydrated } = useCartItemStore()
   const { getUserInfo } = useUserStore()
 
   const generateCartItemId = () => {
     return Date.now().toString(36)
   }
 
+  // useEffect(() => {
+  //   if (!isHydrated) {
+  //     console.log('⏳ Chờ rehydrate...')
+  //   } else {
+  //     console.log('✅ Store đã sẵn sàng!')
+  //   }
+  // }, [isHydrated])
+
+
   const handleAddToCart = () => {
     if (!selectedVariant) return
-
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
+    if (!isHydrated) {
+      return
+    }
 
     const cartItem: ICartItem = {
       id: generateCartItemId(),
-      slug: product.slug,
+      slug: product?.product?.slug,
       owner: getUserInfo()?.slug,
       type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
       // branch: getUserInfo()?.branch.slug, // get branch from user info
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
+          slug: product?.product?.slug,
+          image: product?.product?.image,
+          name: product?.product?.name,
           quantity: 1,
-          variant: selectedVariant.slug,
-          size: selectedVariant.size.name,
-          originalPrice: selectedVariant.price,
-          price: finalPrice, // Use the calculated final price
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
+          variant: selectedVariant?.slug,
+          size: selectedVariant?.size?.name,
+          originalPrice: selectedVariant?.price,
+          // price: finalPrice, // Use the calculated final price
+          description: product?.product?.description,
+          isLimit: product?.product?.isLimit,
+          promotion: product?.promotion ? product?.promotion?.slug : '',
+          promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
           // catalog: product.catalog,
           note: note,
         },

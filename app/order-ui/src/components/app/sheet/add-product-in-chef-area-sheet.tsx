@@ -34,7 +34,7 @@ export default function AddProductInChefAreaSheet({ onSuccess, onRefetch, branch
     page: pagination.pageIndex,
     size: pagination.pageSize,
     hasPaging: true,
-  })
+  }, !!pagination.pageIndex)
 
   useEffect(() => {
     if (sheetOpen) {

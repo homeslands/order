@@ -3,6 +3,7 @@ import { ICartItem, OrderTypeEnum, ITable, IUserInfo, IVoucher } from '@/types'
 export interface ICartItemStore {
   cartItems: ICartItem | null
   lastModified: number | null
+  isHydrated: boolean
   getCartItems: () => ICartItem | null
   addCustomerInfo: (owner: IUserInfo) => void
   removeCustomerInfo: () => void
@@ -19,4 +20,15 @@ export interface ICartItemStore {
   addVoucher: (voucher: IVoucher) => void
   removeVoucher: () => void
   clearCart: () => void
+}
+
+export interface ICartCalculationResult {
+  subTotalBeforeDiscount: number
+  subTotal: number
+  subTotalAfterPromotion: number
+  promotionDiscount: number
+  itemLevelDiscount: number
+  orderLevelDiscount: number
+  totalDiscount: number
+  // totalAfterDiscount?: number
 }

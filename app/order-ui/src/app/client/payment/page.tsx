@@ -9,8 +9,8 @@ import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { PaymentMethod, Role, ROUTE, paymentStatus, VOUCHER_TYPE } from '@/constants'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
@@ -31,24 +31,37 @@ export function ClientPaymentPage() {
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
-  const { qrCode, setQrCode, paymentMethod, setPaymentMethod, paymentSlug, setPaymentSlug } = usePaymentMethodStore()
+  const { paymentMethod, setPaymentMethod } = usePaymentMethodStore()
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
 
+  const orderData = order?.result
+
+  // Get QR code from orderData
+  const qrCode = orderData?.payment?.qrCode || ''
+
+  // Check if payment amount matches order subtotal and QR code is valid
+  const hasValidPaymentAndQr = orderData?.payment?.amount != null &&
+    orderData?.subtotal != null &&
+    orderData.payment.amount === orderData.subtotal &&
+    qrCode && qrCode.trim() !== ''
+
+  const orderItems = order?.result?.orderItems || []
+  const voucher = order?.result?.voucher || null
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
+  // const voucherDiscount = calculateVoucherDiscountFromOrder(orderItems, voucher)
+
   // calculate original total
-  const originalTotal = order?.result.orderItems ?
-    order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
+  // const originalTotal = order?.result.orderItems ?
+  //   order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
 
-  const isPercentOrder = order?.result.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-
-  // calculate voucher base on promotion
-  const voucherDiscount = isPercentOrder
-    ? (originalTotal * (order?.result.voucher?.value || 0)) / 100
-    : order?.result.voucher?.value
-
-  const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
+  // const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -57,10 +70,32 @@ export function ClientPaymentPage() {
   useEffect(() => {
     if (isExpired) {
       setIsPolling(false)
-    } else if (qrCode && paymentSlug) {
-      setIsPolling(true)
     }
-  }, [isExpired, qrCode, paymentSlug])
+  }, [isExpired])
+
+  // Start polling when QR code exists and payment is valid, or when payment method is selected
+  useEffect(() => {
+    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+      if (hasValidPaymentAndQr) {
+        // Case 1: Valid QR code - check if payment is completed
+        if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
+          setIsPolling(false)
+        } else {
+          setIsPolling(true)
+        }
+      } else if (orderData?.payment && orderData.payment.amount !== orderData.subtotal) {
+        // Case 2: Payment exists but amount doesn't match - start polling for status updates
+        setIsPolling(true)
+      } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
+        // Case 3: Payment exists but no QR code (amount < 2000) - start polling
+        setIsPolling(true)
+      } else {
+        setIsPolling(false)
+      }
+    } else {
+      setIsPolling(false)
+    }
+  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -73,8 +108,15 @@ export function ClientPaymentPage() {
           // Always ensure loading is false before navigating
           setIsLoading(false)
           navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
+        } else {
+          // Turn off loading if order is updated but not yet paid (for orders without QR code)
+          const updatedOrderData = updatedOrder.data?.result
+          if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
+            updatedOrderData.payment.amount === updatedOrderData.subtotal) {
+            setIsLoading(false)
+          }
         }
-      }, 3000)
+      }, 2000)
     }
 
     return () => {
@@ -84,8 +126,7 @@ export function ClientPaymentPage() {
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     setPaymentMethod(selectedPaymentMethod)
-    if (selectedPaymentMethod === PaymentMethod.BANK_TRANSFER && qrCode) setIsPolling(true)
-    else setIsPolling(false) // Stop polling after selecting payment method
+    // Polling logic is handled in useEffect above based on paymentMethod and payment status
   }
 
   const handleConfirmPayment = () => {
@@ -99,8 +140,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -131,8 +171,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -163,8 +202,7 @@ export function ClientPaymentPage() {
           { orderSlug: slug, paymentMethod },
           {
             onSuccess: (data) => {
-              setPaymentSlug(data.result.slug)
-              setQrCode(data.result.qrCode)
+              refetchOrder()
               setIsPolling(true)
               // Only turn off loading if we get a QR code (amount > 2000)
               if (data.result.qrCode) {
@@ -310,7 +348,7 @@ export function ClientPaymentPage() {
               </NavLink>
             )}
           </div>
-          {/* Thông tin đơn hàng */}
+          {/* Order detail */}
           <div className="w-full lg:w-2/3">
             <div className="grid grid-cols-5 px-4 py-3 mb-2 w-full text-sm font-thin rounded-md bg-muted-foreground/10">
               <span className="col-span-2 text-xs">{t('order.product')}</span>
@@ -337,20 +375,42 @@ export function ClientPaymentPage() {
                       </div>
                     </div>
                     <div className="flex col-span-1 items-center">
-                      {item.promotion ?
-                        <div className='flex gap-2 items-center'>
-                          <span className="hidden text-xs line-through text-muted-foreground sm:block">
-                            {`${formatCurrency(item.variant.price || 0)}`}
-                          </span>
-                          <span className="text-sm text-primary">
-                            {`${formatCurrency(item.variant.price * (1 - item.promotion.value / 100) || 0)}`}
-                          </span>
-                        </div>
-                        :
-                        <span className="text-sm">
-                          {`${formatCurrency(item.variant.price || 0)}`}
-                        </span>}
+                      <div className='flex gap-2 items-center'>
+                        {(() => {
+                          const displayItem = displayItems.find(di => di.slug === item.slug)
+                          const original = item.variant.price || 0
+                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                          const finalPrice = displayItem?.finalPrice || 0
 
+                          const isSamePriceVoucher =
+                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                          const displayPrice = isSamePriceVoucher
+                            ? finalPrice
+                            : hasPromotionDiscount
+                              ? priceAfterPromotion
+                              : original
+
+                          const shouldShowLineThrough =
+                            isSamePriceVoucher || hasPromotionDiscount
+
+                          return (
+                            <div className="flex gap-1 items-center">
+                              {shouldShowLineThrough && original !== finalPrice && (
+                                <span className="text-sm line-through text-muted-foreground">
+                                  {formatCurrency(original)}
+                                </span>
+                              )}
+                              <span className="font-bold text-primary">
+                                {formatCurrency(displayPrice)}
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </div>
                     </div>
                     <div className="flex col-span-1 justify-center">
                       <span className="text-sm">{item.quantity || 0}</span>
@@ -374,15 +434,15 @@ export function ClientPaymentPage() {
                   <div className="flex justify-between pb-4 w-full border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      {`${formatCurrency(originalTotal || 0)}`}
+                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">
                     <h3 className="text-sm font-medium text-muted-foreground">
-                      {t('order.discount')}
+                      {t('order.promotionDiscount')}
                     </h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      - {`${formatCurrency(promotionDiscount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.promotionDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">
@@ -390,7 +450,7 @@ export function ClientPaymentPage() {
                       {t('order.voucher')}
                     </h3>
                     <p className="text-sm italic font-semibold text-green-500">
-                      - {`${formatCurrency(voucherDiscount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
@@ -399,7 +459,7 @@ export function ClientPaymentPage() {
                         {t('order.totalPayment')}
                       </h3>
                       <p className="text-lg font-semibold text-primary">
-                        {`${formatCurrency(order?.result.subtotal || 0)}`}
+                        {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
                       </p>
                     </div>
                     {/* <span className="text-xs text-muted-foreground">
@@ -414,7 +474,7 @@ export function ClientPaymentPage() {
         {/* Payment method */}
         <ClientPaymentMethodSelect
           paymentMethod={paymentMethod}
-          qrCode={qrCode}
+          qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
         />
@@ -422,13 +482,15 @@ export function ClientPaymentPage() {
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) &&
             <div className="flex gap-2">
-              {paymentSlug ? <DownloadQrCode qrCode={qrCode} slug={slug} /> :
+              {(hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER) ?
+                <DownloadQrCode qrCode={qrCode} slug={slug} />
+                :
                 <Button
                   disabled={isPendingInitiatePayment || isPendingInitiatePublicPayment}
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >
-                  {isPendingInitiatePayment || isPendingInitiatePublicPayment && <ButtonLoading />}
+                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment) && <ButtonLoading />}
                   {t('paymentMethod.confirmPayment')}
                 </Button>}
             </div>}

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { useOrderBySlug } from '@/hooks'
 import { IOrder, OrderTypeEnum } from '@/types'
 import {
-  Separator,
   Sheet,
   SheetContent,
   SheetFooter,
@@ -20,9 +19,9 @@ import {
   TableRow,
 } from '@/components/ui'
 import { ShowInvoiceDialog } from '../dialog'
-import { formatCurrency } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
-import { publicFileURL } from '@/constants'
+import { publicFileURL, VOUCHER_TYPE } from '@/constants'
 
 interface IOrderHistoryDetailSheetProps {
   order: IOrder | null
@@ -41,6 +40,13 @@ export default function OrderHistoryDetailSheet({
   const { data, refetch } = useOrderBySlug(order?.slug as string)
   const orderDetail = data?.result
 
+  const orderItems = orderDetail?.orderItems || []
+  const voucher = orderDetail?.voucher || null
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
   // polling useOrderBySlug every 5 seconds
   useEffect(() => {
     if (!orderDetail) return
@@ -55,10 +61,6 @@ export default function OrderHistoryDetailSheet({
 
     return () => clearInterval(interval) // Cleanup
   }, [orderDetail, refetch])
-
-  const originalTotal = orderDetail ? orderDetail.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0
-
-  const discount = orderDetail ? orderDetail.orderItems.reduce((sum, item) => sum + (item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0), 0) : 0
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -237,24 +239,42 @@ export default function OrderHistoryDetailSheet({
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>{item.note || t("order.noNote")}</TableCell>
                           <TableCell className="text-right">
-                            {item.promotion && item.promotion.value > 0 ? (
-                              <div className="flex gap-1 justify-start items-center">
-                                <span className="text-sm line-through text-muted-foreground">
-                                  {`${formatCurrency(item?.variant?.price || 0)}`}
-                                </span>
-                                <span className="text-sm sm:text-lg text-primary">
-                                  {`${formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}`}
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col gap-1 justify-start items-start">
-                                <span className="text-sm text-muted-foreground">
-                                  {`${formatCurrency(item?.variant?.price || 0)}`}
-                                </span>
-                              </div>
-                            )}
+                            {(() => {
+                              const displayItem = displayItems.find(di => di.slug === item.slug)
+                              const original = item.variant.price || 0
+                              const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                              const finalPrice = displayItem?.finalPrice || 0
+
+                              const isSamePriceVoucher =
+                                voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                              const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                              const displayPrice = isSamePriceVoucher
+                                ? finalPrice
+                                : hasPromotionDiscount
+                                  ? priceAfterPromotion
+                                  : original
+
+                              const shouldShowLineThrough =
+                                isSamePriceVoucher || hasPromotionDiscount
+
+                              return (
+                                <div className="flex gap-1 items-center">
+                                  {shouldShowLineThrough && original !== finalPrice && (
+                                    <span className="text-sm line-through text-muted-foreground">
+                                      {formatCurrency(original)}
+                                    </span>
+                                  )}
+                                  <span className="font-bold text-primary">
+                                    {formatCurrency(displayPrice)}
+                                  </span>
+                                </div>
+                              )
+                            })()}
                           </TableCell>
-                          <TableCell className="text-lg font-extrabold text-right text-primary">
+                          <TableCell className="text-sm font-extrabold text-right text-primary">
                             {`${formatCurrency(item?.subtotal)}`}
                           </TableCell>
                         </TableRow>
@@ -267,13 +287,13 @@ export default function OrderHistoryDetailSheet({
                     <p className="text-sm text-muted-foreground">
                       {t('order.subtotal')}
                     </p>
-                    <p className='text-muted-foreground'>{`${formatCurrency(originalTotal || 0)}`}</p>
+                    <p className='text-muted-foreground'>{`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}</p>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-sm italic text-green-500">
-                      {t('order.discount')}
+                      {t('order.promotionDiscount')}
                     </p>
-                    <p className='text-sm italic text-green-500'>{`- ${formatCurrency(discount || 0)}`}</p>
+                    <p className='text-sm italic text-green-500'>{`- ${formatCurrency(cartTotals?.promotionDiscount || 0)}`}</p>
                   </div>
                   {orderDetail?.voucher &&
                     <div className="flex justify-between pb-4 w-full border-b">
@@ -281,15 +301,23 @@ export default function OrderHistoryDetailSheet({
                         {t('order.voucher')}
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency((originalTotal - discount) * ((orderDetail.voucher.value) / 100))}`}
+                        - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                       </p>
                     </div>}
-                  <Separator />
+                  {/* {orderDetail?.loss > 0 &&
+                    <div className="flex justify-between pb-4 w-full">
+                      <h3 className="text-sm italic font-medium text-green-500">
+                        {t('order.invoiceAutoDiscountUnderThreshold')}
+                      </h3>
+                      <p className="text-sm italic font-semibold text-green-500">
+                        - {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
+                      </p>
+                    </div>} */}
                   <div className="flex justify-between items-center">
                     <p className="font-bold text-md">
                       {t('order.totalPayment')}
                     </p>
-                    <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.subtotal || 0)}`}</p>
+                    <p className="text-xl font-bold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
                   </div>
                   {/* <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p>

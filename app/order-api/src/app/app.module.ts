@@ -64,6 +64,7 @@ import { NotificationModule } from 'src/notification/notification.module';
 import { JobModule } from 'src/job/job.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { VoucherGroupModule } from 'src/voucher-group/voucher-group.module';
+import { VoucherProductModule } from 'src/voucher-product/voucher-product.module';
 import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
 
 @Module({
@@ -151,6 +152,7 @@ import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
     NotificationModule,
     JobModule,
     VoucherGroupModule,
+    VoucherProductModule,
     GiftCardModule,
   ],
   controllers: [AppController],

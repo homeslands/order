@@ -2,7 +2,6 @@
   "profile": {
     "title": "Trang cá nhân",
     "profile": "Thông tin cá nhân",
-
     "generalInfo": "Thông tin chung",
     "passwordAndAuthentication": "Mật khẩu và xác thực",
     "firstName": "Tên",
@@ -19,27 +18,23 @@
     "dob": "Ngày sinh",
     "branch": "Chi nhánh",
     "notVerified": "Chưa xác minh",
-
     "myOrders": "Đơn hàng của tôi",
     "all": "Tất cả",
     "shipping": "Đang giao",
     "completed": "Đã giao",
-
     "update": "Cập nhật",
     "updateProfile": "Cập nhật hồ sơ",
     "updateProfileDescription": "thay đổi các thông tin bên dưới để cập nhật thông tin cá nhân của bạn",
-
     "copyEmail": "Sao chép email",
     "verifyEmail": "Xác minh email",
-    "verifyEmailDescription": "Vui lòng xác nhận lại địa chỉ email của bạn và thực hiện chỉnh sửa nếu có. Sau khi bấm xác nhận, mã xác minh sẽ được gửi đến email của bạn.",
+    "verifyEmailDescription": "Kiểm tra và xác nhận email để nhận mã OTP.",
     "sendVerifyEmail": "Gửi email xác minh",
-    "verifyingEmail": "Đang xác minh...",
+    "verifyingEmail": "Bạn đã yêu cầu mã. Bấm lại 'Xác minh email' để nhập OTP.",
     "verifyEmailSuccessfully": "Email đã được xác minh thành công!",
     "verifyEmailFailed": "Xác minh email thất bại. Vui lòng thử lại",
     "redirectingIn5s": "Bạn sẽ được chuyển hướng đến trang cá nhân sau 5 giây",
     "resend": "Gửi lại",
     "resendVerificationEmail": "Gửi lại email xác minh",
-
     "updatePassword": "Cập nhật mật khẩu",
     "updatePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới để cập nhật mật khẩu của bạn",
     "oldPassword": "Mật khẩu hiện tại",
@@ -49,6 +44,14 @@
     "confirmPassword": "Xác nhận mật khẩu mới",
     "enterConfirmPassword": "Nhập lại mật khẩu mới",
     "notification": "Thông báo",
-    "history": "Lịch sử"
+    "history": "Lịch sử",
+    "otpCode": "Mã OTP",
+    "enterOtpCode": "Nhập mã OTP 6 số",
+    "otpDescription": "Vui lòng nhập mã OTP 6 số đã được gửi đến email của bạn",
+    "verifyOtp": "Xác minh OTP",
+    "resendOtp": "Gửi lại OTP",
+    "otpExpiredIn": "Mã OTP sẽ hết hạn sau",
+    "minutes": "phút",
+    "seconds": "giây"
   }
 }

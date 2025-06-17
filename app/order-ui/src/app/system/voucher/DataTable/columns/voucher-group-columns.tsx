@@ -73,7 +73,9 @@ export const useVoucherGroupColumns = (): ColumnDef<IVoucherGroup>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <UpdateVoucherGroupSheet voucherGroup={voucherGroup} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UpdateVoucherGroupSheet voucherGroup={voucherGroup} />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

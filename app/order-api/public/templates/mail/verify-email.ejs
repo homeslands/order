@@ -18,25 +18,18 @@
           We received a request to verify your email. Click the button below to
           verify your email:
         </p>
-        <div class="mt-4">
-          <a
-            href="<%= locals.url %>"
-            class="block text-center bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-          >
-            Verify Email
-          </a>
+        <div class="mt-4 mb-4 p-4 bg-gray-100 text-center rounded">
+          <p class="text-2xl font-bold tracking-widest text-blue-600">
+            <%= locals.code %>
+          </p>
         </div>
-        <p class="text-gray-600 mt-4">This link will expire in 2 minutes.</p>
+        <p class="text-gray-600 mt-4">
+          This code will expire at
+          <span class="font-bold"><%= locals.expiresAt %></span>.
+        </p>
         <p class="text-gray-600 mt-4">
           If you didn’t request verify email, please ignore this email.
         </p>
-      </div>
-      <div class="bg-gray-100 px-6 py-4">
-        <p class="text-sm text-gray-500">
-          If you’re having trouble clicking the button, copy and paste the link
-          below into your web browser:
-        </p>
-        <p class="text-sm text-blue-500 break-all"><%= locals.url %></p>
       </div>
     </div>
   </body>

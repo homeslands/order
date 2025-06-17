@@ -14,3 +14,9 @@ export enum OrderType {
 export const OrderAction = {
   INIT_ORDER_ITEM_SUCCESS: 'init.order_item.success',
 };
+
+export enum DiscountType {
+  PROMOTION = 'promotion',
+  VOUCHER = 'voucher',
+  NONE = 'none',
+}

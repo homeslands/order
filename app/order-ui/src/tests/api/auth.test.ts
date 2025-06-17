@@ -221,7 +221,7 @@ describe('Auth API', () => {
       const result = await verifyEmail(verifyParams)
 
       expect(http.post).toHaveBeenCalledWith(
-        '/auth/request-verify-email',
+        '/auth/initiate-verify-email',
         verifyParams,
       )
       expect(result).toEqual(mockResponse.data)
@@ -258,12 +258,12 @@ describe('Auth API', () => {
       const mockResponse = { data: { success: true } }
       ;(http.post as Mock).mockResolvedValue(mockResponse)
 
-      const confirmParams = { token: 'verify-token', email: 'test@example.com' }
-      const result = await confirmEmailVerification(confirmParams)
+      const code = 'verify-token'
+      const result = await confirmEmailVerification(code)
 
       expect(http.post).toHaveBeenCalledWith(
-        '/auth/confirm-email-verification',
-        confirmParams,
+        '/auth/confirm-email-verification/code',
+        { code },
       )
       expect(result).toEqual(mockResponse.data)
     })
@@ -277,31 +277,22 @@ describe('Auth API', () => {
       }
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const confirmParams = {
-        token: 'expired-token',
-        email: 'test@example.com',
-      }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        mockError,
-      )
+      const code = 'expired-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(mockError)
     })
 
     it('should handle network error', async () => {
       const mockError = new Error('Network Error')
       ;(http.post as Mock).mockRejectedValue(mockError)
 
-      const confirmParams = { token: 'test-token', email: 'test@example.com' }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        mockError,
-      )
+      const code = 'test-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(mockError)
     })
 
     it('should handle server error', async () => {
       ;(http.post as Mock).mockRejectedValue(serverError)
-      const confirmParams = { token: 'verify-token', email: 'test@example.com' }
-      await expect(confirmEmailVerification(confirmParams)).rejects.toEqual(
-        serverError,
-      )
+      const code = 'test-code'
+      await expect(confirmEmailVerification(code)).rejects.toEqual(serverError)
     })
   })
 })

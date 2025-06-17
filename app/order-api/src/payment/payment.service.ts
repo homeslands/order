@@ -139,6 +139,21 @@ export class PaymentService {
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
 
+    if (order.payment) {
+      if (
+        order.payment.paymentMethod === PaymentMethod.BANK_TRANSFER &&
+        createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER &&
+        order.subtotal === order.payment.amount
+      ) {
+        this.logger.warn(
+          `Order ${order.slug} already has a payment`,
+          null,
+          context,
+        );
+        throw new PaymentException(PaymentValidation.ORDER_ALREADY_HAS_PAYMENT);
+      }
+    }
+
     if (order.status !== OrderStatus.PENDING) {
       this.logger.error('Order is not pending', null, context);
       throw new OrderException(
@@ -185,6 +200,10 @@ export class PaymentService {
           payment = await this.bankTransferStrategy.process(order);
           break;
         case PaymentMethod.CASH:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+          }
           payment = await this.cashStrategy.process(order);
           break;
         default:
@@ -244,6 +263,15 @@ export class PaymentService {
       );
     }
 
+    if (order.payment) {
+      this.logger.warn(
+        `Order ${order.slug} already has a payment`,
+        null,
+        context,
+      );
+      throw new PaymentException(PaymentValidation.ORDER_ALREADY_HAS_PAYMENT);
+    }
+
     let payment: Payment;
 
     switch (createPaymentDto.paymentMethod) {
@@ -264,9 +292,9 @@ export class PaymentService {
     this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
 
     // Delete previous payment
-    if (order.payment) {
-      await this.paymentRepository.softRemove(order.payment);
-    }
+    // if (order.payment) {
+    //   await this.paymentRepository.softRemove(order.payment);
+    // }
 
     // Update order
     order.payment = payment;

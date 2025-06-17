@@ -72,7 +72,7 @@ export default function UpdateVoucherGroupSheet({
           <FormItem>
             <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
-              {t('voucher.voucherGroupTitle')}
+              {t('voucher.title')}
             </FormLabel>
             <FormControl>
               <Input {...field} placeholder={t('voucher.enterVoucherGroupTitle')} />
@@ -110,13 +110,13 @@ export default function UpdateVoucherGroupSheet({
       <SheetTrigger asChild>
         <Button variant="ghost" className="gap-1 px-2" onClick={handleClick}>
           <PenLine className="icon" />
-          {t('voucher.update')}
+          {t('voucher.updateVoucherGroup')}
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
           <SheetTitle className="text-primary">
-            {t('voucher.update')}
+            {t('voucher.updateVoucherGroup')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
@@ -142,7 +142,7 @@ export default function UpdateVoucherGroupSheet({
           </ScrollArea>
           <SheetFooter className="p-4">
             <Button type="submit" form="voucher-form">
-              {t('voucher.update')}
+              {t('voucher.updateVoucherGroup')}
             </Button>
             {isOpen && (
               <ConfirmUpdateVoucherGroupDialog

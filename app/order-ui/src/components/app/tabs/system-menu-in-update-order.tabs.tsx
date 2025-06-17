@@ -14,15 +14,7 @@ interface SystemMenuInUpdateOrderTabsProps {
 
 export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
-
   const [activeTab, setActiveTab] = useState('menu')
-
-  // check if order type is at table
-  // useEffect(() => {
-  //   if (order && order?.type === OrderTypeEnum.AT_TABLE) {
-  //     setActiveTab('table')
-  //   }
-  // }, [order])
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -41,7 +33,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
       </TabsContent>
       {type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0">
-          <SystemTableSelectInUpdateOrder order={order} onSuccess={onSuccess} />
+          <SystemTableSelectInUpdateOrder order={order} />
         </TabsContent>
       )}
     </Tabs>

@@ -34,24 +34,6 @@ export default function UpdateOrderItemNoteInput({ orderItem }: OrderItemNoteInp
         setNote(orderItem.note || '')
     }, [orderItem.note, setNote])
 
-    // const handleUpdateNote = useCallback(() => {
-    //     if (debouncedInputValue !== orderItem.note) {
-    //         updateNote(
-    //             { slug: orderItem.slug, data: { note: debouncedInputValue } },
-    //             {
-    //                 onSuccess: () => {
-    //                     showToast(tToast('toast.updateOrderItemNoteSuccess'))
-    //                     queryClient.invalidateQueries({ queryKey: ['orders'] })
-    //                 }
-    //             }
-    //         )
-    //     }
-    // }, [debouncedInputValue, orderItem, updateNote, queryClient, tToast])
-
-    // useEffect(() => {
-    //     handleUpdateNote()
-    // }, [debouncedInputValue, handleUpdateNote])
-
     return (
         <div className="flex w-full flex-row items-center justify-center gap-2.5">
             <div className="flex flex-row flex-1 gap-2 justify-between items-center w-full">
@@ -60,7 +42,7 @@ export default function UpdateOrderItemNoteInput({ orderItem }: OrderItemNoteInp
                     defaultValue={orderItem.note || ''}
                     value={note}
                     type="text"
-                    className="shadow-none"
+                    className="text-xs shadow-none"
                     placeholder={t('order.enterNote')}
                     onChange={(e) => setNote(e.target.value)}
                 />

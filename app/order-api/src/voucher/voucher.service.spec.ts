@@ -35,6 +35,11 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 import { VoucherGroupUtils } from 'src/voucher-group/voucher-group.utils';
+import { PdfService } from 'src/pdf/pdf.service';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { ProductUtils } from 'src/product/product.utils';
+import { Product } from 'src/product/product.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -54,6 +59,9 @@ describe('VoucherService', () => {
         MenuItemUtils,
         UserUtils,
         VoucherGroupUtils,
+        PdfService,
+        QrCodeService,
+        ProductUtils,
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,
@@ -88,6 +96,14 @@ describe('VoucherService', () => {
         },
         TransactionManagerService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        {
+          provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useFactory: repositoryMockFactory,
+        },
       ],
     }).compile();
 
@@ -320,7 +336,7 @@ describe('VoucherService', () => {
       mockDataSource.createQueryRunner = jest.fn().mockReturnValue({
         ...queryRunner,
         manager: {
-          remove: jest.fn().mockResolvedValue(mockVoucherRepo),
+          softRemove: jest.fn().mockResolvedValue(mockVoucherRepo),
         },
       });
       mapperMock.map.mockReturnValue(mockVoucherOutput);

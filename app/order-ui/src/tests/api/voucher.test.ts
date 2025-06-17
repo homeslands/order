@@ -97,14 +97,21 @@ describe('Voucher API', () => {
 
   describe('createVoucher', () => {
     const voucherData = {
+      voucherGroup: 'voucher-group-1',
       title: 'New Voucher',
+      description: 'New Voucher Description',
+      type: VOUCHER_TYPE.PERCENT_ORDER,
       code: 'NEW2024',
       value: 50000,
       maxUsage: 100,
       minOrderValue: 100000,
       isActive: true,
+      isPrivate: false,
       startDate: '2024-01-01',
       endDate: '2024-02-01',
+      isVerificationIdentity: false,
+      numberOfUsagePerUser: 1,
+      products: [],
     }
 
     it('should create voucher correctly', async () => {
@@ -150,6 +157,8 @@ describe('Voucher API', () => {
       isActive: true,
       startDate: '2024-01-01',
       endDate: '2024-03-01',
+      products: [],
+      createdAt: '2024-01-01',
     }
 
     it('should update voucher correctly', async () => {
@@ -205,6 +214,7 @@ describe('Voucher API', () => {
     const validateData = {
       voucher: 'voucher-1',
       user: 'user-1',
+      orderItems: [],
     }
 
     it('should validate voucher correctly', async () => {

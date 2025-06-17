@@ -10,7 +10,6 @@ export interface IVerifyEmailRequest {
 }
 
 export interface IConfirmEmailVerificationRequest {
-  token: string // token get from url in email
   email: string
 }
 
@@ -36,4 +35,8 @@ export interface ICreatePermissionRequest {
   role: string
   createAuthorities: string[]
   deleteAuthorities: string[]
+}
+
+export interface IEmailVerificationResponse extends IBase {
+  expiresAt: string
 }
