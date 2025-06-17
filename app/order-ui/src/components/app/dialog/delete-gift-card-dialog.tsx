@@ -48,29 +48,34 @@ export default function DeleteGiftCardDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger className="flex w-full justify-start" asChild>
-        <div data-tooltip-id="delete-card" data-tooltip-content={t('giftCard.delete')}>
-          <Trash2 className="icon text-destructive" />
-          <Tooltip id="delete-card" variant='light' />
+        <div
+          data-tooltip-id="delete-card"
+          data-tooltip-content={t('giftCard.delete')}
+        >
+          <Trash2 className="icon cursor-pointer text-destructive transition-colors hover:text-red-600 dark:text-red-400 dark:hover:text-red-300" />
+          <Tooltip id="delete-card" variant="light" />
         </div>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="border-b border-destructive pb-4 text-destructive">
+          <DialogTitle className="border-b border-destructive pb-4 text-destructive dark:border-red-400 dark:text-red-400">
             <div className="flex items-center gap-2">
               <TriangleAlert className="h-6 w-6" />
               {t('giftCard.delete')}
             </div>
           </DialogTitle>
           <DialogDescription
-            className={`rounded-md bg-red-100 p-2 text-destructive dark:bg-gray-800`}
+            className={`rounded-md bg-red-100 p-2 text-destructive dark:bg-red-900/30 dark:text-red-300`}
           >
             {tCommon('common.deleteNote')}
           </DialogDescription>
-
-          <div className="py-4 text-sm text-muted-foreground">
+          <div className="py-4 text-sm text-muted-foreground dark:text-gray-400">
             {t('giftCard.deleteGiftCardWarning1')}{' '}
-            <span className="font-bold">{giftCard?.title}</span> <br />
+            <span className="font-bold text-gray-900 dark:text-white">
+              {giftCard?.title}
+            </span>
+            <br />
             <br />
             {t('giftCard.deleteGiftCardConfirmation')}
           </div>
