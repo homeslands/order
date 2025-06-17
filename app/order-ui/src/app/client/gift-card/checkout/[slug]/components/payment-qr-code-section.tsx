@@ -41,18 +41,18 @@ export default function PaymentQRCodeSection({
           <img
             src={initiatePaymentData?.result?.payment?.qrCode || ''}
             alt={t('giftCard.paymentQRCode', 'Payment QR Code')}
-            className="mb-4 h-48 w-48 rounded border bg-white p-2"
+            className="mb-4 h-48 w-48 rounded border bg-white p-2 dark:bg-gray-100"
           />
           {/* Payment amount display */}
           <div className="mt-4 text-center">
-            <div className="mb-1 text-base font-semibold">
+            <div className="mb-1 text-base font-semibold text-gray-900 dark:text-white">
               {t('giftCard.paymentAmount', 'Payment Amount')}:{' '}
-              <span className="text-lg font-bold text-black">
+              <span className="text-lg font-bold text-black dark:text-white">
                 {formatCurrency(orderData.totalAmount)}
               </span>
             </div>
             {/* Payment verification note */}
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               {t(
                 'giftCard.paymentVerificationNote',
                 'Please verify payment information before proceeding with the transaction',
