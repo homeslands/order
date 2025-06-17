@@ -69,6 +69,8 @@ export { default as CreateVoucherDialog } from './confirm-create-voucher-dialog'
 export { default as ConfirmUpdateVoucherDialog } from './confirm-update-voucher-dialog'
 export { default as DeleteVoucherDialog } from './delete-voucher-dialog'
 export { default as ConfirmExportVoucherDialog } from './confirm-export-voucher-dialog'
+export { default as ConfirmApplyVoucherDialog } from './confirm-apply-voucher-dialog'
+export { default as ConfirmRemoveAppliedVoucherDialog } from './confirm-remove-applied-voucher-dialog'
 
 export { default as ConfirmCreateVoucherGroupDialog } from './confirm-create-voucher-group-dialog'
 export { default as ConfirmUpdateVoucherGroupDialog } from './confirm-update-voucher-group-dialog'
@@ -116,6 +118,7 @@ export { default as UploadBannerBannerDialog } from './upload-banner-image-dialo
 export { default as UpdateTableStatusDialog } from './update-table-status-dialog'
 export { default as DeleteBannerDialog } from './delete-banner-dialog'
 export { default as ConfirmUpdateBannerDialog } from './confirm-update-banner-dialog'
+export { default as DeleteGiftCardDialog } from './delete-gift-card-dialog'
 
 export { default as UpdateRoleDialog } from './update-role-dialog'
 export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'

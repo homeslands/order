@@ -14,6 +14,7 @@ import {
   Store,
   Tag,
   Ticket,
+  Gift,
   UserCog,
   Users,
 } from 'lucide-react'
@@ -139,6 +140,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_PROMOTION,
     icon: Tag,
     permission: Permission.PROMOTION_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.giftCardManagement',
+    path: ROUTE.STAFF_GIFT_CARD,
+    icon: Gift,
+    permission: Permission.BANNER_MANAGEMENT,
   },
   {
     title: 'sidebar.banner',

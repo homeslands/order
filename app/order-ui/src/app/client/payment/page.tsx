@@ -9,8 +9,8 @@ import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
 import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
-import { PaymentMethod, Role, ROUTE, VOUCHER_TYPE, paymentStatus } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { PaymentMethod, Role, ROUTE, paymentStatus, VOUCHER_TYPE } from '@/constants'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
@@ -41,7 +41,6 @@ export function ClientPaymentPage() {
 
   // Get QR code from orderData
   const qrCode = orderData?.payment?.qrCode || ''
-  // const paymentSlug = orderData?.payment?.slug || ''
 
   // Check if payment amount matches order subtotal and QR code is valid
   const hasValidPaymentAndQr = orderData?.payment?.amount != null &&
@@ -49,18 +48,20 @@ export function ClientPaymentPage() {
     orderData.payment.amount === orderData.subtotal &&
     qrCode && qrCode.trim() !== ''
 
+  const orderItems = order?.result?.orderItems || []
+  const voucher = order?.result?.voucher || null
+
+  const displayItems = calculateOrderItemDisplay(orderItems, voucher)
+
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
+  // const voucherDiscount = calculateVoucherDiscountFromOrder(orderItems, voucher)
+
   // calculate original total
-  const originalTotal = order?.result.orderItems ?
-    order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
+  // const originalTotal = order?.result.orderItems ?
+  //   order.result.orderItems.reduce((sum, item) => sum + item.variant.price * item.quantity, 0) : 0;
 
-  const isPercentOrder = order?.result.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-
-  // calculate voucher base on promotion
-  const voucherDiscount = isPercentOrder
-    ? (originalTotal * (order?.result.voucher?.value || 0)) / 100
-    : order?.result.voucher?.value
-
-  const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
+  // const promotionDiscount = order?.result.orderItems.reduce((sum, item) => sum + ((item.promotion ? item.variant.price * item.quantity * (item.promotion.value / 100) : 0)), 0)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -347,7 +348,7 @@ export function ClientPaymentPage() {
               </NavLink>
             )}
           </div>
-          {/* Thông tin đơn hàng */}
+          {/* Order detail */}
           <div className="w-full lg:w-2/3">
             <div className="grid grid-cols-5 px-4 py-3 mb-2 w-full text-sm font-thin rounded-md bg-muted-foreground/10">
               <span className="col-span-2 text-xs">{t('order.product')}</span>
@@ -374,20 +375,42 @@ export function ClientPaymentPage() {
                       </div>
                     </div>
                     <div className="flex col-span-1 items-center">
-                      {item.promotion ?
-                        <div className='flex gap-2 items-center'>
-                          <span className="hidden text-xs line-through text-muted-foreground sm:block">
-                            {`${formatCurrency(item.variant.price || 0)}`}
-                          </span>
-                          <span className="text-sm text-primary">
-                            {`${formatCurrency(item.variant.price * (1 - item.promotion.value / 100) || 0)}`}
-                          </span>
-                        </div>
-                        :
-                        <span className="text-sm">
-                          {`${formatCurrency(item.variant.price || 0)}`}
-                        </span>}
+                      <div className='flex gap-2 items-center'>
+                        {(() => {
+                          const displayItem = displayItems.find(di => di.slug === item.slug)
+                          const original = item.variant.price || 0
+                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                          const finalPrice = displayItem?.finalPrice || 0
 
+                          const isSamePriceVoucher =
+                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                          const displayPrice = isSamePriceVoucher
+                            ? finalPrice
+                            : hasPromotionDiscount
+                              ? priceAfterPromotion
+                              : original
+
+                          const shouldShowLineThrough =
+                            isSamePriceVoucher || hasPromotionDiscount
+
+                          return (
+                            <div className="flex gap-1 items-center">
+                              {shouldShowLineThrough && original !== finalPrice && (
+                                <span className="text-sm line-through text-muted-foreground">
+                                  {formatCurrency(original)}
+                                </span>
+                              )}
+                              <span className="font-bold text-primary">
+                                {formatCurrency(displayPrice)}
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </div>
                     </div>
                     <div className="flex col-span-1 justify-center">
                       <span className="text-sm">{item.quantity || 0}</span>
@@ -411,15 +434,15 @@ export function ClientPaymentPage() {
                   <div className="flex justify-between pb-4 w-full border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      {`${formatCurrency(originalTotal || 0)}`}
+                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">
                     <h3 className="text-sm font-medium text-muted-foreground">
-                      {t('order.discount')}
+                      {t('order.promotionDiscount')}
                     </h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      - {`${formatCurrency(promotionDiscount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.promotionDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">
@@ -427,7 +450,7 @@ export function ClientPaymentPage() {
                       {t('order.voucher')}
                     </h3>
                     <p className="text-sm italic font-semibold text-green-500">
-                      - {`${formatCurrency(voucherDiscount || 0)}`}
+                      - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
                   <div className="flex flex-col">
@@ -436,7 +459,7 @@ export function ClientPaymentPage() {
                         {t('order.totalPayment')}
                       </h3>
                       <p className="text-lg font-semibold text-primary">
-                        {`${formatCurrency(order?.result.subtotal || 0)}`}
+                        {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
                       </p>
                     </div>
                     {/* <span className="text-xs text-muted-foreground">

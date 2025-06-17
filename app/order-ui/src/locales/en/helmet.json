@@ -146,12 +146,18 @@
       "manageOrderManagement": "Manage Orders",
       "description": "Manage your orders here",
       "keywords": "order, order management, restaurant orders"
-    },
+    },    
     "notification": {
       "title": "Notification Management",
       "manageNotification": "Manage Notifications",
       "description": "Manage your notifications here",
       "keywords": "notification, notification management, restaurant notifications"
+    },
+    "giftCard": {
+      "title": "Gift Card Management",
+      "manageGiftCard": "Manage Gift Cards",
+      "description": "Manage your gift cards here",
+      "keywords": "gift card, gift certificate, restaurant gift cards, gift voucher"
     }
   }
 }

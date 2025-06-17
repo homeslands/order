@@ -315,6 +315,10 @@
     "errorWhenConfirmEmailVerification": "Lỗi khi xác thực email",
     "orderAlreadyHasPayment": "Đơn hàng đã có QR code thanh toán!",
     "qrCodeRestored": "QR code thanh toán đã được khôi phục",
-    "mustVerifyEmailToUseVoucher": "Vui lòng xác thực email để sử dụng voucher này!"
+    "mustVerifyEmailToUseVoucher": "Vui lòng xác thực email để sử dụng voucher này!",
+    "voucherProductNotApplicable": "Một số sản phẩm trong giỏ hàng không áp dụng được voucher này.",
+    "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
+    "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
+    "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công"
   }
 }

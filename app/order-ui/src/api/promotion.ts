@@ -44,7 +44,7 @@ export async function deletePromotion(
   return response.data
 }
 
-export async function ApplyPromotion(
+export async function applyPromotion(
   data: IApplyPromotionRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
@@ -54,11 +54,12 @@ export async function ApplyPromotion(
   return response.data
 }
 
-export async function RemoveProductPromotion(
+export async function removeProductPromotion(
   data: IRemoveAppliedPromotionRequest,
 ): Promise<IApiResponse<null>> {
   const response = await http.delete<IApiResponse<null>>(
-    `/applicable-promotion/`, { data }
+    `/applicable-promotion/`,
+    { data },
   )
   return response.data
 }

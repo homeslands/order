@@ -24,6 +24,7 @@ export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
   'VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE';
 export const INVALID_VOUCHER_SLUGS = 'INVALID_VOUCHER_SLUGS';
 export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
+export const PRODUCT_NOT_APPLIED_TO_VOUCHER = 'PRODUCT_NOT_APPLIED_TO_VOUCHER';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -44,7 +45,8 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_HAS_ORDERS
   | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE
   | typeof INVALID_VOUCHER_SLUGS
-  | typeof INVALID_VOUCHER_VALUE;
+  | typeof INVALID_VOUCHER_VALUE
+  | typeof PRODUCT_NOT_APPLIED_TO_VOUCHER;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -94,4 +96,8 @@ export const VoucherValidation: TVoucherErrorCode = {
   ),
   INVALID_VOUCHER_SLUGS: createErrorCode(143419, 'Invalid voucher slugs'),
   INVALID_VOUCHER_VALUE: createErrorCode(143420, 'Invalid voucher value'),
+  PRODUCT_NOT_APPLIED_TO_VOUCHER: createErrorCode(
+    143421,
+    'Product not applied to voucher',
+  ),
 };

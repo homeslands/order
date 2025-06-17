@@ -25,12 +25,33 @@ import {
 import { AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { HasRoles } from 'src/role/roles.decorator';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Controller('invoice')
 @ApiTags('Invoice')
 @ApiBearerAuth()
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
+
+  @HasRoles(RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @Get('update-discount-type-for-existed-invoice')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update discount type for existed invoice' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update discount type for existed invoice success',
+    type: String,
+  })
+  async updateDiscountTypeForExistedInvoice() {
+    await this.invoiceService.updateDiscountTypeForExistedInvoice();
+    return {
+      result: 'Update discount type for existed invoice success',
+      message: 'Update discount type for existed invoice success',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<string>;
+  }
 
   @Get('specific')
   @HttpCode(HttpStatus.OK)
