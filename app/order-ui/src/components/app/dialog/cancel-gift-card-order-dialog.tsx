@@ -38,7 +38,7 @@ export default function CancelGiftCardOrderDialog({
         <Button
           variant="outline"
           disabled={disabled}
-          className="group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md"
+          className="group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white"
         >
           <X className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
           {t('giftCard.cancelOrder', 'Cancel Order')}
@@ -46,11 +46,11 @@ export default function CancelGiftCardOrderDialog({
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[36rem]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="flex items-center gap-2 text-destructive dark:text-red-400">
             <TriangleAlert />
             {t('giftCard.confirmCancelOrder', 'Confirm Cancel Order')}
           </DialogTitle>
-          <DialogDescription className="rounded-md bg-destructive/10 p-2 text-destructive">
+          <DialogDescription className="rounded-md bg-destructive/10 p-2 text-destructive dark:bg-red-500/20 dark:text-red-300">
             {t(
               'giftCard.cancelOrderWarning',
               'Are you sure you want to cancel this gift card order? This action cannot be undone. Your card selection will be restored to the cart.',
@@ -58,7 +58,7 @@ export default function CancelGiftCardOrderDialog({
           </DialogDescription>
         </DialogHeader>
         <div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground dark:text-gray-400">
             {t(
               'giftCard.cancelOrderNote',
               'After cancelling, you can select the same gift card again to create a new order.',
