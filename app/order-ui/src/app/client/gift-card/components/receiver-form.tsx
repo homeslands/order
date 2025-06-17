@@ -28,9 +28,8 @@ export default function ReceiverForm({
   control,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
-
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-lg border p-4 bg-card text-card-foreground">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
           {t('giftCard.receiver')} {index + 1}
@@ -40,7 +39,7 @@ export default function ReceiverForm({
             variant="ghost"
             size="icon"
             onClick={onRemove}
-            className="text-destructive hover:text-destructive/80"
+            className="text-destructive hover:text-destructive/80 dark:text-red-400 dark:hover:text-red-300"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -53,7 +52,7 @@ export default function ReceiverForm({
           <FormItem className="mt-2">
             <FormLabel>
               {t('giftCard.receiverPhone')}
-              <span className="text-destructive">*</span>
+              <span className="text-destructive dark:text-red-400">*</span>
             </FormLabel>
             <FormControl>
               <RecipientSearchInput
@@ -73,7 +72,7 @@ export default function ReceiverForm({
           <FormItem>
             <FormLabel>
               {t('giftCard.quantity')}
-              <span className="text-destructive">*</span>
+              <span className="text-destructive dark:text-red-400">*</span>
             </FormLabel>
             <FormControl>
               <Input

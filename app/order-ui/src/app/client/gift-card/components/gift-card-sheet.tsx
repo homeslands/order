@@ -206,16 +206,16 @@ export default function GiftCardSheet() {
             </Badge>
           )}
         </Button>
-      </SheetTrigger>
+      </SheetTrigger>      
       <SheetContent
         side="right"
-        className={`w-full ${!isMobile ? 'max-w-[90%]' : ''}`}
+        className={`w-full bg-background ${!isMobile ? 'max-w-[90%]' : ''}`}
       >
         {/* Header for Mobile */}
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="mb-4 flex items-center justify-between p-6 pb-0">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold text-foreground">
               {giftCardItem
                 ? t('giftCard.giftCardCart')
                 : t('giftCard.availableGiftCards')}
@@ -225,9 +225,9 @@ export default function GiftCardSheet() {
             <form
               onSubmit={handleShowConfirmDialog}
               className="flex h-full flex-col"
-            >
+            >              
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-6 pb-16">
+              <div className="flex-1 overflow-y-auto px-6 pb-16 bg-background">
                 {/* Gift Card Items */}
                 <div className="flex flex-col gap-4">
                   {giftCardItem ? (
@@ -247,7 +247,7 @@ export default function GiftCardSheet() {
                           <FormItem>
                             <FormLabel>
                               {t('giftCard.chooseUsageType')}
-                              <span className="text-destructive">*</span>
+                              <span className="text-destructive dark:text-red-400">*</span>
                             </FormLabel>
                             <FormControl>
                               <GiftCardTypeSelect
@@ -261,14 +261,13 @@ export default function GiftCardSheet() {
                           </FormItem>
                         )}
                       />
-                    </>
-                  ) : (
+                    </>                  ) : (
                     <div className="flex flex-col items-center justify-center py-20">
-                      <Gift className="mx-auto mb-6 h-24 w-24 text-gray-400" />
-                      <h3 className="mb-2 text-xl font-semibold text-gray-500">
+                      <Gift className="mx-auto mb-6 h-24 w-24 text-muted-foreground" />
+                      <h3 className="mb-2 text-xl font-semibold text-foreground">
                         {t('giftCard.noGiftCardsInCart')}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {t('giftCard.addGiftCardsToCart')}
                       </p>
                     </div>

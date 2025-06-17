@@ -23,17 +23,16 @@ export default function SingleGiftCardDisplay({
 }: SingleGiftCardDisplayProps) {
   const { t } = useTranslation(['giftCard'])
   const isMobile = useIsMobile()
-
   return (
     <>
-      <div className="grid grid-cols-8 rounded-md bg-muted-foreground/15 px-4 py-3 text-sm font-thin">
+      <div className="grid grid-cols-8 rounded-md bg-muted/40 px-4 py-3 text-sm font-thin">
         <span className="col-span-3">{t('giftCard.giftCard')}</span>
         <span className="col-span-2 text-center">{t('giftCard.quantity')}</span>
         <span className="col-span-2 text-center">{t('giftCard.total')}</span>
         <span className="col-span-1 flex justify-center"></span>
       </div>
 
-      <div className="mb-2 flex flex-col rounded-md border">
+      <div className="mb-2 flex flex-col rounded-md border bg-card text-card-foreground">
         <div className="grid grid-cols-8 items-center gap-4 border-b p-4 last:border-b-0">
           <div className="col-span-3 flex items-center gap-3">
             {!isMobile && (
@@ -83,7 +82,7 @@ export default function SingleGiftCardDisplay({
               variant="ghost"
               size="icon"
               onClick={onClear}
-              className="text-destructive hover:text-destructive/80"
+              className="text-destructive hover:text-destructive/80 dark:text-red-400 dark:hover:text-red-300"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

@@ -40,7 +40,7 @@ export default function ConfirmGiftCardCheckoutDialog({
             <TriangleAlert className="h-5 w-5" />
             {t('giftCard.confirmCheckout')}
           </DialogTitle>
-          <DialogDescription className="text-left">
+          <DialogDescription className="text-left dark:text-white text-muted-foreground">
             {t('giftCard.confirmCheckoutDescription')}
           </DialogDescription>
         </DialogHeader>
