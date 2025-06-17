@@ -112,7 +112,7 @@ export default function UpdateGiftCardSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
+              <span className="text-destructive dark:text-red-400">*</span>
               {t('giftCard.title')}
             </FormLabel>
             <FormControl>
@@ -179,7 +179,7 @@ export default function UpdateGiftCardSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
+              <span className="text-destructive dark:text-red-400">*</span>
               {t('giftCard.points')}
             </FormLabel>
             <FormControl>
@@ -205,7 +205,7 @@ export default function UpdateGiftCardSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
+              <span className="text-destructive dark:text-red-400">*</span>
               {t('giftCard.price')}
             </FormLabel>
             <FormControl>
@@ -231,7 +231,8 @@ export default function UpdateGiftCardSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span> {t('giftCard.status')}
+              <span className="text-destructive dark:text-red-400">*</span>{' '}
+              {t('giftCard.status')}
             </FormLabel>
             <FormControl>
               <GiftCardStatusSelect
@@ -262,12 +263,12 @@ export default function UpdateGiftCardSheet({
       </SheetTrigger>
       <SheetContent className="sm:max-w-3xl">
         <SheetHeader className="p-4">
-          <SheetTitle className="text-primary">
+          <SheetTitle className="text-foreground">
             {t('giftCard.update')}
           </SheetTitle>
         </SheetHeader>
         <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted/50 p-4">
             <div className="flex flex-1 flex-col">
               <Form {...form}>
                 <form
@@ -275,21 +276,20 @@ export default function UpdateGiftCardSheet({
                   onSubmit={form.handleSubmit(handleSubmit)}
                   className="space-y-4"
                 >
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-card p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
                       {formFields.file}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
-                    {' '}
+                  <div className="rounded-md border bg-card p-4">
                     <div className="grid grid-cols-2 gap-2">
                       {formFields.points}
                       {formFields.price}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-card p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.isActive}
                     </div>
