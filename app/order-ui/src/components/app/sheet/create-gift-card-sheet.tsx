@@ -50,7 +50,7 @@ export default function CreateGiftCardSheet() {
   }
 
   const form = useForm<TCreateGiftCardSchema>({
-    resolver: zodResolver(createGiftCardSchema),
+    resolver: zodResolver(createGiftCardSchema(t)),
     defaultValues: {
       title: '',
       description: '',
@@ -59,6 +59,7 @@ export default function CreateGiftCardSheet() {
       price: 0,
       isActive: true,
     },
+    mode: 'onChange'
   })
 
   const handleSubmit = (data: TCreateGiftCardSchema) => {
@@ -273,7 +274,7 @@ export default function CreateGiftCardSheet() {
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="gift-card-form" disabled={isPending}>
+            <Button type="submit" form="gift-card-form" disabled={isPending || !form.formState.isValid}>
               {t('giftCard.create')}
             </Button>
           </SheetFooter>
