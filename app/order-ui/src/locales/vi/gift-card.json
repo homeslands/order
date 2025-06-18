@@ -116,7 +116,7 @@
         "paymentCompleted": "Thanh toán đã hoàn tất",
         "paymentExpired": "Thanh toán đã hết hạn"
     },
-    "Schema": {
+    "schema": {
         "title": {
             "required": "Tiêu đề không được bỏ trống",
             "min": "Tiêu đề không được bỏ trống",
