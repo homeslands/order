@@ -125,9 +125,11 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom(
             (source) =>
               +source.totalOriginalOrderItemAmount -
-              +source.totalFinalOrderItemAmount,
+              +source.totalFinalOrderItemAmount -
+              +source.totalVoucherValueOrderItemAmount,
           ),
         ),
+        // include loss value in order
         forMember(
           (destination) => destination.voucherAmount,
           mapFrom(
@@ -135,7 +137,8 @@ export class BranchRevenueProfile extends AutomapperProfile {
               +source.totalOriginalAmountOrder -
               +source.totalAmount -
               (+source.totalOriginalOrderItemAmount -
-                +source.totalFinalOrderItemAmount),
+                +source.totalFinalOrderItemAmount -
+                +source.totalVoucherValueOrderItemAmount),
           ),
         ),
         forMember(
