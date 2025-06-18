@@ -50,7 +50,7 @@ export default function CreateGiftCardSheet() {
   }
 
   const form = useForm<TCreateGiftCardSchema>({
-    resolver: zodResolver(createGiftCardSchema),
+    resolver: zodResolver(createGiftCardSchema(t)),
     defaultValues: {
       title: '',
       description: '',
@@ -59,6 +59,7 @@ export default function CreateGiftCardSheet() {
       price: 0,
       isActive: true,
     },
+    mode: 'onChange'
   })
 
   const handleSubmit = (data: TCreateGiftCardSchema) => {
@@ -241,7 +242,7 @@ export default function CreateGiftCardSheet() {
           </SheetTitle>
         </SheetHeader>
         <div className="flex h-full flex-col bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-white dark:bg-muted-foreground/10 p-4">
             <div className="flex flex-1 flex-col">
               <Form {...form}>
                 <form
@@ -249,20 +250,20 @@ export default function CreateGiftCardSheet() {
                   onSubmit={form.handleSubmit(handleSubmit)}
                   className="space-y-4"
                 >
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
                       {formFields.file}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     <div className="grid grid-cols-2 gap-2">
                       {formFields.points}
                       {formFields.price}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.isActive}
                     </div>
@@ -272,7 +273,7 @@ export default function CreateGiftCardSheet() {
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="gift-card-form" disabled={isPending}>
+            <Button type="submit" form="gift-card-form" disabled={isPending || !form.formState.isValid}>
               {t('giftCard.create')}
             </Button>
           </SheetFooter>
