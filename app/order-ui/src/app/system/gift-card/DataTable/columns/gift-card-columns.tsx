@@ -38,9 +38,9 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
             <img
               src={url}
               alt={giftCard?.title}
-              className="h-20 w-20 rounded-md object-cover"
+              className="h-16 w-24 rounded-md bg-gray-100 object-contain dark:bg-gray-100"
               onError={(e) => {
-                e.currentTarget.src = 'https://placehold.co/41x40?text=No+Image'
+                e.currentTarget.src = 'https://placehold.co/96x64?text=No+Image'
               }}
             />
           </div>
