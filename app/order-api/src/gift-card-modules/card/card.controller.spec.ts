@@ -42,7 +42,8 @@ describe('CardController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
-        },],
+        },
+      ],
     }).compile();
 
     controller = module.get<CardController>(CardController);
