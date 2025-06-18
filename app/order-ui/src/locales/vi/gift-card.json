@@ -23,7 +23,7 @@
         "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
         "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
     },
-    "Schema": {
+    "schema": {
         "title": {
             "required": "Tiêu đề không được bỏ trống",
             "min": "Tiêu đề không được bỏ trống",
