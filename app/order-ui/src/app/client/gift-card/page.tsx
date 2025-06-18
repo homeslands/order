@@ -13,12 +13,14 @@ import {
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IGiftCard } from '@/types'
+import { useUserStore } from '@/stores'
 
 export default function ClientGiftCardPage() {
   const { t } = useTranslation(['giftCard', 'common'])
   const { t: tHelmet } = useTranslation('helmet')
   const [sortOption, setSortOption] = useState<string>('price,asc')
   const [selectedCard, setSelectedCard] = useState<IGiftCard | null>(null)
+  const { userInfo } = useUserStore()
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(8)
@@ -39,10 +41,10 @@ export default function ClientGiftCardPage() {
     isActive: true,
     sort: sortOption,
   })
-
   const giftCards = giftCardData?.result.items || []
   const totalPages = giftCardData?.result.totalPages || 1
-  // Animation variants  // Animation variants
+
+  // Animation variants
   const fadeInVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -59,6 +61,33 @@ export default function ClientGiftCardPage() {
     } else {
       setSelectedCard(card)
     }
+  }
+
+  // Check if user is logged in
+  if (!userInfo) {
+    return (
+      <div className="container mx-auto py-10">
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>{tHelmet('helmet.giftCard.title')}</title>
+          <meta
+            name="description"
+            content={tHelmet('helmet.giftCard.description')}
+          />
+        </Helmet>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInVariants}
+          className="py-20 text-center"
+        >
+          <Gift className="mx-auto mb-6 h-24 w-24 text-gray-400" />
+          <h3 className="mb-2 text-xl font-semibold text-gray-500">
+            {t('giftCard.loginRequired')}
+          </h3>
+        </motion.div>
+      </div>
+    )
   }
 
   if (isLoading) {
