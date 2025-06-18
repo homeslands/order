@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: 5173,
+      hmr: {
+        port: 5173,
+      },
       proxy: {
         '/api/v1': {
           target: process.env.VITE_BASE_API_URL,
