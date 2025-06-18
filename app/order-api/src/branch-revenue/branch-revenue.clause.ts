@@ -192,7 +192,8 @@ export const getSpecificRangeBranchRevenueByHourClause = `
         SELECT 
             order_column AS order_id,
             SUM(original_subtotal_column) AS totalOriginalOrderItemAmount,
-            SUM(subtotal_column) AS totalFinalOrderItemAmount
+            SUM(subtotal_column) AS totalFinalOrderItemAmount,
+            SUM(voucher_value_column) AS totalVoucherValueOrderItemAmount
         FROM order_db.order_item_tbl
         GROUP BY order_column
     )
@@ -208,8 +209,10 @@ export const getSpecificRangeBranchRevenueByHourClause = `
         SUM(CASE WHEN p.payment_method_column = 'internal' THEN p.amount_column ELSE 0 END) AS totalAmountInternal,
         SUM(o.subtotal_column) AS totalFinalAmountOrder,
         SUM(o.original_subtotal_column) AS totalOriginalAmountOrder,
+        SUM(o.loss_column) AS totalLossAmountOrder,
         SUM(oi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(oi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
+        SUM(oi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
         COUNT(DISTINCT o.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN p.payment_method_column = 'cash' THEN o.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN p.payment_method_column = 'bank-transfer' THEN o.id_column ELSE NULL END) AS totalOrderBank,
