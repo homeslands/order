@@ -114,7 +114,9 @@
         "purchaseSuccess": "Mua thẻ quà tặng thành công!",
         "backToGiftCards": "Quay lại thẻ quà tặng",
         "paymentCompleted": "Thanh toán đã hoàn tất",
-        "paymentExpired": "Thanh toán đã hết hạn"
+        "paymentExpired": "Thanh toán đã hết hạn",
+
+        "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng."
     },
     "schema": {
         "title": {
