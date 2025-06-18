@@ -1,4 +1,5 @@
-{      "giftCard": {
+{
+    "giftCard": {
         "giftCard": "Thẻ quà tặng",
         "pageTitle": "Quản lý thẻ quà tặng",
         "clientPageTitle": "Thẻ quà tặng",
@@ -7,7 +8,6 @@
         "addToCart": "Thêm vào giỏ hàng",
         "coin": "Xu",
         "viewDetails": "Xem chi tiết",
-        
         "title": "Tiêu đề",
         "description": "Mô tả",
         "image": "Hình ảnh",
@@ -18,18 +18,15 @@
         "isActive": "Trạng thái",
         "active": "Hoạt động",
         "inactive": "Không hoạt động",
-        
         "create": "Tạo thẻ quà tặng",
         "createTitle": "Tạo thẻ quà tặng mới",
         "createDescription": "Điền thông tin để tạo thẻ quà tặng mới",
         "enterGiftCardTitle": "Nhập tiêu đề thẻ quà tặng",
         "enterGiftCardDescription": "Nhập mô tả thẻ quà tặng",
-        
         "update": "Cập nhật thẻ quà tặng",
-        
         "delete": "Xóa thẻ quà tặng",
         "deleteTitle": "Xóa thẻ quà tặng",
-        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",        
+        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",
         "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
         "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?",
         "filterByPrice": "Lọc theo giá",
@@ -37,8 +34,7 @@
         "priceDescending": "Giá giảm dần",
         "pointsAscending": "Xu tăng dần",
         "pointsDescending": "Xu giảm dần",
-        
-        "giftCardCart": "Giỏ hàng thẻ quà tặng",        
+        "giftCardCart": "Giỏ hàng thẻ quà tặng",
         "availableGiftCards": "Thẻ quà tặng có sẵn",
         "noGiftCardsInCart": "Không có thẻ quà tặng trong giỏ hàng",
         "addGiftCardsToCart": "Thêm thẻ quà tặng vào giỏ hàng để bắt đầu",
@@ -48,7 +44,7 @@
         "quantity": "Số lượng",
         "total": "Tổng cộng",
         "totalPoints": "Tổng số xu",
-        "checkout": "Thanh toán",        
+        "checkout": "Thanh toán",
         "receiver": "Người nhận",
         "receiverPhone": "Số điện thoại người nhận",
         "enterReceiverPhone": "Nhập số điện thoại người nhận",
@@ -56,14 +52,13 @@
         "numbersRemaining": "số còn lại",
         "enterQuantity": "Nhập số lượng",
         "note": "Ghi chú",
-        "enterNote": "Nhập ghi chú (tùy chọn)",        
+        "enterNote": "Nhập ghi chú (tùy chọn)",
         "addReceiver": "Thêm người nhận",
-        "availableQuantity": "Số lượng có sẵn",        
+        "availableQuantity": "Số lượng có sẵn",
         "totalReceiverQuantity": "Tổng số lượng người nhận",
-        "quantityExceedsAvailable": "Tổng số lượng người nhận vượt quá số lượng thẻ quà tặng có sẵn",        
+        "quantityExceedsAvailable": "Tổng số lượng người nhận vượt quá số lượng thẻ quà tặng có sẵn",
         "checkoutSuccess": "Thanh toán thành công!",
         "createGiftCardOrderSuccess": "Đặt hàng thẻ quà tặng thành công!",
-        
         "confirmCheckout": "Xác nhận mua hàng",
         "confirmCheckoutDescription": "Vui lòng xác nhận rằng bạn đã kiểm tra đầy đủ thông tin trước khi tiến hành mua hàng.",
         "confirmPurchase": "Xác nhận mua hàng",
@@ -73,12 +68,10 @@
         "checkoutDescription": "Hoàn tất việc mua thẻ quà tặng của bạn",
         "checkoutPageComingSoon": "Trang thanh toán sẽ sớm có mặt",
         "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng.",
-
         "giftCardExistsWarning": "Thẻ quà tặng đã tồn tại",
         "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
         "replaceGiftCard": "Thay thế",
         "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:",
-        
         "customerInfo": "Thông tin khách hàng",
         "customerName": "Tên khách hàng",
         "orderInfo": "Thông tin đơn hàng",
@@ -93,7 +86,7 @@
         "paymentVerificationNote": "Vui lòng xác minh thông tin thanh toán trước khi thực hiện giao dịch",
         "pleaseLogin": "Vui lòng đăng nhập để tiếp tục",
         "chooseStatus": "Chọn trạng thái",
-        "phone": "Số điện thoại",        
+        "phone": "Số điện thoại",
         "paymentExpireDate": "Ngày hết hạn thanh toán",
         "noName": "______",
         "paymentStatus": "Trạng thái thanh toán",
@@ -108,20 +101,41 @@
         "failedToCancelOrder": "Không thể hủy đơn hàng",
         "confirmCancelOrder": "Xác nhận hủy đơn hàng",
         "cancelOrderWarning": "Bạn có chắc chắn muốn hủy đơn hàng thẻ quà tặng này không? Hành động này không thể hoàn tác. Lựa chọn thẻ của bạn sẽ được khôi phục vào giỏ hàng.",
-        "cancelOrderNote": "Sau khi hủy, bạn có thể chọn lại cùng thẻ quà tặng để tạo đơn hàng mới.",        
+        "cancelOrderNote": "Sau khi hủy, bạn có thể chọn lại cùng thẻ quà tặng để tạo đơn hàng mới.",
         "orderCancelledSuccessfully": "Hủy đơn hàng thành công",
         "initiatePayment": "Khởi tạo thanh toán",
         "initiatingPayment": "Đang khởi tạo thanh toán...",
         "paymentInitiated": "Khởi tạo thanh toán thành công",
-        "checkingPaymentStatus": "Đang kiểm tra trạng thái thanh toán...",        
+        "checkingPaymentStatus": "Đang kiểm tra trạng thái thanh toán...",
         "statusPending": "Chờ thanh toán",
         "statusCompleted": "Hoàn tất",
         "statusFailed": "Thất bại",
         "statusPaid": "Đã thanh toán",
-        
         "purchaseSuccess": "Mua thẻ quà tặng thành công!",
         "backToGiftCards": "Quay lại thẻ quà tặng",
         "paymentCompleted": "Thanh toán đã hoàn tất",
         "paymentExpired": "Thanh toán đã hết hạn"
+    },
+    "schema": {
+        "title": {
+            "required": "Tiêu đề không được bỏ trống",
+            "min": "Tiêu đề không được bỏ trống",
+            "max": "Tiêu đề không được quá 500 kí tự"
+        },
+        "description": {
+            "max": "Mô tả không được quá 1000 kí tự"
+        },
+        "points": {
+            "required": "Vui lòng nhập số điểm",
+            "invalid": "Số điểm không hợp lệ",
+            "min": "Số xu phải từ 1,000 trở lên",
+            "max": "Số xu không được vượt quá 10,000,000"
+        },
+        "price": {
+            "required": "Vui lòng nhập giá tiền",
+            "invalid": "Giá tiền không hợp lệ",
+            "min": "Giá tiền phải từ 1,000 trở lên",
+            "max": "Giá tiền không được vượt quá 10,000,000"
+        }
     }
 }
