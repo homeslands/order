@@ -8,9 +8,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
-  Button,
-  Badge,
   Form,
   FormField,
   FormItem,
@@ -20,7 +17,12 @@ import {
 } from '@/components/ui'
 import { GiftCardTypeSelect } from '@/components/app/select'
 import { ConfirmGiftCardCheckoutDialog } from '@/components/app/dialog'
-import { SingleGiftCardDisplay, ReceiversSection, OrderSummary } from './'
+import {
+  SingleGiftCardDisplay,
+  ReceiversSection,
+  OrderSummary,
+  DraggableGiftCardButton,
+} from './'
 import { showErrorToast, showToast } from '@/utils'
 import { useGiftCardStore, useUserStore } from '@/stores'
 import { GiftCardType } from '@/constants'
@@ -176,7 +178,6 @@ export default function GiftCardSheet() {
       },
     )
   }
-
   const handleIncrement = () => {
     if (giftCardItem && giftCardItem.quantity < 100) {
       updateQuantity(giftCardItem.quantity + 1)
@@ -188,129 +189,127 @@ export default function GiftCardSheet() {
       updateQuantity(giftCardItem.quantity - 1)
     }
   }
-  return (
-    <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
-      <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed right-1 top-1/2 z-50 -translate-y-1/2 bg-primary text-white shadow-lg hover:bg-primary/90"
-        >
-          <Gift className="h-6 w-6" />
-          {giftCardItem && (
-            <Badge
-              variant="secondary"
-              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-            >
-              {giftCardItem.quantity}
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>      
-      <SheetContent
-        side="right"
-        className={`w-full bg-background ${!isMobile ? 'max-w-[90%]' : ''}`}
-      >
-        {/* Header for Mobile */}
-        <div className="flex h-full flex-col">
-          {/* Header */}
-          <div className="mb-4 flex items-center justify-between p-6 pb-0">
-            <h2 className="text-lg font-semibold text-foreground">
-              {giftCardItem
-                ? t('giftCard.giftCardCart')
-                : t('giftCard.availableGiftCards')}
-            </h2>
-          </div>
-          <Form {...form}>
-            <form
-              onSubmit={handleShowConfirmDialog}
-              className="flex h-full flex-col"
-            >              
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-6 pb-16 bg-background">
-                {/* Gift Card Items */}
-                <div className="flex flex-col gap-4">
-                  {giftCardItem ? (
-                    <>
-                      <SingleGiftCardDisplay
-                        item={giftCardItem}
-                        onIncrement={handleIncrement}
-                        onDecrement={handleDecrement}
-                        onClear={handleClearGiftCard}
-                        giftCardType={watchedGiftType}
-                      />
 
-                      <FormField
-                        control={form.control}
-                        name="giftType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {t('giftCard.chooseUsageType')}
-                              <span className="text-destructive dark:text-red-400">*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <GiftCardTypeSelect
-                                value={field.value as GiftCardType}
-                                onChange={(value) =>
-                                  field.onChange(value as string)
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>                  ) : (
-                    <div className="flex flex-col items-center justify-center py-20">
-                      <Gift className="mx-auto mb-6 h-24 w-24 text-muted-foreground" />
-                      <h3 className="mb-2 text-xl font-semibold text-foreground">
-                        {t('giftCard.noGiftCardsInCart')}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {t('giftCard.addGiftCardsToCart')}
-                      </p>
-                    </div>
+  return (
+    <>
+      {/* Draggable Gift Card Button */}
+      <DraggableGiftCardButton
+        quantity={giftCardItem?.quantity}
+        onClick={() => setSheetOpen(true)}
+      />
+      {/* Gift Card Sheet */}{' '}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="right"
+          className={`w-full bg-background ${!isMobile ? 'max-w-[90%]' : ''}`}
+        >
+          {/* Header for Mobile */}
+          <div className="flex h-full flex-col">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between p-6 pb-0">
+              <h2 className="text-lg font-semibold text-foreground">
+                {giftCardItem
+                  ? t('giftCard.giftCardCart')
+                  : t('giftCard.availableGiftCards')}
+              </h2>
+            </div>
+            <Form {...form}>
+              <form
+                onSubmit={handleShowConfirmDialog}
+                className="flex h-full flex-col"
+              >
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto bg-background px-6 pb-16">
+                  {/* Gift Card Items */}
+                  <div className="flex flex-col gap-4">
+                    {giftCardItem ? (
+                      <>
+                        <SingleGiftCardDisplay
+                          item={giftCardItem}
+                          onIncrement={handleIncrement}
+                          onDecrement={handleDecrement}
+                          onClear={handleClearGiftCard}
+                          giftCardType={watchedGiftType}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="giftType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                {t('giftCard.chooseUsageType')}
+                                <span className="text-destructive dark:text-red-400">
+                                  *
+                                </span>
+                              </FormLabel>
+                              <FormControl>
+                                <GiftCardTypeSelect
+                                  value={field.value as GiftCardType}
+                                  onChange={(value) =>
+                                    field.onChange(value as string)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-20">
+                        <Gift className="mx-auto mb-6 h-24 w-24 text-muted-foreground" />
+                        <h3 className="mb-2 text-xl font-semibold text-foreground">
+                          {t('giftCard.noGiftCardsInCart')}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {t('giftCard.addGiftCardsToCart')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Input Forms for Gift */}
+                  {watchedGiftType === GiftCardType.GIFT && (
+                    <ReceiversSection
+                      control={form.control}
+                      fields={fields}
+                      append={append}
+                      remove={remove}
+                      form={form}
+                      onQuantityChange={(newQuantity) => {
+                        if (
+                          giftCardItem &&
+                          newQuantity !== giftCardItem.quantity
+                        ) {
+                          updateQuantity(newQuantity)
+                        }
+                      }}
+                    />
                   )}
-                </div>
-                {/* Input Forms for Gift */}
-                {watchedGiftType === GiftCardType.GIFT && (
-                  <ReceiversSection
-                    control={form.control}
-                    fields={fields}
-                    append={append}
-                    remove={remove}
-                    form={form}
-                    onQuantityChange={(newQuantity) => {
-                      if (giftCardItem && newQuantity !== giftCardItem.quantity) {
-                        updateQuantity(newQuantity)
-                      }
-                    }}
+                </div>{' '}
+                {/* Fixed Footer - Total Section */}{' '}
+                {giftCardItem && (
+                  <OrderSummary
+                    totalPoints={totalPoints}
+                    totalAmount={totalAmount}
+                    onCheckout={handleShowConfirmDialog}
+                    disabled={
+                      !form.formState.isValid || form.formState.isSubmitting
+                    }
                   />
                 )}
-              </div>{' '}
-              {/* Fixed Footer - Total Section */}{' '}
-              {giftCardItem && (
-                <OrderSummary
-                  totalPoints={totalPoints}
-                  totalAmount={totalAmount}
-                  onCheckout={handleShowConfirmDialog}
-                  disabled={
-                    !form.formState.isValid || form.formState.isSubmitting
-                  }
-                />
-              )}
-            </form>
-          </Form>{' '}
-        </div>
-      </SheetContent>
+              </form>
+            </Form>{' '}
+          </div>
+        </SheetContent>
 
-      {/* Confirmation Dialog */}
-      <ConfirmGiftCardCheckoutDialog
-        isOpen={confirmDialogOpen}
-        onOpenChange={setConfirmDialogOpen}
-        onConfirm={handleConfirmCheckout}
-      />
-    </Sheet>
+        {/* Confirmation Dialog */}
+        <ConfirmGiftCardCheckoutDialog
+          isOpen={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+          onConfirm={handleConfirmCheckout}
+        />
+      </Sheet>
+    </>
   )
 }
