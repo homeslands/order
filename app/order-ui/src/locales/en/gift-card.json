@@ -114,7 +114,9 @@
         "purchaseSuccess": "Gift Card Purchase Successful!",
         "backToGiftCards": "Back to Gift Card",
         "paymentCompleted": "Payment completed successfully",
-        "paymentExpired": "Payment has expired"
+        "paymentExpired": "Payment has expired",
+
+        "loginRequired": "Login to view the list of gift cards."
     },
     "schema": {
         "title": {
