@@ -53,7 +53,55 @@ export class BranchRevenueQueryResponseDto {
   totalOrderInternal: string;
 }
 
-export class BranchRevenueQueryResponseForHourDto extends BranchRevenueQueryResponseDto {}
+export class BranchRevenueQueryResponseForHourDto {
+  @AutoMap()
+  branchId: string;
+
+  @AutoMap()
+  date: Date;
+
+  @AutoMap()
+  totalAmount: string;
+
+  @AutoMap()
+  totalAmountBank: string;
+
+  @AutoMap()
+  totalAmountCash: string;
+
+  @AutoMap()
+  totalAmountInternal: string;
+
+  @AutoMap()
+  totalFinalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalOrderItemAmount: string;
+
+  @AutoMap()
+  totalFinalOrderItemAmount: string;
+
+  @AutoMap()
+  totalOrder: string;
+
+  @AutoMap()
+  totalOrderCash: string;
+
+  @AutoMap()
+  totalOrderBank: string;
+
+  @AutoMap()
+  totalOrderInternal: string;
+
+  @AutoMap()
+  totalVoucherValueOrderItemAmount: string;
+
+  @AutoMap()
+  totalLossAmountOrder: string;
+}
 
 export class GetBranchRevenueQueryDto {
   @AutoMap()
