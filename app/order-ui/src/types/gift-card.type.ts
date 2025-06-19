@@ -44,17 +44,6 @@ export interface IGetGiftCardsRequest {
   isActive?: boolean | null
 }
 
-export interface IGiftCardCartItem {
-  id: string
-  slug: string
-  title: string
-  image: string
-  description: string
-  points: number
-  price: number
-  quantity: number
-}
-
 export interface IGiftCardCartTotal {
   subtotal: number
   totalPoints: number

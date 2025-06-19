@@ -19,6 +19,7 @@ export const receiverSchema = z.object({
   name: z.string(),
   quantity: z.coerce.number().min(1).max(100),
   message: z.string().optional(),
+  userInfo: z.any().optional(),
 })
 
 export const createGiftCardCheckoutSchema = (maxQuantity?: number) =>
