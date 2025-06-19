@@ -116,7 +116,8 @@
         "paymentCompleted": "Payment completed successfully",
         "paymentExpired": "Payment has expired",
 
-        "loginRequired": "Login to view the list of gift cards."
+        "loginRequired": "Login to view the list of gift cards.",
+        "receiverName": "Receiver Name"
     },
     "schema": {
         "title": {
