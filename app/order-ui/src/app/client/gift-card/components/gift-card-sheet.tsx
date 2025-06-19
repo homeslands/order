@@ -118,7 +118,7 @@ export default function GiftCardSheet() {
       const receivers = form.getValues('receivers')
       if (!receivers || receivers.length === 0) {
         form.setValue('receivers', [
-          { recipientSlug: '', quantity: 1, message: '' },
+          { recipientSlug: '', quantity: 1, message: '', name: '' },
         ])
       }
     }
