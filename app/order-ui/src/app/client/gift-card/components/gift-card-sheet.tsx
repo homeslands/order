@@ -39,7 +39,6 @@ export default function GiftCardSheet() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const isMobile = useIsMobile()
-
   const {
     giftCardItem,
     updateGiftCardQuantity: updateQuantity,
@@ -51,6 +50,8 @@ export default function GiftCardSheet() {
     clearGiftCard(showNotification)
     // Reset receivers array to empty
     form.setValue('receivers', [])
+    // Reset giftType to SELF
+    form.setValue('giftType', GiftCardType.SELF)
   }
 
   // Create dynamic schema with max quantity validation
@@ -61,8 +62,14 @@ export default function GiftCardSheet() {
   const form = useForm<TGiftCardCheckoutSchema>({
     resolver: zodResolver(dynamicSchema),
     defaultValues: {
-      giftType: GiftCardType.SELF,
-      receivers: [{ recipientSlug: '', quantity: 1, message: '' }],
+      giftType:
+        giftCardItem?.receipients && giftCardItem.receipients.length > 0
+          ? GiftCardType.GIFT
+          : GiftCardType.SELF,
+      receivers:
+        giftCardItem?.receipients && giftCardItem.receipients.length > 0
+          ? giftCardItem.receipients
+          : [{ recipientSlug: '', quantity: 1, message: '' }],
     },
   })
 
@@ -81,7 +88,6 @@ export default function GiftCardSheet() {
   const totalAmount = useMemo(() => {
     return giftCardItem ? giftCardItem.price * (giftCardItem.quantity || 1) : 0
   }, [giftCardItem])
-
   // Reset form when sheet closes
   const handleSheetOpenChange = (open: boolean) => {
     setSheetOpen(open)
@@ -102,6 +108,7 @@ export default function GiftCardSheet() {
   useEffect(() => {
     // Ensure form always has a default giftType value
     if (!watchedGiftType) {
+      // Set default giftType to SELF if not already set
       form.setValue('giftType', GiftCardType.SELF)
       return
     }
@@ -118,7 +125,13 @@ export default function GiftCardSheet() {
       const receivers = form.getValues('receivers')
       if (!receivers || receivers.length === 0) {
         form.setValue('receivers', [
-          { recipientSlug: '', quantity: 1, message: '', name: '' },
+          {
+            recipientSlug: '',
+            quantity: 1,
+            message: '',
+            name: '',
+            userInfo: undefined,
+          },
         ])
       }
     }
@@ -153,7 +166,9 @@ export default function GiftCardSheet() {
     // Prepare recipients list if gift type is GIFT
     const recipients =
       data.giftType === GiftCardType.GIFT && data.receivers
-        ? data.receivers
+        ? data.receivers.map(
+            ({ userInfo: _userInfo, name: _name, ...rest }) => rest,
+          )
         : []
 
     // Create card order request

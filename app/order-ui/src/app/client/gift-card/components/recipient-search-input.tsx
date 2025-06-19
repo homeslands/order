@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { User2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -13,6 +13,7 @@ interface RecipientSearchInputProps {
   onUserSelect?: (user: IUserInfo | null) => void
   placeholder?: string
   className?: string
+  userInfo?: IUserInfo | null // Add userInfo prop to display phone when slug is saved
 }
 
 export default function RecipientSearchInput({
@@ -21,6 +22,7 @@ export default function RecipientSearchInput({
   onUserSelect,
   placeholder,
   className,
+  userInfo,
 }: RecipientSearchInputProps) {
   const { t } = useTranslation(['giftCard'])
   const [users, setUsers] = useState<IUserInfo[]>([])
@@ -32,7 +34,6 @@ export default function RecipientSearchInput({
   // Helper function to check if we should search
   const searchCondition =
     debouncedInputValue && !selectedUser && debouncedInputValue.length === 10
-
   const { data: userByPhoneNumber } = useUsers(
     searchCondition
       ? {
@@ -45,12 +46,37 @@ export default function RecipientSearchInput({
         }
       : null,
   )
+  const handleSelectUser = useCallback(
+    (user: IUserInfo) => () => {
+      setSelectedUser(user)
+      setUsers([])
+      setInputValue(user.phonenumber)
+      onChange(user.slug || '')
+      onUserSelect?.(user)
+    },
+    [onChange, onUserSelect, setInputValue, setSelectedUser, setUsers],
+  )
+
   // Initialize input value from parent value only once
   useEffect(() => {
+    // If userInfo is provided and we should restore the selected state
+    if (userInfo) {
+      handleSelectUser(userInfo)()
+      return
+    }
+
+    // Initialize input with parent value if input is empty and no user selected
     if (value && !selectedUser && inputValue === '') {
       setInputValue(value)
     }
-  }, [value, selectedUser, inputValue, setInputValue]) // Don't sync back to parent automatically - only when user selects someone
+  }, [
+    value,
+    userInfo,
+    selectedUser,
+    inputValue,
+    setInputValue,
+    handleSelectUser,
+  ])
   // The parent form will handle the typing input directly
   useEffect(() => {
     if (!searchCondition || selectedUser) {
@@ -63,7 +89,6 @@ export default function RecipientSearchInput({
       }
     }
   }, [searchCondition, userByPhoneNumber, pagination.pageIndex, selectedUser])
-
   const handleScroll = () => {
     if (userListRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = userListRef.current
@@ -74,14 +99,6 @@ export default function RecipientSearchInput({
         }))
       }
     }
-  }
-
-  const handleSelectUser = (user: IUserInfo) => () => {
-    setSelectedUser(user)
-    setUsers([])
-    setInputValue(user.phonenumber)
-    onChange(user.slug || '')
-    onUserSelect?.(user)
   }
 
   return (
