@@ -16,6 +16,7 @@ const descriptionSchema = (t: TFunction) => z
 
 export const receiverSchema = z.object({
   recipientSlug: z.string().min(10),
+  name: z.string(),
   quantity: z.coerce.number().min(1).max(100),
   message: z.string().optional(),
 })

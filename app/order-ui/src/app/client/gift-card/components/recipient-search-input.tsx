@@ -10,6 +10,7 @@ import { Role } from '@/constants'
 interface RecipientSearchInputProps {
   value: string
   onChange: (value: string) => void
+  onUserSelect?: (user: IUserInfo | null) => void
   placeholder?: string
   className?: string
 }
@@ -17,6 +18,7 @@ interface RecipientSearchInputProps {
 export default function RecipientSearchInput({
   value,
   onChange,
+  onUserSelect,
   placeholder,
   className,
 }: RecipientSearchInputProps) {
@@ -73,11 +75,13 @@ export default function RecipientSearchInput({
       }
     }
   }
+
   const handleSelectUser = (user: IUserInfo) => () => {
     setSelectedUser(user)
     setUsers([])
     setInputValue(user.phonenumber)
     onChange(user.slug || '')
+    onUserSelect?.(user)
   }
 
   return (
@@ -95,9 +99,9 @@ export default function RecipientSearchInput({
               // Only allow numeric characters and limit to 10 digits
               const numericValue = newValue.replace(/\D/g, '').slice(0, 10)
               setInputValue(numericValue)
-              // Clear selection if user starts typing again
               if (selectedUser) {
                 setSelectedUser(null)
+                onUserSelect?.(null)
               }
               // Call parent onChange directly
               onChange(numericValue)

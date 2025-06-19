@@ -59,7 +59,7 @@ export default function ReceiversSection({
             variant="outline"
             className="mt-2"
             onClick={() =>
-              append({ recipientSlug: '', quantity: 1, message: '' })
+              append({ recipientSlug: '', quantity: 1, message: '', name: '' })
             }
           >
             <Plus className="mr-2 h-4 w-4" />
