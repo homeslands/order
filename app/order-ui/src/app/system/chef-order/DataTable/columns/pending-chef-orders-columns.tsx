@@ -46,6 +46,10 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
 
   const generateChefOrderTicketHTML = async (data: IExportChefOrderTicketParams): Promise<string> => {
     const templateText = await fetch('/templates/chef-order-ticket-template.html').then(res => res.text());
+    // eslint-disable-next-line no-console
+    console.log(templateText)
+    // eslint-disable-next-line no-console
+    console.log(data)
     return ejs.render(templateText, data);
   };
 
@@ -72,6 +76,9 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
 
         allHtmlContent += html;
       }
+
+      // eslint-disable-next-line no-console
+      console.log(allHtmlContent)
 
       // Mở cửa sổ in 1 lần
       const printWindow = window.open('', '_blank');
