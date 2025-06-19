@@ -20,7 +20,7 @@ export class MailService {
     const context = `${MailService.name}.${this.sendForgotPasswordToken.name}`;
     await this.mailProducer.sendMail({
       to: user.email, // list of receivers
-      subject: 'Reset Password', // Subject line
+      subject: '[Trend Coffee] Reset Password', // Subject line
       template: resolve('public/templates/mail/forgot-password'), // `.ejs` extension is appended automatically
       context: {
         name: `${user.firstName} ${user.lastName}`,
@@ -36,7 +36,7 @@ export class MailService {
       await this.mailProducer.sendMail({
         to: user.email, // list of receivers
         // from: '"Support Team" <support@example.com>', // override default from
-        subject: 'Reset Password', // Subject line
+        subject: '[Trend Coffee] Reset Password', // Subject line
         template: resolve('public/templates/mail/reset-password'), // `.ejs` extension is appended automatically
         context: {
           name: `${user.firstName} ${user.lastName}`,
@@ -63,7 +63,7 @@ export class MailService {
     const context = `${MailService.name}.${this.sendVerifyEmail.name}`;
     await this.mailProducer.sendMail({
       to: email,
-      subject: 'Verify Email',
+      subject: '[Trend Coffee] Verify Email',
       template: resolve('public/templates/mail/verify-email'),
       context: {
         name: `${user.firstName} ${user.lastName}`,
@@ -80,7 +80,7 @@ export class MailService {
     if (user.email && user.isVerifiedEmail) {
       await this.mailProducer.sendMail({
         to: user.email,
-        subject: 'Invoice',
+        subject: '[Trend Coffee] Invoice',
         template: resolve('public/templates/mail/send-invoice'),
         context: {
           name: `${user.firstName} ${user.lastName}`,
