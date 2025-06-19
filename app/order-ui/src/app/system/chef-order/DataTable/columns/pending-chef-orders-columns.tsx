@@ -23,6 +23,107 @@ import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64';
 import { Logo } from '@/assets/images';
 import { useExportChefOrder } from '@/hooks'
 
+const CHEF_ORDER_TICKET_TEMPLATE = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Nhãn bếp</title>
+  <style>
+    @font-face {
+      font-family: 'Be Vietnam Pro';
+      src: url('data:font/woff2;base64,<%= logoString %>') format('woff2');
+    }
+
+    @page {
+      size: 5cm 3cm;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      width: 5cm;
+      height: 3cm;
+      margin: 0px;
+      padding: 0.2cm;
+      font-size: 10px;
+      color: #000;
+      line-height: 1.2;
+      box-sizing: border-box;
+    }
+
+    .text-center { text-align: center; }
+    .font-bold { font-weight: bold; }
+    .text-xs { font-size: 8px; }
+    .text-sm { font-size: 10px; }
+    .text-lg { font-size: 12px; }
+    .mb-1 { margin-bottom: 2px; }
+    .mb-2 { margin-bottom: 4px; }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .logo {
+      width: 90px;
+      height: auto;
+    }
+
+    .reference {
+      font-size: 8px;
+      text-align: right;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed #000;
+      margin: 2px 0;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 0.1cm;
+    }
+
+    .item-name {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 1px;
+    }
+
+    .item-note {
+      font-size: 8px;
+      font-style: italic;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="item">
+    <div class="header">
+      <img src="<%= logo %>" alt="Logo" class="logo">
+      <div class="reference">Mã đơn: <%= referenceNumber %></div>
+    </div>
+    <hr class="divider">
+    <div class="content">
+      <div class="item-name"><%= orderItem.variant.name %></div>
+      <div class="item-note"><%= orderItem.variant.note || 'Không có ghi chú' %></div>
+    </div>
+  </div>
+</body>
+</html>`;
+
 export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
@@ -45,11 +146,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
   }
 
   const generateChefOrderTicketHTML = async (data: IExportChefOrderTicketParams): Promise<string> => {
-    const templateText = await fetch('/templates/chef-order-ticket-template.html').then(res => res.text());
-    // eslint-disable-next-line no-console
-    console.log(templateText)
-    // eslint-disable-next-line no-console
-    console.log(data)
+    const templateText = CHEF_ORDER_TICKET_TEMPLATE;
     return ejs.render(templateText, data);
   };
 
@@ -76,9 +173,6 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
 
         allHtmlContent += html;
       }
-
-      // eslint-disable-next-line no-console
-      console.log(allHtmlContent)
 
       // Mở cửa sổ in 1 lần
       const printWindow = window.open('', '_blank');
