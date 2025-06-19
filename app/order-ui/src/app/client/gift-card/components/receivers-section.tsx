@@ -130,7 +130,7 @@ export default function ReceiversSection({
             variant="outline"
             className="mt-2"
             onClick={() => {
-              append({ recipientSlug: '', quantity: 1, message: '' })
+              append({ recipientSlug: '', quantity: 1, message: '', name: '' })
               const newIndex = receivers.length
               setSelectedRecipients((prev) => ({ ...prev, [newIndex]: false }))
             }}

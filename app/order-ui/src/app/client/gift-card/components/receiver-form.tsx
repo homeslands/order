@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Control } from 'react-hook-form'
+import { Control, useFormContext } from 'react-hook-form'
 import {
   Button,
   Input,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui'
 import RecipientSearchInput from './recipient-search-input'
 import { type TGiftCardCheckoutSchema } from '@/schemas'
+import { type IUserInfo } from '@/types'
 
 interface ReceiverFormProps {
   index: number
@@ -30,6 +31,23 @@ export default function ReceiverForm({
   onRecipientSelectionChange,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
+  const { setValue } = useFormContext<TGiftCardCheckoutSchema>()
+
+  // Auto-fill name logic when user is selected from search
+  const handleUserSelect = (user: IUserInfo | null) => {
+    if (user) {
+      // Handle cases where firstName or lastName might be null/undefined
+      const firstName = user.firstName || ''
+      const lastName = user.lastName || ''
+      const fullName = `${firstName} ${lastName}`.trim()
+
+      // Set empty string if both are empty after trimming
+      setValue(`receivers.${index}.name`, fullName || t('giftCard.noName'))
+    } else {
+      setValue(`receivers.${index}.name`, '')
+    }
+  }
+
   return (
     <div className="rounded-lg border bg-card p-4 text-card-foreground">
       <div className="flex items-center justify-between">
@@ -60,10 +78,31 @@ export default function ReceiverForm({
               <RecipientSearchInput
                 value={field.value}
                 onChange={field.onChange}
+                onUserSelect={handleUserSelect}
                 placeholder={t('giftCard.enterReceiverPhone')}
                 onSelectionChange={(hasSelectedUser) =>
                   onRecipientSelectionChange?.(index, hasSelectedUser)
                 }
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`receivers.${index}.name`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              {t('giftCard.receiverName')}
+              <span className="text-destructive dark:text-red-400">*</span>
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                placeholder={t('giftCard.receiverName')}
+                disabled
               />
             </FormControl>
             <FormMessage />
