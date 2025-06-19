@@ -31,7 +31,10 @@ export default function ReceiverForm({
   onRecipientSelectionChange,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
-  const { setValue } = useFormContext<TGiftCardCheckoutSchema>()
+  const { setValue, watch } = useFormContext<TGiftCardCheckoutSchema>()
+
+  // Watch userInfo for this receiver
+  const receiverUserInfo = watch(`receivers.${index}.userInfo`)
 
   // Auto-fill name logic when user is selected from search
   const handleUserSelect = (user: IUserInfo | null) => {
@@ -41,10 +44,14 @@ export default function ReceiverForm({
       const lastName = user.lastName || ''
       const fullName = `${firstName} ${lastName}`.trim()
 
-      // Set empty string if both are empty after trimming
+      // Set the name
       setValue(`receivers.${index}.name`, fullName || t('giftCard.noName'))
+
+      // Save the complete userInfo for future reference
+      setValue(`receivers.${index}.userInfo`, user)
     } else {
       setValue(`receivers.${index}.name`, '')
+      setValue(`receivers.${index}.userInfo`, undefined)
     }
   }
 
@@ -83,6 +90,7 @@ export default function ReceiverForm({
                 onSelectionChange={(hasSelectedUser) =>
                   onRecipientSelectionChange?.(index, hasSelectedUser)
                 }
+                userInfo={receiverUserInfo}
               />
             </FormControl>
             <FormMessage />
