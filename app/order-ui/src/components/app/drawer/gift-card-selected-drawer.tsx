@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Drawer, DrawerContent, DrawerTrigger, Button } from '@/components/ui'
 
 import { GiftCardExistsWarningDialog } from '@/components/app/dialog'
-import { IGiftCard } from '@/types'
+import { IGiftCard, IGiftCardCartItem } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL } from '@/constants'
 import { useGiftCardStore } from '@/stores'
@@ -42,7 +42,7 @@ export function GiftCardSelectedDrawer({
   }
 
   const addGiftCardToCart = () => {
-    const cartItem = {
+    const cartItem: IGiftCardCartItem = {
       id: `gift_card_${Date.now().toString(36)}`,
       slug: selectedCard.slug,
       title: selectedCard.title,
@@ -52,6 +52,7 @@ export function GiftCardSelectedDrawer({
       price: selectedCard.price,
       quantity,
       isActive: selectedCard.isActive,
+      receipients: [],
     }
 
     setGiftCardItem(cartItem)
