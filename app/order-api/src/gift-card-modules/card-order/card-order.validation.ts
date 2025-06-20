@@ -74,8 +74,8 @@ export const CardOrderValidation: TCardOrderErrorCode = {
     'Your card is currently inactive. Please activate it to proceed.',
   ),
   CARD_ORDER_HAS_ALREADY_PAYMENT: createErrorCode(
-    158111,
+    158112,
     'Card order has already payment',
   ),
-  INVALID_CARD_ORDER_SLUG: createErrorCode(158112, 'Invalid card order slug'),
+  INVALID_CARD_ORDER_SLUG: createErrorCode(158113, 'Invalid card order slug'),
 };
