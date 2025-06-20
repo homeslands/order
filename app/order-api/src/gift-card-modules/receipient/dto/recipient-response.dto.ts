@@ -27,9 +27,17 @@ export class RecipientResponseDto extends BaseResponseDto {
   @ApiProperty()
   recipientId: string;
 
+  @ApiProperty()
+  @AutoMap()
+  recipientSlug: string;
+
   @AutoMap()
   @ApiProperty()
   senderId: string;
+
+  @ApiProperty()
+  @AutoMap()
+  senderSlug: string;
 
   @AutoMap()
   @ApiProperty()
