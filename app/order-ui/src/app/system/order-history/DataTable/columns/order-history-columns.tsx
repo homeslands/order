@@ -77,8 +77,36 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       cell: ({ row }) => {
         const createdAt = row.getValue('createdAt')
         return (
-          <div className="text-sm">
+          <div className="text-xs xl:text-sm">
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
+      ),
+      cell: ({ row }) => {
+        const order = row.original
+        return (
+          <div className="text-xs xl:text-sm">
+            {(order.status !== OrderStatus.PENDING) && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  className="flex gap-1 justify-start px-2 w-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleExportOrderInvoice(order);
+                  }}
+                >
+                  <DownloadIcon />
+                  {t('order.exportInvoice')}
+                </Button>
+              </div>
+            )}
           </div>
         )
       },
