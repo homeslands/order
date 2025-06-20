@@ -12,16 +12,144 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, IExportChefOrderTicketParams, OrderTypeEnum } from '@/types'
+import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, IExportChefOrderParams, IExportChefOrderTicketParams, OrderTypeEnum } from '@/types'
 import {
   ConfirmCompleteChefOrderDialog,
   ConfirmUpdateChefOrderStatusDialog,
 } from '@/components/app/dialog'
 import { ChefOrderStatusBadge } from '@/components/app/badge'
-import { loadDataToPrinter, showToast } from '@/utils'
+import { openPrintWindow, showToast } from '@/utils'
 import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64';
 import { Logo } from '@/assets/images';
-import { useExportChefOrder } from '@/hooks'
+import { useUserStore } from '@/stores'
+
+const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách món</title>
+  <style>
+    @font-face {
+      font-family: 'Be Vietnam Pro';
+      src: url('data:font/woff2;base64,<%= logoString %>') format('woff2');
+    }
+
+    @page {
+      size: 80mm auto;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      width: 80mm;
+      margin: 0 auto;
+      padding: 12px;
+      font-size: 12px;
+      color: #000;
+      line-height: 1.5;
+    }
+
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .font-bold { font-weight: bold; }
+    .text-xs { font-size: 10px; }
+    .text-sm { font-size: 12px; }
+    .text-lg { font-size: 16px; }
+
+    .qr {
+      width: 100px;
+      display: block;
+      margin: 10px auto;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #000;
+      margin: 12px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    th, td {
+      padding: 5px 4px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 11px;
+      text-align: left;
+      border-bottom: 1px solid #000;
+    }
+
+    tbody tr:not(:last-child) td {
+      border-bottom: 1px dotted #ccc;
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .total-section td {
+      padding: 6px 4px;
+    }
+
+    .total-bold {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .uppercase { text-transform: uppercase; }
+    .mt-1 { margin-top: 4px; }
+    .mb-1 { margin-bottom: 6px; }
+    .mb-2 { margin-bottom: 10px; }
+    .mb-3 { margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Logo + địa chỉ -->
+  <div class="text-center section">
+    <img src="<%= logo %>" alt="Logo" width="140">
+    <div class="mt-1 text-xs">Mã đơn: <%= referenceNumber %></div>
+    <div class="mt-1 text-xs">Chi nhánh: <%= branchName %></div>
+  </div>
+
+  <!-- Thông tin hóa đơn -->
+  <div class="section">
+    <div class="text-xs">Thời gian: <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></div>
+    <div class="text-xs">Bàn: <%= tableName %></div>
+  </div>
+  <hr>
+
+  <!-- Danh sách món -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Món</th>
+        <th style="width: 20%;">Size</th>
+        <th style="width: 10%;">SL</th>
+        <th style="width: 20%;">Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% invoiceItems.forEach(function(item) { %>
+      <tr>
+        <td class="text-xs"><%= item.variant.name.toUpperCase() %></td>
+        <td class="text-xs"><%= item.variant.size.toUpperCase() %></td>
+        <td class="text-xs"><%= item.quantity %></td>
+        <td class="text-xs"><%= item.note %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</body>
+</html>
+`;
 
 const CHEF_ORDER_TICKET_TEMPLATE = `<!DOCTYPE html>
 <html lang="vi">
@@ -124,33 +252,33 @@ const CHEF_ORDER_TICKET_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
+export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => void }): ColumnDef<IChefOrders>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
+  const { userInfo } = useUserStore()
 
-  const { mutate: exportChefOrder } = useExportChefOrder()
-
-  const handleExportChefOrder = (slug: string) => {
-    exportChefOrder(slug, {
-      onSuccess: (data: Blob) => {
-        showToast(tToast('toast.exportChefOrderSuccess'))
-        loadDataToPrinter(data)
-      },
-    })
+  const handleExportChefOrder = async (chefOrder: IChefOrders | undefined) => {
+    await exportChefOrder(chefOrder)
+    showToast(tToast('toast.exportChefOrderSuccess'))
   }
 
   const handleExportChefOrderTicket = async (chefOrder: IChefOrders | undefined) => {
-    await exportOrderInvoices(chefOrder)
+    await exportChefOrderTicket(chefOrder)
     showToast(tToast('toast.exportChefOrderSuccess'))
   }
+
+  const generateChefOrderHTML = async (data: IExportChefOrderParams): Promise<string> => {
+    const templateText = CHEF_ORDER_TEMPLATE;
+    return ejs.render(templateText, data);
+  };
 
   const generateChefOrderTicketHTML = async (data: IExportChefOrderTicketParams): Promise<string> => {
     const templateText = CHEF_ORDER_TICKET_TEMPLATE;
     return ejs.render(templateText, data);
   };
 
-  const exportOrderInvoices = async (chefOrder: IChefOrders | undefined) => {
+  const exportChefOrderTicket = async (chefOrder: IChefOrders | undefined) => {
     if (!chefOrder) return;
 
     try {
@@ -174,20 +302,63 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         allHtmlContent += html;
       }
 
+      openPrintWindow(allHtmlContent)
+
       // Mở cửa sổ in 1 lần
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        showToast(tToast('toast.exportChefOrderTicketError'));
-        return;
-      }
+      // const printWindow = window.open('', '_blank');
+      // if (!printWindow) {
+      //   showToast(tToast('toast.exportChefOrderTicketError'));
+      //   return;
+      // }
 
-      printWindow.document.write(allHtmlContent);
-      printWindow.document.close();
+      // printWindow.document.write(allHtmlContent);
+      // printWindow.document.close();
 
-      printWindow.onload = () => {
-        printWindow.print();
-        printWindow.onafterprint = () => printWindow.close();
-      };
+      // printWindow.onload = () => {
+      //   printWindow.print();
+      //   printWindow.onafterprint = () => printWindow.close();
+      // };
+    } catch {
+      showToast(tToast('toast.exportChefOrderTicketError'));
+    }
+  };
+
+  const exportChefOrder = async (chefOrder: IChefOrders | undefined) => {
+    if (!chefOrder) return;
+
+    try {
+      let allHtmlContent = '';
+
+      const html = await generateChefOrderHTML({
+        logoString: Be_Vietnam_Pro_base64,
+        logo: Logo,
+        branchName: userInfo?.branch?.name || '',
+        referenceNumber: chefOrder.order.referenceNumber,
+        createdAt: chefOrder.createdAt,
+        type: chefOrder.order.type,
+        tableName: chefOrder.order.type === OrderTypeEnum.AT_TABLE ? chefOrder.order.table?.name || '' : 'Mang đi',
+        invoiceItems: chefOrder.chefOrderItems.map(item => ({
+          variant: {
+            name: item.orderItem.variant.product?.name || '',
+            size: item.orderItem.variant.size?.name || '',
+          },
+          quantity: item.orderItem.quantity,
+          note: item.orderItem.note || ''
+        })),
+        formatDate: (date: string, fmt: string) => moment(date).format(fmt),
+      });
+
+      allHtmlContent += html;
+
+      openPrintWindow(allHtmlContent)
+
+      // Mở cửa sổ in 1 lần
+      // const printWindow = window.open('', '_blank');
+      // if (!printWindow) {
+      //   showToast(tToast('toast.exportChefOrderTicketError'));
+      //   return;
+      // }
+
     } catch {
       showToast(tToast('toast.exportChefOrderTicketError'));
     }
@@ -209,11 +380,11 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
           <>
             {chefOrder.status === ChefOrderStatus.PENDING ? (
               <div className='min-w-24' onClick={(e) => e.stopPropagation()}>
-                <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} />
+                <ConfirmUpdateChefOrderStatusDialog chefOrder={chefOrder} onSuccess={onSuccess} />
               </div>
             ) : (
               <div className="pl-3 min-w-28">
-                <span className="italic text-green-500">
+                <span className="text-xs italic text-green-500 xl:text-sm">
                   {t('chefOrder.accepted')}
                 </span>
               </div>
@@ -225,13 +396,55 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       enableHiding: false,
     },
     {
+      accessorKey: 'export',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.export')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" className='text-xs xl:text-sm' onClick={(e) => {
+              e.stopPropagation()
+              handleExportChefOrder(chefOrder)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportChefOrder')}
+            </Button>
+          ) : null
+        )
+      },
+    },
+    {
+      accessorKey: 'exportTicket',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.exportTicket')} />
+      ),
+      cell: ({ row }) => {
+        const chefOrder = row.original
+        return (
+          chefOrder.status !== ChefOrderStatus.PENDING ? (
+            <Button variant="outline" className='text-xs xl:text-sm' onClick={(e) => {
+              e.stopPropagation()
+              handleExportChefOrderTicket(chefOrder)
+            }}
+            >
+              <DownloadIcon />
+              {t('chefOrder.exportTicket')}
+            </Button>
+          ) : null
+        )
+      },
+    },
+    {
       accessorKey: 'referenceNumber',
       header: ({ column }) => (
         <DataTableColumnHeader key={column.id} column={column} title={t('chefOrder.referenceNumber')} />
       ),
       cell: ({ row }) => {
         const referenceNumber = row.original.order.referenceNumber
-        return <span className="text-sm text-muted-foreground">{referenceNumber}</span>
+        return <span className="text-xs text-muted-foreground xl:text-sm">{referenceNumber}</span>
       },
     },
     {
@@ -245,7 +458,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       cell: ({ row }) => {
         const createdAt = row.getValue('createdAt')
         return (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground xl:text-sm">
             {createdAt ? moment(createdAt).format('HH:mm DD/MM/YYYY') : ''}
           </span>
         )
@@ -258,7 +471,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       ),
       cell: ({ row }) => {
         const location = row.original.order.type === OrderTypeEnum.AT_TABLE ? t('chefOrder.table') + " " + row.original.order.table.name : t('chefOrder.take-out')
-        return <span className="text-sm text-muted-foreground">{location}</span>
+        return <span className="text-xs text-muted-foreground xl:text-sm">{location}</span>
       },
     },
     {
@@ -269,7 +482,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
       cell: ({ row }) => {
         const quantity = row.original.chefOrderItems.length
         return (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground xl:text-sm">
             {quantity} {t('chefOrder.items')}
           </span>
         )
@@ -289,48 +502,7 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
         )
       },
     },
-    {
-      accessorKey: 'export',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('chefOrder.export')} />
-      ),
-      cell: ({ row }) => {
-        const chefOrder = row.original
-        return (
-          chefOrder.status !== ChefOrderStatus.PENDING ? (
-            <Button variant="outline" onClick={(e) => {
-              e.stopPropagation()
-              handleExportChefOrder(chefOrder.slug)
-            }}
-            >
-              <DownloadIcon />
-              {t('chefOrder.exportChefOrder')}
-            </Button>
-          ) : null
-        )
-      },
-    },
-    {
-      accessorKey: 'exportTicket',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('chefOrder.exportTicket')} />
-      ),
-      cell: ({ row }) => {
-        const chefOrder = row.original
-        return (
-          chefOrder.status !== ChefOrderStatus.PENDING ? (
-            <Button variant="outline" onClick={(e) => {
-              e.stopPropagation()
-              handleExportChefOrderTicket(chefOrder)
-            }}
-            >
-              <DownloadIcon />
-              {t('chefOrder.exportTicket')}
-            </Button>
-          ) : null
-        )
-      },
-    },
+
     {
       id: 'actions',
       header: tCommon('common.action'),
@@ -354,36 +526,6 @@ export const usePendingChefOrdersColumns = (): ColumnDef<IChefOrders>[] => {
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
-                {/* <Button onClick={(e) => {
-                  e.stopPropagation()
-                  handleExportChefOrder(chefOrder.slug)
-                }}
-                  variant="ghost"
-                  className="flex gap-1 justify-start px-2 w-full"
-                >
-                  <DownloadIcon />
-                  {t('chefOrder.exportChefOrder')}
-                </Button> */}
-                {/* <Button onClick={(e) => {
-                  e.stopPropagation()
-                  handleExportAutoChefOrderTicket(chefOrder.slug)
-                }}
-                  variant="ghost"
-                  className="flex gap-1 justify-start px-2 w-full"
-                >
-                  <DownloadIcon />
-                  {t('chefOrder.exportAutoChefOrderTicket')}
-                </Button>
-                <Button onClick={(e) => {
-                  e.stopPropagation()
-                  handleExportManualChefOrderTicket(chefOrder.slug)
-                }}
-                  variant="ghost"
-                  className="flex gap-1 justify-start px-2 w-full"
-                >
-                  <DownloadIcon />
-                  {t('chefOrder.exportManualChefOrderTicket')}
-                </Button> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

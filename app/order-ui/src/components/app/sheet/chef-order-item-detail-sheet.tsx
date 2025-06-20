@@ -12,7 +12,6 @@ interface IChefOrderItemDetailSheetProps {
   enableFetch: boolean
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
 }
 
 export default function ChefOrderItemDetailSheet({
@@ -20,7 +19,6 @@ export default function ChefOrderItemDetailSheet({
   enableFetch,
   isOpen,
   onClose,
-  onSuccess,
 }: IChefOrderItemDetailSheetProps) {
   const { t: tCommon } = useTranslation(['common'])
   const { t } = useTranslation(['chefArea'])
@@ -30,6 +28,10 @@ export default function ChefOrderItemDetailSheet({
   const { data, refetch } = useGetSpecificChefOrder(
     enableFetch ? (chefOrder?.slug ?? '') : slug,
   )
+
+  const handleChangeStatusSuccess = () => {
+    refetch()
+  }
 
   // polling useGetSpecificChefOrder every 5 seconds
   useEffect(() => {
@@ -56,8 +58,8 @@ export default function ChefOrderItemDetailSheet({
           </SheetTitle>
         </SheetHeader>
         {chefOrder ? (
-          <div className="h-[calc(100vh-11rem)] flex-1 px-2 pt-2">
-            <ChefOrderItemList onSuccess={onSuccess} chefOrderStatus={chefOrderStatus} chefOrderItemData={specificChefOrderDetail} />
+          <div className="h-[calc(100vh-12rem)] flex-1 px-2 pt-2">
+            <ChefOrderItemList onSuccess={handleChangeStatusSuccess} chefOrderStatus={chefOrderStatus} chefOrderItemData={specificChefOrderDetail} />
           </div>
         ) : (
           <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">
@@ -65,7 +67,7 @@ export default function ChefOrderItemDetailSheet({
           </p>
         )}
         <SheetFooter className="p-2">
-          <Button onClick={onClose}>
+          <Button onClick={onClose} className='sm:hidden'>
             {tCommon('common.close')}
           </Button>
         </SheetFooter>
