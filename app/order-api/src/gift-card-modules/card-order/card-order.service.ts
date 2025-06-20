@@ -198,9 +198,11 @@ export class CardOrderService {
           name: `${receipient.firstName} ${receipient.lastName}`,
           phone: receipient.phonenumber,
           recipientId: receipient.id,
+          recipientSlug: receipient.slug,
           recipient: receipient,
 
           senderId: customer.id,
+          senderSlug: customer.slug,
           senderName: `${customer.firstName} ${customer.lastName}`,
           senderPhone: customer.phonenumber,
           sender: customer,
@@ -246,6 +248,7 @@ export class CardOrderService {
 
         receipients.forEach((item: Recipient) => {
           item.cardOrder = createdCardOrder;
+          item.cardOrderSlug = createdCardOrder.slug;
           item.cardOrderId = createdCardOrder.id;
         });
 
