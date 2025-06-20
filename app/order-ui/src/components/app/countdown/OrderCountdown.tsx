@@ -23,37 +23,31 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     const isMobile = useIsMobile()
 
     useEffect(() => {
+        let timerInterval: NodeJS.Timeout | null = null;
+
         if (createdAt) {
-            const createTime = moment(createdAt)
-            const now = moment()
-            const timePassed = now.diff(createTime, 'seconds')
-            const remainingTime = 900 - timePassed // 15 minutes
-            setTimeRemainingInSec(remainingTime > 0 ? remainingTime : 0)
-            setIsExpired(remainingTime <= 0)
-        }
-    }, [createdAt, setIsExpired])
-
-    useEffect(() => {
-        let timerInterval: NodeJS.Timeout | null = null
-
-        if (timeRemainingInSec > 0) {
             timerInterval = setInterval(() => {
-                setTimeRemainingInSec((prev) => {
-                    const newTime = prev - 1
-                    if (newTime <= 0) {
-                        setIsExpired(true)
-                        clearStore()
-                        if (timerInterval) clearInterval(timerInterval)
-                    }
-                    return newTime
-                })
-            }, 1000)
+                const createTime = moment(createdAt);
+                const now = moment();
+                const timePassed = now.diff(createTime, 'seconds');
+                const remainingTime = 900 - timePassed;
+
+                if (remainingTime <= 0) {
+                    setTimeRemainingInSec(0);
+                    setIsExpired(true);
+                    clearStore();
+                    if (timerInterval) clearInterval(timerInterval);
+                } else {
+                    setTimeRemainingInSec(remainingTime);
+                }
+            }, 1000);
         }
 
         return () => {
-            if (timerInterval) clearInterval(timerInterval)
-        }
-    }, [timeRemainingInSec, clearStore, setIsExpired])
+            if (timerInterval) clearInterval(timerInterval);
+        };
+    }, [createdAt, clearStore, setIsExpired]);
+
 
     useEffect(() => {
         setMinutes(Math.floor(timeRemainingInSec / 60))
