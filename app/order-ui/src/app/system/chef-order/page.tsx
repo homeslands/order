@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +11,6 @@ import { usePendingChefOrdersColumns } from './DataTable/columns'
 import { ChefOrderItemDetailSheet } from '@/components/app/sheet'
 import { ChefOrderActionOptions } from './DataTable/actions'
 import { useSelectedChefOrderStore } from '@/stores'
-import moment from 'moment'
 
 export default function ChefOrderPage() {
   const { t } = useTranslation(['chefArea'])
@@ -72,10 +72,6 @@ export default function ChefOrderPage() {
     setIsSheetOpen(true)
   }
 
-  const handleUpdateChefOrderStatusSuccess = () => {
-    refetch()
-  }
-
   return (
     <div className="flex flex-col flex-1 gap-2">
       <Helmet>
@@ -94,7 +90,7 @@ export default function ChefOrderPage() {
         <DataTable
           isLoading={isLoading}
           data={chefOrders?.items || []}
-          columns={usePendingChefOrdersColumns()}
+          columns={usePendingChefOrdersColumns({ onSuccess: refetch })}
           pages={chefOrders?.totalPages || 1}
           actionOptions={ChefOrderActionOptions()}
           hiddenInput={false}
@@ -114,7 +110,6 @@ export default function ChefOrderPage() {
           }
         />
         <ChefOrderItemDetailSheet
-          onSuccess={handleUpdateChefOrderStatusSuccess}
           chefOrder={chefOrder}
           enableFetch={true}
           isOpen={isSheetOpen}

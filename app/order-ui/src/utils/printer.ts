@@ -25,6 +25,25 @@ export const loadDataToPrinter = (blob: Blob) => {
   }
 }
 
+/**
+ * Mở cửa sổ mới, ghi nội dung HTML và in
+ * @param htmlContent - HTML string cần in
+ */
+export const openPrintWindow = (htmlContent: string) => {
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) {
+    throw new Error('Không thể mở cửa sổ in')
+  }
+
+  printWindow.document.write(htmlContent)
+  printWindow.document.close()
+
+  printWindow.onload = () => {
+    printWindow.print()
+    printWindow.onafterprint = () => printWindow.close()
+  }
+}
+
 export const generateQRCodeBase64 = async (slug: string): Promise<string> => {
   try {
     const dataUrl = await QRCode.toDataURL(slug, { width: 128 })

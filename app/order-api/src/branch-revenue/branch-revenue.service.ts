@@ -267,6 +267,8 @@ export class BranchRevenueService {
           totalOrderCash: '0',
           totalOrderBank: '0',
           totalOrderInternal: '0',
+          totalVoucherValueOrderItemAmount: '0',
+          totalLossAmountOrder: '0',
         };
         const returnData = this.mapper.map(
           item,

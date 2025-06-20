@@ -22,7 +22,7 @@ import { MailConsumer } from './mail.consumer';
           },
         },
         defaults: {
-          from: `"No Reply" <${config.get('MAIL_FROM')}>`,
+          from: `"[Trend Coffee] No Reply" <${config.get('MAIL_FROM')}>`,
         },
         template: {
           dir: resolve('public/templates/mail'),
