@@ -1,6 +1,6 @@
-{    "giftCard": {
+{
+    "giftCard": {
         "pageTitle": "Quản lý thẻ quà tặng",
-        
         "title": "Tiêu đề",
         "description": "Mô tả",
         "image": "Hình ảnh",
@@ -11,19 +11,38 @@
         "isActive": "Trạng thái",
         "active": "Hoạt động",
         "inactive": "Không hoạt động",
-        
         "create": "Tạo thẻ quà tặng",
         "createTitle": "Tạo thẻ quà tặng mới",
         "createDescription": "Điền thông tin để tạo thẻ quà tặng mới",
         "enterGiftCardTitle": "Nhập tiêu đề thẻ quà tặng",
         "enterGiftCardDescription": "Nhập mô tả thẻ quà tặng",
-        
         "update": "Cập nhật thẻ quà tặng",
-        
         "delete": "Xóa thẻ quà tặng",
         "deleteTitle": "Xóa thẻ quà tặng",
         "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",
         "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
         "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+    },
+    "schema": {
+        "title": {
+            "required": "Tiêu đề không được bỏ trống",
+            "min": "Tiêu đề không được bỏ trống",
+            "max": "Tiêu đề không được quá 500 kí tự"
+        },
+        "description": {
+            "max": "Mô tả không được quá 1000 kí tự"
+        },
+        "points": {
+            "required": "Vui lòng nhập số điểm",
+            "invalid": "Số điểm không hợp lệ",
+            "min": "Số xu phải từ 1,000 trở lên",
+            "max": "Số xu không được vượt quá 10,000,000"
+        },
+        "price": {
+            "required": "Vui lòng nhập giá tiền",
+            "invalid": "Giá tiền không hợp lệ",
+            "min": "Giá tiền phải từ 1,000 trở lên",
+            "max": "Giá tiền không được vượt quá 10,000,000"
+        }
     }
 }
