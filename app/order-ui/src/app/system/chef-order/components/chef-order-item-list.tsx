@@ -93,7 +93,7 @@ export default function ChefOrderItemList({
             {t('chefOrder.completed')} ({completed})
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={ChefOrderItemStatus.PENDING} className='h-[calc(100vh-11em)]'>
+        <TabsContent value={ChefOrderItemStatus.PENDING} className='h-[calc(100vh-13em)] sm:h-[calc(100vh-10em)]'>
           <ScrollAreaViewport className="h-[calc(100vh-12em)]">
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => (

@@ -49,3 +49,22 @@ export interface IExportChefOrderTicketParams {
     quantity: number
   }
 }
+
+export interface IExportChefOrderParams {
+  logoString: string
+  logo: string
+  branchName: string
+  referenceNumber: number
+  createdAt: string
+  type: string
+  tableName: string
+  invoiceItems: Array<{
+    variant: {
+      name: string
+      size?: string
+    }
+    quantity: number
+    note?: string
+  }>
+  formatDate: (date: string, format: string) => string
+}
