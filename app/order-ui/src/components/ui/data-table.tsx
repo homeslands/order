@@ -223,7 +223,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div
-        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 max-w-sm whitespace-nowrap sm:max-w-full`}
+        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 whitespace-nowrap sm:max-w-full`}
       >
         <div className="flex gap-2 items-center">
           {/* Input search */}

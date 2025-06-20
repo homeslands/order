@@ -67,8 +67,9 @@ export default function UpdateGiftCardSheet({
   }
 
   const form = useForm<TUpdateGiftCardSchema>({
-    resolver: zodResolver(updateGiftCardSchema),
+    resolver: zodResolver(updateGiftCardSchema(t)),
     defaultValues: defaultFormValues,
+    mode: 'onChange'
   })
 
   const handleSubmit = (data: TUpdateGiftCardSchema) => {
@@ -269,21 +270,21 @@ export default function UpdateGiftCardSheet({
                   onSubmit={form.handleSubmit(handleSubmit)}
                   className="space-y-4"
                 >
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
                       {formFields.file}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     {' '}
                     <div className="grid grid-cols-2 gap-2">
                       {formFields.points}
                       {formFields.price}
                     </div>
                   </div>
-                  <div className="rounded-md border bg-white p-4">
+                  <div className="rounded-md border bg-white dark:bg-muted-foreground/10 p-4">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.isActive}
                     </div>
@@ -293,7 +294,7 @@ export default function UpdateGiftCardSheet({
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="gift-card-form" disabled={isPending}>
+            <Button type="submit" form="gift-card-form" disabled={isPending || !form.formState.isValid}>
               {t('giftCard.update')}
             </Button>
           </SheetFooter>
