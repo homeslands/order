@@ -95,8 +95,8 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
             {(order.status !== OrderStatus.PENDING) && (
               <div onClick={(e) => e.stopPropagation()}>
                 <Button
-                  variant="ghost"
-                  className="flex gap-1 justify-start px-2 w-full"
+                  variant="outline"
+                  className="flex gap-1 justify-start px-2 w-full text-xs xl:text-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleExportOrderInvoice(order);
