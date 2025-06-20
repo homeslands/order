@@ -22,8 +22,7 @@
     "typeorm:g": "npm run typeorm -- -d src/config/database.config.ts migration:generate ./src/migrations/%npm_config_name%",
     "typeorm:c": "npm run typeorm -- migration:create ./src/migrations/%npm_config_name%",
     "typeorm:rv": "npm run typeorm -- -d ./src/config/database.config.ts migration:revert",
-    "test:large": "node --max-old-space-size=4096 ./node_modules/jest/bin/jest.js",
-    "typeorm:gln": "npm run typeorm -- -d src/config/database.config.ts migration:generate ./src/migrations/$npm_config_name"
+    "test:large": "node --max-old-space-size=4096 ./node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@automapper/classes": "^8.8.1",

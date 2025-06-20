@@ -31,10 +31,6 @@ export class Recipient extends Base {
   @AutoMap()
   recipientId: string;
 
-  @Column({ name: 'recipient_slug_column' })
-  @AutoMap()
-  recipientSlug: string;
-
   @ManyToOne(() => User, (user) => user.recipientCardOrders)
   @JoinColumn({ name: 'recipient_column' })
   @AutoMap(() => User)
@@ -43,10 +39,6 @@ export class Recipient extends Base {
   @Column({ name: 'sender_id_column' })
   @AutoMap()
   senderId: string;
-
-  @Column({ name: 'sender_slug_column' })
-  @AutoMap()
-  senderSlug: string;
 
   @Column({ name: 'sender_name_column' })
   @AutoMap()
@@ -63,9 +55,6 @@ export class Recipient extends Base {
 
   @Column({ name: 'card_order_id_column', nullable: true })
   cardOrderId: string;
-
-  @Column({ name: 'card_order_slug_column', nullable: true })
-  cardOrderSlug: string;
 
   @ManyToOne(() => CardOrder, (cardOrder) => cardOrder.receipients)
   @JoinColumn({ name: 'card_order_column' })
