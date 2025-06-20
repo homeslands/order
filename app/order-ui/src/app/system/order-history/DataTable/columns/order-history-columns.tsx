@@ -68,11 +68,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
     })
   }
 
-  // const handleExportOrderInvoice = async (order: IOrder | undefined) => {
-  //   await exportOrderInvoices(order)
-  //   showToast(tToast('toast.exportPDFVouchersSuccess'))
-  // }
-
   return [
     {
       accessorKey: 'createdAt',
