@@ -43,7 +43,8 @@
     "menu": "Menu",
     "aboutUs": "About Us",
     "policy": "Policy",
-    "securityTerm": "Security Term"
+    "securityTerm": "Security Term",
+    "giftCard": "Gift Card"
   },
   "footer": {
     "quickLink": "Quick Link",
@@ -66,6 +67,7 @@
     "profile": "Profile",
     "cart": "Cart",
     "history": "Order history",
-    "order": "Order"
+    "order": "Order",
+    "giftCard": "Gift Card"
   }
 }

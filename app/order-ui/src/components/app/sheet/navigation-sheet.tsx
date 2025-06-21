@@ -1,9 +1,12 @@
 import { Separator, Sheet, SheetContent, SheetTrigger } from '@/components/ui'
 import { ROUTE } from '@/constants'
 import { AlignJustifyIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
 export default function NavigationSheet() {
+  const { t } = useTranslation('sidebar')
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -18,7 +21,7 @@ export default function NavigationSheet() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Trang chủ</span>
+              <span className="text-sm">{t('header.home')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.CLIENT_MENU}
@@ -26,7 +29,15 @@ export default function NavigationSheet() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Thực đơn</span>
+              <span className="text-sm">{t('header.menu')}</span>
+            </NavLink>
+            <NavLink
+              to={ROUTE.CLIENT_GIFT_CARD}
+              className={({ isActive }) =>
+                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
+              }
+            >
+              <span className="text-sm">{t('header.giftCard')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.ABOUT}
@@ -34,7 +45,7 @@ export default function NavigationSheet() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Về chúng tôi</span>
+              <span className="text-sm">{t('header.aboutUs')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.POLICY}
@@ -42,7 +53,7 @@ export default function NavigationSheet() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">Điều khoản</span>
+              <span className="text-sm">{t('header.policy')}</span>
             </NavLink>
           </div>
           <Separator />
