@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
+import { Gift, ShoppingCart, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -55,8 +55,12 @@ export function GiftCardSelectedDrawer({
       {' '}
       <DrawerTrigger asChild>
         {trigger || (
-          <Button size="sm" className="rounded-full px-4">
-            <FileText className="mr-1 h-4 w-4" /> {t('giftCard.viewDetails')}
+          <Button
+            size="sm"
+            className="flex items-center gap-[0px] rounded-full px-4"
+          >
+            <span className="text-xl font-medium">+</span>
+            <Gift className="h-4 w-4" />
           </Button>
         )}
       </DrawerTrigger>
@@ -97,9 +101,7 @@ export function GiftCardSelectedDrawer({
               <div className="flex items-center gap-2">
                 <CoinsIcon className="h-5 w-5 text-yellow-500" />
                 <span className="text-lg font-bold text-primary">
-                  {new Intl.NumberFormat().format(
-                    Number(selectedCard.points * quantity),
-                  )}{' '}
+                  {formatCurrency(selectedCard.price, '')}
                 </span>
               </div>
               <span className="text-lg font-bold text-primary">

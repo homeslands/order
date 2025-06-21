@@ -44,15 +44,15 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
       >
         {/* Card Image */}
         <div
-          className={`relative overflow-hidden ${
-            isMobile ? 'h-full w-24 flex-shrink-0 px-2 py-4' : 'h-48 w-full'
+          className={`relative flex items-center justify-center overflow-hidden ${
+            isMobile ? 'h-full w-32 flex-shrink-0 px-2 py-4' : 'h-48 w-full'
           }`}
         >
           {card.image ? (
             <img
               src={`${publicFileURL}/${card.image}`}
               alt={card.title}
-              className={`object-cover ${isMobile ? 'h-full w-full rounded-md' : 'h-full w-full'}`}
+              className={`${isMobile ? 'h-max w-full rounded-md bg-gray-300 object-contain' : 'h-full w-full object-cover'}`}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
@@ -68,7 +68,7 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
         >
           <div>
             <h3
-              className={`${isMobile ? 'text-md line-clamp-1 font-bold' : 'mb-2 truncate text-xl font-bold'} text-gray-900 dark:text-white`}
+              className={`${isMobile ? 'line-clamp-1 text-sm font-bold' : 'mb-2 truncate text-xl font-bold'} text-gray-900 dark:text-white`}
               data-tooltip-id="title-tooltip"
               data-tooltip-content={String(card.title)}
             >
@@ -102,7 +102,7 @@ export default function GiftCardItem({ card, index }: GiftCardItemProps) {
               <span
                 className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold text-primary`}
               >
-                {new Intl.NumberFormat().format(Number(card.points))}{' '}
+                {formatCurrency(card.price, '')}
               </span>
             </div>
             <div
