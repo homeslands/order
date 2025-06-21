@@ -88,7 +88,6 @@ export const useGiftCardListColumns = (): ColumnDef<IGiftCard>[] => {
               id="description-tooltip"
               style={{ width: '13rem' }}
               variant="light"
-              style={{ width: '30rem' }}
             />
           </>
         )
