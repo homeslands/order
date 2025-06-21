@@ -64,7 +64,7 @@ export function BottomBar() {
         ) : (
           <NavLink
             to={ROUTE.CLIENT_ORDERS_PUBLIC}
-            className={`relative inline-flex flex-col items-center justify-center gap-1 rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_ORDERS_PUBLIC}`) ? 'text-primary' : ''}`}
+            className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_ORDERS_PUBLIC}`) ? 'text-primary' : ''}`}
           >
             <ShoppingBag className="h-5 w-5" />
             <span className="text-[0.5rem]">{t('bottombar.order')}</span>
