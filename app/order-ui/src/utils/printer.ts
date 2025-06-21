@@ -26,7 +26,7 @@ export const loadDataToPrinter = (blob: Blob) => {
 }
 
 /**
- * Mở cửa sổ mới, ghi nội dung HTML và in
+ * Mở cửa sổ mới, ghi nội dung HTML và in (với auto-close cải tiến)
  * @param htmlContent - HTML string cần in
  */
 export const openPrintWindow = (htmlContent: string) => {
@@ -35,13 +35,96 @@ export const openPrintWindow = (htmlContent: string) => {
     throw new Error('Không thể mở cửa sổ in')
   }
 
-  printWindow.document.write(htmlContent)
+  // Inject enhanced auto-close script vào HTML content
+  const autoCloseScript = `
+    <script>
+      let printExecuted = false;
+      let closeAttempted = false;
+      
+      window.onload = () => {
+        window.print();
+        printExecuted = true;
+      };
+      
+      // Method 1: Standard onafterprint event
+      window.onafterprint = () => {
+        if (!closeAttempted) {
+          closeAttempted = true;
+          setTimeout(() => window.close(), 300);
+        }
+      };
+      
+      // Method 2: Media query detection (modern browsers)
+      if (window.matchMedia) {
+        const mediaQueryList = window.matchMedia('print');
+        mediaQueryList.addListener((mql) => {
+          if (!mql.matches && printExecuted && !closeAttempted) {
+            closeAttempted = true;
+            setTimeout(() => window.close(), 300);
+          }
+        });
+      }
+      
+      // Method 3: Focus-based detection
+      let focusLost = false;
+      window.onblur = () => {
+        if (printExecuted) focusLost = true;
+      };
+      
+      window.onfocus = () => {
+        if (focusLost && printExecuted && !closeAttempted) {
+          closeAttempted = true;
+          setTimeout(() => window.close(), 300);
+        }
+      };
+      
+      // Method 4: Fallback timeout
+      setTimeout(() => {
+        if (!closeAttempted) {
+          closeAttempted = true;
+          window.close();
+        }
+      }, 5000);
+    </script>
+  `
+
+  // Thử inject vào </head>, nếu không có thì thêm vào cuối <body>
+  let enhancedHtmlContent: string
+  if (htmlContent.includes('</head>')) {
+    enhancedHtmlContent = htmlContent.replace(
+      '</head>',
+      autoCloseScript + '</head>',
+    )
+  } else if (htmlContent.includes('</body>')) {
+    enhancedHtmlContent = htmlContent.replace(
+      '</body>',
+      autoCloseScript + '</body>',
+    )
+  } else {
+    // Fallback: thêm vào cuối HTML
+    enhancedHtmlContent = htmlContent + autoCloseScript
+  }
+
+  printWindow.document.write(enhancedHtmlContent)
   printWindow.document.close()
 
-  printWindow.onload = () => {
-    printWindow.print()
-    printWindow.onafterprint = () => printWindow.close()
-  }
+  // Monitor từ parent window
+  const startTime = Date.now()
+  const monitorInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime
+
+    if (printWindow.closed) {
+      clearInterval(monitorInterval)
+    } else if (elapsed > 8000) {
+      // Timeout sau 8 giây - thử đóng manual
+      clearInterval(monitorInterval)
+      try {
+        printWindow.close()
+      } catch {
+        // Ignore error nếu không thể đóng
+      }
+    }
+  }, 500)
 }
 
 export const generateQRCodeBase64 = async (slug: string): Promise<string> => {
@@ -130,26 +213,8 @@ export const exportOrderInvoices = async (order: IOrder | undefined) => {
         method === 'CASH' ? 'Tiền mặt' : 'Khác',
     })
 
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      showToast(i18next.t('toast.exportPDFVouchersError'))
-      return
-    }
-
-    // Write the HTML content to the new window
-    printWindow.document.write(htmlContent)
-    printWindow.document.close()
-
-    // Wait for resources to load
-    printWindow.onload = () => {
-      // Print the window
-      printWindow.print()
-      // Close the window after printing
-      printWindow.onafterprint = () => {
-        printWindow.close()
-      }
-    }
+    // Sử dụng openPrintWindow cải tiến
+    openPrintWindow(htmlContent)
   } catch {
     showToast(i18next.t('toast.exportPDFVouchersError'))
   }
