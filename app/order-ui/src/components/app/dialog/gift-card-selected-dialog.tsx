@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
+import { Gift, ShoppingCart, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -90,7 +90,7 @@ export function GiftCardSelectedDialog({
         <DialogTrigger asChild>
           {trigger || (
             <Button size="lg" className="rounded-full px-4">
-              <FileText className="mr-2 h-4 w-4" />
+              <Gift className="h-4 w-4" />
               {t('giftCard.viewDetails')}
             </Button>
           )}
@@ -134,7 +134,7 @@ export function GiftCardSelectedDialog({
                   </span>
                 </div>
                 <span className="text-lg font-bold text-primary">
-                  {formatCurrency(selectedCard.price * quantity)}
+                  {formatCurrency(selectedCard.points * quantity, '')}
                 </span>
               </div>
 
