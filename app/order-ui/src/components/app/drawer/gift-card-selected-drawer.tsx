@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Gift, ShoppingCart, FileText, CoinsIcon } from 'lucide-react'
+import { Gift, ShoppingCart, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -87,11 +87,15 @@ export function GiftCardSelectedDrawer({
   return (
     <>
       <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+        {' '}
         <DrawerTrigger asChild>
           {trigger || (
-            <Button size="sm" className="rounded-full px-4">
-              <FileText className="mr-2 h-4 w-4" />
-              {t('giftCard.viewDetails')}
+            <Button
+              size="sm"
+              className="flex items-center gap-[0px] rounded-full px-4"
+            >
+              <span className="text-xl font-medium">+</span>
+              <Gift className="h-4 w-4" />
             </Button>
           )}
         </DrawerTrigger>
