@@ -178,10 +178,10 @@ export const YouTubeVideoSection: React.FC<YouTubeVideoSectionProps> = ({
                 </div>
 
                 {/* Text Content - Right side (2 columns) */}
-                <div className="flex justify-center sm:col-span-2">
+                <div className="flex justify-center items-center h-full sm:col-span-2">
                     <div className="flex flex-col gap-4 items-start sm:w-2/3">
                         <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl font-extrabold">
+                            <h2 className="text-2xl font-extrabold text-primary">
                                 {title || t('home.videoSection.title', 'Khám phá câu chuyện TREND Coffee')}
                             </h2>
                             {description && (

@@ -199,7 +199,7 @@ export default function HomePage() {
             viewport={{ once: true, amount: 0.2 }}
             variants={fadeInVariants}
           >
-            <div className="flex justify-center sm:col-span-2">
+            <div className="flex justify-center items-center h-full sm:col-span-2">
               <div className="flex flex-col gap-6 items-start sm:w-2/3">
                 <div className="flex flex-col gap-2">
                   <span className="text-3xl font-extrabold text-primary">TREND Coffee</span>
@@ -214,8 +214,21 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex justify-center sm:col-span-3">
-              <div className="w-full">
+            <div className="flex overflow-hidden relative justify-center sm:col-span-3">
+              {['tl', 'tr', 'bl', 'br'].map((pos) => (
+                <div
+                  key={pos}
+                  className={`
+        absolute w-12 h-12 border-2 border-primary
+        ${pos === 'tl' && 'top-0 left-0 rounded-tl-3xl border-r-0 border-b-0'}
+        ${pos === 'tr' && 'top-0 right-0 rounded-tr-3xl border-l-0 border-b-0'}
+        ${pos === 'bl' && 'bottom-0 left-0 rounded-bl-3xl border-r-0 border-t-0'}
+        ${pos === 'br' && 'bottom-0 right-0 rounded-br-3xl border-l-0 border-t-0'}
+      `}
+                  style={{ zIndex: 10 }}
+                />
+              ))}
+              <div className="p-3 w-full">
                 <StoreCarousel />
               </div>
             </div>
