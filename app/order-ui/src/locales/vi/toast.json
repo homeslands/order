@@ -184,6 +184,7 @@
     "branchHaveAWorkflow": "Chi nhánh đã có workflow",
     "newRevenueNotFound": "Chưa có dữ liệu doanh thu mới",
     "voucherAlreadyUsed": "Voucher đã được sử dụng!",
+    "voucherHasOrder": "Voucher đã được sử dụng trong đơn hàng",
     "voucherNotFound": "Không tìm thấy voucher",
     "voucherExpired": "Voucher đã hết hạn",
     "voucherNotValid": "Voucher không hợp lệ, vui lòng chọn voucher khác",
