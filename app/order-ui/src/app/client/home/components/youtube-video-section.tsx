@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+
 import { useIsMobile } from '@/hooks'
-import { YouTubePlayer } from '@/types/youtube'
+import { YouTubePlayer } from '@/types'
 
 interface YouTubeVideoSectionProps {
     videoId: string;
