@@ -15,8 +15,9 @@ import {
 } from '@/components/ui'
 import { RemoveAppliedPromotionDialog } from '@/components/app/dialog'
 import { IApplyPromotionRequest, IPromotion } from '@/types'
-import { useProducts } from '@/hooks'
+import { useCatalogs, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/promotion/DataTable/columns'
+import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
 
 interface IApplyPromotionSheetProps {
   promotion: IPromotion
@@ -26,23 +27,29 @@ export default function RemoveAppliedPromotionSheet({
   promotion,
 }: IApplyPromotionSheetProps) {
   const { t } = useTranslation(['promotion'])
+  const { t: tCommon } = useTranslation(['common'])
   const [isOpen, setIsOpen] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [applyPromotionRequest, setApplyPromotionRequest] =
+  const [catalog, setCatalog] = useState<string | null>(null)
+  const [removeAppliedPromotionRequest, setRemoveAppliedPromotionRequest] =
     useState<IApplyPromotionRequest | null>(null)
   // Separate pagination state for sheet
   const [sheetPagination, setSheetPagination] = useState({
     pageIndex: 1,
     pageSize: 10
   })
+  const { data: catalogs } = useCatalogs()
   const { data: products, isLoading } = useProducts({
     promotion: promotion?.slug, isAppliedPromotion: true,
     page: sheetPagination.pageIndex,
     size: sheetPagination.pageSize,
     hasPaging: true,
-  }, !sheetOpen)
+    catalog: catalog || undefined,
+  }, !!sheetOpen)
 
   const productsData = products?.result.items
+  const catalogsData = catalogs?.result
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -50,7 +57,7 @@ export default function RemoveAppliedPromotionSheet({
   }
 
   const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
-    setApplyPromotionRequest({
+    setRemoveAppliedPromotionRequest({
       applicableSlugs: selectedSlugs,
       promotion: promotion?.slug,
       type: 'product',
@@ -74,6 +81,27 @@ export default function RemoveAppliedPromotionSheet({
   const handleSheetOpenChange = useCallback((open: boolean) => {
     setSheetOpen(open)
   }, [])
+
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
+  }
+
   return (
     <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger asChild>
@@ -102,10 +130,14 @@ export default function RemoveAppliedPromotionSheet({
                 <DataTable
                   columns={useProductColumns({
                     onSelectionChange: handleSelectionChange,
+                    selectedProducts: removeAppliedPromotionRequest?.applicableSlugs || [],
                   })}
                   data={productsData || []}
                   isLoading={isLoading}
                   pages={products?.result.totalPages || 1}
+                  filterOptions={ProductFilterOptions}
+                  filterConfig={filterConfig}
+                  onFilterChange={handleFilterChange}
                   onPageChange={handleSheetPageChange}
                   onPageSizeChange={handleSheetPageSizeChange}
                 />
@@ -115,9 +147,9 @@ export default function RemoveAppliedPromotionSheet({
           <SheetFooter className="p-4">
             <RemoveAppliedPromotionDialog
               disabled={
-                !applyPromotionRequest || applyPromotionRequest.applicableSlugs.length === 0
+                !removeAppliedPromotionRequest || removeAppliedPromotionRequest.applicableSlugs.length === 0
               }
-              applyPromotionData={applyPromotionRequest}
+              applyPromotionData={removeAppliedPromotionRequest}
               isOpen={isOpen}
               onOpenChange={setIsOpen}
               onCloseSheet={() => { setSheetOpen(false) }}

@@ -6,13 +6,15 @@ import { IProduct } from '@/types'
 import { publicFileURL } from '@/constants'
 
 interface ProductColumnsProps {
-  onSelectionChange?: (selectedSlugs: string[]) => void
+  onSelectionChange?: (selectedProducts: IProduct[]) => void
   selectedProducts?: string[]
+  productMapping?: Map<string, IProduct>
 }
 
 export const useProductColumns = ({
   onSelectionChange,
   selectedProducts = [],
+  productMapping = new Map(),
 }: ProductColumnsProps = {}): ColumnDef<IProduct>[] => {
   const { t } = useTranslation(['product'])
 
@@ -28,22 +30,31 @@ export const useProductColumns = ({
           <Checkbox
             checked={allCurrentPageSelected}
             onCheckedChange={(value) => {
-              const currentPageSlugs = table.getRowModel().rows.map(row => row.original.slug)
-
               if (value) {
-                const newSelectedProducts = [
-                  ...selectedProducts.filter(slug => !currentPageSlugs.includes(slug)),
-                  ...currentPageSlugs
-                ]
-                onSelectionChange?.(newSelectedProducts)
+                // Get all current page products
+                const currentPageProducts = table.getRowModel().rows.map(row => row.original)
+                // Get previously selected products from mapping
+                const previouslySelectedProducts = selectedProducts
+                  .filter(slug => !currentPageSlugs.includes(slug))
+                  .map(slug => productMapping.get(slug))
+                  .filter(Boolean) as IProduct[]
+
+                const allSelectedProducts = [...previouslySelectedProducts, ...currentPageProducts]
+                onSelectionChange?.(allSelectedProducts)
+
                 table.setRowSelection(
                   Object.fromEntries(
                     table.getRowModel().rows.map((_, index) => [index, true])
                   )
                 )
               } else {
-                const newSelectedProducts = selectedProducts.filter(slug => !currentPageSlugs.includes(slug))
-                onSelectionChange?.(newSelectedProducts)
+                // Remove current page products from selection
+                const remainingProducts = selectedProducts
+                  .filter(slug => !currentPageSlugs.includes(slug))
+                  .map(slug => productMapping.get(slug))
+                  .filter(Boolean) as IProduct[]
+
+                onSelectionChange?.(remainingProducts)
                 table.setRowSelection({})
               }
             }}
@@ -60,11 +71,19 @@ export const useProductColumns = ({
             checked={isSelected}
             onCheckedChange={(value) => {
               if (value) {
-                const newSelectedProducts = [...selectedProducts, product.slug]
+                // Add product to selection
+                const currentSelected = selectedProducts
+                  .map(slug => productMapping.get(slug))
+                  .filter(Boolean) as IProduct[]
+                const newSelectedProducts = [...currentSelected, product]
                 onSelectionChange?.(newSelectedProducts)
               } else {
-                const newSelectedProducts = selectedProducts.filter((slug) => slug !== product.slug)
-                onSelectionChange?.(newSelectedProducts)
+                // Remove product from selection
+                const remainingProducts = selectedProducts
+                  .filter(slug => slug !== product.slug)
+                  .map(slug => productMapping.get(slug))
+                  .filter(Boolean) as IProduct[]
+                onSelectionChange?.(remainingProducts)
               }
               row.toggleSelected(!!value)
             }}
@@ -75,6 +94,16 @@ export const useProductColumns = ({
       enableSorting: false,
       enableHiding: false,
     },
+    // {
+    //   accessorKey: 'actions',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('product.actions')} />
+    //   ),
+    //   cell: ({ row }) => {
+    //     const product = row.original
+    //     return <AddMenuItemDialog product={product} />
+    //   },
+    // },
     {
       accessorKey: 'image',
       header: ({ column }) => (
@@ -96,6 +125,12 @@ export const useProductColumns = ({
         <DataTableColumnHeader column={column} title={t('product.name')} />
       ),
     },
+    // {
+    //   accessorKey: 'slug',
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title={t('product.name')} />
+    //   ),
+    // },
     {
       accessorKey: 'catalog.name',
       header: ({ column }) => (
@@ -104,4 +139,3 @@ export const useProductColumns = ({
     },
   ]
 }
-

@@ -108,6 +108,7 @@ const errorCodes: { [key: number]: string } = {
   140005: 'toast.systemConfigInvalid',
   143202: 'toast.newRevenueNotFound',
   143407: 'toast.voucherAlreadyUsed',
+  143417: 'toast.voucherHasOrder',
   143421: 'toast.mustVerifyEmailToUseVoucher',
   143422: 'toast.voucherProductNotApplicable',
   // Error data duplicate product and branch in product chef area
