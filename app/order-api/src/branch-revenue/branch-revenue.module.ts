@@ -19,6 +19,11 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { Mutex } from 'async-mutex';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,8 +33,11 @@ import { Mutex } from 'async-mutex';
       Order,
       MenuItem,
       Menu,
+      Payment,
+      ACBConnectorConfig,
     ]),
     DbModule,
+    ACBConnectorModule,
   ],
   controllers: [BranchRevenueController],
   providers: [
@@ -44,6 +52,8 @@ import { Mutex } from 'async-mutex';
     MenuItemUtils,
     MenuUtils,
     Mutex,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [BranchRevenueService],
 })

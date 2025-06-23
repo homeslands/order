@@ -26,6 +26,13 @@ import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { PdfService } from 'src/pdf/pdf.service';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { HttpService } from '@nestjs/axios';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ConfigService } from '@nestjs/config';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('ChefOrderService', () => {
   let service: ChefOrderService;
@@ -44,6 +51,26 @@ describe('ChefOrderService', () => {
         ChefOrderItemUtils,
         PdfService,
         SystemConfigService,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,

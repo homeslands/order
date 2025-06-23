@@ -21,8 +21,14 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import ProductValidation from 'src/product/product.validation';
 import { ProductException } from 'src/product/product.exception';
 import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 
-describe('SizeController', () => {
+describe('OrderController', () => {
   let controller: OrderController;
   let service: OrderService;
 
@@ -32,6 +38,22 @@ describe('SizeController', () => {
       providers: [
         OrderService,
         SystemConfigService,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: OrderService,
           useValue: {

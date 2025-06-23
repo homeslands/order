@@ -13,6 +13,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PdfModule } from 'src/pdf/pdf.module';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
+import { PaymentUtils } from './payment.utils';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { User } from 'src/user/user.entity';
     CashStrategy,
     InternalStrategy,
     UserUtils,
+    PaymentUtils,
   ],
-  exports: [PaymentService],
+  exports: [PaymentService, PaymentUtils],
 })
 export class PaymentModule {}

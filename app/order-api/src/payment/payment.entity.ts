@@ -44,4 +44,8 @@ export class Payment extends Base {
   @AutoMap()
   @Column({ name: 'qrcode_column', nullable: true, type: 'text' })
   qrCode?: string;
+
+  @AutoMap()
+  @Column({ name: 'order_id_bank_transfer_column', nullable: true })
+  orderIdBankTransfer?: string;
 }
