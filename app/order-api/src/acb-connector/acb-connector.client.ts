@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  ACBCancelQRCodeRequestDto,
+  ACBCancelQRCodeResponseDto,
   ACBInitiateQRCodeRequestDto,
   ACBInitiateQRCodeResponseDto,
   ACBTokenRequestDto,
@@ -95,6 +97,41 @@ export class ACBConnectorClient {
             );
             throw new ACBConnectorConfigException(
               ACBConnectorValidation.INITIATE_QR_CODE_FAIL,
+              error.message,
+            );
+          }),
+        ),
+    );
+    return data;
+  }
+
+  async cancelQRCode(
+    headers: any,
+    requestData: ACBCancelQRCodeRequestDto,
+    accessToken: string,
+  ): Promise<ACBCancelQRCodeResponseDto> {
+    const context = `${ACBConnectorClient.name}.${this.initiateQRCode.name}`;
+    const requestUrl = `${await this.getAcbApiUrl()}/payments/qr-payment/v1/cancellation`;
+    const { data } = await firstValueFrom(
+      this.httpService
+        .delete<ACBCancelQRCodeResponseDto>(requestUrl, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            ...headers,
+          },
+          data: requestData,
+        })
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(
+              `Cancel QR Code from ACB API failed: ${JSON.stringify(error)}`,
+              error.stack,
+              context,
+            );
+            throw new ACBConnectorConfigException(
+              ACBConnectorValidation.CANCEL_QR_CODE_FAIL,
               error.message,
             );
           }),
