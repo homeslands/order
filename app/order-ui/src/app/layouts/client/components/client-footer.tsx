@@ -1,17 +1,16 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
+import { Mail, Phone, Facebook } from 'lucide-react';
 
 import GoogleMap from './google-map';
 import { Logo } from '@/assets/images'
 import { ROUTE } from '@/constants'
-import { Mail, Phone, Facebook } from 'lucide-react';
+import { phone, mail, fanpageUrl } from '@/constants'
 
 export function ClientFooter() {
   const { t } = useTranslation('sidebar')
   const navigator = useNavigate()
-  const phone: string = "0886128008"
-  const mail: string = "trend.coffee.tea@gmail.com"
-  const fanpageUrl: string = "https://www.facebook.com/profile.php?id=61576296973747"
+
   return (
     <footer className={`text-white bg-primary mb-[64px] md:mb-0`}>
       <div className={`container pt-6 pb-6 w-full md:pb-2`}>

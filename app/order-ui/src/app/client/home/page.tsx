@@ -7,7 +7,7 @@ import { Helmet } from 'react-helmet'
 
 import { Button } from '@/components/ui'
 import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
-import { ROUTE } from '@/constants'
+import { ROUTE, youtubeVideoId } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './components'
 // import { AdPopup } from '@/components/app/AdPopup'
 import { useBranchStore } from '@/stores'
@@ -93,7 +93,7 @@ export default function HomePage() {
         {menuItems.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -120,7 +120,7 @@ export default function HomePage() {
         {promotionProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -147,7 +147,7 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -172,7 +172,7 @@ export default function HomePage() {
         {newsProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -237,7 +237,7 @@ export default function HomePage() {
 
         {/* Section Video YouTube */}
         <YouTubeVideoSection
-          videoId="ffhaLflCFCk"
+          videoId={youtubeVideoId}
           title={t('home.videoSection.title', 'Khám phá câu chuyện TREND Coffee')}
           description={t('home.videoSection.description', 'Tìm hiểu về hành trình và giá trị mà chúng tôi mang đến cho khách hàng')}
         />
