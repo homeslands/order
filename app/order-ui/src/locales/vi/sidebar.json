@@ -43,7 +43,8 @@
     "menu": "Thực đơn",
     "aboutUs": "Về chúng tôi",
     "policy": "Điều khoản",
-    "securityTerm": "Chính sách bảo mật"
+    "securityTerm": "Chính sách bảo mật",
+    "giftCard": "Thẻ quà tặng"
   },
   "footer": {
     "quickLink": "Liên kết nhanh",
@@ -66,6 +67,7 @@
     "profile": "Hồ sơ",
     "cart": "Giỏ hàng",
     "history": "Lịch sử đơn hàng",
-    "order": "Đơn hàng"
+    "order": "Đơn hàng",
+    "giftCard": "Thẻ quà tặng"
   }
 }

@@ -20,28 +20,28 @@ export function ClientHeader() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const { getCartItems } = useCartItemStore()
   return (
-    <header className={`sticky top-0 z-30 w-full bg-white shadow-md text-muted-foreground dark:bg-black`}>
+    <header
+      className={`sticky top-0 z-30 w-full bg-white text-muted-foreground shadow-md dark:bg-black`}
+    >
       <div className="container">
-        <div className="flex justify-between items-center w-full h-14">
+        <div className="flex h-14 w-full items-center justify-between">
           {/* Left content*/}
-          <div className="flex gap-1 items-center">
+          <div className="flex items-center gap-1">
             {!isMobile && <NavigationSheet />}
-            <NavLink to={ROUTE.HOME} className="flex gap-2 items-center">
+            <NavLink to={ROUTE.HOME} className="flex items-center gap-2">
               {<img src={Logo} alt="logo" className="h-8 w-fit" />}
             </NavLink>
           </div>
 
           {/* center content */}
-          <div className="hidden flex-row gap-6 justify-center items-center lg:flex">
+          <div className="hidden flex-row items-center justify-center gap-6 lg:flex">
             <NavLink
               to={ROUTE.HOME}
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">
-                {t('header.home')}
-              </span>
+              <span className="text-sm">{t('header.home')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.CLIENT_MENU}
@@ -49,9 +49,15 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">
-                {t('header.menu')}
-              </span>
+              <span className="text-sm">{t('header.menu')}</span>
+            </NavLink>
+            <NavLink
+              to={ROUTE.CLIENT_GIFT_CARD}
+              className={({ isActive }) =>
+                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
+              }
+            >
+              <span className="text-sm">{t('header.giftCard')}</span>
             </NavLink>
             {!isAuthenticated() && (
               <NavLink
@@ -60,9 +66,7 @@ export function ClientHeader() {
                   `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
                 }
               >
-                <span className="text-sm">
-                  {t('header.myOrders')}
-                </span>
+                <span className="text-sm">{t('header.myOrders')}</span>
               </NavLink>
             )}
             <NavLink
@@ -71,9 +75,7 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">
-                {t('header.aboutUs')}
-              </span>
+              <span className="text-sm">{t('header.aboutUs')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.POLICY}
@@ -81,9 +83,7 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">
-                {t('header.policy')}
-              </span>
+              <span className="text-sm">{t('header.policy')}</span>
             </NavLink>
             <NavLink
               to={ROUTE.SECURITY}
@@ -91,19 +91,17 @@ export function ClientHeader() {
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
               }
             >
-              <span className="text-sm">
-                {t('header.securityTerm')}
-              </span>
+              <span className="text-sm">{t('header.securityTerm')}</span>
             </NavLink>
           </div>
 
           {/* Right content */}
-          <div className="flex gap-2 justify-end items-center">
+          <div className="flex items-center justify-end gap-2">
             {/* Cart */}
             {!isMobile && (
               <NavLink
                 to={ROUTE.CLIENT_CART}
-                className="flex relative gap-2 items-center"
+                className="relative flex items-center gap-2"
               >
                 <Button
                   variant="ghost"
@@ -111,7 +109,7 @@ export function ClientHeader() {
                 >
                   <ShoppingCart />
                   {getCartItems()?.orderItems?.length ? (
-                    <span className="flex absolute top-2 right-2 justify-center items-center w-4 h-4 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
+                    <span className="absolute right-2 top-2 flex h-4 w-4 -translate-y-1/2 translate-x-1/2 transform items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                       {getCartItems()?.orderItems.length}
                     </span>
                   ) : null}
