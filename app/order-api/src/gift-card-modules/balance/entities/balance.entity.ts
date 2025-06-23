@@ -12,6 +12,7 @@ export class Balance extends Base {
     name: 'points_column',
     default: 0,
   })
+  @AutoMap()
   points: number;
 
   @OneToOne(() => User)
