@@ -23,6 +23,10 @@ export class Product extends Base {
   isActive: boolean;
 
   @AutoMap()
+  @Column({ name: 'is_combo_column', default: false })
+  isCombo: boolean;
+
+  @AutoMap()
   @Column({ name: 'is_limit_column', default: true })
   isLimit: boolean;
 

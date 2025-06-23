@@ -60,6 +60,18 @@ export class CreateProductRequestDto {
   @Type(() => Boolean)
   @Transform(({ value }) => value === 'true')
   isNew?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is combo',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true')
+  isCombo?: boolean;
 }
 
 export class UpdateProductRequestDto {
@@ -122,6 +134,17 @@ export class UpdateProductRequestDto {
   @IsBoolean()
   @Type(() => Boolean)
   isNew: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is combo',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty({ message: 'The isCombo field is required' })
+  @IsBoolean()
+  @Type(() => Boolean)
+  isCombo: boolean;
 }
 
 export class ProductResponseDto extends BaseResponseDto {
@@ -157,6 +180,9 @@ export class ProductResponseDto extends BaseResponseDto {
 
   @AutoMap()
   isNew: boolean;
+
+  @AutoMap()
+  isCombo: boolean;
 
   @AutoMap()
   saleQuantityHistory: number;
