@@ -1,16 +1,18 @@
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
+import { Coins } from 'lucide-react'
 
 import { ProfilePicture } from '@/components/app/avatar'
 import { useUploadProfilePicture } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
-import { showToast } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { CustomerProfileTabs } from '@/components/app/tabs'
 
 export default function ProfilePage() {
   const { t } = useTranslation(['profile', 'toast'])
   const { t: tHelmet } = useTranslation('helmet')
+  const { t: tGiftCard } = useTranslation(['giftCard'])
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
   const fullname = userInfo?.firstName + ' ' + userInfo?.lastName
@@ -52,7 +54,16 @@ export default function ProfilePage() {
               <div className="text-description flex items-center text-[13px]">
                 {userInfo?.phonenumber}
               </div>
-            </div>
+            </div>      
+          </div>          
+          <div className="py-4 px-6 bg-gradient-to-r from-orange-100 to-amber-50 ">
+            <h3 className="text-[13px] m-0 font-semibold flex items-center gap-3 flex-wrap">
+              <Coins className="text-orange-500" />
+              <div className="flex flex-row items-center gap-2">
+                <span className="text-gray-700 dark:text-gray-300">{t('profile.coinBalance')}:</span> 
+                <span className="text-[13px] text-orange-500 font-bold tracking-tight">{formatCurrency(123456789, '')}{tGiftCard('giftCard.coin')} </span>
+              </div>
+            </h3>
           </div>
         </div>
         {/* Info */}
