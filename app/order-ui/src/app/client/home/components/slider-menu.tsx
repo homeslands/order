@@ -81,12 +81,12 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             {!isFetching ? filteredMenus?.map((item, index) => {
                 const imageProduct = item?.product?.image ? publicFileURL + "/" + item.product.image : Com
                 return (
-                    <SwiperSlide key={index} className="py-2 w-full h-full">
+                    <SwiperSlide key={index} className="py-2 w-full h-[13.5rem] sm:h-[19rem]">
                         {!isMobile ? (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`} className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                                     <>
-                                        <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
+                                        <img src={imageProduct} alt="product" className="object-cover p-1.5 w-full h-36 rounded-xl" />
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}
@@ -173,11 +173,11 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                 {/* {type === "best-sell" && <div className="space-y-1.5 p-2 text-[12px] text-yellow-500">{t('menu.sold')} <b>{item?.product.isTopSell ? filteredMenus[0].product.saleQuantityHistory : item?.product?.saleQuantityHistory}</b></div>} */}
                             </div>
                         ) : (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-sm bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
 
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
                                     <>
-                                        <img src={imageProduct} alt="product" className="object-cover w-full h-28 rounded-t-md" />
+                                        <img src={imageProduct} alt="product" className="object-cover w-full p-1.5 h-28 rounded-xl" />
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}
@@ -190,19 +190,19 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
 
                                 <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                     <div>
-                                        <h3 className="text-lg font-bold line-clamp-1">{item.product.name}</h3>
+                                        <h3 className="text-sm font-bold line-clamp-1">{item.product.name}</h3>
                                         {/* <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
                                             {item?.product?.description || "Hương vị đặc biệt"}
                                         </p> */}
                                     </div>
                                     <div className="flex gap-1 justify-between items-center h-full">
-                                        <div className="flex flex-col justify-between w-full h-full">
+                                        <div className="flex flex-col justify-end w-full h-full">
                                             {item.product.variants.length > 0 ? (
-                                                <div className="flex flex-col gap-1 justify-start items-start w-full h-full">
-                                                    <div className='flex flex-row gap-1 items-start w-full h-full'>
+                                                <div className="flex flex-col gap-1 justify-end items-center w-full h-full">
+                                                    <div className='flex flex-row gap-1 items-end w-full h-full'>
                                                         {item?.promotion?.value > 0 ? (
                                                             <div className="flex justify-between w-full">
-                                                                <div className="flex flex-col justify-start items-start">
+                                                                <div className="flex flex-col justify-start items-start w-full">
                                                                     <span className="text-xs line-through text-muted-foreground/70">
                                                                         {(() => {
                                                                             const range = getPriceRange(item.product.variants)
@@ -239,7 +239,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                             </div>
                                                         ) : (
                                                             <div className="flex justify-between items-center w-full">
-                                                                <span className="text-sm font-bold text-primary">
+                                                                <span className="w-full text-sm font-bold text-primary">
                                                                     {(() => {
                                                                         const range = getPriceRange(item.product.variants)
                                                                         if (!range) return formatCurrency(0)
