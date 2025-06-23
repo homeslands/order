@@ -114,6 +114,7 @@ describe('Product API', () => {
       isLimit: false,
       isTopSell: true,
       isNew: true,
+      isCombo: false,
       catalog: 'catalog-1',
     }
 
@@ -140,6 +141,7 @@ describe('Product API', () => {
       isLimit: false,
       isTopSell: true,
       isNew: true,
+      isCombo: false,
       catalog: 'catalog-1',
       isActive: true,
     }
