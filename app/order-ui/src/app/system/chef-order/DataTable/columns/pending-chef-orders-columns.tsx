@@ -123,6 +123,9 @@ const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
   <div class="section">
     <div class="text-xs">Thời gian: <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></div>
     <div class="text-xs">Bàn: <%= tableName %></div>
+    <div class="mt-4 text-sm font-extrabold">
+      Ghi chú: <%= note && note.trim() !== '' ? note : 'Không có ghi chú' %>
+    </div>
   </div>
   <hr>
 
@@ -258,203 +261,6 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
 
-  // useEffect(() => {
-  //   // Tạo UI test cho việc kiểm tra khả năng đóng tab
-  //   const testContainer = document.createElement('div')
-  //   testContainer.id = 'browser-test-container'
-  //   testContainer.style.cssText = `
-  //     position: fixed;
-  //     top: 10px;
-  //     right: 10px;
-  //     z-index: 9999;
-  //     background: white;
-  //     border: 1px solid #ccc;
-  //     padding: 10px;
-  //     border-radius: 5px;
-  //     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  //     font-family: Arial, sans-serif;
-  //     font-size: 12px;
-  //   `
-
-  //   testContainer.innerHTML = `
-  //     <div style="margin-bottom: 8px;">
-  //       <strong>Kiểm tra khả năng đóng tab:</strong>
-  //     </div>
-  //     <button id="test-close-btn" style="padding: 5px 10px; margin-right: 5px; font-size: 11px;">
-  //       Test đóng tab
-  //     </button>
-  //     <button id="test-print-btn" style="padding: 5px 10px; margin-right: 5px; font-size: 11px;">
-  //       Test in + đóng
-  //     </button>
-  //     <div id="test-result" style="margin-top: 8px; font-size: 10px; color: #666;">
-  //       Chưa test
-  //     </div>
-  //   `
-
-  //   document.body.appendChild(testContainer)
-
-  //   // Test đóng tab đơn giản
-  //   const testCloseBtn = document.getElementById('test-close-btn')
-  //   const testPrintBtn = document.getElementById('test-print-btn')
-  //   const testResult = document.getElementById('test-result')
-
-  //   if (testCloseBtn && testResult) {
-  //     testCloseBtn.onclick = () => {
-  //       const testWindow = window.open('', '_blank', 'width=400,height=300')
-  //       if (testWindow) {
-  //         testWindow.document.write(`
-  //           <html>
-  //             <head><title>Test đóng tab</title></head>
-  //             <body>
-  //               <h2>Test Window</h2>
-  //               <p>Cửa sổ này sẽ tự động đóng sau 2 giây...</p>
-  //               <script>
-  //                 setTimeout(() => {
-  //                   try {
-  //                     window.close();
-  //                     // Nếu không đóng được, thông báo
-  //                     setTimeout(() => {
-  //                       if (!window.closed) {
-  //                         document.body.innerHTML = '<h2 style="color: red;">Trình duyệt không cho phép đóng tab tự động!</h2><p>Bạn cần đóng tab này thủ công.</p>';
-  //                       }
-  //                     }, 100);
-  //                   } catch(e) {
-  //                     document.body.innerHTML = '<h2 style="color: red;">Lỗi: ' + e.message + '</h2>';
-  //                   }
-  //                 }, 2000);
-  //               </script>
-  //             </body>
-  //           </html>
-  //         `)
-  //         testWindow.document.close()
-
-  //         // Kiểm tra sau 3 giây xem tab có đóng không
-  //         setTimeout(() => {
-  //           if (testWindow.closed) {
-  //             testResult.innerHTML = '<span style="color: green;">✓ Trình duyệt CHO PHÉP đóng tab tự động</span>'
-  //           } else {
-  //             testResult.innerHTML = '<span style="color: red;">✗ Trình duyệt KHÔNG CHO PHÉP đóng tab tự động</span>'
-  //             // Đóng tab thủ công
-  //             try {
-  //               testWindow.close()
-  //             } catch {
-  //               // Ignore error khi không thể đóng tab
-  //             }
-  //           }
-  //         }, 3000)
-  //       } else {
-  //         testResult.innerHTML = '<span style="color: red;">✗ Không thể mở cửa sổ test</span>'
-  //       }
-  //     }
-  //   }
-
-  //   // Test in + đóng tab (cải tiến)
-  //   if (testPrintBtn && testResult) {
-  //     testPrintBtn.onclick = () => {
-  //       const printWindow = window.open('', '_blank')
-  //       if (printWindow) {
-  //         printWindow.document.write(`
-  //           <html>
-  //             <head><title>Test in + đóng</title></head>
-  //             <body>
-  //               <h2>Test Print & Close</h2>
-  //               <p>Nội dung test để in...</p>
-  //               <p>Tab này sẽ tự động in và đóng</p>
-  //               <script>
-  //                 // Lắng nghe nhiều event khác nhau
-  //                 let printExecuted = false;
-  //                 let closeAttempted = false;
-
-  //                 window.onload = () => {
-  //                   window.print();
-  //                   printExecuted = true;
-  //                 };
-
-  //                 // Thử nhiều cách khác nhau để detect print completion
-  //                 window.onafterprint = () => {
-  //                   if (!closeAttempted) {
-  //                     closeAttempted = true;
-  //                     console.log('onafterprint triggered');
-  //                     setTimeout(() => window.close(), 500);
-  //                   }
-  //                 };
-
-  //                 // MediaQuery approach (modern browsers)
-  //                 if (window.matchMedia) {
-  //                   const mediaQueryList = window.matchMedia('print');
-  //                   mediaQueryList.addListener((mql) => {
-  //                     if (!mql.matches && printExecuted && !closeAttempted) {
-  //                       closeAttempted = true;
-  //                       console.log('print media query change detected');
-  //                       setTimeout(() => window.close(), 500);
-  //                     }
-  //                   });
-  //                 }
-
-  //                 // Focus-based detection
-  //                 let focusLost = false;
-  //                 window.onblur = () => {
-  //                   focusLost = true;
-  //                 };
-
-  //                 window.onfocus = () => {
-  //                   if (focusLost && printExecuted && !closeAttempted) {
-  //                     closeAttempted = true;
-  //                     console.log('focus-based print detection');
-  //                     setTimeout(() => window.close(), 500);
-  //                   }
-  //                 };
-
-  //                 // Fallback timeout - tăng thời gian
-  //                 setTimeout(() => {
-  //                   if (!closeAttempted) {
-  //                     closeAttempted = true;
-  //                     console.log('fallback timeout close');
-  //                     window.close();
-  //                   }
-  //                 }, 5000);
-  //               </script>
-  //             </body>
-  //           </html>
-  //         `)
-  //         printWindow.document.close()
-
-  //         // Monitor từ parent window
-  //         const startTime = Date.now();
-
-  //         const monitorInterval = setInterval(() => {
-  //           const elapsed = Date.now() - startTime;
-
-  //           if (printWindow.closed) {
-  //             clearInterval(monitorInterval);
-  //             testResult.innerHTML = '<span style="color: green;">✓ Đóng tab sau in THÀNH CÔNG (sau ' + Math.round(elapsed / 1000) + 's)</span>';
-  //           } else if (elapsed > 8000) {
-  //             clearInterval(monitorInterval);
-  //             testResult.innerHTML = '<span style="color: red;">✗ Tab không tự đóng sau 8s - trình duyệt chặn hoặc user cancel</span>';
-  //             // Thử đóng manual
-  //             try {
-  //               printWindow.close();
-  //             } catch {
-  //               // Ignore manual close error
-  //             }
-  //           }
-  //         }, 500);
-
-  //       } else {
-  //         testResult.innerHTML = '<span style="color: red;">✗ Không thể mở cửa sổ in test</span>'
-  //       }
-  //     }
-  //   }
-
-  //   // Cleanup function
-  //   return () => {
-  //     const container = document.getElementById('browser-test-container')
-  //     if (container) {
-  //       container.remove()
-  //     }
-  //   }
-  // }, [])
-
   const handleExportChefOrder = async (chefOrder: IChefOrders | undefined) => {
     await exportChefOrder(chefOrder)
     showToast(tToast('toast.exportChefOrderSuccess'))
@@ -493,7 +299,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
               note: item.orderItem.note || ''
             },
             quantity: item.orderItem.quantity,
-          }
+          },
         });
 
         allHtmlContent += html;
@@ -534,6 +340,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         createdAt: chefOrder.createdAt,
         type: chefOrder.order.type,
         tableName: chefOrder.order.type === OrderTypeEnum.AT_TABLE ? chefOrder.order.table?.name || '' : 'Mang đi',
+        note: chefOrder.order.description || '',
         invoiceItems: chefOrder.chefOrderItems.map(item => ({
           variant: {
             name: item.orderItem.variant.product?.name || '',
