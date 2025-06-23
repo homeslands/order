@@ -436,7 +436,8 @@ export default function PaymentPage() {
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) && (
               <div className="flex gap-2 justify-end">
-                {(hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER) ?
+                {/* Chỉ hiển thị nếu là BANK_TRANSFER và có QR */}
+                {hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER ? (
                   <>
                     <DownloadQrCode qrCode={qrCode} slug={slug} />
                     <Button
@@ -447,22 +448,8 @@ export default function PaymentPage() {
                       {isPendingExportPayment && <ButtonLoading />}
                       {t('paymentMethod.exportPayment')}
                     </Button>
-                    {(paymentMethod === PaymentMethod.BANK_TRANSFER && hasValidPaymentAndQr) && (
-                      <div className="flex gap-2 justify-end">
-                        <>
-                          <Button
-                            disabled={isDisabled || isPendingGetOrderProvisionalBill}
-                            className="w-fit"
-                            onClick={() => handleGetOrderProvisionalBill(slug as string)}
-                          >
-                            {isPendingGetOrderProvisionalBill && <ButtonLoading />}
-                            {t('paymentMethod.exportOrderProvisionalBill')}
-                          </Button>
-                        </>
-                      </div>
-                    )}
                   </>
-                  :
+                ) : (
                   <Button
                     disabled={isDisabled || isPendingInitiatePayment}
                     className="w-fit"
@@ -470,9 +457,21 @@ export default function PaymentPage() {
                   >
                     {isPendingInitiatePayment && <ButtonLoading />}
                     {t('paymentMethod.confirmPayment')}
-                  </Button>}
+                  </Button>
+                )}
+
+                {/* Nút này luôn hiển thị nếu là transfer hoặc cash */}
+                <Button
+                  disabled={isDisabled || isPendingGetOrderProvisionalBill}
+                  className="w-fit"
+                  onClick={() => handleGetOrderProvisionalBill(slug as string)}
+                >
+                  {isPendingGetOrderProvisionalBill && <ButtonLoading />}
+                  {t('paymentMethod.exportOrderProvisionalBill')}
+                </Button>
               </div>
             )}
+
 
         </div>
       </div>
