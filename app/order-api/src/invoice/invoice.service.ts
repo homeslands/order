@@ -313,7 +313,10 @@ export class InvoiceService {
       },
     );
 
-    this.logger.log(`Invoice ${invoice.slug} exported`, context);
+    this.logger.log(
+      `Temporary invoice for order ${requestData.order} exported`,
+      context,
+    );
 
     return data;
   }
@@ -403,15 +406,15 @@ export class InvoiceService {
     });
 
     const invoice = new Invoice();
-    const qrcode = order.payment?.qrCode ?? null;
-    const amountPayment = order.payment?.amount ?? 'N/A';
+    const qrcode = order?.payment?.qrCode ?? null;
+    const amountPayment = order?.payment?.amount ?? 'N/A';
     Object.assign(invoice, {
       order,
       logo: 'https://i.imgur',
       amount: order.subtotal,
       amountPayment,
       loss: order.loss,
-      paymentMethod: order.payment?.paymentMethod,
+      paymentMethod: order?.payment?.paymentMethod ?? 'N/A',
       status: order.status,
       tableName:
         order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
@@ -429,10 +432,7 @@ export class InvoiceService {
       valueEachVoucher: order.voucher?.value ?? null,
     });
 
-    this.logger.log(
-      `Invoice ${invoice.id} created for order ${order.id}`,
-      context,
-    );
+    this.logger.log(`Temporary invoice created for order ${order.id}`, context);
 
     Object.assign(invoice, {
       originalSubtotalOrder,
