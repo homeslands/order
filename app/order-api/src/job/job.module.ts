@@ -30,6 +30,11 @@ import { MailModule } from 'src/mail/mail.module';
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobScheduler } from './job.scheduler';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 @Module({
   imports: [
@@ -46,12 +51,15 @@ import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.
       MenuItem,
       Menu,
       CardOrder,
+      Payment,
+      ACBConnectorConfig,
     ]),
     BullModule.registerQueue({
       name: QueueRegisterKey.JOB,
     }),
     MailModule,
     NotificationModule,
+    ACBConnectorModule,
   ],
   controllers: [JobController],
   providers: [
@@ -69,6 +77,8 @@ import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.
     MenuUtils,
     JobRecoveryService,
     JobScheduler,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })

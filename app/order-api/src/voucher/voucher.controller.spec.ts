@@ -26,6 +26,15 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { ProductUtils } from 'src/product/product.utils';
 import { Product } from 'src/product/product.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -44,6 +53,31 @@ describe('VoucherController', () => {
         PdfService,
         QrCodeService,
         ProductUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         {
           provide: getRepositoryToken(User),
           useFactory: repositoryMockFactory,

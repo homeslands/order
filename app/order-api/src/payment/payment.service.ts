@@ -39,6 +39,7 @@ import { PdfService } from 'src/pdf/pdf.service';
 import { RoleEnum } from 'src/role/role.enum';
 import { UserUtils } from 'src/user/user.utils';
 import { CurrentUserDto } from 'src/user/user.dto';
+import { PaymentUtils } from './payment.utils';
 
 @Injectable()
 export class PaymentService {
@@ -55,6 +56,7 @@ export class PaymentService {
     private readonly eventEmitter: EventEmitter2,
     private readonly pdfService: PdfService,
     private readonly userUtils: UserUtils,
+    private readonly paymentUtils: PaymentUtils,
   ) {}
 
   async getAll() {
@@ -263,7 +265,8 @@ export class PaymentService {
 
     // Delete previous payment
     if (order.payment) {
-      await this.paymentRepository.softRemove(order.payment);
+      // await this.paymentRepository.softRemove(order.payment);
+      await this.paymentUtils.cancelPayment(order.payment.slug);
     }
 
     // Update order
@@ -305,13 +308,28 @@ export class PaymentService {
       );
     }
 
+    // if (order.payment) {
+    //   this.logger.warn(
+    //     `Order ${order.slug} already has a payment`,
+    //     null,
+    //     context,
+    //   );
+    //   throw new PaymentException(PaymentValidation.ORDER_ALREADY_HAS_PAYMENT);
+    // }
+
     if (order.payment) {
-      this.logger.warn(
-        `Order ${order.slug} already has a payment`,
-        null,
-        context,
-      );
-      throw new PaymentException(PaymentValidation.ORDER_ALREADY_HAS_PAYMENT);
+      if (
+        order.payment.paymentMethod === PaymentMethod.BANK_TRANSFER &&
+        createPaymentDto.paymentMethod === PaymentMethod.BANK_TRANSFER &&
+        order.subtotal === order.payment.amount
+      ) {
+        this.logger.warn(
+          `Order ${order.slug} already has a payment`,
+          null,
+          context,
+        );
+        throw new PaymentException(PaymentValidation.ORDER_ALREADY_HAS_PAYMENT);
+      }
     }
 
     let payment: Payment;
@@ -334,9 +352,9 @@ export class PaymentService {
     this.logger.log(`Created Payment: ${JSON.stringify(payment)}`, context);
 
     // Delete previous payment
-    // if (order.payment) {
-    //   await this.paymentRepository.softRemove(order.payment);
-    // }
+    if (order.payment) {
+      await this.paymentUtils.cancelPayment(order.payment.slug);
+    }
 
     // Update order
     order.payment = payment;
