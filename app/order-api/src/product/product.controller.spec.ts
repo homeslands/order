@@ -184,6 +184,7 @@ describe('ProductController', () => {
         isTopSell: false,
         isNew: false,
         saleQuantityHistory: 0,
+        isCombo: false,
       };
       const mockOutput = {
         items: [product],
