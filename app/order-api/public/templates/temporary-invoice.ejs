@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex justify-center items-center">
+        <img src="data:image/png;base64,<%= logoString %>" alt="" class="w-52">
+      </div>
+      <p class="text-sm text-center">
+        <%= branchAddress %>
+      </p>
+      <p class="text-sm text-center font-bold">
+        (PHIẾU TẠM TÍNH)
+      </p>
+      <p class="text-xs text-center">
+        <span class="">
+          Mã đơn:
+        </span>
+        <span class="">
+          <%= order.slug %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Invoive info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian tạo:</span>
+        <%= formatDate(order.createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs"><span class="font-bold">Thời gian xuất:</span>
+        <%= formatDate(exportAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs"> 
+        <span class="font-bold">
+          Bàn:
+        </span>
+        <span class="capitalize">
+          <%= tableName %>
+        </span>
+      </p>
+      <p class="text-xs"><span class="font-bold">
+          Khách hàng:
+        </span>
+        <%= customer %>
+      </p>
+      <p class="text-xs">
+        <span class="font-bold">
+          Thu ngân:
+        </span>
+        <%= cashier %>
+      </p>
+    </div>
+
+    <!-- Invoice items -->
+     
+    <table class="mt-4 min-w-full text-sm border-collapse table-auto">
+      <thead>
+        <tr class="border-b border-black bg-white-100">
+          <th class="py-2 w-2/3 text-left">Món</th>
+          <th class="px-1 py-2 text-left">SL</th>
+          <th class="px-2 py-2 text-left">Đ.Giá</th>
+          <th class="px-2 py-2 text-left">K.Mãi(%) </th>
+          <th class="px-2 py-2 text-left">T.Tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% invoiceItems.forEach(function(item) { %>
+          <tr class="border-b border-black hover:bg-gray-50">
+            <td class="py-2 w-2/3 text-xs">
+              <%= item.productName %> <span class="uppercase">
+                  (<%= item.size %>)
+                </span>
+            </td>
+            <td class="px-1 py-2 text-xs">
+              <%= item.quantity %>
+            </td>
+            <td class="px-2 py-2 text-xs">
+              <% if (item.discountType === 'voucher' && item.price > valueEachVoucher) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(valueEachVoucher) %>
+                </span>
+              <% } else { %>
+                <%= formatCurrency(item.price) %>
+              <% } %>
+            </td>
+            <td class="px-2 py-2 text-xs text-center">
+              <% if (item.discountType === 'voucher') { %>
+                0
+              <% } else { %>
+                <%= item.promotionValue %>
+              <% } %>
+            </td>
+            <td class="px-2 py-2 text-xs">
+              <%= formatCurrency(item.total) %> <% if (item.discountType === 'promotion') { %>
+                (*)
+              <% } else if (item.discountType === 'voucher') { %>
+                (**)
+              <% } %>
+            </td>
+          </tr>
+          <% }); %>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Tổng cộng</td>
+              <td class="py-2 text-right" colspan="4">
+                <%= formatCurrency(originalSubtotalOrder) %> ₫
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Tổng khuyến mãi</td>
+              <td class="py-2 text-right" colspan="4">
+                <%= formatCurrency(orderItemPromotionValue) %> ₫
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Tổng giảm giá
+              </td>
+              <td class="py-2 text-left" colspan="2">
+                <% if (voucherCode !== 'N/A') { %>
+                  <span class="text-xs italic break-all">(Mã: <%= voucherCode %>)</span>
+                <% } %>
+              </td>
+              <td class="py-2 text-right" colspan="2">
+                <%= formatCurrency(voucherValue) %> ₫
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">Thành tiền</td>
+              <td class="py-2 text-xl font-bold text-right" colspan="4">
+                <%= formatCurrency(amount) %> ₫
+              </td>
+            </tr>
+      </tbody>
+    </table>
+    <div class="flex justify-center items-center">
+      <% if (qrcode) { %>
+        <img src="<%= qrcode %>" alt="qrcode" class="block pt-0 mt-0 w-44" />
+      <% } else { %>
+        <span class="text-xs text-center">
+          Chưa tạo QR thanh toán ngân hàng
+        </span>
+      <% } %>    
+    </div>
+    <div class="flex justify-center items-center">
+      <p class="text-xs mt-2">
+        <% if (qrcode && paymentMethod === 'bank-transfer' && order.subtotal === amountPayment) { %>
+          <span class="text-center font-bold">
+            Mã thanh toán ngân hàng chỉ có hiệu lực đến:
+            <%= formatDate(expiredAt, 'HH:mm DD/MM/YYYY' ) %>
+          </span><br />
+        <% } else { %>
+          <span>Vui lòng đến quầy để thanh toán tiền mặt</span>
+        <% } %>
+      </p>
+    </div>
+    
+    
+    <p class="text-xs mt-2">
+      (*) Sản phẩm được ưu đãi theo chương trình khuyến mãi
+    </p>
+    <p class="text-xs">
+      (**) Sản phẩm được ưu đãi theo mã giảm giá
+    </p>
+  </div>
+</body>
+
+</html>
