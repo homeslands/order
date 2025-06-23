@@ -49,4 +49,8 @@ export class Payment extends Base {
   // One to one with order
   @OneToOne(() => CardOrder, (co) => co.payment)
   cardOrder: CardOrder;
+
+  @AutoMap()
+  @Column({ name: 'order_id_bank_transfer_column', nullable: true })
+  orderIdBankTransfer?: string;
 }

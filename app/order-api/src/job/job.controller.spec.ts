@@ -32,6 +32,15 @@ import { Menu } from 'src/menu/menu.entity';
 import { JobRecoveryService } from './job.recovery';
 import { JobScheduler } from './job.scheduler';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ConfigService } from '@nestjs/config';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { Payment } from 'src/payment/payment.entity';
+import { HttpService } from '@nestjs/axios';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -56,6 +65,31 @@ describe('JobController', () => {
         NotificationUtils,
         MailProducer,
         NotificationProducer,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,

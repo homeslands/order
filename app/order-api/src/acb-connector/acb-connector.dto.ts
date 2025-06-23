@@ -25,6 +25,17 @@ export class ACBInitiateQRCodeRequestDto {
   requestParameters: ACBInitiateQRCodeRequestParametersDto;
 }
 
+export class ACBCancelQRCodeRequestDto {
+  requestTrace: string;
+  requestDateTime: string;
+  requestParameters: ACBCancelQRCodeRequestParametersDto;
+}
+export class ACBCancelQRCodeRequestParametersDto {
+  traceNumber: string;
+  orderId: string;
+  amount: number;
+}
+
 export class ACBInitiateQRCodeRequestParametersDto {
   traceNumber: string;
   merchantId: string;
@@ -188,6 +199,20 @@ export class ACBInitiateQRCodeResponseBodyDto {
   virtualAccount: string;
   traceNumber: string;
   qrDataUrl: string;
+}
+
+export class ACBCancelQRCodeResponseDto {
+  requestTrace: string;
+  responseDateTime: string;
+  responseStatus: ACBResponseStatusDto;
+  responseBody: ACBCancelQRCodeResponseBodyDto;
+}
+
+export class ACBCancelQRCodeResponseBodyDto {
+  traceNumber: string;
+  orderId: string;
+  amount: number;
+  status: string;
 }
 
 export class ACBConnectorConfigResponseDto extends BaseResponseDto {
