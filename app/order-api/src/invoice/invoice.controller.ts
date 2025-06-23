@@ -19,6 +19,7 @@ import {
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import {
   ExportInvoiceDto,
+  ExportTemporaryInvoiceDto,
   GetSpecificInvoiceRequestDto,
   InvoiceResponseDto,
 } from './invoice.dto';
@@ -113,6 +114,22 @@ export class InvoiceController {
       type: 'application/pdf',
       length: result.length,
       disposition: `attachment; filename="invoice-${new Date().toISOString()}.pdf"`,
+    });
+  }
+
+  @Post('export/temporary')
+  @ApiOperation({ summary: 'Export temporary invoice' })
+  @HttpCode(HttpStatus.OK)
+  async exportTemporaryInvoice(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ExportTemporaryInvoiceDto,
+  ): Promise<StreamableFile> {
+    const result =
+      await this.invoiceService.exportTemporaryInvoice(requestData);
+    return new StreamableFile(result, {
+      type: 'application/pdf',
+      length: result.length,
+      disposition: `attachment; filename="temporary-invoice-${new Date().toISOString()}.pdf"`,
     });
   }
 
