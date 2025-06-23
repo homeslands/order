@@ -21,6 +21,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -38,6 +39,7 @@ describe('TransactionService', () => {
         PdfService,
         SystemConfigService,
         UserUtils,
+        PaymentUtils,
         {
           provide: ConfigService,
           useValue: {

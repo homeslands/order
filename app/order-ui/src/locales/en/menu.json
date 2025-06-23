@@ -259,6 +259,7 @@
     "cashMethodNote": "Note: For cash payments, please proceed to the store's counter to make payment",
     "paymentNote": "Please verify payment information before proceeding with the transaction",
     "downloadQRCode": "Download QR code",
+    "exportOrderProvisionalBill": "Export provisional bill",
     "noQRCode": "No QR code",
     "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful."
   }

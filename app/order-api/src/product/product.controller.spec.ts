@@ -34,6 +34,15 @@ import { ProductUtils } from './product.utils';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { DataSource } from 'typeorm';
 import { Product } from './product.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Payment } from 'src/payment/payment.entity';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -51,6 +60,31 @@ describe('ProductController', () => {
         MenuItemUtils,
         TransactionManagerService,
         ProductUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         {
           provide: getRepositoryToken(Menu),
           useFactory: repositoryMockFactory,

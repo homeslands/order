@@ -24,6 +24,15 @@ import { Menu } from 'src/menu/menu.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { ProductUtils } from 'src/product/product.utils';
 import { Product } from 'src/product/product.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { HttpService } from '@nestjs/axios';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { ConfigService } from '@nestjs/config';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('VoucherGroupService', () => {
   let service: VoucherGroupService;
@@ -41,10 +50,35 @@ describe('VoucherGroupService', () => {
         MenuUtils,
         MenuItemUtils,
         ProductUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: getRepositoryToken(VoucherGroup),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(User),
