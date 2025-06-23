@@ -66,6 +66,7 @@
     "createOrderTrackingByRobotSuccess": "Phân công đơn hàng cho robot thành công",
     "exportInvoiceSuccess": "Xuất hóa đơn thành công",
     "exportPaymentSuccess": "Xuất QR code thanh toán thành công",
+    "exportOrderProvisionalBillSuccess": "Xuất hóa đơn tạm thời thành công",
     "updatePasswordSuccess": "Cập nhật mật khẩu thành công",
     "forgotPasswordSuccess": "Gửi email đặt lại mật khẩu thành công",
     "resetPasswordSuccess": "Đặt lại mật khẩu thành công",
