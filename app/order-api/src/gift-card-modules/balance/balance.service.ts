@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UpdateBalanceDto } from './dto/update-balance.dto';
 import { Balance } from './entities/balance.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { BalanceResponseDto } from './dto/balance-response.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { BalanceException } from './balance.exception';
+import { BalanceValidation } from './balance.validation';
 @Injectable()
 export class BalanceService {
   constructor(
@@ -29,8 +31,11 @@ export class BalanceService {
     const where: FindOptionsWhere<Balance> = {};
     if (payload.slug) where.slug = payload.slug;
     if (payload.userSlug) where.user = { slug: payload.userSlug };
+
     const balance = await this.balanceRepository.findOne({ where: where });
-    if (!balance) throw new NotFoundException('Balance not found');
+    if (!balance)
+      throw new BalanceException(BalanceValidation.BALANCE_NOT_FOUND);
+
     return this.mapper.map(balance, Balance, BalanceResponseDto);
   }
 
