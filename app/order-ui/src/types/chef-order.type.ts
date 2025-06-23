@@ -58,6 +58,7 @@ export interface IExportChefOrderParams {
   createdAt: string
   type: string
   tableName: string
+  note: string
   invoiceItems: Array<{
     variant: {
       name: string
