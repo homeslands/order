@@ -27,6 +27,10 @@ export default function SwiperBanner({
         dynamicBullets: true,
         clickable: true,
       }}
+      autoplay={{
+        delay: 3000,
+        disableOnInteraction: false,
+      }}
       initialSlide={1}
       modules={[Autoplay, Pagination, Navigation]}
       className="relative h-[50vh] sm:h-[80vh] w-full"
