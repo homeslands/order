@@ -56,6 +56,7 @@
     "term": "Điều kiện tối thiểu",
     "noTerm": "Không có điều kiện",
     "minValue": "Giá trị tối thiểu",
+    "maxUsage": "Số lượng sử dụng tối đa",
     "enterMinOrderValue": "Nhập giá trị đơn hàng tối thiểu",
     "enterVoucherMaxUsage": "Nhập số lượng sử dụng tối đa",
     "remainingUsage": "Số lượng còn lại",
