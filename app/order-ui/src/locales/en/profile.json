@@ -52,6 +52,7 @@
     "resendOtp": "Resend OTP",
     "otpExpiredIn": "OTP expires in",
     "minutes": "minutes",
-    "seconds": "seconds"
+    "seconds": "seconds",
+    "coin": "Manage Coins"
   }
 }

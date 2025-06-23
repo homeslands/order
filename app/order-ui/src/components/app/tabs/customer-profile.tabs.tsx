@@ -3,7 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import { CustomerInfoTabsContent, CustomerNotificationTabsContent } from '@/components/app/tabscontent'
+import { CustomerInfoTabsContent, CustomerNotificationTabsContent, CustomerCoinTabsContent } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
 export function CustomerProfileTabs() {
@@ -22,8 +22,8 @@ export function CustomerProfileTabs() {
   }
 
   return (
-    <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-3 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
+    <Tabs value={tab} onValueChange={handleTabChange} className="w-full">      
+      <TabsList className="grid grid-cols-4 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
         <TabsTrigger value="info" className="flex justify-center">
           {t('profile.generalInfo')}
         </TabsTrigger>
@@ -32,6 +32,9 @@ export function CustomerProfileTabs() {
         </TabsTrigger>
         <TabsTrigger value="history" className="flex justify-center">
           {t('profile.history')}
+        </TabsTrigger>
+        <TabsTrigger value="coin" className="flex justify-center">
+          {t('profile.coin')}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="info" className="w-full p-0">
@@ -42,6 +45,9 @@ export function CustomerProfileTabs() {
       </TabsContent>
       <TabsContent value="history" className="w-full p-0">
         <CustomerOrderTabs />
+      </TabsContent>
+      <TabsContent value="coin" className="w-full p-0">
+        <CustomerCoinTabsContent />
       </TabsContent>
     </Tabs>
   )
