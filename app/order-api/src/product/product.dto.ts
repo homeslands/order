@@ -46,7 +46,6 @@ export class CreateProductRequestDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  @Transform(({ value }) => value === 'true')
   isTopSell?: boolean;
 
   @AutoMap()
@@ -58,7 +57,6 @@ export class CreateProductRequestDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  @Transform(({ value }) => value === 'true')
   isNew?: boolean;
 
   @AutoMap()
