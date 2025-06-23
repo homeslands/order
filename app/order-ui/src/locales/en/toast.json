@@ -66,6 +66,7 @@
     "createOrderTrackingByRobotSuccess": "Order assigned to robot successfully",
     "exportInvoiceSuccess": "Invoice exported successfully",
     "exportPaymentSuccess": "Payment QR code exported successfully",
+    "exportOrderProvisionalBillSuccess": "Order provisional bill exported successfully",
     "updatePasswordSuccess": "Password updated successfully",
     "forgotPasswordSuccess": "Password reset email sent successfully",
     "resetPasswordSuccess": "Password reset successfully",

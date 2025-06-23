@@ -23,6 +23,7 @@ import {
   updateNoteOrderItem,
   updateOrderItem,
   updateVoucherInOrder,
+  getOrderProvisionalBill,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -129,6 +130,14 @@ export const useExportPayment = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return exportPaymentQRCode(slug)
+    },
+  })
+}
+
+export const useGetOrderProvisionalBill = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return getOrderProvisionalBill(slug)
     },
   })
 }
