@@ -187,6 +187,7 @@ describe('ProductService', () => {
         saleQuantityHistory: 0,
         productChefAreas: [],
         voucherProducts: [],
+        isCombo: false,
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);
