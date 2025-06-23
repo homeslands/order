@@ -53,10 +53,14 @@ export class ChefOrderUtils {
       where: { id: orderId },
       relations: [
         'orderItems.variant.product.productChefAreas.chefArea.branch',
-        'branch',
+        'branch.chefAreas',
         'chefOrders',
       ],
     });
+
+    const chefAreaIdsOfBranch =
+      order.branch?.chefAreas.map((chefArea) => chefArea.id) || [];
+
     this.logger.log(`Create chef order for order ${order.slug}`, context);
     const orderItems = order.orderItems;
     const chefAreaGroups = new Map<string, OrderItem[]>();
@@ -88,6 +92,18 @@ export class ChefOrderUtils {
             chefAreaGroups.set(chefArea.id, []);
           }
           chefAreaGroups.get(chefArea.id).push(orderItem);
+
+          // apply for combo product
+          if (product.isCombo) {
+            for (const chefAreaId of chefAreaIdsOfBranch) {
+              if (chefAreaId !== chefArea.id) {
+                if (!chefAreaGroups.has(chefAreaId)) {
+                  chefAreaGroups.set(chefAreaId, []);
+                }
+                chefAreaGroups.get(chefAreaId).push(orderItem);
+              }
+            }
+          }
         } else {
           this.logger.error(
             `Product ${product.name} is be long to more one chef area in branch ${order.branch.name}`,
