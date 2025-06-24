@@ -185,7 +185,7 @@ export default function CustomerOrderTabsContent({
                       <div className="flex gap-2 sm:mt-0">
                         <CancelOrderDialog order={orderItem} />
                         <Button
-                          disabled={moment(orderItem.createdAt).isBefore(moment().subtract(10, 'minutes'))}
+                          disabled={moment(orderItem.createdAt).isBefore(moment().subtract(15, 'minutes'))}
                           className='text-orange-500 border-orange-500 hover:text-white hover:bg-orange-500'
                           variant="outline"
                           onClick={() => handleUpdateOrder(orderItem)}

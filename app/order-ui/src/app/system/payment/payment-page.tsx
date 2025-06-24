@@ -99,6 +99,9 @@ export default function PaymentPage() {
       } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
         // Case 3: Payment exists but no QR code (amount < 2000) - start polling
         setIsPolling(true)
+      } else if (!orderData?.payment) {
+        // Case 4: No payment exists yet - start polling to wait for payment creation
+        setIsPolling(true)
       } else {
         setIsPolling(false)
       }
