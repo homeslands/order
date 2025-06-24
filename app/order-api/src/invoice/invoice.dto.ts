@@ -9,6 +9,11 @@ export class ExportInvoiceDto {
   @ApiProperty()
   order: string;
 }
+export class ExportTemporaryInvoiceDto {
+  @AutoMap()
+  @ApiProperty()
+  order: string;
+}
 
 export class GetSpecificInvoiceRequestDto {
   @AutoMap()
