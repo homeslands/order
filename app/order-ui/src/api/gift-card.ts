@@ -24,6 +24,21 @@ export async function getGiftCards(
   return response.data as IApiResponse<IPaginationResponse<IGiftCard>>
 }
 
+/**
+ * Fetch a single gift card by slug
+ * @param slug The slug of the gift card to fetch
+ * @returns The gift card data
+ */
+export async function getGiftCard(
+  slug: string,
+): Promise<IApiResponse<IGiftCard>> {
+  const response = await http.get<IApiResponse<IGiftCard>>(`/card/${slug}`, {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+  })
+  return response.data as IApiResponse<IGiftCard>
+}
+
 export async function createGiftCard(
   data: IGiftCardCreateRequest,
 ): Promise<IApiResponse<IGiftCard>> {
