@@ -2,13 +2,7 @@ import { useState } from 'react'
 import { Gift, ShoppingCart, CoinsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-  Button,
-  QuantityControl,
-} from '@/components/ui'
+import { Drawer, DrawerContent, DrawerTrigger, Button } from '@/components/ui'
 
 import { GiftCardExistsWarningDialog } from '@/components/app/dialog'
 import { IGiftCard } from '@/types'
@@ -32,14 +26,6 @@ export function GiftCardSelectedDrawer({
   const [isOpen, setIsOpen] = useState(false)
   const [showWarningDialog, setShowWarningDialog] = useState(false)
   const { setGiftCardItem, getGiftCardItem } = useGiftCardStore()
-
-  const handleIncrement = () => {
-    setQuantity((prev) => Math.min(prev + 1, 10)) // Limit to 10 items max
-  }
-
-  const handleDecrement = () => {
-    setQuantity((prev) => Math.max(prev - 1, 1)) // Minimum 1 item
-  }
 
   const handleAddToCart = () => {
     // Check if gift card already exists in cart
@@ -65,6 +51,7 @@ export function GiftCardSelectedDrawer({
       points: selectedCard.points,
       price: selectedCard.price,
       quantity,
+      isActive: selectedCard.isActive,
     }
 
     setGiftCardItem(cartItem)
@@ -140,16 +127,6 @@ export function GiftCardSelectedDrawer({
                     </div>
 
                     <div className="mt-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <QuantityControl
-                          quantity={quantity}
-                          onIncrease={handleIncrement}
-                          onDecrease={handleDecrement}
-                          min={1}
-                          max={10}
-                        />
-                      </div>
-
                       <Button
                         size="lg"
                         className="whitespace-nowrap rounded-full"

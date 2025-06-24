@@ -72,11 +72,9 @@ export default function DraggableGiftCardButton({
       <Gift className="h-6 w-6" />
       {quantity && quantity > 0 && (
         <Badge
-          variant="secondary"
-          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
-        >
-          {quantity}
-        </Badge>
+          variant="destructive"
+          className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full p-0 text-xs dark:bg-red-600"
+        />
       )}
     </Button>
   )
