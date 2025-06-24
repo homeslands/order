@@ -102,7 +102,7 @@ export class JobService {
 
         // Sperate order to chef orders
         if (_.isEmpty(order.chefOrders)) {
-          await this.chefOrderUtils.createChefOrder(job.data);
+          await this.chefOrderUtils.createChefOrder(job.data, false);
         }
 
         // send invoice email

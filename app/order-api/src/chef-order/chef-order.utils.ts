@@ -47,16 +47,23 @@ export class ChefOrderUtils {
     return chefOrder;
   }
 
-  async createChefOrder(orderId: string): Promise<ChefOrder[]> {
+  async createChefOrder(
+    orderId: string,
+    isApplyForApi: boolean = true,
+  ): Promise<ChefOrder[]> {
     const context = `${ChefOrderUtils.name}.${this.createChefOrder.name}`;
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
       relations: [
         'orderItems.variant.product.productChefAreas.chefArea.branch',
-        'branch',
+        'branch.chefAreas',
         'chefOrders',
       ],
     });
+
+    const chefAreaIdsOfBranch =
+      order.branch?.chefAreas.map((chefArea) => chefArea.id) || [];
+
     this.logger.log(`Create chef order for order ${order.slug}`, context);
     const orderItems = order.orderItems;
     const chefAreaGroups = new Map<string, OrderItem[]>();
@@ -79,24 +86,44 @@ export class ChefOrderUtils {
             null,
             context,
           );
-          throw new ChefOrderException(
-            ChefOrderValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA,
-          );
+          if (isApplyForApi) {
+            throw new ChefOrderException(
+              ChefOrderValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA,
+            );
+          } else {
+            return;
+          }
         } else if (_.size(chefAreaList) === 1) {
           const chefArea = _.first(chefAreaList);
           if (!chefAreaGroups.has(chefArea.id)) {
             chefAreaGroups.set(chefArea.id, []);
           }
           chefAreaGroups.get(chefArea.id).push(orderItem);
+
+          // apply for combo product
+          if (product.isCombo) {
+            for (const chefAreaId of chefAreaIdsOfBranch) {
+              if (chefAreaId !== chefArea.id) {
+                if (!chefAreaGroups.has(chefAreaId)) {
+                  chefAreaGroups.set(chefAreaId, []);
+                }
+                chefAreaGroups.get(chefAreaId).push(orderItem);
+              }
+            }
+          }
         } else {
           this.logger.error(
             `Product ${product.name} is be long to more one chef area in branch ${order.branch.name}`,
             null,
             context,
           );
-          throw new ChefOrderException(
-            ChefOrderValidation.ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA,
-          );
+          if (isApplyForApi) {
+            throw new ChefOrderException(
+              ChefOrderValidation.ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA,
+            );
+          } else {
+            return;
+          }
         }
       }),
     );
