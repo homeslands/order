@@ -382,6 +382,7 @@
       "deleteGiftCardSuccess": "Gift card deleted successfully",
       "addGiftCardSuccess": "Gift card added to cart successfully",
       "removeGiftCardSuccess": "Gift card removed from cart successfully",
-      "giftCardValidationError": "Please check information gift card"
+      "giftCardValidationError": "Please check information gift card",
+      "giftCardUpdated": "Gift card updated! Please try again"
     }
   }

@@ -324,6 +324,7 @@
     "createGiftCardSuccess": "Tạo thẻ quà tặng thành công",
     "updateGiftCardSuccess": "Cập nhật thẻ quà tặng thành công",
     "deleteGiftCardSuccess": "Xóa thẻ quà tặng thành công",
-    "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng"
+    "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng",
+    "giftCardUpdated": "Thẻ quà tặng đã cập nhật! Vui lòng thử lại"
   }
 }

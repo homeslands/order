@@ -14,6 +14,7 @@ interface IGiftCardStore {
   setGiftCardItem: (item: IGiftCardCartItem) => void
   updateGiftCardQuantity: (quantity: number) => void
   clearGiftCard: (showNotification?: boolean) => void
+  synchronizeWithServer: (serverItem: IGiftCardCartItem | null) => void
 }
 
 export const useGiftCardStore = create<IGiftCardStore>()(
@@ -53,6 +54,39 @@ export const useGiftCardStore = create<IGiftCardStore>()(
         })
         if (showNotification) {
           showToast(i18next.t('toast.removeGiftCardSuccess'))
+        }
+      },
+
+      synchronizeWithServer: (serverItem: IGiftCardCartItem | null) => {
+        const { giftCardItem } = get()
+
+        // If we have server data and it's different from local data
+        if (serverItem) {
+          // If we don't have a local item or the server data is newer/different
+          if (
+            !giftCardItem ||
+            giftCardItem.slug !== serverItem.slug ||
+            giftCardItem.price !== serverItem.price ||
+            giftCardItem.title !== serverItem.title ||
+            giftCardItem.isActive !== serverItem.isActive
+          ) {
+            // Preserve local quantity if possible
+            const quantity =
+              giftCardItem?.slug === serverItem.slug
+                ? giftCardItem.quantity
+                : serverItem.quantity
+
+            set({
+              giftCardItem: { ...serverItem, quantity },
+              lastModified: moment().valueOf(),
+            })
+          }
+        } else if (serverItem === null && giftCardItem) {
+          // If the item has been removed from the server but exists locally
+          set({
+            giftCardItem: null,
+            lastModified: null,
+          })
         }
       },
     }),
