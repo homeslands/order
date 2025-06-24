@@ -47,7 +47,10 @@ export class ChefOrderUtils {
     return chefOrder;
   }
 
-  async createChefOrder(orderId: string): Promise<ChefOrder[]> {
+  async createChefOrder(
+    orderId: string,
+    isApplyForApi: boolean = true,
+  ): Promise<ChefOrder[]> {
     const context = `${ChefOrderUtils.name}.${this.createChefOrder.name}`;
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
@@ -83,9 +86,13 @@ export class ChefOrderUtils {
             null,
             context,
           );
-          throw new ChefOrderException(
-            ChefOrderValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA,
-          );
+          if (isApplyForApi) {
+            throw new ChefOrderException(
+              ChefOrderValidation.PRODUCT_NOT_BELONG_TO_ANY_CHEF_AREA,
+            );
+          } else {
+            return;
+          }
         } else if (_.size(chefAreaList) === 1) {
           const chefArea = _.first(chefAreaList);
           if (!chefAreaGroups.has(chefArea.id)) {
@@ -110,9 +117,13 @@ export class ChefOrderUtils {
             null,
             context,
           );
-          throw new ChefOrderException(
-            ChefOrderValidation.ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA,
-          );
+          if (isApplyForApi) {
+            throw new ChefOrderException(
+              ChefOrderValidation.ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA,
+            );
+          } else {
+            return;
+          }
         }
       }),
     );
