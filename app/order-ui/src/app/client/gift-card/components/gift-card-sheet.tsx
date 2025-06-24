@@ -30,7 +30,7 @@ import {
   createGiftCardCheckoutSchema,
   type TGiftCardCheckoutSchema,
 } from '@/schemas'
-import { useCreateCardOrder } from '@/hooks/use-gift-card'
+import { useCreateCardOrder, useSyncGiftCard } from '@/hooks/use-gift-card'
 import { useIsMobile } from '@/hooks'
 
 export default function GiftCardSheet() {
@@ -44,6 +44,13 @@ export default function GiftCardSheet() {
     updateGiftCardQuantity: updateQuantity,
     clearGiftCard,
   } = useGiftCardStore()
+  // Synchronize the current gift card with the server when the sheet is opened
+  const { refetch: refetchGiftCard } = useSyncGiftCard(
+    giftCardItem?.slug || null,
+    {
+      enabled: sheetOpen && !!giftCardItem?.slug,
+    },
+  )
 
   // Wrapper function for clearGiftCard to also reset the receivers section
   const handleClearGiftCard = (showNotification = true) => {
@@ -192,6 +199,13 @@ export default function GiftCardSheet() {
           const orderSlug = response.result.slug
           navigate(`/gift-card/checkout/${orderSlug}`)
         },
+        onError: () => {
+          showErrorToast(1006)
+          // Directly trigger a refetch of the gift card data
+          if (giftCardItem?.slug) {
+            refetchGiftCard()
+          }
+        },
       },
     )
   }
@@ -303,15 +317,15 @@ export default function GiftCardSheet() {
                       }}
                     />
                   )}
-                </div>{' '}
-                {/* Fixed Footer - Total Section */}{' '}
+                </div>
+                {/* Fixed Footer - Total Section */}
                 {giftCardItem && (
                   <OrderSummary
                     totalPoints={totalPoints}
                     totalAmount={totalAmount}
                     onCheckout={handleShowConfirmDialog}
                     disabled={
-                      !form.formState.isValid || form.formState.isSubmitting
+                      !form.formState.isValid || form.formState.isSubmitting || !giftCardItem.isActive
                     }
                   />
                 )}

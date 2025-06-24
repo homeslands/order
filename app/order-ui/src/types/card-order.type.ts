@@ -65,7 +65,8 @@ export interface IGiftCardCartItem {
   points: number
   price: number
   quantity: number
-  receipients: IReceiverGiftCardCart[]
+  receipients?: IReceiverGiftCardCart[]
+  isActive?: boolean
 }
 
 export interface IReceiverGiftCardCart {
