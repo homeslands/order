@@ -1,7 +1,7 @@
 import { Trash2, Coins } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button, QuantityControl } from '@/components/ui'
-import { publicFileURL } from '@/constants'
+import { GiftCardType, publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 import { IGiftCardCartItem } from '@/types'
 import { useIsMobile } from '@/hooks'
@@ -19,7 +19,7 @@ export default function SingleGiftCardDisplay({
   onIncrement,
   onDecrement,
   onClear,
-  giftCardType
+  giftCardType,
 }: SingleGiftCardDisplayProps) {
   const { t } = useTranslation(['giftCard'])
   const isMobile = useIsMobile()
@@ -32,9 +32,20 @@ export default function SingleGiftCardDisplay({
         <span className="col-span-1 flex justify-center"></span>
       </div>
 
-      <div className="mb-2 flex flex-col rounded-md border bg-card text-card-foreground">
-        <div className="grid grid-cols-8 items-center gap-4 border-b p-4 last:border-b-0">
-          <div className="col-span-3 flex items-center gap-3">
+      <div
+        className={`mb-2 flex flex-col rounded-md border bg-card text-card-foreground ${!item.isActive ? 'relative' : ''}`}
+      >
+        {!item.isActive && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+            <div className="rounded-md bg-destructive/90 px-3 py-1 text-sm font-medium text-white">
+              {t('giftCard.notAvailable')}
+            </div>
+          </div>
+        )}
+        <div className="grid grid-cols-8 items-center gap-4 border-b p-2 last:border-b-0">
+          <div
+            className={`col-span-3 flex items-center gap-3 ${!item.isActive ? 'opacity-60' : ''}`}
+          >
             {!isMobile && (
               <img
                 src={`${publicFileURL}/${item.image}`}
@@ -62,27 +73,33 @@ export default function SingleGiftCardDisplay({
               </div>
             </div>
           </div>
-          <div className="col-span-2 flex items-center justify-center">
+          <div
+            className={`col-span-2 flex items-center justify-center ${!item.isActive ? 'opacity-60' : ''}`}
+          >
             <QuantityControl
               quantity={item.quantity}
               onIncrease={onIncrement}
               onDecrease={onDecrement}
               min={1}
               size="sm"
-              giftCardType={giftCardType}
+              disabled={!item.isActive || giftCardType === GiftCardType.GIFT}
             />
           </div>
-          <div className="col-span-2 text-center">
-            <span className={`text-sm font-semibold text-primary`}>
+          <div
+            className={`col-span-2 text-center ${!item.isActive ? 'opacity-60' : ''}`}
+          >
+            <span
+              className={`${isMobile ? 'whitespace-nowrap text-[12px]' : 'text-lg'} font-bold text-primary`}
+            >
               {formatCurrency(item.price * item.quantity)}
             </span>
           </div>
-          <div className="col-span-1 flex justify-center">
+          <div className="z-20 col-span-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={onClear}
-              className="text-destructive hover:text-destructive/80 dark:text-red-400 dark:hover:text-red-300"
+              className={`text-destructive hover:text-destructive/80 dark:text-red-400 dark:hover:text-red-300 ${!item.isActive ? 'relative z-20' : ''}`}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

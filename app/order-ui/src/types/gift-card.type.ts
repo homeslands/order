@@ -53,6 +53,7 @@ export interface IGiftCardCartItem {
   points: number
   price: number
   quantity: number
+  isActive?: boolean
 }
 
 export interface IGiftCardCartTotal {
