@@ -91,6 +91,7 @@ axiosInstance.interceptors.request.use(
       setLogout,
       setRefreshToken,
       setExpireTimeRefreshToken,
+      setIsRefreshing,
       isAuthenticated,
     } = authStore
 
@@ -104,6 +105,7 @@ axiosInstance.interceptors.request.use(
 
     if (expireTime && isTokenExpired(expireTime) && !isRefreshing) {
       isRefreshing = true
+      setIsRefreshing(true) // Đồng bộ với store
       try {
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
           await axios.post(`${baseURL}/auth/refresh`, {
@@ -125,9 +127,11 @@ axiosInstance.interceptors.request.use(
         if (currentUrl !== ROUTE.LOGIN) {
           setCurrentUrl(currentUrl)
         }
-        window.location.href = ROUTE.LOGIN
+        // Không dùng window.location.href mà để React Router handle
+        // window.location.href = ROUTE.LOGIN
       } finally {
         isRefreshing = false
+        setIsRefreshing(false) // Đồng bộ với store
       }
     } else if (isRefreshing) {
       return new Promise((resolve, reject) => {
