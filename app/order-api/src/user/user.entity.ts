@@ -8,6 +8,7 @@ import { Role } from 'src/role/role.entity';
 import { VerifyEmailToken } from 'src/auth/entity/verify-email-token.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
+import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -99,4 +100,7 @@ export class User extends Base {
     onDelete: 'SET NULL',
   })
   senderCardOrders: Recipient[];
+
+  @OneToMany(() => PointTransaction, (pt) => pt.user)
+  pointTransactions: PointTransaction[];
 }
