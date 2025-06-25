@@ -408,7 +408,7 @@ describe('AuthService', () => {
       cashierCardOrders: [],
       recipientCardOrders: [],
       senderCardOrders: [],
-      pointTransactions: []
+      pointTransactions: [],
     };
 
     const mockExistToken: ForgotPasswordToken = {

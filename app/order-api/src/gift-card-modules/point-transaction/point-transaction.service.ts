@@ -14,6 +14,13 @@ import { PointTransactionException } from './point-transaction.exception';
 import { PointTransactionValidation } from './point-transaction.validation';
 import { FindAllPointTransactionDto } from './dto/find-all-point-transaction.dto';
 import { CreatePointTransactionDto } from './dto/create-point-transaction.dto';
+import {
+  PointTransactionObjectTypeEnum,
+  PointTransactionTypeEnum,
+} from './entities/point-transaction.enum';
+import { Order } from 'src/order/order.entity';
+import { GiftCard } from '../gift-card/entities/gift-card.entity';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class PointTransactionService {
@@ -23,6 +30,12 @@ export class PointTransactionService {
   constructor(
     @InjectRepository(PointTransaction)
     private ptRepository: Repository<PointTransaction>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+    @InjectRepository(GiftCard)
+    private gcRepository: Repository<GiftCard>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
@@ -43,7 +56,64 @@ export class PointTransactionService {
       PointTransaction,
     );
 
-    // TODO: handle logic
+    if (
+      payload.type === PointTransactionTypeEnum.IN &&
+      payload.objectType === PointTransactionObjectTypeEnum.ORDER
+    ) {
+      throw new PointTransactionException(
+        PointTransactionValidation.INVALID_IN_ORDER_TRANSACTION,
+      );
+    }
+
+    if (
+      payload.type === PointTransactionTypeEnum.OUT &&
+      payload.objectType === PointTransactionObjectTypeEnum.GIFT_CARD
+    ) {
+      throw new PointTransactionException(
+        PointTransactionValidation.INVALID_OUT_ORDER_TRANSACTION,
+      );
+    }
+
+    let objectRef: Order | GiftCard = null;
+
+    switch (payload.objectType) {
+      case PointTransactionObjectTypeEnum.ORDER:
+        objectRef = await this.orderRepository.findOne({
+          where: { slug: payload.objectSlug },
+        });
+        break;
+      case PointTransactionObjectTypeEnum.GIFT_CARD:
+        objectRef = await this.gcRepository.findOne({
+          where: { slug: payload.objectSlug },
+        });
+        break;
+      default:
+        throw new PointTransactionException(
+          PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
+        );
+    }
+
+    if (!objectRef)
+      throw new PointTransactionException(
+        PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
+      );
+
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: payload.userSlug,
+      },
+    });
+
+    if (!user)
+      throw new PointTransactionException(
+        PointTransactionValidation.USER_NOT_FOUND,
+      );
+
+    Object.assign(payload, {
+      objectId: objectRef.id,
+      userId: user.id,
+      user: user,
+    } as Partial<PointTransaction>);
 
     const pt = await this.transactionService.execute<PointTransaction>(
       async (manager) => {
@@ -90,6 +160,7 @@ export class PointTransactionService {
       order: sortOpts,
       take: size,
       skip: (page - 1) * size,
+      relations: ['user'],
     });
     const cardsResponse = this.mapper.mapArray(
       pts,
@@ -121,6 +192,7 @@ export class PointTransactionService {
       where: {
         slug: slug ?? IsNull(),
       },
+      relations: ['user'],
     });
     if (!pt)
       throw new PointTransactionException(
