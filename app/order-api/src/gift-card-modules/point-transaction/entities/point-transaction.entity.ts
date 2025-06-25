@@ -29,7 +29,7 @@ export class PointTransaction extends Base {
   @AutoMap()
   points: number;
 
-  @AutoMap()
+  @AutoMap(() => User)
   @ManyToOne(() => User, (user) => user.pointTransactions, {
     onDelete: 'SET NULL',
   })
