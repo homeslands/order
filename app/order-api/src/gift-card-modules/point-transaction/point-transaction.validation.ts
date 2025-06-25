@@ -40,7 +40,7 @@ export const PointTransactionValidation: TPointTransactionErrorCode = {
     'Error when remove point transaction',
   ),
   INVALID_POINT_TRANSACTION_TYPE: createErrorCode(
-    158504,
+    158505,
     'Invalid point transaction type',
   ),
 };
