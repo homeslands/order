@@ -89,6 +89,8 @@ export default function HomePage() {
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
 
+        {/* <StoreCarousel /> */}
+
         {/* Section Menu Highlight */}
         {menuItems.length > 0 && (
           <div className="container">
