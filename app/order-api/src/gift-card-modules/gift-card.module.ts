@@ -35,6 +35,7 @@ import { PointTransactionController } from './point-transaction/point-transactio
 import { PointTransactionService } from './point-transaction/point-transaction.service';
 import { PointTransactionProfile } from './point-transaction/point-transaction.mapper';
 import { PointTransaction } from './point-transaction/entities/point-transaction.entity';
+import { Order } from 'src/order/order.entity';
 
 const controllers = [
   CardController,
@@ -76,6 +77,7 @@ const modules = [
     ACBConnectorConfig,
     Payment,
     PointTransaction,
+    Order,
   ]),
   FileModule,
   DbModule,
