@@ -18,21 +18,36 @@ interface ProtectedElementProps {
 export default function ProtectedElement({
   element,
 }: ProtectedElementProps) {
-  const { isAuthenticated, setLogout, token } = useAuthStore()
+  // eslint-disable-next-line no-console
+  console.log('🚀 ProtectedElement component rendered');
+
+  const { isAuthenticated, setLogout, token, isRefreshing } = useAuthStore()
   const { t } = useTranslation('auth')
   const { setCurrentUrl } = useCurrentUrlStore()
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Wrap navigate để log
+  const loggedNavigate = useCallback((to: string | number) => {
+    if (typeof to === 'string') {
+      navigate(to);
+    } else {
+      navigate(to);
+    }
+  }, [navigate]);
+
   const handleLogout = useCallback(() => {
     setLogout()
     removeUserInfo()
-    navigate(ROUTE.LOGIN)
-  }, [setLogout, removeUserInfo, navigate])
+    loggedNavigate(ROUTE.LOGIN)
+  }, [setLogout, removeUserInfo, loggedNavigate])
 
   const hasPermissionForRoute = useCallback((pathname: string) => {
-    if (!token || !userInfo?.role?.name) return false;
+
+    if (!token || !userInfo?.role?.name) {
+      return false;
+    }
 
     // Customer không được phép truy cập route /system
     if (userInfo.role.name === Role.CUSTOMER) {
@@ -47,9 +62,13 @@ export default function ProtectedElement({
       || pathname.includes(ROUTE.ORDER_SUCCESS)) {
       return true;
     }
+
     // Kiểm tra permission từ token
     const decoded: IToken = jwtDecode(token);
-    if (!decoded.scope) return false;
+
+    if (!decoded.scope) {
+      return false;
+    }
 
     const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
     const permissions = scope.permissions || [];
@@ -57,28 +76,16 @@ export default function ProtectedElement({
     // Tìm route tương ứng với pathname
     const route = sidebarRoutes.find(route => pathname.includes(route.path));
 
-    return route ? permissions.includes(route.permission) : false;
-  }, [token, userInfo])
-
-  const findFirstAllowedRoute = useCallback(() => {
-    if (!token || !userInfo?.role?.name) return ROUTE.LOGIN;
-
-    if (userInfo.role.name === Role.CUSTOMER) {
-      return ROUTE.HOME;
-    }
-
-    const decoded: IToken = jwtDecode(token);
-    if (!decoded.scope) return ROUTE.LOGIN;
-
-    const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
-    const permissions = scope.permissions || [];
-
-    // Tìm route đầu tiên mà user có quyền truy cập
-    const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
-    return firstAllowedRoute ? firstAllowedRoute.path : ROUTE.LOGIN;
+    const hasPermission = route ? permissions.includes(route.permission) : false;
+    return hasPermission;
   }, [token, userInfo])
 
   useEffect(() => {
+    // Nếu đang refresh token thì chờ, không làm gì cả
+    if (isRefreshing) {
+      return;
+    }
+
     if (!isAuthenticated()) {
       setCurrentUrl(location.pathname)
       handleLogout()
@@ -87,20 +94,30 @@ export default function ProtectedElement({
     }
 
     // Kiểm tra quyền truy cập route hiện tại
-    if (!hasPermissionForRoute(location.pathname)) {
-      const allowedRoute = findFirstAllowedRoute();
-      navigate(allowedRoute);
+    const hasPermission = hasPermissionForRoute(location.pathname);
+
+    if (!hasPermission) {
+      loggedNavigate(ROUTE.FORBIDDEN);
     }
   }, [
     isAuthenticated,
+    isRefreshing,
     location.pathname,
     hasPermissionForRoute,
-    findFirstAllowedRoute,
-    navigate,
+    loggedNavigate,
     handleLogout,
     setCurrentUrl,
     t
   ])
+
+  // Hiển thị loading khi đang refresh token
+  if (isRefreshing) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-primary"></div>
+      </div>
+    )
+  }
 
   return <>{element}</>
 }

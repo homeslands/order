@@ -28,26 +28,36 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated() && !_.isEmpty(userInfo) && token) {
+
       let urlNavigate = ROUTE.HOME;
       const decoded: IToken = jwtDecode(token);
-      if (!decoded.scope) return;
+
+      if (!decoded.scope) {
+        return;
+      }
 
       const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
       const permissions = scope.permissions || [];
 
       if (currentUrl) {
+
         // Kiểm tra quyền truy cập currentUrl
         if (userInfo.role.name === Role.CUSTOMER) {
           // Customer không được phép truy cập route /system
           urlNavigate = !currentUrl.includes('/system') ? currentUrl : ROUTE.HOME;
         } else {
           const route = sidebarRoutes.find(route => currentUrl.includes(route.path));
+
           if (route && permissions.includes(route.permission)) {
             urlNavigate = currentUrl;
           } else {
             // Tìm route đầu tiên mà user có quyền truy cập trong sidebarRoutes
             const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
-            urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+            if (firstAllowedRoute) {
+              urlNavigate = firstAllowedRoute.path;
+            } else {
+              urlNavigate = ROUTE.FORBIDDEN;
+            }
           }
         }
       } else {
@@ -56,7 +66,11 @@ export default function Login() {
           urlNavigate = ROUTE.HOME;
         } else {
           const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
-          urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
+          if (firstAllowedRoute) {
+            urlNavigate = firstAllowedRoute.path;
+          } else {
+            urlNavigate = ROUTE.FORBIDDEN;
+          }
         }
       }
 
