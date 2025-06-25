@@ -10,12 +10,14 @@ export interface IAuthStore {
   expireTime?: string
   expireTimeRefreshToken?: string
   authorities?: string[]
+  isRefreshing?: boolean
   isAuthenticated: () => boolean
   setSlug: (slug: string) => void
   setToken: (token: string) => void
   setRefreshToken: (refreshToken: string) => void
   setExpireTime: (expireTime: string) => void
   setExpireTimeRefreshToken: (expireTimeRefreshToken: string) => void
+  setIsRefreshing: (isRefreshing: boolean) => void
   setLogout: () => void
 }
 
