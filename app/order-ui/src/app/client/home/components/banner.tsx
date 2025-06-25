@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 // import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Navigation, Pagination, EffectFade } from 'swiper/modules'
 // import { useTranslation } from 'react-i18next'
 
 import {
@@ -20,7 +20,8 @@ export default function SwiperBanner({
 }): React.ReactElement {
   const isMobile = useIsMobile()
   // const { t } = useTranslation(['banner'])
-  const [, setIsImageLoaded] = useState(false)
+  // const [, setIsImageLoaded] = useState(false)
+
   return (
     <Swiper
       pagination={{
@@ -29,11 +30,17 @@ export default function SwiperBanner({
       }}
       autoplay={{
         delay: 3000,
+        pauseOnMouseEnter: true,
         disableOnInteraction: false,
       }}
-      initialSlide={1}
-      modules={[Autoplay, Pagination, Navigation]}
-      className="relative h-[50vh] sm:h-[80vh] w-full"
+      loop={true}
+      speed={800}
+      effect="slide"
+      slidesPerView={1}
+      spaceBetween={0}
+      modules={[Autoplay, Pagination, Navigation, EffectFade]}
+      className="w-full sm:h-[80vh]"
+      allowTouchMove={true}
     >
       {bannerData?.map((banner, index) => {
         const bgImage = banner.image
@@ -61,59 +68,10 @@ export default function SwiperBanner({
                 src={bgImage}
                 alt="main banner"
                 className={`relative z-10 h-full ${isMobile ? 'object-cover w-full' : 'object-contain'}`}
-                onLoad={() => setIsImageLoaded(true)}
+              // onLoad={() => setIsImageLoaded(true)}
               />
             </div>
           </SwiperSlide>
-
-          // <SwiperSlide
-          //   key={index}
-          //   className="flex justify-center items-center"
-          //   style={{
-          //     backgroundImage: `url(${isMobile ? LandingPageBackgroundMobile : bgImage})`,
-          //   }}
-          // >
-          //   {/* Ẩn ảnh, chỉ dùng để kiểm soát load */}
-          //   <div className="w-full h-[50vh] sm:h-[70vh] overflow-hidden">
-          //     <img
-          //       src={publicFileURL + '/' + banner.image}
-          //       alt="banner"
-          //       className="object-cover w-full h-full"
-          //       onLoad={() => setIsImageLoaded(true)}
-          //     />
-          //   </div>
-
-          //   <div className="hidden col-span-1 sm:block" />
-          //   <motion.div
-          //     className="col-span-2 mt-12 w-full text-center text-white sm:mt-0"
-          //     initial={{ opacity: 0, scale: 0.9 }}
-          //     animate={isImageLoaded ? { opacity: 1, scale: 1 } : {}}
-          //     transition={{ duration: 0.8, ease: 'easeOut' }}
-          //   >
-          //     <div className="flex flex-col gap-2">
-          //       <div className="text-4xl font-extrabold uppercase sm:text-4xl">
-          //         {banner?.title ? banner.title : 'TREND Coffee'}
-          //       </div>
-          //     </div>
-          //     <p className="mt-4 text-sm sm:text-base">
-          //       {banner?.content
-          //         ? banner.content.replace(/(<([^>]+)>)/gi, '').substring(0, 100)
-          //         : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
-          //     </p>
-          //     {banner?.useButtonUrl && isImageLoaded && (
-          //       <div className="flex gap-4 justify-center mt-6 sm:flex-row">
-          //         <Button
-          //           variant="outline"
-          //           className="text-white bg-transparent"
-          //           onClick={() => window.open(banner.url)}
-          //         >
-          //           {t('banner.viewMore')}
-          //         </Button>
-          //       </div>
-          //     )}
-          //   </motion.div>
-          //   <div className="hidden col-span-1 sm:block" />
-          // </SwiperSlide>
         )
       })}
     </Swiper>
