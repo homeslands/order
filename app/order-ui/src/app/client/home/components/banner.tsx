@@ -21,6 +21,7 @@ export default function SwiperBanner({
   const isMobile = useIsMobile()
   // const { t } = useTranslation(['banner'])
   const [, setIsImageLoaded] = useState(false)
+
   return (
     <Swiper
       pagination={{
@@ -29,9 +30,16 @@ export default function SwiperBanner({
       }}
       autoplay={{
         delay: 3000,
+        pauseOnMouseEnter: true,
         disableOnInteraction: false,
       }}
       initialSlide={1}
+      loop={true}
+      speed={800}
+      effect="slide"
+      slidesPerView={1}
+      spaceBetween={0}
+      allowTouchMove={true}
       modules={[Autoplay, Pagination, Navigation]}
       className={`relative ${isMobile ? 'aspect-video' : 'h-[60vh]'} w-full`}
     >
@@ -43,13 +51,13 @@ export default function SwiperBanner({
             : LandingPageBackground
 
         return (
-          <SwiperSlide key={index} className="flex items-center justify-center bg-black">
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+          <SwiperSlide key={index} className="flex justify-center items-center bg-black">
+            <div className="flex overflow-hidden relative justify-center items-center w-full h-full">
               {/* Ảnh nền mờ + scale */}
               <img
                 src={bgImage}
                 alt="blurred background"
-                className="absolute top-0 left-0 object-cover w-full h-full scale-110 blur-md"
+                className="object-cover absolute top-0 left-0 w-full h-full blur-md scale-110"
                 aria-hidden="true"
               />
 
@@ -60,7 +68,7 @@ export default function SwiperBanner({
               <img
                 src={bgImage}
                 alt="main banner"
-                className="relative z-10 object-contain max-h-full max-w-full"
+                className="object-contain relative z-10 max-w-full max-h-full"
                 onLoad={() => setIsImageLoaded(true)}
               />
             </div>
@@ -68,7 +76,7 @@ export default function SwiperBanner({
 
           // <SwiperSlide
           //   key={index}
-          //   className="flex items-center justify-center"
+          //   className="flex justify-center items-center"
           //   style={{
           //     backgroundImage: `url(${isMobile ? LandingPageBackgroundMobile : bgImage})`,
           //   }}
@@ -85,7 +93,7 @@ export default function SwiperBanner({
 
           //   <div className="hidden col-span-1 sm:block" />
           //   <motion.div
-          //     className="w-full col-span-2 mt-12 text-center text-white sm:mt-0"
+          //     className="col-span-2 mt-12 w-full text-center text-white sm:mt-0"
           //     initial={{ opacity: 0, scale: 0.9 }}
           //     animate={isImageLoaded ? { opacity: 1, scale: 1 } : {}}
           //     transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -101,7 +109,7 @@ export default function SwiperBanner({
           //         : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
           //     </p>
           //     {banner?.useButtonUrl && isImageLoaded && (
-          //       <div className="flex justify-center gap-4 mt-6 sm:flex-row">
+          //       <div className="flex gap-4 justify-center mt-6 sm:flex-row">
           //         <Button
           //           variant="outline"
           //           className="text-white bg-transparent"
