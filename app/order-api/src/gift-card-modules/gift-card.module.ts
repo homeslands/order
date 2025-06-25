@@ -31,6 +31,10 @@ import { Payment } from 'src/payment/payment.entity';
 import { HttpModule } from '@nestjs/axios';
 import { CardOrderListener } from './card-order/card-order.listener';
 import { JobModule } from 'src/job/job.module';
+import { PointTransactionController } from './point-transaction/point-transaction.controller';
+import { PointTransactionService } from './point-transaction/point-transaction.service';
+import { PointTransactionProfile } from './point-transaction/point-transaction.mapper';
+import { PointTransaction } from './point-transaction/entities/point-transaction.entity';
 
 const controllers = [
   CardController,
@@ -38,6 +42,7 @@ const controllers = [
   CardOrderController,
   GiftCardController,
   ReceipientController,
+  PointTransactionController,
 ];
 
 const providers = [
@@ -46,6 +51,7 @@ const providers = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  PointTransactionService,
   BankTransferStrategy,
   ACBConnectorClient,
 ];
@@ -56,6 +62,7 @@ const mappers = [
   CardOrderProfile,
   RecipientProfile,
   GiftCardProfile,
+  PointTransactionProfile,
 ];
 
 const modules = [
@@ -68,6 +75,7 @@ const modules = [
     User,
     ACBConnectorConfig,
     Payment,
+    PointTransaction,
   ]),
   FileModule,
   DbModule,
@@ -81,6 +89,7 @@ const exportServices = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  PointTransactionService,
 ];
 
 const listeners = [CardOrderListener];
