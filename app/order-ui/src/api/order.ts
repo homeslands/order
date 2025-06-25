@@ -140,6 +140,37 @@ export async function getOrderInvoice(
   return response.data
 }
 
+export async function getOrderProvisionalBill(slug: string): Promise<Blob> {
+  const { setProgress, setFileName, setIsDownloading, reset } =
+    useDownloadStore.getState()
+  const currentDate = new Date().toISOString()
+  setFileName(`TRENDCoffee-${currentDate}.pdf`)
+  setIsDownloading(true)
+  try {
+    const response = await http.post(
+      `/invoice/export/temporary`,
+      { order: slug },
+      {
+        responseType: 'blob',
+        headers: {
+          Accept: 'application/pdf',
+        },
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1),
+          )
+          setProgress(percentCompleted)
+        },
+        doNotShowLoading: true,
+      } as AxiosRequestConfig,
+    )
+    return response.data
+  } finally {
+    setIsDownloading(false)
+    reset()
+  }
+}
+
 // public order invoice
 export async function getPublicOrderInvoice(order: string): Promise<Blob> {
   const response = await http.get(`/invoice/specific/public`, {

@@ -20,6 +20,7 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PaymentStatus } from 'src/payment/payment.constants';
 import * as _ from 'lodash';
 import { VoucherType } from 'src/voucher/voucher.constant';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @Injectable()
 export class OrderUtils {
@@ -29,6 +30,7 @@ export class OrderUtils {
     private readonly orderRepository: Repository<Order>,
     private readonly menuItemUtils: MenuItemUtils,
     private readonly transactionManagerService: TransactionManagerService,
+    private readonly paymentUtils: PaymentUtils,
   ) {}
 
   async getOrder(options: FindOneOptions<Order>) {
@@ -191,8 +193,9 @@ export class OrderUtils {
 
         // Remove payment
         if (payment) {
-          await manager.softRemove(payment);
-          this.logger.log(`Payment has been removed`, context);
+          // await manager.softRemove(payment);
+          // this.logger.log(`Payment has been removed`, context);
+          await this.paymentUtils.cancelPayment(payment.slug);
         }
 
         // Update table status if order is at table

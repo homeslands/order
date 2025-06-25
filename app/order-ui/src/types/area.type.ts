@@ -105,6 +105,7 @@ export interface IChefOrderInfo extends IBase {
   status: string
   type: string
   table: ITable
+  description: string
 }
 
 export interface IUpdateChefOrderStatusRequest {

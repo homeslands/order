@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ExportInvoiceDto,
+  ExportTemporaryInvoiceDto,
   GetSpecificInvoiceRequestDto,
   InvoiceResponseDto,
 } from './invoice.dto';
@@ -21,9 +22,14 @@ import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { InvoiceException } from './invoice.exception';
 import { InvoiceValidation } from './invoice.validation';
-import { DiscountType, OrderType } from 'src/order/order.constants';
+import {
+  DiscountType,
+  OrderStatus,
+  OrderType,
+} from 'src/order/order.constants';
 import { VoucherType } from 'src/voucher/voucher.constant';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import moment from 'moment';
 
 @Injectable()
 export class InvoiceService {
@@ -285,5 +291,156 @@ export class InvoiceService {
     });
 
     return this.mapper.map(invoice, Invoice, InvoiceResponseDto);
+  }
+
+  async exportTemporaryInvoice(
+    requestData: ExportTemporaryInvoiceDto,
+  ): Promise<Buffer> {
+    const context = `${InvoiceService.name}.${this.exportTemporaryInvoice.name}`;
+    const invoice = await this.createTemporaryInvoice(requestData.order);
+
+    const logoPath = resolve('public/images/logo.png');
+    const logoBuffer = readFileSync(logoPath);
+
+    // Convert the buffer to a Base64 string
+    const logoString = logoBuffer.toString('base64');
+
+    const data = await this.pdfService.generatePdf(
+      'temporary-invoice',
+      { ...invoice, logoString },
+      {
+        width: '80mm',
+      },
+    );
+
+    this.logger.log(
+      `Temporary invoice for order ${requestData.order} exported`,
+      context,
+    );
+
+    return data;
+  }
+
+  private async createTemporaryInvoice(orderSlug: string) {
+    const context = `${InvoiceService.name}.${this.createTemporaryInvoice.name}`;
+    const order = await this.orderRepository.findOne({
+      where: { slug: orderSlug },
+      relations: [
+        'payment',
+        'owner',
+        'branch',
+        'orderItems.variant.product',
+        'orderItems.promotion',
+        'orderItems.variant.size',
+        'approvalBy',
+        'table',
+        'voucher',
+      ],
+    });
+    if (!order) {
+      this.logger.warn(`Order ${orderSlug} not found`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${orderSlug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    let orderItemPromotionValue = 0;
+
+    // default from order
+    orderItemPromotionValue = order.orderItems?.reduce(
+      (total, current) =>
+        current.discountType === DiscountType.PROMOTION
+          ? total +
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
+          : total,
+      0,
+    );
+
+    const orderItemVoucherValue = order.orderItems?.reduce(
+      (total, current) => total + current.voucherValue,
+      0,
+    );
+
+    const originalSubtotalOrder = order.orderItems?.reduce(
+      (total, current) => total + current.originalSubtotal,
+      0,
+    );
+
+    const subtotalOrderItem = order.orderItems?.reduce(
+      (total, current) => total + current.subtotal,
+      0,
+    );
+
+    let voucherValue = order.loss + orderItemVoucherValue;
+    if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+      voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
+    }
+    if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
+      if (subtotalOrderItem > order.voucher.value) {
+        voucherValue += order.voucher.value;
+      } else {
+        voucherValue += subtotalOrderItem;
+      }
+    }
+
+    const invoiceItems = order.orderItems.map((item) => {
+      const invoiceItem = new InvoiceItem();
+      Object.assign(invoiceItem, {
+        productName: item.variant.product.name,
+        quantity: item.quantity,
+        price: item.variant.price,
+        total: item.subtotal,
+        size: item.variant.size.name,
+        promotionValue: item.promotion?.value ?? 0,
+        promotionId: item.promotion?.id ?? null,
+        voucherValue: item.voucherValue,
+        discountType: item.discountType,
+      });
+      return invoiceItem;
+    });
+
+    const invoice = new Invoice();
+    const qrcode = order?.payment?.qrCode ?? null;
+    const amountPayment = order?.payment?.amount ?? 'N/A';
+    Object.assign(invoice, {
+      order,
+      logo: 'https://i.imgur',
+      amount: order.subtotal,
+      amountPayment,
+      loss: order.loss,
+      paymentMethod: order?.payment?.paymentMethod ?? 'N/A',
+      status: order.status,
+      tableName:
+        order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
+      customer: `${order.owner.firstName} ${order.owner.lastName}`,
+      branchAddress: order.branch.address,
+      cashier: `${order.approvalBy?.firstName} ${order.approvalBy?.lastName}`,
+      invoiceItems,
+      expiredAt: moment(order.createdAt).add(15, 'minutes').toDate(),
+      exportAt: new Date(),
+      qrcode,
+      referenceNumber: order.referenceNumber,
+      voucherValue,
+      voucherId: order.voucher?.id ?? null,
+      voucherType: order.voucher?.type ?? null,
+      valueEachVoucher: order.voucher?.value ?? null,
+    });
+
+    this.logger.log(`Temporary invoice created for order ${order.id}`, context);
+
+    Object.assign(invoice, {
+      originalSubtotalOrder,
+      subtotalOrderItem,
+      orderItemPromotionValue,
+      voucherCode: order.voucher?.code ?? 'N/A',
+    });
+
+    return invoice;
   }
 }

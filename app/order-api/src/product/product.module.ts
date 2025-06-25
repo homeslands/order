@@ -26,6 +26,11 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { DbModule } from 'src/db/db.module';
 import { User } from 'src/user/user.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 @Module({
   imports: [
@@ -42,10 +47,13 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
       Order,
       User,
       MenuItem,
+      Payment,
+      ACBConnectorConfig,
     ]),
     FileModule,
     MenuModule,
     DbModule,
+    ACBConnectorModule,
   ],
   controllers: [ProductController],
   providers: [
@@ -58,6 +66,8 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
     OrderUtils,
     UserUtils,
     MenuItemUtils,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [ProductService, ProductUtils],
 })

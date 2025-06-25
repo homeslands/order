@@ -1,14 +1,15 @@
 import React from 'react'
+import moment from 'moment'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet'
+
 import { Button } from '@/components/ui'
 import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
-import { ROUTE } from '@/constants'
-import { SliderMenu, StoreCarousel, SwiperBanner } from './components'
+import { ROUTE, youtubeVideoId } from '@/constants'
+import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './components'
 // import { AdPopup } from '@/components/app/AdPopup'
-import { Helmet } from 'react-helmet'
-import moment from 'moment'
 import { useBranchStore } from '@/stores'
 import { IMenuItem } from '@/types'
 
@@ -92,7 +93,7 @@ export default function HomePage() {
         {menuItems.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -119,7 +120,7 @@ export default function HomePage() {
         {promotionProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
@@ -146,7 +147,7 @@ export default function HomePage() {
         {bestSellerProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -171,7 +172,7 @@ export default function HomePage() {
         {newsProducts.length > 0 && (
           <div className="container">
             <motion.div
-              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[17rem]' : 'h-[23rem]'}`}
+              className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
@@ -192,38 +193,57 @@ export default function HomePage() {
         {/* Section  Info */}
         <div className="container">
           <motion.div
-            className="grid grid-cols-1 gap-4 items-start p-4 w-full sm:grid-cols-5"
+            className="grid grid-cols-1 gap-4 items-start py-4 w-full sm:grid-cols-5"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             variants={fadeInVariants}
           >
-            <div className="flex justify-center sm:col-span-2">
-              <div className="flex flex-col gap-4 items-start sm:w-2/3">
+            <div className="flex justify-center items-center h-full sm:col-span-2">
+              <div className="flex flex-col gap-6 items-start sm:w-2/3">
                 <div className="flex flex-col gap-2">
-                  <span className="text-2xl font-extrabold">TREND Coffee</span>
+                  <span className="text-3xl font-extrabold text-primary">TREND Coffee</span>
                   <span className="text-muted-foreground">
                     {t('home.homeDescription')}
                   </span>
                 </div>
-                <NavLink
-                  to={ROUTE.CLIENT_MENU}
-                  className="flex text-sm rounded-md transition-all duration-200 hover:scale-105 hover:bg-primary/20"
-                >
-                  <Button>{t('home.learnMore')}</Button>
-                </NavLink>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>{t('home.homeDescription2')}</li>
+                  <li>{t('home.homeDescription3')}</li>
+                </ul>
               </div>
             </div>
-            <div className="flex justify-center sm:col-span-3">
-              <div className="w-full">
+
+            <div className="flex overflow-hidden relative justify-center sm:col-span-3">
+              {['tl', 'tr', 'bl', 'br'].map((pos) => (
+                <div
+                  key={pos}
+                  className={`
+        absolute w-12 h-12 border-2 border-primary
+        ${pos === 'tl' && 'top-0 left-0 rounded-tl-3xl border-r-0 border-b-0'}
+        ${pos === 'tr' && 'top-0 right-0 rounded-tr-3xl border-l-0 border-b-0'}
+        ${pos === 'bl' && 'bottom-0 left-0 rounded-bl-3xl border-r-0 border-t-0'}
+        ${pos === 'br' && 'bottom-0 right-0 rounded-br-3xl border-l-0 border-t-0'}
+      `}
+                  style={{ zIndex: 10 }}
+                />
+              ))}
+              <div className="p-3 w-full">
                 <StoreCarousel />
               </div>
             </div>
           </motion.div>
         </div>
 
+        {/* Section Video YouTube */}
+        <YouTubeVideoSection
+          videoId={youtubeVideoId}
+          title={t('home.videoSection.title', 'Khám phá câu chuyện TREND Coffee')}
+          description={t('home.videoSection.description', 'Tìm hiểu về hành trình và giá trị mà chúng tôi mang đến cho khách hàng')}
+        />
+
         {/* Section More info */}
-        <motion.div
+        {/* <motion.div
           className="flex items-center px-4 h-96 text-white bg-gray-900 sm:justify-center"
           initial="hidden"
           whileInView="visible"
@@ -237,7 +257,7 @@ export default function HomePage() {
             <p className="mt-4 text-sm">{t('home.aboutUsDescription')}</p>
             <Button className="mt-6">{t('home.contactUs')}</Button>
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </React.Fragment>
   )

@@ -52,11 +52,11 @@ export default function RemoveAppliedVoucherSheet({
   const productsData = products?.result.items
   const catalogsData = catalogs?.result
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setSheetOpen(true)
-  }
+  }, [])
 
   const handleSelectionChange = useCallback((selectedSlugs: string[]) => {
     setRemoveAppliedVoucherRequest({
@@ -131,6 +131,7 @@ export default function RemoveAppliedVoucherSheet({
                 <DataTable
                   columns={useProductColumns({
                     onSelectionChange: handleSelectionChange,
+                    selectedProducts: removeAppliedVoucherRequest?.products || [],
                   })}
                   data={productsData || []}
                   isLoading={isLoading}

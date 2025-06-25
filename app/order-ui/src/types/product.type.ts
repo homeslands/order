@@ -9,6 +9,7 @@ export interface IProduct {
   isLimit: boolean
   isTopSell: boolean
   isNew: boolean
+  isCombo: boolean
   image: string
   images: string[]
   rating: number
@@ -71,6 +72,7 @@ export interface ICreateProductRequest {
   isLimit: boolean
   isTopSell: boolean
   isNew: boolean
+  isCombo: boolean
   catalog: string
 }
 
@@ -81,6 +83,7 @@ export interface IUpdateProductRequest {
   isLimit: boolean
   isTopSell: boolean
   isNew: boolean
+  isCombo: boolean
   isActive?: boolean
   catalog: string
 }
