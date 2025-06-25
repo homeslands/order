@@ -70,6 +70,7 @@ import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
+import ForbiddenPage from '@/app/forbidden-page'
 
 export const router = createBrowserRouter([
   {
@@ -1077,6 +1078,10 @@ export const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      {
+        path: ROUTE.FORBIDDEN,
+        element: <SuspenseElement component={ForbiddenPage} />,
       },
       {
         path: '*',
