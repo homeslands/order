@@ -61,6 +61,14 @@
     "date": "Ngày",
     "noTransactions": "Chưa có giao dịch",
     "transactionsWillAppearHere": "Các giao dịch coin sẽ hiển thị ở đây",
-    "noMoreTransactions": "Đã hiển thị tất cả giao dịch"
+    "noMoreTransactions": "Đã hiển thị tất cả giao dịch",
+    "errorLoadingTransactions": "Lỗi tải dữ liệu giao dịch",
+    "pleaseTryAgainLater": "Vui lòng thử lại sau",
+    "tryAgain": "Thử lại",
+    "giftCardTransaction": "Giao dịch thẻ quà tặng",
+    "orderTransaction": "Thanh toán hóa đơn",
+    "orderCode": "Mã đơn hàng",
+    "giftCardCode": "Mã thẻ",
+    "transactionCode": "Mã GD"
   }
 }

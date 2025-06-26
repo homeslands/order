@@ -3,7 +3,11 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import { CustomerInfoTabsContent, CustomerNotificationTabsContent, CustomerCoinTabsContent } from '@/components/app/tabscontent'
+import {
+  CustomerInfoTabsContent,
+  CustomerNotificationTabsContent,
+  CustomerCoinTabsContent,
+} from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
 export function CustomerProfileTabs() {
@@ -22,31 +26,48 @@ export function CustomerProfileTabs() {
   }
 
   return (
-    <Tabs value={tab} onValueChange={handleTabChange} className="w-full">      
-      <TabsList className="grid grid-cols-4 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
-        <TabsTrigger value="info" className="flex justify-center">
+    <Tabs value={tab} onValueChange={handleTabChange} className="h-full w-full">
+      <TabsList
+        className={`mb-6 flex h-full w-full flex-wrap justify-start gap-3 overflow-x-auto border-b border-gray-200 dark:border-gray-700 lg:mb-0`}
+      >
+        <TabsTrigger
+          value="info"
+          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+        >
           {t('profile.generalInfo')}
         </TabsTrigger>
-        <TabsTrigger value="notification" className="flex justify-center">
+        <TabsTrigger
+          value="notification"
+          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+        >
           {t('profile.notification')}
         </TabsTrigger>
-        <TabsTrigger value="history" className="flex justify-center">
+        <TabsTrigger
+          value="history"
+          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+        >
           {t('profile.history')}
         </TabsTrigger>
-        <TabsTrigger value="coin" className="flex justify-center">
+        <TabsTrigger
+          value="coin"
+          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+        >
           {t('profile.coin')}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="info" className="w-full p-0">
+      <TabsContent value="info" className="w-full p-0 dark:text-gray-200">
         <CustomerInfoTabsContent />
       </TabsContent>
-      <TabsContent value="notification" className="w-full p-0">
+      <TabsContent
+        value="notification"
+        className="w-full p-0 dark:text-gray-200"
+      >
         <CustomerNotificationTabsContent />
       </TabsContent>
-      <TabsContent value="history" className="w-full p-0">
+      <TabsContent value="history" className="w-full p-0 dark:text-gray-200">
         <CustomerOrderTabs />
       </TabsContent>
-      <TabsContent value="coin" className="w-full p-0">
+      <TabsContent value="coin" className="w-full p-0 dark:text-gray-200">
         <CustomerCoinTabsContent />
       </TabsContent>
     </Tabs>

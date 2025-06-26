@@ -53,6 +53,22 @@
     "otpExpiredIn": "OTP expires in",
     "minutes": "minutes",
     "seconds": "seconds",
-    "coin": "Manage Coins"
+    "coin": "Manage Coins",
+    "coinBalance": "Balance",
+    "coinTransactions": "Transaction History",
+    "description": "Description",
+    "code": "Transaction Code",
+    "date": "Date",
+    "noTransactions": "No transactions yet",
+    "transactionsWillAppearHere": "Coin transactions will appear here",
+    "noMoreTransactions": "No more transactions to show",
+    "errorLoadingTransactions": "Error loading transactions",
+    "pleaseTryAgainLater": "Please try again later",
+    "tryAgain": "Try Again",
+    "giftCardTransaction": "Gift Card Transaction",
+    "orderTransaction": "Order Payment",
+    "orderCode": "Order Code",
+    "giftCardCode": "Gift Card Code",
+    "transactionCode": "Transaction Code"
   }
 }
