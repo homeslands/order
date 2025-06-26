@@ -9,7 +9,7 @@ import {
 import { useGiftCardPolling } from '@/hooks/use-gift-card-polling'
 import ErrorPage from '@/app/error-page'
 import { ROUTE } from '@/constants'
-import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
+import { GiftCardCountdown } from '@/components/app/countdown/GiftCardCountdown'
 import {
   IGiftCardCartItem,
   IReceiverGiftCardCart,
@@ -219,7 +219,7 @@ export default function GiftCardCheckoutWithSlugPage() {
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="mx-auto max-w-5xl p-6">
         {/* Order countdown component */}
-        <OrderCountdown
+        <GiftCardCountdown
           createdAt={orderData.orderDate}
           setIsExpired={handleExpired}
         />

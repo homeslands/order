@@ -129,6 +129,10 @@ export class CardOrderService {
       throw new CardException(CardValidation.CARD_NOT_FOUND);
     }
 
+    if (!card.isActive) {
+      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE);
+    }
+
     const customer = await this.userRepository.findOne({
       where: {
         slug: createCardOrderDto.customerSlug || IsNull(),
