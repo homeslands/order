@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet";
 
 import { useCatalogStore, usePriceRangeStore, useBranchStore } from '@/stores'
 import { useDebouncedInput, useSpecificMenu } from '@/hooks'
-import { ClientCatalogSelect } from '@/components/app/select'
+import { ClientCatalogSelect, HorizontalCatalogSelect } from '@/components/app/select'
 import { ClientMenus } from './components'
 import { ProductNameSearch } from './components/product-name-search'
 import { PriceRangeFilter } from './components/price-range-filter'
@@ -90,7 +90,12 @@ export default function ClientMenuPage() {
               setInputValue={setInputValue}
             />
             {/* Catalog filter */}
-            <ClientCatalogSelect onChange={handleSelectCatalog} />
+            <div className='hidden sm:block'>
+              <ClientCatalogSelect onChange={handleSelectCatalog} />
+            </div>
+            <div>
+              <HorizontalCatalogSelect onChange={handleSelectCatalog} />
+            </div>
 
             {/* Price filter */}
             <PriceRangeFilter />

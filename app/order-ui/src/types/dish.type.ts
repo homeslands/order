@@ -109,7 +109,8 @@ export interface IOrderItem {
   name: string
   quantity: number
   size: string
-  variant: string
+  allVariants: IProductVariant[]
+  variant: IProductVariant
   originalPrice?: number
   promotion?: string | null
   promotionDiscount?: number
