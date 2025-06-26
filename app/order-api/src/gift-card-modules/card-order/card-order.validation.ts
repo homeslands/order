@@ -14,6 +14,7 @@ export const CARD_ORDER_NOT_PENDING = 'CARD_ORDER_NOT_PENDING';
 export const INVALID_CARD_ORDER_TYPE = 'INVALID_CARD_ORDER_TYPE';
 export const INVALID_CARD_ORDER_SLUG = 'INVALID_CARD_ORDER_SLUG';
 export const CARD_ORDER_HAS_ALREADY_PAYMENT = 'CARD_ORDER_HAS_ALREADY_PAYMENT';
+export const CARD_IS_NOT_ACTIVE = 'CARD_IS_NOT_ACTIVE';
 
 export type TCardOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CARD_ORDER
@@ -27,7 +28,8 @@ export type TCardOrderErrorCodeKey =
   | typeof CARD_ORDER_NOT_PENDING
   | typeof INVALID_CARD_ORDER_TYPE
   | typeof INVALID_CARD_ORDER_SLUG
-  | typeof CARD_ORDER_HAS_ALREADY_PAYMENT;
+  | typeof CARD_ORDER_HAS_ALREADY_PAYMENT
+  | typeof CARD_IS_NOT_ACTIVE;
 
 // 158101- 158200
 export type TCardOrderErrorCode = Record<
@@ -72,4 +74,8 @@ export const CardOrderValidation: TCardOrderErrorCode = {
     'Card order has already payment',
   ),
   INVALID_CARD_ORDER_SLUG: createErrorCode(158112, 'Invalid card order slug'),
+  CARD_IS_NOT_ACTIVE: createErrorCode(
+    158113,
+    'Your card is currently inactive. Please activate it to proceed.',
+  ),
 };
