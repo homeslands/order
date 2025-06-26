@@ -20,6 +20,7 @@ interface ReceiverFormProps {
   canRemove: boolean
   onRemove: () => void
   control: Control<TGiftCardCheckoutSchema>
+  onRecipientSelectionChange?: (index: number, hasSelectedUser: boolean) => void
 }
 
 export default function ReceiverForm({
@@ -27,6 +28,7 @@ export default function ReceiverForm({
   canRemove,
   onRemove,
   control,
+  onRecipientSelectionChange,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
   const { setValue, watch } = useFormContext<TGiftCardCheckoutSchema>()
@@ -86,6 +88,9 @@ export default function ReceiverForm({
                 onUserSelect={handleUserSelect}
                 placeholder={t('giftCard.enterReceiverPhone')}
                 userInfo={receiverUserInfo}
+                onSelectionChange={(hasSelectedUser) =>
+                  onRecipientSelectionChange?.(index, hasSelectedUser)
+                }
               />
             </FormControl>
             <FormMessage />
