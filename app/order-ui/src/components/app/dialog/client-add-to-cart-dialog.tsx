@@ -74,7 +74,8 @@ export default function ClientAddToCartDialog({
           image: product?.product?.image,
           name: product?.product?.name,
           quantity: 1,
-          variant: selectedVariant?.slug,
+          allVariants: product?.product?.variants,
+          variant: selectedVariant,
           size: selectedVariant?.size?.name,
           originalPrice: selectedVariant?.price,
           // price: finalPrice, // Use the calculated final price
@@ -116,7 +117,8 @@ export default function ClientAddToCartDialog({
           image: product.product.image,
           name: product.product.name,
           quantity: 1,
-          variant: selectedVariant.slug,
+          allVariants: product.product.variants,
+          variant: selectedVariant,
           size: selectedVariant.size.name,
           originalPrice: selectedVariant.price,
           price: finalPrice, // Use the calculated final price
@@ -231,7 +233,7 @@ export default function ClientAddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
+        <DialogFooter className="flex flex-row justify-end w-full gap-3">
           <Button onClick={handleBuyNow}>
             {t('menu.buyNow')}
           </Button>
