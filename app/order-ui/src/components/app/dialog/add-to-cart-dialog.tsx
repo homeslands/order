@@ -67,7 +67,8 @@ export default function AddToCartDialog({
           name: product?.product?.name,
           quantity: 1,
           size: selectedVariant?.size?.name,
-          variant: selectedVariant?.slug,
+          allVariants: product?.product?.variants,
+          variant: selectedVariant,
           originalPrice: selectedVariant?.price,
           // price: finalPrice,
           description: product?.product?.description,
@@ -109,12 +110,12 @@ export default function AddToCartDialog({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Product Image */}
-          <div className="flex justify-center items-center">
+          <div className="flex items-center justify-center">
             {product?.product?.image ? (
               <img
                 src={`${publicFileURL}/${product?.product?.image}`}
                 alt={product?.product?.name}
-                className="object-cover w-full h-64 rounded-md border"
+                className="object-cover w-full h-64 border rounded-md"
               />
             ) : (
               <div className="w-full h-64 rounded-md bg-muted/50" />
@@ -122,7 +123,7 @@ export default function AddToCartDialog({
           </div>
 
           {/* Product Details */}
-          <div className="flex flex-col gap-4 justify-between">
+          <div className="flex flex-col justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold">{product?.product?.name}</h3>
               <p className="text-sm text-muted-foreground">
@@ -180,7 +181,7 @@ export default function AddToCartDialog({
         </div>
 
         {/* Actions */}
-        <DialogFooter className="flex gap-2 justify-end pt-6">
+        <DialogFooter className="flex justify-end gap-2 pt-6">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

@@ -49,7 +49,7 @@ export default function ClientLayout() {
       <ClientHeader />
 
       {/* Main content */}
-      <main className={cn('flex-grow', isMobile ? 'pb-16' : '')}>
+      <main className={cn('flex-grow bg-muted-foreground/10')}>
         <ChooseBranchDialog />
         {/* <ChooseTableDialog /> */}
         <Outlet />

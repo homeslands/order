@@ -9,6 +9,7 @@ export interface ICartItemStore {
   removeCustomerInfo: () => void
   addApprovalBy: (approvalBy: string) => void
   addCartItem: (item: ICartItem) => void
+  addProductVariant: (id: string) => void
   updateCartItemQuantity: (id: string, quantity: number) => void
   addNote: (id: string, note: string) => void
   addOrderNote: (note: string) => void

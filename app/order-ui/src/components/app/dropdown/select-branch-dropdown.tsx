@@ -49,7 +49,7 @@ export default function SelectBranchDropdown() {
           <MapPinIcon className="h-[1.1rem] w-[1.1rem]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="mt-1 mr-2 w-56">
+      <DropdownMenuContent className="w-56 mt-1 mr-2">
         <Select
           value={branch?.slug}
           onValueChange={(value) => handleSelectChange(value)}
@@ -61,7 +61,7 @@ export default function SelectBranchDropdown() {
             />
           </SelectTrigger>
           <SelectContent>
-            {branchRes?.result.map((item) => {
+            {branchRes?.result && branchRes.result.map((item) => {
               return (
                 <SelectItem value={item.slug} key={item.slug}>
                   <span className="text-xs">{item.address}</span>

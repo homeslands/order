@@ -32,14 +32,14 @@ export default function DeleteAllCartDialog() {
       <DialogTrigger asChild>
         <Button variant="destructive">
           <Trash2 size={20} />
-          <span className="hidden lg:block">
+          <span>
             {t('order.deleteAll')}
           </span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="flex gap-2 items-center text-destructive">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
             <TriangleAlert />
             {t('order.deleteAll')}
           </DialogTitle>
@@ -48,13 +48,13 @@ export default function DeleteAllCartDialog() {
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex gap-4 items-center mt-4">
+          <div className="flex items-center gap-4 mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
               {t('order.deleteAllWarning')}
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row gap-2 justify-end">
+        <DialogFooter className="flex flex-row justify-end gap-2">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
