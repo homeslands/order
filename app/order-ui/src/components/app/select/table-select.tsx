@@ -68,7 +68,7 @@ export default function TableSelect({ tableOrder, onTableSelect }: ITableSelectP
     return (
         <>
             <Select onValueChange={handleTableSelect} value={selectedTableId} >
-                <SelectTrigger className={`w-full ${!selectedTableId ? 'highlight-blink-border' : ''}`}>
+                <SelectTrigger className={`w-full bg-white dark:bg-transparent ${!selectedTableId ? 'highlight-blink-border' : ''}`}>
                     <SelectValue placeholder={t('table.title')} />
                 </SelectTrigger>
                 <SelectContent>
