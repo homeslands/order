@@ -12,6 +12,7 @@ export const CARD_ORDER_TOTAL_QUANTITY_NOT_CORRECT =
 export const CARD_ORDER_RECIPIENT_NOT_FOUND = 'CARD_ORDER_RECIPIENT_NOT_FOUND';
 export const CARD_ORDER_NOT_PENDING = 'CARD_ORDER_NOT_PENDING';
 export const INVALID_CARD_ORDER_TYPE = 'INVALID_CARD_ORDER_TYPE';
+export const CARD_IS_NOT_ACTIVE = 'CARD_IS_NOT_ACTIVE';
 
 export type TCardOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CARD_ORDER
@@ -23,7 +24,8 @@ export type TCardOrderErrorCodeKey =
   | typeof CARD_ORDER_TOTAL_QUANTITY_NOT_CORRECT
   | typeof CARD_ORDER_RECIPIENT_NOT_FOUND
   | typeof CARD_ORDER_NOT_PENDING
-  | typeof INVALID_CARD_ORDER_TYPE;
+  | typeof INVALID_CARD_ORDER_TYPE
+  | typeof CARD_IS_NOT_ACTIVE;
 
 // 158101- 158200
 export type TCardOrderErrorCode = Record<
@@ -62,5 +64,9 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   INVALID_CARD_ORDER_TYPE: createErrorCode(
     158110,
     'Card order type must be one of the following: [GIFT, SELF]',
+  ),
+  CARD_IS_NOT_ACTIVE: createErrorCode(
+    158111,
+    'Your card is currently inactive. Please activate it to proceed.',
   ),
 };
