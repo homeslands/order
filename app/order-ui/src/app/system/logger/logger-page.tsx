@@ -26,11 +26,11 @@ export default function LoggerPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.log.title')} />
       </Helmet>
-      <span className="flex gap-1 items-center text-lg">
+      <span className="flex items-center gap-2 text-lg">
         <SquareMenu />
         {t('log.title')}
       </span>
-      <div className="grid grid-cols-1 gap-2 h-full">
+      <div className="grid h-full grid-cols-1 gap-2">
         <DataTable
           columns={useLoggerColumns()}
           data={loggers?.result?.items || []}
