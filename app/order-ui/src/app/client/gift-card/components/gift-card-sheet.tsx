@@ -38,6 +38,7 @@ export default function GiftCardSheet() {
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [hasSelectedRecipients, setHasSelectedRecipients] = useState(false)
   const isMobile = useIsMobile()
   const {
     giftCardItem,
@@ -104,6 +105,8 @@ export default function GiftCardSheet() {
         giftType: GiftCardType.SELF,
         receivers: [],
       })
+      // Reset recipient selection state
+      setHasSelectedRecipients(false)
     } else {
       // Ensure form has default value when opening
       if (!form.getValues('giftType')) {
@@ -119,7 +122,6 @@ export default function GiftCardSheet() {
       form.setValue('giftType', GiftCardType.SELF)
       return
     }
-
     if (watchedGiftType === GiftCardType.SELF) {
       // Clear any existing validation errors for receivers
       form.clearErrors('receivers')
@@ -127,6 +129,8 @@ export default function GiftCardSheet() {
       form.setValue('receivers', [])
       // Reset item quantity to 1
       updateQuantity(1)
+      // Reset recipient selection state
+      setHasSelectedRecipients(false)
     } else if (watchedGiftType === GiftCardType.GIFT) {
       // Ensure at least one receiver when GIFT is selected
       const receivers = form.getValues('receivers')
@@ -315,6 +319,7 @@ export default function GiftCardSheet() {
                           updateQuantity(newQuantity)
                         }
                       }}
+                      onRecipientsSelectionChange={setHasSelectedRecipients}
                     />
                   )}
                 </div>
@@ -325,7 +330,11 @@ export default function GiftCardSheet() {
                     totalAmount={totalAmount}
                     onCheckout={handleShowConfirmDialog}
                     disabled={
-                      !form.formState.isValid || form.formState.isSubmitting || !giftCardItem.isActive
+                      !form.formState.isValid ||
+                      form.formState.isSubmitting ||
+                      !giftCardItem.isActive ||
+                      (watchedGiftType === GiftCardType.GIFT &&
+                        !hasSelectedRecipients)
                     }
                   />
                 )}
