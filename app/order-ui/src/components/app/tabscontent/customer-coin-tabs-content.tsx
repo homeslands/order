@@ -1,212 +1,289 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Coins, ArrowUp, ArrowDown, Clock, Tag } from 'lucide-react'
+import {
+  Coins,
+  ArrowUp,
+  ArrowDown,
+  Clock,
+  Tag,
+  ShoppingBag,
+  Gift,
+  CoinsIcon,
+} from 'lucide-react'
 
-import { Skeleton } from '@/components/ui'
 import { useIsMobile } from '@/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/utils'
-
-interface CoinTransaction {
-  id: string
-  amount: number
-  description: string
-  date: string
-  transactionType: 'add' | 'subtract'
-  code: string
-}
+import { getPointTransactions } from '@/api/point-transaction'
+import { IPointTransaction } from '@/types'
+import { PointTransactionObjectType, PointTransactionType } from '@/constants'
+import { useUserStore } from '@/stores'
+import moment from 'moment'
+import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-card-skeleton'
+import { Tooltip } from 'react-tooltip'
 
 export function CustomerCoinTabsContent() {
   const { t } = useTranslation(['profile'])
-  const { t:tGiftCard } = useTranslation(['giftCard'])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [transactions, setTransactions] = useState<CoinTransaction[]>([])
+  const [transactions, setTransactions] = useState<IPointTransaction[]>([])
   const [hasMore, setHasMore] = useState(true)
-  const [balance, setBalance] = useState(0)
+  const [totalItems, setTotalItems] = useState(0)
+  const [hasError, setHasError] = useState(false)
   const isMobile = useIsMobile()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastElementRef = useRef<HTMLDivElement | null>(null)
+  const { userInfo } = useUserStore()
 
+  const fetchCoinTransactions = useCallback(
+    async (page: number, isInitial = false) => {
+      if (!userInfo?.slug) {
+        return
+      }
 
-  const fetchCoinTransactions = useCallback(async (page: number, isInitial = false) => {
-    if (isInitial) {
-      setIsLoading(true);
-    } else {
-      setLoadingMore(true);
-    }
+      if (isInitial) {
+        setIsLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
 
-    try {
-      // Tạo thêm dữ liệu mẫu dựa vào page
-      const mockData: CoinTransaction[] = [];
-      
-      // Tạo dữ liệu mẫu cho mỗi page
-      for (let i = 0; i < pageSize; i++) {
-        const index = (page - 1) * pageSize + i;
-        
-        if (index % 2 === 0) {
-          mockData.push({
-            id: `HD${index.toString().padStart(4, '0')}`,
-            amount: 500 + index * 100,
-            description: `Thanh toán hóa đơn #${index}`,
-            date: `${Math.floor(Math.random() * 28) + 1}/06/2025`,
-            transactionType: 'subtract',
-            code: `HD${index.toString().padStart(4, '0')}`
-          });
+      try {
+        const response = await getPointTransactions({
+          page,
+          size: pageSize,
+          userSlug: userInfo.slug,
+          sort: ['createdAt,DESC'],
+        })
+
+        const totalCount = response.result.total
+        const hasMoreData = page * pageSize < totalCount
+
+        if (isInitial) {
+          setTransactions(response.result.items)
         } else {
-          mockData.push({
-            id: `GC${index.toString().padStart(4, '0')}`,
-            amount: 1000 + index * 50,
-            description: `Quà đổi coin (thẻ quà tặng) #${index}`,
-            date: `${Math.floor(Math.random() * 28) + 1}/06/2025`,
-            transactionType: 'add',
-            code: `GC${index.toString().padStart(4, '0')}`
-          });
+          setTransactions((prev) => [...prev, ...response.result.items])
+        }
+
+        setHasMore(hasMoreData)
+        setTotalItems(totalCount)
+        setHasError(false)
+      } catch {
+        // Set error state for UI feedback
+        setHasError(true)
+      } finally {
+        if (isInitial) {
+          setIsLoading(false)
+        } else {
+          setLoadingMore(false)
         }
       }
-      
-      const hasMoreData = page < 5;
-      
-      if (isInitial) {
-        setTransactions(mockData);
-      } else {
-        setTransactions(prev => [...prev, ...mockData]);
-      }
-      
-      setHasMore(hasMoreData);
-      
-      if (isInitial) {
-        const calculatedBalance = 1234789;
-        setBalance(calculatedBalance);
-      }
-    } catch (error) {
-      console.error('Failed to fetch coin transactions:', error);
-    } finally {
-      if (isInitial) {
-        setIsLoading(false);
-      } else {
-        setLoadingMore(false);
-      }
-    }
-  }, [pageSize]);
-  
-  // Xử lý cuộn để tải thêm dữ liệu
+    },
+    [pageSize, userInfo?.slug],
+  )
+
   const handleLoadMore = useCallback(() => {
     if (!loadingMore && hasMore) {
-      setCurrentPage(prev => prev + 1);
+      setCurrentPage((prev) => prev + 1)
     }
-  }, [loadingMore, hasMore]);
-  
-  // Thiết lập observer cho infinite scroll
+  }, [loadingMore, hasMore])
+
   useEffect(() => {
     const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore && !isLoading) {
-          handleLoadMore();
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasMore &&
+          !loadingMore &&
+          !isLoading
+        ) {
+          handleLoadMore()
         }
       },
-      { threshold: 0.5 }
-    );
-    
+      { threshold: 0.5 },
+    )
+
     if (lastElementRef.current) {
-      observer.observe(lastElementRef.current);
+      observer.observe(lastElementRef.current)
     }
-    
-    observerRef.current = observer;
-    
+
+    observerRef.current = observer
+
     return () => {
       if (observerRef.current) {
-        observerRef.current.disconnect();
+        observerRef.current.disconnect()
       }
-    };
-  }, [hasMore, loadingMore, isLoading, handleLoadMore]);
-  
-  // Tải dữ liệu ban đầu
+    }
+  }, [hasMore, loadingMore, isLoading, handleLoadMore])
+
   useEffect(() => {
-    fetchCoinTransactions(1, true);
-  }, [fetchCoinTransactions]);
-  
-  // Tải thêm dữ liệu khi currentPage thay đổi
+    fetchCoinTransactions(1, true)
+  }, [fetchCoinTransactions])
+
   useEffect(() => {
     if (currentPage > 1) {
-      fetchCoinTransactions(currentPage);
+      fetchCoinTransactions(currentPage)
     }
-  }, [currentPage, fetchCoinTransactions]);
-  
-  const CoinTransactionCard = ({ transaction }: { transaction: CoinTransaction }) => {
-    const isAdd = transaction.transactionType === 'add';
-    const amountClass = isAdd ? 'text-green-600 font-medium' : 'text-red-600 font-medium';
-    const bgClass = isAdd ? 'bg-green-50 dark:bg-green-900/10' : 'bg-red-50 dark:bg-red-900/10';
-    const borderClass = isAdd ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500';
-    
+  }, [currentPage, fetchCoinTransactions])
+
+  const CoinTransactionCard = ({
+    transaction,
+  }: {
+    transaction: IPointTransaction
+  }) => {
+    const isAdd = transaction.type === PointTransactionType.IN
+    const amountClass = isAdd
+      ? 'text-green-600 font-medium'
+      : 'text-red-600 font-medium'
+    const bgClass = isAdd
+      ? 'bg-green-50 dark:bg-green-900/10'
+      : 'bg-red-50 dark:bg-red-900/10'
+    const borderClass = isAdd
+      ? 'border-l-4 border-green-500'
+      : 'border-l-4 border-red-500'
+
+    // Determine object type specific styling
+    const isGiftCard =
+      transaction.objectType === PointTransactionObjectType.GIFT_CARD
+    const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
+
+    // Get object type icon
+    const getTransactionIcon = () => {
+      if (isGiftCard) {
+        return <Gift size={16} />
+      } else if (isOrder) {
+        return <ShoppingBag size={16} />
+      } else {
+        // Default arrow icons
+        return isAdd ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+      }
+    }
+
     return (
-      <div className={`p-3 mb-3 rounded-md shadow-sm ${bgClass} ${borderClass}`}>
-        <div className="flex justify-between items-center mb-2">
-          <div className={`${amountClass} text-lg font-bold flex items-center`}>
-            <span className={`mr-1 p-1 rounded-full ${isAdd ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {isAdd ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+      <div
+        className={`mb-3 rounded-md p-3 shadow-sm ${bgClass} ${borderClass}`}
+      >
+        <div className="mb-2 flex items-center justify-between">
+          <div className={`${amountClass} flex items-center text-lg font-bold`}>
+            <span
+              className={`mr-1 rounded-full p-1 ${
+                isAdd
+                  ? isGiftCard
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-green-100 text-green-700'
+                  : isOrder
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {getTransactionIcon()}
             </span>
             {isAdd ? '+ ' : '- '}
-            {formatCurrency(transaction.amount, '')} {tGiftCard('giftCard.coin')}
+            {formatCurrency(Math.abs(transaction.points), '')}{' '}
+            <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500" />
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
             <Clock size={12} className="mr-1" />
-            {transaction.date}
+            {moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')}
           </div>
         </div>
-        
-        <div className="mb-2 text-sm font-medium text-gray-800 dark:text-gray-200">
-          {transaction.description}
+
+        <div
+          className="mb-2 max-w-[400px] truncate text-sm font-medium text-gray-800 dark:text-gray-200"
+          data-tooltip-id="description-tooltip"
+          data-tooltip-content={String(transaction.desc)}
+        >
+          {transaction.desc}
         </div>
-        
+        <Tooltip
+          id="description-tooltip"
+          style={{ width: '13rem' }}
+          variant="light"
+        />
+
         <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
           <Tag size={12} className="mr-1" />
-          <span className="mr-2">Mã GD:</span>
-          <span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-            {transaction.code}
+          <span className="mr-2">
+            {isGiftCard
+              ? t('profile.giftCardCode') + ':'
+              : isOrder
+                ? t('profile.orderCode') + ':'
+                : t('profile.transactionCode') + ':'}
+          </span>
+          <span
+            className={`rounded px-2 py-1 font-mono ${
+              isGiftCard
+                ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
+                : isOrder
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                  : 'bg-gray-100 dark:bg-gray-800'
+            }`}
+          >
+            {transaction.objectSlug}
           </span>
         </div>
       </div>
-    );
+    )
   }
-  
-  // Loading Skeleton for Transaction Card
-  const TransactionCardSkeleton = () => (
-    <div className="p-3 mb-3 rounded-md border-l-4 border-gray-200 bg-gray-50 dark:bg-gray-800/10 dark:border-gray-700">
-      <div className="flex justify-between items-center mb-2">
-        <Skeleton className="h-6 w-24" />
-        <Skeleton className="h-4 w-16" />
-      </div>
-      <Skeleton className="h-4 w-full mb-2" />
-      <Skeleton className="h-4 w-36" />
-    </div>
-  )
+
   return (
-    <div>       
-      <Card className="shadow-md border-none overflow-hidden">
-        <CardHeader className={`${isMobile ? 'py-2 px-3' : 'py-4 px-6'} bg-gray-50 dark:bg-gray-800/50`}>          
-          <CardTitle className={`${isMobile ? 'text-sm' : 'text-lg'} flex items-center gap-2`}>
-            <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 p-1 rounded-full">
+    <div>
+      <Card className="overflow-hidden border-none shadow-md">
+        <CardHeader
+          className={`${isMobile ? 'px-3 py-2' : 'px-6 py-4'} bg-gray-50 dark:bg-gray-800/50`}
+        >
+          <CardTitle
+            className={`${isMobile ? 'text-sm' : 'text-lg'} flex items-center gap-2`}
+          >
+            <span className="rounded-full bg-orange-100 p-1 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
               <Tag size={isMobile ? 16 : 18} />
             </span>
             {t('profile.coinTransactions')}
+            {totalItems > 0 && (
+              <span className="ml-2 text-xs text-gray-500">({totalItems})</span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
           {isLoading ? (
             // Loading skeleton
-            Array(5).fill(0).map((_, index) => (
-              <TransactionCardSkeleton key={`skeleton-${index}`} />
-            ))
+            Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <TransactionCardSkeleton key={`skeleton-${index}`} />
+              ))
+          ) : hasError ? (
+            // Error state
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/30">
+                <Coins className="h-8 w-8 text-red-400" />
+              </div>
+              <h3 className="mb-2 text-lg font-medium">
+                {t('profile.errorLoadingTransactions')}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('profile.pleaseTryAgainLater')}
+              </p>
+              <button
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90"
+                onClick={() => {
+                  setHasError(false)
+                  fetchCoinTransactions(1, true)
+                }}
+              >
+                {t('profile.tryAgain')}
+              </button>
+            </div>
           ) : transactions.length === 0 ? (
             // Empty state
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <div className="mb-4 rounded-full bg-gray-100 p-3 dark:bg-gray-800">
                 <Coins className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="mb-2 text-lg font-medium">{t('profile.noTransactions')}</h3>
+              <h3 className="mb-2 text-lg font-medium">
+                {t('profile.noTransactions')}
+              </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {t('profile.transactionsWillAppearHere')}
               </p>
@@ -215,21 +292,23 @@ export function CustomerCoinTabsContent() {
             // Transaction cards
             <div className="space-y-1">
               {transactions.map((transaction, index) => (
-                <div 
-                  key={transaction.id} 
-                  ref={index === transactions.length - 5 ? lastElementRef : null}
+                <div
+                  key={transaction.slug}
+                  ref={
+                    index === transactions.length - 5 ? lastElementRef : null
+                  }
                 >
                   <CoinTransactionCard transaction={transaction} />
                 </div>
               ))}
-              
+
               {/* Loading more indicator */}
               {loadingMore && (
                 <div className="py-2">
                   <TransactionCardSkeleton />
                 </div>
               )}
-              
+
               {/* End of list message */}
               {!hasMore && transactions.length > 0 && (
                 <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">

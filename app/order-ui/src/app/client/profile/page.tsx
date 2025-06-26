@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Coins } from 'lucide-react'
 
 import { ProfilePicture } from '@/components/app/avatar'
-import { useUploadProfilePicture } from '@/hooks'
+import { useUploadProfilePicture, useGetUserBalance } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
@@ -12,10 +12,12 @@ import { CustomerProfileTabs } from '@/components/app/tabs'
 export default function ProfilePage() {
   const { t } = useTranslation(['profile', 'toast'])
   const { t: tHelmet } = useTranslation('helmet')
-  const { t: tGiftCard } = useTranslation(['giftCard'])
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
   const fullname = userInfo?.firstName + ' ' + userInfo?.lastName
+
+  const { data: balanceData } = useGetUserBalance(userInfo?.slug)
+  const balance = balanceData?.result?.points || 0
 
   const handleUploadProfilePicture = (file: File) => {
     uploadProfilePicture(file, {
@@ -27,7 +29,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container py-10 mx-auto">
+    <div className="container mx-auto py-10">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.profile.title')}</title>
@@ -49,19 +51,23 @@ export default function ProfilePage() {
               }
               onUpload={handleUploadProfilePicture}
             />
-            <div className="flex flex-col justify-center ml-4">
-              <span className="font-bold">{fullname}</span>
-              <div className="text-description flex items-center text-[13px]">
+            <div className="ml-4 flex flex-col justify-center">
+              <span className="font-bold dark:text-white">{fullname}</span>
+              <div className="text-description flex items-center text-[13px] dark:text-gray-300">
                 {userInfo?.phonenumber}
               </div>
-            </div>      
-          </div>          
-          <div className="py-4 px-6 bg-gradient-to-r from-orange-100 to-amber-50 ">
-            <h3 className="text-[13px] m-0 font-semibold flex items-center gap-3 flex-wrap">
-              <Coins className="text-orange-500" />
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-orange-100 to-amber-50 px-6 py-4 dark:from-orange-900/40 dark:to-amber-800/30">
+            <h3 className="m-0 flex flex-wrap items-center gap-3 text-[13px] font-semibold">
               <div className="flex flex-row items-center gap-2">
-                <span className="text-gray-700 dark:text-gray-300">{t('profile.coinBalance')}:</span> 
-                <span className="text-[13px] text-orange-500 font-bold tracking-tight">{formatCurrency(123456789, '')}{tGiftCard('giftCard.coin')} </span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {t('profile.coinBalance')}:
+                </span>
+                <span className="text-[13px] font-bold tracking-tight text-orange-500 dark:text-orange-300">
+                  {formatCurrency(balance, '')}
+                </span>
+                <Coins className="text-orange-500 dark:text-orange-300" />
               </div>
             </h3>
           </div>
