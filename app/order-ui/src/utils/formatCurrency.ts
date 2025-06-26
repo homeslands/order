@@ -1,8 +1,13 @@
-import * as curr from 'currency.js';
+import * as curr from 'currency.js'
 
 export function formatCurrency(value: number, currency = 'đ') {
   const safeValue = value < 0 ? 0 : value
   return `${curr.default(safeValue, { separator: ',', symbol: '', precision: 0 }).format()} ${currency}`
+}
+
+export const formatCurrencyWithSymbol = (value: number, withSymbol = true) => {
+  const formatted = new Intl.NumberFormat('vi-VN').format(value)
+  return withSymbol ? `${formatted} ₫` : formatted
 }
 
 export function formatShortCurrency(value: number, currency = 'VND') {
