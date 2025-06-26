@@ -12,6 +12,7 @@ interface RecipientSearchInputProps {
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  onSelectionChange?: (hasSelectedUser: boolean) => void
 }
 
 export default function RecipientSearchInput({
@@ -19,6 +20,7 @@ export default function RecipientSearchInput({
   onChange,
   placeholder,
   className,
+  onSelectionChange,
 }: RecipientSearchInputProps) {
   const { t } = useTranslation(['giftCard'])
   const [users, setUsers] = useState<IUserInfo[]>([])
@@ -43,12 +45,18 @@ export default function RecipientSearchInput({
         }
       : null,
   )
+
   // Initialize input value from parent value only once
   useEffect(() => {
     if (value && !selectedUser && inputValue === '') {
       setInputValue(value)
     }
-  }, [value, selectedUser, inputValue, setInputValue]) // Don't sync back to parent automatically - only when user selects someone
+
+    // Notify parent component about user selection state change
+    if (onSelectionChange) {
+      onSelectionChange(!!selectedUser)
+    }
+  }, [value, selectedUser, inputValue, setInputValue, onSelectionChange]) // Don't sync back to parent automatically - only when user selects someone
   // The parent form will handle the typing input directly
   useEffect(() => {
     if (!searchCondition || selectedUser) {
