@@ -4,7 +4,7 @@ export enum Menu {
 }
 
 export enum PriceRange {
-  MAX_PRICE = 10_000_000,
+  MAX_PRICE = 300_000,
   MIN_PRICE = 0,
-  STEP_SIZE = 5_000,
+  STEP_SIZE = 1_000,
 }
