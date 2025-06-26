@@ -91,7 +91,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full h-full rounded-md sm:rounded-t-xl sm:rounded-b-none sm:h-40"
+                className="object-cover w-full p-1.5 h-full rounded-xl sm:h-40"
               />
               {/* Stock */}
               {item.product.isLimit && !isMobile && (
@@ -104,7 +104,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
               )}
             </>
           ) : (
-            <img src={ProductImage} alt={item.product.name} className="object-cover w-full h-full rounded-t-md" />
+            <img src={ProductImage} alt={item.product.name} className="object-cover p-1.5 w-full h-full rounded-xl" />
           )}
         </div>
       </NavLink>
@@ -230,7 +230,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
             <ClientAddToCartDialog product={item} />
           ) : (
             <Button
-              className="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
+              className="w-full px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
               disabled
             >
               {t('menu.outOfStock')}

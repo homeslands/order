@@ -93,7 +93,7 @@ export default function ClientMenuPage() {
             <div className='hidden sm:block'>
               <ClientCatalogSelect onChange={handleSelectCatalog} />
             </div>
-            <div>
+            <div className='block sm:hidden'>
               <HorizontalCatalogSelect onChange={handleSelectCatalog} />
             </div>
 
