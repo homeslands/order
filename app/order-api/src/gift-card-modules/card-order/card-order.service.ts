@@ -32,7 +32,7 @@ export class CardOrderService {
     @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async cancel(slug: string): Promise<void> {
     const context = `${CardOrderService.name}.${this.cancel.name}`;
@@ -72,6 +72,10 @@ export class CardOrderService {
 
     if (!card) {
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+    }
+
+    if (!card.isActive) {
+      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE)
     }
 
     const customer = await this.userRepository.findOne({
