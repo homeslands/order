@@ -20,6 +20,7 @@ export const PRINTER_PORT_EMPTY = 'PRINTER_PORT_EMPTY';
 export const PRINTER_CONNECT_ERROR = 'PRINTER_CONNECT_ERROR';
 export const PRINTER_WRITE_ERROR = 'PRINTER_WRITE_ERROR';
 export const CHEF_ORDER_MUST_BE_ACCEPTED = 'CHEF_ORDER_MUST_BE_ACCEPTED';
+export const ORDER_MUST_BE_PAID = 'ORDER_MUST_BE_PAID';
 export type TChefOrderErrorCodeKey =
   | typeof ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA
   | typeof CHEF_ORDER_NOT_FOUND
@@ -34,7 +35,8 @@ export type TChefOrderErrorCodeKey =
   | typeof PRINTER_PORT_EMPTY
   | typeof PRINTER_CONNECT_ERROR
   | typeof PRINTER_WRITE_ERROR
-  | typeof CHEF_ORDER_MUST_BE_ACCEPTED;
+  | typeof CHEF_ORDER_MUST_BE_ACCEPTED
+  | typeof ORDER_MUST_BE_PAID;
 
 export type TChefOrderErrorCode = Record<
   TChefOrderErrorCodeKey,
@@ -85,6 +87,7 @@ const ChefOrderValidation: TChefOrderErrorCode = {
     154514,
     'Chef order must be accepted',
   ),
+  ORDER_MUST_BE_PAID: createErrorCode(154515, 'Order must be paid'),
 };
 
 export default ChefOrderValidation;
