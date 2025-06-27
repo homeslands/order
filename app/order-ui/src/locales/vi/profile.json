@@ -49,9 +49,26 @@
     "enterOtpCode": "Nhập mã OTP 6 số",
     "otpDescription": "Vui lòng nhập mã OTP 6 số đã được gửi đến email của bạn",
     "verifyOtp": "Xác minh OTP",
-    "resendOtp": "Gửi lại OTP",
+    "resendOtp": "Gửi lại OTP",    
     "otpExpiredIn": "Mã OTP sẽ hết hạn sau",
     "minutes": "phút",
-    "seconds": "giây"
+    "seconds": "giây",
+    "coin": "Quản lý coin",
+    "coinBalance": "Số dư",
+    "coinTransactions": "Lịch sử giao dịch",
+    "description": "Mô tả",
+    "code": "Mã giao dịch",
+    "date": "Ngày",
+    "noTransactions": "Chưa có giao dịch",
+    "transactionsWillAppearHere": "Các giao dịch coin sẽ hiển thị ở đây",
+    "noMoreTransactions": "Đã hiển thị tất cả giao dịch",
+    "errorLoadingTransactions": "Lỗi tải dữ liệu giao dịch",
+    "pleaseTryAgainLater": "Vui lòng thử lại sau",
+    "tryAgain": "Thử lại",
+    "giftCardTransaction": "Giao dịch thẻ quà tặng",
+    "orderTransaction": "Thanh toán hóa đơn",
+    "orderCode": "Mã đơn hàng",
+    "giftCardCode": "Mã thẻ",
+    "transactionCode": "Mã GD"
   }
 }
