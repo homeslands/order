@@ -63,11 +63,6 @@ export default function ProductDetailPage() {
     return Date.now().toString(36)
   }
 
-  const finalPrice =
-    productDetail?.promotion?.value && selectedVariant?.price
-      ? selectedVariant.price * (1 - productDetail.promotion.value / 100)
-      : selectedVariant?.price ?? 0;
-
 
   if (isLoading) {
     return <ProductDetailSkeleton />
@@ -84,11 +79,6 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    // const currentUrl = window.location.pathname
-    // if (!getUserInfo()?.slug)
-    //   return (
-    //     showErrorToast(1042), setCurrentUrl(currentUrl), navigate(ROUTE.LOGIN)
-    //   )
     if (!selectedVariant) return
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -106,8 +96,8 @@ export default function ProductDetailPage() {
           variant: selectedVariant,
           size: selectedVariant.size.name,
           originalPrice: selectedVariant.price,
-          price: finalPrice,
           promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
+          promotionDiscount: productDetail?.promotion ? productDetail?.promotion?.value * selectedVariant?.price / 100 : 0,
           description: productDetail?.product.description || '',
           isLimit: productDetail?.product.isLimit || false,
           note: note,
@@ -115,6 +105,7 @@ export default function ProductDetailPage() {
       ],
       table: '', // will be set later via addTable
     }
+
     addCartItem(cartItem)
     // Reset states
     setNote('')
@@ -123,10 +114,6 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!selectedVariant) return
-
-    const finalPrice = productDetail?.promotion && productDetail?.promotion?.value > 0
-      ? selectedVariant.price * (1 - productDetail?.promotion?.value / 100)
-      : selectedVariant.price;
 
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -145,11 +132,10 @@ export default function ProductDetailPage() {
           variant: selectedVariant,
           size: selectedVariant.size.name,
           originalPrice: selectedVariant.price,
-          price: finalPrice, // Use the calculated final price
+          promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
+          promotionDiscount: productDetail?.promotion ? productDetail?.promotion?.value * selectedVariant?.price / 100 : 0,
           description: productDetail?.product.description || '',
           isLimit: productDetail?.product.isLimit || false,
-          promotion: productDetail?.promotion ? productDetail?.promotion?.slug : '',
-          // catalog: product.catalog,
           note: note,
         },
       ],

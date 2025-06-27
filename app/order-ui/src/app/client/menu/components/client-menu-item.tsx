@@ -42,9 +42,9 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   const handleAddToCart = (product: IMenuItem) => {
     if (!product?.product?.variants || product?.product?.variants.length === 0) return;
 
-    const finalPrice = product?.promotion && product?.promotion?.value > 0
-      ? product?.product?.variants[0].price * (1 - product?.promotion?.value / 100)
-      : product?.product?.variants[0]?.price;
+    // const finalPrice = product?.promotion && product?.promotion?.value > 0
+    //   ? product?.product?.variants[0].price * (1 - product?.promotion?.value / 100)
+    //   : product?.product?.variants[0]?.price;
 
     const cartItem = {
       id: generateCartItemId(),
@@ -62,11 +62,12 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
           allVariants: product?.product?.variants,
           size: product?.product?.variants[0]?.size?.name,
           originalPrice: product?.product?.variants[0]?.price,
-          price: finalPrice,
-          description: product?.product?.description,
-          isLimit: product?.product?.isLimit,
+          // price: finalPrice,
+          description: product?.product?.description || '',
+          isLimit: product?.product?.isLimit || false,
           promotion: product?.promotion ? product?.promotion?.slug : '',
           promotionValue: product?.promotion ? product?.promotion?.value : 0,
+          promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
           note: '',
         },
       ],
