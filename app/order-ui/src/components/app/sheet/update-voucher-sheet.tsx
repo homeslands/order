@@ -274,6 +274,8 @@ export default function UpdateVoucherSheet({
             </FormLabel>
             <FormControl>
               <Input
+                readOnly
+                disabled
                 type="text"
                 {...field}
                 placeholder={t('voucher.enterVoucherCode')}
@@ -299,21 +301,23 @@ export default function UpdateVoucherSheet({
               {form.watch('type') === VOUCHER_TYPE.PERCENT_ORDER ? (
                 <div className='relative'>
                   <Input
+                    readOnly
+                    disabled
                     type="number"
                     {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Chỉ set number, không set empty string để tránh validation fail
-                      if (value === '' || Number(value) <= 0) {
-                        field.onChange(1); // Set minimum valid value for percent
-                      } else {
-                        const numValue = Number(value);
-                        field.onChange(numValue > 100 ? 100 : numValue);
-                      }
-                    }}
+                    // onChange={(e) => {
+                    //   const value = e.target.value;
+                    //   // Chỉ set number, không set empty string để tránh validation fail
+                    //   if (value === '' || Number(value) <= 0) {
+                    //     field.onChange(1); // Set minimum valid value for percent
+                    //   } else {
+                    //     const numValue = Number(value);
+                    //     field.onChange(numValue > 100 ? 100 : numValue);
+                    //   }
+                    // }}
                     value={field.value || 1}
-                    min={1}
-                    max={100}
+                    // min={1}
+                    // max={100}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
 
@@ -324,17 +328,19 @@ export default function UpdateVoucherSheet({
               ) : (
                 <div className='relative'>
                   <Input
+                    readOnly
+                    disabled
                     type="number"
                     {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Chỉ set number, không set empty string để tránh validation fail
-                      if (value === '' || Number(value) <= 0) {
-                        field.onChange(1000); // Set minimum valid value for fixed amount
-                      } else {
-                        field.onChange(Number(value));
-                      }
-                    }}
+                    // onChange={(e) => {
+                    //   const value = e.target.value;
+                    //   // Chỉ set number, không set empty string để tránh validation fail
+                    //   if (value === '' || Number(value) <= 0) {
+                    //     field.onChange(1000); // Set minimum valid value for fixed amount
+                    //   } else {
+                    //     field.onChange(Number(value));
+                    //   }
+                    // }}
                     value={field.value || 1000}
                     min={1}
                     placeholder={t('voucher.enterVoucherValue')}
