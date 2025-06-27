@@ -30,6 +30,7 @@ import * as net from 'net';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { PDFDocument } from 'pdf-lib';
+import { OrderStatus } from 'src/order/order.constants';
 @Injectable()
 export class ChefOrderService {
   constructor(
@@ -77,6 +78,10 @@ export class ChefOrderService {
       throw new ChefOrderException(
         ChefOrderValidation.CHEF_ORDERS_ALREADY_EXIST_FROM_THIS_ORDER,
       );
+    }
+    if (order.status !== OrderStatus.PAID) {
+      this.logger.warn(ChefOrderValidation.ORDER_MUST_BE_PAID.message, context);
+      throw new ChefOrderException(ChefOrderValidation.ORDER_MUST_BE_PAID);
     }
 
     const chefOrders: ChefOrder[] = await this.chefOrderUtils.createChefOrder(
