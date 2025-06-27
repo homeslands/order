@@ -367,8 +367,6 @@ export default function VoucherListSheetInUpdateOrder({
     }
   }
 
-
-
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
 
@@ -437,24 +435,44 @@ export default function VoucherListSheetInUpdateOrder({
     }
   };
 
-
   const isVoucherValid = (voucher: IVoucher) => {
+    // console.log('isVoucherValid', voucher, orderItems)
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
+    // Check if voucher has voucherProducts and if cart items match
+    const hasValidProducts = (() => {
+      // If voucher doesn't have voucherProducts or it's empty, return false
+      if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
+        return false
+      }
+
+      // If cart is empty, return false
+      if (!orderItems || orderItems.length === 0) {
+        return false
+      }
+
+      // Check if at least one cart item matches voucher products
+      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      const cartProductSlugs = orderItems.map(item => item?.variant?.product?.slug)
+
+      return voucherProductSlugs.some(voucherSlug =>
+        cartProductSlugs.includes(voucherSlug)
+      )
+    })()
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
     const isRequiredLogin = voucher.isVerificationIdentity
     const isUserLoggedIn = !!userInfo
     const isIdentityValid = !isRequiredLogin || (isRequiredLogin && isUserLoggedIn)
-    return isValidAmount && isValidDate && isRemainingUsage && isIdentityValid
+    return isValidAmount && isValidDate && isRemainingUsage && isIdentityValid && hasValidProducts
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -513,8 +531,19 @@ export default function VoucherListSheetInUpdateOrder({
                 </Tooltip>
               </TooltipProvider>
             </span>
+            <span className="text-xs text-destructive">
+              {voucher.isVerificationIdentity && !userInfo
+                ? t('voucher.needVerifyIdentity')
+                : voucher.remainingUsage === 0
+                  ? t('voucher.outOfStock')
+                  : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
+                    ? t('voucher.expired')
+                    : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
+                      ? t('voucher.minOrderNotMet')
+                      : ''}
+            </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
-              Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}
+              {t('voucher.applyForOrderValueFrom')} {formatCurrency(voucher.minOrderValue)}
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
@@ -584,6 +613,22 @@ export default function VoucherListSheetInUpdateOrder({
                           {t('voucher.minOrderValue')}:{' '}
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
+                        {voucher.isVerificationIdentity && (
+                          <li>
+                            {t('voucher.needVerifyIdentity')}
+                          </li>
+                        )}
+                        {voucher.numberOfUsagePerUser && (
+                          <li>
+                            {t('voucher.numberOfUsagePerUser')}:{' '}
+                            {voucher.numberOfUsagePerUser}
+                          </li>
+                        )}
+                        {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                          <li>
+                            {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -637,6 +682,22 @@ export default function VoucherListSheetInUpdateOrder({
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}
                       </li>
+                      {voucher.isVerificationIdentity && (
+                        <li>
+                          {t('voucher.needVerifyIdentity')}
+                        </li>
+                      )}
+                      {voucher.numberOfUsagePerUser && (
+                        <li>
+                          {t('voucher.numberOfUsagePerUser')}:{' '}
+                          {voucher.numberOfUsagePerUser}
+                        </li>
+                      )}
+                      {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                        <li>
+                          {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -659,19 +720,8 @@ export default function VoucherListSheetInUpdateOrder({
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
-                className="w-1/2"
+                className="w-full"
               />
-              <span className="text-xs text-destructive">
-                {voucher.isVerificationIdentity && !userInfo
-                  ? t('voucher.needVerifyIdentity')
-                  : voucher.remainingUsage === 0
-                    ? t('voucher.outOfStock')
-                    : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
-                      ? t('voucher.expired')
-                      : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
-                        ? t('voucher.minOrderNotMet')
-                        : ''}
-              </span>
             </div>
           )}
         </div>
@@ -735,7 +785,7 @@ export default function VoucherListSheetInUpdateOrder({
                   {t('voucher.maxApply')}: 1
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 pb-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
                   localVoucherList?.map((voucher) =>
                     renderVoucherCard(
