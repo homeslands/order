@@ -36,6 +36,7 @@ import { PointTransactionService } from './point-transaction/point-transaction.s
 import { PointTransactionProfile } from './point-transaction/point-transaction.mapper';
 import { PointTransaction } from './point-transaction/entities/point-transaction.entity';
 import { Order } from 'src/order/order.entity';
+import { GiftCardScheduler } from './gift-card/gift-card.scheduler';
 
 const controllers = [
   CardController,
@@ -100,10 +101,18 @@ const exportMappers = [];
 
 const subscribers = [CardOrderSubscriber];
 
+const schedulers = [GiftCardScheduler];
+
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [...providers, ...mappers, ...subscribers, ...listeners],
+  providers: [
+    ...providers,
+    ...mappers,
+    ...subscribers,
+    ...listeners,
+    ...schedulers,
+  ],
   exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}

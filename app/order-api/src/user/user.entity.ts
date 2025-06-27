@@ -10,6 +10,7 @@ import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
 import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
+import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -110,4 +111,7 @@ export class User extends Base {
 
   @OneToMany(() => PointTransaction, (pt) => pt.user)
   pointTransactions: PointTransaction[];
+
+  @OneToMany(() => GiftCard, (gc) => gc.usedBy)
+  giftCards?: GiftCard[];
 }
