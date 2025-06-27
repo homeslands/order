@@ -436,7 +436,6 @@ export default function VoucherListSheetInUpdateOrder({
   };
 
   const isVoucherValid = (voucher: IVoucher) => {
-    // console.log('isVoucherValid', voucher, orderItems)
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
