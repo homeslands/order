@@ -113,9 +113,9 @@ export default function ClientAddToCartDialog({
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
+          slug: product?.product?.slug,
+          image: product?.product?.image,
+          name: product?.product?.name,
           quantity: 1,
           allVariants: product.product.variants,
           variant: selectedVariant,
