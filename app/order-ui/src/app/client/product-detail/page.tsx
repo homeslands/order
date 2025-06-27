@@ -98,9 +98,9 @@ export default function ProductDetailPage() {
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: productDetail?.slug || '',
-          image: productDetail?.product.image || '',
-          name: productDetail?.product.name || '',
+          slug: productDetail?.product?.slug || '',
+          image: productDetail?.product?.image || '',
+          name: productDetail?.product?.name || '',
           quantity: quantity,
           allVariants: productDetail?.product.variants || [],
           variant: selectedVariant,
@@ -137,10 +137,10 @@ export default function ProductDetailPage() {
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: productDetail?.slug || '',
+          slug: productDetail?.product?.slug || '',
           image: productDetail?.product.image || '',
           name: productDetail?.product.name || '',
-          quantity: 1,
+          quantity: quantity,
           allVariants: productDetail?.product.variants || [],
           variant: selectedVariant,
           size: selectedVariant.size.name,
