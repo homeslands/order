@@ -51,7 +51,7 @@ export class ACBConnectorController {
   }
 
   @Post()
-  @HasRoles(RoleEnum.Manager, RoleEnum.Admin)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create ACB config' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
