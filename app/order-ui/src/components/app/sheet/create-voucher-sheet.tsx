@@ -112,6 +112,14 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
+    if (fieldName === 'startDate') {
+      const currentEndDate = form.getValues('endDate')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
+      }
+    }
   }
 
   const handleSelectionChange = (selectedSlugs: string[]) => {
