@@ -194,12 +194,32 @@ export default function StaffVoucherListSheet() {
         ? true
         : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
     const isActive = voucher.isActive
+    // Check if voucher has voucherProducts and if cart items match
+    const hasValidProducts = (() => {
+      // If voucher doesn't have voucherProducts or it's empty, return false
+      if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
+        return false
+      }
+
+      // If cart is empty, return false
+      if (!cartItems?.orderItems || cartItems.orderItems.length === 0) {
+        return false
+      }
+
+      // Check if at least one cart item matches voucher products
+      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
+
+      return voucherProductSlugs.some(voucherSlug =>
+        cartProductSlugs.includes(voucherSlug)
+      )
+    })()
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
     const requiresLogin = voucher.isVerificationIdentity === true
     const isUserLoggedIn = !!cartItems?.owner && cartItems.ownerRole === Role.CUSTOMER
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
-    return isActive && isValidAmount && isValidDate && isIdentityValid
+    return isActive && isValidAmount && isValidDate && isIdentityValid && hasValidProducts
   }
 
   // Filter and sort vouchers to get the best one
@@ -374,7 +394,7 @@ export default function StaffVoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -437,8 +457,11 @@ export default function StaffVoucherListSheet() {
                 </Tooltip>
               </TooltipProvider>
             </span>
+            <span className="text-xs text-destructive">
+              {getVoucherErrorMessage(voucher)}
+            </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
-              Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}
+              {t('voucher.applyForOrderValueFrom')} {formatCurrency(voucher.minOrderValue)}
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
@@ -513,6 +536,11 @@ export default function StaffVoucherListSheet() {
                             {t('voucher.isVerificationIdentity')}
                           </li>
                         )}
+                        {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                          <li>
+                            {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -571,6 +599,11 @@ export default function StaffVoucherListSheet() {
                           {t('voucher.isVerificationIdentity')}
                         </li>
                       )}
+                      {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                        <li>
+                          {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -593,11 +626,8 @@ export default function StaffVoucherListSheet() {
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
-                className="w-1/2"
+                className="w-full"
               />
-              <span className="text-xs text-destructive">
-                {getVoucherErrorMessage(voucher)}
-              </span>
             </div>
           )}
         </div>
@@ -688,7 +718,7 @@ export default function StaffVoucherListSheet() {
                   {t('voucher.maxApply')}: 1
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 pb-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
                   localVoucherList?.map((voucher) =>
                     renderVoucherCard(voucher),
