@@ -40,7 +40,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -63,8 +63,11 @@ export default function VoucherListSheet() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
   // let subTotal = 0
+  const voucher = cartItems?.voucher || null
   // calculate subtotal
-  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  const displayItems = calculateCartItemDisplay(cartItems, voucher)
+  const cartTotals = calculateCartTotals(displayItems, voucher)
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0) || 0
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -359,8 +362,7 @@ export default function VoucherListSheet() {
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
-        : (voucher?.minOrderValue || 0) <= subTotal
-    // check if 
+        : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
 
