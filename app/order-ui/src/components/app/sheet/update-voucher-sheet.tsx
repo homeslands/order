@@ -118,10 +118,10 @@ export default function UpdateVoucherSheet({
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     if (fieldName === 'startDate') {
-      // Nếu thay đổi ngày bắt đầu, xóa ngày kết thúc nếu nó trước ngày bắt đầu mới
+      // Nếu thay đổi ngày bắt đầu, cập nhật ngày kết thúc nếu nó trước ngày bắt đầu mới
       const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
-        form.setValue('endDate', '')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
       }
     }
     form.setValue(fieldName, date)
