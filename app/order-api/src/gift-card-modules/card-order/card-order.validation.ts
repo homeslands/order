@@ -15,6 +15,8 @@ export const INVALID_CARD_ORDER_TYPE = 'INVALID_CARD_ORDER_TYPE';
 export const INVALID_CARD_ORDER_SLUG = 'INVALID_CARD_ORDER_SLUG';
 export const CARD_ORDER_HAS_ALREADY_PAYMENT = 'CARD_ORDER_HAS_ALREADY_PAYMENT';
 export const CARD_IS_NOT_ACTIVE = 'CARD_IS_NOT_ACTIVE';
+export const GIFT_CARD_HAS_ALREADY_GENERATED =
+  'GIFT_CARD_HAS_ALREADY_GENERATED';
 
 export type TCardOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CARD_ORDER
@@ -29,7 +31,8 @@ export type TCardOrderErrorCodeKey =
   | typeof INVALID_CARD_ORDER_TYPE
   | typeof INVALID_CARD_ORDER_SLUG
   | typeof CARD_ORDER_HAS_ALREADY_PAYMENT
-  | typeof CARD_IS_NOT_ACTIVE;
+  | typeof CARD_IS_NOT_ACTIVE
+  | typeof GIFT_CARD_HAS_ALREADY_GENERATED;
 
 // 158101- 158200
 export type TCardOrderErrorCode = Record<
@@ -67,7 +70,7 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   CARD_ORDER_NOT_PENDING: createErrorCode(158109, 'Card order not pending'),
   INVALID_CARD_ORDER_TYPE: createErrorCode(
     158110,
-    'Card order type must be one of the following: [GIFT, SELF]',
+    'Card order type must be one of the following: [GIFT, SELF, BUY]',
   ),
   CARD_ORDER_HAS_ALREADY_PAYMENT: createErrorCode(
     158111,
@@ -77,5 +80,9 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   CARD_IS_NOT_ACTIVE: createErrorCode(
     158113,
     'Your card is currently inactive. Please activate it to proceed.',
+  ),
+  GIFT_CARD_HAS_ALREADY_GENERATED: createErrorCode(
+    158114,
+    'Gift cards have already generated',
   ),
 };
