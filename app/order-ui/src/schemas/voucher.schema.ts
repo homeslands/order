@@ -12,31 +12,36 @@ export const updateVoucherGroupSchema = z.object({
   description: z.optional(z.string()),
 })
 
-export const createVoucherSchema = z.object({
-  voucherGroup: z.string(),
-  title: z.string().min(1),
-  description: z.optional(z.string()),
-  type: z.enum([
-    VOUCHER_TYPE.FIXED_VALUE,
-    VOUCHER_TYPE.PERCENT_ORDER,
-    VOUCHER_TYPE.SAME_PRICE_PRODUCT,
-  ]),
-  code: z.string().min(1),
-  value: z
-    .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
-    .refine((val) => val > 0, {
-      message: 'Giá trị phải lớn hơn 0',
-    }),
-  maxUsage: z.number().int().positive(),
-  minOrderValue: z.number().int().nonnegative(),
-  isActive: z.boolean(),
-  isPrivate: z.boolean(),
-  startDate: z.string(),
-  endDate: z.string(),
-  isVerificationIdentity: z.boolean(),
-  numberOfUsagePerUser: z.number().int().positive(),
-  products: z.array(z.string()),
-})
+export const createVoucherSchema = z
+  .object({
+    voucherGroup: z.string(),
+    title: z.string().min(1),
+    description: z.optional(z.string()),
+    type: z.enum([
+      VOUCHER_TYPE.FIXED_VALUE,
+      VOUCHER_TYPE.PERCENT_ORDER,
+      VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+    ]),
+    code: z.string().min(1),
+    value: z
+      .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+      .refine((val) => val > 0, {
+        message: 'Giá trị phải lớn hơn 0',
+      }),
+    maxUsage: z.number().int().positive(),
+    minOrderValue: z.number().int().nonnegative(),
+    isActive: z.boolean(),
+    isPrivate: z.boolean(),
+    startDate: z.string(),
+    endDate: z.string(),
+    isVerificationIdentity: z.boolean(),
+    numberOfUsagePerUser: z.number().int().positive(),
+    products: z.array(z.string()),
+  })
+  .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
 
 export const createMultipleVoucherSchema = z.object({
   voucherGroup: z.string(),
