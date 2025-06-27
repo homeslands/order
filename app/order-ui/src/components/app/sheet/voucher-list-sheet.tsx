@@ -360,7 +360,7 @@ export default function VoucherListSheet() {
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= subTotal
-
+    // check if 
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
 
@@ -369,12 +369,33 @@ export default function VoucherListSheet() {
 
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
 
-    return isValidAmount && isValidDate && isIdentityValid
+    // Check if voucher has voucherProducts and if cart items match
+    const hasValidProducts = (() => {
+      // If voucher doesn't have voucherProducts or it's empty, return false
+      if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
+        return false
+      }
+
+      // If cart is empty, return false
+      if (!cartItems?.orderItems || cartItems.orderItems.length === 0) {
+        return false
+      }
+
+      // Check if at least one cart item matches voucher products
+      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
+
+      return voucherProductSlugs.some(voucherSlug =>
+        cartProductSlugs.includes(voucherSlug)
+      )
+    })()
+
+    return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -433,6 +454,15 @@ export default function VoucherListSheet() {
                   <TooltipContent>{t('voucher.copyCode')}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+            </span>
+            <span className="text-xs italic text-destructive">
+              {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
+                ? t('voucher.minOrderNotMet')
+                : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
+                  ? t('voucher.expired')
+                  : voucher.isVerificationIdentity && !userInfo?.slug
+                    ? t('voucher.needVerifyIdentity')
+                    : ''}
             </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
               {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
@@ -518,6 +548,11 @@ export default function VoucherListSheet() {
                             {voucher.numberOfUsagePerUser}
                           </li>
                         )}
+                        {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                          <li>
+                            {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -571,6 +606,22 @@ export default function VoucherListSheet() {
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}
                       </li>
+                      {voucher.isVerificationIdentity && (
+                        <li>
+                          {t('voucher.needVerifyIdentity')}
+                        </li>
+                      )}
+                      {voucher.numberOfUsagePerUser && (
+                        <li>
+                          {t('voucher.numberOfUsagePerUser')}:{' '}
+                          {voucher.numberOfUsagePerUser}
+                        </li>
+                      )}
+                      {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                        <li>
+                          {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -594,17 +645,8 @@ export default function VoucherListSheet() {
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
-                className="w-1/2"
+                className="w-full"
               />
-              <span className="text-xs text-destructive">
-                {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
-                  ? t('voucher.minOrderNotMet')
-                  : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
-                    ? t('voucher.expired')
-                    : voucher.isVerificationIdentity && !userInfo?.slug
-                      ? t('voucher.needVerifyIdentity')
-                      : ''}
-              </span>
             </div>
           )}
         </div>
@@ -668,7 +710,7 @@ export default function VoucherListSheet() {
                   {t('voucher.maxApply')}: 1
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 pb-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
                   localVoucherList?.map((voucher) =>
                     renderVoucherCard(
