@@ -67,15 +67,27 @@ export default function UpdatePromotionSheet({
     return date <= startDateObj
   }
 
+  // const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
+  //   if (fieldName === 'startDate') {
+  //     // Nếu thay đổi ngày bắt đầu, xóa ngày kết thúc nếu nó trước ngày bắt đầu mới
+  //     const currentEndDate = form.getValues('endDate')
+  //     if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
+  //       form.setValue('endDate', '')
+  //     }
+  //   }
+  //   form.setValue(fieldName, date)
+  // }
+
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
+    form.setValue(fieldName, date)
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
     if (fieldName === 'startDate') {
-      // Nếu thay đổi ngày bắt đầu, xóa ngày kết thúc nếu nó trước ngày bắt đầu mới
       const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
-        form.setValue('endDate', '')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
       }
     }
-    form.setValue(fieldName, date)
   }
 
   const handleSubmit = (data: IUpdatePromotionRequest) => {
@@ -126,7 +138,6 @@ export default function UpdatePromotionSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
               {t('promotion.description')}
             </FormLabel>
             <FormControl>
@@ -218,19 +229,24 @@ export default function UpdatePromotionSheet({
               {t('promotion.value')}
             </FormLabel>
             <FormControl>
-              <Input
-                type="number"
-                {...field}
-                onChange={(e) => {
-                  const displayValue = Number(e.target.value)
-                  if (displayValue >= 0 && displayValue <= 100) {
-                    field.onChange(displayValue)
-                  }
-                }}
-                min={0}
-                max={100}
-                placeholder={t('promotion.enterPromotionValue')}
-              />
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    const displayValue = Number(e.target.value)
+                    if (displayValue >= 0 && displayValue <= 100) {
+                      field.onChange(displayValue)
+                    }
+                  }}
+                  min={0}
+                  max={100}
+                  placeholder={t('promotion.enterPromotionValue')}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

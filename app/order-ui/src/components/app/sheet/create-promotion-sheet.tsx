@@ -46,12 +46,24 @@ export default function CreatePromotionSheet() {
     },
   })
 
-  const handleDateChange = (
-    fieldName: 'startDate' | 'endDate',
-    date: string,
-  ) => {
+  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
+    if (fieldName === 'startDate') {
+      const currentEndDate = form.getValues('endDate')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
+      }
+    }
   }
+
+  // const handleDateChange = (
+  //   fieldName: 'startDate' | 'endDate',
+  //   date: string,
+  // ) => {
+  //   form.setValue(fieldName, date)
+  // }
 
   const handleSubmit = (data: ICreatePromotionRequest) => {
     // Convert percentage to decimal before submitting
@@ -97,7 +109,7 @@ export default function CreatePromotionSheet() {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('promotion.name')}
             </FormLabel>
@@ -118,8 +130,7 @@ export default function CreatePromotionSheet() {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
-              <span className="text-destructive">*</span>
+            <FormLabel className="flex items-center gap-1">
               {t('promotion.description')}
             </FormLabel>
             <FormControl>
@@ -139,7 +150,7 @@ export default function CreatePromotionSheet() {
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('promotion.startDate')}
             </FormLabel>
@@ -161,7 +172,7 @@ export default function CreatePromotionSheet() {
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('promotion.endDate')}
             </FormLabel>
@@ -183,12 +194,13 @@ export default function CreatePromotionSheet() {
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('promotion.type')}
             </FormLabel>
             <FormControl>
               <Input
+                readOnly
                 defaultValue={t('promotion.defaultPromotionType')}
                 type="text"
                 {...field}
@@ -206,12 +218,12 @@ export default function CreatePromotionSheet() {
         name="value"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('promotion.value')}
             </FormLabel>
             <FormControl>
-              <Input
+              {/* <Input
                 type="number"
                 {...field}
                 onChange={(e) => {
@@ -223,7 +235,29 @@ export default function CreatePromotionSheet() {
                 min={0}
                 max={100}
                 placeholder={t('promotion.enterPromotionValue')}
-              />
+              /> */}
+              <div className='relative'>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '') {
+                      field.onChange('');
+                    } else {
+                      field.onChange(Number(value));
+                    }
+                  }}
+                  className='text-sm'
+                  value={field.value === 0 ? '' : field.value}
+                  min={0}
+                  max={100}
+                  placeholder={t('promotion.enterPromotionValue')}
+                />
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  %
+                </span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
