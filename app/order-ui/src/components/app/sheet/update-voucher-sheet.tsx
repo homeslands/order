@@ -245,6 +245,7 @@ export default function UpdateVoucherSheet({
               {t('voucher.type')}</FormLabel>
             <FormControl>
               <VoucherTypeSelect
+                disabled={true}
                 defaultValue={field.value}
                 {...field}
                 onChange={(value) => {
@@ -491,23 +492,32 @@ export default function UpdateVoucherSheet({
       <FormField
         control={form.control}
         name="isActive"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              {t('voucher.isActive')}
-            </FormLabel>
-            <FormControl>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is-active"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const startDate = form.getValues('startDate')
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+
+          const isStartDateAfterToday = startDate && new Date(startDate) > today || false
+
+          return (
+            <FormItem>
+              <FormLabel className="flex items-center gap-1">
+                {t('voucher.isActive')}
+              </FormLabel>
+              <FormControl>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is-active"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isStartDateAfterToday}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
       />
     ),
     isVerificationIdentity: (
