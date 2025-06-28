@@ -16,7 +16,7 @@ import {
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { VoucherType } from './voucher.constant';
-import { INVALID_VOUCHER_SLUGS } from './voucher.validation';
+import { INVALID_VOUCHER_SLUGS, IsEndDateAfterStartDate } from './voucher.validation';
 import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
 import { INVALID_ORDER_ITEMS } from 'src/order/order.validation';
 import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
@@ -69,6 +69,7 @@ export class CreateVoucherDto {
   @AutoMap()
   @IsDate({ message: 'The end date of voucher must be a date' })
   @Type(() => Date)
+  @IsEndDateAfterStartDate()
   endDate: Date;
 
   @AutoMap()
@@ -181,6 +182,7 @@ export class BulkCreateVoucherDto {
   @AutoMap()
   @IsDate({ message: 'The end date of voucher must be a date' })
   @Type(() => Date)
+  @IsEndDateAfterStartDate()
   endDate: Date;
 
   @AutoMap()
