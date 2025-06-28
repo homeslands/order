@@ -377,9 +377,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className='flex items-center gap-1'>
-              <span className="text-destructive">
-                *
-              </span>
               {t('voucher.remainingUsage')}</FormLabel>
             <FormControl>
               <Input
@@ -409,8 +406,12 @@ export default function UpdateVoucherSheet({
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-                min={0}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
             </FormControl>
@@ -436,7 +437,12 @@ export default function UpdateVoucherSheet({
                   type="number"
                   {...field}
                   placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   {t('voucher.usage')}
@@ -464,8 +470,12 @@ export default function UpdateVoucherSheet({
                   type="number"
                   {...field}
                   placeholder={t('voucher.enterMinOrderValue')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  min={0}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   ₫
@@ -484,7 +494,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
               {t('voucher.isActive')}
             </FormLabel>
             <FormControl>
@@ -508,7 +517,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
               {t('voucher.isVerificationIdentity')}
             </FormLabel>
             <FormControl>
@@ -532,7 +540,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-start gap-1 leading-6">
-              <span className="mt-1 text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
             <FormControl>
@@ -612,9 +619,12 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-3 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.remainingUsage}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 p-4 bg-white border rounded-md">
                     {formFields.numberOfUsagePerUser}
                   </div>
 

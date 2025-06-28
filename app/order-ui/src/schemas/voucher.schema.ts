@@ -96,6 +96,10 @@ export const updateVoucherSchema = z
     numberOfUsagePerUser: z.number().int().positive(),
     products: z.array(z.string()),
   })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
   .superRefine((data, ctx) => {
     if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {
       if (data.value < 1 || data.value > 100) {

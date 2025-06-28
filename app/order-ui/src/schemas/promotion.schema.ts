@@ -30,29 +30,27 @@ export const createPromotionSchema = z
       },
     ),
   })
-  .refine(
-    (data) => {
-      const start = new Date(data.startDate)
-      const end = new Date(data.endDate)
-      return end >= start
-    },
-    {
-      message: 'End date must be after or equal to start date',
-      path: ['endDate'],
-    },
-  )
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
 
-export const updatePromotionSchema = z.object({
-  slug: z.string(),
-  branch: z.string(),
-  createdAt: z.string(),
-  title: z.string().min(1),
-  description: z.optional(z.string()),
-  type: z.string(),
-  value: z.number().int().positive(),
-  startDate: z.string(),
-  endDate: z.string(),
-})
+export const updatePromotionSchema = z
+  .object({
+    slug: z.string(),
+    branch: z.string(),
+    createdAt: z.string(),
+    title: z.string().min(1),
+    description: z.optional(z.string()),
+    type: z.string(),
+    value: z.number().int().positive(),
+    startDate: z.string(),
+    endDate: z.string(),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
 
 export type TCreatePromotionSchema = z.infer<typeof createPromotionSchema>
 export type TUpdatePromotionSchema = z.infer<typeof updatePromotionSchema>
