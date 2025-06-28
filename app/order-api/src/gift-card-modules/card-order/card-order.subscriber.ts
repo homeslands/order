@@ -51,14 +51,14 @@ export class CardOrderSubscriber
 
   async afterUpdate(event: UpdateEvent<CardOrder>): Promise<any> {
     const { databaseEntity } = event;
-    const updatedEntity = await event.manager
-      .getRepository(CardOrder)
-      .findOneOrFail({
-        where: {
-          id: databaseEntity.id,
-        },
-        relations: ['receipients'],
-      });
+    const updatedEntity = await event.manager.getRepository(CardOrder).findOne({
+      where: {
+        id: databaseEntity.id,
+      },
+      relations: ['receipients'],
+    });
+
+    if (!updatedEntity) return;
 
     // Delete job
     if (
@@ -71,7 +71,7 @@ export class CardOrderSubscriber
       databaseEntity.status === CardOrderStatus.PENDING &&
       updatedEntity.status === CardOrderStatus.COMPLETED
     ) {
-      await this.cardOrderService._generateAndRedeem(databaseEntity);
+      await this.handleGenerateAndRedeem(updatedEntity);
     }
   }
 
@@ -132,5 +132,15 @@ export class CardOrderSubscriber
     }
 
     if (job) this.schedulerRegistry.deleteTimeout(JobName);
+  }
+
+  async handleGenerateAndRedeem(updatedEntity: CardOrder) {
+    const context = `${CardOrderSubscriber.name}.${this.handleGenerateAndRedeem.name}`;
+
+    try {
+      await this.cardOrderService._generateAndRedeem(updatedEntity);
+    } catch (error) {
+      this.logger.error(`${error.message}`, error.stack, context);
+    }
   }
 }
