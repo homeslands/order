@@ -70,6 +70,8 @@ export const PriceRangeFilter = () => {
   const handlePresetClick = (min: number, max: number) => {
     setMinPrice(min)
     setMaxPrice(max)
+    setMinPriceInput(formatCurrencyWithSymbol(min, false))
+    setMaxPriceInput(formatCurrencyWithSymbol(max, false))
   }
 
   const handleReset = () => {
@@ -111,9 +113,13 @@ export const PriceRangeFilter = () => {
     if (min > max) {
       setMinPrice(max)
       setMaxPrice(min)
+      setMinPriceInput(formatCurrencyWithSymbol(max, false))
+      setMaxPriceInput(formatCurrencyWithSymbol(min, false))
     } else {
       setMinPrice(min)
       setMaxPrice(max)
+      setMinPriceInput(formatCurrencyWithSymbol(min, false))
+      setMaxPriceInput(formatCurrencyWithSymbol(max, false))
     }
   }
 
@@ -125,19 +131,17 @@ export const PriceRangeFilter = () => {
 
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="mt-6 w-80">
         <div className="space-y-6">
           <div className="space-y-4">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{formatCurrency(PriceRange.MIN_PRICE)}</span>
-              <span>{formatCurrency(PriceRange.MAX_PRICE)}</span>
-            </div>
             <DualRangeSlider
               min={PriceRange.MIN_PRICE}
               max={PriceRange.MAX_PRICE}
               step={PriceRange.STEP_SIZE}
               value={[minPrice, maxPrice]}
               onValueChange={handleSliderChange}
+              formatValue={(value) => formatCurrency(value)}
+              hideMinMaxLabels={true}
             // minStepsBetweenThumbs={0} // Allow thumbs to cross
             />
 
