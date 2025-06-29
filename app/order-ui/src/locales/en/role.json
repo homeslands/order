@@ -4,6 +4,8 @@
     "createdAt": "Created At",
     "slug": "Role Code",
     "name": "Role Name",
+    "roleTitle": "Role",
+    "chooseRole": "Choose Role",
     "description": "Description",
     "authority": "Authority",
     "authorityList": "Authority List",
