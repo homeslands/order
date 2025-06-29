@@ -13,7 +13,7 @@ import {
   Form,
   Button,
 } from '@/components/ui'
-import { updateProfileSchema, TUpdateProfileSchema } from '@/schemas'
+import { useUpdateProfileSchema, TUpdateProfileSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateProfileRequest, IUserInfo } from '@/types'
@@ -22,6 +22,7 @@ import { showToast } from '@/utils'
 import { DatePicker } from '@/components/app/picker'
 import { useUserStore } from '@/stores'
 import { getProfile } from '@/api'
+import { QUERYKEY } from '@/constants'
 
 interface IFormUpdateProfileProps {
   userProfile: IUserInfo | undefined
@@ -37,7 +38,7 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
   const { setUserInfo } = useUserStore()
   const { mutate: createProductVariant } = useUpdateProfile()
   const form = useForm<TUpdateProfileSchema>({
-    resolver: zodResolver(updateProfileSchema),
+    resolver: zodResolver(useUpdateProfileSchema()),
     defaultValues: {
       firstName: userProfile?.firstName || '',
       lastName: userProfile?.lastName || '',
@@ -53,7 +54,7 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
           setUserInfo(data.result)
         })
         queryClient.invalidateQueries({
-          queryKey: ['profile'],
+          queryKey: [QUERYKEY.profile],
         })
         onSubmit(false)
         form.reset()
@@ -103,12 +104,9 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
             <FormControl>
               <DatePicker
                 date={field.value}
-                onSelect={(selectedDate) => {
-                  field.onChange(selectedDate)
-                }}
-                validateDate={() => {
-                  return true // Thay thế bằng logic xác thực thực tế của bạn
-                }}
+                onSelect={(selectedDate) => field.onChange(selectedDate)}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
               />
             </FormControl>
             <FormMessage />
@@ -116,6 +114,7 @@ export const UpdateCustomerProfileForm: React.FC<IFormUpdateProfileProps> = ({
         )}
       />
     ),
+
     address: (
       <FormField
         control={form.control}

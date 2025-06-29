@@ -26,7 +26,7 @@ export function CustomerProfileTabs() {
   }
 
   return (
-    <Tabs value={tab} onValueChange={handleTabChange} className="h-full w-full">
+    <Tabs value={tab} onValueChange={handleTabChange} className="w-full h-full">
       <TabsList
         className={`mb-6 flex h-full w-full flex-wrap justify-start gap-3 overflow-x-auto border-b border-gray-200 dark:border-gray-700 lg:mb-0`}
       >

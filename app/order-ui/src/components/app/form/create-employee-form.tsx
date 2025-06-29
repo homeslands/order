@@ -16,12 +16,13 @@ import {
   ScrollArea,
 } from '@/components/ui'
 import { useCreateUser } from '@/hooks'
-import { createEmployeeSchema, TCreateEmployeeSchema } from '@/schemas'
+import { useCreateEmployeeSchema, TCreateEmployeeSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateUserRequest } from '@/types'
 import { showToast } from '@/utils'
 import { BranchSelect, RoleSelect } from '../select'
+import { PasswordWithRulesInput } from '../input'
 
 interface IFormCreateEmployeeProps {
   onSubmit: (isOpen: boolean) => void
@@ -35,7 +36,7 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
   const { mutate: createUser } = useCreateUser()
 
   const form = useForm<TCreateEmployeeSchema>({
-    resolver: zodResolver(createEmployeeSchema),
+    resolver: zodResolver(useCreateEmployeeSchema()),
     defaultValues: {
       phonenumber: '',
       password: '',
@@ -67,7 +68,10 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.phoneNumber')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.phoneNumber')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterPhoneNumber')} {...field} />
             </FormControl>
@@ -82,11 +86,16 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.password')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.password')}
+            </FormLabel>
             <FormControl>
-              <PasswordInput
+              <PasswordWithRulesInput
+                value={field.value}
+                onChange={field.onChange}
                 placeholder={t('employee.enterPassword')}
-                {...field}
+                disabled={field.disabled}
               />
             </FormControl>
             <FormMessage />
@@ -100,7 +109,10 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
         name="confirmPassword"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.confirmPassword')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.confirmPassword')}
+            </FormLabel>
             <FormControl>
               <PasswordInput
                 placeholder={t('employee.enterPassword')}

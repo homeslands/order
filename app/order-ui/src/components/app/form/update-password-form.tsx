@@ -13,12 +13,14 @@ import {
     Button,
     PasswordInput,
 } from '@/components/ui'
-import { updatePasswordSchema, TUpdatePasswordSchema } from '@/schemas'
+import { useUpdatePasswordSchema, TUpdatePasswordSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdatePasswordRequest } from '@/types'
 import { useUpdatePassword } from '@/hooks'
 import { showToast } from '@/utils'
+import { QUERYKEY } from '@/constants'
+import { PasswordWithRulesInput } from '../input'
 
 interface IFormUpdatePasswordProps {
     onSubmit: (isOpen: boolean) => void
@@ -31,7 +33,7 @@ export const UpdatePasswordForm: React.FC<IFormUpdatePasswordProps> = ({
     const { t } = useTranslation(['profile'])
     const { mutate: updatePassword } = useUpdatePassword()
     const form = useForm<TUpdatePasswordSchema>({
-        resolver: zodResolver(updatePasswordSchema),
+        resolver: zodResolver(useUpdatePasswordSchema()),
         defaultValues: {
             oldPassword: '',
             newPassword: '',
@@ -43,7 +45,7 @@ export const UpdatePasswordForm: React.FC<IFormUpdatePasswordProps> = ({
         updatePassword(data, {
             onSuccess: () => {
                 queryClient.invalidateQueries({
-                    queryKey: ['profile'],
+                    queryKey: [QUERYKEY.profile],
                 })
                 onSubmit(false)
                 form.reset()
@@ -76,7 +78,12 @@ export const UpdatePasswordForm: React.FC<IFormUpdatePasswordProps> = ({
                     <FormItem>
                         <FormLabel>{t('profile.newPassword')}</FormLabel>
                         <FormControl>
-                            <PasswordInput placeholder={t('profile.enterNewPassword')} {...field} />
+                            <PasswordWithRulesInput
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder={t('profile.enterNewPassword')}
+                                disabled={field.disabled}
+                            />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -112,7 +119,15 @@ export const UpdatePasswordForm: React.FC<IFormUpdatePasswordProps> = ({
                         ))}
                     </div>
                     <div className="flex justify-end">
-                        <Button className="flex justify-end" type="submit">
+                        <Button
+                            type="submit"
+                            disabled={
+                                !form.watch('oldPassword') ||
+                                !form.watch('newPassword') ||
+                                !form.watch('confirmPassword') ||
+                                form.formState.isSubmitting
+                            }
+                        >
                             {t('profile.update')}
                         </Button>
                     </div>
