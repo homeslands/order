@@ -47,7 +47,7 @@ export default function CancelOrderDialog({
         <DialogTrigger asChild>
           <Button
             variant="destructive"
-            className="gap-1 px-2 text-sm bg-white border border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white"
+            className="gap-1 px-2 text-sm text-gray-500 bg-white border border-gray-500 hover:bg-gray-500 hover:text-white dark:bg-transparent dark:hover:bg-destructive dark:hover:border-destructive"
             onClick={() => setIsOpen(true)}
           >
             {t('order.cancelOrder')}

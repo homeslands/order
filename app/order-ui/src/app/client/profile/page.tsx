@@ -29,7 +29,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container py-10 mx-auto">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.profile.title')}</title>
@@ -38,7 +38,7 @@ export default function ProfilePage() {
       <div className="flex flex-col items-start gap-10 lg:flex-row">
         {/* Profile picture */}
         <div
-          className={`flex w-full flex-col justify-between rounded-sm bg-white shadow-lg dark:border dark:border-gray-700 dark:bg-gray-800 lg:w-1/4`}
+          className={`flex justify-between w-full bg-white rounded-sm shadow-lg dark:border dark:bg-transparent lg:w-1/4`}
         >
           <div className="flex flex-row p-2">
             <ProfilePicture
@@ -51,14 +51,14 @@ export default function ProfilePage() {
               }
               onUpload={handleUploadProfilePicture}
             />
-            <div className="ml-4 flex flex-col justify-center">
+            <div className="flex flex-col justify-center ml-4">
               <span className="font-bold dark:text-white">{fullname}</span>
               <div className="text-description flex items-center text-[13px] dark:text-gray-300">
                 {userInfo?.phonenumber}
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-orange-100 to-amber-50 px-6 py-4 dark:from-orange-900/40 dark:to-amber-800/30">
+          <div className="px-6 py-4 bg-gradient-to-r from-orange-100 to-amber-50 dark:from-orange-900/40 dark:to-amber-800/30">
             <h3 className="m-0 flex flex-wrap items-center gap-3 text-[13px] font-semibold">
               <div className="flex flex-row items-center gap-2">
                 <span className="text-gray-700 dark:text-gray-300">
@@ -74,7 +74,7 @@ export default function ProfilePage() {
         </div>
         {/* Info */}
         <div
-          className={`w-full rounded-sm bg-white px-5 py-4 shadow-lg transition-all duration-300 ease-in-out dark:border dark:border-gray-700 dark:bg-gray-800 lg:w-3/4`}
+          className={`px-5 py-4 w-full bg-white rounded-sm shadow-lg transition-all duration-300 ease-in-out dark:bg-transparent dark:border lg:w-3/4`}
         >
           <CustomerProfileTabs />
         </div>

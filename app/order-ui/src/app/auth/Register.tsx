@@ -1,9 +1,7 @@
-import { z } from 'zod'
 import { useNavigate, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import _ from 'lodash'
 
-import { registerSchema } from '@/schemas'
 import {
   Card,
   CardContent,
@@ -18,14 +16,25 @@ import { ROUTE } from '@/constants'
 import { showToast } from '@/utils'
 import { cn } from '@/lib/utils'
 import { useRegister } from '@/hooks'
+import { IRegisterSchema } from '@/types'
+import { useTheme } from '@/components/app/theme-provider'
+import { useEffect } from 'react'
 
 export default function Register() {
   const { t } = useTranslation(['auth'])
+  const { theme, setTheme } = useTheme()
+
+  // set theme as light mode by default
+  useEffect(() => {
+    if (theme !== 'light') {
+      setTheme('light')
+    }
+  }, [theme, setTheme])
 
   const navigate = useNavigate()
   const { mutate: register, isPending } = useRegister()
 
-  const handleSubmit = async (data: z.infer<typeof registerSchema>) => {
+  const handleSubmit = async (data: IRegisterSchema) => {
     register(data, {
       onSuccess: () => {
         navigate(ROUTE.LOGIN, { replace: true })
@@ -35,13 +44,13 @@ export default function Register() {
   }
 
   return (
-    <div className="flex relative justify-center items-center min-h-screen">
+    <div className="relative flex items-center justify-center min-h-screen">
       <img
         src={LoginBackground}
-        className="object-cover absolute top-0 left-0 w-full h-full sm:object-fill"
+        className="absolute top-0 left-0 object-cover w-full h-full sm:object-fill"
       />
 
-      <div className="flex justify-center items-center w-full h-full">
+      <div className="flex items-center justify-center w-full h-full">
         <Card className="mx-auto sm:w-[36rem] h-[32rem] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
           <CardHeader className="pb-0">
             <CardTitle className={cn('text-xl text-center text-white sm:text-2xl')}>

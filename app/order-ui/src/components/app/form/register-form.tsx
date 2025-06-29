@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
 
 import {
   FormField,
@@ -16,15 +16,16 @@ import {
   Checkbox,
   Label,
 } from '@/components/ui'
-import { registerSchema, TRegisterSchema } from '@/schemas'
+import { useRegisterSchema, TRegisterSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
-import React from 'react'
-import { Link } from 'react-router-dom'
+
 import { ROUTE } from '@/constants'
+import { IRegisterSchema } from '@/types'
+import { PasswordWithRulesInput } from '../input'
 
 interface IFormRegisterProps {
-  onSubmit: (data: z.infer<typeof registerSchema>) => void
+  onSubmit: (data: IRegisterSchema) => void
   isLoading: boolean
 }
 
@@ -35,18 +36,15 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   const { t } = useTranslation(['auth'])
   const [isTermsAccepted, setIsTermsAccepted] = useState(false)
   const form = useForm<TRegisterSchema>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(useRegisterSchema()),
     defaultValues: {
-      // email: '',
       phonenumber: '',
       password: '',
       confirmPassword: '',
-      // firstName: '',
-      // lastName: '',
     },
   })
 
-  const handleSubmit = (values: z.infer<typeof registerSchema>) => {
+  const handleSubmit = (values: IRegisterSchema) => {
     onSubmit(values)
   }
 
@@ -89,9 +87,15 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
           <FormItem>
             <FormLabel>{t('login.password')}</FormLabel>
             <FormControl>
-              <PasswordInput
+              {/* <PasswordInput
                 placeholder={t('login.enterPassword')}
                 {...field}
+              /> */}
+              <PasswordWithRulesInput
+                value={field.value}
+                onChange={field.onChange}
+                placeholder={t('login.enterPassword')}
+                disabled={field.disabled}
               />
             </FormControl>
             <FormMessage />
@@ -186,7 +190,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
           </div>
           <Button
             type="submit"
-            className="mt-5 w-full"
+            className="w-full mt-5"
             disabled={isLoading || !isTermsAccepted}
           >
             {isLoading ? <ButtonLoading /> : t('register.title')}
