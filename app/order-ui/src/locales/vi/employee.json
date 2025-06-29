@@ -32,6 +32,8 @@
     "enterPhoneNumber": "Nhập số điện thoại",
     "enterFirstName": "Nhập tên",
     "enterLastName": "Nhập họ",
+    "enterEmail": "Nhập email",
+    "enterAddress": "Nhập địa chỉ",
     "confirmPassword": "Xác nhận mật khẩu",
     "enterConfirmPassword": "Nhập xác nhận mật khẩu",
     "password": "Mật khẩu",

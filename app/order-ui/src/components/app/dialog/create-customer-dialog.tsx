@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -23,12 +24,11 @@ export default function CreateCustomerDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          // disabled={cartItems?.ownerFullName !== '' && cartItems?.ownerPhoneNumber !== ''}
-          className="gap-1 w-full" onClick={() => setIsOpen(true)}>
+        <Button className="w-full gap-1" onClick={() => setIsOpen(true)}>
           {t('customer.create')}
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-[90%] rounded-md p-0 sm:max-w-[50%]">
         <DialogHeader className="p-4">
           <DialogTitle>{t('customer.create')}</DialogTitle>
@@ -37,7 +37,15 @@ export default function CreateCustomerDialog() {
           </DialogDescription>
         </DialogHeader>
         <CreateCustomerForm onSubmit={handleSubmit} />
+
+        {/* Footer (sticky outside scroll) */}
+        <DialogFooter className="flex justify-end p-4 border-t">
+          <Button type="submit" form="create-customer-form">
+            {t('customer.create')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+
   )
 }

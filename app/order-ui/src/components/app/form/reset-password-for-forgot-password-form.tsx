@@ -13,7 +13,7 @@ import {
     Button,
     PasswordInput,
 } from '@/components/ui'
-import { resetPasswordSchema, TResetPasswordSchema } from '@/schemas'
+import { useResetPasswordSchema, TResetPasswordSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 
@@ -29,7 +29,7 @@ export const ResetPasswordForForgotPasswordForm: React.FC = () => {
     const token = searchParams.get('token') // Lấy giá trị token từ query string
     const { mutate: resetPassword, isPending } = useResetPasswordForForgotPassword()
     const form = useForm<TResetPasswordSchema>({
-        resolver: zodResolver(resetPasswordSchema),
+        resolver: zodResolver(useResetPasswordSchema()),
         defaultValues: {
             newPassword: '',
             confirmPassword: '',

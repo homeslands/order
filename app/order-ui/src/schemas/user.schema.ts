@@ -1,5 +1,13 @@
-import { PHONE_NUMBER_REGEX } from '@/constants'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
+
+import {
+  AuthRules,
+  EMOJI_REGEX,
+  NAME_REGEX,
+  PASSWORD_REGEX,
+  PHONE_NUMBER_REGEX,
+} from '@/constants'
 
 export const userInfoSchema = z.object({
   slug: z.string(),
@@ -19,66 +27,218 @@ export const userRoleSchema = z.object({
   role: z.string(),
 })
 
-export const createUserSchema = z
-  .object({
-    phonenumber: z
+export function useCreateUserSchema() {
+  const { t } = useTranslation(['auth'])
+  const { t: tProfile } = useTranslation(['profile'])
+  return z
+    .object({
+      phonenumber: z
+        .string()
+        .min(10, t('register.phoneNumberRequired'))
+        .max(10, t('register.phoneNumberMaxLength'))
+        .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid')),
+      password: z
+        .string({
+          required_error: t('register.passwordRequired'),
+        })
+        .min(AuthRules.MIN_LENGTH, {
+          message: t('register.minLength', { count: AuthRules.MIN_LENGTH }),
+        })
+        .max(AuthRules.MAX_LENGTH, {
+          message: t('register.maxLength', { count: AuthRules.MAX_LENGTH }),
+        })
+        .regex(PASSWORD_REGEX, {
+          message: t('register.passwordInvalid'),
+        }),
+
+      confirmPassword: z.string().min(1, t('register.confirmPasswordRequired')),
+      firstName: z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.firstNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.firstNameTooLong'))
+        .regex(NAME_REGEX, tProfile('profile.firstNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: tProfile('profile.firstNameEmojiInvalid'),
+        }),
+
+      lastName: z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.lastNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.lastNameTooLong'))
+        .regex(NAME_REGEX, tProfile('profile.lastNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: tProfile('profile.lastNameEmojiInvalid'),
+        }),
+      role: z.string().min(1, t('register.roleRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('register.passwordNotMatch'),
+      path: ['confirmPassword'],
+    })
+}
+
+export function useCreateEmployeeSchema() {
+  const { t } = useTranslation('auth')
+  const { t: tProfile } = useTranslation('profile')
+  return z
+    .object({
+      phonenumber: z
+        .string()
+        .min(10, t('register.phoneNumberRequired'))
+        .max(10, t('register.phoneNumberMaxLength'))
+        .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid')),
+      password: z
+        .string()
+        .min(AuthRules.MIN_LENGTH, {
+          message: t('register.minLength', { count: AuthRules.MIN_LENGTH }),
+        })
+        .max(AuthRules.MAX_LENGTH, {
+          message: t('register.maxLength', { count: AuthRules.MAX_LENGTH }),
+        })
+        .regex(PASSWORD_REGEX, t('register.passwordInvalid')),
+      confirmPassword: z.string().min(1, t('register.confirmPasswordRequired')),
+      firstName: z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.firstNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.firstNameTooLong'))
+        .regex(NAME_REGEX, tProfile('profile.firstNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: tProfile('profile.firstNameEmojiInvalid'),
+        }),
+
+      lastName: z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.lastNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.lastNameTooLong'))
+        .regex(NAME_REGEX, tProfile('profile.lastNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: tProfile('profile.lastNameEmojiInvalid'),
+        }),
+      role: z.string().min(1, t('register.roleRequired')),
+      branch: z.string().min(1, t('register.branchRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('register.passwordNotMatch'),
+      path: ['confirmPassword'],
+    })
+}
+
+export function useUpdateUserSchema() {
+  const { t: tProfile } = useTranslation('profile')
+  return z.object({
+    slug: z.string(),
+    firstName: z
       .string()
-      .min(10, 'Số điện thoại không hợp lệ')
-      .max(10, 'Số điện thoại không hợp lệ')
-      .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    // branch: z.string().optional(),
-    role: z.string().min(1, 'Vui lòng chọn vai trò'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu không khớp',
-    path: ['confirmPassword'],
-  })
+      .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.firstNameRequired'))
+      .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.firstNameTooLong'))
+      .regex(NAME_REGEX, tProfile('profile.firstNameInvalid'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.firstNameEmojiInvalid'),
+      }),
 
-export const createEmployeeSchema = z
-  .object({
-    phonenumber: z
+    lastName: z
       .string()
-      .min(10, 'Số điện thoại không hợp lệ')
-      .max(10, 'Số điện thoại không hợp lệ')
-      .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    firstName: z.string().min(1, 'Vui lòng nhập tên'),
-    lastName: z.string().min(1, 'Vui lòng nhập họ'),
-    branch: z.string(),
-    role: z.string().min(1, 'Vui lòng chọn vai trò'),
+      .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.lastNameRequired'))
+      .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.lastNameTooLong'))
+      .regex(NAME_REGEX, tProfile('profile.lastNameInvalid'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.lastNameEmojiInvalid'),
+      }),
+    dob: z
+      .string({
+        required_error: tProfile('profile.dobRequired'),
+        invalid_type_error: tProfile('profile.dobInvalid'),
+      })
+      .min(1, tProfile('profile.dobRequired'))
+      .refine(
+        (val) => {
+          const date = new Date(val)
+          return !isNaN(date.getTime())
+        },
+        {
+          message: tProfile('profile.dobInvalid'),
+        },
+      ),
+    email: z
+      .string()
+      .min(1, {
+        message: tProfile('profile.emailRequired'),
+      })
+      .email({ message: tProfile('profile.emailInvalid') }),
+    address: z
+      .string()
+      .min(1, tProfile('profile.addressRequired'))
+      .max(AuthRules.MAX_ADDRESS_LENGTH, tProfile('profile.addressTooLong'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.addressEmojiInvalid'),
+      }),
+    branch: z.string().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu không khớp',
-    path: ['confirmPassword'],
+}
+
+export function useUpdateEmployeeSchema() {
+  const { t: tProfile } = useTranslation('profile')
+  return z.object({
+    slug: z.string(),
+    firstName: z
+      .string()
+      .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.firstNameRequired'))
+      .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.firstNameTooLong'))
+      .regex(NAME_REGEX, tProfile('profile.firstNameInvalid'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.firstNameEmojiInvalid'),
+      }),
+
+    lastName: z
+      .string()
+      .min(AuthRules.MIN_NAME_LENGTH, tProfile('profile.lastNameRequired'))
+      .max(AuthRules.MAX_NAME_LENGTH, tProfile('profile.lastNameTooLong'))
+      .regex(NAME_REGEX, tProfile('profile.lastNameInvalid'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.lastNameEmojiInvalid'),
+      }),
+
+    dob: z
+      .string({
+        required_error: tProfile('profile.dobRequired'),
+        invalid_type_error: tProfile('profile.dobInvalid'),
+      })
+      .min(1, tProfile('profile.dobRequired'))
+      .refine(
+        (val) => {
+          const date = new Date(val)
+          return !isNaN(date.getTime())
+        },
+        {
+          message: tProfile('profile.dobInvalid'),
+        },
+      ),
+
+    email: z
+      .string()
+      .min(1, {
+        message: tProfile('profile.emailRequired'),
+      })
+      .email({ message: tProfile('profile.emailInvalid') }),
+    address: z
+      .string()
+      .min(1, tProfile('profile.addressRequired'))
+      .max(AuthRules.MAX_ADDRESS_LENGTH, tProfile('profile.addressTooLong'))
+      .refine((val) => !EMOJI_REGEX.test(val), {
+        message: tProfile('profile.addressEmojiInvalid'),
+      }),
+
+    branch: z.string().optional(),
   })
+}
 
-export const updateUserSchema = z.object({
-  slug: z.string(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  dob: z.string(),
-  // email: z.string().email('Vui lòng nhập đúng định dạng email'),
-  address: z.string().min(1, 'Vui lòng nhập địa chỉ'),
-  branch: z.string().optional(),
-})
-
-export const updateEmployeeSchema = z.object({
-  slug: z.string(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  dob: z.string(),
-  email: z.string().email('Vui lòng nhập đúng định dạng email'),
-  address: z.string().min(1, 'Vui lòng nhập địa chỉ'),
-  branch: z.string().optional(),
-})
 export type TUserInfoSchema = z.infer<typeof userInfoSchema>
 export type TUserRoleSchema = z.infer<typeof userRoleSchema>
-export type TCreateUserSchema = z.infer<typeof createUserSchema>
-export type TCreateEmployeeSchema = z.infer<typeof createEmployeeSchema>
-export type TUpdateUserSchema = z.infer<typeof updateUserSchema>
-export type TUpdateEmployeeSchema = z.infer<typeof updateEmployeeSchema>
+export type TCreateUserSchema = z.infer<ReturnType<typeof useCreateUserSchema>>
+export type TCreateEmployeeSchema = z.infer<
+  ReturnType<typeof useCreateEmployeeSchema>
+>
+export type TUpdateUserSchema = z.infer<ReturnType<typeof useUpdateUserSchema>>
+export type TUpdateEmployeeSchema = z.infer<
+  ReturnType<typeof useUpdateEmployeeSchema>
+>

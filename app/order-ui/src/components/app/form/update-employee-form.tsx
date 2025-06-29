@@ -15,7 +15,7 @@ import {
   ScrollArea,
 } from '@/components/ui'
 // import { useCreateUser } from '@/hooks'
-import { TUpdateEmployeeSchema, updateEmployeeSchema } from '@/schemas'
+import { TUpdateEmployeeSchema, useUpdateEmployeeSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateUserRequest, IUserInfo } from '@/types'
 // import { showToast } from '@/utils'
@@ -25,6 +25,7 @@ import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
 import { useUserStore } from '@/stores'
 import { Role } from '@/constants'
+import { Loader2 } from 'lucide-react'
 
 interface IFormUpdateEmployeeProps {
   employee: IUserInfo
@@ -36,17 +37,17 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['employee'])
-  const { mutate: updateUser } = useUpdateUser()
+  const { mutate: updateUser, isPending } = useUpdateUser()
   const { userInfo } = useUserStore()
   const form = useForm<TUpdateEmployeeSchema>({
-    resolver: zodResolver(updateEmployeeSchema),
+    resolver: zodResolver(useUpdateEmployeeSchema()),
     defaultValues: {
       slug: employee.slug,
       // phonenumber: employee.phonenumber,
-      firstName: employee.firstName,
-      lastName: employee.lastName,
-      dob: employee.dob,
-      email: employee.email,
+      firstName: employee.firstName || '',
+      lastName: employee.lastName || '',
+      dob: employee.dob || undefined,
+      email: employee.email || '',
       address: employee?.address || '',
       branch: employee?.branch?.slug || '',
     },
@@ -57,6 +58,8 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ['users'],
+          exact: false,
+          refetchType: 'all'
         })
         onSubmit(false)
         form.reset()
@@ -87,7 +90,10 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
         name="firstName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.firstName')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.firstName')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterFirstName')} {...field} />
             </FormControl>
@@ -102,7 +108,10 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
         name="lastName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.lastName')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.lastName')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterLastName')} {...field} />
             </FormControl>
@@ -117,16 +126,18 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
         name="dob"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.dob')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.dob')}
+            </FormLabel>
             <FormControl>
               <DatePicker
                 date={field.value}
                 onSelect={(selectedDate) => {
                   field.onChange(selectedDate)
                 }}
-                validateDate={() => {
-                  return true // Thay thế bằng logic xác thực thực tế của bạn
-                }}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
               />
             </FormControl>
             <FormMessage />
@@ -140,7 +151,10 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.email')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.email')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterEmail')} {...field} />
             </FormControl>
@@ -155,7 +169,10 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('employee.address')}</FormLabel>
+            <FormLabel>
+              <span className="pr-1 text-destructive">*</span>
+              {t('employee.address')}
+            </FormLabel>
             <FormControl>
               <Input placeholder={t('employee.enterAddress')} {...field} />
             </FormControl>
@@ -171,7 +188,10 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
           name="branch"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('employee.branch')}</FormLabel>
+              <FormLabel>
+                <span className="pr-1 text-destructive">*</span>
+                {t('employee.branch')}
+              </FormLabel>
               <FormControl>
                 <BranchSelect defaultValue={employee?.branch?.slug} {...field} />
               </FormControl>
@@ -196,8 +216,11 @@ export const UpdateEmployeeForm: React.FC<IFormUpdateEmployeeProps> = ({
             </div>
           </ScrollArea>
           <div className="flex justify-end">
-            <Button className="flex justify-end" type="submit">
-              {t('employee.update')}
+            <Button disabled={isPending} className="flex justify-end" type="submit">
+              {isPending ? <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t('employee.update')}
+              </div> : t('employee.update')}
             </Button>
           </div>
         </form>

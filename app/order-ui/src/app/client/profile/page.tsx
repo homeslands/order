@@ -31,10 +31,10 @@ export default function ProfilePage() {
         <title>{tHelmet('helmet.profile.title')}</title>
         <meta name="description" content={tHelmet('helmet.profile.title')} />
       </Helmet>
-      <div className="flex flex-col gap-10 items-start lg:flex-row">
+      <div className="flex flex-col items-start gap-10 lg:flex-row">
         {/* Profile picture */}
         <div
-          className={`flex justify-between w-full bg-white rounded-sm shadow-lg dark:border lg:w-1/4`}
+          className={`flex justify-between w-full bg-white rounded-sm shadow-lg dark:border dark:bg-transparent lg:w-1/4`}
         >
           <div className="flex flex-row p-2">
             <ProfilePicture
@@ -57,7 +57,7 @@ export default function ProfilePage() {
         </div>
         {/* Info */}
         <div
-          className={`px-5 py-4 w-full bg-white rounded-sm shadow-lg transition-all duration-300 ease-in-out dark:border lg:w-3/4`}
+          className={`px-5 py-4 w-full bg-white rounded-sm shadow-lg transition-all duration-300 ease-in-out dark:bg-transparent dark:border lg:w-3/4`}
         >
           <CustomerProfileTabs />
         </div>

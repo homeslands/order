@@ -16,6 +16,12 @@ export interface ILoginResponse {
   timestamp: string
 }
 
+export interface IRegisterSchema {
+  phonenumber: string
+  password: string
+  confirmPassword: string
+}
+
 export interface IRegisterRequest {
   phonenumber: string
   password: string

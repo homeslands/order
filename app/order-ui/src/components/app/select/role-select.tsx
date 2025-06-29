@@ -35,11 +35,11 @@ export default function RoleSelect({ defaultValue, onChange }: SelectRoleProps) 
     return (
         <Select onValueChange={onChange} defaultValue={defaultValue}>
             <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn vai trò" />
+                <SelectValue placeholder={t('role.chooseRole')} />
             </SelectTrigger>
             <SelectContent>
                 <SelectGroup>
-                    <SelectLabel>Vai trò</SelectLabel>
+                    <SelectLabel>{t('role.roleTitle')}</SelectLabel>
                     {allRoles.map((role) => (
                         <SelectItem key={role.value} value={role.value}>
                             {role.label}

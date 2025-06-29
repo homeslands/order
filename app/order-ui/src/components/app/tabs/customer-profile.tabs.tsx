@@ -3,7 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import { CustomerInfoTabsContent, CustomerNotificationTabsContent } from '@/components/app/tabscontent'
+import { CustomerInfoTabsContent } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
 export function CustomerProfileTabs() {
@@ -27,9 +27,9 @@ export function CustomerProfileTabs() {
         <TabsTrigger value="info" className="flex justify-center">
           {t('profile.generalInfo')}
         </TabsTrigger>
-        <TabsTrigger value="notification" className="flex justify-center">
+        {/* <TabsTrigger value="notification" className="flex justify-center">
           {t('profile.notification')}
-        </TabsTrigger>
+        </TabsTrigger> */}
         <TabsTrigger value="history" className="flex justify-center">
           {t('profile.history')}
         </TabsTrigger>
@@ -37,9 +37,9 @@ export function CustomerProfileTabs() {
       <TabsContent value="info" className="w-full p-0">
         <CustomerInfoTabsContent />
       </TabsContent>
-      <TabsContent value="notification" className="w-full p-0">
+      {/* <TabsContent value="notification" className="w-full p-0">
         <CustomerNotificationTabsContent />
-      </TabsContent>
+      </TabsContent> */}
       <TabsContent value="history" className="w-full p-0">
         <CustomerOrderTabs />
       </TabsContent>

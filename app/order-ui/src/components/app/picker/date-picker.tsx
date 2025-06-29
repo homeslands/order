@@ -35,6 +35,7 @@ interface DatePickerProps {
   disabled?: boolean
   today?: boolean
   disabledDates?: Date[]
+  disableFutureDate?: boolean
 }
 
 export default function DatePicker({
@@ -44,6 +45,7 @@ export default function DatePicker({
   disabled,
   today,
   disabledDates = [],
+  disableFutureDate = false, // Thêm tùy chọn để vô hiệu hóa ngày tương lai
 }: DatePickerProps) {
   const { t } = useTranslation(['common'])
   const [month, setMonth] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
@@ -71,7 +73,9 @@ export default function DatePicker({
   }
 
   const isDateDisabled = (date: Date) => {
-    return disabledDates.some(disabledDate => isSameDay(date, disabledDate))
+    const isInDisabledList = disabledDates.some(disabledDate => isSameDay(date, disabledDate))
+    const isInFuture = disableFutureDate ? date > new Date() : false
+    return isInDisabledList || isInFuture
   }
 
   return (
@@ -86,7 +90,7 @@ export default function DatePicker({
           )}
           disabled={disabled}
         >
-          <CalendarIcon className="mr-2 w-4 h-4" />
+          <CalendarIcon className="w-4 h-4 mr-2" />
           {date ? (
             // Hiển thị ngày theo định dạng 'dd/MM/yyyy' khi đã chọn
             format(new Date(date.split('/').reverse().join('-')), 'dd/MM/yyyy')
@@ -97,9 +101,9 @@ export default function DatePicker({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-4 w-auto" align="start">
+      <PopoverContent className="w-auto p-4" align="start">
         {/* Month and Year Selection */}
-        <div className="flex justify-between items-center mb-4 space-x-2">
+        <div className="flex items-center justify-between mb-4 space-x-2">
           <Select
             value={String(month)}
             onValueChange={(value) => setMonth(Number(value))}
@@ -137,7 +141,7 @@ export default function DatePicker({
         {today && (
           <Button
             variant="outline"
-            className="mb-4 w-full"
+            className="w-full mb-4"
             onClick={handleTodayClick}
           >
             {t('common.today')}
@@ -150,6 +154,10 @@ export default function DatePicker({
           selected={parsedDate}
           onSelect={handleSelectDate}
           month={new Date(year, month)}
+          onMonthChange={(newMonth) => {
+            setMonth(newMonth.getMonth())
+            setYear(newMonth.getFullYear())
+          }}
           initialFocus
           locale={vi} // Chuyển đổi lịch sang tiếng Việt
           disabled={isDateDisabled}

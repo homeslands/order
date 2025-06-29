@@ -2,6 +2,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { Loader2 } from 'lucide-react'
 
 import {
   FormField,
@@ -14,7 +15,7 @@ import {
   Input,
   ScrollArea,
 } from '@/components/ui'
-import { updateUserSchema, TUpdateUserSchema } from '@/schemas'
+import { useUpdateUserSchema, TUpdateUserSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateUserRequest, IUserInfo } from '@/types'
 import { useUpdateUser } from '@/hooks'
@@ -31,18 +32,18 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['customer'])
-  const { mutate: updateUser } = useUpdateUser()
+  const { mutate: updateUser, isPending } = useUpdateUser()
 
   const form = useForm<TUpdateUserSchema>({
-    resolver: zodResolver(updateUserSchema),
+    resolver: zodResolver(useUpdateUserSchema()),
     defaultValues: {
       slug: customer.slug,
       // phonenumber: customer.phonenumber,
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      dob: customer.dob,
-      // email: customer.email,
-      address: customer.address,
+      firstName: customer.firstName || '',
+      lastName: customer.lastName || '',
+      dob: customer.dob || undefined,
+      email: customer.email || '',
+      address: customer.address || '',
       // branch: customer?.branch?.slug || '',
     },
   })
@@ -121,9 +122,8 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
                 onSelect={(selectedDate) => {
                   field.onChange(selectedDate)
                 }}
-                validateDate={() => {
-                  return true // Thay thế bằng logic xác thực thực tế của bạn
-                }}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
               />
             </FormControl>
             <FormMessage />
@@ -131,21 +131,21 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
         )}
       />
     ),
-    // email: (
-    //   <FormField
-    //     control={form.control}
-    //     name="email"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('customer.email')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('customer.enterEmail')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
+    email: (
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('customer.email')}</FormLabel>
+            <FormControl>
+              <Input placeholder={t('customer.enterEmail')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     address: (
       <FormField
         control={form.control}
@@ -192,8 +192,11 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
             </div>
           </ScrollArea>
           <div className="flex justify-end">
-            <Button className="flex justify-end" type="submit">
-              {t('customer.update')}
+            <Button disabled={isPending} className="flex justify-end" type="submit">
+              {isPending ? <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t('customer.update')}
+              </div> : t('customer.update')}
             </Button>
           </div>
         </form>

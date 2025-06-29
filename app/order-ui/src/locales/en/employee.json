@@ -33,6 +33,8 @@
     "enterPhoneNumber": "Enter phone number",
     "enterFirstName": "Enter first name",
     "enterLastName": "Enter last name",
+    "enterEmail": "Enter email",
+    "enterAddress": "Enter address",
     "confirmPassword": "Confirm password",
     "enterConfirmPassword": "Enter confirm password",
     "password": "Password",
