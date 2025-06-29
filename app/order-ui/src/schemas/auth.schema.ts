@@ -1,51 +1,93 @@
-import { PHONE_NUMBER_REGEX } from '@/constants'
 import * as z from 'zod'
+import { useTranslation } from 'react-i18next'
+
+import { AuthRules, PASSWORD_REGEX, PHONE_NUMBER_REGEX } from '@/constants'
 
 export const loginSchema = z.object({
   phonenumber: z.string(),
   password: z.string(),
 })
 
-export const registerSchema = z
-  .object({
-    phonenumber: z
-      .string()
-      .min(10)
-      .max(10)
-      .regex(PHONE_NUMBER_REGEX, 'Số điện thoại không hợp lệ'),
-    // email: z.string().email('Email không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    confirmPassword: z.string().min(6, 'Mật khẩu phải chứa tối thiểu 6 kí tự'),
-    // firstName: z.string().min(1),
-    // lastName: z.string().min(1),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu không khớp',
-    path: ['confirmPassword'],
-  })
+export function useRegisterSchema() {
+  const { t } = useTranslation('auth')
+  return z
+    .object({
+      phonenumber: z
+        .string()
+        .min(10, t('register.phoneNumberRequired'))
+        .max(10, t('register.phoneNumberMaxLength'))
+        .regex(PHONE_NUMBER_REGEX, t('register.phoneNumberInvalid')),
+      password: z
+        .string()
+        .min(AuthRules.MIN_LENGTH, {
+          message: t('register.minLength', { count: AuthRules.MIN_LENGTH }),
+        })
+        .max(AuthRules.MAX_LENGTH, {
+          message: t('register.maxLength', { count: AuthRules.MAX_LENGTH }),
+        })
+        .regex(PASSWORD_REGEX, t('register.passwordInvalid')),
+      confirmPassword: z.string().min(1, t('register.confirmPasswordRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('register.passwordNotMatch'),
+      path: ['confirmPassword'],
+    })
+}
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().email(),
-})
+export function useForgotPasswordSchema() {
+  return z.object({
+    email: z.string().email(),
+  })
+}
 
-export const resetPasswordSchema = z
-  .object({
-    newPassword: z.string().min(6),
-    confirmPassword: z.string().min(6),
-    token: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Mật khẩu không khớp',
-  })
+export function useResetPasswordSchema() {
+  const { t } = useTranslation('auth')
+  return z
+    .object({
+      newPassword: z
+        .string()
+        .min(AuthRules.MIN_LENGTH, {
+          message: t('forgotPassword.passwordMin', {
+            length: AuthRules.MIN_LENGTH,
+          }),
+        })
+        .max(AuthRules.MAX_LENGTH, {
+          message: t('forgotPassword.passwordMax', {
+            length: AuthRules.MAX_LENGTH,
+          }),
+        })
+        .regex(PASSWORD_REGEX, t('forgotPassword.passwordInvalid')),
+      confirmPassword: z
+        .string()
+        .min(AuthRules.MIN_LENGTH, {
+          message: t('forgotPassword.passwordMin', {
+            length: AuthRules.MIN_LENGTH,
+          }),
+        })
+        .max(AuthRules.MAX_LENGTH, {
+          message: t('forgotPassword.passwordMax', {
+            length: AuthRules.MAX_LENGTH,
+          }),
+        }),
+      token: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('forgotPassword.passwordNotMatch'),
+    })
+}
 
 export const verifyEmailSchema = z.object({
   accessToken: z.string(),
   email: z.string().email(),
 })
 
-export type TRegisterSchema = z.infer<typeof registerSchema>
+export type TRegisterSchema = z.infer<ReturnType<typeof useRegisterSchema>>
 export type TLoginSchema = z.infer<typeof loginSchema>
-export type TResetPasswordSchema = z.infer<typeof resetPasswordSchema>
+export type TResetPasswordSchema = z.infer<
+  ReturnType<typeof useResetPasswordSchema>
+>
 
-export type TForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
+export type TForgotPasswordSchema = z.infer<
+  ReturnType<typeof useForgotPasswordSchema>
+>
 export type TVerifyEmailSchema = z.infer<typeof verifyEmailSchema>
