@@ -26,7 +26,7 @@ export class BalanceService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async findOneByField(payload: FindByFieldDto) {
     const context = `${BalanceService.name}.${this.findOneByField.name}`;
@@ -97,6 +97,7 @@ export class BalanceService {
     }
 
     const points = Math.abs(payload.points);
+    balance.points = Number(balance.points);
 
     switch (payload.type) {
       case 'in':

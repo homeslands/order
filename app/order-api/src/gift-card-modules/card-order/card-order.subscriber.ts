@@ -21,8 +21,7 @@ import { CardOrderService } from './card-order.service';
 
 @EventSubscriber()
 export class CardOrderSubscriber
-  implements EntitySubscriberInterface<CardOrder>
-{
+  implements EntitySubscriberInterface<CardOrder> {
   private readonly CANCEL_CARD_ORDER_JOB_DELAY = 1000 * 60 * 15;
 
   constructor(
@@ -66,22 +65,15 @@ export class CardOrderSubscriber
       updatedEntity.status === CardOrderStatus.CANCELLED
     )
       await this.deleteCancelCardOrderJob(updatedEntity);
-
-    if (
-      databaseEntity.status === CardOrderStatus.PENDING &&
-      updatedEntity.status === CardOrderStatus.COMPLETED
-    ) {
-      await this.handleGenerateAndRedeem(updatedEntity);
-    }
   }
 
   async addCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.addCancelCardOrderJob.name}`;
-    this.logger.log(`Adding cancel card order job ${entity.id}`, context);
+    this.logger.log(`Adding \`cancel card order\` job ${entity.slug}`, context);
 
     if (entity.status !== CardOrderStatus.PENDING) return;
 
-    const JobName = createCancelCardOrderJobName(entity.id);
+    const JobName = createCancelCardOrderJobName(entity.slug);
     const delay =
       +this.configService.get('CARD_ORDER_PAYMENT_TIMEOUT') ||
       this.CANCEL_CARD_ORDER_JOB_DELAY;
@@ -116,9 +108,12 @@ export class CardOrderSubscriber
 
   async deleteCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.deleteCancelCardOrderJob.name}`;
-    this.logger.log(`Deleting \`cancel card order job\` ${entity.id}`, context);
+    this.logger.log(
+      `Deleting \`cancel card order job\` ${entity.slug}`,
+      context,
+    );
 
-    const JobName = createCancelCardOrderJobName(entity.id);
+    const JobName = createCancelCardOrderJobName(entity.slug);
 
     let job: any;
     try {
@@ -132,15 +127,5 @@ export class CardOrderSubscriber
     }
 
     if (job) this.schedulerRegistry.deleteTimeout(JobName);
-  }
-
-  async handleGenerateAndRedeem(updatedEntity: CardOrder) {
-    const context = `${CardOrderSubscriber.name}.${this.handleGenerateAndRedeem.name}`;
-
-    try {
-      await this.cardOrderService._generateAndRedeem(updatedEntity);
-    } catch (error) {
-      this.logger.error(`${error.message}`, error.stack, context);
-    }
   }
 }
