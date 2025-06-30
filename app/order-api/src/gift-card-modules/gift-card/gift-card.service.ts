@@ -38,7 +38,7 @@ export class GiftCardService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
@@ -64,10 +64,7 @@ export class GiftCardService {
         return await manager.save(gc);
       },
       (result) =>
-        this.logger.log(
-          `Use gift card success ${JSON.stringify(result)}`,
-          context,
-        ),
+        this.logger.log(`Use gift card success ${result?.slug}`, context),
       (error) => {
         this.logger.error(
           `Error when using gift card: ${error.message}`,
@@ -82,7 +79,7 @@ export class GiftCardService {
   }
 
   async gen(payload: { cardOrderSlug: string; cardSlug: string }) {
-    const context = `${GiftCardService.name}.${this.bulkGen.name}`;
+    const context = `${GiftCardService.name}.${this.gen.name}`;
     this.logger.log(`Gen gift card req: ${JSON.stringify(payload)}`, context);
 
     const card = await this.cardRepository.findOne({
@@ -108,16 +105,17 @@ export class GiftCardService {
 
     return await this.transactionService.execute<GiftCard>(
       async (manager) => {
-        return await manager.save(gc);
+
+        return await manager.save(manager.create(GiftCard, gc));
       },
-      () =>
+      (result) =>
         this.logger.log(
-          `Gen gift cards success: ${JSON.stringify(gc)}`,
+          `Gen gift card success: ${JSON.stringify(result)}`,
           context,
         ),
       (error) => {
         this.logger.error(
-          `Error when gen gift cards: ${error.message}`,
+          `Error when gen gift card: ${error.message}`,
           error.stack,
           context,
         );
@@ -163,7 +161,10 @@ export class GiftCardService {
         return await manager.save(gcs);
       },
       (result) =>
-        this.logger.log(`Gen gift cards success: ${result.length}`, context),
+        this.logger.log(
+          `Gen gift cards success: ${result.map((item) => item?.slug).join(', ')}`,
+          context,
+        ),
       (error) => {
         this.logger.error(
           `Error when gen gift cards: ${error.message}`,
