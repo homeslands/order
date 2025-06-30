@@ -1,3 +1,3 @@
 export class CardOrderPaymentUpdatedEvent {
-  orderId: string;
+  orderSlug: string;
 }

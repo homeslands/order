@@ -32,6 +32,7 @@ import {
 import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
 import { UseGiftCardDto } from '../gift-card/dto/use-gift-card.dto';
 import _ from 'lodash';
+import { PaymentStatus } from 'src/payment/payment.constants';
 
 @Injectable()
 export class CardOrderService {
@@ -51,11 +52,11 @@ export class CardOrderService {
     private readonly gcService: GiftCardService,
     private readonly ptService: PointTransactionService,
     private readonly balanceService: BalanceService,
-  ) {}
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
-    this.logger.log(`Initiate a payment: ${payload}`, context);
+    this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
@@ -276,7 +277,7 @@ export class CardOrderService {
       },
       (error) => {
         this.logger.error(
-          `Error creating card order: ${JSON.stringify(error)}`,
+          `Error creating card order: ${error.message}`,
           error.stack,
           context,
         );
@@ -434,5 +435,67 @@ export class CardOrderService {
       default:
         break;
     }
+  }
+
+  async handlePaymentCompletion(payload: {
+    orderSlug: string;
+  }) {
+    const context = `${CardOrderService.name}.${this.handlePaymentCompletion.name}`;
+    this.logger.log(
+      `Update card order ${payload?.orderSlug} status after payment completion req: ${JSON.stringify(payload)}`,
+      context,
+    );
+
+    const order = await this.cardOrderRepository.findOne({
+      where: {
+        slug: payload.orderSlug,
+      },
+      relations: ['payment'],
+    });
+
+    if (!order) {
+      this.logger.log(`Card order ${payload.orderSlug} not found`, context);
+    }
+
+    if (order.status !== CardOrderStatus.PENDING) {
+      this.logger.log(`Card order ${order.slug} is not pending`, context);
+      return;
+    }
+
+    if (order.payment?.statusCode === PaymentStatus.PENDING) {
+      this.logger.log(
+        `Payment ${order?.payment?.slug} status is pending`,
+        context,
+      );
+      return;
+    }
+
+    Object.assign(order, {
+      status:
+        order.payment?.statusCode === PaymentStatus.COMPLETED
+          ? CardOrderStatus.COMPLETED
+          : CardOrderStatus.FAIL,
+      paymentStatus: order.payment?.statusCode,
+    } as Partial<CardOrder>);
+
+    const updated = await this.transactionService.execute<CardOrder>(
+      async (manager) => {
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Card order ${result.slug} status ${result.status}`,
+          context,
+        );
+      },
+      (err) => {
+        this.logger.error(
+          `Error when updating card order status: ${err.message}`,
+          err.stack,
+          context,
+        );
+      },
+    );
+    await this._generateAndRedeem(updated);
   }
 }
