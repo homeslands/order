@@ -76,7 +76,8 @@
         "giftCardExistsWarning": "Gift Card Already Exists",
         "giftCardExistsDescription": "You already have a gift card in your cart. Would you like to replace it with this gift card?",
         "replaceGiftCard": "Replace",
-        "giftCardExistsMessage": "The current gift card will be replaced with:"
+        "giftCardExistsMessage": "The current gift card will be replaced with:",
+        "phoneNumberNotFound": "Phone number not found"
     },
     "schema": {
         "title": {
