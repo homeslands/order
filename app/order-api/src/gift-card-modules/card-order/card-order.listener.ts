@@ -6,13 +6,10 @@ import { CardOrderService } from './card-order.service';
 
 @Injectable()
 export class CardOrderListener {
-  constructor(
-    private readonly cardOrderService: CardOrderService,
-  ) { }
+  constructor(private readonly cardOrderService: CardOrderService) {}
 
   @OnEvent(PaymentAction.CARD_ORDER_PAYMENT_PAID)
   async handleUpdateOrderStatus(payload: CardOrderPaymentUpdatedEvent) {
-    console.log({ payload })
     await this.cardOrderService.handlePaymentCompletion({
       orderSlug: payload.orderSlug,
     });
