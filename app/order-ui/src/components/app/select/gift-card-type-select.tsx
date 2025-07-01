@@ -25,7 +25,7 @@ export default function GiftCardTypeSelect({
   const typeLabels = {
     [GiftCardType.SELF]: t('giftCard.buyForSelf'),
     [GiftCardType.GIFT]: t('giftCard.giftToOthers'),
-    [GiftCardType.BUY]: t('giftCard.buyGiftCard'),
+    [GiftCardType.BUY]: t('giftCard.purchaseGiftCard'),
   }
   return (
     <Select value={value} onValueChange={onChange}>
@@ -42,7 +42,7 @@ export default function GiftCardTypeSelect({
           {t('giftCard.giftToOthers')}
         </SelectItem>
         <SelectItem value={GiftCardType.BUY}>
-          {t('giftCard.buyGiftCard')}
+          {t('giftCard.purchaseGiftCard')}
         </SelectItem>
       </SelectContent>
     </Select>
