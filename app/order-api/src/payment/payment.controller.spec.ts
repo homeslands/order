@@ -22,6 +22,9 @@ import { SystemConfig } from 'src/system-config/system-config.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
 import { PaymentUtils } from './payment.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 describe('PaymentController', () => {
   let controller: PaymentController;
 
@@ -29,6 +32,11 @@ describe('PaymentController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PaymentController],
       providers: [
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
         PaymentService,
         CashStrategy,
         BankTransferStrategy,
