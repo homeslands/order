@@ -21,13 +21,17 @@ export default function GiftCardTypeSelect({
   className,
 }: GiftCardTypeSelectProps) {
   const { t } = useTranslation(['giftCard'])
+
+  const typeLabels = {
+    [GiftCardType.SELF]: t('giftCard.buyForSelf'),
+    [GiftCardType.GIFT]: t('giftCard.giftToOthers'),
+    [GiftCardType.BUY]: t('giftCard.buyGiftCard'),
+  }
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={className}>
         <SelectValue>
-          {value === GiftCardType.SELF
-            ? t('giftCard.buyForSelf')
-            : t('giftCard.giftToOthers')}
+          {typeLabels[value] || t('giftCard.buyForSelf')}
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="w-max">
@@ -36,6 +40,9 @@ export default function GiftCardTypeSelect({
         </SelectItem>
         <SelectItem value={GiftCardType.GIFT}>
           {t('giftCard.giftToOthers')}
+        </SelectItem>
+        <SelectItem value={GiftCardType.BUY}>
+          {t('giftCard.buyGiftCard')}
         </SelectItem>
       </SelectContent>
     </Select>

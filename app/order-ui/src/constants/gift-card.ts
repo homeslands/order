@@ -6,6 +6,7 @@ export enum GiftCardStatus {
 export enum GiftCardType {
   SELF = 'SELF',
   GIFT = 'GIFT',
+  BUY = 'BUY',
 }
 
 export enum ReceiverField {
