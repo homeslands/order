@@ -123,7 +123,8 @@
         "paymentExpired": "Thanh toán đã hết hạn",
 
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
-        "receiverName": "Tên người nhận"
+        "receiverName": "Tên người nhận",
+        "phoneNumberNotFound": "Không tìm thấy số điện thoại"
     },
     "schema": {
         "title": {

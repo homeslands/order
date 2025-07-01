@@ -123,7 +123,8 @@
         "paymentExpired": "Payment has expired",
 
         "loginRequired": "Login to view the list of gift cards.",
-        "receiverName": "Receiver Name"
+        "receiverName": "Receiver Name",
+        "phoneNumberNotFound": "Phone number not found"
     },
     "schema": {
         "title": {
