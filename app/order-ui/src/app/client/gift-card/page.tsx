@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { Gift } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 import { useGetGiftCards } from '@/hooks'
 import {
   GiftCardItem,
   GiftCardPagination,
   GiftCardHeader,
-  GiftCardSelected,
   GiftCardSheet,
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'

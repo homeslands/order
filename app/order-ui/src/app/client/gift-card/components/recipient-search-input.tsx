@@ -127,6 +127,17 @@ export default function RecipientSearchInput({
             {t('giftCard.numbersRemaining')})
           </div>
         )}
+        {/* Phone not found message */}
+        {inputValue &&
+          inputValue.length === 10 &&
+          !selectedUser &&
+          searchCondition &&
+          userByPhoneNumber &&
+          userByPhoneNumber.result?.items?.length === 0 && (
+            <div className="text-xs text-red-500">
+              {t('giftCard.phoneNumberNotFound')}
+            </div>
+          )}
       </div>{' '}
       {/* User list dropdown */}
       {users.length > 0 && searchCondition && (
