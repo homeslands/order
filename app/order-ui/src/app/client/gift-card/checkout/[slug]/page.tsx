@@ -111,6 +111,7 @@ export default function GiftCardCheckoutWithSlugPage() {
         quantity: currentOrderData.quantity,
         id: currentOrderData.cardId,
         receipients: receipients,
+        type: currentOrderData.type,
       }
       setGiftCardItem(giftCardItem)
     }
