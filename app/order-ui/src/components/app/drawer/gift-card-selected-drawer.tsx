@@ -9,7 +9,6 @@ import { IGiftCard, IGiftCardCartItem } from '@/types'
 import { formatCurrency } from '@/utils'
 import { publicFileURL } from '@/constants'
 import { useGiftCardStore } from '@/stores'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 
 interface GiftCardSelectedDrawerProps {
   selectedCard: IGiftCard
@@ -51,8 +50,8 @@ export function GiftCardSelectedDrawer({
       points: selectedCard.points,
       price: selectedCard.price,
       quantity,
-      isActive: selectedCard.isActive,
       receipients: [],
+      isActive: selectedCard.isActive,
     }
 
     setGiftCardItem(cartItem)
@@ -75,6 +74,7 @@ export function GiftCardSelectedDrawer({
   return (
     <>
       <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+        {' '}
         <DrawerTrigger asChild>
           {trigger || (
             <Button
@@ -86,62 +86,63 @@ export function GiftCardSelectedDrawer({
             </Button>
           )}
         </DrawerTrigger>
-        <DrawerContent>
-          <ScrollArea className="max-h-[80vh] px-4 pt-5">
+        <DrawerContent className="max-h-[95vh]">
+          <div className="flex flex-col gap-4 p-4">
             <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-4">
-                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
-                  {selectedCard.image ? (
-                    <img
-                      src={`${publicFileURL}/${selectedCard.image}`}
-                      alt={selectedCard.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
-                      <Gift className="h-12 w-12 text-primary" />
-                    </div>
-                  )}
+              <div className="h-48 w-full flex-shrink-0 overflow-hidden rounded-lg">
+                {selectedCard.image ? (
+                  <img
+                    src={`${publicFileURL}/${selectedCard.image}`}
+                    alt={selectedCard.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                    <Gift className="h-12 w-12 text-primary" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-grow">
+                <div
+                  title={selectedCard.title}
+                  className="max-h-24 overflow-auto text-xl font-medium"
+                >
+                  {selectedCard.title}
                 </div>
 
-                <div className="flex-grow">
-                  <div
-                    title={selectedCard.title}
-                    className="max-h-24 overflow-auto text-xl font-medium"
+                <div
+                  title={selectedCard.description}
+                  className="mb-4 mt-2 max-h-32 overflow-auto whitespace-normal break-words text-sm text-gray-600"
+                >
+                  {selectedCard.description}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CoinsIcon className="h-5 w-5 text-primary" />
+                    <span className="text-lg font-bold text-primary">
+                      {formatCurrency(selectedCard.points * quantity, '')}
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-primary">
+                    {formatCurrency(selectedCard.price * quantity)}
+                  </span>
+                </div>
+
+                <div className="mt-4 flex items-center justify-end">
+                  <Button
+                    size="lg"
+                    className="whitespace-nowrap rounded-full"
+                    onClick={handleAddToCart}
                   >
-                    {selectedCard.title}
-                  </div>
-
-                  <div
-                    title={selectedCard.description}
-                    className="mb-4 mt-2 max-h-32 overflow-auto whitespace-normal break-words text-sm text-gray-600"
-                  >
-                    {selectedCard.description}
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CoinsIcon className="h-5 w-5 text-primary" />
-                      <span className="text-lg font-bold text-primary">
-                        {formatCurrency(selectedCard.points * quantity, '')}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between">
-                      <Button
-                        size="lg"
-                        className="whitespace-nowrap rounded-full"
-                        onClick={handleAddToCart}
-                      >
-                        <ShoppingCart className="mr-2 h-5 w-5" />
-                        <span>{t('giftCard.addToCart')}</span>
-                      </Button>
-                    </div>
-                  </div>
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    <span>{t('giftCard.addToCart')}</span>
+                  </Button>
                 </div>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </DrawerContent>
       </Drawer>
 

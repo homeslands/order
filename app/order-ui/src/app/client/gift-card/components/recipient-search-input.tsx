@@ -61,6 +61,11 @@ export default function RecipientSearchInput({
 
   // Initialize input value from parent value only once
   useEffect(() => {
+    // Notify parent component about user selection state change
+    if (onSelectionChange) {
+      onSelectionChange(!!selectedUser)
+    }
+
     // If userInfo is provided and we should restore the selected state
     if (userInfo) {
       handleSelectUser(userInfo)()
@@ -70,11 +75,6 @@ export default function RecipientSearchInput({
     // Initialize input with parent value if input is empty and no user selected
     if (value && !selectedUser && inputValue === '') {
       setInputValue(value)
-    }
-
-    // Notify parent component about user selection state change
-    if (onSelectionChange) {
-      onSelectionChange(!!selectedUser)
     }
   }, [
     value,
