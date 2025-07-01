@@ -1,7 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PointTransaction } from './entities/point-transaction.entity';
-import { FindOptionsWhere, IsNull, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  IsNull,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { InjectMapper } from '@automapper/nestjs';
@@ -148,11 +154,25 @@ export class PointTransactionService {
     const { page, size, sort, userSlug } = req;
 
     const whereOpts: FindOptionsWhere<PointTransaction> = {};
+
     if (userSlug) {
       whereOpts.user = {
         slug: userSlug,
       };
     }
+
+    if (req.type) {
+      whereOpts.type = req.type;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      whereOpts.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      whereOpts.createdAt = Between(req.fromDate, req.toDate);
+    }
+
     const sortOpts = createSortOptions<PointTransaction>(sort);
 
     const [pts, total] = await this.ptRepository.findAndCount({
