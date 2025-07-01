@@ -51,6 +51,7 @@ export interface IGiftCardCartItem {
   quantity: number
   receipients?: IReceiverGiftCardCart[]
   isActive?: boolean
+  type?: string
 }
 
 export interface IReceiverGiftCardCart {

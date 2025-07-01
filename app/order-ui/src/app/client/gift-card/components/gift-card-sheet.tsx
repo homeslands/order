@@ -70,10 +70,7 @@ export default function GiftCardSheet() {
   const form = useForm<TGiftCardCheckoutSchema>({
     resolver: zodResolver(dynamicSchema),
     defaultValues: {
-      giftType:
-        giftCardItem?.receipients && giftCardItem.receipients.length > 0
-          ? GiftCardType.GIFT
-          : GiftCardType.SELF,
+      giftType: giftCardItem?.type ? giftCardItem.type : GiftCardType.SELF,
       receivers:
         giftCardItem?.receipients && giftCardItem.receipients.length > 0
           ? giftCardItem.receipients
@@ -122,7 +119,11 @@ export default function GiftCardSheet() {
       form.setValue('giftType', GiftCardType.SELF)
       return
     }
-    if (watchedGiftType === GiftCardType.SELF) {
+
+    if (
+      watchedGiftType === GiftCardType.SELF ||
+      watchedGiftType === GiftCardType.BUY
+    ) {
       // Clear any existing validation errors for receivers
       form.clearErrors('receivers')
       // Reset receivers array to empty when SELF is selected
