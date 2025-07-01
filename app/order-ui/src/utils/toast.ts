@@ -288,3 +288,7 @@ export function useErrorToast(code: number) {
   const messageKey = errorCodes[code] || 'toast.requestFailed'
   toast.error(i18next.t(messageKey, { ns: 'toast' }))
 }
+
+export function showErrorToastMessage(message: string) {
+  toast.error(i18next.t(message, { ns: 'toast' }))
+}
