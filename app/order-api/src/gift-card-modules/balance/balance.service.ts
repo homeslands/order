@@ -97,6 +97,7 @@ export class BalanceService {
     }
 
     const points = Math.abs(payload.points);
+    balance.points = Number(balance.points);
 
     switch (payload.type) {
       case 'in':

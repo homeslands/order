@@ -40,7 +40,7 @@ export class GiftCardScheduler {
     if (_.isEmpty(gcs)) return;
 
     this.logger.log(
-      `Handle gift card expiration req: ${gcs.map((item) => item.id).join(', ')}`,
+      `Handle gift card expiration req: ${gcs.map((item) => item.slug).join(', ')}`,
       context,
     );
 
