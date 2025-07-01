@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui'
 
+import { showToast, showErrorToastMessage } from '@/utils'
 import { useBranch } from '@/hooks'
 import { useBranchStore } from '@/stores'
 
@@ -30,40 +31,50 @@ export default function ChooseBranchDialog() {
     setBranch(b)
   }
 
-  const handleClose = () => {
+  const handleConfirm = () => {
     if (selectedBranch) {
+      
       setIsOpen(false)
+      showToast('Đã chọn chi nhánh thành công')
+    } else {
+      showErrorToastMessage('Vui lòng chọn chi nhánh')
     }
   }
 
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      if (!selectedBranch) {
+        showErrorToastMessage('Vui lòng chọn chi nhánh')
+        return
+      }
+      showErrorToastMessage('Vui lòng  chọn chi nhánh')
+      return
+    }
+    setIsOpen(open)
+  }
+
   useEffect(() => {
-    // Only show dialog if no branch is selected
     if (!branch) {
       const timer = setTimeout(() => {
         setIsOpen(true)
+       
       }, 2000)
       return () => clearTimeout(timer)
     }
   }, [branch])
 
-  // Skip rendering if branch is already selected
   if (branch && !isOpen) return null
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
-        if (!selectedBranch) {
-          setIsOpen(true)
-          return
-        }
-        setIsOpen(open)
-      }}
+      onOpenChange={handleDialogClose}
     >
       <DialogContent className="max-w-[20rem] rounded-md px-4 sm:max-w-[36rem]">
         <DialogHeader>
           <DialogTitle>{t('branch.chooseBranch')}</DialogTitle>
         </DialogHeader>
+        
         <Select value={selectedBranch} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-full h-8">
             <SelectValue
@@ -91,11 +102,11 @@ export default function ChooseBranchDialog() {
           </SelectContent>
         </Select>
         <Button
-          onClick={handleClose}
+          onClick={handleConfirm}
           disabled={!selectedBranch}
           className="w-full"
         >
-          <span className="block truncate">{t('branch.chooseBranch')}</span>
+          <span className="block truncate">Xác nhận chọn chi nhánh</span>
         </Button>
       </DialogContent>
     </Dialog>
