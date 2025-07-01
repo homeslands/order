@@ -75,7 +75,8 @@
         "giftCardExistsWarning": "Thẻ quà tặng đã tồn tại",
         "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
         "replaceGiftCard": "Thay thế",
-        "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:"
+        "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:",
+        "phoneNumberNotFound": "Không tìm thấy số điện thoại"
     },
     "schema": {
         "title": {
