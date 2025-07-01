@@ -21,7 +21,7 @@ import { DbModule } from 'src/db/db.module';
     TypeOrmModule.forFeature([Payment, Order, ACBConnectorConfig, User]),
     ACBConnectorModule,
     PdfModule,
-    DbModule
+    DbModule,
   ],
   controllers: [PaymentController],
   providers: [
@@ -35,4 +35,4 @@ import { DbModule } from 'src/db/db.module';
   ],
   exports: [PaymentService, PaymentUtils],
 })
-export class PaymentModule { }
+export class PaymentModule {}

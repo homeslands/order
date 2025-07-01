@@ -34,7 +34,7 @@ export class JobService {
     private readonly transactionManagerService: TransactionManagerService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async updateOrderStatusAfterPaymentPaid(job: Job) {
     const context = `${JobService.name}.${this.updateOrderStatusAfterPaymentPaid.name}`;

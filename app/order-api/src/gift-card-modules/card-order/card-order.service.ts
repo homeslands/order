@@ -52,7 +52,7 @@ export class CardOrderService {
     private readonly gcService: GiftCardService,
     private readonly ptService: PointTransactionService,
     private readonly balanceService: BalanceService,
-  ) { }
+  ) {}
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -438,9 +438,7 @@ export class CardOrderService {
     }
   }
 
-  async handlePaymentCompletion(payload: {
-    orderSlug: string;
-  }) {
+  async handlePaymentCompletion(payload: { orderSlug: string }) {
     const context = `${CardOrderService.name}.${this.handlePaymentCompletion.name}`;
     this.logger.log(
       `Update card order ${payload?.orderSlug} status after payment completion req: ${JSON.stringify(payload)}`,

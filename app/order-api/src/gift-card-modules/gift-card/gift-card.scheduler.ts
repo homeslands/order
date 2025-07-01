@@ -23,7 +23,7 @@ export class GiftCardScheduler {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+  ) {}
 
   // @Cron(CronExpression.EVERY_2_HOURS)
   @Cron(CronExpression.EVERY_30_SECONDS)
