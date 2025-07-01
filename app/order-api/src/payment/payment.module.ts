@@ -14,12 +14,14 @@ import { PdfModule } from 'src/pdf/pdf.module';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
 import { PaymentUtils } from './payment.utils';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Payment, Order, ACBConnectorConfig, User]),
     ACBConnectorModule,
     PdfModule,
+    DbModule,
   ],
   controllers: [PaymentController],
   providers: [

@@ -482,8 +482,10 @@ export default function UpdateVoucherSheet({
           const startDate = form.getValues('startDate')
           const today = new Date()
           today.setHours(0, 0, 0, 0)
+          const start = new Date(startDate)
+          start.setHours(0, 0, 0, 0)
 
-          const isStartDateAfterToday = startDate && new Date(startDate) > today || false
+          const isStartDateAfterToday = start.getTime() > today.getTime()
 
           return (
             <FormItem>

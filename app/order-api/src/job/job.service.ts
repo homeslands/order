@@ -16,7 +16,6 @@ import { Job } from './job.entity';
 import { JobStatus } from './job.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { CardOrderStatus } from 'src/gift-card-modules/card-order/card-order.enum';
 
 @Injectable()
 export class JobService {
@@ -126,61 +125,64 @@ export class JobService {
     }
   }
 
-  async updateCardOrderStatusAfterPaymentCompletion(payload: {
-    orderId: string;
-  }) {
-    const context = `${JobService.name}.${this.updateCardOrderStatusAfterPaymentCompletion.name}`;
-    this.logger.log(
-      `Update card order status after payment completion: ${JSON.stringify(payload)}`,
-      context,
-    );
+  // async updateCardOrderStatusAfterPaymentCompletion(payload: {
+  //   orderSlug: string;
+  // }) {
+  //   const context = `${JobService.name}.${this.updateCardOrderStatusAfterPaymentCompletion.name}`;
+  //   this.logger.log(
+  //     `Update card order ${payload?.orderSlug} status after payment completion req: ${JSON.stringify(payload)}`,
+  //     context,
+  //   );
 
-    const order = await this.cardOrderRepository.findOne({
-      where: {
-        id: payload.orderId,
-      },
-      relations: ['payment'],
-    });
+  //   const order = await this.cardOrderRepository.findOne({
+  //     where: {
+  //       slug: payload.orderSlug,
+  //     },
+  //     relations: ['payment'],
+  //   });
 
-    if (!order) {
-      this.logger.log(`Card order ${payload.orderId} not found`, context);
-    }
+  //   if (!order) {
+  //     this.logger.log(`Card order ${payload.orderSlug} not found`, context);
+  //   }
 
-    if (order.status !== CardOrderStatus.PENDING) {
-      this.logger.log(`Card order ${order.id} is not pending`, context);
-      return;
-    }
+  //   if (order.status !== CardOrderStatus.PENDING) {
+  //     this.logger.log(`Card order ${order.slug} is not pending`, context);
+  //     return;
+  //   }
 
-    if (order.payment?.statusCode === PaymentStatus.PENDING) {
-      this.logger.log(`Payment status is pending`, context);
-      return;
-    }
+  //   if (order.payment?.statusCode === PaymentStatus.PENDING) {
+  //     this.logger.log(
+  //       `Payment ${order?.payment?.slug} status is pending`,
+  //       context,
+  //     );
+  //     return;
+  //   }
 
-    Object.assign(order, {
-      status:
-        order.payment?.statusCode === PaymentStatus.COMPLETED
-          ? CardOrderStatus.COMPLETED
-          : CardOrderStatus.FAIL,
-      paymentStatus: order.payment?.statusCode,
-    } as Partial<CardOrder>);
+  //   Object.assign(order, {
+  //     status:
+  //       order.payment?.statusCode === PaymentStatus.COMPLETED
+  //         ? CardOrderStatus.COMPLETED
+  //         : CardOrderStatus.FAIL,
+  //     paymentStatus: order.payment?.statusCode,
+  //   } as Partial<CardOrder>);
 
-    await this.transactionManagerService.execute<CardOrder>(
-      async (manager) => {
-        return await manager.save(order);
-      },
-      (result) => {
-        this.logger.log(
-          `Card order ${result.id} status ${result.status}`,
-          context,
-        );
-      },
-      (err) => {
-        this.logger.error(
-          `Error when updating card order status: ${err.message}`,
-          err.stack,
-          context,
-        );
-      },
-    );
-  }
+  //   await this.transactionManagerService.execute<CardOrder>(
+  //     async (manager) => {
+  //       return await manager.save(order);
+  //     },
+  //     (result) => {
+  //       this.logger.log(
+  //         `Card order ${result.slug} status ${result.status}`,
+  //         context,
+  //       );
+  //     },
+  //     (err) => {
+  //       this.logger.error(
+  //         `Error when updating card order status: ${err.message}`,
+  //         err.stack,
+  //         context,
+  //       );
+  //     },
+  //   );
+  // }
 }
