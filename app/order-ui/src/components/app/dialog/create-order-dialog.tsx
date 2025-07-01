@@ -74,7 +74,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       orderItems: order.orderItems.map((orderItem) => {
         return {
           quantity: orderItem.quantity,
-          variant: orderItem.variant,
+          variant: orderItem.variant.slug,
           promotion: orderItem.promotion || null, // luôn có field promotion
           note: orderItem.note || '',
         }
@@ -139,11 +139,11 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[22rem] rounded-md p-0 gap-0 sm:max-w-[48rem] h-[calc(100vh-10rem)] sm:h-[calc(100vh-10rem)]">
+      <DialogContent className="max-w-[22rem] rounded-md p-0 gap-0 sm:max-w-[48rem] h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
         <DialogHeader className="p-4 h-fit">
           <DialogTitle className="pb-2 border-b">
-            <div className="flex gap-2 items-center">
-              <div className="flex justify-center items-center p-1 w-8 h-8 rounded-lg bg-primary/20 text-primary">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-primary/20 text-primary">
                 <ShoppingCart className="w-4 h-4 text-primary" />
               </div>
               {t('order.create')}
@@ -158,8 +158,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         <ScrollArea className="h-[calc(100vh-30rem)] sm:max-h-[calc(100vh-16rem)] px-4 flex flex-col gap-4">
           {/* Order Info */}
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-              <span className="flex gap-2 items-center text-gray-600">
+            <div className="flex items-center justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+              <span className="flex items-center gap-2 text-gray-600">
                 <Receipt className="w-4 h-4" />
                 {t('order.orderType')}
               </span>
@@ -168,8 +168,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               </Badge>
             </div>
             {order?.tableName && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
                   {t('menu.tableName')}
                 </span>
@@ -177,8 +177,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               </div>
             )}
             {order?.ownerFullName && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <User className="w-4 h-4" />
                   {t('order.customer')}
                 </span>
@@ -186,8 +186,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               </div>
             )}
             {order?.ownerPhoneNumber && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <Phone className="w-4 h-4" />
                   {t('order.phoneNumber')}
                 </span>
@@ -195,8 +195,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               </div>
             )}
             {order?.description && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <Notebook className="w-4 h-4" />
                   {t('order.note')}
                 </span>
@@ -206,7 +206,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           </div>
           <div className="flex flex-col gap-4 px-2 py-4 mt-6 border-t border-dashed border-muted-foreground/60">
             {order?.orderItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center">
+              <div key={index} className="flex items-center justify-between">
                 <div className="flex flex-col flex-1 gap-2">
                   <p className="font-bold">{item.name}</p>
                   <div className="flex gap-2">
@@ -223,7 +223,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   const hasDiscount = original > finalPrice
 
                   return (
-                    <div className="flex relative gap-1 items-center">
+                    <div className="relative flex items-center gap-1">
                       {hasDiscount ? (
                         <>
                           <span className="mr-1 line-through text-muted-foreground/70">
@@ -247,13 +247,13 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         </ScrollArea>
         <DialogFooter className="p-4 h-fit">
           {/* Total Amount */}
-          <div className="flex flex-col gap-1 justify-start items-start w-full">
-            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+          <div className="flex flex-col items-start justify-start w-full gap-1">
+            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
               {t('order.subtotal')}:&nbsp;
               <span>{`${formatCurrency(cartTotals.subTotalBeforeDiscount)}`}</span>
             </div>
             {cartTotals.promotionDiscount > 0 && (
-              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+              <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
                 <span className="italic text-yellow-600">
                   {t('order.promotionDiscount')}:&nbsp;
                 </span>
@@ -262,7 +262,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 </span>
               </div>
             )}
-            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
               <span className="italic text-green-500">
                 {t('order.voucher')}:&nbsp;
               </span>
@@ -270,13 +270,13 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 -{`${formatCurrency(cartTotals.voucherDiscount)}`}
               </span>
             </div>
-            <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
+            <div className="flex items-center justify-between w-full gap-2 pt-2 mt-4 font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
                 {`${formatCurrency(cartTotals.finalTotal)}`}
               </span>
             </div>
-            <div className='flex flex-row gap-2 justify-end mt-4 w-full'>
+            <div className='flex flex-row justify-end w-full gap-2 mt-4'>
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}
@@ -298,15 +298,15 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                     ({t('order.vat')})
                   </span> */}
           </div>
-          {/* <div className='flex flex-col gap-4 w-full'>
-            <div className="flex justify-between items-center font-semibold">
+          {/* <div className='flex flex-col w-full gap-4'>
+            <div className="flex items-center justify-between font-semibold">
               <span>{t('menu.subTotal')}</span>
               <span className='text-2xl font-extrabold text-primary'>
                 {formatCurrency(subTotal || 0)}
               </span>
             </div>
             {discount > 0 && (
-              <div className='flex flex-row gap-2 justify-between'>
+              <div className='flex flex-row justify-between gap-2'>
                 <span className='text-sm text-green-600'>
                   {t('menu.discount')}
                 </span>
@@ -316,7 +316,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               </div>
             )}
             {totalAfterDiscount > 0 && (
-              <div className='flex flex-row gap-2 justify-between'>
+              <div className='flex flex-row justify-between gap-2'>
                 <span className='text-sm text-primary'>
                   {t('menu.total')}
                 </span>
@@ -325,7 +325,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 </span>
               </div>
             )}
-            <div className='flex flex-row gap-2 justify-end'>
+            <div className='flex flex-row justify-end gap-2'>
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}

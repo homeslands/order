@@ -130,6 +130,28 @@ export const useCartItemStore = create<ICartItemStore>()(
         setupAutoClearCart()
       },
 
+      addProductVariant: (id: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          const updatedOrderItems = cartItems.orderItems.map((orderItem) =>
+            orderItem.id === id
+              ? {
+                  ...orderItem,
+                  variant: orderItem.variant || [],
+                }
+              : orderItem,
+          )
+
+          set({
+            cartItems: {
+              ...cartItems,
+              orderItems: updatedOrderItems,
+            },
+            lastModified: moment().valueOf(),
+          })
+        }
+      },
+
       updateCartItemQuantity: (id: string, quantity: number) => {
         const { cartItems } = get()
         if (cartItems) {

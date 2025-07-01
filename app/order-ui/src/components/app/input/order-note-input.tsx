@@ -20,10 +20,10 @@ export default function OrderNoteInput({ order }: OrderNoteInputProps) {
 
   return (
     <div className="flex w-full flex-row items-center justify-center gap-2.5">
-      <div className="flex flex-row flex-1 gap-2 justify-between items-start w-full">
+      <div className="flex flex-row items-start justify-between flex-1 w-full gap-2">
         <Textarea
           defaultValue={order?.note || ''}
-          className='text-[11px] shadow-none xl:text-sm'
+          className='bg-white text-[11px] shadow-none xl:text-sm'
           placeholder={t('order.enterOrderNote')}
           onChange={handleNoteChange}
         />
