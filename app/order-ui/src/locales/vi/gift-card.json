@@ -5,7 +5,8 @@
         "clientPageTitle": "Thẻ quà tặng",
         "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
         "buyNow": "Mua ngay",
-        "addToCart": "Thêm vào giỏ hàng",        "coin": "Coin",
+        "addToCart": "Thêm vào giỏ hàng",        
+        "coin": "Coin",
         "coinTransaction": "Giao dịch coin",
         "coinBalance": "Số dư coin",
         "coinAdd": "Nạp coin",
@@ -47,7 +48,7 @@
         "chooseUsageType": "Chọn cách bạn muốn sử dụng thẻ quà tặng",
         "buyForSelf": "Nạp cho bản thân",
         "giftToOthers": "Nạp cho người khác",
-        "buyGiftCard": "Mua thẻ quà tặng",
+        "purchaseGiftCard": "Mua thẻ quà tặng",
         "quantity": "Số lượng",
         "total": "Tổng cộng",
         "totalPoints": "Tổng số xu",
@@ -124,7 +125,8 @@
         "paymentExpired": "Thanh toán đã hết hạn",
 
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
-        "receiverName": "Tên người nhận"
+        "receiverName": "Tên người nhận",
+        "phoneNumberNotFound": "Không tìm thấy số điện thoại"
     },
     "schema": {
         "title": {
