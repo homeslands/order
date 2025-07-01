@@ -40,14 +40,14 @@ export const BackToTop = () => {
           <button
             onClick={scrollToTop}
             className={cn(
-              'fixed bottom-20 right-4 z-50 rounded-full bg-primary/80 p-2 text-white shadow-lg transition-all hover:bg-primary',
+              'fixed bottom-32 right-4 z-50 rounded-full bg-primary/80 p-2 text-white shadow-lg transition-all hover:bg-primary',
               isVisible
                 ? 'translate-y-0 opacity-100'
                 : 'translate-y-10 opacity-0',
             )}
             aria-label="Back to top"
           >
-            <ChevronUp className="h-5 w-5" />
+            <ChevronUp className="w-5 h-5" />
           </button>
         </TooltipTrigger>
         <TooltipContent>
