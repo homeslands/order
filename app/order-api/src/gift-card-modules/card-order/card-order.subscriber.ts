@@ -21,7 +21,8 @@ import { CardOrderService } from './card-order.service';
 
 @EventSubscriber()
 export class CardOrderSubscriber
-  implements EntitySubscriberInterface<CardOrder> {
+  implements EntitySubscriberInterface<CardOrder>
+{
   private readonly CANCEL_CARD_ORDER_JOB_DELAY = 1000 * 60 * 15;
 
   constructor(

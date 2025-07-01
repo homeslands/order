@@ -38,7 +38,7 @@ export class GiftCardService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
@@ -105,7 +105,6 @@ export class GiftCardService {
 
     return await this.transactionService.execute<GiftCard>(
       async (manager) => {
-
         return await manager.save(manager.create(GiftCard, gc));
       },
       (result) =>

@@ -26,7 +26,7 @@ export class BalanceService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private transactionService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async findOneByField(payload: FindByFieldDto) {
     const context = `${BalanceService.name}.${this.findOneByField.name}`;

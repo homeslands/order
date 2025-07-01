@@ -58,8 +58,8 @@ export class PaymentService {
     private readonly pdfService: PdfService,
     private readonly userUtils: UserUtils,
     private readonly paymentUtils: PaymentUtils,
-    private readonly transactionService: TransactionManagerService
-  ) { }
+    private readonly transactionService: TransactionManagerService,
+  ) {}
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -107,8 +107,8 @@ export class PaymentService {
           context,
         );
         throw new PaymentException(PaymentValidation.ERROR_WHEN_UPDATE_PAYEMNT);
-      }
-    )
+      },
+    );
   }
 
   async exportPayment(slug: string) {
@@ -439,7 +439,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-            ACBConnectorTransactionStatus.COMPLETED
+          ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,
