@@ -37,6 +37,7 @@ import { PointTransactionProfile } from './point-transaction/point-transaction.m
 import { PointTransaction } from './point-transaction/entities/point-transaction.entity';
 import { Order } from 'src/order/order.entity';
 import { GiftCardScheduler } from './gift-card/gift-card.scheduler';
+import { PdfModule } from 'src/pdf/pdf.module';
 
 const controllers = [
   CardController,
@@ -84,6 +85,7 @@ const modules = [
   DbModule,
   HttpModule,
   JobModule,
+  PdfModule,
 ];
 
 const exportServices = [
