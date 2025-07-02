@@ -59,7 +59,7 @@ export class PaymentService {
     private readonly userUtils: UserUtils,
     private readonly paymentUtils: PaymentUtils,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -85,7 +85,7 @@ export class PaymentService {
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
     payment.statusCode = PaymentStatus.COMPLETED;
-    payment.message = Math.random().toString();
+    payment.message = 'Thanh toan thanh cong';
 
     await this.transactionService.execute<Payment>(
       async (manager) => {
@@ -428,7 +428,7 @@ export class PaymentService {
 
     if (payment.cardOrder) {
       this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
-        orderId: payment.cardOrder.id,
+        orderSlug: payment.cardOrder?.slug,
       });
     }
 
@@ -439,7 +439,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-          ACBConnectorTransactionStatus.COMPLETED
+            ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,
