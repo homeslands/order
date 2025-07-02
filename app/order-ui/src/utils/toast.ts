@@ -120,6 +120,8 @@ const errorCodes: { [key: number]: string } = {
   1002: 'toast.voucherExpired',
   1003: 'toast.voucherNotValid',
   1004: 'toast.minOrderValueNotMet',
+  1005: 'toast.giftCardValidationError',
+  1006: 'toast.giftCardUpdated',
   105000: 'toast.invalidBranchAddress',
   105001: 'toast.invalidBranchName',
   105002: 'toast.branchNotFound',
