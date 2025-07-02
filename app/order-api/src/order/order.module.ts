@@ -45,6 +45,10 @@ import { NotificationModule } from 'src/notification/notification.module';
 import { Mutex } from 'async-mutex';
 import { Payment } from 'src/payment/payment.entity';
 import { JobModule } from 'src/job/job.module';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -66,6 +70,7 @@ import { JobModule } from 'src/job/job.module';
       ChefOrder,
       ChefOrderItem,
       Payment,
+      ACBConnectorConfig,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -83,6 +88,7 @@ import { JobModule } from 'src/job/job.module';
     QrCodeModule,
     NotificationModule,
     JobModule,
+    ACBConnectorModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -96,6 +102,8 @@ import { JobModule } from 'src/job/job.module';
     ChefOrderUtils,
     ChefOrderItemUtils,
     Mutex,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

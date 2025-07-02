@@ -20,6 +20,11 @@ import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { PdfService } from 'src/pdf/pdf.service';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 @Module({
   imports: [
@@ -32,8 +37,11 @@ import { PdfService } from 'src/pdf/pdf.service';
       MenuItem,
       Menu,
       Branch,
+      Payment,
+      ACBConnectorConfig,
     ]),
     DbModule,
+    ACBConnectorModule,
   ],
   controllers: [ChefOrderController],
   providers: [
@@ -47,6 +55,8 @@ import { PdfService } from 'src/pdf/pdf.service';
     BranchUtils,
     ChefOrderItemUtils,
     PdfService,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [ChefOrderUtils],
 })

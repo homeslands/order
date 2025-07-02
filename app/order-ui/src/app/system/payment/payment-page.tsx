@@ -8,7 +8,7 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
-import { useExportPayment, useInitiatePayment, useOrderBySlug } from '@/hooks'
+import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOrderBySlug } from '@/hooks'
 import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { PaymentMethodSelect } from '@/app/system/payment'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
@@ -27,6 +27,7 @@ export default function PaymentPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const slug = searchParams.get('order')
   const navigate = useNavigate()
+  const { mutate: getOrderProvisionalBill, isPending: isPendingGetOrderProvisionalBill } = useGetOrderProvisionalBill()
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
@@ -52,6 +53,16 @@ export default function PaymentPage() {
   // Get QR code from orderData
   const qrCode = orderData?.payment?.qrCode || ''
   const paymentSlug = orderData?.payment?.slug || ''
+
+  const handleGetOrderProvisionalBill = (slug: string) => {
+    getOrderProvisionalBill(slug, {
+      onSuccess: (data: Blob) => {
+        showToast(tToast('toast.exportOrderProvisionalBillSuccess'))
+        // Load data to print
+        loadDataToPrinter(data)
+      },
+    })
+  }
 
   // Check if payment amount matches order subtotal and QR code is valid
   const hasValidPaymentAndQr = orderData?.payment?.amount != null &&
@@ -87,6 +98,9 @@ export default function PaymentPage() {
         setIsPolling(true)
       } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
         // Case 3: Payment exists but no QR code (amount < 2000) - start polling
+        setIsPolling(true)
+      } else if (!orderData?.payment) {
+        // Case 4: No payment exists yet - start polling to wait for payment creation
         setIsPolling(true)
       } else {
         setIsPolling(false)
@@ -425,7 +439,8 @@ export default function PaymentPage() {
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH) && (
               <div className="flex gap-2 justify-end">
-                {(hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER) ?
+                {/* Chỉ hiển thị nếu là BANK_TRANSFER và có QR */}
+                {hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER ? (
                   <>
                     <DownloadQrCode qrCode={qrCode} slug={slug} />
                     <Button
@@ -437,7 +452,7 @@ export default function PaymentPage() {
                       {t('paymentMethod.exportPayment')}
                     </Button>
                   </>
-                  :
+                ) : (
                   <Button
                     disabled={isDisabled || isPendingInitiatePayment}
                     className="w-fit"
@@ -445,9 +460,22 @@ export default function PaymentPage() {
                   >
                     {isPendingInitiatePayment && <ButtonLoading />}
                     {t('paymentMethod.confirmPayment')}
-                  </Button>}
+                  </Button>
+                )}
+
+                {/* Nút này luôn hiển thị nếu là transfer hoặc cash */}
+                <Button
+                  disabled={isDisabled || isPendingGetOrderProvisionalBill}
+                  className="w-fit"
+                  onClick={() => handleGetOrderProvisionalBill(slug as string)}
+                >
+                  {isPendingGetOrderProvisionalBill && <ButtonLoading />}
+                  {t('paymentMethod.exportOrderProvisionalBill')}
+                </Button>
               </div>
             )}
+
+
         </div>
       </div>
     </div>

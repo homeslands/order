@@ -15,7 +15,10 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { Repository } from 'typeorm';
 import * as _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { ACBInitiateQRCodeRequestDto } from 'src/acb-connector/acb-connector.dto';
+import {
+  ACBCancelQRCodeRequestDto,
+  ACBInitiateQRCodeRequestDto,
+} from 'src/acb-connector/acb-connector.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Payment } from '../payment.entity';
 import { PaymentMethod, PaymentStatus } from '../payment.constants';
@@ -131,6 +134,7 @@ export class BankTransferStrategy implements IPaymentStrategy {
       userId: order.owner.id,
       statusCode: PaymentStatus.PENDING,
       statusMessage: PaymentStatus.PENDING,
+      orderIdBankTransfer: orderId,
     } as Payment;
 
     this.paymentRepository.create(payment);
@@ -171,5 +175,69 @@ export class BankTransferStrategy implements IPaymentStrategy {
         JSON.stringify(errors),
       );
     }
+  }
+
+  async cancelQRCode(payment: Payment) {
+    const context = `${BankTransferStrategy.name}.${this.cancelQRCode.name}`;
+    this.logger.log(`Cancel QR Code`, context);
+    const acbConnectorConfigs = await this.acbConnectorConfigRepository.find({
+      take: 1,
+    });
+    if (_.isEmpty(acbConnectorConfigs)) {
+      this.logger.error('ACB Connector config not found', null, context);
+      throw new ACBConnectorConfigException(
+        ACBConnectorValidation.ACB_CONNECTOR_CONFIG_NOT_FOUND,
+      );
+    }
+
+    // Get token from ACB
+    const { access_token } = await this.acbConnectorClient.token({
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      grant_type: 'client_credentials',
+    });
+
+    // Call ACB API to cancel payment
+    const requestTrace = payment.transactionId;
+    const acbConnectorConfig = _.first(acbConnectorConfigs);
+    await this.validateAcbConfig(acbConnectorConfig);
+
+    const headers = {
+      [X_CLIENT_ID]: this.clientId,
+      [X_OWNER_NUMBER]: acbConnectorConfig?.xOwnerNumber,
+      [X_OWNER_TYPE]: acbConnectorConfig?.xOwnerType,
+      [X_REQUEST_ID]: uuidv4(),
+    };
+
+    const requestDateTime = formatMoment();
+
+    const requestData = {
+      requestDateTime: requestDateTime,
+      requestTrace: requestTrace,
+      requestParameters: {
+        traceNumber: requestTrace,
+        orderId: payment.orderIdBankTransfer,
+        amount: payment.amount,
+      },
+    } as ACBCancelQRCodeRequestDto;
+
+    this.logger.warn(
+      `Cancel QR Code request: ${JSON.stringify(requestData)}`,
+      context,
+    );
+
+    const response = await this.acbConnectorClient.cancelQRCode(
+      headers,
+      requestData,
+      access_token,
+    );
+    this.logger.log(`Cancel QR Code success`, context);
+
+    this.logger.warn(
+      `Cancel QR Code response: ${JSON.stringify(response)}`,
+      context,
+    );
+
+    return response;
   }
 }

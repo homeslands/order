@@ -22,6 +22,15 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { OrderUtils } from 'src/order/order.utils';
 import { Mutex } from 'async-mutex';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -38,6 +47,12 @@ describe('BranchRevenueController', () => {
         OrderUtils,
         MenuItemUtils,
         MenuUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
         { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: Mutex,
@@ -47,11 +62,30 @@ describe('BranchRevenueController', () => {
           },
         },
         {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
           provide: MAPPER_MODULE_PROVIDER,
           useValue: {},
         },
         {
           provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
           useFactory: repositoryMockFactory,
         },
         {

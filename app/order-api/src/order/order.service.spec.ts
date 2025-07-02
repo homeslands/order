@@ -69,6 +69,10 @@ import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { ProductUtils } from 'src/product/product.utils';
 import { VoucherException } from 'src/voucher/voucher.exception';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -113,6 +117,13 @@ describe('OrderService', () => {
         PromotionUtils,
         SchedulerRegistry,
         ProductUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: ConfigService,
           useValue: {

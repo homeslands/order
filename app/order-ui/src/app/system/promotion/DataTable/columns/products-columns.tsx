@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
@@ -8,44 +7,66 @@ import { publicFileURL } from '@/constants'
 
 interface ProductColumnsProps {
   onSelectionChange?: (selectedSlugs: string[]) => void
+  selectedProducts?: string[]
 }
 
 export const useProductColumns = ({
   onSelectionChange,
+  selectedProducts = [],
 }: ProductColumnsProps = {}): ColumnDef<IProduct>[] => {
   const { t } = useTranslation(['product'])
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
-
-  const updateSelectedProducts = (updatedSlugs: string[]) => {
-    setSelectedProducts(updatedSlugs)
-    onSelectionChange?.(updatedSlugs) // 🔥 Gọi trực tiếp sau khi cập nhật state
-  }
 
   return [
     {
       id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value)
-            const rows = table.getRowModel().rows
-            const updatedSlugs = value ? rows.map((row) => row.original.slug) : []
-            updateSelectedProducts(updatedSlugs)
-          }}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => {
-        const product = row.original
+      header: ({ table }) => {
+        const currentPageSlugs = table.getRowModel().rows.map(row => row.original.slug)
+        const allCurrentPageSelected = currentPageSlugs.length > 0 &&
+          currentPageSlugs.every(slug => selectedProducts.includes(slug))
+
         return (
           <Checkbox
-            checked={row.getIsSelected()}
+            checked={allCurrentPageSelected}
             onCheckedChange={(value) => {
+              const currentPageSlugs = table.getRowModel().rows.map(row => row.original.slug)
+
+              if (value) {
+                const newSelectedProducts = [
+                  ...selectedProducts.filter(slug => !currentPageSlugs.includes(slug)),
+                  ...currentPageSlugs
+                ]
+                onSelectionChange?.(newSelectedProducts)
+                table.setRowSelection(
+                  Object.fromEntries(
+                    table.getRowModel().rows.map((_, index) => [index, true])
+                  )
+                )
+              } else {
+                const newSelectedProducts = selectedProducts.filter(slug => !currentPageSlugs.includes(slug))
+                onSelectionChange?.(newSelectedProducts)
+                table.setRowSelection({})
+              }
+            }}
+            aria-label="Select all"
+          />
+        )
+      },
+      cell: ({ row }) => {
+        const product = row.original
+        const isSelected = selectedProducts.includes(product.slug)
+
+        return (
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={(value) => {
+              if (value) {
+                const newSelectedProducts = [...selectedProducts, product.slug]
+                onSelectionChange?.(newSelectedProducts)
+              } else {
+                const newSelectedProducts = selectedProducts.filter((slug) => slug !== product.slug)
+                onSelectionChange?.(newSelectedProducts)
+              }
               row.toggleSelected(!!value)
-              updateSelectedProducts(
-                value ? [...selectedProducts, product.slug] : selectedProducts.filter((slug) => slug !== product.slug)
-              )
             }}
             aria-label="Select row"
           />

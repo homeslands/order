@@ -74,7 +74,8 @@ export default function ClientAddToCartDialog({
           image: product?.product?.image,
           name: product?.product?.name,
           quantity: 1,
-          variant: selectedVariant?.slug,
+          allVariants: product?.product?.variants,
+          variant: selectedVariant,
           size: selectedVariant?.size?.name,
           originalPrice: selectedVariant?.price,
           // price: finalPrice, // Use the calculated final price
@@ -99,9 +100,9 @@ export default function ClientAddToCartDialog({
   const handleBuyNow = () => {
     if (!selectedVariant) return
 
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
+    // const finalPrice = product.promotion && product?.promotion?.value > 0
+    //   ? selectedVariant.price * (1 - product?.promotion?.value / 100)
+    //   : selectedVariant.price;
 
     const cartItem: ICartItem = {
       id: generateCartItemId(),
@@ -112,17 +113,20 @@ export default function ClientAddToCartDialog({
       orderItems: [
         {
           id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
+          slug: product?.product?.slug,
+          image: product?.product?.image,
+          name: product?.product?.name,
           quantity: 1,
-          variant: selectedVariant.slug,
+          allVariants: product.product.variants,
+          variant: selectedVariant,
           size: selectedVariant.size.name,
           originalPrice: selectedVariant.price,
-          price: finalPrice, // Use the calculated final price
+          // price: finalPrice, // Use the calculated final price
           description: product.product.description,
           isLimit: product.product.isLimit,
           promotion: product.promotion ? product.promotion?.slug : '',
+          promotionValue: product?.promotion ? product?.promotion?.value : 0,
+          promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
           // catalog: product.catalog,
           note: note,
         },
@@ -231,7 +235,7 @@ export default function ClientAddToCartDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
+        <DialogFooter className="flex flex-row justify-end w-full gap-3">
           <Button onClick={handleBuyNow}>
             {t('menu.buyNow')}
           </Button>

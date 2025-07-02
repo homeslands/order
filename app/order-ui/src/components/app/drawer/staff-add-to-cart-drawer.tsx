@@ -62,7 +62,8 @@ export default function StaffAddToCartDrawer({ product }: AddToCartDialogProps) 
           name: product.product.name,
           quantity: 1,
           size: selectedVariant.size.name,
-          variant: selectedVariant.slug,
+          allVariants: product.product.variants,
+          variant: selectedVariant,
           originalPrice: selectedVariant.price,
           price: finalPrice,
           description: product.product.description,
@@ -96,7 +97,7 @@ export default function StaffAddToCartDrawer({ product }: AddToCartDialogProps) 
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
+          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img

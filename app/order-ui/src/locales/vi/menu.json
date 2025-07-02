@@ -143,7 +143,7 @@
     "voucherDiscount": "Giảm giá voucher",
     "discount": "Giảm giá",
     "grandTotal": "Thành tiền",
-    "totalPayment": "Tổng tiền thanh toán",
+    "totalPayment": "Tổng tiền",
     "confirmPaid": "Xác nhận đã thanh toán",
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
@@ -277,6 +277,7 @@
     "timeRemaining": "Thời gian thanh toán còn lại: ",
     "timeExpired": "Đơn hàng đã hết hạn thanh toán",
     "downloadQRCode": "Tải QR code",
+    "exportOrderProvisionalBill": "Xuất hóa đơn tạm thời",
     "noQRCode": "Không có QR code",
     "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công."
   }

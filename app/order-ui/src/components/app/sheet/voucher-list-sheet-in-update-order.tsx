@@ -367,8 +367,6 @@ export default function VoucherListSheetInUpdateOrder({
     }
   }
 
-
-
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
 
@@ -385,9 +383,15 @@ export default function VoucherListSheetInUpdateOrder({
       if (voucher) {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
-          user: userInfo.slug || '',
-          orderItems: cartItems?.orderItems || []
-        };
+          user: '', // điền user slug nếu có
+          orderItems: cartItems?.orderItems.map(item => ({
+            quantity: item.quantity,
+            variant: item.variant.slug,
+            note: item.note,
+            promotion: item.promotion ?? null,
+            order: null, // hoặc bỏ nếu không cần
+          })) || []
+        }
 
         validateVoucher(validateVoucherParam, {
           onSuccess: () => {
@@ -406,9 +410,17 @@ export default function VoucherListSheetInUpdateOrder({
       if (publicVoucher) {
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: publicVoucher.slug,
-          user: '',
-          orderItems: cartItems?.orderItems || []
-        };
+          user: '', // điền user slug nếu có
+          orderItems: cartItems?.orderItems.map(item => ({
+            quantity: item.quantity,
+            variant: item.variant.slug,
+            note: item.note,
+            promotion: item.promotion ?? null,
+            order: null, // hoặc bỏ nếu không cần
+          })) || []
+        }
+
+
 
         validatePublicVoucher(validateVoucherParam, {
           onSuccess: () => {
@@ -423,24 +435,43 @@ export default function VoucherListSheetInUpdateOrder({
     }
   };
 
-
   const isVoucherValid = (voucher: IVoucher) => {
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
+    // Check if voucher has voucherProducts and if cart items match
+    const hasValidProducts = (() => {
+      // If voucher doesn't have voucherProducts or it's empty, return false
+      if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
+        return false
+      }
+
+      // If cart is empty, return false
+      if (!orderItems || orderItems.length === 0) {
+        return false
+      }
+
+      // Check if at least one cart item matches voucher products
+      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      const cartProductSlugs = orderItems.map(item => item?.variant?.product?.slug)
+
+      return voucherProductSlugs.some(voucherSlug =>
+        cartProductSlugs.includes(voucherSlug)
+      )
+    })()
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
     const isRequiredLogin = voucher.isVerificationIdentity
     const isUserLoggedIn = !!userInfo
     const isIdentityValid = !isRequiredLogin || (isRequiredLogin && isUserLoggedIn)
-    return isValidAmount && isValidDate && isRemainingUsage && isIdentityValid
+    return isValidAmount && isValidDate && isRemainingUsage && isIdentityValid && hasValidProducts
   }
 
   const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-40 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -452,7 +483,7 @@ export default function VoucherListSheetInUpdateOrder({
     return (
       <div className={baseCardClass} key={voucher.slug}>
         {isBest && (
-          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
+          <div className="absolute px-2 py-1 text-xs text-white -top-0 -left-0 rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
         )}
@@ -461,7 +492,7 @@ export default function VoucherListSheetInUpdateOrder({
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-4 justify-between w-full">
+        <div className="flex flex-col justify-between w-full col-span-4">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -481,7 +512,7 @@ export default function VoucherListSheetInUpdateOrder({
                 {formatCurrency(voucher.value)} {t('voucher.orderValue')}
               </span>
             )}
-            <span className="flex gap-1 items-center text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
                 <Tooltip>
@@ -499,12 +530,23 @@ export default function VoucherListSheetInUpdateOrder({
                 </Tooltip>
               </TooltipProvider>
             </span>
+            <span className="text-xs text-destructive">
+              {voucher.isVerificationIdentity && !userInfo
+                ? t('voucher.needVerifyIdentity')
+                : voucher.remainingUsage === 0
+                  ? t('voucher.outOfStock')
+                  : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
+                    ? t('voucher.expired')
+                    : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
+                      ? t('voucher.minOrderNotMet')
+                      : ''}
+            </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
-              Cho đơn hàng từ {formatCurrency(voucher.minOrderValue)}
+              {t('voucher.applyForOrderValueFrom')} {formatCurrency(voucher.minOrderValue)}
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
                   ? t('voucher.outOfStock')
@@ -520,14 +562,14 @@ export default function VoucherListSheetInUpdateOrder({
             {moment(voucher.endDate).format('DD/MM/YYYY')}
           </span>
         </div>
-        <div className="flex flex-col col-span-2 justify-between items-end">
+        <div className="flex flex-col items-end justify-between col-span-2">
           {!isMobile ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="p-2 h-8 text-muted-foreground"
+                    className="h-8 p-2 text-muted-foreground"
                   >
                     <CircleHelp />
                   </Button>
@@ -536,12 +578,12 @@ export default function VoucherListSheetInUpdateOrder({
                   side="bottom"
                   className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
                 >
-                  <div className="flex flex-col gap-4 justify-between">
+                  <div className="flex flex-col justify-between gap-4">
                     <div className="grid grid-cols-5">
                       <span className="col-span-2 text-muted-foreground/70">
                         {t('voucher.code')}
                       </span>
-                      <span className="flex col-span-3 gap-1 items-center">
+                      <span className="flex items-center col-span-3 gap-1">
                         {voucher.code}
                         <Button
                           variant="ghost"
@@ -570,6 +612,22 @@ export default function VoucherListSheetInUpdateOrder({
                           {t('voucher.minOrderValue')}:{' '}
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
+                        {voucher.isVerificationIdentity && (
+                          <li>
+                            {t('voucher.needVerifyIdentity')}
+                          </li>
+                        )}
+                        {voucher.numberOfUsagePerUser && (
+                          <li>
+                            {t('voucher.numberOfUsagePerUser')}:{' '}
+                            {voucher.numberOfUsagePerUser}
+                          </li>
+                        )}
+                        {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                          <li>
+                            {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -581,7 +639,7 @@ export default function VoucherListSheetInUpdateOrder({
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="p-2 h-8 text-muted-foreground"
+                  className="h-8 p-2 text-muted-foreground"
                 >
                   <CircleHelp />
                 </Button>
@@ -589,12 +647,12 @@ export default function VoucherListSheetInUpdateOrder({
               <PopoverContent
                 className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
               >
-                <div className="flex flex-col gap-4 justify-between">
+                <div className="flex flex-col justify-between gap-4">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
                     </span>
-                    <span className="flex col-span-3 gap-1 items-center">
+                    <span className="flex items-center col-span-3 gap-1">
                       {voucher.code}
                       <Button
                         variant="ghost"
@@ -623,6 +681,22 @@ export default function VoucherListSheetInUpdateOrder({
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}
                       </li>
+                      {voucher.isVerificationIdentity && (
+                        <li>
+                          {t('voucher.needVerifyIdentity')}
+                        </li>
+                      )}
+                      {voucher.numberOfUsagePerUser && (
+                        <li>
+                          {t('voucher.numberOfUsagePerUser')}:{' '}
+                          {voucher.numberOfUsagePerUser}
+                        </li>
+                      )}
+                      {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                        <li>
+                          {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -641,23 +715,12 @@ export default function VoucherListSheetInUpdateOrder({
                 : t('voucher.use')}
             </Button>
           ) : (
-            <div className="flex flex-col gap-1 items-end">
+            <div className="flex flex-col items-end gap-1">
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
-                className="w-1/2"
+                className="w-full"
               />
-              <span className="text-xs text-destructive">
-                {voucher.isVerificationIdentity && !userInfo
-                  ? t('voucher.needVerifyIdentity')
-                  : voucher.remainingUsage === 0
-                    ? t('voucher.outOfStock')
-                    : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
-                      ? t('voucher.expired')
-                      : voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)
-                        ? t('voucher.minOrderNotMet')
-                        : ''}
-              </span>
             </div>
           )}
         </div>
@@ -668,9 +731,9 @@ export default function VoucherListSheetInUpdateOrder({
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="px-0 w-full bg-primary/15 hover:bg-primary/20">
-          <div className="flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer">
-            <div className="flex gap-1 items-center">
+        <Button variant="ghost" className="w-full px-0 bg-primary/15 hover:bg-primary/20">
+          <div className="flex items-center justify-between w-full gap-1 p-2 rounded-md cursor-pointer">
+            <div className="flex items-center gap-1">
               <TicketPercent className="icon text-primary" />
               <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
@@ -692,9 +755,9 @@ export default function VoucherListSheetInUpdateOrder({
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
+              <div className="grid items-center grid-cols-4 gap-2 sm:grid-cols-5">
                 <div className="relative col-span-3 p-1 sm:col-span-4">
-                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
+                  <TicketPercent className="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
@@ -713,7 +776,7 @@ export default function VoucherListSheetInUpdateOrder({
             </div>
             {/* Voucher list */}
             <div>
-              <div className="flex justify-between items-center py-4">
+              <div className="flex items-center justify-between py-4">
                 <Label className="text-md text-muted-foreground">
                   {t('voucher.list')}
                 </Label>
@@ -721,7 +784,7 @@ export default function VoucherListSheetInUpdateOrder({
                   {t('voucher.maxApply')}: 1
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 pb-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
                   localVoucherList?.map((voucher) =>
                     renderVoucherCard(

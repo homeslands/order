@@ -49,6 +49,7 @@
   "footer": {
     "quickLink": "Quick Link",
     "home": "Home",
+    "fanpage": "Fanpage",
     "menu": "Menu",
     "introduction": "Introduction",
     "product": "Product",
@@ -68,6 +69,7 @@
     "cart": "Cart",
     "history": "Order history",
     "order": "Order",
-    "giftCard": "Gift Card"
+    "giftCard": "Gift Card",
+    "aboutUs": "About Us"
   }
 }

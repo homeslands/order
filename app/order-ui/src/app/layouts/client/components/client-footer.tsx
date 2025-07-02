@@ -1,26 +1,41 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
+import { Mail, Phone, Facebook } from 'lucide-react';
 
 import GoogleMap from './google-map';
 import { Logo } from '@/assets/images'
 import { ROUTE } from '@/constants'
-import { Mail, Phone } from 'lucide-react';
+import { phone, mail, fanpageUrl } from '@/constants'
 
 export function ClientFooter() {
   const { t } = useTranslation('sidebar')
   const navigator = useNavigate()
-  const mail: string = "trend.coffee.tea@gmail.com"
+
   return (
     <footer className={`text-white bg-primary mb-[64px] md:mb-0`}>
       <div className={`container pt-6 pb-6 w-full md:pb-2`}>
         <div className='flex flex-col w-full lg:flex-row-reverse'>
           <div className='flex flex-col items-start w-full sm:flex-row'>
             <div className="flex flex-col gap-4 justify-center items-start w-full">
-              <div className='flex'> <Phone /> <span className='hidden cursor-pointer ps-4 md:block'>{t('footer.contact')}: </span><b className='ps-4 md:ps-1'> 0886128008</b></div>
+              <div className="flex items-center">
+                <Phone />
+                <span className="hidden cursor-pointer ps-4 md:block">
+                  {t('footer.contact')}:
+                </span>
+                <a href={`tel:${phone}`} className="font-bold ps-4 md:ps-1 hover:underline">
+                  {phone}
+                </a>
+              </div>
               <div className='flex gap-4'>
                 <Mail />
                 <span className='cursor-pointer hover:underline' onClick={() => window.location.href = `mailto:${mail}`}>
                   <b>{mail}</b>
+                </span>
+              </div>
+              <div className='flex gap-4'>
+                <Facebook />
+                <span className='cursor-pointer hover:underline' onClick={() => window.open(fanpageUrl, '_blank')}>
+                  <b>{t('footer.fanpage')}</b>
                 </span>
               </div>
             </div>
