@@ -7,4 +7,5 @@ export enum CardOrderStatus {
 export enum CardOrderType {
   SELF = 'SELF',
   GIFT = 'GIFT',
+  BUY = 'BUY',
 }

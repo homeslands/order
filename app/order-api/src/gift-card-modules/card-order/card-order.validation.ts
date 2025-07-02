@@ -63,7 +63,7 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   CARD_ORDER_NOT_PENDING: createErrorCode(158109, 'Card order not pending'),
   INVALID_CARD_ORDER_TYPE: createErrorCode(
     158110,
-    'Card order type must be one of the following: [GIFT, SELF]',
+    'Card order type must be one of the following: [GIFT, SELF, BUY]',
   ),
   CARD_IS_NOT_ACTIVE: createErrorCode(
     158111,
