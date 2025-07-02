@@ -389,3 +389,10 @@ export const ClientGiftCardPage = React.lazy(() =>
     default: module.ClientGiftCardPage,
   })),
 )
+
+//Client Gift card checkout page
+export const ClientGiftCardCheckoutPage = React.lazy(() =>
+  import('@/app/client/gift-card/checkout').then((module) => ({
+    default: module.GiftCardCheckoutPage,
+  })),
+)
