@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex justify-center items-center">
+        <img src="<%= logoUri %>" alt="" class="w-52">
+      </div>
+    </div>
+
+    <!-- Point transaction info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian:</span>
+        <%= formatDate(exportAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs">
+        <span class="font-bold">
+          Khách hàng:
+        </span>
+        <span>
+          <%= user.firstName %>
+            <%= user.lastName %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Point transaction list -->
+    <% pts.forEach(function(item) { %>
+      <table class="mt-4 min-w-full text-sm border-collapse table-auto">
+        <tbody>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Mã giao dịch
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <%= item.slug %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Giao dịch:
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <% if (item.type==='in' ) { %>
+                <p>Nạp xu</p>
+                <% } else { %>
+                  <p>Sử dụng xu</p>
+                  <% } %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Xu
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <% if (item.type==='in' ) { %>
+                <p>+<%= formatCurrency(item.points) %>
+                </p>
+                <% } else { %>
+                  <p>-<%= formatCurrency(item.points) %>
+                  </p>
+                  <% } %>
+
+            </td>
+          </tr>
+          <% if (item.objectType==='order' ) { %>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Mã đơn hàng
+              </td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= item.objectSlug %>
+              </td>
+            </tr>
+            <% } else { %>
+              <tr class="border-t border-black">
+                <td class="py-2 text-left">
+                  Mã thẻ quà tặng
+                </td>
+                <td class="py-2 text-xs font-bold text-right" colspan="4">
+                  <%= item.objectSlug %>
+                </td>
+              </tr>
+              <% } %>
+        </tbody>
+      </table>
+      <% }); %>
+  </div>
+</body>
+
+</html>
