@@ -31,12 +31,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @HasRoles(
-    RoleEnum.SuperAdmin,
-    RoleEnum.Admin,
-    RoleEnum.Manager,
-    RoleEnum.Staff,
-  )
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve all user' })
   @ApiResponseWithType({
