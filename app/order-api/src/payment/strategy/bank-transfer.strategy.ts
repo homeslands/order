@@ -174,7 +174,9 @@ export class BankTransferStrategy implements IPaymentStrategy {
     // Convert date to with format: yyyy-MM-ddTHH:mm:ss.SSSZ
     // example: 2024-11-09T11:03:33.033+0700
     const requestDateTime = formatMoment();
-    const orderId = order.slug.concat(getRandomString().slice(0, 3));
+    const orderId = order.slug
+      .concat(getRandomString().slice(0, 3))
+      .toUpperCase();
     this.logger.log(`Request date time: ${requestDateTime}`, context);
     this.logger.log(`Order id: ${orderId}`, context);
 
