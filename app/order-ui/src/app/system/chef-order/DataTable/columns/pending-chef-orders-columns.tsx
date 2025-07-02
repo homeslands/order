@@ -123,6 +123,9 @@ const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
   <div class="section">
     <div class="text-xs">Thời gian: <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></div>
     <div class="text-xs">Bàn: <%= tableName %></div>
+    <div class="mt-4 text-sm font-extrabold">
+      Ghi chú: <%= note && note.trim() !== '' ? note : 'Không có ghi chú' %>
+    </div>
   </div>
   <hr>
 
@@ -296,7 +299,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
               note: item.orderItem.note || ''
             },
             quantity: item.orderItem.quantity,
-          }
+          },
         });
 
         allHtmlContent += html;
@@ -337,6 +340,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         createdAt: chefOrder.createdAt,
         type: chefOrder.order.type,
         tableName: chefOrder.order.type === OrderTypeEnum.AT_TABLE ? chefOrder.order.table?.name || '' : 'Mang đi',
+        note: chefOrder.order.description || '',
         invoiceItems: chefOrder.chefOrderItems.map(item => ({
           variant: {
             name: item.orderItem.variant.product?.name || '',

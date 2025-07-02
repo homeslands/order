@@ -25,6 +25,15 @@ import { Order } from 'src/order/order.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Mutex } from 'async-mutex';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -81,6 +90,12 @@ describe('BranchRevenueService', () => {
         OrderUtils,
         MenuItemUtils,
         MenuUtils,
+        PaymentUtils,
+        BankTransferStrategy,
+        ACBConnectorClient,
+        ConfigService,
+        HttpService,
+        SystemConfigService,
         {
           provide: FileService,
           useValue: {
@@ -97,13 +112,32 @@ describe('BranchRevenueService', () => {
             runExclusive: jest.fn(),
           },
         },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         { provide: DataSource, useFactory: dataSourceMockFactory },
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(BranchRevenue),
           useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Branch),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Payment),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ACBConnectorConfig),
           useFactory: repositoryMockFactory,
         },
         {

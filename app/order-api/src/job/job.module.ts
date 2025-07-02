@@ -29,6 +29,11 @@ import { JobRecoveryService } from './job.recovery';
 import { MailModule } from 'src/mail/mail.module';
 import { NotificationModule } from 'src/notification/notification.module';
 import { JobScheduler } from './job.scheduler';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 @Module({
   imports: [
@@ -44,12 +49,15 @@ import { JobScheduler } from './job.scheduler';
       User,
       MenuItem,
       Menu,
+      Payment,
+      ACBConnectorConfig,
     ]),
     BullModule.registerQueue({
       name: QueueRegisterKey.JOB,
     }),
     MailModule,
     NotificationModule,
+    ACBConnectorModule,
   ],
   controllers: [JobController],
   providers: [
@@ -67,6 +75,8 @@ import { JobScheduler } from './job.scheduler';
     MenuUtils,
     JobRecoveryService,
     JobScheduler,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })

@@ -9,10 +9,17 @@
     "bestSeller": "Best seller",
     "viewMore": "View more",
     "homeDescription": "A modern, cozy space – a place to connect stories and create unforgettable memories.",
+    "homeDescription2": "100% Arabica pure, roasted weekly",
+    "homeDescription3": "A quiet, chill space for work",
     "newProduct": "New product",
     "topPromotion": "Top promotion",
     "learnAboutUs": "Learn about us",
     "aboutUsDescription": "We provide high-quality coffee with clear origins. Visit our store!",
-    "contactUs": "Contact us"
+    "contactUs": "Contact us",
+    "fanpage": "Facebook",
+    "videoSection": {
+      "title": "Discover the story of TREND Coffee",
+      "description": "Learn about our journey and the value we bring to our customers"
+    }
   }
 }

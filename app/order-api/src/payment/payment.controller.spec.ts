@@ -21,6 +21,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
+import { PaymentUtils } from './payment.utils';
 describe('PaymentController', () => {
   let controller: PaymentController;
 
@@ -37,6 +38,7 @@ describe('PaymentController', () => {
         PdfService,
         SystemConfigService,
         UserUtils,
+        PaymentUtils,
         {
           provide: 'AXIOS_INSTANCE_TOKEN',
           useValue: {

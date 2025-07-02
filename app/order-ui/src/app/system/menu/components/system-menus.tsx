@@ -5,6 +5,7 @@ import { IProduct, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
 import { AddToCartDialog } from '@/components/app/dialog'
 import { Button, useSidebar } from '@/components/ui'
+import ProductImage from '@/assets/images/ProductImage.png'
 import { formatCurrency } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
 import { StaffAddToCartDrawer } from '@/components/app/drawer'
@@ -93,14 +94,23 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                       <img
                         src={`${publicFileURL}/${item.product.image}`}
                         alt={item.product.name}
-                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
+                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5 bg-muted-foreground/10"
                       />
                       {item.promotion && item.promotion.value > 0 && (
                         <StaffPromotionTag promotion={item.promotion} />
                       )}
                     </>
                   ) : (
-                    <div className="w-full h-28 rounded-t-md bg-muted/60" />
+                    <div className="relative">
+                      <img
+                        src={ProductImage}
+                        alt="Product Image"
+                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
+                      />
+                      {item.promotion && item.promotion.value > 0 && (
+                        <StaffPromotionTag promotion={item.promotion} />
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -114,28 +124,21 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                       {item.product.description}
                     </p> */}
                     <div className="flex gap-1 items-center">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col w-full">
                         {item.product.variants.length > 0 ? (
-                          <div className="flex flex-col gap-1 justify-start items-start">
-                            <div className='flex flex-row gap-1 items-center'>
+                          <div className="flex flex-col gap-1 justify-start items-start w-full">
+                            <div className='flex flex-row gap-1 items-center w-full'>
                               {item?.promotion?.value > 0 ? (
-                                <div className='flex gap-2 justify-start items-center'>
-                                  <div className='flex flex-row gap-3 items-center w-full'>
-                                    <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70 w-[30%]">
-                                      {(() => {
-                                        const range = getPriceRange(item.product.variants)
-                                        if (!range) return formatCurrency(0)
-                                        return range.isSinglePrice
-                                          ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
-                                      })()}
-                                    </span>
-                                    {/* {item?.promotion?.value > 0 && (
-                                      <Badge className="text-[10px] px-1 sm:px-2 bg-destructive hover:bg-destructive">
-                                        {t('menu.discount')} {item?.promotion?.value}%
-                                      </Badge>
-                                    )} */}
-                                  </div>
-                                  <span className="text-sm font-bold sm:text-[0.8rem] xl:text-lg text-primary">
+                                <div className='flex gap-2 justify-start items-center w-full'>
+                                  <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70">
+                                    {(() => {
+                                      const range = getPriceRange(item.product.variants)
+                                      if (!range) return formatCurrency(0)
+                                      return range.isSinglePrice
+                                        ? `${formatCurrency((range.min))}` : `${formatCurrency(range.min)}`
+                                    })()}
+                                  </span>
+                                  <span className="text-sm font-bold sm:text-[0.8rem] xl:text-base text-primary">
                                     {(() => {
                                       const range = getPriceRange(item.product.variants)
                                       if (!range) return formatCurrency(0)

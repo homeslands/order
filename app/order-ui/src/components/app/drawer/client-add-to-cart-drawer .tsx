@@ -72,7 +72,8 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
           image: product.product.image,
           name: product.product.name,
           quantity: 1,
-          variant: selectedVariant.slug,
+          allVariants: product.product.variants,
+          variant: selectedVariant,
           size: selectedVariant.size.name,
           originalPrice: selectedVariant.price,
           price: finalPrice,
@@ -148,13 +149,13 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
+          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
                   src={`${publicFileURL}/${product.product.image}`}
                   alt={product.product.name}
-                  className="object-cover w-full h-44 rounded-md pointer-events-auto select-none sm:h-64 lg:h-72 touch-manipulation"
+                  className="object-cover w-full rounded-md pointer-events-auto select-none h-44 sm:h-64 lg:h-72 touch-manipulation"
                 />
               ) : (
                 <div className="w-full rounded-md bg-muted/50" />

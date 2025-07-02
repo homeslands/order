@@ -53,6 +53,7 @@ import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { RoleEnum } from 'src/role/role.enum';
 import { User } from 'src/user/user.entity';
 import { VoucherType } from 'src/voucher/voucher.constant';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @Injectable()
 export class OrderService {
@@ -75,6 +76,7 @@ export class OrderService {
     private readonly voucherUtils: VoucherUtils,
     private readonly orderItemUtils: OrderItemUtils,
     private readonly promotionUtils: PromotionUtils,
+    private readonly paymentUtils: PaymentUtils,
   ) {}
 
   /**
@@ -157,8 +159,9 @@ export class OrderService {
 
         // Remove payment
         if (payment) {
-          await manager.softRemove(payment);
-          this.logger.log(`Payment has been removed`, context);
+          // await manager.softRemove(payment);
+          // this.logger.log(`Payment has been removed`, context);
+          await this.paymentUtils.cancelPayment(payment.slug);
         }
 
         // Update table status if order is at table

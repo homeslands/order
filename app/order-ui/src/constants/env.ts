@@ -4,3 +4,7 @@ export const baseURL = import.meta.env.VITE_USE_PROXY
 // export const baseURL = import.meta.env.VITE_BASE_API_URL
 export const publicFileURL = import.meta.env.VITE_PUBLIC_FILE_URL
 export const googleMapAPIKey = import.meta.env.VITE_GOOGLE_MAP_API_KEY
+export const fanpageUrl = import.meta.env.VITE_TREND_FANPAGE_URL
+export const phone = import.meta.env.VITE_TREND_PHONE
+export const mail = import.meta.env.VITE_TREND_EMAIL
+export const youtubeVideoId = import.meta.env.VITE_TREND_YOUTUBE_VIDEO_ID

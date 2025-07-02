@@ -15,6 +15,7 @@ import {
   Label,
   Switch,
 } from '@/components/ui'
+import { IsComboSwitch } from '@/components/app/switch'
 import { createProductSchema, TCreateProductSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -34,17 +35,17 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
   const queryClient = useQueryClient()
   const { t } = useTranslation(['product'])
   const { mutate: createProduct } = useCreateProduct()
-  const defaultForm: TCreateProductSchema = {
-    name: '',
-    description: '',
-    isLimit: false,
-    isTopSell: false,
-    isNew: false,
-    catalog: '',
-  }
   const form = useForm<TCreateProductSchema>({
     resolver: zodResolver(createProductSchema),
-    defaultValues: defaultForm,
+    defaultValues: {
+      name: '',
+      description: '',
+      isLimit: false,
+      isTopSell: false,
+      isNew: false,
+      isCombo: false,
+      catalog: '',
+    },
   })
 
   const handleSubmit = (data: ICreateProductRequest, shouldCloseForm: boolean) => {
@@ -56,7 +57,13 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
         if (shouldCloseForm) {
           onSubmit(false); // Đóng form nếu cần
         }
-        form.reset(defaultForm)
+        form.reset({
+          name: '',
+          description: '',
+          isLimit: false,
+          isTopSell: false,
+          isNew: false,
+        })
         showToast(t('toast.createProductSuccess'))
       },
     })
@@ -102,10 +109,10 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           control={form.control}
           name="isLimit"
           render={({ field }) => (
-            <FormItem className="flex items-center  gap-4">
+            <FormItem className="flex gap-4 items-center">
               <FormControl className="flex items-center p-0">
                 {/* <IsLimitSwitch {...field} /> */}
-                <div className="flex items-center gap-4 py-2">
+                <div className="flex gap-4 items-center py-2">
                   <Label>{t('product.isLimited')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
@@ -119,9 +126,9 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           control={form.control}
           name="isTopSell"
           render={({ field }) => (
-            <FormItem className="flex items-center gap-4 ">
+            <FormItem className="flex gap-4 items-center">
               <FormControl className="flex items-center p-0">
-                <div className="flex items-center gap-4 py-2">
+                <div className="flex gap-4 items-center py-2">
                   <Label>{t('product.isTopSell')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
@@ -137,11 +144,26 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           render={({ field }) => (
             <FormItem className="flex items-center">
               <FormControl className="flex items-center p-0">
-                <div className="flex items-center gap-4 py-2">
+                <div className="flex gap-4 items-center py-2">
                   <Label>{t('product.isNew')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isCombo"
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl className="flex items-center p-0">
+                <IsComboSwitch
+                  defaultValue={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -177,8 +199,8 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
               </React.Fragment>
             ))}
           </div>
-          <div className="flex justify-end gap-4">
-            <Button className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
+          <div className="flex gap-4 justify-end">
+            <Button className="text-orange-500 bg-white border border-orange-500 hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
               {t('product.btnCreateAndContinue')}
             </Button>
             <Button type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, true))}>

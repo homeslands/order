@@ -78,7 +78,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         <DataTableColumnHeader column={column} title={t('product.highlight')} />
       ),
       cell: ({ row }) => {
-        const { isLimit, isTopSell, isNew } = row.original
+        const { isLimit, isTopSell, isNew, isCombo } = row.original
         return (
           <div className="flex flex-col gap-1.5 min-w-[8rem] px-2">
             {isLimit && (
@@ -94,6 +94,11 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
             {isNew && (
               <div className="flex gap-1 justify-center items-center px-2 py-1 text-xs font-bold text-green-500 bg-green-600 rounded-xl border border-green-500 bg-opacity-15">
                 🍃 {t('product.isNew')}
+              </div>
+            )}
+            {isCombo && (
+              <div className="flex gap-1 justify-center items-center px-2 py-1 text-xs font-bold text-blue-500 bg-blue-600 rounded-xl border border-blue-500 bg-opacity-15">
+                🎁 {t('product.isCombo')}
               </div>
             )}
           </div>

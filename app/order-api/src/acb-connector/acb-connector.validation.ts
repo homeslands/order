@@ -14,6 +14,7 @@ export const ACB_CONNECTOR_CONFIG_UPDATE_FAILED =
   'ACB_CONNECTOR_CONFIG_UPDATE_FAILED';
 export const ACB_CONNECTOR_CONFIG_CREATION_FAILED =
   'ACB_CONNECTOR_CONFIG_CREATION_FAILED';
+export const CANCEL_QR_CODE_FAIL = 'CANCEL_QR_CODE_FAIL';
 
 export type TACBConnectorErrorCodeKey =
   | typeof ACB_CONNECTOR_CONFIG_NOT_FOUND
@@ -27,7 +28,8 @@ export type TACBConnectorErrorCodeKey =
   | typeof INITIATE_QR_CODE_FAIL
   | typeof X_OWNER_NUMBER_INVALID
   | typeof ACB_CONNECTOR_CONFIG_CREATION_FAILED
-  | typeof ACB_CONNECTOR_CONFIG_UPDATE_FAILED;
+  | typeof ACB_CONNECTOR_CONFIG_UPDATE_FAILED
+  | typeof CANCEL_QR_CODE_FAIL;
 
 export type TTACBConnectorErrorCode = Record<
   TACBConnectorErrorCodeKey,
@@ -63,4 +65,5 @@ export const ACBConnectorValidation: TTACBConnectorErrorCode = {
     103011,
     'Failed to update ACB Config',
   ),
+  CANCEL_QR_CODE_FAIL: createErrorCode(103012, 'Failed to cancel qr code'),
 };

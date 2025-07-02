@@ -62,12 +62,12 @@ export default function DeleteCartItemDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost">
-          <Trash2 size={20} className="text-muted-foreground" />
+          <Trash2 size={20} className="text-destructive" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="flex gap-2 items-center text-destructive">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
             <TriangleAlert />
             {t('order.deleteItem')}
           </DialogTitle>
@@ -76,14 +76,14 @@ export default function DeleteCartItemDialog({
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex gap-4 items-center mt-4">
+          <div className="flex items-center gap-4 mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
               {t('order.deleteContent')} <strong>{cartItem.name}</strong>
               {t('order.deleteContent2')}
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row gap-2 justify-end">
+        <DialogFooter className="flex flex-row justify-end gap-2">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
