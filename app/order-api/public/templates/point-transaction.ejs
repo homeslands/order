@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex justify-center items-center">
+        <img src="<%= logoUri %>" alt="" class="w-52">
+      </div>
+      <p class="text-xs text-center">
+        <span class="">Mã giao dịch:</span>
+        <span class="">
+          <%= slug %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Point transaction info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian:</span>
+        <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs">
+        <span class="font-bold">
+          Khách hàng:
+        </span>
+        <span>
+          <%= user.firstName %>
+            <%= user.lastName %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Point transaction detail -->
+    <table class="mt-4 min-w-full text-sm border-collapse table-auto">
+      <thead>
+        <tr class="border-b border-black bg-white-100">
+          <th class="py-2 w-2/3 text-left"></th>
+          <th class="px-1 py-2 text-left"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t border-black">
+          <td class="py-2 text-left">
+            Giao dịch:
+          </td>
+          <td class="py-2 text-xs font-bold text-right" colspan="4">
+            <% if (type==='in' ) { %>
+              <p>Nạp xu</p>
+              <% } else { %>
+                <p>Sử dụng xu</p>
+                <% } %>
+          </td>
+        </tr>
+        <tr class="border-t border-black">
+          <td class="py-2 text-left">
+            Xu
+          </td>
+          <td class="py-2 text-xs font-bold text-right" colspan="4">
+            <% if (type==='in' ) { %>
+              <p>+<%= formatCurrency(points) %>
+              </p>
+              <% } else { %>
+                <p>-<%= formatCurrency(points) %>
+                </p>
+                <% } %>
+
+          </td>
+        </tr>
+        <% if (objectType==='order' ) { %>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Mã đơn hàng
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <%= objectSlug %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Số đơn hàng
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <%= ref?.referenceNumber %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="py-2 text-left">
+              Tổng tiền đơn hàng
+            </td>
+            <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <%= formatCurrency(ref?.subtotal) %>
+            </td>
+          </tr>
+          <% } else { %>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Mã thẻ quà tặng
+              </td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= objectSlug %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Tên thẻ quà tặng
+              </td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= ref?.cardName %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Số xu
+              </td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= formatCurrency(ref?.cardPoints) %>
+              </td>
+            </tr>
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Người tặng
+              </td>
+              <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <%= ref?.cardOrder?.customerName %>
+              </td>
+            </tr>
+            <% } %>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

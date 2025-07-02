@@ -27,6 +27,11 @@ import {
 import { Order } from 'src/order/order.entity';
 import { GiftCard } from '../gift-card/entities/gift-card.entity';
 import { User } from 'src/user/user.entity';
+import { PdfService } from 'src/pdf/pdf.service';
+import { fileToBase64DataUri } from 'src/shared/utils/file.util';
+import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction.dto';
+import { AuthException } from 'src/auth/auth.exception';
+import { AuthValidation } from 'src/auth/auth.validation';
 
 @Injectable()
 export class PointTransactionService {
@@ -47,7 +52,106 @@ export class PointTransactionService {
     @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
+    private readonly pdfService: PdfService,
   ) {}
+
+  async exportAll(query: ExportAllPointTransactionDto) {
+    const context = `${PointTransactionService.name}.${this.export.name}`;
+    this.logger.log(
+      `Export all point transaction req: ${JSON.stringify(query)}`,
+      context,
+    );
+
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: query.userSlug,
+      },
+    });
+    if (!user) throw new AuthException(AuthValidation.USER_NOT_FOUND);
+
+    const pts = await this.ptRepository.find({
+      where: {
+        user: {
+          slug: query.userSlug,
+        },
+      },
+      relations: ['user'],
+    });
+
+    const logoUri = fileToBase64DataUri('public/images/logo.png', 'image/png');
+    const exportAt = new Date();
+
+    return await this.pdfService.generatePdf(
+      'point-transactions',
+      {
+        logoUri,
+        pts,
+        exportAt,
+        user,
+      },
+      {
+        width: '80mm',
+      },
+    );
+  }
+
+  async export(slug: string) {
+    const context = `${PointTransactionService.name}.${this.export.name}`;
+    this.logger.log(`Export point transaction req: ${slug}`, context);
+
+    const pt = await this.ptRepository.findOne({
+      where: {
+        slug,
+      },
+      relations: ['user'],
+    });
+    if (!pt)
+      throw new PointTransactionException(
+        PointTransactionValidation.POINT_TRANSACTION_NOT_FOUND,
+      );
+
+    const ref: Order | GiftCard = await this.getObjectRef({
+      objectType: pt.objectType,
+      objectSlug: pt.objectSlug,
+    });
+
+    const logoUri = fileToBase64DataUri('public/images/logo.png', 'image/png');
+
+    return await this.pdfService.generatePdf(
+      'point-transaction',
+      {
+        logoUri,
+        ref,
+        ...pt,
+      },
+      {
+        width: '80mm',
+      },
+    );
+  }
+
+  async getObjectRef(payload: { objectType: string; objectSlug: string }) {
+    let objectRef: Order | GiftCard = null;
+
+    switch (payload.objectType) {
+      case PointTransactionObjectTypeEnum.ORDER:
+        objectRef = await this.orderRepository.findOne({
+          where: { slug: payload.objectSlug },
+        });
+        break;
+      case PointTransactionObjectTypeEnum.GIFT_CARD:
+        objectRef = await this.gcRepository.findOne({
+          where: { slug: payload.objectSlug },
+          relations: ['cardOrder'],
+        });
+        break;
+      default:
+        throw new PointTransactionException(
+          PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
+        );
+    }
+    return objectRef;
+  }
 
   async create(req: CreatePointTransactionDto) {
     const context = `${PointTransaction.name}.${this.create.name}`;

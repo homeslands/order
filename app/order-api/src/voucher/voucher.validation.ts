@@ -1,5 +1,9 @@
 import { createErrorCode, TErrorCodeValue } from 'src/app/app.validation';
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
+} from 'class-validator';
 
 export const VOUCHER_NOT_FOUND = 'VOUCHER_NOT_FOUND';
 export const CREATE_VOUCHER_FAILED = 'CREATE_VOUCHER_FAILED';
@@ -112,7 +116,7 @@ export const VoucherValidation: TVoucherErrorCode = {
 
 // Custom validator decorator for date range validation
 export function IsEndDateAfterStartDate(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isEndDateAfterStartDate',
       target: object.constructor,
@@ -126,9 +130,9 @@ export function IsEndDateAfterStartDate(validationOptions?: ValidationOptions) {
           const obj = args.object as any;
           const startDate = obj.startDate;
           const endDate = obj.endDate;
-          
+
           if (!startDate || !endDate) return true;
-          
+
           return endDate >= startDate;
         },
       },
