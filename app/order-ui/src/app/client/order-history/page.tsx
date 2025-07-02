@@ -43,7 +43,7 @@ export default function OrderHistoryPage() {
   if (_.isEmpty(orderDetail?.result)) {
     return (
       <div className="container py-20 lg:h-[60vh]">
-        <div className="flex flex-col gap-5 justify-center items-center">
+        <div className="flex flex-col items-center justify-center gap-5">
           <CircleX className="w-32 h-32 text-destructive" />
           <p className="text-center text-muted-foreground">
             {t('menu.noData')}
@@ -69,8 +69,8 @@ export default function OrderHistoryPage() {
     <div className="container py-5">
       <div className="flex flex-col gap-2">
         {/* Title */}
-        <div className="flex sticky -top-1 z-10 flex-col gap-2 items-center py-2 bg-white dark:bg-transparent">
-          <span className="flex gap-1 justify-start items-center w-full text-lg">
+        <div className="sticky z-10 flex flex-col items-center gap-2 py-2 -top-1">
+          <span className="flex items-center justify-start w-full gap-1 text-lg">
             <SquareMenu />
             {t('order.orderDetail')}{' '}
           </span>
@@ -78,11 +78,11 @@ export default function OrderHistoryPage() {
         <ProgressBar step={orderInfo?.status} />
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Left, info */}
-          <div className="flex flex-col gap-4 w-full lg:w-3/5">
+          <div className="flex flex-col w-full gap-4 lg:w-3/5">
             {/* Order info */}
-            <div className="flex justify-between items-center p-3 rounded-sm border border-muted-foreground/30">
+            <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
               <div className="">
-                <p className="flex gap-2 items-center pb-2">
+                <p className="flex items-center gap-2 pb-2">
                   <span className="font-bold">
                     {t('order.order')}{' '}
                   </span>
@@ -110,7 +110,7 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
+              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.customer')}{' '}
                 </div>
@@ -120,7 +120,7 @@ export default function OrderHistoryPage() {
                   </p>
                 </div>
               </div>
-              <div className="rounded-sm border border-muted-foreground/30 sm:grid-cols-2">
+              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                   {t('order.orderType')}
                 </div>
@@ -150,8 +150,8 @@ export default function OrderHistoryPage() {
                   {orderInfo?.orderItems?.map((item) => (
                     <TableRow key={item.slug}>
                       {/* Cột hình ảnh + thông tin */}
-                      <TableCell className="flex gap-5 items-center font-bold">
-                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex gap-5 items-center">
+                      <TableCell className="flex items-center gap-5 font-bold">
+                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex items-center gap-5">
                           {/* Hình ảnh */}
                           <div className="relative h-[3.5rem] w-[3.5rem] sm:h-[6.5rem] sm:w-[6.5rem] cursor-pointer">
                             <img
@@ -159,7 +159,7 @@ export default function OrderHistoryPage() {
                               alt={item.variant.product.name}
                               className="object-cover w-full h-full rounded-md aspect-square"
                             />
-                            <div className="flex absolute -bottom-3 left-10 justify-center items-center w-7 h-7 text-sm text-white rounded-full sm:-bottom-3 sm:-right-3 sm:left-auto bg-primary">
+                            <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-3 left-10 w-7 h-7 sm:-bottom-3 sm:-right-3 sm:left-auto bg-primary">
                               x{item.quantity}
                             </div>
                           </div>
@@ -168,7 +168,7 @@ export default function OrderHistoryPage() {
                           <div className="flex flex-col items-start">
                             <span className="text-sm font-semibold truncate">{item?.variant?.product?.name}</span>
                             {item?.promotion && item?.promotion?.value > 0 ? (
-                              <div className="flex flex-row gap-1 items-center">
+                              <div className="flex flex-row items-center gap-1">
                                 <span className="text-xs font-normal">Size {item?.variant?.size?.name.toUpperCase()}</span>
                                 <span className="text-xs line-through text-muted-foreground/60">
                                   {formatCurrency(item?.variant?.price || 0)}
@@ -215,7 +215,7 @@ export default function OrderHistoryPage() {
                             isSamePriceVoucher || hasPromotionDiscount
 
                           return (
-                            <div className="flex gap-1 items-center">
+                            <div className="flex items-center gap-1">
                               {shouldShowLineThrough && (
                                 <span className="text-sm line-through text-muted-foreground">
                                   {formatCurrency(original * item.quantity)}
@@ -236,9 +236,9 @@ export default function OrderHistoryPage() {
           </div>
 
           {/* Right, payment*/}
-          <div className="flex flex-col gap-2 w-full lg:w-2/5">
+          <div className="flex flex-col w-full gap-2 lg:w-2/5">
             {/* Payment method, status */}
-            <div className="rounded-sm border h-fit border-muted-foreground/30">
+            <div className="border rounded-sm h-fit border-muted-foreground/30">
               <div className="px-3 py-4 font-bold bg-muted-foreground/10">
                 {t('paymentMethod.title')}
               </div>
@@ -281,25 +281,25 @@ export default function OrderHistoryPage() {
               )}
             </div>
             {/* Total */}
-            <div className="rounded-sm border border-muted-foreground/30">
+            <div className="border rounded-sm border-muted-foreground/30">
               <div className="px-3 py-3 font-bold bg-muted-foreground/10">
                 {t('order.paymentInformation')}
               </div>
               <div className="flex flex-col gap-2 px-3 py-2">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     {t('order.subTotal')}
                   </p>
                   <p className="text-sm">{`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}</p>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     {t('order.discount')}
                   </p>
                   <p className="text-sm text-muted-foreground">{`- ${formatCurrency(cartTotals?.promotionDiscount || 0)}`}</p>
                 </div>
                 {orderInfo?.voucher &&
-                  <div className="flex justify-between pb-4 w-full border-b">
+                  <div className="flex justify-between w-full pb-4 border-b">
                     <h3 className="text-sm italic font-medium text-green-500">
                       {t('order.voucher')}
                     </h3>
@@ -308,7 +308,7 @@ export default function OrderHistoryPage() {
                     </p>
                   </div>}
                 {orderInfo && orderInfo?.loss > 0 &&
-                  <div className="flex justify-between pb-4 w-full">
+                  <div className="flex justify-between w-full pb-4">
                     <h3 className="text-sm italic font-medium text-green-500">
                       {t('order.invoiceAutoDiscountUnderThreshold')}
                     </h3>
@@ -317,13 +317,13 @@ export default function OrderHistoryPage() {
                     </p>
                   </div>}
                 <Separator className="my-2" />
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
                   <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
                     ({orderInfo?.orderItems?.length} {t('order.product')})
                   </p>
@@ -334,7 +334,7 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {isMobile && orderInfo?.status === OrderStatus.PAID && (
-              <div className='flex flex-col justify-center items-center mt-12 w-full'>
+              <div className='flex flex-col items-center justify-center w-full mt-12'>
                 <span className='text-lg text-muted-foreground'>
                   {t('order.invoice')}
                 </span>
@@ -349,7 +349,7 @@ export default function OrderHistoryPage() {
               </div>
             )}
             {/* Return order button */}
-            <div className="flex gap-2 justify-between">
+            <div className="flex justify-between gap-2">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -371,7 +371,7 @@ export default function OrderHistoryPage() {
           </div>
         </div>
         {!isMobile && orderInfo?.status === OrderStatus.PAID && (
-          <div className='flex flex-col justify-center items-center mt-12 w-full'>
+          <div className='flex flex-col items-center justify-center w-full mt-12'>
             <span className='text-lg text-muted-foreground'>
               {t('order.invoice')}
             </span>
