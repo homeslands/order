@@ -37,9 +37,11 @@ export class GiftCard extends Base {
 
   @ManyToOne(() => CardOrder, (cardOrder) => cardOrder.giftCards)
   @JoinColumn({ name: 'card_order_column' })
+  @AutoMap(() => CardOrder)
   cardOrder: CardOrder;
 
   @CreateDateColumn({ type: 'timestamp', name: 'used_at_column' })
+  @AutoMap(() => Date)
   usedAt: Date;
 
   @Column({ name: 'used_by_column', nullable: true })
@@ -47,6 +49,6 @@ export class GiftCard extends Base {
   usedBy: string;
 
   @CreateDateColumn({ type: 'timestamp', name: 'expired_at_column' })
-  @AutoMap()
+  @AutoMap(() => Date)
   expiredAt: Date;
 }
