@@ -18,6 +18,7 @@ import { CardOrder } from '../card-order/entities/card-order.entity';
 import { CardOrderException } from '../card-order/card-order.exception';
 import { CardOrderValidation } from '../card-order/card-order.validation';
 import { GenGiftCardDto } from './dto/gen-gift-card.dto';
+import { GiftCardResponseDto } from './dto/gift-card-response.dto';
 
 @Injectable()
 export class GiftCardService {
@@ -38,7 +39,29 @@ export class GiftCardService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
+
+  async findOne(slug: string) {
+    const gc = await this.gcRepository.findOne({
+      where: {
+        slug,
+      },
+      relations: ['cardOrder.card'],
+    });
+    if (!gc)
+      throw new GiftCardException(GiftCardValidation.GIFT_CARD_NOT_FOUND);
+
+    return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
+  }
+
+  async findAll() {
+    const gcs = await this.gcRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    return this.mapper.mapArray(gcs, GiftCard, GiftCardResponseDto);
+  }
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
