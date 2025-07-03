@@ -439,7 +439,7 @@ export default function VoucherListSheetInUpdateOrder({
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
-        : (voucher?.minOrderValue || 0) <= (cartTotals?.subTotalBeforeDiscount || 0)
+        : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
     // Check if voucher has voucherProducts and if cart items match
     const hasValidProducts = (() => {
       // If voucher doesn't have voucherProducts or it's empty, return false
@@ -533,7 +533,7 @@ export default function VoucherListSheetInUpdateOrder({
             <span className="text-xs text-destructive">
               {voucher.isVerificationIdentity && !userInfo
                 ? t('voucher.needVerifyIdentity')
-                : voucher.remainingUsage === 0
+                : voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug)
                   ? t('voucher.outOfStock')
                   : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                     ? t('voucher.expired')
@@ -548,9 +548,9 @@ export default function VoucherListSheetInUpdateOrder({
           <div className="flex flex-col gap-1 mt-1">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {voucher.remainingUsage === 0
-                  ? t('voucher.outOfStock')
-                  : `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`}
+                {(voucher.remainingUsage > 0 || isVoucherSelected(voucher.slug))
+                  ? `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`
+                  : t('voucher.outOfStock')}
               </span>
             </div>
             {voucher.remainingUsage > 0 && (
@@ -703,7 +703,7 @@ export default function VoucherListSheetInUpdateOrder({
               </PopoverContent>
             </Popover>
           )}
-          {isVoucherValid(voucher) ? (
+          {isVoucherValid(voucher) || isVoucherSelected(voucher.slug) ? (
             <Button
               onClick={() => handleToggleVoucher(voucher)}
               variant={

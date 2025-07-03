@@ -561,9 +561,9 @@ export default function VoucherListSheetInUpdateOrder({
           <div className="flex flex-col gap-1 mt-1">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {voucher.remainingUsage === 0
-                  ? t('voucher.outOfStock')
-                  : `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`}
+                {(voucher.remainingUsage > 0 || isVoucherSelected(voucher.slug))
+                  ? `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`
+                  : t('voucher.outOfStock')}
               </span>
             </div>
             {voucher.remainingUsage > 0 && (

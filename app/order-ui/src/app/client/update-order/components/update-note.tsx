@@ -42,12 +42,12 @@ export default function UpdateOrderItemNoteInput({ orderItem }: OrderItemNoteInp
     // }, [handleUpdateNote])
     return (
         <div className="flex w-full flex-row items-center justify-center gap-2.5">
-            <div className="flex flex-row flex-1 gap-2 justify-between items-center w-full">
+            <div className="flex flex-row items-center justify-between flex-1 w-full gap-2">
                 <NotepadText className="text-muted-foreground" />
                 <Input
                     defaultValue={orderItem?.note || ''}
                     type="text"
-                    className='shadow-none'
+                    className='text-xs shadow-none sm:text-sm'
                     placeholder={t('order.enterNote')}
                     onChange={(e) => setNote(e.target.value)}
                 />
