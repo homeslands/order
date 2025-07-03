@@ -4,6 +4,7 @@
     "createdAt": "Ngày tạo",
     "slug": "Mã vai trò",
     "name": "Tên vai trò",
+    "roleTitle": "Vai trò",
     "description": "Mô tả",
     "authority": "Quyền hạn",
     "authorityList": "Danh sách quyền hạn",
@@ -30,6 +31,7 @@
     "STAFF": "Nhân viên",
     "CHEF": "Đầu bếp",
     "CUSTOMER": "Khách hàng",
-    "SUPER_ADMIN": "Siêu quản trị viên"
+    "SUPER_ADMIN": "Siêu quản trị viên",
+    "chooseRole": "Chọn vai trò"
   }
 }

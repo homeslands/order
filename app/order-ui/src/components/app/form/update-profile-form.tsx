@@ -13,7 +13,7 @@ import {
   Button,
   ScrollArea,
 } from '@/components/ui'
-import { updateProfileSchema, TUpdateProfileSchema } from '@/schemas'
+import { useUpdateProfileSchema, TUpdateProfileSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateProfileRequest, IUserInfo } from '@/types'
@@ -40,7 +40,7 @@ export const UpdateProfileForm: React.FC<IFormUpdateProfileProps> = ({
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: createProductVariant } = useUpdateProfile()
   const form = useForm<TUpdateProfileSchema>({
-    resolver: zodResolver(updateProfileSchema),
+    resolver: zodResolver(useUpdateProfileSchema()),
     defaultValues: {
       firstName: userProfile?.firstName || '',
       lastName: userProfile?.lastName || '',

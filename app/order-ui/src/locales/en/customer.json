@@ -11,9 +11,10 @@
     "dob": "Date of birth",
     "name": "Name",
     "email": "Email",
+    "address": "Address",
+    "enterEmail": "Enter email",
     "phoneNumber": "Phone number",
     "role": "Role",
-    "address": "Address",
     "branch": "Branch",
 
     "updateRole": "Update role",
@@ -23,6 +24,7 @@
 
     "create": "Create new customer",
     "createDescription": "Create new customer",
+    "enterAddress": "Enter address",
     "enterPhoneNumber": "Enter phone number",
     "enterFirstName": "Enter first name",
     "enterLastName": "Enter last name",
