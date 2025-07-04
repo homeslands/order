@@ -38,6 +38,7 @@ export class GiftCard extends Base {
   @AutoMap(() => CardOrder)
   cardOrder: CardOrder;
 
+  @AutoMap(() => Date)
   @Column({ type: 'timestamp', name: 'used_at_column', nullable: true })
   @AutoMap(() => Date)
   usedAt: Date;
