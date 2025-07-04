@@ -1,5 +1,5 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, extend, Mapper } from '@automapper/core';
+import { createMap, extend, Mapper, typeConverter } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';
@@ -18,6 +18,7 @@ export class GiftCardProfile extends AutomapperProfile {
         mapper,
         GiftCard,
         GiftCardResponseDto,
+        typeConverter(Date, String, (expiredAt) => expiredAt.toString()),
         extend(baseMapper(mapper)),
       );
     };
