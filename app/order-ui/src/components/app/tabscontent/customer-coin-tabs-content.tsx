@@ -12,6 +12,7 @@ import {
   Calendar,
   Filter,
   X,
+  Download,
 } from 'lucide-react'
 
 import { useIsMobile } from '@/hooks'
@@ -27,7 +28,12 @@ import {
 } from '@/components/ui/select'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { formatCurrency } from '@/utils'
-import { getPointTransactions } from '@/api/point-transaction'
+import { saveAs } from 'file-saver'
+import {
+  getPointTransactions,
+  exportAllPointTransactions,
+  exportPointTransactionBySlug,
+} from '@/api/point-transaction'
 import { IPointTransaction, IPointTransactionQuery } from '@/types'
 import { PointTransactionObjectType, PointTransactionType } from '@/constants'
 import { useUserStore } from '@/stores'
@@ -59,10 +65,49 @@ export function CustomerCoinTabsContent() {
   // Track if we need to refetch data when Apply Filter is clicked
   const [shouldRefetch, setShouldRefetch] = useState(false)
 
+  // Export states
+  const [isExportingAll, setIsExportingAll] = useState(false)
+  const [exportingTransactionSlug, setExportingTransactionSlug] = useState<
+    string | null
+  >(null)
+
   const isMobile = useIsMobile()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastElementRef = useRef<HTMLDivElement | null>(null)
   const { userInfo } = useUserStore()
+
+  // Export all transactions
+  const handleExportAll = useCallback(async () => {
+    if (!userInfo?.slug) return
+
+    setIsExportingAll(true)
+    try {
+      const blob = await exportAllPointTransactions(userInfo.slug)
+      const filename = `point-transactions-${userInfo.slug}-${new Date().toISOString().split('T')[0]}.pdf`
+      saveAs(blob, filename)
+    } finally {
+      setIsExportingAll(false)
+    }
+  }, [userInfo?.slug])
+
+  // Export single transaction
+  const handleExportTransaction = useCallback(
+    async (transactionSlug: string) => {
+      setExportingTransactionSlug(transactionSlug)
+      try {
+        const blob = await exportPointTransactionBySlug(transactionSlug)
+        const filename = `transaction-${transactionSlug}-${new Date().toISOString().split('T')[0]}.pdf`
+        saveAs(blob, filename)
+
+        // Success - you can add toast notification here
+      } catch {
+        // Error - you can add toast notification here
+      } finally {
+        setExportingTransactionSlug(null)
+      }
+    },
+    [],
+  )
 
   const fetchCoinTransactions = useCallback(
     async (page: number, isInitial = false, withFilters = false) => {
@@ -273,7 +318,7 @@ export function CustomerCoinTabsContent() {
     return (
       <TransactionGiftCardDetailDialog transaction={transaction}>
         <div
-          className={`mb-3 cursor-pointer rounded-md p-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${bgClass} ${borderClass}`}
+          className={`mb-3 cursor-pointer rounded-md px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${bgClass} ${borderClass}`}
         >
           <div className="mb-2 flex items-center justify-between">
             <div
@@ -298,22 +343,49 @@ export function CustomerCoinTabsContent() {
               </span>
               <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
             </div>
+
             <div
               className={`flex items-center text-xs text-gray-500 dark:text-gray-400 ${isMobile ? 'w-max' : ''}`}
             >
-              <Clock size={12} className="mr-1" />
-              {isMobile ? (
-                <div className="flex flex-col">
-                  <span>
-                    {moment(transaction.createdAt).format('HH:mm:ss')}
-                  </span>
-                  <span>
-                    {moment(transaction.createdAt).format('DD/MM/YYYY')}
-                  </span>
-                </div>
-              ) : (
-                moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')
-              )}
+              {/* Export Transaction Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleExportTransaction(transaction.slug)
+                }}
+                disabled={exportingTransactionSlug === transaction.slug}
+                className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <Download
+                  size={14}
+                  className={
+                    exportingTransactionSlug === transaction.slug
+                      ? 'animate-pulse'
+                      : ''
+                  }
+                />
+              </Button>
+
+              {/* Time */}
+              <div
+                className={`flex items-center text-xs text-gray-500 dark:text-gray-400 ${isMobile ? 'w-max' : ''}`}
+              >
+                <Clock size={12} className="mr-1" />
+                {isMobile ? (
+                  <div className="flex flex-col">
+                    <span>
+                      {moment(transaction.createdAt).format('HH:mm:ss')}
+                    </span>
+                    <span>
+                      {moment(transaction.createdAt).format('DD/MM/YYYY')}
+                    </span>
+                  </div>
+                ) : (
+                  moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')
+                )}
+              </div>
             </div>
           </div>
 
@@ -371,19 +443,36 @@ export function CustomerCoinTabsContent() {
               )}
             </CardTitle>
 
-            {/* Filter Toggle Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={`${hasActiveFilter ? 'border-primary text-primary' : ''}`}
+            {/* Action Buttons */}
+            <div
+              className={`flex items-center gap-2 ${isMobile && 'flex-col'}`}
             >
-              <Filter size={16} className="mr-2" />
-              {t('profile.filter')}
-              {hasActiveFilter && (
-                <span className="ml-1 text-xl text-primary">•</span>
-              )}
-            </Button>
+              {/* Export Transaction Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportAll}
+                disabled={isExportingAll || totalItems === 0}
+                className="flex min-w-[120px] items-center gap-2"
+              >
+                <Download size={16} />
+                {t('profile.exportAll')}
+              </Button>
+
+              {/* Filter Toggle Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`${hasActiveFilter ? 'border-primary text-primary' : ''} min-w-[120px]`}
+              >
+                <Filter size={16} className="mr-2" />
+                {t('profile.filter')}
+                {hasActiveFilter && (
+                  <span className="ml-1 text-xl text-primary">•</span>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Filter Panel */}

@@ -94,6 +94,7 @@
     "allTransactions": "Tất cả giao dịch",
     "applyFilter": "Áp dụng lọc",
     "clearFilter": "Xóa lọc",
-    "transactionType": "Loại giao dịch"
+    "transactionType": "Loại giao dịch",
+    "exportAll": "Xuất tất cả"
   }
 }
