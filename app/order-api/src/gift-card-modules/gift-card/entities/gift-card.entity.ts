@@ -37,7 +37,7 @@ export class GiftCard extends Base {
   @JoinColumn({ name: 'card_order_column' })
   cardOrder: CardOrder;
 
-  @AutoMap()
+  @AutoMap(() => Date)
   @Column({ type: 'timestamp', name: 'used_at_column', nullable: true })
   usedAt: Date;
 
@@ -57,6 +57,6 @@ export class GiftCard extends Base {
   usedBy: User;
 
   @Column({ type: 'timestamp', name: 'expired_at_column' })
-  @AutoMap()
+  @AutoMap(() => Date)
   expiredAt: Date;
 }
