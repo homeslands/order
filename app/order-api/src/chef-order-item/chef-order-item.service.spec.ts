@@ -15,6 +15,10 @@ import { Product } from 'src/product/product.entity';
 import { NotificationUtils } from 'src/notification/notification.utils';
 import { User } from 'src/user/user.entity';
 import { NotificationProducer } from 'src/notification/notification.producer';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('ChefOrderItemService', () => {
   let service: ChefOrderItemService;
@@ -27,9 +31,20 @@ describe('ChefOrderItemService', () => {
         ChefOrderUtils,
         NotificationUtils,
         NotificationProducer,
+        TransactionManagerService,
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
+        },
         {
           provide: 'BullQueue_notification',
           useValue: {},
+        },
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
         {
           provide: getRepositoryToken(User),

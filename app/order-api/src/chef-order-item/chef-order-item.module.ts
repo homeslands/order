@@ -12,6 +12,7 @@ import { Product } from 'src/product/product.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { NotificationModule } from 'src/notification/notification.module';
 import { User } from 'src/user/user.entity';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { User } from 'src/user/user.entity';
       User,
     ]),
     NotificationModule,
+    DbModule,
   ],
   controllers: [ChefOrderItemController],
   providers: [

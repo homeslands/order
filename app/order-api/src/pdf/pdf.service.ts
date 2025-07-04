@@ -97,8 +97,8 @@ export class PdfService {
     const page = await browser.newPage();
 
     await page.setViewport({
-      width: 420,
-      height: 290,
+      width: 600,
+      height: 384,
       deviceScaleFactor: 1,
     });
 
@@ -107,13 +107,13 @@ export class PdfService {
     if (_.isEmpty(metadata)) metadata.type = 'png';
 
     const screenshotBuffer = await page.screenshot({
-      // fullPage: true,
-      clip: {
-        x: 0,
-        y: 0,
-        width: 420,
-        height: 290,
-      },
+      fullPage: true,
+      // clip: {
+      //   x: 0,
+      //   y: 0,
+      //   width: 576,
+      //   height: 384,
+      // },
       ...metadata,
     });
 

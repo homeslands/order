@@ -4,3 +4,7 @@ export enum ChefOrderStatus {
   REJECTED = 'rejected',
   COMPLETED = 'completed',
 }
+
+export const ChefOrderAction = {
+  CHEF_ORDER_CREATED: 'chef-order-created',
+};

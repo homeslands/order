@@ -3,4 +3,5 @@ export enum QueueRegisterKey {
   MAIL = 'mail',
   NOTIFICATION = 'notification',
   JOB = 'job',
+  PRINTER = 'printer',
 }

@@ -29,6 +29,11 @@ import {
 import { AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
+import {
+  CreatePrinterRequestDto,
+  PrinterResponseDto,
+  UpdatePrinterRequestDto,
+} from 'src/printer/printer.dto';
 
 @Controller('chef-area')
 @ApiBearerAuth()
@@ -179,6 +184,219 @@ export class ChefAreaController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result: `${result} chef areas have been deleted successfully`,
+    } as AppResponseDto<string>;
+  }
+
+  @Post(':slug/printer')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  // @Public()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create new printer for chef area' })
+  @ApiResponseWithType({
+    status: HttpStatus.CREATED,
+    description: 'The new printer for chef area was created successfully',
+    type: PrinterResponseDto,
+  })
+  async createPrinter(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: CreatePrinterRequestDto,
+  ) {
+    const result = await this.chefAreaService.createPrinter(slug, requestData);
+    return {
+      message: 'The new printer for chef area was created successfully',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterResponseDto>;
+  }
+
+  @Patch(':slug/printer/:printerSlug')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update printer successfully',
+    type: PrinterResponseDto,
+  })
+  @ApiOperation({ summary: 'Update printer' })
+  @ApiResponse({ status: 200, description: 'Update printer successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef area to be updated printer',
+    required: true,
+    example: '',
+  })
+  @ApiParam({
+    name: 'printerSlug',
+    description: 'The slug of the printer to be updated',
+    required: true,
+    example: '',
+  })
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  async updatePrinter(
+    @Param('slug') slug: string,
+    @Param('printerSlug') printerSlug: string,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+      }),
+    )
+    updateData: UpdatePrinterRequestDto,
+  ) {
+    const result = await this.chefAreaService.updatePrinter(
+      slug,
+      printerSlug,
+      updateData,
+    );
+
+    return {
+      message: 'Printer have been updated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterResponseDto>;
+  }
+
+  @Patch(':slug/printer/:printerSlug/toggle')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update printer successfully',
+    type: PrinterResponseDto,
+  })
+  @ApiOperation({ summary: 'Toggle printer' })
+  @ApiResponse({ status: 200, description: 'Toggle printer successfully' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef area to be updated printer',
+    required: true,
+    example: '',
+  })
+  @ApiParam({
+    name: 'printerSlug',
+    description: 'The slug of the printer to be updated',
+    required: true,
+    example: '',
+  })
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  async togglePrinter(
+    @Param('slug') slug: string,
+    @Param('printerSlug') printerSlug: string,
+  ) {
+    const result = await this.chefAreaService.togglePrinter(slug, printerSlug);
+
+    return {
+      message: 'Printer have been updated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterResponseDto>;
+  }
+
+  @Delete(':slug/printer/:printerSlug')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Delete printer for chef area successfully',
+    type: String,
+  })
+  @ApiOperation({ summary: 'Delete printer for chef area' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete printer for chef area successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiParam({
+    name: 'printerSlug',
+    description: 'The slug of the printer to be deleted',
+    required: true,
+    example: '',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef area to be deleted printer',
+    required: true,
+    example: '',
+  })
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  async deletePrinter(
+    @Param('slug') slug: string,
+    @Param('printerSlug') printerSlug: string,
+  ): Promise<AppResponseDto<string>> {
+    const result = await this.chefAreaService.deletePrinter(slug, printerSlug);
+    return {
+      message: 'Printer for chef area have been deleted successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: `${result} printers have been deleted successfully`,
+    } as AppResponseDto<string>;
+  }
+
+  @Get(':slug/printers')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve all printers for chef area' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'All printers for chef area have been retrieved successfully',
+    type: PrinterResponseDto,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All printers for chef area have been retrieved successfully',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef area to be retrieved',
+    required: true,
+    example: '',
+  })
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  async getAllPrinters(@Param('slug') slug: string) {
+    const result = await this.chefAreaService.getAllPrinters(slug);
+    return {
+      message: 'All printers for chef area have been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterResponseDto[]>;
+  }
+
+  @Post(':slug/printer/:printerSlug/ping')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Ping printer' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Ping printer successfully',
+    type: String,
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'The slug of the chef area to be pinged printer',
+    required: true,
+    example: '',
+  })
+  @ApiParam({
+    name: 'printerSlug',
+    description: 'The slug of the printer to be pinged',
+    required: true,
+    example: '',
+  })
+  async pingPrinter(
+    @Param('slug') slug: string,
+    @Param('printerSlug') printerSlug: string,
+  ) {
+    await this.chefAreaService.pingPrinter(slug, printerSlug);
+    return {
+      message: 'Ping printer successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Ping printer successfully',
     } as AppResponseDto<string>;
   }
 }
