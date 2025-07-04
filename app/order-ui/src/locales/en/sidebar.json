@@ -56,7 +56,10 @@
     "offer": "Offer",
     "store": "Store",
     "recruitment": "Recruitment",
+    "orderInstructions": "Order Instructions",
+    "paymentInstructions": "Payment Instructions",
     "contact": "Contact",
+    "contentResponsible": "Content Responsible",
     "policy": "Policy",
     "securityTerm": "Security Term",
     "aboutMe": "About Us"
