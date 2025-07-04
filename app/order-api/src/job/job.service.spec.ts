@@ -40,6 +40,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('JobService', () => {
   let service: JobService;
@@ -69,6 +70,12 @@ describe('JobService', () => {
         ConfigService,
         HttpService,
         SystemConfigService,
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
+        },
         {
           provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,

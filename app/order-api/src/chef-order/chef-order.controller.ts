@@ -209,7 +209,7 @@ export class ChefOrderController {
     });
   }
 
-  @Get(':slug/export-auto/tickets')
+  @Post(':slug/test-export/tickets/:maxCount')
   @HasRoles(
     RoleEnum.Staff,
     RoleEnum.Chef,
@@ -232,13 +232,23 @@ export class ChefOrderController {
     required: true,
     example: '',
   })
-  async printer(@Param('slug') slug: string) {
-    await this.chefOrderService.printChefOrderItemTicketApi(slug);
+  @ApiParam({
+    name: 'maxCount',
+    description:
+      'The maximum number of times to print the chef order item ticket',
+    required: true,
+    example: 10,
+  })
+  async printer(
+    @Param('slug') slug: string,
+    @Param('maxCount') maxCount: number,
+  ) {
+    await this.chefOrderService.printChefOrderTest(slug, maxCount);
     return {
-      message: 'The chef order item ticket was printed successfully',
+      message: 'The chef order was printed successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
-      result: 'Printing chef order item ticket successfully',
+      result: 'Printing chef order successfully',
     } as AppResponseDto<string>;
   }
 }

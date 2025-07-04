@@ -34,6 +34,11 @@ import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ConfigService } from '@nestjs/config';
 import { Payment } from 'src/payment/payment.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { PrinterUtils } from 'src/printer/printer.utils';
+import { PrinterManager } from 'src/printer/printer.manager';
+import { Printer } from 'src/printer/printer.entity';
+import { PrinterProducer } from 'src/printer/printer.producer';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('ChefOrderController', () => {
   let controller: ChefOrderController;
@@ -58,6 +63,23 @@ describe('ChefOrderController', () => {
         ACBConnectorClient,
         ConfigService,
         HttpService,
+        PrinterUtils,
+        PrinterManager,
+        PrinterProducer,
+        {
+          provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
+        },
+        {
+          provide: 'BullQueue_printer',
+          useValue: {},
+        },
         {
           provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,
