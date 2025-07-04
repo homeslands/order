@@ -25,6 +25,6 @@ export class GiftCardResponseDto extends BaseResponseDto {
   usedBy: string;
 
   @AutoMap(() => CardOrderResponseDto)
-  @ApiProperty()
+  @ApiProperty({ type: () => CardOrderResponseDto })
   cardOrder: CardOrderResponseDto;
 }
