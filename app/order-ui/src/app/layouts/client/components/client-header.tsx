@@ -24,7 +24,7 @@ export function ClientHeader() {
       className={`sticky top-0 z-30 w-full bg-white text-muted-foreground shadow-md dark:bg-black`}
     >
       <div className="container">
-        <div className="flex h-14 w-full items-center justify-between">
+        <div className="flex items-center justify-between w-full h-14">
           {/* Left content*/}
           <div className="flex items-center gap-1">
             {!isMobile && <NavigationSheet />}
@@ -34,7 +34,7 @@ export function ClientHeader() {
           </div>
 
           {/* center content */}
-          <div className="hidden flex-row items-center justify-center gap-6 lg:flex">
+          <div className="flex-row items-center justify-center hidden gap-6 lg:flex">
             <NavLink
               to={ROUTE.HOME}
               className={({ isActive }) =>
@@ -69,7 +69,7 @@ export function ClientHeader() {
                 <span className="text-sm">{t('header.myOrders')}</span>
               </NavLink>
             )}
-            <NavLink
+            {/* <NavLink
               to={ROUTE.ABOUT}
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
@@ -92,7 +92,7 @@ export function ClientHeader() {
               }
             >
               <span className="text-sm">{t('header.securityTerm')}</span>
-            </NavLink>
+            </NavLink> */}
           </div>
 
           {/* Right content */}
@@ -109,7 +109,7 @@ export function ClientHeader() {
                 >
                   <ShoppingCart />
                   {getCartItems()?.orderItems?.length ? (
-                    <span className="absolute right-2 top-2 flex h-4 w-4 -translate-y-1/2 translate-x-1/2 transform items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+                    <span className="absolute flex items-center justify-center w-4 h-4 text-xs font-bold text-white transform translate-x-1/2 -translate-y-1/2 rounded-full right-2 top-2 bg-primary">
                       {getCartItems()?.orderItems.length}
                     </span>
                   ) : null}

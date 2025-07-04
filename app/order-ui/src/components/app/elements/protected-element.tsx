@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 
 import { ROUTE } from '@/constants'
 import { sidebarRoutes } from '@/router/routes'
-import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
+import { useAuthStore, useCartItemStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role } from '@/constants/role'
 import { showToast } from '@/utils'
 import { IToken } from '@/types'
@@ -21,6 +21,7 @@ export default function ProtectedElement({
   const { isAuthenticated, setLogout, token } = useAuthStore()
   const { t } = useTranslation('auth')
   const { setCurrentUrl } = useCurrentUrlStore()
+  const { clearCart } = useCartItemStore()
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -28,8 +29,9 @@ export default function ProtectedElement({
   const handleLogout = useCallback(() => {
     setLogout()
     removeUserInfo()
+    clearCart()
     navigate(ROUTE.LOGIN)
-  }, [setLogout, removeUserInfo, navigate])
+  }, [setLogout, removeUserInfo, navigate, clearCart])
 
   const hasPermissionForRoute = useCallback((pathname: string) => {
     if (!token || !userInfo?.role?.name) return false;

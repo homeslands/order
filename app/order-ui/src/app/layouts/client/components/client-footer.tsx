@@ -4,7 +4,7 @@ import { Mail, Phone, Facebook } from 'lucide-react';
 
 import GoogleMap from './google-map';
 import { Logo } from '@/assets/images'
-import { ROUTE } from '@/constants'
+import { FooterSection, ROUTE } from '@/constants'
 import { phone, mail, fanpageUrl } from '@/constants'
 
 export function ClientFooter() {
@@ -16,7 +16,7 @@ export function ClientFooter() {
       <div className={`container pt-6 pb-6 w-full md:pb-2`}>
         <div className='flex flex-col w-full lg:flex-row-reverse'>
           <div className='flex flex-col items-start w-full sm:flex-row'>
-            <div className="flex flex-col gap-4 justify-center items-start w-full">
+            <div className="flex flex-col items-start justify-center w-full gap-4">
               <div className="flex items-center">
                 <Phone />
                 <span className="hidden cursor-pointer ps-4 md:block">
@@ -25,6 +25,14 @@ export function ClientFooter() {
                 <a href={`tel:${phone}`} className="font-bold ps-4 md:ps-1 hover:underline">
                   {phone}
                 </a>
+              </div>
+              <div className="flex items-center">
+                <span className="hidden cursor-pointer ps-4 md:block">
+                  {t('footer.contentResponsible')}:
+                </span>
+                <span className="font-bold ps-4 md:ps-1 hover:underline">
+                  {FooterSection.CONTENT_RESPONSIBLE}
+                </span>
               </div>
               <div className='flex gap-4'>
                 <Mail />
@@ -39,7 +47,7 @@ export function ClientFooter() {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-4 justify-center items-start mt-4 w-full sm:mt-0" >
+            <div className="flex flex-col items-start justify-center w-full gap-4 mt-4 sm:mt-0" >
               <div className="relative w-full">
                 <div className={`w-full h-48 rounded-sm`}>
                   <GoogleMap />
@@ -47,21 +55,23 @@ export function ClientFooter() {
                 <img
                   src={Logo}
                   alt="logo"
-                  className="absolute top-0 left-0 m-2 w-auto h-5" // Đặt Logo ở góc trên trái với margin
+                  className="absolute top-0 left-0 w-auto h-5 m-2" // Đặt Logo ở góc trên trái với margin
                 />
               </div>
             </div>
           </div>
-          <div className='flex gap-4 items-start mt-4 w-full md:w-full lg:mt-0'>
-            <div className="flex flex-col gap-2 justify-center items-start w-1/2">
+          <div className='flex items-start w-full gap-4 mt-4 md:w-full lg:mt-0'>
+            <div className="flex flex-col items-start justify-center w-1/2 gap-2">
               <span className="font-bold">
                 {t('footer.introduction')}
               </span>
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.HOME)}> {t('footer.home')}</span>
-              <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.CLIENT_MENU)}> {t('footer.menu')}</span>
+
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ABOUT)}> {t('footer.aboutMe')}</span>
             </div>
-            <div className="flex flex-col gap-2 justify-center items-start w-1/2">
+            <div className="flex flex-col items-start justify-center w-1/2 gap-2">
+              <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.ORDER_INSTRUCTIONS)}> {t('footer.orderInstructions')}</span>
+              <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.PAYMENT_INSTRUCTIONS)}> {t('footer.paymentInstructions')}</span>
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.POLICY)}>{t('footer.policy')}</span>
               <span className="text-sm cursor-pointer hover:underline" onClick={() => navigator(ROUTE.SECURITY)}>{t('footer.securityTerm')}</span>
             </div>

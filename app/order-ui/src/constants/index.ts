@@ -1,6 +1,7 @@
 export * from './role'
 export * from './promotion'
 export * from './env'
+export * from './layout'
 export * from './logger'
 export * from './menu'
 export * from './notification'
