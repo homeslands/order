@@ -25,6 +25,8 @@ import { Payment } from 'src/payment/payment.entity';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { PrinterModule } from 'src/printer/printer.module';
+import { ChefOrderListener } from './chef-order.listener';
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
     ]),
     DbModule,
     ACBConnectorModule,
+    PrinterModule,
   ],
   controllers: [ChefOrderController],
   providers: [
@@ -57,6 +60,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
     PdfService,
     PaymentUtils,
     BankTransferStrategy,
+    ChefOrderListener,
   ],
   exports: [ChefOrderUtils],
 })

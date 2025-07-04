@@ -10,26 +10,28 @@
         size: 5cm 3cm;
         margin: 0;
       }
-      html, body {
-        margin: 3px;
-        padding: 0;
+      html,
+      body {
+        margin: 5px;
+        padding: 8px;
+        /* padding: 0; */
         background: white;
       }
       body {
-        width: 5cm;
-        height: 3cm;
+        /* width: 5cm;
+        height: 3cm; */
+        width: 400px;
+        height: 240px;
         font-family: monospace, sans-serif;
-        font-size: 10px;
-        margin: 0;
-        padding: 1px;
+        font-size: 20px;
+        /* margin: 0; */
+        /* padding: 1px; */
+        /* padding: 0; */
         line-height: 1.3;
       }
       .line {
         margin-bottom: 4px;
         word-wrap: break-word;
-      }
-      .text-note {
-        font-size: 8px;
       }
     </style>
     <style>
@@ -37,14 +39,27 @@
     </style>
   </head>
   <body>
-    <div class="p-1">
+    <div class="p-[2px]">
       <div class="flex justify-between items-start mb-1">
-        <div class="text-sm font-bold">
-          <span class="">Mã:</span> <span><%= referenceNumber %></span>
+        <div class="font-bold">
+          <span class="">TREND COFFEE - Mã đơn:</span>
+          <span><%= referenceNumber %></span>
         </div>
       </div>
-      <div class="text-sm font-bold"><span class="">Sp:</span> <span class="font-bold"><%= productName %></span></div>
-      <div class="text-sm font-bold"><span class=""></span>Ghi chú:</span> <span><%= note || 'Không có' %></span></div>
+      <div class="">
+        <span class="font-bold">Thời gian: </span>
+        <span><%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %></span>
+      </div>
+      <div class="">
+        <span class="font-bold">Sản phẩm: </span>
+        <span class=""
+          ><%= productName %> ( <span class=""><%= variantName %></span> )</span
+        >
+      </div>
+      <div class="">
+        <span class="font-bold">Ghi chú: </span
+        ><span><%= note || 'Không có' %></span>
+      </div>
     </div>
   </body>
 </html>
