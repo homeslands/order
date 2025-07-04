@@ -84,6 +84,9 @@
     "orderTransaction": "Thanh toán hóa đơn",
     "orderCode": "Mã đơn hàng",
     "giftCardCode": "Mã thẻ",
-    "transactionCode": "Mã GD"
+    "transactionCode": "Mã GD",
+    "transaction": "Giao dịch",
+    "close": "Đóng",
+    "viewOrderDetail": "Xem chi tiết"
   }
 }

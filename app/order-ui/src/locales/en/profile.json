@@ -84,6 +84,9 @@
     "orderTransaction": "Order Payment",
     "orderCode": "Order Code",
     "giftCardCode": "Gift Card Code",
-    "transactionCode": "Transaction Code"
+    "transactionCode": "Transaction Code",
+    "transaction": "Transaction",
+    "close": "Close",
+    "viewOrderDetail": "View Detail"
   }
 }

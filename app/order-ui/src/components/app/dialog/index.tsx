@@ -123,6 +123,7 @@ export { default as GiftCardSelectedDialog } from './gift-card-selected-dialog'
 export { default as ConfirmGiftCardCheckoutDialog } from './confirm-gift-card-checkout-dialog'
 export { default as GiftCardExistsWarningDialog } from './gift-card-exists-warning-dialog'
 export { default as CancelGiftCardOrderDialog } from './cancel-gift-card-order-dialog'
+export { default as TransactionGiftCardDetailDialog } from './transaction-gift-card-detail-dialog'
 
 export { default as UpdateRoleDialog } from './update-role-dialog'
 export { default as ConfirmCreatePermissionDialog } from './confirm-create-permission-dialog'
