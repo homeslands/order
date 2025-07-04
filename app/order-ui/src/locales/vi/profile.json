@@ -104,6 +104,12 @@
     "transactionDetails": "Chi tiết giao dịch",
     "transactionType": "Loại giao dịch",
     "serial": "Số seri",
-    "paymentForOrder": "Thanh toán đơn hàng"
+    "paymentForOrder": "Thanh toán đơn hàng",
+    "filter": "Lọc",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "allTransactions": "Tất cả giao dịch",
+    "applyFilter": "Áp dụng lọc",
+    "clearFilter": "Xóa lọc"
   }
 }

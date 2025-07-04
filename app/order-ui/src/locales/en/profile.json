@@ -95,7 +95,6 @@
     "giftCardCode": "Gift Card Code",
     "transaction": "Transaction",
     "close": "Close",
-    "viewOrderDetail": "View Detail",
     "loadingGiftCardDetails": "Loading gift card details...",
     "errorFetchingGiftCard": "Error loading gift card details. Please try again.",
     "giftCardDetails": "Gift Card Details",
@@ -104,6 +103,13 @@
     "transactionDetails": "Transaction Details",
     "transactionType": "Transaction Type",
     "Serial": "Serial Number",
-    "paymentForOrder": "Payment for Order"
+    "paymentForOrder": "Payment for Order",
+    "viewOrderDetail": "View Order Detail",
+    "filter": "Filter",
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "allTransactions": "All Transactions",
+    "applyFilter": "Apply Filter",
+    "clearFilter": "Clear Filter"
   }
 }
