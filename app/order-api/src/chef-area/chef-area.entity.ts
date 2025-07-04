@@ -2,6 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { Branch } from 'src/branch/branch.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { Printer } from 'src/printer/printer.entity';
 import { ProductChefArea } from 'src/product-chef-area/product-chef-area.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
@@ -25,4 +26,7 @@ export class ChefArea extends Base {
 
   @OneToMany(() => ChefOrder, (chefOrder) => chefOrder.chefArea)
   chefOrders: ChefOrder[];
+
+  @OneToMany(() => Printer, (printer) => printer.chefArea)
+  printers: Printer[];
 }

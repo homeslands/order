@@ -66,6 +66,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { VoucherGroupModule } from 'src/voucher-group/voucher-group.module';
 import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
 import { VoucherProductModule } from 'src/voucher-product/voucher-product.module';
+import { PrinterModule } from 'src/printer/printer.module';
 
 @Module({
   imports: [
@@ -154,6 +155,7 @@ import { VoucherProductModule } from 'src/voucher-product/voucher-product.module
     VoucherGroupModule,
     GiftCardModule,
     VoucherProductModule,
+    PrinterModule,
   ],
   controllers: [AppController],
   providers: [
