@@ -87,6 +87,13 @@
     "transactionCode": "Mã GD",
     "transaction": "Giao dịch",
     "close": "Đóng",
-    "viewOrderDetail": "Xem chi tiết"
+    "viewOrderDetail": "Xem chi tiết",
+    "filter": "Lọc",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "allTransactions": "Tất cả giao dịch",
+    "applyFilter": "Áp dụng lọc",
+    "clearFilter": "Xóa lọc",
+    "transactionType": "Loại giao dịch"
   }
 }

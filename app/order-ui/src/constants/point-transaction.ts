@@ -6,4 +6,5 @@ export enum PointTransactionObjectType {
 export enum PointTransactionType {
   IN = 'in',
   OUT = 'out',
+  ALL = 'all',
 }
