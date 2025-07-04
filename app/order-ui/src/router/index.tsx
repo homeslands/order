@@ -61,6 +61,8 @@ import {
   GiftCardPage,
   ClientGiftCardPage,
   ClientGiftCardCheckoutPage,
+  OrderInstructionsPage,
+  PaymentInstructionsPage,
   ClientGiftCardCheckoutWithSlugPage,
   GiftCardSuccessPage,
 } from './loadable'
@@ -102,6 +104,34 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={ClientAboutPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.ORDER_INSTRUCTIONS,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={OrderInstructionsPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.PAYMENT_INSTRUCTIONS,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <PublicClientLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={PaymentInstructionsPage} />,
           },
         ],
       },
