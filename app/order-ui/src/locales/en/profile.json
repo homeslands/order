@@ -87,6 +87,13 @@
     "transactionCode": "Transaction Code",
     "transaction": "Transaction",
     "close": "Close",
-    "viewOrderDetail": "View Detail"
+    "viewOrderDetail": "View Order Detail",
+    "filter": "Filter",
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "allTransactions": "All Transactions",
+    "applyFilter": "Apply Filter",
+    "clearFilter": "Clear Filter",
+    "transactionType": "Transaction Type"
   }
 }
