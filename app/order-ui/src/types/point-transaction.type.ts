@@ -1,4 +1,5 @@
 import { IUserInfo } from './user.type'
+import { PointTransactionType } from '@/constants'
 
 export interface IPointTransaction {
   slug: string
@@ -16,5 +17,7 @@ export interface IPointTransactionQuery {
   page?: number
   size?: number
   userSlug?: string
-  sort?: string[]
+  fromDate?: string // YYYY-MM-DD format
+  toDate?: string // YYYY-MM-DD format
+  type?: PointTransactionType
 }
