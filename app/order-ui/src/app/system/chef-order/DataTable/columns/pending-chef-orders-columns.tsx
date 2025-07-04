@@ -336,18 +336,18 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         logoString: Be_Vietnam_Pro_base64,
         logo: Logo,
         branchName: userInfo?.branch?.name || '',
-        referenceNumber: chefOrder.order.referenceNumber,
-        createdAt: chefOrder.createdAt,
-        type: chefOrder.order.type,
-        tableName: chefOrder.order.type === OrderTypeEnum.AT_TABLE ? chefOrder.order.table?.name || '' : 'Mang đi',
-        note: chefOrder.order.description || '',
-        invoiceItems: chefOrder.chefOrderItems.map(item => ({
+        referenceNumber: chefOrder?.order?.referenceNumber,
+        createdAt: chefOrder?.createdAt,
+        type: chefOrder?.order?.type,
+        tableName: chefOrder?.order?.type === OrderTypeEnum.AT_TABLE ? chefOrder?.order.table?.name || '' : 'Mang đi',
+        note: chefOrder?.order?.description || '',
+        invoiceItems: chefOrder?.chefOrderItems.map(item => ({
           variant: {
-            name: item.orderItem.variant.product?.name || '',
-            size: item.orderItem.variant.size?.name || '',
+            name: item?.orderItem?.variant?.product?.name || '',
+            size: item?.orderItem?.variant?.size?.name || '',
           },
-          quantity: item.orderItem.quantity,
-          note: item.orderItem.note || ''
+          quantity: item?.defaultQuantity,
+          note: item?.orderItem?.note || ''
         })),
         formatDate: (date: string, fmt: string) => moment(date).format(fmt),
       });
@@ -516,7 +516,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-0 w-8 h-8">
+                <Button variant="ghost" className="w-8 h-8 p-0">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
