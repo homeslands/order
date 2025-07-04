@@ -67,6 +67,8 @@ export const ROUTE = {
   POLICY: '/policy',
   SECURITY: '/security',
   DOCS: '/docs',
+  ORDER_INSTRUCTIONS: '/order-instructions',
+  PAYMENT_INSTRUCTIONS: '/payment-instructions',
 
   ADMIN_CONFIG: 'system/config',
   ADMIN_VOUCHER: 'system/voucher',
