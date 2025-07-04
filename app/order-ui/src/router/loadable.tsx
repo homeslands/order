@@ -354,6 +354,20 @@ export const ClientAboutPage = React.lazy(() =>
   })),
 )
 
+// order instructions page
+export const OrderInstructionsPage = React.lazy(() =>
+  import('@/app/client/order-instructions').then((module) => ({
+    default: module.OrderInstructionsPage,
+  })),
+)
+
+// payment instructions page
+export const PaymentInstructionsPage = React.lazy(() =>
+  import('@/app/client/payment-instructions').then((module) => ({
+    default: module.PaymentInstructionsPage,
+  })),
+)
+
 //Policy page
 export const ClientPolicyPage = React.lazy(() =>
   import('@/app/client/policy').then((module) => ({

@@ -58,7 +58,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     <div
       className={`flex flex-col pr-2 w-full transition-all duration-300 ease-in-out`}
     >
-      <div className={`grid grid-cols-2 gap-4 lg:grid-cols-3`}>
+      <div className={`grid grid-cols-1 gap-4 lg:grid-cols-3`}>
         {specificMenu?.result.menuItems.map((item) => (
           <ClientMenuItemInUpdateOrder onSuccess={onSuccess} item={item} key={item.slug} />
         ))}

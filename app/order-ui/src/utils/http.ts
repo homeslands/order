@@ -81,6 +81,7 @@ const isPublicRoute = (url: string, method: string): boolean => {
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore.getState()
+    // const {clearCart} = useCartItemStore()
     const { setCurrentUrl } = useCurrentUrlStore.getState()
     const {
       token,
@@ -121,6 +122,7 @@ axiosInstance.interceptors.request.use(
         processQueue(null, newToken)
       } catch (error) {
         processQueue(error, null)
+        // clearCart()
         setLogout()
         showErrorToast(1017)
         const currentUrl = window.location.pathname
