@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftCard } from './entities/gift-card.entity';
-import { MoreThan, Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -29,11 +29,10 @@ export class GiftCardScheduler {
   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleExpiration() {
     const context = `${GiftCardScheduler.name}.${this.handleExpiration.name}`;
-
     const gcs = await this.gcRepository.find({
       where: {
         status: GiftCardStatus.AVAILABLE,
-        expiredAt: MoreThan(new Date()),
+        expiredAt: LessThan(new Date()),
       },
     });
 
@@ -51,7 +50,10 @@ export class GiftCardScheduler {
         return await manager.save(gcs);
       },
       (res) => {
-        this.logger.error(`${res.length} gift cards expired`, context);
+        this.logger.error(
+          `Gift cards ${res.map((item) => item.slug).join(', ')} expired`,
+          context,
+        );
       },
       (err) => {
         this.logger.error(

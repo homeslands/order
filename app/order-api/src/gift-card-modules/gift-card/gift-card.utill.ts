@@ -65,7 +65,6 @@ export class GiftCardUtil {
   static calcExpirationDate(EXPIRES_DATE?: number): Date {
     return moment()
       .add(EXPIRES_DATE ?? 6, 'months')
-      .endOf('day')
       .toDate(); // expires end of the day 12 months later
   }
 }
