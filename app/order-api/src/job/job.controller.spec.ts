@@ -41,6 +41,7 @@ import { Payment } from 'src/payment/payment.entity';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -71,6 +72,12 @@ describe('JobController', () => {
         ConfigService,
         HttpService,
         SystemConfigService,
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
+        },
         {
           provide: getRepositoryToken(Payment),
           useFactory: repositoryMockFactory,
