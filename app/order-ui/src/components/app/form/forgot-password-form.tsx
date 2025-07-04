@@ -13,7 +13,7 @@ import {
     Form,
     Button,
 } from '@/components/ui'
-import { forgotPasswordSchema, TForgotPasswordSchema } from '@/schemas'
+import { useForgotPasswordSchema, TForgotPasswordSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 
@@ -26,7 +26,7 @@ export const ForgotPasswordForm: React.FC<{ onSuccess: () => void }> = ({ onSucc
     const { t } = useTranslation(['auth'])
     const { mutate: forgotPassword, isPending } = useForgotPassword()
     const form = useForm<TForgotPasswordSchema>({
-        resolver: zodResolver(forgotPasswordSchema),
+        resolver: zodResolver(useForgotPasswordSchema()),
         defaultValues: {
             email: '',
         }

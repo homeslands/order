@@ -10,6 +10,7 @@ interface QuantityControlProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
   orientation?: 'horizontal' | 'vertical'
+  disabled?: boolean
 }
 
 export function QuantityControl({
@@ -17,10 +18,11 @@ export function QuantityControl({
   onIncrease,
   onDecrease,
   min = 1,
-  max = 10,
+  max = 100,
   size = 'md',
   className,
   orientation = 'horizontal',
+  disabled = false,
 }: QuantityControlProps) {
   const sizes = {
     sm: {
@@ -53,7 +55,7 @@ export function QuantityControl({
       <button
         type="button"
         onClick={onDecrease}
-        disabled={quantity <= min}
+        disabled={quantity <= min || disabled}
         className={cn(
           'flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50',
           isVertical
@@ -79,7 +81,7 @@ export function QuantityControl({
       <button
         type="button"
         onClick={onIncrease}
-        disabled={quantity >= max}
+        disabled={quantity >= max || disabled}
         className={cn(
           'flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-50',
           isVertical

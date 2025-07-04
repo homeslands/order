@@ -54,6 +54,7 @@ export const ROUTE = {
   CLIENT_PROFILE: '/profile',
   CLIENT_ORDERS_PUBLIC: '/orders-public',
   CLIENT_GIFT_CARD: '/gift-card',
+  CLIENT_GIFT_CARD_CHECKOUT: '/gift-card/checkout',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes
@@ -63,6 +64,8 @@ export const ROUTE = {
   POLICY: '/policy',
   SECURITY: '/security',
   DOCS: '/docs',
+  ORDER_INSTRUCTIONS: '/order-instructions',
+  PAYMENT_INSTRUCTIONS: '/payment-instructions',
 
   ADMIN_CONFIG: 'system/config',
   ADMIN_VOUCHER: 'system/voucher',

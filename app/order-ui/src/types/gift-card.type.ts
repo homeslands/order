@@ -43,3 +43,25 @@ export interface IGetGiftCardsRequest {
   sort?: string
   isActive?: boolean | null
 }
+
+export interface IGiftCardCartTotal {
+  subtotal: number
+  totalPoints: number
+  quantity: number
+}
+
+export interface IReceiverInfo {
+  id: string
+  phone: string
+  quantity: number
+  note: string
+}
+
+export interface IGiftCardItem {
+  id: string
+  title: string
+  image: string
+  price: number
+  points: number
+  quantity: number
+}

@@ -22,6 +22,7 @@ import enBranch from '@/locales/en/branch.json'
 import enStaticPage from '@/locales/en/static-page.json'
 import enDashboard from '@/locales/en/dashboard.json'
 import enEmployee from '@/locales/en/employee.json'
+import enCustomer from '@/locales/en/customer.json'
 import enHelmet from '@/locales/en/helmet.json'
 import enDoc from '@/locales/en/doc.json'
 import enVoucher from '@/locales/en/voucher.json'
@@ -93,6 +94,7 @@ i18n
         staticPage: enStaticPage,
         dashboard: enDashboard,
         employee: enEmployee,
+        customer: enCustomer,
         helmet: enHelmet,
         doc: enDoc,
         voucher: enVoucher,
