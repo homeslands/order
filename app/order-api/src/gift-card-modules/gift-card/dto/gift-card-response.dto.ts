@@ -30,4 +30,8 @@ export class GiftCardResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   usedBy: string;
+
+  @AutoMap()
+  @ApiProperty()
+  expiredAt: string;
 }

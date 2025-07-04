@@ -18,6 +18,7 @@ import { CardOrder } from '../card-order/entities/card-order.entity';
 import { CardOrderException } from '../card-order/card-order.exception';
 import { CardOrderValidation } from '../card-order/card-order.validation';
 import { GenGiftCardDto } from './dto/gen-gift-card.dto';
+import { CreateGiftCardDto } from './dto/create-gift-card.dto';
 
 @Injectable()
 export class GiftCardService {
@@ -39,6 +40,26 @@ export class GiftCardService {
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
   ) {}
+
+  // async create(payload: CreateGiftCardDto) {
+  //   const card = await this.cardRepository.findOne({
+  //     where: {
+  //       slug: payload.cardSlug
+  //     }
+  //   })
+  //   if (!card) throw new CardException(CardValidation.CARD_NOT_FOUND);
+
+  //   const co = await this.coRepository.findOne({
+  //     where: {
+  //       slug: payload.cardOrderSlug
+  //     }
+  //   })
+  //   if (!co) throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+
+  //   const gc = this.buildGiftCard(co, card);
+
+  //   return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
+  // }
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
@@ -78,7 +99,7 @@ export class GiftCardService {
     );
   }
 
-  async gen(payload: { cardOrderSlug: string; cardSlug: string }) {
+  async gen(payload: CreateGiftCardDto) {
     const context = `${GiftCardService.name}.${this.gen.name}`;
     this.logger.log(`Gen gift card req: ${JSON.stringify(payload)}`, context);
 
