@@ -110,6 +110,7 @@
     "toDate": "To Date",
     "allTransactions": "All Transactions",
     "applyFilter": "Apply Filter",
-    "clearFilter": "Clear Filter"
+    "clearFilter": "Clear Filter",
+    "exportAll": "Export All"
   }
 }

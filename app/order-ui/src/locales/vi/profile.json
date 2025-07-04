@@ -110,6 +110,7 @@
     "toDate": "Đến ngày",
     "allTransactions": "Tất cả giao dịch",
     "applyFilter": "Áp dụng lọc",
-    "clearFilter": "Xóa lọc"
+    "clearFilter": "Xóa lọc",
+    "exportAll": "Xuất tất cả"
   }
 }
