@@ -109,7 +109,7 @@ const errorCodes: { [key: number]: string } = {
   143202: 'toast.newRevenueNotFound',
   143407: 'toast.voucherAlreadyUsed',
   143417: 'toast.voucherHasOrder',
-  143421: 'toast.productNotApplicableForVoucher',
+  143421: 'toast.mustVerifyIdentityToUseVoucher',
   143422: 'toast.voucherProductNotApplicable',
   // Error data duplicate product and branch in product chef area
   154501: 'toast.duplicateProductAndBranch',
