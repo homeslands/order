@@ -68,18 +68,26 @@ export const CreateEmployeeForm: React.FC<IFormCreateEmployeeProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              <span className="pr-1 text-destructive">*</span>
-              {t('employee.phoneNumber')}
-            </FormLabel>
+            <FormLabel>{t('employee.phoneNumber')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('employee.enterPhoneNumber')} {...field} />
+              <Input
+                placeholder={t('employee.enterPhoneNumber')}
+                {...field}
+                onChange={(e) => {
+                  // Chỉ giữ lại các ký tự là số
+                  const onlyNumbers = e.target.value.replace(/\D/g, '')
+                  field.onChange(onlyNumbers) // Gán lại cho field dạng string
+                }}
+                inputMode="numeric" // Gợi ý bàn phím số trên mobile
+                pattern="[0-9]*"     // Gợi ý trình duyệt chỉ cho nhập số
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
     ),
+
     password: (
       <FormField
         control={form.control}
