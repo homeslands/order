@@ -1,4 +1,5 @@
 export { default as BranchSelect } from './branch-select'
+export { default as PrinterDataTypeSelect } from './printer-data-type-select'
 export { default as CatalogSelect } from './catalog-select'
 export { default as HorizontalCatalogSelect } from './horizontal-catalog-selector'
 export { default as ProductVariantSelect } from './product-variant-select'

@@ -16,6 +16,10 @@ export { default as CreateCatalogDialog } from './create-catalog-dialog'
 export { default as UpdateCatalogDialog } from './update-catalog-dialog'
 export { default as DeleteCatalogDialog } from './delete-catalog-dialog'
 
+export { default as CreatePrinterDialog } from './confirm-create-printer-dialog'
+export { default as UpdatePrinterDialog } from './confirm-update-printer-dialog'
+export { default as DeletePrinterDialog } from './delete-printer-dialog'
+
 export { default as CreateSizeDialog } from './create-size-dialog'
 export { default as UpdateSizeDialog } from './update-size-dialog'
 export { default as DeleteSizeDialog } from './delete-size-dialog'

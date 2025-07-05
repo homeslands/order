@@ -3,7 +3,9 @@ import {
   addProductToChefArea,
   createChefArea,
   createChefOrder,
+  createPrinterForChefArea,
   deleteChefArea,
+  deletePrinterForChefArea,
   exportAutoChefOrderTicket,
   exportChefOrder,
   exportManualChefOrderTicket,
@@ -12,11 +14,15 @@ import {
   getChefAreas,
   getChefAreaSpecificProduct,
   getChefOrders,
+  getPrinterForChefArea,
   getSpecificChefOrder,
+  pingPrinterForChefArea,
   removeProductFromChefArea,
+  togglePrinterForChefArea,
   updateChefArea,
   updateChefOrderItemStatus,
   updateChefOrderStatus,
+  updatePrinterForChefArea,
   updateProductInChefArea,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
@@ -24,11 +30,13 @@ import {
   ICreateChefAreaProductRequest,
   ICreateChefAreaRequest,
   ICreateChefOrderRequest,
+  ICreatePrinterForChefAreaRequest,
   IGetChefOrderRequest,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
   IUpdateChefOrderItemStatusRequest,
   IUpdateChefOrderStatusRequest,
+  IUpdatePrinterForChefAreaRequest,
 } from '@/types'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
@@ -181,5 +189,51 @@ export const useExportAutoChefOrderTicket = () => {
     mutationFn: async (slug: string) => {
       return exportAutoChefOrderTicket(slug)
     },
+  })
+}
+
+export const useGetPrinterForChefArea = (slug: string) => {
+  return useQuery({
+    queryKey: [QUERYKEY.chefAreaPrinters, slug],
+    queryFn: () => getPrinterForChefArea(slug),
+  })
+}
+
+export const useCreatePrinterForChefArea = () => {
+  return useMutation({
+    mutationFn: async (data: ICreatePrinterForChefAreaRequest) => {
+      return createPrinterForChefArea(data)
+    },
+  })
+}
+
+export const useUpdatePrinterForChefArea = () => {
+  return useMutation({
+    mutationFn: async (data: IUpdatePrinterForChefAreaRequest) => {
+      return updatePrinterForChefArea(data)
+    },
+  })
+}
+
+export const useDeletePrinterForChefArea = () => {
+  return useMutation({
+    mutationFn: async ({ slug, printerSlug }: { slug: string; printerSlug: string }) => {
+      return deletePrinterForChefArea(slug, printerSlug)
+    },
+  })
+}
+export const useTogglePrinterForChefArea = () => {
+  return useMutation({
+    mutationFn: async ({ slug, printerSlug }: { slug: string; printerSlug: string }) => {
+      return togglePrinterForChefArea(slug, printerSlug)
+    },
+  })
+}
+
+export const usePingPrinterForChefArea = (slug: string, printerSlug: string) => {
+  return useQuery({
+    queryKey: [QUERYKEY.chefAreaPrinters, slug, printerSlug],
+    queryFn: () => pingPrinterForChefArea(slug, printerSlug),
+    enabled: !!slug && !!printerSlug,
   })
 }
