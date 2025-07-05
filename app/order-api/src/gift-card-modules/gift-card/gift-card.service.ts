@@ -20,6 +20,16 @@ import { CardOrderValidation } from '../card-order/card-order.validation';
 import { GenGiftCardDto } from './dto/gen-gift-card.dto';
 import { GiftCardResponseDto } from './dto/gift-card-response.dto';
 import { CreateGiftCardDto } from './dto/create-gift-card.dto';
+import { User } from 'src/user/user.entity';
+import { AuthException } from 'src/auth/auth.exception';
+import { AuthValidation } from 'src/auth/auth.validation';
+import { PointTransactionService } from '../point-transaction/point-transaction.service';
+import {
+  PointTransactionObjectTypeEnum,
+  PointTransactionTypeEnum,
+} from '../point-transaction/entities/point-transaction.enum';
+import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
+import { BalanceService } from '../balance/balance.service';
 
 @Injectable()
 export class GiftCardService {
@@ -35,12 +45,62 @@ export class GiftCardService {
     private readonly cardRepository: Repository<Card>,
     @InjectRepository(CardOrder)
     private readonly coRepository: Repository<CardOrder>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+    private readonly balanceService: BalanceService,
+    private readonly ptService: PointTransactionService,
+  ) {}
+
+  async use(req: UseGiftCardDto) {
+    const context = `${GiftCardService.name}.${this.use.name}`;
+    this.logger.log(`Use gift card req: ${JSON.stringify(req)}`, context);
+
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: req.userSlug,
+      },
+    });
+    if (!user) throw new AuthException(AuthValidation.USER_NOT_FOUND);
+
+    const gc = await this.gcRepository.findOne({
+      where: { code: req.code, serial: req.serial },
+    });
+    if (!gc)
+      throw new GiftCardException(GiftCardValidation.GIFT_CARD_NOT_FOUND);
+
+    if (gc.status === GiftCardStatus.USED)
+      throw new GiftCardException(GiftCardValidation.GC_USED);
+
+    if (gc.status === GiftCardStatus.EXPIRED)
+      throw new GiftCardException(GiftCardValidation.GC_EXPIRED);
+
+    // 2. Auto-redeem
+    await this.redeem(req);
+
+    // 3. Create transaction record
+    await this.ptService.create({
+      type: PointTransactionTypeEnum.IN,
+      desc: `Nap the qua tang ${gc.cardPoints} xu`,
+      objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
+      objectSlug: gc.slug,
+      points: gc.cardPoints,
+      userSlug: user.slug,
+    } as CreatePointTransactionDto);
+
+    // 4. Update recipient balance ONCE after all cards
+    await this.balanceService.calcBalance({
+      userSlug: user.slug,
+      points: gc.cardPoints,
+      type: PointTransactionTypeEnum.IN,
+    });
+
+    return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
+  }
 
   async findOne(slug: string) {
     const gc = await this.gcRepository.findOne({
