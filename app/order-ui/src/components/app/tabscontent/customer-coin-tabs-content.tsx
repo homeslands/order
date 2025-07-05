@@ -9,7 +9,6 @@ import {
   ShoppingBag,
   Gift,
   CoinsIcon,
-  Calendar,
   Filter,
   X,
   Download,
@@ -62,9 +61,6 @@ export function CustomerCoinTabsContent() {
     PointTransactionType.ALL,
   )
 
-  // Track if we need to refetch data when Apply Filter is clicked
-  const [shouldRefetch, setShouldRefetch] = useState(false)
-
   // Export states
   const [isExportingAll, setIsExportingAll] = useState(false)
   const [exportingTransactionSlug, setExportingTransactionSlug] = useState<
@@ -74,6 +70,7 @@ export function CustomerCoinTabsContent() {
   const isMobile = useIsMobile()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastElementRef = useRef<HTMLDivElement | null>(null)
+  const isInitialRenderRef = useRef(true)
   const { userInfo } = useUserStore()
 
   // Export all transactions
@@ -175,16 +172,6 @@ export function CustomerCoinTabsContent() {
     }
   }, [loadingMore, hasMore])
 
-  const handleApplyFilter = useCallback(() => {
-    // Reset pagination and close filter panel
-    setCurrentPage(1)
-    setTransactions([])
-    setIsFilterOpen(false)
-
-    // Trigger refetch with current filter values
-    setShouldRefetch(true)
-  }, [])
-
   const handleClearFilter = useCallback(() => {
     // Clear current filter values
     setFromDate('')
@@ -196,9 +183,9 @@ export function CustomerCoinTabsContent() {
     setTransactions([])
     setIsFilterOpen(false)
 
-    // Trigger refetch with cleared filters
-    setShouldRefetch(true)
-  }, [])
+    // Directly fetch without filters instead of using shouldRefetch
+    fetchCoinTransactions(1, true, false)
+  }, [fetchCoinTransactions])
 
   const hasActiveFilter =
     fromDate || toDate || filterType !== PointTransactionType.ALL
@@ -231,54 +218,30 @@ export function CustomerCoinTabsContent() {
     }
   }, [hasMore, loadingMore, isLoading, handleLoadMore])
 
-  // Separate function for initial load to avoid dependency issues
-  const loadInitialData = useCallback(async () => {
-    if (!userInfo?.slug) {
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const params: IPointTransactionQuery = {
-        page: 1,
-        size: pageSize,
-        userSlug: userInfo.slug,
-      }
-
-      const response = await getPointTransactions(params)
-      const totalCount = response.result.total
-      const hasMoreData = pageSize < totalCount
-
-      setTransactions(response.result.items)
-      setHasMore(hasMoreData)
-      setTotalItems(totalCount)
-      setHasError(false)
-      setCurrentPage(1)
-    } catch {
-      setHasError(true)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [userInfo?.slug, pageSize])
-
-  useEffect(() => {
-    // Load initial data only once when component mounts
-    loadInitialData()
-  }, [loadInitialData])
-
   useEffect(() => {
     if (currentPage > 1) {
       fetchCoinTransactions(currentPage, false, Boolean(hasActiveFilter))
     }
   }, [currentPage, fetchCoinTransactions, hasActiveFilter])
 
-  // Fetch data when shouldRefetch is triggered by Apply/Clear Filter
+  // Fetch data when dates or filter type changes
   useEffect(() => {
-    if (shouldRefetch) {
-      fetchCoinTransactions(1, true, Boolean(hasActiveFilter))
-      setShouldRefetch(false)
+    // Skip the first render to prevent multiple API calls during initialization
+    if (isInitialRenderRef.current) {
+      isInitialRenderRef.current = false
+      return
     }
-  }, [shouldRefetch, fetchCoinTransactions, hasActiveFilter])
+
+    // Only trigger if there's a user
+    if (userInfo?.slug) {
+      // Reset pagination
+      setCurrentPage(1)
+      setTransactions([])
+
+      // Fetch with current filter values
+      fetchCoinTransactions(1, true, true)
+    }
+  }, [fromDate, toDate, filterType, userInfo?.slug, fetchCoinTransactions])
 
   // Remove automatic filter effect - only call API when Apply Filter is clicked
 
@@ -536,10 +499,6 @@ export function CustomerCoinTabsContent() {
 
                 {/* Filter Actions */}
                 <div className="mt-4 flex gap-2">
-                  <Button onClick={handleApplyFilter} size="sm">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {t('profile.applyFilter')}
-                  </Button>
                   <Button
                     onClick={handleClearFilter}
                     variant="outline"
@@ -580,8 +539,6 @@ export function CustomerCoinTabsContent() {
                   setHasError(false)
                   if (hasActiveFilter) {
                     fetchCoinTransactions(1, true, true)
-                  } else {
-                    loadInitialData()
                   }
                 }}
               >
