@@ -85,18 +85,26 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              <span className="pr-1 text-destructive">*</span>
-              {t('customer.phoneNumber')}
-            </FormLabel>
+            <FormLabel>{t('login.phoneNumber')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
+              <Input
+                placeholder={t('login.enterPhoneNumber')}
+                {...field}
+                onChange={(e) => {
+                  // Chỉ giữ lại các ký tự là số
+                  const onlyNumbers = e.target.value.replace(/\D/g, '')
+                  field.onChange(onlyNumbers) // Gán lại cho field dạng string
+                }}
+                inputMode="numeric" // Gợi ý bàn phím số trên mobile
+                pattern="[0-9]*"     // Gợi ý trình duyệt chỉ cho nhập số
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
     ),
+
     password: (
       <FormField
         control={form.control}
