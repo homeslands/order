@@ -1,5 +1,4 @@
-export const PHONE_NUMBER_REGEX =
-  /^(?:\+84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\d{7}$/
+export const PHONE_NUMBER_REGEX = /^[0-9]{10}$/
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 export const NAME_REGEX =
   /^(?!.* {2,})[A-Za-zÀ-ỹà-ỹ0-9'’-]+(?: [A-Za-zÀ-ỹà-ỹ0-9'’-]+)*$/ // Matches names with letters, apostrophes, hyphens, and spaces, but not consecutive spaces
