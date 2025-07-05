@@ -92,6 +92,14 @@
     "errorFetchingGiftCard": "Error loading gift card details. Please try again.",
     "giftCardDetails": "Gift Card Details",
     "giftCardName": "Card Name",
-    "orderType": "Order Type"
+    "orderType": "Order Type",
+    "filter": "Filter",
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "allTransactions": "All Transactions",
+    "applyFilter": "Apply Filter",
+    "clearFilter": "Clear Filter",
+    "transactionType": "Transaction Type",
+    "exportAll": "Export All"
   }
 }

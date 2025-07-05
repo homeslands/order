@@ -92,6 +92,14 @@
     "errorFetchingGiftCard": "Lỗi khi tải thông tin thẻ quà tặng. Vui lòng thử lại.",
     "giftCardDetails": "Chi tiết thẻ quà tặng",
     "giftCardName": "Tên thẻ",
-    "orderType": "Loại đơn hàng"
+    "orderType": "Loại đơn hàng",
+    "filter": "Lọc",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "allTransactions": "Tất cả giao dịch",
+    "applyFilter": "Áp dụng lọc",
+    "clearFilter": "Xóa lọc",
+    "transactionType": "Loại giao dịch",
+    "exportAll": "Xuất tất cả"
   }
 }

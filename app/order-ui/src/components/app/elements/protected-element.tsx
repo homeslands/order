@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 
 import { ROUTE } from '@/constants'
 import { sidebarRoutes } from '@/router/routes'
-import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
+import { useAuthStore, useCartItemStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role } from '@/constants/role'
 import { showToast } from '@/utils'
 import { IToken } from '@/types'
@@ -24,6 +24,7 @@ export default function ProtectedElement({
   const { isAuthenticated, setLogout, token, isRefreshing } = useAuthStore()
   const { t } = useTranslation('auth')
   const { setCurrentUrl } = useCurrentUrlStore()
+  const { clearCart } = useCartItemStore()
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -40,8 +41,9 @@ export default function ProtectedElement({
   const handleLogout = useCallback(() => {
     setLogout()
     removeUserInfo()
+    clearCart()
     loggedNavigate(ROUTE.LOGIN)
-  }, [setLogout, removeUserInfo, loggedNavigate])
+  }, [setLogout, removeUserInfo, loggedNavigate, clearCart])
 
   const hasPermissionForRoute = useCallback((pathname: string) => {
 
@@ -113,8 +115,8 @@ export default function ProtectedElement({
   // Hiển thị loading khi đang refresh token
   if (isRefreshing) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-b-2 rounded-full animate-spin border-primary"></div>
       </div>
     )
   }
