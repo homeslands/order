@@ -7,6 +7,7 @@ import {
   IGetGiftCardsRequest,
   ICardOrderRequest,
   ICardOrderResponse,
+  IGiftCardDetail,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -82,5 +83,14 @@ export async function initiateCardOrderPayment(
   const response = await http.post(`/card-order/payment/initiate`, {
     cardorderSlug: slug,
   })
+  return response.data
+}
+
+export async function getGiftCardBySlug(
+  slug: string,
+): Promise<IApiResponse<IGiftCardDetail>> {
+  const response = await http.get<IApiResponse<IGiftCardDetail>>(
+    `/gift-card/${slug}`,
+  )
   return response.data
 }
