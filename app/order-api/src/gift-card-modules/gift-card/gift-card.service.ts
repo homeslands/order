@@ -19,6 +19,10 @@ import { CardOrderException } from '../card-order/card-order.exception';
 import { CardOrderValidation } from '../card-order/card-order.validation';
 import { GenGiftCardDto } from './dto/gen-gift-card.dto';
 import { CreateGiftCardDto } from './dto/create-gift-card.dto';
+import { User } from 'src/user/user.entity';
+import { AuthException } from 'src/auth/auth.exception';
+import { AuthValidation } from 'src/auth/auth.validation';
+import moment from 'moment';
 
 @Injectable()
 export class GiftCardService {
@@ -39,7 +43,9 @@ export class GiftCardService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
+  ) { }
 
   // async create(payload: CreateGiftCardDto) {
   //   const card = await this.cardRepository.findOne({
@@ -65,6 +71,13 @@ export class GiftCardService {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
     this.logger.log(`Use gift card ${JSON.stringify(payload)}`, context);
 
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: payload.userSlug,
+      },
+    });
+    if (!user) throw new AuthException(AuthValidation.USER_NOT_FOUND);
+
     const gc = await this.gcRepository.findOne({
       where: {
         code: payload.code,
@@ -74,14 +87,24 @@ export class GiftCardService {
     if (!gc)
       throw new GiftCardException(GiftCardValidation.GIFT_CARD_NOT_FOUND);
 
-    if (gc.status !== GiftCardStatus.AVAILABLE)
-      throw new GiftCardException(GiftCardValidation.GC_IS_NOT_AVAILABLE);
+    if (gc.status === GiftCardStatus.USED)
+      throw new GiftCardException(GiftCardValidation.GC_USED);
+
+    if (gc.status === GiftCardStatus.EXPIRED)
+      throw new GiftCardException(GiftCardValidation.GC_EXPIRED);
+
+    Object.assign(gc, {
+      usedAt: moment().toDate(),
+      usedById: user.id,
+      usedBySlug: user.slug,
+      usedBy: user,
+      status: GiftCardStatus.USED
+    } as Partial<GiftCard>)
 
     // TODO: Need checksum before updating status
 
     await this.transactionService.execute<GiftCard>(
       async (manager) => {
-        gc.status = GiftCardStatus.USED;
         return await manager.save(gc);
       },
       (result) =>
