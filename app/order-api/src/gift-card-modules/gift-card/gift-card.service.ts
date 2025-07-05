@@ -30,6 +30,7 @@ import {
 } from '../point-transaction/entities/point-transaction.enum';
 import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
 import { BalanceService } from '../balance/balance.service';
+import moment from 'moment';
 
 @Injectable()
 export class GiftCardService {
@@ -54,7 +55,7 @@ export class GiftCardService {
     private readonly transactionService: TransactionManagerService,
     private readonly balanceService: BalanceService,
     private readonly ptService: PointTransactionService,
-  ) {}
+  ) { }
 
   async use(req: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.use.name}`;
@@ -148,6 +149,13 @@ export class GiftCardService {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
     this.logger.log(`Use gift card ${JSON.stringify(payload)}`, context);
 
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: payload.userSlug,
+      },
+    });
+    if (!user) throw new AuthException(AuthValidation.USER_NOT_FOUND);
+
     const gc = await this.gcRepository.findOne({
       where: {
         code: payload.code,
@@ -157,14 +165,24 @@ export class GiftCardService {
     if (!gc)
       throw new GiftCardException(GiftCardValidation.GIFT_CARD_NOT_FOUND);
 
-    if (gc.status !== GiftCardStatus.AVAILABLE)
-      throw new GiftCardException(GiftCardValidation.GC_IS_NOT_AVAILABLE);
+    if (gc.status === GiftCardStatus.USED)
+      throw new GiftCardException(GiftCardValidation.GC_USED);
+
+    if (gc.status === GiftCardStatus.EXPIRED)
+      throw new GiftCardException(GiftCardValidation.GC_EXPIRED);
+
+    Object.assign(gc, {
+      usedAt: moment().toDate(),
+      usedById: user.id,
+      usedBySlug: user.slug,
+      usedBy: user,
+      status: GiftCardStatus.USED
+    } as Partial<GiftCard>)
 
     // TODO: Need checksum before updating status
 
     await this.transactionService.execute<GiftCard>(
       async (manager) => {
-        gc.status = GiftCardStatus.USED;
         return await manager.save(gc);
       },
       (result) =>
