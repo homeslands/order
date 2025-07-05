@@ -53,6 +53,8 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
     return Date.now().toString(36);
   };
 
+
+
   const handleAddToCart = () => {
     if (!selectedVariant) return;
 

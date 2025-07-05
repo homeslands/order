@@ -425,12 +425,14 @@ export const useCartItemStore = create<ICartItemStore>()(
         lastModified: state.lastModified,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          setTimeout(() => {
+      if (state) {
+        setTimeout(() => {
+          if (!useCartItemStore.getState().isHydrated) {
             useCartItemStore.setState({ isHydrated: true })
-          }, 0)
-        }
-      },
+          }
+        }, 0)
+      }
+    }
     },
   ),
 )

@@ -54,7 +54,7 @@ export default function VoucherListSheet() {
   const { t } = useTranslation(['voucher'])
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
-  const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
+  const { cartItems, addVoucher, removeVoucher, isHydrated } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { pagination } = usePagination()
@@ -62,12 +62,7 @@ export default function VoucherListSheet() {
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
 
-  // let subTotal = 0
-  const voucher = cartItems?.voucher || null
-  // calculate subtotal
-  const displayItems = calculateCartItemDisplay(cartItems, voucher)
-  const cartTotals = calculateCartTotals(displayItems, voucher)
-  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0) || 0
+
 
   // Add useEffect to check voucher validation
   useEffect(() => {
@@ -107,6 +102,8 @@ export default function VoucherListSheet() {
       : undefined,
     !!sheetOpen
   )
+
+
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -197,6 +194,7 @@ export default function VoucherListSheet() {
     }
   }, [cartItems?.voucher, refetchSpecificVoucher]);
 
+
   // useEffect(() => {
   //   if (defaultValue?.voucher?.slug) {
   //     setSelectedVoucher(defaultValue.voucher.slug)
@@ -204,6 +202,20 @@ export default function VoucherListSheet() {
   //     setSelectedVoucher('')
   //   }
   // }, [defaultValue?.voucher?.slug, sheetOpen])
+
+  // If cartItems is not hydrated, return null
+  if (!isHydrated) {
+    // eslint-disable-next-line no-console
+    console.warn('Cart items are not hydrated yet.')
+    return null
+  }
+
+  // let subTotal = 0
+  const voucher = cartItems?.voucher || null
+  // calculate subtotal
+  const displayItems = calculateCartItemDisplay(cartItems, voucher)
+  const cartTotals = calculateCartTotals(displayItems, voucher)
+  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0) || 0
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -371,7 +383,6 @@ export default function VoucherListSheet() {
 
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
 
-    // Check if voucher has voucherProducts and if cart items match
     const hasValidProducts = (() => {
       // If voucher doesn't have voucherProducts or it's empty, return false
       if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
@@ -385,7 +396,23 @@ export default function VoucherListSheet() {
 
       // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
+
+      // Get all possible product slugs from cart items
+      const cartProductSlugs = cartItems.orderItems.reduce((acc, item) => {
+        // Add item.slug if exists
+        if (item.slug) {
+          acc.push(item.slug)
+        }
+        // Add item.variant.product.slug if exists
+        if (item.variant?.product?.slug) {
+          acc.push(item.variant.product.slug)
+        }
+        // Add item.variant.slug if exists (fallback)
+        if (item.variant?.slug) {
+          acc.push(item.variant.slug)
+        }
+        return acc
+      }, [] as string[])
 
       return voucherProductSlugs.some(voucherSlug =>
         cartProductSlugs.includes(voucherSlug)
