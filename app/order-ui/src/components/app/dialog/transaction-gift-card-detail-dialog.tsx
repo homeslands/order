@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import {
@@ -19,13 +19,23 @@ import {
   Star,
   CoinsIcon,
   ExternalLink,
+  XCircle,
+  Loader2,
 } from 'lucide-react'
-import { IPointTransaction } from '@/types'
-import { PointTransactionObjectType, PointTransactionType } from '@/constants'
+import { IPointTransaction, IGiftCardDetail } from '@/types'
+import {
+  GiftCardType,
+  PointTransactionObjectType,
+  PointTransactionType,
+  publicFileURL,
+} from '@/constants'
 import { formatCurrency } from '@/utils'
 import { ROUTE } from '@/constants'
 import moment from 'moment'
 import { useIsMobile } from '@/hooks'
+import { getGiftCardBySlug } from '@/api/gift-card'
+import { Separator } from '@/components/ui/separator'
+import { Tooltip } from 'react-tooltip'
 
 interface TransactionGiftCardDetailDialogProps {
   transaction: IPointTransaction
@@ -37,13 +47,38 @@ export default function TransactionGiftCardDetailDialog({
   children,
 }: TransactionGiftCardDetailDialogProps) {
   const { t } = useTranslation(['profile'])
+  const { t: tGiftCard } = useTranslation(['giftCard'])
+
   const [isOpen, setIsOpen] = useState(false)
   const isMobile = useIsMobile()
+  const [giftCardDetails, setGiftCardDetails] =
+    useState<IGiftCardDetail | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const isAdd = transaction.type === PointTransactionType.IN
   const isGiftCard =
     transaction.objectType === PointTransactionObjectType.GIFT_CARD
   const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
+
+  useEffect(() => {
+    if (isOpen && isGiftCard && transaction.objectSlug) {
+      setIsLoading(true)
+      setError(null)
+      getGiftCardBySlug(transaction.objectSlug)
+        .then((response) => {
+          if (response.result) {
+            setGiftCardDetails(response.result)
+          }
+        })
+        .catch(() => {
+          setError(t('profile.errorFetchingGiftCard'))
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    }
+  }, [isOpen, isGiftCard, transaction.objectSlug, t])
 
   const getTransactionIcon = () => {
     if (isGiftCard) {
@@ -152,54 +187,189 @@ export default function TransactionGiftCardDetailDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="mt-6 space-y-6">
-            {/* Amount Section */}
-            <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-800">
-              <div className={`text-3xl font-bold ${getAmountColor()}`}>
-                {isAdd ? '+ ' : '- '}
-                {formatCurrency(transaction.points, '')}{' '}
-                <CoinsIcon className="inline-block h-6 w-6 text-primary" />
-              </div>
-            </div>
-
-            {/* Transaction Details */}
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <Tag size={16} className="mt-1 text-gray-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('profile.transactionCode')}
-                  </p>
-                  <p className="break-all font-mono text-sm font-medium">
-                    {transaction.objectSlug}
-                  </p>
+          <div className="mt-6">
+            <div className="custom-scrollbar max-h-[60vh] space-y-6 overflow-y-auto">
+              {/* Amount Section */}
+              <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-800">
+                <div className={`text-3xl font-bold ${getAmountColor()}`}>
+                  {isAdd ? '+ ' : '- '}
+                  {formatCurrency(transaction.points, '')}{' '}
+                  <CoinsIcon className="inline-block h-6 w-6 text-primary" />
                 </div>
               </div>
 
-              <div className="flex items-start space-x-3">
-                <Clock size={16} className="mt-1 text-gray-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('profile.date')}
-                  </p>
-                  <p className="text-sm font-medium">
-                    {moment(transaction.createdAt).format(
-                      'HH:mm:ss DD/MM/YYYY',
+              {/* Transaction Details */}
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Tag size={16} className="mt-1 text-gray-500" />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.transactionCode')}
+                    </p>
+                    <p className="break-all font-mono text-sm font-medium">
+                      {transaction.objectSlug}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Clock size={16} className="mt-1 text-gray-500" />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.date')}
+                    </p>
+                    <p className="text-sm font-medium">
+                      {moment(transaction.createdAt).format(
+                        'HH:mm:ss DD/MM/YYYY',
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <User size={16} className="mt-1 text-gray-500" />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.description')}
+                    </p>
+                    <p className="custom-scrollbar max-h-24 overflow-y-auto break-words text-sm font-medium">
+                      {transaction.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Gift Card Additional Information */}
+                {isGiftCard && (
+                  <>
+                    <Separator className="my-4" />
+
+                    {isLoading && (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin text-purple-500" />
+                        <span>{t('profile.loadingGiftCardDetails')}</span>
+                      </div>
                     )}
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex items-start space-x-3">
-                <User size={16} className="mt-1 text-gray-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('profile.description')}
-                  </p>
-                  <p className="max-h-24 overflow-y-auto break-words text-sm font-medium">
-                    {transaction.desc}
-                  </p>
-                </div>
+                    {error && (
+                      <div className="rounded-md bg-red-50 p-3 text-center text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                        <XCircle className="mx-auto mb-1 h-5 w-5" />
+                        {error}
+                      </div>
+                    )}
+
+                    {giftCardDetails && (
+                      <div className="rounded-md bg-purple-50 p-4 dark:bg-purple-900/20">
+                        <h4 className="mb-3 text-center text-sm font-semibold text-purple-700 dark:text-purple-300">
+                          {t('profile.giftCardDetails')}
+                        </h4>
+
+                        <div className="custom-scrollbar max-h-[60vh] space-y-3 text-sm">
+                          {/* Card Image */}
+                          {giftCardDetails.cardOrder.cardImage ? (
+                            <img
+                              src={`${publicFileURL}/${giftCardDetails.cardOrder.cardImage}`}
+                              alt={giftCardDetails.cardName}
+                              className={`${isMobile ? 'h-max w-full rounded-md bg-gray-300 object-contain' : 'h-full w-full object-cover'}`}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                              <Gift
+                                className={`text-primary ${isMobile ? 'h-8 w-8' : 'h-16 w-16'}`}
+                              />
+                            </div>
+                          )}
+                          {/* Card Name */}
+                          <div className="flex items-start justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {t('profile.giftCardName')}
+                            </span>
+                            <span
+                              className={`${isMobile ? 'max-w-[120px]' : 'max-w-[300px]'} truncate font-medium text-gray-900 dark:text-gray-100`}
+                              data-tooltip-id="cardName-tooltip"
+                              data-tooltip-content={String(
+                                giftCardDetails.cardName,
+                              )}
+                            >
+                              {giftCardDetails.cardName}
+                            </span>
+                            <Tooltip
+                              id="cardName-tooltip"
+                              variant="light"
+                              style={{ width: '30rem' }}
+                            />
+                          </div>
+
+                          {/* Card Order Information */}
+                          {giftCardDetails.cardOrder && (
+                            <>
+                              {/* Order Type */}
+                              <div className="flex items-start justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {t('profile.orderType')}
+                                </span>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                  {giftCardDetails.cardOrder.type ===
+                                  GiftCardType.SELF
+                                    ? tGiftCard('giftCard.buyForSelf')
+                                    : giftCardDetails.cardOrder.type ===
+                                        GiftCardType.GIFT
+                                      ? tGiftCard('giftCard.giftToOthers')
+                                      : giftCardDetails.cardOrder.type ===
+                                          GiftCardType.BUY
+                                        ? tGiftCard('giftCard.purchaseGiftCard')
+                                        : giftCardDetails.cardOrder.type}
+                                </span>
+                              </div>
+                              {/* Recipient Name */}
+                              {giftCardDetails.cardOrder.cashierName && (
+                                <div className="flex items-start justify-between">
+                                  <span className="text-gray-600 dark:text-gray-400">
+                                    {tGiftCard('giftCard.receiverName')}
+                                  </span>
+                                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                                    {giftCardDetails.cardOrder.cashierName}
+                                  </span>
+                                </div>
+                              )}
+                              {/* Recipient Phone */}
+                              {giftCardDetails.cardOrder.cashierPhone && (
+                                <div className="flex items-start justify-between">
+                                  <span className="text-gray-600 dark:text-gray-400">
+                                    {tGiftCard('giftCard.receiverPhone')}
+                                  </span>
+                                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                                    {giftCardDetails.cardOrder.cashierPhone}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Price*/}
+                              <div className="flex items-start justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {tGiftCard('giftCard.price')}
+                                </span>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                  {formatCurrency(
+                                    giftCardDetails.cardOrder.totalAmount,
+                                  )}
+                                </span>
+                              </div>
+                              {/* Quantity */}
+                              <div className="flex items-start justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {tGiftCard('giftCard.quantity')}
+                                </span>
+                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                  {giftCardDetails.cardOrder.quantity}
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 

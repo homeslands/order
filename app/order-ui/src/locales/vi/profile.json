@@ -87,6 +87,11 @@
     "transactionCode": "Mã GD",
     "transaction": "Giao dịch",
     "close": "Đóng",
-    "viewOrderDetail": "Xem chi tiết"
+    "viewOrderDetail": "Xem chi tiết",
+    "loadingGiftCardDetails": "Đang tải thông tin thẻ quà tặng...",
+    "errorFetchingGiftCard": "Lỗi khi tải thông tin thẻ quà tặng. Vui lòng thử lại.",
+    "giftCardDetails": "Chi tiết thẻ quà tặng",
+    "giftCardName": "Tên thẻ",
+    "orderType": "Loại đơn hàng"
   }
 }

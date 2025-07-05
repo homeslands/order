@@ -87,6 +87,11 @@
     "transactionCode": "Transaction Code",
     "transaction": "Transaction",
     "close": "Close",
-    "viewOrderDetail": "View Detail"
+    "viewOrderDetail": "View Detail",
+    "loadingGiftCardDetails": "Loading gift card details...",
+    "errorFetchingGiftCard": "Error loading gift card details. Please try again.",
+    "giftCardDetails": "Gift Card Details",
+    "giftCardName": "Card Name",
+    "orderType": "Order Type"
   }
 }
