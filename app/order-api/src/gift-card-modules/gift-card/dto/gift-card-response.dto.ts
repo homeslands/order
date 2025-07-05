@@ -31,4 +31,12 @@ export class GiftCardResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   expiredAt: string;
+
+  @AutoMap()
+  @ApiProperty()
+  code: string;
+
+  @AutoMap()
+  @ApiProperty()
+  serial: string;
 }

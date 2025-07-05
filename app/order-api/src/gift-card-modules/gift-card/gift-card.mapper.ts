@@ -1,5 +1,11 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, extend, forMember, mapFrom, Mapper } from '@automapper/core';
+import {
+  createMap,
+  extend,
+  forMember,
+  mapFrom,
+  Mapper,
+} from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';

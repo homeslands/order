@@ -24,6 +24,7 @@ export class GiftCard extends Base {
   serial: string;
 
   @Column({ name: 'code_column', unique: true })
+  @AutoMap()
   code: string;
 
   @Column({ name: 'card_order_id_column' })
