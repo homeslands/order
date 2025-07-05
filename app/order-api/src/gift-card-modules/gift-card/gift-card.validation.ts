@@ -7,8 +7,8 @@ export const ERROR_WHEN_REMOVE_GIFT_CARD = 'ERROR_WHEN_REMOVE_GIFT_CARD';
 export const GC_IS_NOT_AVAILABLE = 'GC_IS_NOT_AVAILABLE';
 export const ERROR_WHEN_USE_GIFT_CARD = 'ERROR_WHEN_USE_GIFT_CARD';
 export const ERROR_WHEN_GEN_GIFT_CARD = 'ERROR_WHEN_GEN_GIFT_CARD';
-export const GC_EXPIRED = 'GC_EXPIRED';
 export const GC_USED = 'GC_USED';
+export const GC_EXPIRED = 'GC_EXPIRED';
 
 export type TGiftCardErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_GIFT_CARD
@@ -18,8 +18,8 @@ export type TGiftCardErrorCodeKey =
   | typeof GC_IS_NOT_AVAILABLE
   | typeof ERROR_WHEN_USE_GIFT_CARD
   | typeof ERROR_WHEN_GEN_GIFT_CARD
-  | typeof GC_EXPIRED
-  | typeof GC_USED;
+  | typeof GC_USED
+  | typeof GC_EXPIRED;
 
 // 158401 - 158500
 export type TGiftCardErrorCode = Record<TGiftCardErrorCodeKey, TErrorCodeValue>;
