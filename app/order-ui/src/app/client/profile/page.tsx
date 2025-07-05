@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { Coins } from 'lucide-react'
+import { Coins, EyeIcon, EyeOffIcon } from 'lucide-react'
+import { useState } from 'react'
 
 import { ProfilePicture } from '@/components/app/avatar'
 import { useUploadProfilePicture, useGetUserBalance } from '@/hooks'
@@ -15,6 +16,7 @@ export default function ProfilePage() {
   const { userInfo, setUserInfo } = useUserStore()
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
   const fullname = userInfo?.firstName + ' ' + userInfo?.lastName
+  const [showBalance, setShowBalance] = useState(true)
 
   const { data: balanceData } = useGetUserBalance(userInfo?.slug)
   const balance = balanceData?.result?.points || 0
@@ -28,6 +30,10 @@ export default function ProfilePage() {
     })
   }
 
+  const toggleBalanceVisibility = () => {
+    setShowBalance(!showBalance)
+  }
+
   return (
     <div className="container py-10 mx-auto">
       <Helmet>
@@ -38,7 +44,7 @@ export default function ProfilePage() {
       <div className="flex flex-col items-start gap-10 lg:flex-row">
         {/* Profile picture */}
         <div
-          className={`flex justify-between w-full bg-white rounded-sm shadow-lg dark:border dark:bg-transparent lg:w-1/4`}
+          className={`flex flex-col justify-between w-full bg-white rounded-sm shadow-lg dark:border dark:bg-transparent lg:w-1/4`}
         >
           <div className="flex flex-row p-2">
             <ProfilePicture
@@ -64,10 +70,27 @@ export default function ProfilePage() {
                 <span className="text-gray-700 dark:text-gray-300">
                   {t('profile.coinBalance')}:
                 </span>
-                <span className="text-[13px] font-bold tracking-tight text-orange-500 dark:text-orange-300">
-                  {formatCurrency(balance, '')}
+                <span className="text-[13px] font-bold tracking-tight text-primary dark:text-orange-300">
+                  {showBalance ? formatCurrency(balance, '') : '••••••••'}
                 </span>
-                <Coins className="text-orange-500 dark:text-orange-300" />
+                {showBalance && (
+                  <Coins className="text-primary dark:text-orange-300" />
+                )}
+                <button
+                  onClick={toggleBalanceVisibility}
+                  className="text-primary hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors ml-1"
+                  aria-label={
+                    showBalance
+                      ? t('profile.hideBalance')
+                      : t('profile.showBalance')
+                  }
+                >
+                  {showBalance ? (
+                    <EyeOffIcon className="w-4 h-4 text-primary" />
+                  ) : (
+                    <EyeIcon className="w-4 h-4 text-primary" />
+                  )}
+                </button>
               </div>
             </h3>
           </div>
