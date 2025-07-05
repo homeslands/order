@@ -344,48 +344,13 @@ export function CustomerCoinTabsContent() {
               <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
             </div>
 
+            {/* Time */}
             <div
               className={`flex items-center text-xs text-gray-500 dark:text-gray-400 ${isMobile ? 'w-max' : ''}`}
             >
-              {/* Export Transaction Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleExportTransaction(transaction.slug)
-                }}
-                disabled={exportingTransactionSlug === transaction.slug}
-                className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <Download
-                  size={14}
-                  className={
-                    exportingTransactionSlug === transaction.slug
-                      ? 'animate-pulse'
-                      : ''
-                  }
-                />
-              </Button>
+              <Clock size={12} className="mr-1" />
 
-              {/* Time */}
-              <div
-                className={`flex items-center text-xs text-gray-500 dark:text-gray-400 ${isMobile ? 'w-max' : ''}`}
-              >
-                <Clock size={12} className="mr-1" />
-                {isMobile ? (
-                  <div className="flex flex-col">
-                    <span>
-                      {moment(transaction.createdAt).format('HH:mm:ss')}
-                    </span>
-                    <span>
-                      {moment(transaction.createdAt).format('DD/MM/YYYY')}
-                    </span>
-                  </div>
-                ) : (
-                  moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')
-                )}
-              </div>
+              <span>{moment(transaction.createdAt).format('DD/MM/YYYY')}</span>
             </div>
           </div>
 
@@ -401,21 +366,42 @@ export function CustomerCoinTabsContent() {
             style={{ width: '13rem' }}
             variant="light"
           />
-
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-            <Tag size={12} className="mr-1" />
-            <span className="mr-2">{t('profile.transactionCode') + ':'}</span>
-            <span
-              className={`rounded px-2 py-1 font-mono ${
-                isGiftCard
-                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
-                  : isOrder
-                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                    : 'bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
-              }`}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+              <Tag size={12} className="mr-1" />
+              <span className="mr-2">{t('profile.transactionCode') + ':'}</span>
+              <span
+                className={`rounded px-2 py-1 font-mono ${
+                  isGiftCard
+                    ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
+                    : isOrder
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+              >
+                {transaction.objectSlug}
+              </span>
+            </div>
+            {/* Export Transaction Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleExportTransaction(transaction.slug)
+              }}
+              disabled={exportingTransactionSlug === transaction.slug}
+              className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              {transaction.objectSlug}
-            </span>
+              <Download
+                size={14}
+                className={
+                  exportingTransactionSlug === transaction.slug
+                    ? 'animate-pulse'
+                    : ''
+                }
+              />
+            </Button>
           </div>
         </div>
       </TransactionGiftCardDetailDialog>
