@@ -1,3 +1,4 @@
+import { PrinterDataType } from '@/constants'
 import { IBase } from './base.type'
 import { IBranch } from './branch.type'
 import { IProduct, IProductVariant } from './product.type'
@@ -116,4 +117,33 @@ export interface IUpdateChefOrderStatusRequest {
 export interface IUpdateChefOrderItemStatusRequest {
   slug: string
   status: string
+}
+
+export interface IPrinterForChefArea extends IBase {
+  name: string
+  dataType: PrinterDataType
+  ip: string
+  port: string
+  description?: string
+  chefArea: IChefArea
+  isActive: boolean
+}
+
+export interface ICreatePrinterForChefAreaRequest {
+  slug: string // This is the slug of the chef area
+  name: string
+  dataType: PrinterDataType
+  ip: string
+  port: string
+  description?: string
+}
+
+export interface IUpdatePrinterForChefAreaRequest {
+  slug: string // This is the slug of the chef area
+  printerSlug: string // This is the slug of the printer
+  name: string
+  dataType: PrinterDataType
+  ip: string
+  port: string
+  description?: string
 }

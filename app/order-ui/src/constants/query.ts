@@ -2,6 +2,7 @@ export const QUERYKEY = {
   profile: ['profile'],
   branches: ['branches'],
   catalog: ['catalog'],
+  chefAreaPrinters: ['chefAreaPrinters'],
   productVariants: ['productVariants'],
   products: ['products'],
   giftCards: ['giftCards'],
