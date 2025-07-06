@@ -112,6 +112,7 @@
       "createChefAreaPrinterSuccess": "Chef area printer created successfully",
       "updateChefAreaPrinterSuccess": "Chef area printer updated successfully",
       "deleteChefAreaPrinterSuccess": "Chef area printer deleted successfully",
+      "pingPrinterSuccess": "Printer pinged successfully",
       "addChefAreaProductSuccess": "Product added to chef area successfully",
       "removeChefAreaProductSuccess": "Product removed from chef area successfully",
       "updateChefAreaProductSuccess": "Chef area product updated successfully",

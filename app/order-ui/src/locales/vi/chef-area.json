@@ -53,7 +53,11 @@
     "confirmUpdatePrinter": "Xác nhận cập nhật máy in khu vực bếp",
     "delete": "Xóa",
     "deletePrinterWarning": "Bạn sắp sửa xóa máy in ",
-    "deletePrinterConfirmation": "Bạn có chắc chắn muốn xóa máy in này không?"
+    "deletePrinterConfirmation": "Bạn có chắc chắn muốn xóa máy in này không?",
+    "pingPrinter": "Ping máy in",
+    "pingPrinterDescription": "Ban có chắc chắn muốn ping máy in",
+    "pingPrinterDescription2": " để kiểm tra kết nối không?",
+    "pingPrinterDescription3": "Sau khi thực hiện ping, hãy kiểm tra xem máy in có in ra phiếu hay không. Nếu không có phản hồi, vui lòng kiểm tra lại địa chỉ IP và cổng kết nối."
   },
   "chefOrder": {
     "title": "Khu vực bếp",

@@ -15,13 +15,13 @@ import {
   DialogTrigger,
 } from '@/components/ui'
 
-import { IPrinterForCHefArea } from '@/types'
+import { IPrinterForChefArea } from '@/types'
 
 import { useDeletePrinterForChefArea } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
-export default function DeletePrinterDialog({ printer }: { printer: IPrinterForCHefArea }) {
+export default function DeletePrinterDialog({ printer }: { printer: IPrinterForChefArea }) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')

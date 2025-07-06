@@ -22,14 +22,14 @@ import {
   Form,
 } from '@/components/ui'
 import { UpdatePrinterDialog } from '@/components/app/dialog'
-import { IPrinterForCHefArea, IUpdatePrinterForChefAreaRequest } from '@/types'
+import { IPrinterForChefArea, IUpdatePrinterForChefAreaRequest } from '@/types'
 import { TUpdatePrinterForChefAreaSchema, updatePrinterForChefAreaSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PrinterDataType } from '@/constants'
 import { PrinterDataTypeSelect } from '../select'
 
 interface IUpdatePrinterSheetProps {
-  printer: IPrinterForCHefArea
+  printer: IPrinterForChefArea
 }
 
 export default function UpdatePrinterSheet({
