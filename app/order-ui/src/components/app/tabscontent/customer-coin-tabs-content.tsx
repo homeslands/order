@@ -70,7 +70,6 @@ export function CustomerCoinTabsContent() {
   const isMobile = useIsMobile()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastElementRef = useRef<HTMLDivElement | null>(null)
-  const isInitialRenderRef = useRef(true)
   const { userInfo } = useUserStore()
 
   // Export all transactions
@@ -226,12 +225,6 @@ export function CustomerCoinTabsContent() {
 
   // Fetch data when dates or filter type changes
   useEffect(() => {
-    // Skip the first render to prevent multiple API calls during initialization
-    if (isInitialRenderRef.current) {
-      isInitialRenderRef.current = false
-      return
-    }
-
     // Only trigger if there's a user
     if (userInfo?.slug) {
       // Reset pagination
