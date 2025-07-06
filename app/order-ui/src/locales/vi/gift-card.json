@@ -126,7 +126,15 @@
 
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
         "receiverName": "Tên người nhận",
-        "phoneNumberNotFound": "Không tìm thấy số điện thoại"
+        "phoneNumberNotFound": "Không tìm thấy số điện thoại",
+
+        "useGiftCard": "Sử dụng thẻ quà tặng",
+        "enterGiftCardDetails": "Nhập số serial và mã thẻ quà tặng để quy đổi điểm",
+        "giftCardSerial": "Số serial thẻ quà tặng",
+        "enterSerial": "Nhập số serial",
+        "enterCode": "Nhập mã thẻ",
+        "enterGiftCard": "Nhập thông tin thẻ quà tặng để quy đổi điểm",
+        "giftCardCode": "Mã thẻ quà tặng"
     },
     "schema": {
         "title": {

@@ -275,6 +275,14 @@ const errorCodes: { [key: number]: string } = {
   154513: 'toast.printerWriteError',
   154514: 'toast.chefOrderMustBeAccepted',
   157002: 'toast.voucherGroupAlreadyExists',
+  // Gift card error codes
+  158402: 'toast.giftCardNotFound',
+  158404: 'toast.errorWhenRemoveGiftCard',
+  158406: 'toast.errorWhenUseGiftCard',
+  158408: 'toast.giftCardExpired',
+  158409: 'toast.giftCardAlreadyUsed',
+  // User error code
+  119006: 'toast.userNotFound',
 }
 
 export function showToast(message: string) {
