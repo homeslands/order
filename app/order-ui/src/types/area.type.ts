@@ -119,7 +119,7 @@ export interface IUpdateChefOrderItemStatusRequest {
   status: string
 }
 
-export interface IPrinterForCHefArea extends IBase {
+export interface IPrinterForChefArea extends IBase {
   name: string
   dataType: PrinterDataType
   ip: string

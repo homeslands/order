@@ -3,13 +3,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import { Switch } from '@/components/ui'
-import { IPrinterForCHefArea } from '@/types'
+import { IPrinterForChefArea } from '@/types'
 import { useTogglePrinterForChefArea } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 
 interface IPrinterToggleSwitchProps {
-    printer: IPrinterForCHefArea
+    printer: IPrinterForChefArea
     disabled?: boolean
     onSuccess?: () => void
 }

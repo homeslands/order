@@ -49,7 +49,11 @@
     "updateDescription": "Update chef area printer",
     "delete": "Delete",
     "deletePrinterWarning": "You are about to delete printer ",
-    "deletePrinterConfirmation": "Are you sure you want to delete this printer?"
+    "deletePrinterConfirmation": "Are you sure you want to delete this printer?",
+    "pingPrinter": "Ping printer",
+    "pingPrinterDescription": "Are you sure you want to ping printer",
+    "pingPrinterDescription2": " to check connection?",
+    "pingPrinterDescription3": "After pinging, check if the printer prints a receipt. If there is no response, please check the IP address and port connection."
   },
   "chefOrder": {
     "title": "Chef order management",
