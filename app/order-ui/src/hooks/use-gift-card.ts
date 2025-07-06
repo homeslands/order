@@ -17,9 +17,12 @@ import {
   getCardOrder,
   cancelCardOrder,
   initiateCardOrderPayment,
+  useGiftCard,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore } from '@/stores'
+import { showToast } from '@/utils'
+import { useTranslation } from 'react-i18next'
 
 export const useGetGiftCards = (params: IGetGiftCardsRequest) => {
   return useQuery({
@@ -140,6 +143,18 @@ export const useInitiateCardOrderPayment = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return initiateCardOrderPayment(slug)
+    },
+  })
+}
+
+
+export const useUseGiftCard = () => {
+  const { t } = useTranslation(['toast'])
+
+  return useMutation({
+    mutationFn: useGiftCard,
+    onSuccess: () => {
+      showToast(t('toast.giftCardUsedSuccess'))
     },
   })
 }
