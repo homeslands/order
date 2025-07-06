@@ -21,6 +21,10 @@ export const PRINTER_CONNECT_ERROR = 'PRINTER_CONNECT_ERROR';
 export const PRINTER_WRITE_ERROR = 'PRINTER_WRITE_ERROR';
 export const CHEF_ORDER_MUST_BE_ACCEPTED = 'CHEF_ORDER_MUST_BE_ACCEPTED';
 export const ORDER_MUST_BE_PAID = 'ORDER_MUST_BE_PAID';
+export const NOT_FOUND_ANY_PRINTER_FOR_CHEF_AREA =
+  'NOT_FOUND_ANY_PRINTER_FOR_CHEF_AREA';
+export const NOT_FOUND_ANY_AVAILABLE_PRINTER_FOR_CHEF_ORDER =
+  'NOT_FOUND_ANY_AVAILABLE_PRINTER_FOR_CHEF_ORDER';
 export type TChefOrderErrorCodeKey =
   | typeof ERROR_DATA_DUPLICATE_PRODUCT_AND_BRANCH_IN_PRODUCT_CHEF_AREA
   | typeof CHEF_ORDER_NOT_FOUND
@@ -36,7 +40,9 @@ export type TChefOrderErrorCodeKey =
   | typeof PRINTER_CONNECT_ERROR
   | typeof PRINTER_WRITE_ERROR
   | typeof CHEF_ORDER_MUST_BE_ACCEPTED
-  | typeof ORDER_MUST_BE_PAID;
+  | typeof ORDER_MUST_BE_PAID
+  | typeof NOT_FOUND_ANY_PRINTER_FOR_CHEF_AREA
+  | typeof NOT_FOUND_ANY_AVAILABLE_PRINTER_FOR_CHEF_ORDER;
 
 export type TChefOrderErrorCode = Record<
   TChefOrderErrorCodeKey,
@@ -88,6 +94,14 @@ const ChefOrderValidation: TChefOrderErrorCode = {
     'Chef order must be accepted',
   ),
   ORDER_MUST_BE_PAID: createErrorCode(154515, 'Order must be paid'),
+  NOT_FOUND_ANY_PRINTER_FOR_CHEF_AREA: createErrorCode(
+    154516,
+    'Not found any printer for chef area',
+  ),
+  NOT_FOUND_ANY_AVAILABLE_PRINTER_FOR_CHEF_ORDER: createErrorCode(
+    154517,
+    'Not found any available printer for chef order',
+  ),
 };
 
 export default ChefOrderValidation;

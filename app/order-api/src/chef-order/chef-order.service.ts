@@ -23,14 +23,13 @@ import moment from 'moment';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { PdfService } from 'src/pdf/pdf.service';
-
 import sharp from 'sharp';
-
-import * as net from 'net';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { PDFDocument } from 'pdf-lib';
 import { OrderStatus } from 'src/order/order.constants';
+import { PrinterUtils } from 'src/printer/printer.utils';
+import { PrinterDataType } from 'src/printer/printer.constants';
 @Injectable()
 export class ChefOrderService {
   constructor(
@@ -42,6 +41,7 @@ export class ChefOrderService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly pdfService: PdfService,
     private readonly systemConfigService: SystemConfigService,
+    private readonly printerUtils: PrinterUtils,
   ) {}
 
   async getBarChefOrderItemPrinterIp() {
@@ -316,48 +316,52 @@ export class ChefOrderService {
     return bitmapData;
   }
 
-  async printChefOrderItemTicketApi(slug: string) {
-    const context = `${ChefOrderService.name}.${this.printChefOrderItemTicketApi.name}`;
+  async printChefOrderTest(slug: string, maxCount: number) {
+    const context = `${ChefOrderService.name}.${this.printChefOrderTest.name}`;
     const chefOrder = await this.chefOrderUtils.getChefOrder({
       where: { slug },
       relations: [
         'chefOrderItems.orderItem.variant.size',
         'chefOrderItems.orderItem.variant.product',
         'order.table',
+        'order.branch',
+        'chefArea.printers',
       ],
     });
 
-    if (chefOrder.status !== ChefOrderStatus.ACCEPTED) {
+    const printers = chefOrder.chefArea.printers;
+    const tsplZplPrinters = printers.filter(
+      (printer) =>
+        printer.dataType === PrinterDataType.TSPL_ZPL && printer.isActive,
+    );
+    const escPosPrinters = printers.filter(
+      (printer) =>
+        printer.dataType === PrinterDataType.ESC_POS && printer.isActive,
+    );
+
+    if (_.size(tsplZplPrinters) === 0) {
       this.logger.warn(
-        ChefOrderValidation.CHEF_ORDER_MUST_BE_ACCEPTED.message,
-        context,
-      );
-      throw new ChefOrderException(
-        ChefOrderValidation.CHEF_ORDER_MUST_BE_ACCEPTED,
+        `No active raw printer found for chef order: ${chefOrder.slug}`,
       );
     }
 
-    const printerIp = await this.getBarChefOrderItemPrinterIp();
-    if (_.isEmpty(printerIp)) {
-      this.logger.warn(ChefOrderValidation.PRINTER_IP_EMPTY.message, context);
-      throw new ChefOrderException(ChefOrderValidation.PRINTER_IP_EMPTY);
-    }
-
-    const printerPort = await this.getBarChefOrderItemPrinterPort();
-    if (_.isEmpty(printerPort)) {
-      this.logger.warn(ChefOrderValidation.PRINTER_PORT_EMPTY.message, context);
-      throw new ChefOrderException(ChefOrderValidation.PRINTER_PORT_EMPTY);
+    if (_.size(escPosPrinters) === 0) {
+      this.logger.warn(
+        `No active esc pos printer found for chef order: ${chefOrder.slug}`,
+      );
     }
 
     const bitmapDataList: Buffer[] = [];
     for (const chefOrderItem of chefOrder.chefOrderItems) {
-      const data = await this.pdfService.generatePdfImage(
+      let data = await this.pdfService.generatePdfImage(
         'chef-order-item-ticket-image',
         {
           productName:
             chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
           referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
           note: chefOrderItem?.orderItem?.note ?? 'N/A',
+          variantName: chefOrderItem?.orderItem?.variant?.size?.name ?? 'N/A',
+          createdAt: chefOrder?.order?.createdAt ?? 'N/A',
         },
         {
           type: 'png',
@@ -365,184 +369,38 @@ export class ChefOrderService {
         },
       );
       const bitmapData = await this.convertImageToBitmap(data);
+      data = null;
       bitmapDataList.push(bitmapData);
     }
 
-    await this.sendToPrinter(
-      printerIp,
-      parseInt(printerPort),
-      bitmapDataList,
+    let shouldContinue = true;
+    let count = 0;
+
+    while (shouldContinue) {
+      for (const printer of tsplZplPrinters) {
+        await this.printerUtils.printChefOrderItemTicket(
+          printer.ip,
+          printer.port,
+          bitmapDataList,
+        );
+      }
+      for (const printer of escPosPrinters) {
+        await this.printerUtils.printChefOrder(
+          printer.ip,
+          printer.port,
+          chefOrder,
+        );
+      }
+
+      count++;
+      if (count >= maxCount) {
+        shouldContinue = false;
+      }
+    }
+    this.logger.log(
+      `Printed ${count} times for chef order: ${chefOrder.slug}`,
       context,
     );
-  }
-
-  private async sendToPrinter(
-    printerIp: string,
-    printerPort: number,
-    bitmapDataList: Buffer[],
-    context: string,
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const client = new net.Socket();
-
-      this.logger.log('Connecting to printer...', context);
-
-      client.connect(printerPort, printerIp, () => {
-        this.logger.log('Connected to printer', context);
-
-        const header = Buffer.from(
-          `SIZE 50 mm,30 mm\nGAP 2 mm,0 mm\nCLS\n`,
-          'ascii',
-        );
-
-        client.write(header, (err) => {
-          if (err) {
-            this.logger.error(
-              'Error sending TSPL command:',
-              err.stack,
-              context,
-            );
-            reject(
-              new ChefOrderException(ChefOrderValidation.PRINTER_WRITE_ERROR),
-            );
-            return;
-          }
-
-          for (const bitmap of bitmapDataList) {
-            client.write(
-              Buffer.from(`BITMAP 0,0,${Math.ceil(576 / 8)},384,0,\n`, 'ascii'),
-            );
-            client.write(bitmap);
-          }
-
-          client.write(
-            Buffer.from(`\nPRINT ${bitmapDataList.length},1\n`, 'ascii'),
-            (err) => {
-              if (err) {
-                this.logger.error(
-                  'Error sending PRINT command:',
-                  err.stack,
-                  context,
-                );
-                reject(
-                  new ChefOrderException(
-                    ChefOrderValidation.PRINTER_WRITE_ERROR,
-                  ),
-                );
-                return;
-              }
-
-              this.logger.log(
-                `PRINT command sent for ${bitmapDataList.length} labels`,
-                context,
-              );
-              client.end();
-              resolve();
-            },
-          );
-        });
-      });
-
-      client.on('error', (err) => {
-        this.logger.error('Printer connection error:', err.stack, context);
-        reject(
-          new ChefOrderException(ChefOrderValidation.PRINTER_CONNECT_ERROR),
-        );
-      });
-
-      client.on('close', () => {
-        this.logger.log('Printer connection closed', context);
-      });
-    });
-  }
-
-  async printChefOrderItemTicketWhenUpdateChefOrderStatus(
-    chefOrder: ChefOrder,
-  ) {
-    const context = `${ChefOrderService.name}.${this.printChefOrderItemTicketWhenUpdateChefOrderStatus.name}`;
-
-    const printerIp = await this.getBarChefOrderItemPrinterIp();
-    if (_.isEmpty(printerIp)) {
-      this.logger.warn(ChefOrderValidation.PRINTER_IP_EMPTY.message, context);
-      return;
-    }
-
-    const printerPort = await this.getBarChefOrderItemPrinterPort();
-    if (_.isEmpty(printerPort)) {
-      this.logger.warn(ChefOrderValidation.PRINTER_PORT_EMPTY.message, context);
-      return;
-    }
-
-    const bitmapDataList: Buffer[] = [];
-    for (const chefOrderItem of chefOrder.chefOrderItems) {
-      const data = await this.pdfService.generatePdfImage(
-        'chef-order-item-ticket-image',
-        {
-          productName:
-            chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
-          referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
-          note: chefOrderItem?.orderItem?.note ?? 'N/A',
-        },
-        {
-          type: 'png',
-          omitBackground: false,
-        },
-      );
-      const bitmapData = await this.convertImageToBitmap(data);
-      bitmapDataList.push(bitmapData);
-    }
-
-    const client = new net.Socket();
-    this.logger.log('Connecting to printer...', context);
-    client.connect(parseInt(printerPort), printerIp, () => {
-      this.logger.log('Connected to printer', context);
-      this.logger.log('Sending data to printer...', context);
-      const header = Buffer.from(
-        `SIZE 50 mm,30 mm
-          GAP 2 mm,0 mm
-          CLS\n
-          `,
-        'ascii',
-      );
-
-      client.write(header, (err) => {
-        if (err) {
-          this.logger.error('Error sending TSPL command:', err.stack, context);
-        } else {
-          this.logger.log('TSPL command sent successfully', context);
-        }
-
-        for (const bitmap of bitmapDataList) {
-          client.write(
-            Buffer.from(`BITMAP 0,0,${Math.ceil(576 / 8)},384,0,\n`, 'ascii'),
-          );
-          client.write(bitmap);
-        }
-        client.write(
-          Buffer.from(`\nPRINT ${bitmapDataList.length},1\n`, 'ascii'),
-          (err) => {
-            if (err) {
-              this.logger.error('Error sending PRINT command:', err);
-            } else {
-              this.logger.log(
-                'PRINT command sent for',
-                bitmapDataList.length,
-                'labels',
-              );
-            }
-            client.end();
-          },
-        );
-      });
-    });
-
-    client.on('close', () => {
-      this.logger.log('Printer connection closed', context);
-    });
-
-    client.on('error', (err) => {
-      this.logger.error('Printer connection error:', err.message, context);
-    });
   }
 
   /**
@@ -602,9 +460,6 @@ export class ChefOrderService {
 
     Object.assign(chefOrder, { status: requestData.status });
     const updated = await this.chefOrderRepository.save(chefOrder);
-    if (requestData.status === ChefOrderStatus.ACCEPTED) {
-      await this.printChefOrderItemTicketWhenUpdateChefOrderStatus(chefOrder);
-    }
     return this.mapper.map(updated, ChefOrder, ChefOrderResponseDto);
   }
 }

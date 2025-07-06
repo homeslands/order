@@ -11,9 +11,12 @@ import { ChefOrderException } from './chef-order.exception';
 import ChefOrderValidation from './chef-order.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
-import { ChefOrderStatus } from './chef-order.constants';
+import { ChefOrderAction, ChefOrderStatus } from './chef-order.constants';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { OrderItem } from 'src/order-item/order-item.entity';
+import { PrinterDataType } from 'src/printer/printer.constants';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ChefOrderUtils {
@@ -30,6 +33,8 @@ export class ChefOrderUtils {
     private readonly chefOrderItemRepository: Repository<ChefOrderItem>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly chefOrderItemUtils: ChefOrderItemUtils,
+    private readonly transactionManagerService: TransactionManagerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async getChefOrder(options: FindOneOptions<ChefOrder>): Promise<ChefOrder> {
@@ -147,7 +152,29 @@ export class ChefOrderUtils {
         },
       ),
     );
-    const createdChefOrders = await this.chefOrderRepository.save(chefOrders);
+
+    const createdChefOrders = await this.transactionManagerService.execute<
+      ChefOrder[]
+    >(
+      async (manager) => {
+        return manager.save(chefOrders);
+      },
+      (result) => {
+        this.logger.log(`Created ${result.length} chef orders`, context);
+      },
+      (error) => {
+        this.logger.error(`Error when create chef order`, error.stack, context);
+      },
+    );
+
+    if (!_.isEmpty(createdChefOrders)) {
+      for (const chefOrder of createdChefOrders) {
+        this.eventEmitter.emit(ChefOrderAction.CHEF_ORDER_CREATED, {
+          chefOrderId: chefOrder.id,
+        });
+      }
+    }
+
     return createdChefOrders;
   }
 
@@ -179,6 +206,49 @@ export class ChefOrderUtils {
       throw new ChefOrderException(
         ChefOrderValidation.ERROR_WHEN_UPDATE_STATUS_TO_COMPLETED_FOR_CHEF_ORDER,
       );
+    }
+  }
+
+  async printChefOrder(chefOrderSlug: string) {
+    const context = `${ChefOrderUtils.name}.${this.printChefOrder.name}`;
+    const chefOrder = await this.chefOrderRepository.findOne({
+      where: { slug: chefOrderSlug },
+      relations: [
+        'chefOrderItems.orderItem.variant.size',
+        'chefOrderItems.orderItem.variant.product',
+        'order.branch',
+        'order.table',
+        'chefArea.printers',
+      ],
+    });
+    if (!chefOrder) {
+      this.logger.warn(
+        ChefOrderValidation.CHEF_ORDER_NOT_FOUND.message,
+        context,
+      );
+      return;
+    }
+
+    const printers = chefOrder.chefArea.printers;
+    if (_.size(printers) < 1) {
+      this.logger.warn(
+        ChefOrderValidation.NOT_FOUND_ANY_PRINTER_FOR_CHEF_AREA.message,
+        context,
+      );
+      return;
+    }
+
+    const availablePrinters = printers.filter((printer) => {
+      return printer.isActive && printer.dataType === PrinterDataType.ESC_POS;
+    });
+
+    if (_.size(availablePrinters) < 1) {
+      this.logger.warn(
+        ChefOrderValidation.NOT_FOUND_ANY_AVAILABLE_PRINTER_FOR_CHEF_ORDER
+          .message,
+        context,
+      );
+      return;
     }
   }
 }
