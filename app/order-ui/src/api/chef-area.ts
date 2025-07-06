@@ -11,7 +11,7 @@ import {
   ICreatePrinterForChefAreaRequest,
   IGetChefOrderRequest,
   IPaginationResponse,
-  IPrinterForCHefArea,
+  IPrinterForChefArea,
   IUpdateChefAreaProductRequest,
   IUpdateChefAreaRequest,
   IUpdateChefOrderItemStatusRequest,
@@ -241,14 +241,14 @@ export async function exportAutoChefOrderTicket(slug: string): Promise<Blob> {
 
 export async function getPrinterForChefArea(
   slug: string,
-): Promise<IApiResponse<IPrinterForCHefArea[]>> {
+): Promise<IApiResponse<IPrinterForChefArea[]>> {
   const response = await http.get(`/chef-area/${slug}/printers`)
   return response.data
 }
 
 export async function createPrinterForChefArea(
   data: ICreatePrinterForChefAreaRequest,
-): Promise<IApiResponse<IPrinterForCHefArea[]>> {
+): Promise<IApiResponse<IPrinterForChefArea[]>> {
   const response = await http.post(`/chef-area/${data.slug}/printer`,
     data,)
   return response.data
@@ -256,7 +256,7 @@ export async function createPrinterForChefArea(
 
 export async function updatePrinterForChefArea(
   data: IUpdatePrinterForChefAreaRequest,
-): Promise<IApiResponse<IPrinterForCHefArea[]>> {
+): Promise<IApiResponse<IPrinterForChefArea[]>> {
   const response = await http.patch(
     `/chef-area/${data.slug}/printer/${data.printerSlug}`,
     data,
@@ -274,7 +274,7 @@ export async function deletePrinterForChefArea(
 export async function togglePrinterForChefArea(
   slug: string,
   printerSlug: string,
-): Promise<IApiResponse<IPrinterForCHefArea[]>> {
+): Promise<IApiResponse<IPrinterForChefArea[]>> {
   const response = await http.patch(`/chef-area/${slug}/printer/${printerSlug}/toggle`)
   return response.data
 }
@@ -283,7 +283,7 @@ export async function pingPrinterForChefArea(
   slug: string,
   printerSlug: string,
 ): Promise<IApiResponse<{ success: boolean }>> {
-  const response = await http.get(
+  const response = await http.post(
     `/chef-area/${slug}/printer/${printerSlug}/ping`,
   )
   return response.data

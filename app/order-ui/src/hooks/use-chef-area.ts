@@ -230,10 +230,10 @@ export const useTogglePrinterForChefArea = () => {
   })
 }
 
-export const usePingPrinterForChefArea = (slug: string, printerSlug: string) => {
-  return useQuery({
-    queryKey: [QUERYKEY.chefAreaPrinters, slug, printerSlug],
-    queryFn: () => pingPrinterForChefArea(slug, printerSlug),
-    enabled: !!slug && !!printerSlug,
+export const usePingPrinterForChefArea = () => {
+  return useMutation({
+    mutationFn: async ({ slug, printerSlug }: { slug: string; printerSlug: string }) => {
+      return pingPrinterForChefArea(slug, printerSlug)
+    },
   })
 }

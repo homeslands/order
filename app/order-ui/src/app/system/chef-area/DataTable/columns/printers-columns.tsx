@@ -10,13 +10,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { IPrinterForCHefArea } from '@/types'
+import { IPrinterForChefArea } from '@/types'
 import { MoreHorizontal } from 'lucide-react'
 import UpdatePrinterSheet from '@/components/app/sheet/update-printer-sheet'
-import { DeletePrinterDialog } from '@/components/app/dialog'
+import { DeletePrinterDialog, PingPrinterDialog } from '@/components/app/dialog'
 import { PrinterToggleSwitch } from '@/components/app/switch'
 
-export const usePrintersColumns = (): ColumnDef<IPrinterForCHefArea>[] => {
+export const usePrintersColumns = (): ColumnDef<IPrinterForChefArea>[] => {
   const { t } = useTranslation(['chefArea'])
   const { t: tCommon } = useTranslation('common')
 
@@ -36,7 +36,22 @@ export const usePrintersColumns = (): ColumnDef<IPrinterForCHefArea>[] => {
         </div>
       ),
     },
-
+    {
+      accessorKey: 'ping',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('printer.pingPrinter')} />
+      ),
+      cell: ({ row }) => {
+        const printer = row.original
+        return (
+          <div className='flex items-center justify-center'>
+            <PingPrinterDialog
+              printer={printer}
+            />
+          </div>
+        )
+      },
+    },
     {
       accessorKey: 'createdAt',
       header: ({ column }) => (

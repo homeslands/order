@@ -117,6 +117,7 @@
     "createChefAreaPrinterSuccess": "Tạo máy in khu vực đầu bếp thành công",
     "updateChefAreaPrinterSuccess": "Cập nhật máy in khu vực đầu bếp thành công",
     "deleteChefAreaPrinterSuccess": "Xóa máy in khu vực đầu bếp thành công",
+    "pingPrinterSuccess": "Ping máy in thành công",
     "addChefAreaProductSuccess": "Thêm món vào khu vực đầu bếp thành công",
     "removeChefAreaProductSuccess": "Xóa món khỏi khu vực đầu bếp thành công",
     "updateChefAreaProductSuccess": "Cập nhật món trong khu vực đầu bếp thành công",
