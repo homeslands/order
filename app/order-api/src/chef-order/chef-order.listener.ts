@@ -69,13 +69,15 @@ export class ChefOrderListener {
         bitmapDataList.push(bitmapData);
       }
 
-      for (const printer of tsplZplPrinters) {
-        await this.printerUtils.printChefOrderItemTicket(
-          printer.ip,
-          printer.port,
-          bitmapDataList,
-        );
-      }
+      await Promise.allSettled(
+        tsplZplPrinters.map((printer) =>
+          this.printerUtils.printChefOrderItemTicket(
+            printer.ip,
+            printer.port,
+            bitmapDataList,
+          ),
+        ),
+      );
     } else {
       this.logger.warn(
         `No active raw printer found for chef order: ${requestData.chefOrderId}`,
@@ -83,13 +85,11 @@ export class ChefOrderListener {
     }
 
     if (_.size(escPosPrinters) > 0) {
-      for (const printer of escPosPrinters) {
-        await this.printerUtils.printChefOrder(
-          printer.ip,
-          printer.port,
-          chefOrder,
-        );
-      }
+      await Promise.allSettled(
+        escPosPrinters.map((printer) =>
+          this.printerUtils.printChefOrder(printer.ip, printer.port, chefOrder),
+        ),
+      );
     } else {
       this.logger.warn(
         `No active esc pos printer found for chef order: ${requestData.chefOrderId}`,
