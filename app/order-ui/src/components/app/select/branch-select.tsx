@@ -22,20 +22,36 @@ interface SelectBranchProps {
 export default function BranchSelect({ defaultValue, onChange }: SelectBranchProps) {
   const { t } = useTranslation('branch')
   const [allBranches, setAllBranches] = useState<{ value: string; label: string }[]>([]);
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<string | undefined>();
 
   const { data } = useBranch();
-  const { setBranch } = useBranchStore();
+  const { setBranch, branch } = useBranchStore();
 
-  // Set selected branch if defaultValue matches
+  // Set selected branch with priority: store branch > defaultValue > first item
   useEffect(() => {
     if (!data?.result || data.result.length === 0) return;
 
-    const branch = data.result.find(item => item.slug === defaultValue) || data.result[0];
+    let targetBranch;
 
-    setBranch(branch);
-    setSelectedValue(branch.slug);
-  }, [defaultValue, data?.result, setBranch]);
+    // Priority 1: Branch from store (đã được chọn trước đó)
+    if (branch && data.result.some(item => item.slug === branch.slug)) {
+      targetBranch = branch;
+    }
+    // Priority 2: defaultValue prop
+    else if (defaultValue) {
+      targetBranch = data.result.find(item => item.slug === defaultValue);
+    }
+
+    // Priority 3: First item if no store branch or defaultValue
+    if (!targetBranch) {
+      targetBranch = data.result[0];
+    }
+
+    if (targetBranch) {
+      setBranch(targetBranch);
+      setSelectedValue(targetBranch.slug);
+    }
+  }, [defaultValue, data?.result, setBranch, branch]);
 
   useEffect(() => {
     if (data?.result) {

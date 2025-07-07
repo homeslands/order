@@ -101,6 +101,7 @@
     "noMenuItems": "Không có món ăn trong thực đơn"
   },
   "order": {
+    "orderListCaption": "Danh sách đơn hàng",
     "orderId": "Đơn hàng",
     "items": "món",
     "confirmation": "Xác nhận thanh toán",
