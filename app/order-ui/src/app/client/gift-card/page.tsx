@@ -13,14 +13,14 @@ import {
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IGiftCard } from '@/types'
-import { useUserStore } from '@/stores'
+import { useAuthStore } from '@/stores'
 
 export default function ClientGiftCardPage() {
   const { t } = useTranslation(['giftCard', 'common'])
   const { t: tHelmet } = useTranslation('helmet')
   const [sortOption, setSortOption] = useState<string>('price,asc')
   const [selectedCard, setSelectedCard] = useState<IGiftCard | null>(null)
-  const { userInfo } = useUserStore()
+  const { isAuthenticated } = useAuthStore()
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(8)
@@ -63,8 +63,8 @@ export default function ClientGiftCardPage() {
     }
   }
 
-  // Check if user is logged in
-  if (!userInfo) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
     return (
       <div className="container mx-auto py-10">
         <Helmet>

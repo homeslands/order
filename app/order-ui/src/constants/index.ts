@@ -1,3 +1,4 @@
+export * from './chef-area'
 export * from './role'
 export * from './promotion'
 export * from './env'
