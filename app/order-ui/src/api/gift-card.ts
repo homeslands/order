@@ -8,6 +8,8 @@ import {
   ICardOrderRequest,
   ICardOrderResponse,
   IGiftCardDetail,
+  IUseGiftCardResponse,
+  IUseGiftCardRequest,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -91,6 +93,16 @@ export async function getGiftCardBySlug(
 ): Promise<IApiResponse<IGiftCardDetail>> {
   const response = await http.get<IApiResponse<IGiftCardDetail>>(
     `/gift-card/${slug}`,
+  )
+  return response.data
+}
+
+export async function useGiftCard(
+  params: IUseGiftCardRequest,
+): Promise<IApiResponse<IUseGiftCardResponse>> {
+  const response = await http.post<IApiResponse<IUseGiftCardResponse>>(
+    '/gift-card/use',
+    params,
   )
   return response.data
 }

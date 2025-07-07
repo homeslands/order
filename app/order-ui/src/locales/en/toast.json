@@ -385,6 +385,10 @@
     "mustVerifyEmailToUseVoucher": "Please verify email to use voucher!",
     "voucherProductNotApplicable": "Some products in the cart are not applicable to this voucher.",
     "giftCardValidationError": "Please check information gift card",
-    "giftCardUpdated": "Gift card updated! Please try again"
+    "giftCardUpdated": "Gift card updated! Please try again",
+    "giftCardNotFound": "Gift card not found",
+    "giftCardExpired": "Gift card has expired",
+    "giftCardAlreadyUsed": "Gift card has already been used",
+    "giftCardUsedSuccess": "Gift card used successfully"
   }
 }

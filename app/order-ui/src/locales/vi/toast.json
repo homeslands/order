@@ -329,6 +329,10 @@
     "mustVerifyEmailToUseVoucher": "Vui lòng xác thực email để sử dụng voucher này!",
     "giftCardValidationError": "Vui lòng kiểm tra thông tin thẻ quà tặng",
     "voucherProductNotApplicable": "Một số sản phẩm trong giỏ hàng không áp dụng được voucher này.",
-    "giftCardUpdated": "Thẻ quà tặng đã cập nhật! Vui lòng thử lại"
+    "giftCardUpdated": "Thẻ quà tặng đã cập nhật! Vui lòng thử lại",
+    "giftCardNotFound": "Thẻ quà tặng không tồn tại",
+    "giftCardExpired": "Thẻ quà tặng đã hết hạn",
+    "giftCardAlreadyUsed": "Thẻ quà tặng đã sử dụng",
+    "giftCardUsedSuccess": "Thẻ quà tặng đã sử dụng thành công"
   }
 }

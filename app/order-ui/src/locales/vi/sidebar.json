@@ -44,7 +44,8 @@
       "aboutUs": "Về chúng tôi",
       "policy": "Điều khoản",
       "securityTerm": "Chính sách bảo mật",
-      "giftCard": "Thẻ quà tặng"
+      "giftCard": "Thẻ quà tặng",
+      "useGiftCard": "Sử dụng thẻ quà tặng"
     },
     "footer": {
       "quickLink": "Liên kết nhanh",
