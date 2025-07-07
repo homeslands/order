@@ -5,20 +5,21 @@ import { useTranslation } from 'react-i18next'
 import { CircleX, SquareMenu } from 'lucide-react'
 
 import {
+  Badge,
   Button,
   Separator,
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
+  Textarea,
 } from '@/components/ui'
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
 import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
-import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { InvoiceTemplate } from '../public-order-detail/components'
@@ -80,7 +81,7 @@ export default function OrderHistoryPage() {
           {/* Left, info */}
           <div className="flex flex-col w-full gap-4 lg:w-3/5">
             {/* Order info */}
-            <div className="flex items-center justify-between p-3 border rounded-sm border-muted-foreground/30">
+            <div className="flex items-center justify-between p-3 bg-white border rounded-sm dark:bg-transparent">
               <div className="">
                 <p className="flex items-center gap-2 pb-2">
                   <span className="font-bold">
@@ -110,8 +111,8 @@ export default function OrderHistoryPage() {
             </div>
             {/* Order owner info */}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
-                <div className="px-3 py-2 font-bold bg-muted-foreground/10">
+              <div className="bg-white border rounded-sm sm:grid-cols-2 dark:bg-transparent">
+                <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.customer')}{' '}
                 </div>
                 <div className="px-3 py-2">
@@ -120,8 +121,8 @@ export default function OrderHistoryPage() {
                   </p>
                 </div>
               </div>
-              <div className="border rounded-sm border-muted-foreground/30 sm:grid-cols-2">
-                <div className="px-3 py-2 font-bold bg-muted-foreground/10">
+              <div className="bg-white border rounded-sm sm:grid-cols-2 dark:bg-transparent">
+                <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.orderType')}
                 </div>
                 <div className="px-3 py-2 text-sm">
@@ -134,88 +135,76 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {/* Order table */}
-            <div className="overflow-x-auto">
-              <Table className="min-w-full border border-collapse table-auto border-muted-foreground/20">
+            <div className="pb-4 overflow-x-auto bg-white border rounded-sm dark:bg-transparent">
+              <Table className="min-w-full table-auto">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
                 {/* Header */}
                 <TableHeader className="rounded bg-muted-foreground/10">
-                  <TableRow>
-                    <TableHead className="w-3/5 text-left">{t('order.product')}</TableHead>
-                    <TableHead className="w-2/5 text-right">{t('order.grandTotal')}</TableHead>
-                  </TableRow>
+                  {/* <TableRow>
+                    <TableHead className="w-3/4 text-left">{t('order.product')}</TableHead>
+                    <TableHead className="w-1/4 text-right bg-red-200">{t('order.grandTotal')}</TableHead>
+                  </TableRow> */}
                 </TableHeader>
 
                 {/* Body */}
                 <TableBody>
-                  {orderInfo?.orderItems?.map((item) => (
-                    <TableRow key={item.slug}>
-                      {/* Cột hình ảnh + thông tin */}
-                      <TableCell className="flex items-center gap-5 font-bold">
-                        <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`} className="flex items-center gap-5">
-                          {/* Hình ảnh */}
-                          <div className="relative h-[3.5rem] w-[3.5rem] sm:h-[6.5rem] sm:w-[6.5rem] cursor-pointer">
-                            <img
-                              src={`${publicFileURL}/${item.variant.product.image}`}
-                              alt={item.variant.product.name}
-                              className="object-cover w-full h-full rounded-md aspect-square"
-                            />
-                            <div className="absolute flex items-center justify-center text-sm text-white rounded-full -bottom-3 left-10 w-7 h-7 sm:-bottom-3 sm:-right-3 sm:left-auto bg-primary">
-                              x{item.quantity}
-                            </div>
-                          </div>
+                  {orderInfo?.orderItems?.map((item) => {
+                    const displayItem = displayItems.find(di => di.slug === item.slug)
+                    const original = item.variant.price || 0
+                    const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                    const finalPrice = displayItem?.finalPrice || 0
 
-                          {/* Thông tin sản phẩm */}
-                          <div className="flex flex-col items-start">
-                            <span className="text-sm font-semibold truncate">{item?.variant?.product?.name}</span>
-                            {item?.promotion && item?.promotion?.value > 0 ? (
-                              <div className="flex flex-row items-center gap-1">
-                                <span className="text-xs font-normal">Size {item?.variant?.size?.name.toUpperCase()}</span>
-                                <span className="text-xs line-through text-muted-foreground/60">
-                                  {formatCurrency(item?.variant?.price || 0)}
-                                </span>
-                                <span className="font-semibold text-primary">
-                                  {formatCurrency(item?.variant?.price * (1 - item?.promotion?.value / 100))}
-                                </span>
+                    const isSamePriceVoucher =
+                      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                      voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+
+                    const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                    const displayPrice = isSamePriceVoucher
+                      ? finalPrice * item.quantity
+                      : hasPromotionDiscount
+                        ? priceAfterPromotion * item.quantity
+                        : original * item.quantity
+
+                    const shouldShowLineThrough = isSamePriceVoucher || hasPromotionDiscount
+
+                    return (
+                      <>
+                        {/* Row chính */}
+                        <TableRow key={item.slug}>
+                          <TableCell className="w-3/4 font-bold">
+                            <NavLink
+                              to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.variant.product.slug}`}
+                              className="flex items-start gap-4 sm:gap-5 sm:flex-row"
+                            >
+                              <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0">
+                                <img
+                                  src={`${publicFileURL}/${item.variant.product.image}`}
+                                  alt={item.variant.product.name}
+                                  className="object-cover w-full h-full rounded-md"
+                                />
+                                <div className="absolute flex items-center justify-center w-6 h-6 text-xs font-semibold text-white rounded-full shadow -right-2 -bottom-2 bg-primary">
+                                  x{item.quantity}
+                                </div>
                               </div>
-                            ) : (
-                              <div className="flex flex-col text-xs text-muted-foreground">
-                                <span>
-                                  Size {item?.variant?.size?.name.toUpperCase()} - {formatCurrency(item?.variant?.price || 0)}
+
+                              <div className="flex flex-col min-w-0 gap-1">
+                                <span className="text-sm font-semibold truncate">
+                                  {item?.variant?.product?.name}
                                 </span>
-                                <span>
-                                  {t('order.note')}: {item?.note}
-                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs w-fit border-primary text-primary bg-primary/10"
+                                >
+                                  {capitalizeFirstLetter(item?.variant?.size?.name)}
+                                </Badge>
                               </div>
-                            )}
-                          </div>
-                        </NavLink>
-                      </TableCell>
+                            </NavLink>
+                          </TableCell>
 
-                      {/* Cột tổng giá */}
-                      <TableCell className="w-1/4 font-semibold text-right">
-                        {(() => {
-                          const displayItem = displayItems.find(di => di.slug === item.slug)
-                          const original = item.variant.price || 0
-                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                          const finalPrice = displayItem?.finalPrice || 0
-
-                          const isSamePriceVoucher =
-                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
-
-                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
-
-                          const displayPrice = isSamePriceVoucher
-                            ? finalPrice * item.quantity
-                            : hasPromotionDiscount
-                              ? priceAfterPromotion * item.quantity
-                              : original * item.quantity
-
-                          const shouldShowLineThrough =
-                            isSamePriceVoucher || hasPromotionDiscount
-
-                          return (
-                            <div className="flex items-center gap-1">
+                          {/* Cột tổng giá */}
+                          <TableCell className="w-1/4 font-semibold text-right align-top">
+                            <div className="flex flex-col items-end gap-1">
                               {shouldShowLineThrough && (
                                 <span className="text-sm line-through text-muted-foreground">
                                   {formatCurrency(original * item.quantity)}
@@ -225,12 +214,29 @@ export default function OrderHistoryPage() {
                                 {formatCurrency(displayPrice)}
                               </span>
                             </div>
-                          )
-                        })()}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Row ghi chú - chiếm trọn hàng */}
+                        {item.note && (
+                          <TableRow key={`${item.slug}-note`} className="bg-muted/20">
+                            <TableCell colSpan={2}>
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Textarea
+                                  value={item.note}
+                                  readOnly
+                                  className="w-full text-xs resize-none sm:text-sm h-fit"
+                                  placeholder={t('order.noNote')}
+                                />
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    )
+                  })}
                 </TableBody>
+
               </Table>
             </div>
           </div>
@@ -238,8 +244,8 @@ export default function OrderHistoryPage() {
           {/* Right, payment*/}
           <div className="flex flex-col w-full gap-2 lg:w-2/5">
             {/* Payment method, status */}
-            <div className="border rounded-sm h-fit border-muted-foreground/30">
-              <div className="px-3 py-4 font-bold bg-muted-foreground/10">
+            <div className={`border ${orderInfo?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-50' : 'border-destructive bg-red-50'} rounded-sm h-fit dark:bg-transparent`}>
+              <div className={`px-3 py-4 font-bold rounded-t-sm ${orderInfo?.payment?.statusMessage === OrderStatus.COMPLETED ? 'text-green-700 bg-green-200' : 'text-destructive bg-red-200'}`} >
                 {t('paymentMethod.title')}
               </div>
               {orderInfo?.payment ? (
@@ -281,8 +287,8 @@ export default function OrderHistoryPage() {
               )}
             </div>
             {/* Total */}
-            <div className="border rounded-sm border-muted-foreground/30">
-              <div className="px-3 py-3 font-bold bg-muted-foreground/10">
+            <div className="bg-white border rounded-sm dark:bg-transparent">
+              <div className="px-3 py-3 font-bold rounded-t-sm bg-muted-foreground/20">
                 {t('order.paymentInformation')}
               </div>
               <div className="flex flex-col gap-2 px-3 py-2">
@@ -334,7 +340,7 @@ export default function OrderHistoryPage() {
               </div>
             </div>
             {isMobile && orderInfo?.status === OrderStatus.PAID && (
-              <div className='flex flex-col items-center justify-center w-full mt-12'>
+              <div className='flex flex-col items-center justify-center w-full gap-3 mt-8'>
                 <span className='text-lg text-muted-foreground'>
                   {t('order.invoice')}
                 </span>
@@ -343,7 +349,7 @@ export default function OrderHistoryPage() {
                 />
                 <Button onClick={() => {
                   handleExportInvoice()
-                }}>
+                }} className='w-full sm:w-fit'>
                   {t('order.exportInvoice')}
                 </Button>
               </div>
@@ -352,6 +358,7 @@ export default function OrderHistoryPage() {
             <div className="flex justify-between gap-2">
               <Button
                 variant="outline"
+                className="w-full"
                 onClick={() => {
                   navigate(`${ROUTE.CLIENT_PROFILE}?tab=history`)
                 }}
@@ -381,7 +388,7 @@ export default function OrderHistoryPage() {
 
             <Button onClick={() => {
               handleExportInvoice()
-            }}>
+            }} className='w-full mt-4 sm:w-fit'>
               {t('order.exportInvoice')}
             </Button>
           </div>

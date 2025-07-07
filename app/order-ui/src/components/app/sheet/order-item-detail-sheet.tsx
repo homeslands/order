@@ -187,11 +187,11 @@ export default function OrderItemDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[100%] p-0 flex flex-col gap-0 max-h-screen">
         <SheetHeader className="px-2">
-          <SheetTitle className="flex flex-wrap justify-start items-center mt-8">
-            <div className="flex gap-2 w-full">
+          <SheetTitle className="flex flex-wrap items-center justify-start mt-8">
+            <div className="flex w-full gap-2">
               {selectedOrder?.result?.type === OrderTypeEnum.TAKE_OUT ? (
-                <div className='flex flex-col gap-2 mt-2 w-full'>
-                  <div className='flex gap-2 justify-between items-center'>
+                <div className='flex flex-col w-full gap-2 mt-2'>
+                  <div className='flex items-center justify-between gap-2'>
                     <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
                     <div className='flex gap-2'>
                       {selectedOrder &&
@@ -202,7 +202,7 @@ export default function OrderItemDetailSheet({
                               handleExportOrderInvoice(selectedOrder.result.slug)
                             }
                             disabled={isPending}
-                            className="flex justify-start items-center px-2 text-xs shadow-none sm:text-sm"
+                            className="flex items-center justify-start px-2 text-xs shadow-none sm:text-sm"
                           >
                             {isPending && <ButtonLoading />}
                             {t('order.exportInvoice')}
@@ -210,7 +210,7 @@ export default function OrderItemDetailSheet({
                         )}
                     </div>
                   </div>
-                  <div className='flex flex-col gap-2 p-2 w-full rounded-lg border-2 border-primary bg-primary/5 sm:p-4'>
+                  <div className='flex flex-col w-full gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4'>
                     <div className="text-sm font-medium text-primary">
                       {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                     </div>
@@ -218,8 +218,8 @@ export default function OrderItemDetailSheet({
                   </div>
                 </div>
               ) : (
-                <div className='flex flex-col gap-3 w-full'>
-                  <div className="flex gap-2 justify-between mt-2">
+                <div className='flex flex-col w-full gap-3'>
+                  <div className="flex justify-between gap-2 mt-2">
                     <div className="flex gap-2">
                       <CreateOrderTrackingByStaffDialog disabled={getSelectedItems().length === 0} />
                       {/* <CreateOrderTrackingByRobotDialog disabled={getSelectedItems().length === 0} /> */}
@@ -233,7 +233,7 @@ export default function OrderItemDetailSheet({
                               handleExportOrderInvoice(selectedOrder.result.slug)
                             }
                             disabled={isPending}
-                            className="flex justify-start items-center px-2 text-xs shadow-none sm:text-sm"
+                            className="flex items-center justify-start px-2 text-xs shadow-none sm:text-sm"
                           >
                             {isPending && <ButtonLoading />}
                             {t('order.exportInvoice')}
@@ -241,7 +241,7 @@ export default function OrderItemDetailSheet({
                         )}
                     </div>
                   </div>
-                  <div className='flex flex-col gap-2 p-2 w-full rounded-lg border-2 border-primary bg-primary/5 sm:p-4'>
+                  <div className='flex flex-col w-full gap-2 p-2 border-2 rounded-lg border-primary bg-primary/5 sm:p-4'>
                     <div className="text-sm font-medium text-primary">
                       {t('order.currentOrder')} #{selectedOrder?.result?.slug}
                     </div>
@@ -261,7 +261,7 @@ export default function OrderItemDetailSheet({
             <div className="flex-1 px-2 pt-2">
               <OrderItemList orderDetailData={selectedOrder?.result} />
               {/* {orderDetails && orderDetails.length > 0 && (
-              <div className="flex gap-1 items-center">
+              <div className="flex items-center gap-1">
                 <CircleAlert size={14} className="text-blue-500" />
                 <span className="text-xs text-muted-foreground sm:text-sm">
                   {t('order.refreshOrdersInTheSameTable')}
@@ -286,7 +286,7 @@ export default function OrderItemDetailSheet({
                   .map((orderDetail) => (
                     <div
                       key={orderDetail.slug}
-                      className="flex flex-col gap-2 p-4 rounded-lg border"
+                      className="flex flex-col gap-2 p-4 border rounded-lg"
                     >
                       <CustomerInformation orderDetailData={orderDetail} />
                       <OrderItemList orderDetailData={orderDetail} />

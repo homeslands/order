@@ -64,13 +64,12 @@ export default function RevenueDetailChart({
             const orders = params[0].value
             const cash = formatCurrency(params[1].value)
             const bank = formatCurrency(params[2].value)
-            const internal = formatCurrency(params[3].value)
+            // const internal = formatCurrency(params[3].value)
 
             return `${date}<br/>
               ${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}<br/>
               ${params[1].seriesName}: ${cash}<br/>
-              ${params[2].seriesName}: ${bank}<br/>
-              ${params[3].seriesName}: ${internal}`
+              ${params[2].seriesName}: ${bank}`
           },
         },
         legend: {
@@ -158,15 +157,15 @@ export default function RevenueDetailChart({
               borderRadius: [5, 5, 0, 0],
             },
           },
-          {
-            name: t('revenue.internalWallet'),
-            type: 'bar',
-            data: sortedData.map((item) => item.totalAmountInternal),
-            itemStyle: {
-              color: '#32CD32',
-              borderRadius: [5, 5, 0, 0],
-            },
-          },
+          // {
+          //   name: t('revenue.internalWallet'),
+          //   type: 'bar',
+          //   data: sortedData.map((item) => item.totalAmountInternal),
+          //   itemStyle: {
+          //     color: '#32CD32',
+          //     borderRadius: [5, 5, 0, 0],
+          //   },
+          // },
         ],
       }
 
@@ -188,11 +187,11 @@ export default function RevenueDetailChart({
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <CardTitle className="flex justify-between items-center">
+        <CardTitle className="flex items-center justify-between">
           {t('revenue.revenueSystem')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex justify-center items-center p-2">
+      <CardContent className="flex items-center justify-center p-2">
         <div ref={chartRef} className="h-[26rem] w-full" />
       </CardContent>
     </Card>

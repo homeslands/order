@@ -137,6 +137,7 @@
     "noMenuItems": "No menu items found"
   },
   "order": {
+    "orderListCaption": "List of orders",
     "title": "Order Management",
     "slug": "Order ID",
     "orderId": "Order ID",
@@ -177,6 +178,7 @@
     "apply": "Apply",
     "subTotal": "Subtotal",
     "total": "Total price",
+    "promotionDiscount": "Promotion discount",
     "discount": "Discount",
     "grandTotal": "Grand total",
     "totalPayment": "Total",
