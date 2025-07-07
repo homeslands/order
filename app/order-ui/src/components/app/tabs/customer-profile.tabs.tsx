@@ -26,14 +26,9 @@ export function CustomerProfileTabs() {
   }
 
   return (
-    <Tabs value={tab} onValueChange={handleTabChange} className="w-full h-full">
-      <TabsList
-        className={`mb-6 flex h-full w-full flex-wrap justify-start gap-3 overflow-x-auto border-b border-gray-200 dark:border-gray-700 lg:mb-0`}
-      >
-        <TabsTrigger
-          value="info"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
-        >
+    <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
+      <TabsList className="grid grid-cols-2 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
+        <TabsTrigger value="info" className="flex justify-center">
           {t('profile.generalInfo')}
         </TabsTrigger>
         <TabsTrigger
