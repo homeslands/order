@@ -339,66 +339,82 @@ export class ChefOrderService {
         printer.dataType === PrinterDataType.ESC_POS && printer.isActive,
     );
 
-    if (_.size(tsplZplPrinters) === 0) {
+    if (_.size(tsplZplPrinters) > 0) {
+      const bitmapDataList: Buffer[] = [];
+      for (const chefOrderItem of chefOrder.chefOrderItems) {
+        let data = await this.pdfService.generatePdfImage(
+          'chef-order-item-ticket-image',
+          {
+            productName:
+              chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
+            referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
+            note: chefOrderItem?.orderItem?.note ?? 'N/A',
+            variantName: chefOrderItem?.orderItem?.variant?.size?.name ?? 'N/A',
+            createdAt: chefOrder?.order?.createdAt ?? 'N/A',
+          },
+          {
+            type: 'png',
+            omitBackground: false,
+          },
+        );
+        const bitmapData = await this.convertImageToBitmap(data);
+        data = null;
+        bitmapDataList.push(bitmapData);
+      }
+
+      let shouldContinue = true;
+      let count = 0;
+
+      while (shouldContinue) {
+        await Promise.allSettled(
+          tsplZplPrinters.map((printer) =>
+            this.printerUtils.printChefOrderItemTicket(
+              printer.ip,
+              printer.port,
+              bitmapDataList,
+            ),
+          ),
+        );
+
+        count++;
+        if (count >= maxCount) {
+          shouldContinue = false;
+        }
+      }
+    } else {
       this.logger.warn(
         `No active raw printer found for chef order: ${chefOrder.slug}`,
       );
     }
 
-    if (_.size(escPosPrinters) === 0) {
+    if (_.size(escPosPrinters) > 0) {
+      let shouldContinue = true;
+      let count = 0;
+
+      while (shouldContinue) {
+        await Promise.allSettled(
+          escPosPrinters.map((printer) =>
+            this.printerUtils.printChefOrder(
+              printer.ip,
+              printer.port,
+              chefOrder,
+            ),
+          ),
+        );
+
+        count++;
+        if (count >= maxCount) {
+          shouldContinue = false;
+        }
+      }
+    } else {
       this.logger.warn(
         `No active esc pos printer found for chef order: ${chefOrder.slug}`,
       );
     }
 
-    const bitmapDataList: Buffer[] = [];
-    for (const chefOrderItem of chefOrder.chefOrderItems) {
-      let data = await this.pdfService.generatePdfImage(
-        'chef-order-item-ticket-image',
-        {
-          productName:
-            chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
-          referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
-          note: chefOrderItem?.orderItem?.note ?? 'N/A',
-          variantName: chefOrderItem?.orderItem?.variant?.size?.name ?? 'N/A',
-          createdAt: chefOrder?.order?.createdAt ?? 'N/A',
-        },
-        {
-          type: 'png',
-          omitBackground: false,
-        },
-      );
-      const bitmapData = await this.convertImageToBitmap(data);
-      data = null;
-      bitmapDataList.push(bitmapData);
-    }
-
-    let shouldContinue = true;
-    let count = 0;
-
-    while (shouldContinue) {
-      for (const printer of tsplZplPrinters) {
-        await this.printerUtils.printChefOrderItemTicket(
-          printer.ip,
-          printer.port,
-          bitmapDataList,
-        );
-      }
-      for (const printer of escPosPrinters) {
-        await this.printerUtils.printChefOrder(
-          printer.ip,
-          printer.port,
-          chefOrder,
-        );
-      }
-
-      count++;
-      if (count >= maxCount) {
-        shouldContinue = false;
-      }
-    }
     this.logger.log(
-      `Printed ${count} times for chef order: ${chefOrder.slug}`,
+      `Printed ${maxCount} times for chef order: ${chefOrder.slug}`,
       context,
     );
   }
