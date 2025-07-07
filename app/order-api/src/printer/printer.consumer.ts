@@ -9,6 +9,8 @@ import { PrinterManager } from './printer.manager';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import PrinterValidation from './printer.validation';
 import { PrinterException } from './printer.exception';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
 
 @Processor(QueueRegisterKey.PRINTER)
 @Injectable()
@@ -18,8 +20,17 @@ export class PrinterConsumer extends WorkerHost {
     private readonly printerManager: PrinterManager,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    private readonly systemConfigService: SystemConfigService,
   ) {
     super();
+  }
+
+  async getPrinterDelayTime() {
+    const delayTime = await this.systemConfigService.get(
+      SystemConfigKey.PRINTER_DELAY_TIME,
+    );
+
+    return delayTime ? parseInt(delayTime) : 1000;
   }
 
   async process(data: BullJob<CreatePrintJobRequestDto>): Promise<any> {
@@ -53,6 +64,11 @@ export class PrinterConsumer extends WorkerHost {
           bitmapDataList,
         );
       }
+
+      const delay = await this.getPrinterDelayTime();
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      this.logger.log(`Printer job completed after delay ${delay}ms`, context);
     } catch (error) {
       this.logger.error(`Error printing job ${jobType}`, error.stack, context);
       throw new PrinterException(PrinterValidation.ERROR_PRINTING_JOB);
