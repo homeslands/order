@@ -44,7 +44,8 @@
     "aboutUs": "About Us",
     "policy": "Policy",
     "securityTerm": "Security Term",
-    "giftCard": "Gift Card"
+    "giftCard": "Gift Card",
+    "useGiftCard": "Use Gift Card"
   },
   "footer": {
     "quickLink": "Quick Link",

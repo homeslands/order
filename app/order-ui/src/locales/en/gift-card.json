@@ -126,7 +126,15 @@
 
         "loginRequired": "Login to view the list of gift cards.",
         "receiverName": "Receiver Name",
-        "phoneNumberNotFound": "Phone number not found"
+        "phoneNumberNotFound": "Phone number not found",
+
+        "useGiftCard": "Use Gift Card",
+        "enterGiftCardDetails": "Enter your gift card serial and code to redeem points",
+        "giftCardSerial": "Gift Card Serial",
+        "enterSerial": "Enter serial number",
+        "enterCode": "Enter code",
+        "enterGiftCard": "Enter gift card information to redeem points",
+        "giftCardCode": "Gift Card Code"
     },
     "schema": {
         "title": {
