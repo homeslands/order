@@ -78,17 +78,17 @@ export default function CustomerOrderTabsContent({
                   <div className="flex flex-col divide-y">
                     {orderItems.map((product) => (
                       <div key={product.slug} className="grid grid-cols-12 gap-2 py-4">
-                        <div className="relative col-span-3">
+                        <div className="relative col-span-3 sm:col-span-2">
                           <img
                             src={`${publicFileURL}/${product.variant.product.image}`}
                             alt={product.variant.product.name}
                             className="object-cover h-16 rounded-md sm:h-28 sm:w-36"
                           />
-                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -right-2 -bottom-2 sm:-right-4 lg:right-4 xl:-right-3 lg:w-8 lg:h-8 bg-primary">
+                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full sm:text-sm -right-2 -bottom-2 sm:-right-4 lg:right-4 xl:-right-4 sm:w-10 sm:h-10 bg-primary">
                             x{product.quantity}
                           </div>
                         </div>
-                        <div className="flex flex-col justify-between col-span-9">
+                        <div className="flex flex-col justify-between col-span-9 sm:col-span-10">
                           <div className='flex flex-col gap-1'>
                             <span className="flex flex-col gap-1 text-sm font-semibold truncate sm:flex-row sm:text-base">
                               {product.variant.product.name} <Badge variant='outline' className='text-xs w-fit border-primary text-primary bg-primary/10'>{capitalizeFirstLetter(product.variant.size.name)}</Badge>
