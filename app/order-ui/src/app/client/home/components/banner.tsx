@@ -50,13 +50,13 @@ export default function SwiperBanner({
             : LandingPageBackground
 
         return (
-          <SwiperSlide key={index} className="flex justify-center items-center bg-black">
-            <div className="relative w-full h-[50vh] sm:h-full flex items-center justify-center overflow-hidden">
+          <SwiperSlide key={index} className="flex items-center justify-center bg-black">
+            <div className="relative w-full h-[60vh] sm:h-full flex items-center justify-center overflow-hidden">
               {/* Ảnh nền mờ + scale */}
               <img
                 src={bgImage}
                 alt="blurred background"
-                className="object-cover absolute top-0 left-0 w-full h-full blur-md scale-110"
+                className="absolute top-0 left-0 object-cover w-full h-full scale-110 blur-md"
                 aria-hidden="true"
               />
 

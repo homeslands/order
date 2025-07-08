@@ -13,6 +13,7 @@
     "isActive": "Status",
     "active": "Active",
     "inactive": "Inactive",
+    "image": "Image",
     "isActiveDescription": "(Once enabled, the banner will be displayed on the website)",
     "noData": "No data available",
     "create": "Create New",
