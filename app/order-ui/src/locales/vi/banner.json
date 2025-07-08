@@ -13,6 +13,7 @@
     "isActive": "Trạng thái",
     "active": "Đang hoạt động",
     "inactive": "Không hoạt động",
+    "image": "Ảnh",
     "isActiveDescription": "(Sau khi bật, banner sẽ hiển thị trên trang web)",
     "noData": "Không có dữ liệu",
     "create": "Tạo mới",
