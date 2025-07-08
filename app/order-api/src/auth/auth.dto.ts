@@ -12,7 +12,7 @@ import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
 
 export class LoginAuthRequestDto {
-  @ApiProperty({ example: '08123456789' })
+  @ApiProperty({ example: '0376295216' })
   @IsNotEmpty({ message: INVALID_PHONENUMBER })
   @AutoMap()
   phonenumber: string;
