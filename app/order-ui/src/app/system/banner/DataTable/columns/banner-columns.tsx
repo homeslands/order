@@ -14,6 +14,7 @@ import {
 import { IBanner } from '@/types'
 import { DeleteBannerDialog, UploadBannerBannerDialog } from '@/components/app/dialog'
 import UpdateBannerDialog from '@/components/app/dialog/update-banner-dialog'
+import { publicFileURL } from '@/constants'
 
 export const useBannerColumns = (): ColumnDef<IBanner>[] => {
   const { t } = useTranslation(['banner'])
@@ -59,16 +60,16 @@ export const useBannerColumns = (): ColumnDef<IBanner>[] => {
         return isActive === true ? <span className='italic text-green-500'>{t('banner.active')}</span> : <span className='italic text-destructive'>{t('banner.inactive')}</span>
       },
     },
-    // {
-    //   accessorKey: 'content',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('banner.content')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const content = row.getValue('content')
-    //     return content !== null && content !== undefined ? content : tCommon('banner.noData')
-    //   },
-    // },
+    {
+      accessorKey: 'image',
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('banner.image')} />,
+      cell: ({ row }) => {
+        const image = row.getValue('image') ? `${publicFileURL}/${row.getValue('image')}` : ''
+        return (
+          <img src={image} alt={row.getValue('image')} className="object-cover rounded-md w-36 h-28" />
+        )
+      }
+    },
     {
       id: 'actions',
       header: tCommon('common.action'),
