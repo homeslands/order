@@ -268,6 +268,7 @@
     "userInfo": "Thông tin khách hàng",
     "title": "Phương thức thanh toán",
     "cash": "Thanh toán bằng tiền mặt",
+    "coin": "Thanh toán bằng xu",
     "status": "Trạng thái",
     "bankTransfer": "Chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
