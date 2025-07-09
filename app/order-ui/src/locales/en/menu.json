@@ -254,6 +254,7 @@
     "userInfo": "Customer information",
     "title": "Payment method",
     "cash": "Cash payment",
+    "coin": "Coin payment",
     "bankTransfer": "Bank transfer",
     "confirmPayment": "Make payment",
     "phoneNumber": "Phone number",
