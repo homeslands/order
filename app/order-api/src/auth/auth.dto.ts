@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import {
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
@@ -10,10 +10,14 @@ import {
 import { AutoMap } from '@automapper/classes';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+import { PHONE_NUMBER_REGEX } from './constants';
+
+
 
 export class LoginAuthRequestDto {
   @ApiProperty({ example: '0376295216' })
   @IsNotEmpty({ message: INVALID_PHONENUMBER })
+  @Matches(PHONE_NUMBER_REGEX, { message: 'Phone number must be a valid Vietnamese phone number' })
   @AutoMap()
   phonenumber: string;
 
@@ -24,6 +28,7 @@ export class LoginAuthRequestDto {
   @AutoMap()
   password: string;
 }
+
 export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @ApiProperty({ example: 'John' })
   // @IsNotEmpty({ message: INVALID_FIRSTNAME })
@@ -37,9 +42,9 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @AutoMap()
   lastName?: string;
 
-  @ApiProperty()
-  // @IsNotEmpty({ message: INVALID_EMAIL })
+  @ApiProperty({ example: 'john.doe@example.com' })
   @IsOptional()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   @AutoMap()
   email?: string;
 }
@@ -74,6 +79,7 @@ export class ForgotPasswordTokenRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsNotEmpty()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   email: string;
 }
 
@@ -105,14 +111,17 @@ export class InitiateVerifyEmailRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   email: string;
 }
+
 export class VerifyEmailResponseDto {
   @ApiProperty()
   @AutoMap()
   @IsDate()
   expiresAt: Date;
 }
+
 export class ConfirmEmailVerificationCodeRequestDto {
   @ApiProperty()
   @AutoMap()
@@ -140,6 +149,7 @@ export class UpdateAuthProfileRequestDto {
   @ApiProperty({ example: 'johndoe@gmail.com' })
   @AutoMap()
   @IsOptional()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   readonly email?: string;
 
   @ApiProperty({ example: 'Jl. Raya' })
@@ -198,10 +208,9 @@ export class AuthProfileResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  isVerifiedPhonenumber: boolean;
+  isActive: boolean;
 }
 
-// PickType: Get the fields from AuthProfileResponseDto
 export class RegisterAuthResponseDto {
   @ApiProperty()
   @AutoMap()
