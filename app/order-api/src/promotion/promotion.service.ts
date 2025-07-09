@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Promotion } from './promotion.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -9,6 +9,7 @@ import {
   CreatePromotionRequestDto,
   PromotionResponseDto,
   UpdatePromotionRequestDto,
+  GetAllPromotionRequestDto,
 } from './promotion.dto';
 import { Branch } from 'src/branch/branch.entity';
 import { BranchException } from 'src/branch/branch.exception';
@@ -19,6 +20,7 @@ import * as _ from 'lodash';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
 import { ApplicablePromotionService } from 'src/applicable-promotion/applicable-promotion.service';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class PromotionService {
@@ -102,25 +104,54 @@ export class PromotionService {
   }
 
   /**
-   * Get all promotions
-   * @param {string} branchSlug The branch slug
-   * @returns {Promise<PromotionResponseDto[]>} The promotion response dto array
+   * Get all promotions with pagination
+   * @param {GetAllPromotionRequestDto} query The query parameters
+   * @returns {Promise<AppPaginatedResponseDto<PromotionResponseDto>>} The paginated promotion response dto
    * @throws {BranchException} If the branch is not found
    */
-  async getAllPromotions(branchSlug: string): Promise<PromotionResponseDto[]> {
+  async getAllPromotions(
+    query: GetAllPromotionRequestDto,
+  ): Promise<AppPaginatedResponseDto<PromotionResponseDto>> {
     const context = `${PromotionService.name}.${this.getAllPromotions.name}`;
 
-    const branch = await this.branchRepository.findOneBy({ slug: branchSlug });
+    const branch = await this.branchRepository.findOneBy({ slug: query.branchSlug });
     if (!branch) {
       this.logger.warn(BranchValidation.BRANCH_NOT_FOUND.message, context);
       throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
     }
 
-    const promotions = await this.promotionRepository.find({
-      where: {
-        branch: { slug: branchSlug },
-      },
-    });
+    // Construct where options
+    const whereOptions: FindOptionsWhere<Promotion> = {
+      branch: { slug: query.branchSlug },
+    };
+
+    if (query.type) {
+      whereOptions.type = query.type;
+    }
+
+    // Construct find many options
+    const findManyOptions: FindManyOptions<Promotion> = {
+      where: whereOptions,
+      relations: ['branch'],
+      order: { createdAt: 'DESC' },
+    };
+
+    if (query.hasPaging) {
+      Object.assign(findManyOptions, {
+        skip: (query.page - 1) * query.size,
+        take: query.size,
+      });
+    }
+
+    // Execute query
+    const [promotions, total] = await this.promotionRepository.findAndCount(findManyOptions);
+
+    // Calculate pagination metadata
+    const page = query.hasPaging ? query.page : 1;
+    const pageSize = query.hasPaging ? query.size : total;
+    const totalPages = Math.ceil(total / pageSize);
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
 
     const promotionDtos = this.mapper.mapArray(
       promotions,
@@ -128,7 +159,15 @@ export class PromotionService {
       PromotionResponseDto,
     );
 
-    return promotionDtos;
+    return {
+      hasNext,
+      hasPrevios: hasPrevious,
+      items: promotionDtos,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    } as AppPaginatedResponseDto<PromotionResponseDto>;
   }
 
   /**
