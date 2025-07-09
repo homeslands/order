@@ -40,7 +40,7 @@ export class VoucherController {
   constructor(private readonly voucherService: VoucherService) {}
 
   @Post()
-  // @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create voucher' })
   @ApiResponseWithType({
