@@ -52,7 +52,7 @@ export class CardOrderService {
     private readonly gcService: GiftCardService,
     private readonly ptService: PointTransactionService,
     private readonly balanceService: BalanceService,
-  ) { }
+  ) {}
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -350,7 +350,6 @@ export class CardOrderService {
 
     switch (databaseEntity.type) {
       case CardOrderType.GIFT:
-        console.log({ databaseEntity })
         for (const item of databaseEntity.receipients) {
           const { recipientSlug, quantity } = item;
           let totalAmount = 0;
@@ -447,7 +446,7 @@ export class CardOrderService {
       where: {
         slug: payload.orderSlug,
       },
-      relations: ['payment', "receipients"],
+      relations: ['payment', 'receipients'],
     });
 
     if (!order) {
