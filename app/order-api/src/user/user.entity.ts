@@ -10,6 +10,7 @@ import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
 import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
+import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -75,12 +76,18 @@ export class User extends Base {
   @AutoMap()
   isVerifiedEmail: boolean;
 
+  @OneToMany(() => VerifyEmailToken, (token) => token.user)
+  verifyEmailTokens: VerifyEmailToken[];
+
   @Column({ name: 'is_verified_phonenumber_column', default: false })
   @AutoMap()
   isVerifiedPhonenumber: boolean;
 
-  @OneToMany(() => VerifyEmailToken, (token) => token.user)
-  verifyEmailTokens: VerifyEmailToken[];
+  @OneToMany(
+    () => VerifyPhoneNumberToken,
+    (verifyPhoneNumberToken) => verifyPhoneNumberToken.user,
+  )
+  verifyPhoneNumberTokens: VerifyPhoneNumberToken[];
 
   @OneToMany(() => CardOrder, (cardOrder) => cardOrder.customer, {
     onDelete: 'SET NULL',
