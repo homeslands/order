@@ -123,7 +123,19 @@ export class VerifyEmailResponseDto {
   @IsDate()
   expiresAt: Date;
 }
+export class VerifyPhoneNumberResponseDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsDate()
+  expiresAt: Date;
+}
 export class ConfirmEmailVerificationCodeRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsString()
+  code: string;
+}
+export class ConfirmPhoneNumberVerificationCodeRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()

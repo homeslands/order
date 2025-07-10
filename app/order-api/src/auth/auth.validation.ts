@@ -29,6 +29,20 @@ export const ERROR_UPDATE_PASSWORD = 'ERROR_UPDATE_PASSWORD';
 export const ERROR_CREATE_FORGOT_PASSWORD_TOKEN =
   'ERROR_CREATE_FORGOT_PASSWORD_TOKEN';
 export const USER_ALREADY_VERIFIED_EMAIL = 'USER_ALREADY_VERIFIED_EMAIL';
+export const USER_ALREADY_VERIFIED_PHONENUMBER =
+  'USER_ALREADY_VERIFIED_PHONENUMBER';
+export const VERIFY_PHONE_NUMBER_TOKEN_ALREADY_EXISTS =
+  'VERIFY_PHONE_NUMBER_TOKEN_ALREADY_EXISTS';
+export const ERROR_CREATE_VERIFY_PHONE_NUMBER_TOKEN =
+  'ERROR_CREATE_VERIFY_PHONE_NUMBER_TOKEN';
+export const ERROR_CREATE_VERIFY_EMAIL_TOKEN =
+  'ERROR_CREATE_VERIFY_EMAIL_TOKEN';
+export const VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND =
+  'VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND';
+export const VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED =
+  'VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED';
+export const CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR =
+  'CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR';
 
 export type TAuthErrorCodeKey =
   | typeof INVALID_PHONENUMBER
@@ -56,7 +70,14 @@ export type TAuthErrorCodeKey =
   | typeof ERROR_UPDATE_PASSWORD
   | typeof ERROR_CREATE_FORGOT_PASSWORD_TOKEN
   | typeof INVALID_FIRSTNAME
-  | typeof USER_ALREADY_VERIFIED_EMAIL;
+  | typeof USER_ALREADY_VERIFIED_EMAIL
+  | typeof USER_ALREADY_VERIFIED_PHONENUMBER
+  | typeof VERIFY_PHONE_NUMBER_TOKEN_ALREADY_EXISTS
+  | typeof ERROR_CREATE_VERIFY_PHONE_NUMBER_TOKEN
+  | typeof ERROR_CREATE_VERIFY_EMAIL_TOKEN
+  | typeof VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND
+  | typeof VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED
+  | typeof CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR;
 
 export type TAuthErrorCode = Record<TAuthErrorCodeKey, TErrorCodeValue>;
 
@@ -111,5 +132,33 @@ export const AuthValidation: TAuthErrorCode = {
   USER_ALREADY_VERIFIED_EMAIL: createErrorCode(
     119025,
     'User already verified email',
+  ),
+  USER_ALREADY_VERIFIED_PHONENUMBER: createErrorCode(
+    119026,
+    'User already verified phone number',
+  ),
+  VERIFY_PHONE_NUMBER_TOKEN_ALREADY_EXISTS: createErrorCode(
+    119027,
+    'Verify phone number token already exists',
+  ),
+  ERROR_CREATE_VERIFY_PHONE_NUMBER_TOKEN: createErrorCode(
+    119028,
+    'Error when creating verify phone number token',
+  ),
+  ERROR_CREATE_VERIFY_EMAIL_TOKEN: createErrorCode(
+    119029,
+    'Error when creating verify email token',
+  ),
+  VERIFY_PHONE_NUMBER_TOKEN_NOT_FOUND: createErrorCode(
+    119030,
+    'Verify phone number token not found',
+  ),
+  VERIFY_PHONE_NUMBER_TOKEN_IS_EXPIRED: createErrorCode(
+    119031,
+    'Verify phone number token is expired',
+  ),
+  CONFIRM_PHONE_NUMBER_VERIFICATION_ERROR: createErrorCode(
+    119032,
+    'Error when confirm phone number verification',
   ),
 };

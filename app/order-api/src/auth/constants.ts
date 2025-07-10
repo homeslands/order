@@ -5,3 +5,12 @@ export const jwtConstants = {
 
 // Vietnamese phone number regex pattern
 export const VIETNAMESE_PHONE_REGEX = /^(0[3|5|7|8|9][0-9]{8})$/;
+export enum AccountVerificationType {
+  MAIL = 'mail',
+  PHONE_NUMBER = 'phone-number',
+}
+
+export enum AccountVerificationStatus {
+  VERIFIED = 'verified',
+  UNVERIFIED = 'unverified',
+}

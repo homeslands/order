@@ -26,6 +26,8 @@ import {
   InitiateVerifyEmailRequestDto,
   ConfirmEmailVerificationCodeRequestDto,
   VerifyEmailResponseDto,
+  VerifyPhoneNumberResponseDto,
+  ConfirmPhoneNumberVerificationCodeRequestDto,
 } from './auth.dto';
 import {
   ApiBearerAuth,
@@ -105,7 +107,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Initiate verify email' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: String,
+    type: VerifyEmailResponseDto,
     description: 'Initiate verify email successful',
   })
   async initiateVerifyEmail(
@@ -133,7 +135,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Resend verify email' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiResponseWithType({
-    type: String,
+    type: VerifyEmailResponseDto,
     description: 'Resend verify email code successful',
   })
   async resendVerifyEmailCode(
@@ -170,6 +172,78 @@ export class AuthController {
       statusCode: HttpStatus.CREATED,
       timestamp: new Date().toISOString(),
       result: 'Confirm email verification successful',
+    } as AppResponseDto<string>;
+    return response;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('initiate-verify-phone-number')
+  @ApiOperation({ summary: 'Initiate verify phone number' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: VerifyPhoneNumberResponseDto,
+    description: 'Initiate verify phone number successful',
+  })
+  async initiateVerifyPhoneNumber(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
+  ) {
+    const result = await this.authService.initiateVerifyPhoneNumber(user);
+    const response = {
+      message: 'Initiate verify phone number successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<VerifyPhoneNumberResponseDto>;
+    return response;
+  }
+
+  @Throttle({ default: { limit: 2, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-verify-phone-number')
+  @ApiOperation({ summary: 'Resend verify phone number' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: VerifyPhoneNumberResponseDto,
+    description: 'Resend verify phone number code successful',
+  })
+  async resendVerifyPhoneNumberCode(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
+  ) {
+    const result = await this.authService.resendVerifyPhoneNumberCode(user);
+    const response = {
+      message: 'Resend verify phone number code successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<VerifyPhoneNumberResponseDto>;
+    return response;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('confirm-phone-number-verification/code')
+  @ApiOperation({ summary: 'Confirm phone number verification' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+  @ApiResponseWithType({
+    type: String,
+    description: 'Confirm phone number verification successful',
+  })
+  async confirmVerifyPhoneNumberCode(
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ConfirmPhoneNumberVerificationCodeRequestDto,
+  ) {
+    await this.authService.confirmPhoneNumberVerificationCode(
+      user,
+      requestData,
+    );
+    const response = {
+      message: 'Confirm phone number verification successful',
+      statusCode: HttpStatus.CREATED,
+      timestamp: new Date().toISOString(),
+      result: 'Confirm phone number verification successful',
     } as AppResponseDto<string>;
     return response;
   }
