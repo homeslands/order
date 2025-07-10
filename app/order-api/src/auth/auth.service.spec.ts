@@ -45,6 +45,10 @@ import { AuthUtils } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
+import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-connector.entity';
+import { ZaloOaConnectorClient } from 'src/zalo-oa-connector/zalo-oa-connector.client';
+import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -65,6 +69,23 @@ describe('AuthService', () => {
         TransactionManagerService,
         AuthUtils,
         UserUtils,
+        ZaloOaConnectorClient,
+        HttpService,
+        {
+          provide: getRepositoryToken(ZaloOaConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VerifyPhoneNumberToken),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         { provide: DataSource, useFactory: dataSourceMockFactory },
         MailProducer,
         {
@@ -382,6 +403,7 @@ describe('AuthService', () => {
       isVerifiedEmail: false,
       isVerifiedPhonenumber: false,
       verifyEmailTokens: [],
+      verifyPhoneNumberTokens: [],
       customerCardOrders: [],
       cashierCardOrders: [],
       recipientCardOrders: [],
@@ -481,6 +503,7 @@ describe('AuthService', () => {
       recipientCardOrders: [],
       senderCardOrders: [],
       pointTransactions: [],
+      verifyPhoneNumberTokens: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -573,6 +596,7 @@ describe('AuthService', () => {
       recipientCardOrders: [],
       senderCardOrders: [],
       pointTransactions: [],
+      verifyPhoneNumberTokens: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {
