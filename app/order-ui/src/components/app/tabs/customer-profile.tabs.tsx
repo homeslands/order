@@ -27,7 +27,7 @@ export function CustomerProfileTabs() {
 
   return (
     <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-2 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0">
+      <TabsList className="grid grid-cols-2 gap-3 mb-6 border-b sm:grid-cols-6 lg:mb-0 h-full">
         <TabsTrigger value="info" className="flex justify-center">
           {t('profile.generalInfo')}
         </TabsTrigger>
