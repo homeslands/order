@@ -40,6 +40,7 @@ import { VariantValidation } from 'src/variant/variant.validation';
 import { VoucherProductValidation } from 'src/voucher-product/voucher-product.validation';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
 import { WorkflowValidation } from 'src/workflow/workflow.validation';
+import { ZaloOaConnectorValidation } from 'src/zalo-oa-connector/zalo-oa-connector.validation';
 
 export type TErrorCodeValue = {
   code: number;
@@ -98,6 +99,7 @@ export const AppValidation: TErrorCode = {
   ...GiftCardValidation,
   ...BalanceValidation,
   ...PointTransactionValidation,
+  ...ZaloOaConnectorValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

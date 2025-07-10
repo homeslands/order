@@ -20,6 +20,9 @@ import { SystemConfigModule } from 'src/system-config/system-config.module';
 import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { DbModule } from 'src/db/db.module';
 import { AuthUtils } from './auth.utils';
+import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-connector.entity';
+import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entity';
+import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.module';
 
 @Module({
   imports: [
@@ -34,6 +37,8 @@ import { AuthUtils } from './auth.utils';
       ForgotPasswordToken,
       Role,
       VerifyEmailToken,
+      ZaloOaConnectorConfig,
+      VerifyPhoneNumberToken,
     ]),
     ConfigModule,
     FileModule,
@@ -41,6 +46,7 @@ import { AuthUtils } from './auth.utils';
     SystemConfigModule,
     DbModule,
     UserModule,
+    ZaloOaConnectorModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, AuthProfile, AuthUtils],
