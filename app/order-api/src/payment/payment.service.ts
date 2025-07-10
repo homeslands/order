@@ -81,6 +81,8 @@ export class PaymentService {
       relations: ['cardOrder'],
     });
 
+    this.logger.log(`Payment: ${JSON.stringify(payment)}`, context);
+
     if (!payment)
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
