@@ -381,7 +381,6 @@ export class CardOrderService {
           }
 
           // 4. Update recipient balance ONCE after all cards
-          totalAmount += databaseEntity.cardPoint;
           await this.balanceService.calcBalance({
             userSlug: recipientSlug,
             points: totalAmount,
@@ -418,7 +417,6 @@ export class CardOrderService {
         }
 
         // 4. Update recipient balance ONCE after all cards
-        totalAmount += databaseEntity.cardPoint;
         await this.balanceService.calcBalance({
           userSlug: databaseEntity.customerSlug,
           points: totalAmount,
@@ -449,7 +447,7 @@ export class CardOrderService {
       where: {
         slug: payload.orderSlug,
       },
-      relations: ['payment'],
+      relations: ['payment', 'receipients'],
     });
 
     if (!order) {
