@@ -24,6 +24,8 @@ interface ISimpleDatePickerProps {
     onChange: (date: string) => void
     disabledDates?: (date: Date) => boolean
     disableFutureDates?: boolean
+    minDate?: string 
+    maxDate?: string
 }
 
 // Utility to generate an array of years
@@ -40,6 +42,8 @@ export default function SimpleDatePicker({
     onChange,
     disabledDates,
     disableFutureDates,
+    minDate,
+    maxDate,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
     const [month, setMonth] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
@@ -88,6 +92,18 @@ export default function SimpleDatePicker({
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         if (disableFutureDates && date > today) return true
+
+        if (minDate) {
+            const minDateObj = moment(minDate, 'YYYY-MM-DD').toDate()
+            minDateObj.setHours(0, 0, 0, 0)
+            if (date < minDateObj) return true
+        }
+
+        if (maxDate) {
+            const maxDateObj = moment(maxDate, 'YYYY-MM-DD').toDate()
+            maxDateObj.setHours(0, 0, 0, 0)
+            if (date > maxDateObj) return true
+        }
 
         // Áp dụng các điều kiện disabled khác nếu có
         if (disabledDates) return disabledDates(date)
