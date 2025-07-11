@@ -59,7 +59,7 @@ export class PaymentService {
     private readonly userUtils: UserUtils,
     private readonly paymentUtils: PaymentUtils,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -81,23 +81,15 @@ export class PaymentService {
       relations: ['cardOrder'],
     });
 
-    this.logger.log(`Payment: ${JSON.stringify(payment)}`, context);
-
     if (!payment)
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
     payment.statusCode = PaymentStatus.COMPLETED;
     payment.message = 'Thanh toan thanh cong';
 
-    await this.transactionService.execute<Payment>(
+    const updated = await this.transactionService.execute<Payment>(
       async (manager) => {
-        const updated = await manager.save(payment);
-        if (updated.cardOrder) {
-          this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
-            orderSlug: updated.cardOrder?.slug,
-          });
-        }
-        return updated;
+        return await manager.save(payment);
       },
       (res) => {
         this.logger.log(`Payment ${res.slug} updated`, context);
@@ -111,6 +103,14 @@ export class PaymentService {
         throw new PaymentException(PaymentValidation.ERROR_WHEN_UPDATE_PAYEMNT);
       },
     );
+
+    this.logger.log(`Updated payment: ${JSON.stringify(updated)}`, context);
+
+    if (updated.cardOrder) {
+      this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
+        orderSlug: updated.cardOrder?.slug,
+      });
+    }
   }
 
   async exportPayment(slug: string) {
@@ -441,7 +441,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-            ACBConnectorTransactionStatus.COMPLETED
+          ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,
