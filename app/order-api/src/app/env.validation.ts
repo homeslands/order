@@ -73,6 +73,15 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   SESSION_SECRET: string;
+
+  @IsNotEmpty()
+  ZALO_OA_API_KEY: string;
+
+  @IsNotEmpty()
+  ZALO_OA_SECRET_KEY: string;
+
+  @IsNotEmpty()
+  ZALO_OA_ID: string;
 }
 
 export function validate(config: Record<string, unknown>) {

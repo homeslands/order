@@ -71,6 +71,11 @@ services:
 
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
       CARD_ORDER_PAYMENT_TIMEOUT: ${CARD_ORDER_PAYMENT_TIMEOUT}
+      
+      # ZaloOA
+      ZALO_OA_API_KEY: ${ZALO_OA_API_KEY}
+      ZALO_OA_SECRET_KEY: ${ZALO_OA_SECRET_KEY}
+      ZALO_OA_ID: ${ZALO_OA_ID}
 
       TZ: Asia/Ho_Chi_Minh
 
