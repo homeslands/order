@@ -321,6 +321,11 @@ export class AuthService {
       },
     });
 
+    if (user.isVerifiedEmail) {
+      this.logger.warn(`User ${user.id} already verified email`, context);
+      throw new AuthException(AuthValidation.USER_ALREADY_VERIFIED_EMAIL);
+    }
+
     const existingToken = await this.verifyEmailRepository.findOne({
       where: {
         user: {
@@ -469,6 +474,12 @@ export class AuthService {
         phonenumber: Not('default-customer'),
       },
     });
+
+    if (user.isVerifiedEmail) {
+      this.logger.warn(`User ${user.id} already verified email`, context);
+      throw new AuthException(AuthValidation.USER_ALREADY_VERIFIED_EMAIL);
+    }
+
     const existToken = await this.verifyEmailRepository.findOne({
       where: {
         token: requestData.code,
@@ -793,6 +804,15 @@ export class AuthService {
         phonenumber: Not('default-customer'),
       },
     });
+
+    if (user.isVerifiedPhonenumber) {
+      this.logger.warn(
+        `User ${user.id} already verified phone number`,
+        context,
+      );
+      throw new AuthException(AuthValidation.USER_ALREADY_VERIFIED_PHONENUMBER);
+    }
+
     const existToken = await this.verifyPhoneNumberRepository.findOne({
       where: {
         token: requestData.code,

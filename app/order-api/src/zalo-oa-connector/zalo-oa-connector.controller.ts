@@ -81,8 +81,11 @@ export class ZaloOaConnectorController {
     type: ZaloOaConnectorConfigResponseDto,
     isArray: true,
   })
-  @ApiOperation({ summary: 'Get all workflows' })
-  @ApiResponse({ status: 200, description: 'Get all workflows successfully' })
+  @ApiOperation({ summary: 'Get all zalo oa connector configs' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get all zalo oa connector configs successfully',
+  })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async getAllZaloOaConnectorConfigs() {
     const result =
