@@ -38,21 +38,29 @@
 
     <!-- Point transaction list -->
     <% pts.forEach(function(item) { %>
-      <table class="mt-4 min-w-full text-sm border-collapse table-auto">
+      <table class="mt-4 min-w-full text-sm border-collapse table-auto border border-black">
         <tbody>
           <tr class="border-t border-black">
-            <td class="py-2 text-left">
+            <td class="pl-2 text-left border-l border-r border-black">
+              Thời gian
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
+              <%= formatDate(item.createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black">
               Mã giao dịch
             </td>
-            <td class="py-2 text-xs font-bold text-right" colspan="4">
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
               <%= item.slug %>
             </td>
           </tr>
           <tr class="border-t border-black">
-            <td class="py-2 text-left">
+            <td class="pl-2 text-left border-l border-r border-black">
               Giao dịch:
             </td>
-            <td class="py-2 text-xs font-bold text-right" colspan="4">
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
               <% if (item.type==='in' ) { %>
                 <p>Nạp xu</p>
                 <% } else { %>
@@ -61,10 +69,10 @@
             </td>
           </tr>
           <tr class="border-t border-black">
-            <td class="py-2 text-left">
+            <td class="pl-2 text-left border-l border-r border-black">
               Xu
             </td>
-            <td class="py-2 text-xs font-bold text-right" colspan="4">
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
               <% if (item.type==='in' ) { %>
                 <p>+<%= formatCurrency(item.points) %>
                 </p>
@@ -72,24 +80,23 @@
                   <p>-<%= formatCurrency(item.points) %>
                   </p>
                   <% } %>
-
             </td>
           </tr>
           <% if (item.objectType==='order' ) { %>
             <tr class="border-t border-black">
-              <td class="py-2 text-left">
+              <td class="pl-2 text-left border-l border-r border-black">
                 Mã đơn hàng
               </td>
-              <td class="py-2 text-xs font-bold text-right" colspan="4">
+              <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
                 <%= item.objectSlug %>
               </td>
             </tr>
             <% } else { %>
               <tr class="border-t border-black">
-                <td class="py-2 text-left">
+                <td class="pl-2 text-left border-l border-r border-black">
                   Mã thẻ quà tặng
                 </td>
-                <td class="py-2 text-xs font-bold text-right" colspan="4">
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
                   <%= item.objectSlug %>
                 </td>
               </tr>
