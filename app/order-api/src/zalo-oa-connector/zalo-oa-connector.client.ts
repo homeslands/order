@@ -22,10 +22,16 @@ export class ZaloOaConnectorClient {
   ) {}
 
   async getZaloOaApiUrl() {
+    const context = `${ZaloOaConnectorClient.name}.${this.getZaloOaApiUrl.name}`;
     const zaloOaApiUrl = await this.systemConfigService.get(
       SystemConfigKey.ZALO_OA_API_URL,
     );
     if (!zaloOaApiUrl) {
+      this.logger.error(
+        `Zalo OA API URL not found for key ${SystemConfigKey.ZALO_OA_API_URL}`,
+        null,
+        context,
+      );
       throw new ZaloOaConnectorException(
         ZaloOaConnectorValidation.ZALO_OA_API_URL_NOT_FOUND,
       );
