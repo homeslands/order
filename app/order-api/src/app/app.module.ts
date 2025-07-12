@@ -67,6 +67,7 @@ import { VoucherGroupModule } from 'src/voucher-group/voucher-group.module';
 import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
 import { VoucherProductModule } from 'src/voucher-product/voucher-product.module';
 import { PrinterModule } from 'src/printer/printer.module';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -156,6 +157,7 @@ import { PrinterModule } from 'src/printer/printer.module';
     GiftCardModule,
     VoucherProductModule,
     PrinterModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [

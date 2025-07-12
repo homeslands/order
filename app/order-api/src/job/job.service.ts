@@ -9,13 +9,20 @@ import { NotificationUtils } from 'src/notification/notification.utils';
 import { OrderStatus } from 'src/order/order.constants';
 import { Order } from 'src/order/order.entity';
 import { OrderUtils } from 'src/order/order.utils';
-import { PaymentStatus } from 'src/payment/payment.constants';
+import { PaymentMethod, PaymentStatus } from 'src/payment/payment.constants';
 import { IsNull, Repository } from 'typeorm';
 import _ from 'lodash';
 import { Job } from './job.entity';
 import { JobStatus } from './job.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
+import {
+  PointTransactionObjectTypeEnum,
+  PointTransactionTypeEnum,
+} from 'src/gift-card-modules/point-transaction/entities/point-transaction.enum';
+import { CurrencyUtil } from 'src/shared/utils/currency.util';
+import { CreatePointTransactionDto } from 'src/gift-card-modules/point-transaction/dto/create-point-transaction.dto';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 
 @Injectable()
 export class JobService {
@@ -27,13 +34,11 @@ export class JobService {
     private readonly notificationUtils: NotificationUtils,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(CardOrder)
-    private readonly cardOrderRepository: Repository<CardOrder>,
-    @InjectRepository(Job)
-    private readonly jobRepository: Repository<Job>,
     private readonly transactionManagerService: TransactionManagerService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    private readonly sharedBalanceService: SharedBalanceService,
+    private readonly sharedPointTransactionService: SharedPointTransactionService,
   ) {}
 
   async updateOrderStatusAfterPaymentPaid(job: Job) {
@@ -99,6 +104,26 @@ export class JobService {
             return;
           },
         );
+
+        // Handle calc balance when use point payment method
+        if (order.payment?.paymentMethod === PaymentMethod.POINT) {
+          // TODO: Calc balance
+          await this.sharedBalanceService.calcBalance({
+            userSlug: order.owner?.slug,
+            points: order.payment.amount,
+            type: 'out',
+          });
+
+          // TODO: Create point transaction
+          await this.sharedPointTransactionService.create({
+            type: PointTransactionTypeEnum.OUT,
+            desc: `Su dung ${CurrencyUtil.formatCurrency(order.subtotal)} xu thanh toan don hang`,
+            objectType: PointTransactionObjectTypeEnum.ORDER,
+            objectSlug: order.slug,
+            points: order.payment?.amount,
+            userSlug: order.owner?.slug,
+          } as CreatePointTransactionDto);
+        }
 
         // Send notification to all chef role users in the same branch
         await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);

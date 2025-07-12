@@ -41,6 +41,7 @@ import { UserUtils } from 'src/user/user.utils';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { PaymentUtils } from './payment.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { PointStrategy } from './strategy/point.strategy';
 
 @Injectable()
 export class PaymentService {
@@ -53,6 +54,7 @@ export class PaymentService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly cashStrategy: CashStrategy,
+    private readonly pointStategy: PointStrategy,
     private readonly bankTransferStrategy: BankTransferStrategy,
     private readonly eventEmitter: EventEmitter2,
     private readonly pdfService: PdfService,
@@ -230,6 +232,9 @@ export class PaymentService {
           }
           payment = await this.bankTransferStrategy.process(order);
           break;
+        case PaymentMethod.POINT:
+          payment = await this.pointStategy.process(order);
+          break;
         default:
           this.logger.error('Customer only use bank transfer', null, context);
           throw new PaymentException(
@@ -283,7 +288,10 @@ export class PaymentService {
     order.payment = payment;
     await this.orderRepository.save(order);
 
-    if (payment.paymentMethod === PaymentMethod.CASH) {
+    if (
+      payment.paymentMethod === PaymentMethod.CASH ||
+      payment.paymentMethod === PaymentMethod.POINT
+    ) {
       // Update order status
       this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, { orderId: order.id });
     }
