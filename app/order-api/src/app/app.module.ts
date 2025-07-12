@@ -68,6 +68,7 @@ import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
 import { VoucherProductModule } from 'src/voucher-product/voucher-product.module';
 import { PrinterModule } from 'src/printer/printer.module';
 import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.module';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -158,6 +159,7 @@ import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.m
     VoucherProductModule,
     PrinterModule,
     ZaloOaConnectorModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [

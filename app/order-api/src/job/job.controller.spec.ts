@@ -42,6 +42,11 @@ import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
+import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -72,11 +77,25 @@ describe('JobController', () => {
         ConfigService,
         HttpService,
         SystemConfigService,
+        SharedBalanceService,
+        SharedPointTransactionService,
         {
           provide: EventEmitter2,
           useValue: {
             emit: jest.fn(), // Mock the emit method
           },
+        },
+        {
+          provide: getRepositoryToken(Balance),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PointTransaction),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(GiftCard),
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Payment),

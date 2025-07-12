@@ -4,12 +4,14 @@ export const ERROR_WHEN_CREATE_BALANCE = 'ERROR_WHEN_CREATE_BALANCE';
 export const BALANCE_NOT_FOUND = 'BALANCE_NOT_FOUND';
 export const ERROR_WHEN_UPDATE_BALANCE = 'ERROR_WHEN_UPDATE_BALANCE';
 export const ERROR_WHEN_REMOVE_BALANCE = 'ERROR_WHEN_REMOVE_BALANCE';
+export const INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE';
 
 export type TBalanceErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_BALANCE
   | typeof BALANCE_NOT_FOUND
   | typeof ERROR_WHEN_UPDATE_BALANCE
-  | typeof ERROR_WHEN_REMOVE_BALANCE;
+  | typeof ERROR_WHEN_REMOVE_BALANCE
+  | typeof INSUFFICIENT_BALANCE;
 
 // 158201- 158300
 export type TBalanceErrorCode = Record<TBalanceErrorCodeKey, TErrorCodeValue>;
@@ -28,4 +30,5 @@ export const BalanceValidation: TBalanceErrorCode = {
     158204,
     'Error when remove balance',
   ),
+  INSUFFICIENT_BALANCE: createErrorCode(158205, 'Insufficient balance'),
 };

@@ -25,6 +25,9 @@ import { PaymentUtils } from './payment.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { PointStrategy } from './strategy/point.strategy';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 describe('PaymentController', () => {
   let controller: PaymentController;
 
@@ -41,12 +44,14 @@ describe('PaymentController', () => {
         CashStrategy,
         BankTransferStrategy,
         InternalStrategy,
+        PointStrategy,
         ACBConnectorClient,
         HttpService,
         PdfService,
         SystemConfigService,
         UserUtils,
         PaymentUtils,
+        SharedBalanceService,
         {
           provide: 'AXIOS_INSTANCE_TOKEN',
           useValue: {
@@ -73,6 +78,10 @@ describe('PaymentController', () => {
         },
         {
           provide: getRepositoryToken(Payment),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Balance),
           useValue: repositoryMockFactory,
         },
         {

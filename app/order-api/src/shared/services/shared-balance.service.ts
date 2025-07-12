@@ -1,53 +1,29 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Balance } from './entities/balance.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindByFieldDto } from './dto/find-by-field.dto';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
-import { BalanceResponseDto } from './dto/balance-response.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { BalanceException } from './balance.exception';
-import { BalanceValidation } from './balance.validation';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { BalanceException } from 'src/gift-card-modules/balance/balance.exception';
+import { BalanceValidation } from 'src/gift-card-modules/balance/balance.validation';
 import { User } from 'src/user/user.entity';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
 
 @Injectable()
-export class BalanceService {
+export class SharedBalanceService {
   constructor(
     @InjectRepository(Balance)
     private balanceRepository: Repository<Balance>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectMapper()
-    private mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private transactionService: TransactionManagerService,
   ) {}
 
-  async findOneByField(payload: FindByFieldDto) {
-    const context = `${BalanceService.name}.${this.findOneByField.name}`;
-    this.logger.debug(
-      `Finding balance by field: ${JSON.stringify(payload)}`,
-      context,
-    );
-
-    const where: FindOptionsWhere<Balance> = {};
-    if (payload.slug) where.slug = payload.slug;
-    if (payload.userSlug) where.user = { slug: payload.userSlug };
-
-    const balance = await this.balanceRepository.findOne({ where: where });
-    if (!balance)
-      throw new BalanceException(BalanceValidation.BALANCE_NOT_FOUND);
-
-    return this.mapper.map(balance, Balance, BalanceResponseDto);
-  }
-
   async create(payload: { userSlug: string }) {
-    const context = `${BalanceService.name}.${this.create.name}`;
+    const context = `${SharedBalanceService.name}.${this.create.name}`;
     this.logger.log(
       `Creating balance req: ${JSON.stringify(payload)}`,
       context,
@@ -77,12 +53,39 @@ export class BalanceService {
     );
   }
 
+  async validate(payload: { userSlug: string; points: number }) {
+    const context = `${SharedBalanceService.name}.${this.validate.name}`;
+    this.logger.log(
+      `Validate balance req: ${JSON.stringify(payload)}`,
+      context,
+    );
+
+    let balance = await this.balanceRepository.findOne({
+      where: {
+        user: {
+          slug: payload.userSlug,
+        },
+      },
+    });
+    if (!balance) {
+      balance = await this.create({ userSlug: payload.userSlug });
+    }
+
+    const newPointsValue = balance.points - payload.points;
+
+    if (newPointsValue < 0) {
+      throw new BalanceException(BalanceValidation.INSUFFICIENT_BALANCE);
+    }
+
+    return true;
+  }
+
   async calcBalance(payload: {
     userSlug: string;
     points: number;
     type: 'in' | 'out';
   }) {
-    const context = `${BalanceService.name}.${this.calcBalance.name}`;
+    const context = `${SharedBalanceService.name}.${this.calcBalance.name}`;
     this.logger.log(`Calc balance req: ${JSON.stringify(payload)}`, context);
 
     let balance = await this.balanceRepository.findOne({
@@ -125,32 +128,5 @@ export class BalanceService {
         );
       },
     );
-  }
-
-  async validate(payload: { userSlug: string; points: number }) {
-    const context = `${BalanceService.name}.${this.validate.name}`;
-    this.logger.log(
-      `Validate balance req: ${JSON.stringify(payload)}`,
-      context,
-    );
-
-    let balance = await this.balanceRepository.findOne({
-      where: {
-        user: {
-          slug: payload.userSlug,
-        },
-      },
-    });
-    if (!balance) {
-      balance = await this.create({ userSlug: payload.userSlug });
-    }
-
-    const newPointsValue = balance.points - payload.points;
-
-    if (newPointsValue < 0) {
-      throw new BalanceException(BalanceValidation.INSUFFICIENT_BALANCE);
-    }
-
-    return true;
   }
 }

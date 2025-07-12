@@ -24,6 +24,9 @@ import { PaymentUtils } from './payment.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { PointStrategy } from './strategy/point.strategy';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 describe('PaymentService', () => {
   let service: PaymentService;
 
@@ -35,12 +38,14 @@ describe('PaymentService', () => {
         BankTransferStrategy,
         InternalStrategy,
         ACBConnectorClient,
+        PointStrategy,
         HttpService,
         PdfService,
         SystemConfigService,
         UserUtils,
         PaymentUtils,
         TransactionManagerService,
+        SharedBalanceService,
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
@@ -71,6 +76,10 @@ describe('PaymentService', () => {
         },
         {
           provide: getRepositoryToken(Order),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Balance),
           useValue: repositoryMockFactory,
         },
         {

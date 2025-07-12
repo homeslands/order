@@ -15,6 +15,8 @@ import { UserUtils } from 'src/user/user.utils';
 import { User } from 'src/user/user.entity';
 import { PaymentUtils } from './payment.utils';
 import { DbModule } from 'src/db/db.module';
+import { PointStrategy } from './strategy/point.strategy';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { DbModule } from 'src/db/db.module';
     ACBConnectorModule,
     PdfModule,
     DbModule,
+    SharedModule,
   ],
   controllers: [PaymentController],
   providers: [
@@ -30,6 +33,7 @@ import { DbModule } from 'src/db/db.module';
     BankTransferStrategy,
     CashStrategy,
     InternalStrategy,
+    PointStrategy,
     UserUtils,
     PaymentUtils,
   ],

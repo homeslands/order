@@ -35,6 +35,7 @@ import { Payment } from 'src/payment/payment.entity';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
     MailModule,
     NotificationModule,
     ACBConnectorModule,
+    SharedModule,
   ],
   controllers: [JobController],
   providers: [
