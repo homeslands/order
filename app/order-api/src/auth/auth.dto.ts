@@ -1,19 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsEmail, Matches } from 'class-validator';
 import {
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
   // INVALID_LASTNAME,
   INVALID_PASSWORD,
   INVALID_PHONENUMBER,
+  INVALID_EMAIL,
 } from './auth.validation';
 import { AutoMap } from '@automapper/classes';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+import { VIETNAMESE_PHONE_REGEX } from './constants';
 
 export class LoginAuthRequestDto {
   @ApiProperty({ example: '08123456789' })
   @IsNotEmpty({ message: INVALID_PHONENUMBER })
+  @Matches(VIETNAMESE_PHONE_REGEX, { message: 'Phone number must be a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, or 09)' })
   @AutoMap()
   phonenumber: string;
 
@@ -37,9 +40,9 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @AutoMap()
   lastName?: string;
 
-  @ApiProperty()
-  // @IsNotEmpty({ message: INVALID_EMAIL })
+  @ApiProperty({ example: 'johndoe@gmail.com' })
   @IsOptional()
+  @IsEmail({}, { message: INVALID_EMAIL })
   @AutoMap()
   email?: string;
 }
@@ -74,6 +77,7 @@ export class ForgotPasswordTokenRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsNotEmpty()
+  @IsEmail({}, { message: INVALID_EMAIL })
   email: string;
 }
 
@@ -105,6 +109,7 @@ export class InitiateVerifyEmailRequestDto {
   @ApiProperty()
   @AutoMap()
   @IsString()
+  @IsEmail({}, { message: INVALID_EMAIL })
   email: string;
 }
 export class VerifyEmailResponseDto {
@@ -140,6 +145,7 @@ export class UpdateAuthProfileRequestDto {
   @ApiProperty({ example: 'johndoe@gmail.com' })
   @AutoMap()
   @IsOptional()
+  @IsEmail({}, { message: INVALID_EMAIL })
   readonly email?: string;
 
   @ApiProperty({ example: 'Jl. Raya' })
