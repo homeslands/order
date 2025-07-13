@@ -354,7 +354,7 @@ export class CardOrderService {
           const { recipientSlug, quantity } = item;
           let totalAmount = 0;
           for (let i = 0; i < quantity; i++) {
-            // Gen
+            // 1. Gen
             const gc = await this.gcService.gen({
               cardOrderSlug: databaseEntity.slug,
               cardSlug: databaseEntity.cardSlug,
@@ -367,17 +367,18 @@ export class CardOrderService {
               userSlug: recipientSlug,
             } as UseGiftCardDto);
 
-            // 3. Create transaction record
-            await this.ptService.create({
-              type: PointTransactionTypeEnum.IN,
-              desc: `Nap the qua tang ${databaseEntity.cardPoint} xu`,
-              objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
-              objectSlug: gc.slug,
-              points: databaseEntity.cardPoint,
-              userSlug: recipientSlug,
-            } as CreatePointTransactionDto);
             totalAmount += databaseEntity.cardPoint;
           }
+
+          // 3. Create transaction record
+          await this.ptService.create({
+            type: PointTransactionTypeEnum.IN,
+            desc: `Nap the qua tang ${totalAmount} xu`,
+            objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
+            objectSlug: databaseEntity.slug,
+            points: totalAmount,
+            userSlug: recipientSlug,
+          } as CreatePointTransactionDto);
 
           // 4. Update recipient balance ONCE after all cards
           await this.balanceService.calcBalance({
@@ -390,7 +391,7 @@ export class CardOrderService {
       case CardOrderType.SELF:
         let totalAmount = 0;
         for (let i = 0; i < databaseEntity.quantity; i++) {
-          // Gen
+          // 1. Gen
           const gc = await this.gcService.gen({
             cardOrderSlug: databaseEntity.slug,
             cardSlug: databaseEntity.cardSlug,
@@ -403,17 +404,18 @@ export class CardOrderService {
             userSlug: databaseEntity.customerSlug,
           } as UseGiftCardDto);
 
-          // 3. Create transaction record
-          await this.ptService.create({
-            type: PointTransactionTypeEnum.IN,
-            desc: `Nap the qua tang ${databaseEntity.cardPoint} xu`,
-            objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
-            objectSlug: gc.slug,
-            points: databaseEntity.cardPoint,
-            userSlug: databaseEntity.customerSlug,
-          } as CreatePointTransactionDto);
           totalAmount += databaseEntity.cardPoint;
         }
+
+        // 3. Create transaction record
+        await this.ptService.create({
+          type: PointTransactionTypeEnum.IN,
+          desc: `Nap the qua tang ${totalAmount} xu`,
+          objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
+          objectSlug: databaseEntity.slug,
+          points: totalAmount,
+          userSlug: databaseEntity.customerSlug,
+        } as CreatePointTransactionDto);
 
         // 4. Update recipient balance ONCE after all cards
         await this.balanceService.calcBalance({

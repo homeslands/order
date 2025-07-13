@@ -16,6 +16,8 @@ export const INVALID_POINT_TRANSACTION_MIN_VALUE =
   'INVALID_POINT_TRANSACTION_MIN_VALUE';
 export const INVALID_IN_ORDER_TRANSACTION = 'INVALID_IN_ORDER_TRANSACTION';
 export const INVALID_OUT_ORDER_TRANSACTION = 'INVALID_OUT_ORDER_TRANSACTION';
+export const INVALID_OUT_CARD_ORDER_TRANSACTION =
+  'INVALID_OUT_CARD_ORDER_TRANSACTION';
 
 export type TPointTransactionErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_POINT_TRANSACTION
@@ -28,7 +30,8 @@ export type TPointTransactionErrorCodeKey =
   | typeof USER_NOT_FOUND
   | typeof INVALID_POINT_TRANSACTION_MIN_VALUE
   | typeof INVALID_IN_ORDER_TRANSACTION
-  | typeof INVALID_OUT_ORDER_TRANSACTION;
+  | typeof INVALID_OUT_ORDER_TRANSACTION
+  | typeof INVALID_OUT_CARD_ORDER_TRANSACTION;
 
 // 158501 - 158600
 export type TPointTransactionErrorCode = Record<
@@ -74,5 +77,9 @@ export const PointTransactionValidation: TPointTransactionErrorCode = {
   INVALID_OUT_ORDER_TRANSACTION: createErrorCode(
     158511,
     'Point type out is not valid when the object type is gift-card.',
+  ),
+  INVALID_OUT_CARD_ORDER_TRANSACTION: createErrorCode(
+    158512,
+    'Point type out is not valid when the object type is card-order.',
   ),
 };
