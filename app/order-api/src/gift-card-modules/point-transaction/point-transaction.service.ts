@@ -32,6 +32,7 @@ import { fileToBase64DataUri } from 'src/shared/utils/file.util';
 import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction.dto';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { CardOrder } from '../card-order/entities/card-order.entity';
 
 @Injectable()
 export class PointTransactionService {
@@ -41,6 +42,8 @@ export class PointTransactionService {
   constructor(
     @InjectRepository(PointTransaction)
     private ptRepository: Repository<PointTransaction>,
+    @InjectRepository(CardOrder)
+    private coRepository: Repository<CardOrder>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(GiftCard)
@@ -53,7 +56,7 @@ export class PointTransactionService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
     private readonly pdfService: PdfService,
-  ) {}
+  ) { }
 
   async exportAll(query: ExportAllPointTransactionDto) {
     const context = `${PointTransactionService.name}.${this.export.name}`;
@@ -184,7 +187,16 @@ export class PointTransactionService {
       );
     }
 
-    let objectRef: Order | GiftCard = null;
+    if (
+      payload.type === PointTransactionTypeEnum.OUT &&
+      payload.objectType === PointTransactionObjectTypeEnum.CARD_ORDER
+    ) {
+      throw new PointTransactionException(
+        PointTransactionValidation.INVALID_OUT_CARD_ORDER_TRANSACTION,
+      );
+    }
+
+    let objectRef: Order | GiftCard | CardOrder = null;
 
     switch (payload.objectType) {
       case PointTransactionObjectTypeEnum.ORDER:
@@ -194,6 +206,11 @@ export class PointTransactionService {
         break;
       case PointTransactionObjectTypeEnum.GIFT_CARD:
         objectRef = await this.gcRepository.findOne({
+          where: { slug: payload.objectSlug },
+        });
+        break;
+      case PointTransactionObjectTypeEnum.CARD_ORDER:
+        objectRef = await this.coRepository.findOne({
           where: { slug: payload.objectSlug },
         });
         break;
