@@ -60,6 +60,8 @@ export { default as CreateOrderDialog } from './create-order-dialog'
 export { default as UpdateOrderItemDialog } from './update-order-item-dialog'
 export { default as CancelOrderDialog } from './cancel-order-dialog'
 export { default as OutlineCancelOrderDialog } from './outline-cancel-order-dialog'
+export { default as ConfirmUpdateOrderDialog } from './confirm-update-order-dialog'
+export { default as ClientConfirmUpdateOrderDialog } from './client-confirm-update-order-dialog'
 
 export { default as ConfirmExportOrderInvoiceDialog } from './confirm-export-order-invoice-dialog'
 
