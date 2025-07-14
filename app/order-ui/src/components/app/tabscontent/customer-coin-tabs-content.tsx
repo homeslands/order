@@ -432,6 +432,7 @@ export function CustomerCoinTabsContent() {
                       onChange={(date) => setFromDate(date)}
                       disableFutureDates={true}
                       maxDate={toDate || undefined}
+                      allowEmpty={true}
                     />
                   </div>
 
@@ -445,6 +446,7 @@ export function CustomerCoinTabsContent() {
                       onChange={(date) => setToDate(date)}
                       disableFutureDates={true}
                       minDate={fromDate || undefined}
+                      allowEmpty={true}
                     />
                   </div>
 
