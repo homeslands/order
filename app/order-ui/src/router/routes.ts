@@ -155,7 +155,7 @@ export const sidebarRoutes: ISidebarRoute[] = [
   },
   {
     title: 'sidebar.clientView',
-    path: ROUTE.STAFF_CLIENT_VIEW,
+    path: ROUTE.STAFF_CUSTOMER_DISPLAY,
     icon: Users,
     permission: Permission.CLIENT_VIEW,
   },

@@ -3,6 +3,7 @@ import {
   IApiResponse,
   IApplyPromotionRequest,
   ICreatePromotionRequest,
+  IPaginationResponse,
   IPromotion,
   IRemoveAppliedPromotionRequest,
   IUpdatePromotionRequest,
@@ -10,8 +11,8 @@ import {
 
 export async function getPromotions(
   branchSlug: string,
-): Promise<IApiResponse<IPromotion[]>> {
-  const response = await http.get<IApiResponse<IPromotion[]>>('/promotion', {
+): Promise<IApiResponse<IPaginationResponse<IPromotion>>> {
+  const response = await http.get<IApiResponse<IPaginationResponse<IPromotion>>>('/promotion', {
     params: { branchSlug },
   })
   return response.data

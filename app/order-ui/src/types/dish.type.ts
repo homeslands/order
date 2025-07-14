@@ -1,4 +1,4 @@
-import { paymentStatus } from '@/constants'
+import { PaymentMethod, paymentStatus } from '@/constants'
 import { IBase } from './base.type'
 // import { ICatalog } from './catalog.type'
 import { IProduct, IProductVariant } from './product.type'
@@ -23,6 +23,13 @@ export interface IDish {
   calories: number
 }
 
+export interface IOrderPayment {
+  orderSlug?: string
+  paymentMethod?: PaymentMethod
+  qrCode?: string
+  paymentSlug?: string
+}
+
 export interface ICartItem {
   id: string
   slug: string
@@ -35,11 +42,12 @@ export interface ICartItem {
   orderItems: IOrderItem[]
   table?: string
   tableName?: string
-  voucher?: IVoucherInCart | null
+  voucher?: IVoucher | null
   note?: string
   approvalBy?: string
   description?: string
   paymentMethod?: string
+  payment?: IOrderPayment
 }
 
 export interface IVoucherInCart {
@@ -86,20 +94,28 @@ export interface IDisplayOrderItem extends IBase {
   voucherValue?: number
 }
 
+// UPDATE ORDER INTERFACES
+
 export interface IOrderToUpdate {
   id: string
   slug: string
+  productSlug: string
+  status: OrderStatus
   owner?: string
   ownerFullName?: string
   ownerPhoneNumber?: string
-  paymentMethod?: string
+  ownerRole?: string
   type: string
   // branch?: string
   orderItems: IOrderItem[]
   table?: string
+  voucher?: IVoucher | null
   tableName?: string
   note?: string
+  description?: string
   approvalBy?: string
+  paymentMethod?: string
+  payment?: IOrderPayment
 }
 
 export interface IOrderItem {
@@ -115,7 +131,7 @@ export interface IOrderItem {
   promotion?: string | null
   promotionDiscount?: number
   voucherDiscount?: number
-  price?: number // price after discount
+  productSlug?: string
   description: string
   isLimit: boolean
   // promotion?: string // promotion slug

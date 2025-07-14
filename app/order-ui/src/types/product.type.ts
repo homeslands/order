@@ -1,4 +1,4 @@
-import { IBase } from './base.type'
+// import { IBase } from './base.type'
 import { IBranch } from './branch.type'
 import { ICatalog } from './catalog.type'
 
@@ -94,14 +94,14 @@ export interface ICreateProductVariantRequest {
   product: string //Slug of the product
 }
 
-export interface IProductVariant extends IBase {
-  price: number
-  size: {
-    name: string
-    description: string
-    slug: string
-  }
-}
+// export interface IProductVariant extends IBase {
+//   price: number
+//   size: {
+//     name: string
+//     description: string
+//     slug: string
+//   }
+// }
 
 export interface IUpdateProductVariantRequest {
   price: number

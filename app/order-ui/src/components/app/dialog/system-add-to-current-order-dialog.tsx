@@ -1,7 +1,6 @@
+import moment from 'moment'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-// import { ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -20,11 +19,10 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types'
+import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
 import { publicFileURL } from '@/constants'
-import { formatCurrency } from '@/utils'
-import { useAddNewOrderItem } from '@/hooks'
-import { useQueryClient } from '@tanstack/react-query'
+import { formatCurrency, showToast } from '@/utils'
+import { useOrderFlowStore } from '@/stores'
 
 interface AddToCurrentOrderDialogProps {
   onSuccess?: () => void
@@ -33,40 +31,58 @@ interface AddToCurrentOrderDialogProps {
 }
 
 export default function SystemAddToCurrentOrderDialog({
-  onSuccess,
   product,
   trigger,
+  onSuccess,
 }: AddToCurrentOrderDialogProps) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
-  const { slug } = useParams()
+  const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  const { mutate: addNewMenuItem } = useAddNewOrderItem()
-  const queryClient = useQueryClient();
-  const handleAddToCart = () => {
+
+  const { addDraftItem, updatingData } = useOrderFlowStore()
+
+  const handleAddToCurrentOrder = () => {
     if (!selectedVariant) return
 
-    const orderItem: IAddNewOrderItemRequest = {
-      quantity: 1,
-      variant: selectedVariant.slug,
-      order: slug as string,
-      promotion: product.promotion ? product.promotion?.slug : '',
-      note: note,
+    const variant: IProductVariant = {
+      ...selectedVariant,
+      product: product.product,
     }
-    addNewMenuItem(orderItem, {
-      onSuccess: () => {
-        setIsOpen(false)
-        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
-        onSuccess?.()
-      },
-    })
+
+    const timestamp = moment().valueOf()
+
+    // Tạo IOrderItem để thêm vào draft
+    const orderItem: IOrderItem = {
+      id: `item_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product.slug,
+      productSlug: product.product.slug,
+      image: product.product.image,
+      name: product.product.name,
+      quantity: 1,
+      size: selectedVariant.size.name,
+      allVariants: product.product.variants,
+      variant: variant,
+      originalPrice: selectedVariant.price,
+      promotion: product.promotion ? product.promotion.slug : null,
+      promotionValue: product.promotion ? product.promotion.value : 0,
+      description: product.product.description,
+      isLimit: product.product.isLimit,
+      note,
+    }
+
+    // Thêm vào draft order
+    addDraftItem(orderItem)
+
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
     setIsOpen(false)
+    showToast(tToast('toast.addSuccess'))
+    onSuccess?.()
   }
 
   return (
@@ -74,7 +90,6 @@ export default function SystemAddToCurrentOrderDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-            {/* <ShoppingCart className='icon' /> */}
             {t('menu.addToCart')}
           </Button>
         )}
@@ -143,19 +158,12 @@ export default function SystemAddToCurrentOrderDialog({
               </div>
             )}
 
-            {/* Price */}
-            {/* <div className="text-lg font-bold text-primary">
-              {t('menu.price')}
-              {selectedVariant ? `${selectedVariant.price.toLocaleString('vi-VN')}đ` : 'Liên hệ'}
-            </div> */}
-
             {/* Note */}
             <div className="flex flex-col items-start space-y-2">
               <span className="text-sm">{t('menu.note')}</span>
-              {/* <NotepadText size={28} className="text-muted-foreground" /> */}
               <Textarea
                 value={note}
-                onChange={(e) => setNote(e.target.value)} // Cập nhật state note khi người dùng nhập
+                onChange={(e) => setNote(e.target.value)}
                 placeholder={t('menu.enterNote')}
               />
             </div>
@@ -166,7 +174,7 @@ export default function SystemAddToCurrentOrderDialog({
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+          <Button onClick={handleAddToCurrentOrder} disabled={!selectedVariant || !updatingData}>
             {t('menu.addToCart')}
           </Button>
         </DialogFooter>

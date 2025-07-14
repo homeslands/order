@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-// import { ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -19,10 +19,10 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
-import { useCartItemStore } from '@/stores'
+import { IOrderItem, IProductVariant, IMenuItem } from '@/types'
+import { useOrderFlowStore, OrderFlowStep } from '@/stores'
 import { publicFileURL } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -35,57 +35,99 @@ export default function AddToCartDialog({
 }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
+  const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants?.[0] || null)
-  const { addCartItem } = useCartItemStore()
 
-  const generateCartItemId = () => {
-    return `cart_${Date.now().toString(36)}`
-  }
+  // 🔥 Sử dụng Order Flow Store
+  const {
+    currentStep,
+    isHydrated,
+    orderingData,
+    initializeOrdering,
+    addOrderingItem,
+    setCurrentStep
+  } = useOrderFlowStore()
 
-  const generateOrderItemId = (cartId: string) => {
-    return `${cartId}_order_${Date.now().toString(36)}`
-  }
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      setCurrentStep(OrderFlowStep.ORDERING)
 
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+
+  // 🎯 Handle Add to Cart - Workflow Chuẩn
   const handleAddToCart = () => {
-    if (!selectedVariant) return
-
-    const cartId = generateCartItemId();
-
-    const cartItem: ICartItem = {
-      id: cartId,
-      slug: product?.product?.slug,
-      owner: '',
-      type: OrderTypeEnum.AT_TABLE,
-      orderItems: [
-        {
-          id: generateOrderItemId(cartId),
-          slug: product?.product?.slug,
-          image: product?.product?.image,
-          name: product?.product?.name,
-          quantity: 1,
-          size: selectedVariant?.size?.name,
-          allVariants: product?.product?.variants,
-          variant: selectedVariant,
-          originalPrice: selectedVariant?.price,
-          // price: finalPrice,
-          description: product?.product?.description,
-          isLimit: product?.product?.isLimit,
-          promotion: product?.promotion ? product?.promotion?.slug : '',
-          promotionValue: product?.promotion ? product?.promotion?.value : 0,
-          note,
-        },
-      ],
-      table: '',
+    // ✅ Step 1: Pre-validation
+    if (!isHydrated) {
+      return
     }
 
-    addCartItem(cartItem)
-    // Reset states
-    setNote('')
-    setSelectedVariant(product?.product?.variants?.[0] || null)
-    setIsOpen(false)
+    if (!selectedVariant) {
+      return
+    }
+
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+
+    // ✅ Step 3: Create order item with proper structure
+    const orderItem: IOrderItem = {
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
+      quantity: 1,
+      size: selectedVariant?.size?.name,
+      allVariants: product?.product?.variants,
+      variant: selectedVariant,
+      originalPrice: selectedVariant?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: note.trim(),
+    }
+
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
+
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
+
+      // ✅ Step 6: Reset form state
+      setNote('')
+      setSelectedVariant(product?.product?.variants?.[0] || null)
+      setIsOpen(false)
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
+    }
+  }
+
+  // 🎨 Loading state
+  if (!isHydrated) {
+    return (
+      <Button disabled className="flex gap-1 justify-center items-center px-4 w-full text-sm xl:text-sm text-white rounded-full shadow-none sm:text-[11px]">
+        Đang tải...
+      </Button>
+    )
   }
 
   return (
@@ -110,12 +152,12 @@ export default function AddToCartDialog({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Product Image */}
-          <div className="flex items-center justify-center">
+          <div className="flex justify-center items-center">
             {product?.product?.image ? (
               <img
                 src={`${publicFileURL}/${product?.product?.image}`}
                 alt={product?.product?.name}
-                className="object-cover w-full h-64 border rounded-md"
+                className="object-cover w-full h-64 rounded-md border"
               />
             ) : (
               <div className="w-full h-64 rounded-md bg-muted/50" />
@@ -123,7 +165,7 @@ export default function AddToCartDialog({
           </div>
 
           {/* Product Details */}
-          <div className="flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-4 justify-between">
             <div>
               <h3 className="text-lg font-semibold">{product?.product?.name}</h3>
               <p className="text-sm text-muted-foreground">
@@ -181,16 +223,18 @@ export default function AddToCartDialog({
         </div>
 
         {/* Actions */}
-        <DialogFooter className="flex justify-end gap-2 pt-6">
+        <DialogFooter className="flex gap-2 justify-end pt-6">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+          <Button
+            onClick={handleAddToCart}
+            disabled={!selectedVariant || !isHydrated}
+          >
             {t('menu.addToCart')}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
   )
 }

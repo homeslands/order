@@ -54,14 +54,19 @@ export const useOrdersPublic = () => {
   })
 }
 
-export const useOrderBySlug = (slug: string) => {
+// Hook
+export const useOrderBySlug = (slug: string | null | undefined) => {
+  const isValidSlug = !!slug?.trim()
+  // console.log('Fetching order by slug:', slug, 'Valid:', isValidSlug)
+
   return useQuery({
     queryKey: ['order', slug],
-    queryFn: () => getOrderBySlug(slug),
+    queryFn: () => getOrderBySlug(slug!), // dùng ! vì đã kiểm tra ở trên
+    enabled: isValidSlug, // ✅ Chặn không fetch nếu slug không hợp lệ
     placeholderData: keepPreviousData,
-    enabled: !!slug,
   })
 }
+
 
 export const useCreateOrder = () => {
   return useMutation({

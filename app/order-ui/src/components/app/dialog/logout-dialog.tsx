@@ -16,6 +16,7 @@ import {
 import { useAuthStore, useBranchStore, useCartItemStore, useMenuItemStore, useSelectedChefOrderStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
 import { ROUTE } from '@/constants'
+import { useOrderFlowStore } from '@/stores'
 
 export default function LogoutDialog() {
   const { t } = useTranslation(['auth'])
@@ -24,6 +25,8 @@ export default function LogoutDialog() {
   const { setLogout } = useAuthStore()
   const { clearSelectedChefOrder } = useSelectedChefOrderStore()
   const { removeBranch } = useBranchStore()
+
+  const { clearAllData } = useOrderFlowStore()
   const { clearCart } = useCartItemStore()
   const { clearMenuItems } = useMenuItemStore()
   const { removeUserInfo, clearUserData } = useUserStore()
@@ -35,6 +38,7 @@ export default function LogoutDialog() {
     clearUserData()
     removeBranch()
     clearCart()
+    clearAllData()
     clearMenuItems()
     clearSelectedChefOrder()
     navigate(ROUTE.HOME, { replace: true })

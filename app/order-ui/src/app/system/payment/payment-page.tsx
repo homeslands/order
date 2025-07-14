@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
 import Lottie from "lottie-react";
@@ -15,8 +15,8 @@ import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, 
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
-import { OrderCountdown } from '@/components/app/countdown/OrderCountdown'
-import { useCartItemStore, usePaymentMethodStore } from '@/stores'
+import { OrderCountdown } from '@/components/app/countdown'
+import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
 
@@ -28,17 +28,29 @@ export default function PaymentPage() {
   const slug = searchParams.get('order')
   const navigate = useNavigate()
   const { mutate: getOrderProvisionalBill, isPending: isPendingGetOrderProvisionalBill } = useGetOrderProvisionalBill()
-  const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
+  const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
   const { mutate: exportPayment, isPending: isPendingExportPayment } =
     useExportPayment()
-  const { clearCart } = useCartItemStore()
+  const { clearCart: clearCartItemStore } = useCartItemStore()
+  const { clearStore: clearUpdateOrderStore } = useUpdateOrderStore()
 
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { paymentMethod, setPaymentMethod } = usePaymentMethodStore()
+  const {
+    currentStep,
+    paymentData,
+    initializePayment,
+    updatePaymentMethod,
+    updateQrCode,
+    setOrderFromAPI,
+    clearPaymentData
+  } = useOrderFlowStore()
+  const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
+  const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
+  const paymentMethod = paymentData?.paymentMethod
   const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
@@ -47,12 +59,46 @@ export default function PaymentPage() {
   const voucher = order?.result?.voucher || null
 
   const displayItems = calculateOrderItemDisplay(orderItems, voucher)
-
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-  // Get QR code from orderData
-  const qrCode = orderData?.payment?.qrCode || ''
+  // Get QR code from Order Flow Store or orderData as fallback
+  const qrCode = paymentData?.qrCode || orderData?.payment?.qrCode || ''
   const paymentSlug = orderData?.payment?.slug || ''
+
+  useEffect(() => {
+    if (slug && slug !== initializedSlugRef.current) {
+      // Clear previous state when slug changes
+      clearUpdateOrderStore()
+      clearCartItemStore()
+
+      // ✅ Initialize payment phase with order slug
+      if (currentStep !== OrderFlowStep.PAYMENT) {
+        initializePayment(slug)
+      }
+
+      // Mark as initialized
+      initializedSlugRef.current = slug
+      qrCodeSetRef.current = false // Reset QR code tracking for new order
+    }
+  }, [slug, currentStep, initializePayment, clearUpdateOrderStore, clearCartItemStore]) // ✅ Remove function dependencies
+
+  // Sync order data with Order Flow Store when orderData changes
+  useEffect(() => {
+    if (orderData && slug && paymentData?.orderSlug === slug) {
+      // Only sync if order data is different to avoid unnecessary updates
+      if (!paymentData.orderData || paymentData.orderData.slug !== orderData.slug) {
+        setOrderFromAPI(orderData)
+      }
+    }
+  }, [orderData, slug, paymentData, setOrderFromAPI]) // ✅ Remove paymentData and setOrderFromAPI from dependencies
+
+  // Separate effect for QR code to avoid infinite loop
+  useEffect(() => {
+    if (qrCode && qrCode.trim() !== '' && !qrCodeSetRef.current) {
+      updateQrCode(qrCode)
+      qrCodeSetRef.current = true
+    }
+  }, [qrCode, updateQrCode]) // ✅ Remove updateQrCode from dependencies
 
   const handleGetOrderProvisionalBill = (slug: string) => {
     getOrderProvisionalBill(slug, {
@@ -118,15 +164,31 @@ export default function PaymentPage() {
       pollingInterval = setInterval(async () => {
         const updatedOrder = await refetchOrder()
         const orderStatus = updatedOrder.data?.result?.status
+        const updatedOrderData = updatedOrder.data?.result
+
+        // Sync order data with Order Flow Store
+        if (updatedOrderData) {
+          setOrderFromAPI(updatedOrderData)
+        }
+
+        // Only update QR code if it's not already set and becomes available during polling
+        if (updatedOrderData?.payment?.qrCode &&
+          updatedOrderData.payment.qrCode.trim() !== '' &&
+          !qrCodeSetRef.current) {
+          updateQrCode(updatedOrderData.payment.qrCode)
+          qrCodeSetRef.current = true
+        }
+
         if (orderStatus === OrderStatus.PAID) {
           if (pollingInterval) clearInterval(pollingInterval)
-          clearCart()
+          clearCartItemStore()
+          clearUpdateOrderStore()
+          clearPaymentData()
           // Always ensure loading is false before navigating
           setIsLoading(false)
           navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
         } else {
           // Turn off loading if order is updated but not yet paid (for orders without QR code)
-          const updatedOrderData = updatedOrder.data?.result
           if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
             updatedOrderData.payment.amount === updatedOrderData.subtotal) {
             setIsLoading(false)
@@ -138,10 +200,10 @@ export default function PaymentPage() {
     return () => {
       if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [isPolling, refetchOrder, navigate, slug, clearCart])
+  }, [isPolling, slug, refetchOrder, navigate, clearCartItemStore, clearUpdateOrderStore, updateQrCode, clearPaymentData, setOrderFromAPI]) // ✅ Reduce dependencies to prevent infinite loop
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
-    setPaymentMethod(selectedPaymentMethod)
+    updatePaymentMethod(selectedPaymentMethod)
     // Polling logic is handled in useEffect above based on paymentMethod and payment status
   }
 
@@ -154,8 +216,16 @@ export default function PaymentPage() {
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: (data) => {
+            // Set QR code immediately from response if available
+            if (data.result.qrCode && data.result.qrCode.trim() !== '') {
+              updateQrCode(data.result.qrCode)
+              qrCodeSetRef.current = true
+            }
+
+            // Refetch order to get latest payment data and sync with customer display
             refetchOrder()
             setIsPolling(true)
+
             // Only turn off loading if we get a QR code (amount > 2000)
             if (data.result.qrCode) {
               setIsLoading(false)
@@ -171,7 +241,8 @@ export default function PaymentPage() {
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: () => {
-            clearCart()
+            clearCartItemStore()
+            clearPaymentData()
             navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
           },
           onError: () => {
@@ -195,7 +266,11 @@ export default function PaymentPage() {
 
   const handleExpire = useCallback((value: boolean) => {
     setIsExpired(value)
-  }, [])
+    if (value) {
+      // Clear payment store when order expires
+      clearPaymentData()
+    }
+  }, [clearPaymentData])
 
   if (isExpired) {
     return (
@@ -413,9 +488,6 @@ export default function PaymentPage() {
                         {`${formatCurrency(order.result.subtotal)}`}
                       </p>
                     </div>
-                    {/* <span className="text-xs text-muted-foreground">
-                          ({t('order.vat')})
-                        </span> */}
                   </div>
                 </div>
               </div>
@@ -424,7 +496,7 @@ export default function PaymentPage() {
             <PaymentMethodSelect
               qrCode={hasValidPaymentAndQr ? qrCode : ''}
               total={order.result ? order.result.subtotal : 0}
-              paymentMethod={paymentMethod}
+              paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
               onSubmit={handleSelectPaymentMethod}
             />
           </div>
@@ -474,8 +546,6 @@ export default function PaymentPage() {
                 </Button>
               </div>
             )}
-
-
         </div>
       </div>
     </div>

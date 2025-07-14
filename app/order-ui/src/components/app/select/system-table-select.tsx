@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useTables } from '@/hooks'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { useUserStore } from '@/stores'
 import { ITable } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
@@ -15,7 +15,7 @@ export default function SystemTableSelect() {
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
     )
-    const { getCartItems, addTable, removeTable } = useCartItemStore()
+    const { getCartItems, addTable, removeTable } = useOrderFlowStore()
     const cartItems = getCartItems()
     const [reservedTable, setReservedTable] = useState<ITable | null>(null)
 

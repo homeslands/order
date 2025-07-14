@@ -8,10 +8,51 @@ import {
   IDisplayCartItem,
   IDisplayOrderItem,
   IOrderDetail,
+  IOrderItem,
+  IPromotion,
   IVoucher,
-  IVoucherInCart,
   IVoucherProduct,
 } from '@/types'
+
+// Transform IOrderItem to IOrderDetail for calculation compatibility
+export function transformOrderItemToOrderDetail(
+  orderItems: IOrderItem[],
+): IOrderDetail[] {
+  return orderItems.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    createdAt: new Date().toISOString(),
+    note: item.note || '',
+    quantity: item.quantity,
+    status: {
+      PENDING: 0,
+      COMPLETED: 0,
+      FAILED: 0,
+      RUNNING: 0,
+    },
+    subtotal: (item.originalPrice || 0) * item.quantity,
+    variant: item.variant,
+    size: item.variant.size,
+    trackingOrderItems: [],
+    promotion: item.promotion
+      ? ({
+          slug:
+            typeof item.promotion === 'string'
+              ? item.promotion
+              : item.promotion,
+          createdAt: new Date().toISOString(),
+          title: '',
+          branchSlug: '',
+          description: '',
+          startDate: new Date().toISOString(),
+          endDate: new Date().toISOString(),
+          value: item.promotionValue || 0,
+          type: 'per-product',
+        } as IPromotion)
+      : undefined,
+  }))
+}
+
 export const setupAutoClearCart = () => {
   const { clearCart, getCartItems } = useCartItemStore.getState()
   const cartItems = getCartItems()
@@ -47,7 +88,7 @@ export const setupAutoClearCart = () => {
 
 export function calculateCartItemDisplay(
   cartItems: ICartItem | null,
-  voucher: IVoucherInCart | null,
+  voucher: IVoucher | null,
 ): IDisplayCartItem[] {
   if (!cartItems || !cartItems.orderItems) return []
 
@@ -55,7 +96,7 @@ export function calculateCartItemDisplay(
     voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
   const displayItems = cartItems.orderItems.map((item) => {
-    const original = item.originalPrice ?? item.price ?? 0
+    const original = item.originalPrice ?? item.originalPrice ?? 0
 
     const promotionDiscount =
       item.promotionDiscount ??
@@ -91,7 +132,7 @@ export function calculateCartItemDisplay(
     }
 
     if (shouldApplyPercentOrderItemVoucher) {
-      const voucherDiscount = (voucher.value * (item?.price ?? 0)) / 100
+      const voucherDiscount = (voucher.value * (item?.originalPrice ?? 0)) / 100
       return {
         ...item,
         finalPrice: priceAfterPromotion,
@@ -102,7 +143,7 @@ export function calculateCartItemDisplay(
     }
 
     if (shouldApplyFixedValueItemVoucher) {
-      const voucherDiscount = (item?.price ?? 0) - voucher.value
+      const voucherDiscount = (item?.originalPrice ?? 0) - voucher.value
       return {
         ...item,
         priceAfterPromotion: priceAfterPromotion,
@@ -128,22 +169,22 @@ export function calculateOrderItemDisplay(
   orderItems: IOrderDetail[],
   voucher: IVoucher | null,
 ): IDisplayOrderItem[] {
+  // console.log('orderItems in calculateOrderItemDisplay', orderItems, voucher)
   const voucherProductSlugs =
     voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
   const displayItems = orderItems.map((item) => {
-    const price = item.variant?.price ?? 0
-    const original = price
-    const productSlug = item.variant?.product?.slug ?? ''
+    const original = item.variant?.price ?? 0
+    const productSlug = item?.variant?.product?.slug ?? ''
 
     // Tính giảm giá theo promotion nếu có
     let promotionDiscount = 0
     if (item.promotion?.type === 'per-product') {
       const promotionValue = item.promotion?.value || 0
-      promotionDiscount = Math.round(price * (promotionValue / 100))
+      promotionDiscount = Math.round(original * (promotionValue / 100))
     }
 
-    const priceAfterPromotion = Math.max(0, price - promotionDiscount)
+    const priceAfterPromotion = Math.max(0, original - promotionDiscount)
 
     // Nếu item được áp dụng voucher SAME_PRICE_PRODUCT
     const shouldApplySamePriceVoucher =
@@ -151,15 +192,26 @@ export function calculateOrderItemDisplay(
       voucherProductSlugs.includes(productSlug)
 
     let voucherDiscount = 0
-    let finalPrice = original
+    let finalPrice = priceAfterPromotion // Default to price after promotion
 
-    if (shouldApplySamePriceVoucher) {
-      const newPrice = Math.min(original, voucher.value || 0)
-      voucherDiscount = original - newPrice
-      finalPrice = newPrice
+    if (
+      shouldApplySamePriceVoucher &&
+      voucher?.value != null &&
+      voucher.value > 0
+    ) {
+      // For SAME_PRICE_PRODUCT voucher, all qualifying products should have the same price
+      const voucherPrice = voucher.value
+      // Use the lower price between original price (after promotion) and voucher price
+      finalPrice = Math.min(priceAfterPromotion, voucherPrice)
+      voucherDiscount = priceAfterPromotion - finalPrice
     }
 
-    // Với các loại voucher khác (PERCENT_ORDER, FIXED_VALUE), chưa tính ở đây (sẽ tính ở tổng)
+    // For other voucher types (PERCENT_ORDER, FIXED_VALUE), voucher discount is calculated at total level
+    // but finalPrice should still reflect the price after promotion for display
+    if (!shouldApplySamePriceVoucher) {
+      finalPrice = priceAfterPromotion
+    }
+
     return {
       ...item,
       name: item.variant?.product?.name ?? '',
@@ -177,8 +229,9 @@ export function calculateOrderItemDisplay(
 
 export function calculateCartTotals(
   displayItems: IDisplayCartItem[],
-  voucher: IVoucherInCart | null,
+  voucher: IVoucher | null,
 ) {
+  // console.log('Calculating cart totals for display items:', displayItems)
   const allowedProductSlugs =
     voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
@@ -192,10 +245,6 @@ export function calculateCartTotals(
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
       allowedProductSlugs.includes(item.slug)
 
-    // const promoDiscount = isSamePriceAndIncluded
-    //   ? 0
-    //   : item.promotionDiscount || 0
-    // return promoDiscount * item.quantity
     const discount =
       !isSamePriceAndIncluded &&
       item.promotionDiscount &&
@@ -210,17 +259,23 @@ export function calculateCartTotals(
 
   if (voucher) {
     if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      // Tổng giảm giá từ các item đã áp dụng giá đặc biệt
       voucherDiscount = _.sumBy(displayItems, (item) => {
         if (allowedProductSlugs.includes(item.slug)) {
-          return (item.voucherDiscount || 0) * item.quantity
+          return (item.voucherDiscount || 0) * (item.quantity || 0)
         }
         return 0
       })
     } else if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-      voucherDiscount =
-        (voucher.value * (subTotalBeforeDiscount - promotionDiscount)) / 100
+      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+      voucherDiscount = Math.round(
+        ((voucher.value || 0) * totalAfterPromo) / 100,
+      )
     } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-      voucherDiscount = voucher.value || 0
+      voucherDiscount = Math.min(
+        voucher.value || 0,
+        subTotalBeforeDiscount - promotionDiscount,
+      )
     }
   }
 
@@ -283,10 +338,11 @@ export function calculatePlacedOrderTotals(
         0,
       )
     } else if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-      voucherDiscount =
-        (voucher.value * (subTotalBeforeDiscount - promotionDiscount)) / 100
+      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+      voucherDiscount = Math.round((voucher.value * totalAfterPromo) / 100)
     } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-      voucherDiscount = voucher.value || 0
+      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+      voucherDiscount = Math.min(voucher.value || 0, totalAfterPromo)
     }
   }
 

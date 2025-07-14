@@ -1,5 +1,5 @@
+import moment from 'moment'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ShoppingCart } from 'lucide-react'
 
@@ -20,11 +20,10 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types'
+import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
-import { useAddNewOrderItem } from '@/hooks'
-import { useQueryClient } from '@tanstack/react-query'
+import { useOrderFlowStore } from '@/stores'
 
 interface AddToCurrentOrderDialogProps {
   onSuccess?: () => void
@@ -40,35 +39,47 @@ export default function ClientAddToCurrentOrderDialog({
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
-  const { slug } = useParams()
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  const { mutate: addNewMenuItem } = useAddNewOrderItem()
-  const queryClient = useQueryClient();
+  const { addDraftItem, updatingData } = useOrderFlowStore()
+  // const { mutate: addNewMenuItem } = useAddNewOrderItem()
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
-    const orderItem: IAddNewOrderItemRequest = {
+    const variant: IProductVariant = {
+      ...selectedVariant,
+      product: product.product,
+    }
+
+    const timestamp = moment().valueOf()
+
+    const orderItem: IOrderItem = {
+      id: `item_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product.slug,
+      productSlug: product.product.slug,
+      image: product.product.image,
+      name: product.product.name,
       quantity: 1,
-      variant: selectedVariant.slug,
-      order: slug as string,
-      promotion: product.promotion ? product.promotion?.slug : '',
+      size: selectedVariant.size.name,
+      allVariants: product.product.variants,
+      variant: variant,
+      originalPrice: selectedVariant.price,
+      promotion: product.promotion ? product.promotion.slug : null,
+      promotionValue: product.promotion ? product.promotion.value : 0,
+      description: product.product.description,
+      isLimit: product.product.isLimit,
       note: note,
     }
-    addNewMenuItem(orderItem, {
-      onSuccess: () => {
-        setIsOpen(false)
-        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
-        onSuccess?.()
-        showToast(tToast('toast.addNewOrderItemSuccess'))
-      },
-    })
+    addDraftItem(orderItem)
+
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
     setIsOpen(false)
+    showToast(tToast('toast.addSuccess'))
+    onSuccess?.()
   }
 
   return (
@@ -164,11 +175,11 @@ export default function ClientAddToCurrentOrderDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
+        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
-          <Button onClick={handleAddToCart} disabled={!selectedVariant}>
+          <Button onClick={handleAddToCart} disabled={!selectedVariant || !updatingData}>
             {t('menu.addToCart')}
           </Button>
         </DialogFooter>

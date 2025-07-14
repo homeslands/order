@@ -14,6 +14,7 @@ import {
 } from '@/types'
 import { setupAutoClearCart } from '@/utils/cart'
 import { Role } from '@/constants'
+import { usePaymentMethodStore } from './payment-method.store'
 
 export const useCartItemStore = create<ICartItemStore>()(
   persist(
@@ -25,6 +26,18 @@ export const useCartItemStore = create<ICartItemStore>()(
       getCartItems: () => get().cartItems,
 
       addCustomerInfo: (owner: IUserInfo) => {
+        // Clear other stores when adding customer info to cart to ensure only cart store has data
+        const { clearStore: clearPaymentStore } =
+          usePaymentMethodStore.getState()
+        clearPaymentStore()
+
+        // Import update order store dynamically to avoid circular dependency
+        import('./update-order.store').then(({ useUpdateOrderStore }) => {
+          const { clearStore: clearUpdateOrderStore } =
+            useUpdateOrderStore.getState()
+          clearUpdateOrderStore()
+        })
+
         const { cartItems } = get()
         if (cartItems) {
           const hasFirstName = owner.firstName && owner.firstName.trim() !== ''
@@ -80,9 +93,37 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addCartItem: (item: ICartItem) => {
+        // Clear other stores when adding to cart to ensure only cart store has data
+        const { clearStore: clearPaymentStore } =
+          usePaymentMethodStore.getState()
+        clearPaymentStore()
+
+        // Import update order store dynamically to avoid circular dependency
+        import('./update-order.store').then(({ useUpdateOrderStore }) => {
+          const { clearStore: clearUpdateOrderStore } =
+            useUpdateOrderStore.getState()
+          clearUpdateOrderStore()
+        })
+
+        // Kiểm tra hydration với timeout fallback
         if (!get().isHydrated) {
+          // Store chưa hydrate, đang chờ...
+
+          // Thử lại sau 100ms nếu chưa hydrate
+          setTimeout(() => {
+            if (get().isHydrated) {
+              // Store đã hydrate, thực hiện addCartItem
+              get().addCartItem(item)
+            } else {
+              // Store vẫn chưa hydrate sau 100ms, force thực hiện action
+              // Force thực hiện action nếu sau 100ms vẫn chưa hydrate
+              // get().addCartItem({ ...item, forceAdd: true })
+            }
+          }, 100)
           return
         }
+
+        // Nếu là force add, bỏ qua check hydration
         const timestamp = moment().valueOf()
         const { cartItems } = get()
 
@@ -105,9 +146,11 @@ export const useCartItemStore = create<ICartItemStore>()(
             ownerRole: Role.CUSTOMER,
           }
 
-          set({
-            cartItems: newCart,
-            lastModified: timestamp,
+          queueMicrotask(() => {
+            set({
+              cartItems: newCart,
+              lastModified: timestamp,
+            })
           })
         } else {
           const newOrderItems = [
@@ -118,12 +161,14 @@ export const useCartItemStore = create<ICartItemStore>()(
             })),
           ]
 
-          set({
-            cartItems: {
-              ...cartItems,
-              orderItems: newOrderItems,
-            },
-            lastModified: timestamp,
+          queueMicrotask(() => {
+            set({
+              cartItems: {
+                ...cartItems,
+                orderItems: newOrderItems,
+              },
+              lastModified: timestamp,
+            })
           })
         }
         showToast(i18next.t('toast.addSuccess'))
@@ -194,6 +239,18 @@ export const useCartItemStore = create<ICartItemStore>()(
       },
 
       addTable: (table: ITable) => {
+        // Clear other stores when adding table to cart to ensure only cart store has data
+        const { clearStore: clearPaymentStore } =
+          usePaymentMethodStore.getState()
+        clearPaymentStore()
+
+        // Import update order store dynamically to avoid circular dependency
+        import('./update-order.store').then(({ useUpdateOrderStore }) => {
+          const { clearStore: clearUpdateOrderStore } =
+            useUpdateOrderStore.getState()
+          clearUpdateOrderStore()
+        })
+
         const { cartItems } = get()
         const timestamp = moment().valueOf()
 
@@ -286,7 +343,17 @@ export const useCartItemStore = create<ICartItemStore>()(
           cartItems: {
             ...cartItems,
             voucher: {
+              voucherGroup: voucher.voucherGroup,
+              createdAt: voucher.createdAt,
+              remainingUsage: voucher.remainingUsage || 0,
+              startDate: voucher.startDate,
+              endDate: voucher.endDate,
+              numberOfUsagePerUser: voucher.numberOfUsagePerUser || 0,
               slug: voucher.slug,
+              title: voucher.title,
+              description: voucher.description || '',
+              maxUsage: voucher.maxUsage || 0,
+              isActive: voucher.isActive || false,
               value: voucher.value,
               isVerificationIdentity: voucher.isVerificationIdentity || false,
               isPrivate: voucher.isPrivate || false,
@@ -385,7 +452,7 @@ export const useCartItemStore = create<ICartItemStore>()(
         if (!cartItems) return
 
         const updatedOrderItems = cartItems.orderItems.map((item) => {
-          const originalPrice = item.originalPrice ?? item.price
+          const originalPrice = item.originalPrice ?? item.originalPrice
           const promotionDiscount = item.promotionDiscount ?? 0
           const finalPrice = Math.max(
             0,
@@ -408,8 +475,70 @@ export const useCartItemStore = create<ICartItemStore>()(
           lastModified: moment().valueOf(),
         })
       },
+      setPaymentMethod: (paymentMethod: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: { ...cartItems, paymentMethod },
+            lastModified: moment().valueOf(),
+          })
+        }
+      },
+
+      setOrderSlug: (orderSlug: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: {
+              ...cartItems,
+              payment: {
+                ...cartItems.payment,
+                orderSlug,
+              },
+            },
+            lastModified: moment().valueOf(),
+          })
+        }
+      },
+
+      setQrCode: (qrCode: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: {
+              ...cartItems,
+              payment: {
+                ...cartItems.payment,
+                qrCode,
+              },
+            },
+            lastModified: moment().valueOf(),
+          })
+        }
+      },
+
+      setPaymentSlug: (paymentSlug: string) => {
+        const { cartItems } = get()
+        if (cartItems) {
+          set({
+            cartItems: {
+              ...cartItems,
+              payment: {
+                ...cartItems.payment,
+                paymentSlug,
+              },
+            },
+            lastModified: moment().valueOf(),
+          })
+        }
+      },
 
       clearCart: () => {
+        // Don't clear payment store to avoid circular dependency
+        // Payment store should manage its own lifecycle
+        // const { clearStore: clearPaymentStore } = usePaymentMethodStore.getState()
+        // clearPaymentStore()
+
         set({
           cartItems: null,
           lastModified: null,
@@ -424,15 +553,23 @@ export const useCartItemStore = create<ICartItemStore>()(
         cartItems: state.cartItems,
         lastModified: state.lastModified,
       }),
-      onRehydrateStorage: () => (state) => {
-      if (state) {
-        setTimeout(() => {
-          if (!useCartItemStore.getState().isHydrated) {
-            useCartItemStore.setState({ isHydrated: true })
-          }
-        }, 0)
-      }
-    }
+      // ✅ cách sửa đúng tại đây
+      onRehydrateStorage: () => (error) => {
+        // console.log('[Zustand] persistedState:', persistedState)
+        if (error) {
+          // console.error('[Zustand] Hydration error:', error)
+        }
+
+        // 🟢 Dùng setState từ chính store sau khi đã tạo
+        queueMicrotask(() => {
+          useCartItemStore.setState({ isHydrated: true })
+
+          // console.log(
+          //   '✅ Hydrated store state (after setState):',
+          //   useCartItemStore.getState(),
+          // )
+        })
+      },
     },
   ),
 )
