@@ -9,16 +9,16 @@ import { IOrder, OrderTypeEnum } from '@/types'
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
-  onSuccess: () => void
+  // onSuccess: () => void
 }
 
-export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
+export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [activeTab, setActiveTab] = useState('menu')
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-6 lg:mb-2">
+      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-3 lg:mb-2">
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
@@ -28,8 +28,8 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
           </TabsTrigger>
         )}
       </TabsList>
-      <TabsContent value="menu" className="p-0 w-full">
-        <SystemMenuInUpdateOrderTabscontent onSuccess={onSuccess} />
+      <TabsContent value="menu" className="w-full p-0">
+        <SystemMenuInUpdateOrderTabscontent />
       </TabsContent>
       {type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0">
