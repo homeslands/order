@@ -1,6 +1,7 @@
 import {
   authorityGroup,
   confirmEmailVerification,
+  confirmPhoneNumberVerification,
   createPermission,
   deletePermission,
   forgotPasswordAndGetToken,
@@ -8,7 +9,9 @@ import {
   login,
   register,
   resendEmailVerification,
+  resendPhoneNumberVerification,
   verifyEmail,
+  verifyPhoneNumber,
 } from '@/api'
 // import { QUERYKEY } from '@/constants'
 import {
@@ -58,6 +61,30 @@ export const useVerifyEmail = () => {
   return useMutation({
     mutationFn: async (data: IVerifyEmailRequest) => {
       return verifyEmail(data)
+    },
+  })
+}
+
+export const useVerifyPhoneNumber = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return verifyPhoneNumber()
+    },
+  })
+}
+
+export const useConfirmPhoneNumberVerification = () => {
+  return useMutation({
+    mutationFn: async (code: string) => {
+      return confirmPhoneNumberVerification(code)
+    },
+  })
+}
+
+export const useResendPhoneNumberVerification = () => {
+  return useMutation({
+    mutationFn: async () => {
+      return resendPhoneNumberVerification()
     },
   })
 }

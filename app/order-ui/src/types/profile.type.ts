@@ -40,3 +40,7 @@ export interface ICreatePermissionRequest {
 export interface IEmailVerificationResponse extends IBase {
   expiresAt: string
 }
+
+export interface IVerifyPhoneNumberRequest {
+  expiresAt: string
+}
