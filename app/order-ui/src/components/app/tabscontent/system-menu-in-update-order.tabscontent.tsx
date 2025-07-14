@@ -4,11 +4,11 @@ import { useUserStore } from '@/stores'
 import { useSpecificMenu } from '@/hooks'
 import SystemMenusInUpdateOrder from '@/app/system/menu/components/system-menus-in-update-order'
 
-interface SystemMenuInUpdateOrderTabscontentProps {
-  onSuccess: () => void
-}
+// interface SystemMenuInUpdateOrderTabscontentProps {
+//   onSuccess: () => void
+// }
 
-export function SystemMenuInUpdateOrderTabscontent({ onSuccess }: SystemMenuInUpdateOrderTabscontentProps) {
+export function SystemMenuInUpdateOrderTabscontent() {
   const { userInfo } = useUserStore()
   function getCurrentDate() {
     return moment().format('YYYY-MM-DD')
@@ -22,7 +22,7 @@ export function SystemMenuInUpdateOrderTabscontent({ onSuccess }: SystemMenuInUp
     <div
       className={`flex flex-col w-full`}
     >
-      <SystemMenusInUpdateOrder menu={specificMenu?.result} isLoading={isLoading} onSuccess={onSuccess} />
+      <SystemMenusInUpdateOrder menu={specificMenu?.result} isLoading={isLoading} />
     </div>
   )
 }

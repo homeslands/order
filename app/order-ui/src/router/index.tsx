@@ -52,7 +52,7 @@ import {
   ChefOrderPage,
   ClientSecurityTermPage,
   UpdateOrderPage,
-  ClientViewPage,
+  CustomerDisplayPage,
   ClientViewLayout,
   OrdersPublicPage,
   PublicOrderDetailPage,
@@ -225,7 +225,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_CLIENT_VIEW,
+        path: ROUTE.STAFF_CUSTOMER_DISPLAY,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={ClientViewLayout} />
@@ -234,7 +234,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <SuspenseElement component={ClientViewPage} />,
+            element: <SuspenseElement component={CustomerDisplayPage} />,
           },
         ],
       },

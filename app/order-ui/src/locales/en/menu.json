@@ -235,7 +235,16 @@
     "cooked": "Cooked",
     "delivered": "Delivered",
     "updateNote": "Update",
-    "invoiceNote": "Note: If you cannot download the invoice, please take a screenshot"
+    "invoiceNote": "Note: If you cannot download the invoice, please take a screenshot",
+    "orderChanges": "Order changes",
+    "added": "Added",
+    "removed": "Removed",
+    "quantityChanged": "Quantity changed",
+    "voucherChanged": "Voucher changed",
+    "tableChanged": "Table changed",
+    "ownerChanged": "Owner changed",
+    "noteChanged": "Note changed",
+    "noChanges": "No changes"
   },
   "table": {
     "title": "Table list"
@@ -268,6 +277,7 @@
     "downloadQRCode": "Download QR code",
     "exportOrderProvisionalBill": "Export provisional bill",
     "noQRCode": "No QR code",
-    "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful."
+    "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful.",
+    "thankYouForOrdering": "Thank you for ordering at TREND Coffee!"
   }
 }

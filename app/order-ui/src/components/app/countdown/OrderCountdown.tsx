@@ -10,7 +10,7 @@ interface OrderCountdownProps {
     setIsExpired: (value: boolean) => void
 }
 
-export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps) {
+export default function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps) {
     const { t } = useTranslation('menu')
     const [timeRemainingInSec, setTimeRemainingInSec] = useState<number>(0)
     const [minutes, setMinutes] = useState(Math.floor(timeRemainingInSec / 60))
@@ -82,7 +82,7 @@ export function OrderCountdown({ createdAt, setIsExpired }: OrderCountdownProps)
     }
 
     return (
-        <div className="fixed z-20 py-2 w-[320px] flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
+        <div className="fixed z-50 py-2 w-[320px] flex justify-center text-white rounded-md shadow-lg bg-primary select-none cursor-pointer"
             style={{ left: position.x, top: position.y }}
             onMouseDown={handleDragStart}
             onMouseMove={handleDrag}
