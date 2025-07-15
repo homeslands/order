@@ -81,10 +81,9 @@
     "pleaseTryAgainLater": "Vui lòng thử lại sau",
     "tryAgain": "Thử lại",
     "giftCardTransaction": "Giao dịch thẻ quà tặng",
-    "orderTransaction": "Thanh toán hóa đơn",
+    "useGiftCard": "Sử dụng thẻ quà tặng",
     "orderCode": "Mã đơn hàng",
     "giftCardCode": "Mã thẻ",
-    "transactionCode": "Mã GD",
     "transaction": "Giao dịch",
     "close": "Đóng",
     "viewOrderDetail": "Xem chi tiết",
@@ -100,6 +99,9 @@
     "applyFilter": "Áp dụng lọc",
     "clearFilter": "Xóa lọc",
     "transactionType": "Loại giao dịch",
-    "exportAll": "Xuất tất cả"
+    "exportAll": "Xuất tất cả",
+    "transactionDetails": "Chi tiết giao dịch",
+    "transactionType": "Loại giao dịch",
+    "serial": "Số seri"
   }
 }

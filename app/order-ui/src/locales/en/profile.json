@@ -81,10 +81,9 @@
     "pleaseTryAgainLater": "Please try again later",
     "tryAgain": "Try Again",
     "giftCardTransaction": "Gift Card Transaction",
-    "orderTransaction": "Order Payment",
+    "useGiftCard": "Use Gift Card",
     "orderCode": "Order Code",
     "giftCardCode": "Gift Card Code",
-    "transactionCode": "Transaction Code",
     "transaction": "Transaction",
     "close": "Close",
     "viewOrderDetail": "View Detail",
@@ -100,6 +99,9 @@
     "applyFilter": "Apply Filter",
     "clearFilter": "Clear Filter",
     "transactionType": "Transaction Type",
-    "exportAll": "Export All"
+    "exportAll": "Export All",
+    "transactionDetails": "Transaction Details",
+    "transactionType": "Transaction Type",
+    "Serial": "Serial Number"
   }
 }

@@ -22,7 +22,7 @@ import {
   XCircle,
   Loader2,
 } from 'lucide-react'
-import { IPointTransaction, IGiftCardDetail } from '@/types'
+import { IPointTransaction, IGiftCardDetail, ICardOrderResponse } from '@/types'
 import {
   GiftCardType,
   PointTransactionObjectType,
@@ -33,7 +33,7 @@ import { formatCurrency } from '@/utils'
 import { ROUTE } from '@/constants'
 import moment from 'moment'
 import { useIsMobile } from '@/hooks'
-import { getGiftCardBySlug } from '@/api/gift-card'
+import { getCardOrder, getGiftCardBySlug } from '@/api/gift-card'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip } from 'react-tooltip'
 
@@ -53,22 +53,42 @@ export default function TransactionGiftCardDetailDialog({
   const isMobile = useIsMobile()
   const [giftCardDetails, setGiftCardDetails] =
     useState<IGiftCardDetail | null>(null)
+  const [giftCardOrderDetails, setGiftCardOrderDetails] =
+    useState<ICardOrderResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isAdd = transaction.type === PointTransactionType.IN
   const isGiftCard =
     transaction.objectType === PointTransactionObjectType.GIFT_CARD
+  const isGiftCardOrder =
+    transaction.objectType === PointTransactionObjectType.CARD_ORDER
   const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
 
   useEffect(() => {
-    if (isOpen && isGiftCard && transaction.objectSlug) {
+    if (isOpen && transaction.objectSlug) {
       setIsLoading(true)
       setError(null)
-      getGiftCardBySlug(transaction.objectSlug)
+      if (isGiftCard) {
+        getGiftCardBySlug(transaction.objectSlug)
+          .then((response) => {
+            if (response.result) {
+              setGiftCardDetails(response.result)
+            }
+          })
+          .catch(() => {
+            setError(t('profile.errorFetchingGiftCard'))
+          })
+          .finally(() => {
+            setIsLoading(false)
+          })
+      }
+    }
+    if (isGiftCardOrder) {
+      getCardOrder(transaction.objectSlug)
         .then((response) => {
           if (response.result) {
-            setGiftCardDetails(response.result)
+            setGiftCardOrderDetails(response.result)
           }
         })
         .catch(() => {
@@ -78,7 +98,7 @@ export default function TransactionGiftCardDetailDialog({
           setIsLoading(false)
         })
     }
-  }, [isOpen, isGiftCard, transaction.objectSlug, t])
+  }, [isOpen, isGiftCard, transaction.objectSlug, t, isGiftCardOrder])
 
   const getTransactionIcon = () => {
     if (isGiftCard) {
@@ -90,10 +110,15 @@ export default function TransactionGiftCardDetailDialog({
   }
 
   const getTransactionTypeText = () => {
-    if (isGiftCard) {
+    if (
+      transaction.objectType === PointTransactionObjectType.GIFT_CARD ||
+      transaction.objectType === PointTransactionObjectType.ORDER
+    ) {
+      return t('profile.useGiftCard')
+    } else if (
+      transaction.objectType === PointTransactionObjectType.CARD_ORDER
+    ) {
       return t('profile.giftCardTransaction')
-    } else if (isOrder) {
-      return t('profile.orderTransaction')
     }
     return t('profile.transaction')
   }
@@ -157,14 +182,14 @@ export default function TransactionGiftCardDetailDialog({
         }`}
       >
         {/* Sparkle effect for gift card */}
-        {isGiftCard && <SparkleEffect />}
+        {(isGiftCard || isGiftCardOrder) && <SparkleEffect />}
 
         <div className="relative z-10">
           <DialogHeader className="space-y-4 text-center">
             <div className="flex justify-center">
               <div
                 className={`rounded-full p-4 ${
-                  isGiftCard
+                  isGiftCard || isGiftCardOrder
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg'
                     : isOrder
                       ? 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg'
@@ -176,14 +201,14 @@ export default function TransactionGiftCardDetailDialog({
             </div>
             <DialogTitle
               className={`text-xl font-bold ${
-                isGiftCard
+                isGiftCard || isGiftCardOrder
                   ? 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
                   : isOrder
                     ? 'text-blue-600 dark:text-blue-400'
                     : 'text-gray-800 dark:text-gray-200'
               }`}
             >
-              {getTransactionTypeText()}
+              {t('profile.transactionDetails')}
             </DialogTitle>
           </DialogHeader>
 
@@ -204,10 +229,10 @@ export default function TransactionGiftCardDetailDialog({
                   <Tag size={16} className="mt-1 text-gray-500" />
                   <div className="flex-1">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('profile.transactionCode')}
+                      {t('profile.transactionType')}
                     </p>
                     <p className="break-all font-mono text-sm font-medium">
-                      {transaction.objectSlug}
+                      {getTransactionTypeText()}
                     </p>
                   </div>
                 </div>
@@ -239,7 +264,7 @@ export default function TransactionGiftCardDetailDialog({
                 </div>
 
                 {/* Gift Card Additional Information */}
-                {isGiftCard && (
+                {(isGiftCard || isGiftCardOrder) && (
                   <>
                     <Separator className="my-4" />
 
@@ -259,10 +284,6 @@ export default function TransactionGiftCardDetailDialog({
 
                     {giftCardDetails && (
                       <div className="rounded-md bg-purple-50 p-4 dark:bg-purple-900/20">
-                        <h4 className="mb-3 text-center text-sm font-semibold text-purple-700 dark:text-purple-300">
-                          {t('profile.giftCardDetails')}
-                        </h4>
-
                         <div className="custom-scrollbar max-h-[60vh] space-y-3 text-sm">
                           {/* Card Image */}
                           {giftCardDetails.cardOrder.cardImage ? (
@@ -298,73 +319,87 @@ export default function TransactionGiftCardDetailDialog({
                               style={{ width: '30rem' }}
                             />
                           </div>
-
-                          {/* Card Order Information */}
-                          {giftCardDetails.cardOrder && (
-                            <>
-                              {/* Order Type */}
-                              <div className="flex items-start justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  {t('profile.orderType')}
-                                </span>
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
-                                  {giftCardDetails.cardOrder.type ===
-                                  GiftCardType.SELF
-                                    ? tGiftCard('giftCard.buyForSelf')
-                                    : giftCardDetails.cardOrder.type ===
-                                        GiftCardType.GIFT
-                                      ? tGiftCard('giftCard.giftToOthers')
-                                      : giftCardDetails.cardOrder.type ===
-                                          GiftCardType.BUY
-                                        ? tGiftCard('giftCard.purchaseGiftCard')
-                                        : giftCardDetails.cardOrder.type}
-                                </span>
-                              </div>
-                              {/* Recipient Name */}
-                              {giftCardDetails.cardOrder.cashierName && (
-                                <div className="flex items-start justify-between">
-                                  <span className="text-gray-600 dark:text-gray-400">
-                                    {tGiftCard('giftCard.receiverName')}
-                                  </span>
-                                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                                    {giftCardDetails.cardOrder.cashierName}
-                                  </span>
-                                </div>
-                              )}
-                              {/* Recipient Phone */}
-                              {giftCardDetails.cardOrder.cashierPhone && (
-                                <div className="flex items-start justify-between">
-                                  <span className="text-gray-600 dark:text-gray-400">
-                                    {tGiftCard('giftCard.receiverPhone')}
-                                  </span>
-                                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                                    {giftCardDetails.cardOrder.cashierPhone}
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Price*/}
-                              <div className="flex items-start justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  {tGiftCard('giftCard.price')}
-                                </span>
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
-                                  {formatCurrency(
-                                    giftCardDetails.cardOrder.totalAmount,
-                                  )}
-                                </span>
-                              </div>
-                              {/* Quantity */}
-                              <div className="flex items-start justify-between">
-                                <span className="text-gray-600 dark:text-gray-400">
-                                  {tGiftCard('giftCard.quantity')}
-                                </span>
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
-                                  {giftCardDetails.cardOrder.quantity}
-                                </span>
-                              </div>
-                            </>
+                          {/* Serial */}
+                          {transaction.objectType ===
+                            PointTransactionObjectType.GIFT_CARD && (
+                            <div className="flex items-start justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                {t('profile.serial')}
+                              </span>
+                              <span
+                                className={`truncate font-medium text-gray-900 dark:text-gray-100`}
+                              >
+                                {giftCardDetails.serial}
+                              </span>
+                            </div>
                           )}
+                        </div>
+                      </div>
+                    )}
+                    {giftCardOrderDetails && (
+                      <div className="rounded-md bg-purple-50 p-4 dark:bg-purple-900/20">
+                        <div className="custom-scrollbar max-h-[60vh] space-y-3 text-sm">
+                          {/* Card Image */}
+                          {giftCardOrderDetails.cardImage ? (
+                            <img
+                              src={`${publicFileURL}/${giftCardOrderDetails.cardImage}`}
+                              alt={giftCardOrderDetails.cardTitle}
+                              className={`${isMobile ? 'h-max w-full rounded-md bg-gray-300 object-contain' : 'h-full w-full object-cover'}`}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                              <Gift
+                                className={`text-primary ${isMobile ? 'h-8 w-8' : 'h-16 w-16'}`}
+                              />
+                            </div>
+                          )}
+                          {/* Card Name */}
+                          <div className="flex items-start justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {t('profile.giftCardName')}
+                            </span>
+                            <span
+                              className={`${isMobile ? 'max-w-[120px]' : 'max-w-[300px]'} truncate font-medium text-gray-900 dark:text-gray-100`}
+                              data-tooltip-id="cardName-tooltip"
+                              data-tooltip-content={String(
+                                giftCardOrderDetails.cardTitle,
+                              )}
+                            >
+                              {giftCardOrderDetails.cardTitle}
+                            </span>
+                            <Tooltip
+                              id="cardName-tooltip"
+                              variant="light"
+                              style={{ width: '30rem' }}
+                            />
+                          </div>
+
+                          {/* Order Type */}
+                          <div className="flex items-start justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {t('profile.orderType')}
+                            </span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                              {giftCardOrderDetails.type === GiftCardType.SELF
+                                ? tGiftCard('giftCard.buyForSelf')
+                                : giftCardOrderDetails.type ===
+                                    GiftCardType.GIFT
+                                  ? tGiftCard('giftCard.giftToOthers')
+                                  : giftCardOrderDetails.type ===
+                                      GiftCardType.BUY
+                                    ? tGiftCard('giftCard.purchaseGiftCard')
+                                    : giftCardOrderDetails.type}
+                            </span>
+                          </div>
+                          {/* Quantity */}
+                          <div className="flex items-start justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {tGiftCard('giftCard.quantity')}
+                            </span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">
+                              {giftCardOrderDetails.quantity}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -393,7 +428,7 @@ export default function TransactionGiftCardDetailDialog({
               <Button
                 onClick={() => setIsOpen(false)}
                 className={`px-8 ${
-                  isGiftCard
+                  isGiftCard || isGiftCardOrder
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                     : isOrder
                       ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'

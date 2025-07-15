@@ -136,7 +136,7 @@ export function CustomerCoinTabsContent() {
         const response = await getPointTransactions(params)
 
         const totalCount = response.result.total
-        const hasMoreData = page * pageSize < totalCount
+        const hasMoreData = response.result.hasNext
 
         if (isInitial) {
           setTransactions(response.result.items)
@@ -252,7 +252,8 @@ export function CustomerCoinTabsContent() {
 
     // Determine object type specific styling
     const isGiftCard =
-      transaction.objectType === PointTransactionObjectType.GIFT_CARD
+      transaction.objectType === PointTransactionObjectType.GIFT_CARD ||
+      PointTransactionObjectType.CARD_ORDER
     const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
 
     // Get object type icon
