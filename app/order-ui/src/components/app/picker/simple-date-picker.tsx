@@ -26,6 +26,7 @@ interface ISimpleDatePickerProps {
     disableFutureDates?: boolean
     minDate?: string 
     maxDate?: string
+    allowEmpty?: boolean
 }
 
 // Utility to generate an array of years
@@ -44,6 +45,7 @@ export default function SimpleDatePicker({
     disableFutureDates,
     minDate,
     maxDate,
+    allowEmpty = false,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
     const [month, setMonth] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
@@ -54,7 +56,7 @@ export default function SimpleDatePicker({
             const momentDate = moment(value, ['YYYY-MM-DD', 'DD/MM/YYYY'])
             return momentDate.isValid() ? momentDate.toDate() : new Date()
         }
-        return new Date()
+        return allowEmpty ? undefined : new Date()
     })
 
     // Update internal date when value prop changes
@@ -65,9 +67,9 @@ export default function SimpleDatePicker({
                 setDate(momentDate.toDate())
             }
         } else {
-            setDate(new Date())
+            setDate(allowEmpty ? undefined : new Date())
         }
-    }, [value])
+    }, [value, allowEmpty])
 
     const handleDateChange = (selectedDate?: Date) => {
         if (selectedDate) {
@@ -173,6 +175,7 @@ export default function SimpleDatePicker({
                     onSelect={handleDateChange}
                     disabled={isDateDisabled}
                     initialFocus
+                    month={new Date(year, month)}
                 />
             </PopoverContent>
         </Popover>
