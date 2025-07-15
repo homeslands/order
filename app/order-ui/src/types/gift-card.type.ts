@@ -75,4 +75,5 @@ export interface IGiftCardDetail {
   cardOrder: ICardOrderResponse
   createdAt: string
   slug: string
+  serial: string
 }

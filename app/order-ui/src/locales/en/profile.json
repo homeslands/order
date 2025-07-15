@@ -90,10 +90,9 @@
     "pleaseTryAgainLater": "Please try again later",
     "tryAgain": "Try Again",
     "giftCardTransaction": "Gift Card Transaction",
-    "orderTransaction": "Order Payment",
+    "useGiftCard": "Use Gift Card",
     "orderCode": "Order Code",
     "giftCardCode": "Gift Card Code",
-    "transactionCode": "Transaction Code",
     "transaction": "Transaction",
     "close": "Close",
     "viewOrderDetail": "View Detail",
@@ -101,6 +100,9 @@
     "errorFetchingGiftCard": "Error loading gift card details. Please try again.",
     "giftCardDetails": "Gift Card Details",
     "giftCardName": "Card Name",
-    "orderType": "Order Type"
+    "orderType": "Order Type",
+    "transactionDetails": "Transaction Details",
+    "transactionType": "Transaction Type",
+    "Serial": "Serial Number"
   }
 }

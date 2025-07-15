@@ -90,10 +90,9 @@
     "pleaseTryAgainLater": "Vui lòng thử lại sau",
     "tryAgain": "Thử lại",
     "giftCardTransaction": "Giao dịch thẻ quà tặng",
-    "orderTransaction": "Thanh toán hóa đơn",
+    "useGiftCard": "Sử dụng thẻ quà tặng",
     "orderCode": "Mã đơn hàng",
     "giftCardCode": "Mã thẻ",
-    "transactionCode": "Mã GD",
     "transaction": "Giao dịch",
     "close": "Đóng",
     "viewOrderDetail": "Xem chi tiết",
@@ -101,6 +100,9 @@
     "errorFetchingGiftCard": "Lỗi khi tải thông tin thẻ quà tặng. Vui lòng thử lại.",
     "giftCardDetails": "Chi tiết thẻ quà tặng",
     "giftCardName": "Tên thẻ",
-    "orderType": "Loại đơn hàng"
+    "orderType": "Loại đơn hàng",
+    "transactionDetails": "Chi tiết giao dịch",
+    "transactionType": "Loại giao dịch",
+    "serial": "Số seri"
   }
 }
