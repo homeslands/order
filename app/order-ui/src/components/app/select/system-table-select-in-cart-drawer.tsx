@@ -11,7 +11,7 @@ import {
     SelectValue,
 } from "@/components/ui"
 import { useTables } from "@/hooks"
-import { useCartItemStore, useUserStore } from "@/stores"
+import { useOrderFlowStore, useUserStore } from "@/stores"
 import { OrderTypeEnum, ITable } from "@/types"
 import { TableStatus } from "@/constants"
 import { SelectReservedTableDialog } from "../dialog"
@@ -23,7 +23,7 @@ interface ITableSelectInCartDrawerProps {
 
 export default function SystemTableSelectInCartDrawer({ tableOrder, onTableSelect }: ITableSelectInCartDrawerProps) {
     const { t } = useTranslation('table')
-    const { cartItems, addTable } = useCartItemStore()
+    const { orderingData, addTable } = useOrderFlowStore()
     const { userInfo } = useUserStore()
     const { data: tables } = useTables(userInfo?.branch?.slug || '')
 
@@ -31,9 +31,9 @@ export default function SystemTableSelectInCartDrawer({ tableOrder, onTableSelec
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>()
 
     useEffect(() => {
-        const addedTable = cartItems?.table
+        const addedTable = orderingData?.table
         setSelectedTableId(addedTable)
-    }, [cartItems?.table])
+    }, [orderingData?.table])
     useEffect(() => {
         if (tableOrder) {
             setSelectedTable(tableOrder)
@@ -41,7 +41,7 @@ export default function SystemTableSelectInCartDrawer({ tableOrder, onTableSelec
         }
     }, [tableOrder])
 
-    if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
+    if (orderingData?.type === OrderTypeEnum.TAKE_OUT) {
         return null
     }
 
