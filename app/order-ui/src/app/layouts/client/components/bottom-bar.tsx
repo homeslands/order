@@ -4,17 +4,18 @@ import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib'
 import { Role, ROUTE } from '@/constants'
-import { useAuthStore, useCartItemStore, useUserStore } from '@/stores'
+import { useAuthStore, useOrderFlowStore, useUserStore } from '@/stores'
 
 export function BottomBar() {
   const location = useLocation()
   const { t } = useTranslation('sidebar')
   const { userInfo } = useUserStore()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const { getCartItems } = useCartItemStore()
+  const { orderingData } = useOrderFlowStore()
+  const orderingItems = orderingData?.orderItems
   return (
-    <div className="fixed bottom-0 left-0 z-50 my-auto h-16 w-full bg-white dark:bg-black">
-      <div className="mx-auto grid h-full max-w-lg grid-cols-5 p-2">
+    <div className="fixed bottom-0 left-0 z-50 my-auto w-full h-16 bg-white dark:bg-black">
+      <div className="grid grid-cols-5 p-2 mx-auto max-w-lg h-full">
         <NavLink
           to={ROUTE.HOME}
           className={cn(
@@ -22,7 +23,7 @@ export function BottomBar() {
             location.pathname === ROUTE.CLIENT_HOME && 'text-primary',
           )}
         >
-          <Home className="h-5 w-5" />
+          <Home className="w-5 h-5" />
           <span className="text-[0.5rem]">{t('bottombar.home')}</span>
         </NavLink>
 
@@ -33,7 +34,7 @@ export function BottomBar() {
             location.pathname.includes(ROUTE.CLIENT_MENU) && 'text-primary',
           )}
         >
-          <SquareMenu className="h-5 w-5" />
+          <SquareMenu className="w-5 h-5" />
           <span className="text-[0.5rem]">{t('bottombar.menu')}</span>
         </NavLink>
 
@@ -51,14 +52,14 @@ export function BottomBar() {
                 </NavLink> */}
 
         {isAuthenticated() &&
-        userInfo &&
-        userInfo?.role &&
-        userInfo?.role?.name === Role.CUSTOMER ? (
+          userInfo &&
+          userInfo?.role &&
+          userInfo?.role?.name === Role.CUSTOMER ? (
           <NavLink
             to={`${ROUTE.CLIENT_PROFILE}?tab=history`}
             className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_PROFILE}`) && location.search.includes('order') ? 'text-primary' : ''}`}
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="w-5 h-5" />
             <span className="text-[0.5rem]">{t('bottombar.order')}</span>
           </NavLink>
         ) : (
@@ -66,20 +67,20 @@ export function BottomBar() {
             to={ROUTE.CLIENT_ORDERS_PUBLIC}
             className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_ORDERS_PUBLIC}`) ? 'text-primary' : ''}`}
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="w-5 h-5" />
             <span className="text-[0.5rem]">{t('bottombar.order')}</span>
           </NavLink>
         )}
         {/* Cart */}
         <NavLink
           to={ROUTE.CLIENT_CART}
-          className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_CART}`) ? 'text-primary' : ''} ${getCartItems()?.orderItems?.length ? 'bg-primary/10 text-primary' : ''}`}
+          className={`relative inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 ${location.pathname.includes(`${ROUTE.CLIENT_CART}`) ? 'text-primary' : ''} ${orderingItems?.length ? 'bg-primary/10 text-primary' : ''}`}
         >
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingCart className="w-5 h-5" />
           <span className="text-[0.5rem]">{t('bottombar.cart')}</span>
-          {getCartItems()?.orderItems?.length ? (
-            <span className="absolute right-4 top-1 flex h-5 w-5 -translate-y-1/2 translate-x-1/2 transform items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-              {getCartItems()?.orderItems.length}
+          {orderingItems?.length ? (
+            <span className="flex absolute top-1 right-4 justify-center items-center w-5 h-5 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
+              {orderingItems.length}
             </span>
           ) : null}
         </NavLink>
@@ -89,10 +90,10 @@ export function BottomBar() {
           className={cn(
             'inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap rounded-md px-5',
             location.pathname.includes(ROUTE.CLIENT_GIFT_CARD) &&
-              'text-primary',
+            'text-primary',
           )}
         >
-          <Gift className="h-5 w-5" />
+          <Gift className="w-5 h-5" />
           <span className="text-[0.5rem]">{t('bottombar.giftCard')}</span>
         </NavLink>
       </div>

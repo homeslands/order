@@ -74,13 +74,13 @@ export default function ClientMenus({ menu, isLoading }: IMenuProps) {
               <p className="text-xs text-gray-500 line-clamp-2">
                 {item.product.description}
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex gap-1 items-center">
                 <div className="flex flex-col">
                   {item.product.variants.length > 0 ? (
-                    <div className="flex flex-col items-start justify-start gap-1">
-                      <div className='flex flex-row items-center gap-1'>
+                    <div className="flex flex-col gap-1 justify-start items-start">
+                      <div className='flex flex-row gap-1 items-center'>
                         {item?.promotion?.value > 0 ? (
-                          <div className='flex flex-col items-start justify-start gap-1'>
+                          <div className='flex flex-col gap-1 justify-start items-start'>
                             <span className="text-sm sm:text-lg text-primary">
                               {(() => {
                                 const range = getPriceRange(item.product.variants)
@@ -89,7 +89,7 @@ export default function ClientMenus({ menu, isLoading }: IMenuProps) {
                                   ? `${formatCurrency((range.min) * (1 - item?.promotion?.value / 100))}` : `${formatCurrency(range.min * (1 - item?.promotion?.value / 100))}`
                               })()}
                             </span>
-                            <div className='flex flex-row items-center gap-3'>
+                            <div className='flex flex-row gap-3 items-center'>
                               <span className="text-sm line-through text-muted-foreground/70">
                                 {(() => {
                                   const range = getPriceRange(item.product.variants)
@@ -137,7 +137,7 @@ export default function ClientMenus({ menu, isLoading }: IMenuProps) {
               <AddToCartDialog product={item} />
             ) : (
               <Button
-                className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
                 disabled
               >
                 {t('menu.outOfStock')}
