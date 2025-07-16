@@ -183,20 +183,43 @@ export default function UpdateOrderPage() {
 
             {/* Order type selection */}
             {order?.result &&
-                <div className="flex flex-col-reverse gap-4 sm:gap-0 lg:flex-row">
-                    {/* Left content */}
-                    <div className={`flex ${isMobile ? 'w-full' : 'w-[70%] pr-6 xl:pr-0'} flex-col gap-2 py-3`}>
-                        {/* Menu & Table select */}
-                        <ScrollArea className="h-[calc(100vh-9rem)] pr-4">
-                            <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
-                        </ScrollArea>
-                    </div>
+                <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                    {/* Mobile: Content first (top), Desktop: Menu first (left) */}
+                    {isMobile ? (
+                        <>
+                            {/* Content trên mobile */}
+                            <div className="w-full">
+                                <UpdateOrderContent
+                                    orderType={orderType}
+                                    table={table}
+                                />
+                            </div>
 
-                    {/* Right content */}
-                    <UpdateOrderContent
-                        orderType={orderType}
-                        table={table}
-                    />
+                            {/* Menu dưới mobile */}
+                            <div className="flex flex-col gap-2 py-3 w-full">
+                                {/* Menu & Table select */}
+                                <div className="min-h-[50vh]">
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Desktop layout - Menu left */}
+                            <div className="flex w-[70%] pr-6 xl:pr-0 flex-col gap-2 py-3">
+                                {/* Menu & Table select */}
+                                <ScrollArea className="h-[calc(100vh-9rem)]">
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                </ScrollArea>
+                            </div>
+
+                            {/* Desktop layout - Content right */}
+                            <UpdateOrderContent
+                                orderType={orderType}
+                                table={table}
+                            />
+                        </>
+                    )}
                 </div>
             }
         </div>

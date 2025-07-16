@@ -20,108 +20,72 @@ import {
   Textarea,
 } from '@/components/ui';
 
-import { OrderTypeEnum, IProductVariant, IMenuItem, IAddNewOrderItemRequest } from '@/types';
-import { useCartItemStore, useUserStore } from '@/stores';
+import { IProductVariant, IMenuItem, IOrderItem } from '@/types';
+import { useOrderFlowStore } from '@/stores';
 import { publicFileURL } from '@/constants';
 import { formatCurrency, showToast } from '@/utils';
-import { useAddNewOrderItem } from '@/hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import moment from 'moment';
 
 interface AddToCartDialogProps {
   product: IMenuItem;
   onSuccess?: () => void;
-  isUpdateOrder?: boolean;
-
 }
 
-export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrder }: AddToCartDialogProps) {
+export default function SystemAddToCurrentOrderDrawer({ product, onSuccess }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
   const { t: tToast } = useTranslation('toast')
-  const { slug } = useParams()
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
-  const { addCartItem } = useCartItemStore();
-  const { getUserInfo } = useUserStore();
-  const { mutate: addNewMenuItem } = useAddNewOrderItem()
-  const queryClient = useQueryClient();
+  const { addDraftItem } = useOrderFlowStore()
   const [isOpen, setIsOpen] = useState(false);
-
-  const generateCartItemId = () => {
-    return Date.now().toString(36);
-  };
-
-  const handleAddToCart = () => {
-    if (!selectedVariant) return;
-
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
-
-    const cartItem = {
-      id: generateCartItemId(),
-      slug: product.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // Default value
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
-          quantity: 1,
-          allVariants: product.product.variants,
-          variant: selectedVariant,
-          size: selectedVariant.size.name,
-          originalPrice: selectedVariant.price,
-          price: finalPrice,
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
-          promotionValue: product.promotion ? product.promotion?.value : 0,
-          note,
-        },
-      ],
-      table: '', // Will be set later if needed
-    };
-
-    addCartItem(cartItem);
-    setNote('');
-    setSelectedVariant(product.product.variants?.[0] || null);
-    setIsOpen(false); // Close drawer after adding to cart
-  };
 
   const handleAddToCurrentOrder = () => {
     if (!selectedVariant) return
 
-    const orderItem: IAddNewOrderItemRequest = {
-      quantity: 1,
-      variant: selectedVariant.slug,
-      order: slug as string,
-      promotion: product.promotion ? product.promotion?.slug : '',
-      note: note,
+    const variant: IProductVariant = {
+      ...selectedVariant,
+      product: product.product,
     }
-    addNewMenuItem(orderItem, {
-      onSuccess: () => {
-        setIsOpen(false)
-        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
-        onSuccess?.()
-        showToast(tToast('toast.addNewOrderItemSuccess'))
-      },
-    })
+
+    const timestamp = moment().valueOf()
+
+    // Tạo IOrderItem để thêm vào draft
+    const orderItem: IOrderItem = {
+      id: `item_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product.slug,
+      productSlug: product.product.slug,
+      image: product.product.image,
+      name: product.product.name,
+      quantity: 1,
+      size: selectedVariant.size.name,
+      allVariants: product.product.variants,
+      variant: variant,
+      originalPrice: selectedVariant.price,
+      promotion: product.promotion ? product.promotion.slug : null,
+      promotionValue: product.promotion ? product.promotion.value : 0,
+      description: product.product.description,
+      isLimit: product.product.isLimit,
+      note,
+    }
+
+    // Thêm vào draft order
+    addDraftItem(orderItem)
+
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
     setIsOpen(false)
+    showToast(tToast('toast.addSuccess'))
+    onSuccess?.()
   }
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
         <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white rounded-full w-full shadow-none">
-          <ShoppingCart className='icon' />
+          <ShoppingCart className='hidden icon sm:block' />
           {t('menu.addToCart')}
         </Button>
       </DrawerTrigger>
@@ -132,7 +96,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
         </DrawerHeader>
 
         <ScrollArea className="flex-1 max-h-[calc(100%-8rem)]">
-          <div className="grid justify-center w-full grid-cols-1 gap-4 p-4 overflow-y-auto sm:grid-cols-4">
+          <div className="grid overflow-y-auto grid-cols-1 gap-4 justify-center p-4 w-full sm:grid-cols-4">
             <div className="sm:col-span-2">
               {product.product.image ? (
                 <img
@@ -147,7 +111,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
 
             <div className="flex flex-col gap-6 sm:col-span-2">
               <div>
-                <h3 className="text-lg font-semibold">{product.product.name}</h3>
+                <h3 className="text-lg font-semibold line-clamp-1">{product.product.name}</h3>
                 <p className="text-sm text-muted-foreground">{product.product.description}</p>
               </div>
 
@@ -194,7 +158,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
                 <DrawerClose asChild>
                   <Button variant="outline">{tCommon('common.cancel')}</Button>
                 </DrawerClose>
-                <Button onClick={isUpdateOrder ? handleAddToCurrentOrder : handleAddToCart} disabled={!selectedVariant}>
+                <Button onClick={handleAddToCurrentOrder} disabled={!selectedVariant}>
                   {t('menu.addToCart')}
                 </Button>
               </div>
