@@ -41,7 +41,6 @@ export default function ClientAddToCartDialog({
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  // const { addCartItem, isHydrated } = useCartItemStore()
   const {
     currentStep,
     isHydrated,
@@ -50,7 +49,6 @@ export default function ClientAddToCartDialog({
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
-  // const { getUserInfo } = useUserStore()
 
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
@@ -64,19 +62,6 @@ export default function ClientAddToCartDialog({
       }
     }
   }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
-
-  // const generateCartItemId = () => {
-  //   return Date.now().toString(36)
-  // }
-
-  // useEffect(() => {
-  //   if (!isHydrated) {
-  //     console.log('⏳ Chờ rehydrate...')
-  //   } else {
-  //     console.log('✅ Store đã sẵn sàng!')
-  //   }
-  // }, [isHydrated])
-
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
@@ -224,7 +209,6 @@ export default function ClientAddToCartDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white text-sm rounded-full w-full shadow-none">
-            {/* <ShoppingCart className='icon' /> */}
             {t('menu.addToCart')}
           </Button>
         )}
@@ -293,19 +277,12 @@ export default function ClientAddToCartDialog({
               </div>
             )}
 
-            {/* Price */}
-            {/* <div className="text-lg font-bold text-primary">
-              {t('menu.price')}
-              {selectedVariant ? `${selectedVariant.price.toLocaleString('vi-VN')}đ` : 'Liên hệ'}
-            </div> */}
-
             {/* Note */}
             <div className="flex flex-col items-start space-y-2">
               <span className="text-sm">{t('menu.note')}</span>
-              {/* <NotepadText size={28} className="text-muted-foreground" /> */}
               <Textarea
                 value={note}
-                onChange={(e) => setNote(e.target.value)} // Cập nhật state note khi người dùng nhập
+                onChange={(e) => setNote(e.target.value)}
                 placeholder={t('menu.enterNote')}
               />
             </div>
