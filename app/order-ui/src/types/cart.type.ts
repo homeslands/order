@@ -20,6 +20,10 @@ export interface ICartItemStore {
   removeCartItem: (cartItemId: string) => void
   addVoucher: (voucher: IVoucher) => void
   removeVoucher: () => void
+  setPaymentMethod: (paymentMethod: string) => void
+  setOrderSlug: (orderSlug: string) => void
+  setQrCode: (qrCode: string) => void
+  setPaymentSlug: (paymentSlug: string) => void
   clearCart: () => void
 }
 

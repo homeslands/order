@@ -181,7 +181,7 @@
     "selectTableNote": "Lưu ý: Lựa chọn bàn trước khi nhấn xác nhận đơn hàng.  Nhiều đơn hàng có thể đặt chung một bàn.",
     "create": "Đặt hàng",
     "confirmOrder": "Vui lòng xác nhận thông tin đơn hàng trước khi đặt hàng!",
-    "usedVoucher": "Mã giảm giá đã sử dụng",
+    "usedVoucher": "Mã đang dùng",
     "update": "Chỉnh sửa đơn hàng",
     "confirmUpdateOrder": "Bạn có chắc muốn cập nhật đơn hàng?",
     "confirm": "Xác nhận",
@@ -248,7 +248,18 @@
     "orderReferenceNumber": "Mã đơn",
     "updateNote": "Cập nhật",
     "updateOrder": "Cập nhật",
-    "invoiceNote": "Lưu ý: Nếu bạn không tải được hóa đơn, vui lòng chụp lại màn hình"
+    "invoiceNote": "Lưu ý: Nếu bạn không tải được hóa đơn, vui lòng chụp lại màn hình",
+    "waitingForPayment": "Chờ thanh toán",
+    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!",
+    "orderChanges": "Thay đổi đơn hàng",
+    "added": "Thêm",
+    "removed": "Xóa",
+    "quantityChanged": "Thay đổi số lượng",
+    "voucherChanged": "Thay đổi voucher",
+    "tableChanged": "Thay đổi bàn",
+    "ownerChanged": "Thay đổi khách hàng",
+    "noteChanged": "Thay đổi ghi chú",
+    "noChanges": "Không có thay đổi"
   },
   "table": {
     "title": "Danh sách bàn"
@@ -283,6 +294,7 @@
     "downloadQRCode": "Tải QR code",
     "exportOrderProvisionalBill": "Xuất hóa đơn tạm thời",
     "noQRCode": "Không có QR code",
-    "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công."
+    "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công.",
+    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!"
   }
 }
