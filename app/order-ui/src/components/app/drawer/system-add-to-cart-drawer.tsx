@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
@@ -22,11 +20,10 @@ import {
   Textarea,
 } from '@/components/ui';
 
-import { OrderTypeEnum, IProductVariant, IMenuItem, IAddNewOrderItemRequest, IOrderItem } from '@/types';
-import { useOrderFlowStore, useCartItemStore, useUserStore } from '@/stores';
+import { IProductVariant, IMenuItem, IOrderItem } from '@/types';
+import { useOrderFlowStore, OrderFlowStep } from '@/stores';
 import { publicFileURL } from '@/constants';
-import { formatCurrency } from '@/utils';
-import { useAddNewOrderItem } from '@/hooks';
+import { formatCurrency, showToast } from '@/utils';
 
 interface AddToCartDialogProps {
   product: IMenuItem;
@@ -34,158 +31,106 @@ interface AddToCartDialogProps {
   isUpdateOrder?: boolean;
 }
 
-export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrder }: AddToCartDialogProps) {
+export default function SystemAddToCartDrawer({ product }: AddToCartDialogProps) {
   const { t } = useTranslation(['menu']);
   const { t: tCommon } = useTranslation(['common']);
-  const { slug } = useParams()
+  const { t: tToast } = useTranslation(['toast'])
   const [note, setNote] = useState('');
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product?.product?.variants?.[0] || null);
 
-  // Cart store cho ordering mode
-  const { addCartItem } = useCartItemStore();
-  const { getUserInfo } = useUserStore();
-
   // Order Flow Store cho updating mode  
-  const { addDraftItem, addOrderingItem, currentStep, updatingData } = useOrderFlowStore();
-
-  const { mutate: addNewMenuItem } = useAddNewOrderItem()
-  const queryClient = useQueryClient();
+  const {
+    currentStep,
+    isHydrated,
+    orderingData,
+    initializeOrdering,
+    addOrderingItem,
+    setCurrentStep
+  } = useOrderFlowStore()
   const [isOpen, setIsOpen] = useState(false);
 
-  const generateCartItemId = () => {
-    return Date.now().toString(36);
-  };
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = () => {
-    if (!selectedVariant) return;
+    // ✅ Step 1: Pre-validation
+    if (!isHydrated) {
+      return
+    }
 
-    const finalPrice = product.promotion && product?.promotion?.value > 0
-      ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-      : selectedVariant.price;
+    if (!selectedVariant) {
+      return
+    }
 
-    const cartItem = {
-      id: generateCartItemId(),
-      slug: product.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // Default value
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product.slug,
-          image: product.product.image,
-          name: product.product.name,
-          quantity: 1,
-          allVariants: product.product.variants,
-          variant: selectedVariant,
-          size: selectedVariant.size.name,
-          originalPrice: selectedVariant.price,
-          price: finalPrice,
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
-          promotionValue: product.promotion ? product.promotion?.value : 0,
-          note,
-        },
-      ],
-      table: '', // Will be set later if needed
-    };
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
 
-    addCartItem(cartItem);
-    setNote('');
-    setSelectedVariant(product.product.variants?.[0] || null);
-    setIsOpen(false); // Close drawer after adding to cart
-  };
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
 
-  const handleAddToOrderFlow = () => {
-    if (!selectedVariant) return;
-
-    const timestamp = moment().valueOf();
-
+    // ✅ Step 3: Create order item with proper structure
     const orderItem: IOrderItem = {
-      id: `item_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
-      slug: product.product.slug,
-      image: product.product.image,
-      name: product.product.name,
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
       quantity: 1,
-      size: selectedVariant.size.name,
-      allVariants: product.product.variants,
+      size: selectedVariant?.size?.name,
+      allVariants: product?.product?.variants,
       variant: selectedVariant,
-      originalPrice: selectedVariant.price,
-      promotion: product.promotion ? product.promotion.slug : null,
-      promotionValue: product.promotion ? product.promotion.value : 0,
-      description: product.product.description,
-      isLimit: product.product.isLimit,
-      note,
-    };
-
-    // Thêm vào updating draft nếu đang trong updating mode
-    if (currentStep === 'updating' && updatingData) {
-      addDraftItem(orderItem);
-    }
-    // Thêm vào ordering data nếu đang trong ordering mode
-    else {
-      addOrderingItem(orderItem);
+      originalPrice: selectedVariant?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: note.trim(),
     }
 
-    // Reset states
-    setNote('');
-    setSelectedVariant(product.product.variants?.[0] || null);
-    setIsOpen(false);
-    onSuccess?.();
-  };
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
 
-  const handleAddToCurrentOrder = () => {
-    if (!selectedVariant) return
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
 
-    const orderItem: IAddNewOrderItemRequest = {
-      quantity: 1,
-      variant: selectedVariant.slug,
-      order: slug as string,
-      promotion: product.promotion ? product.promotion?.slug : '',
-      note: note,
+      // ✅ Step 6: Reset form state
+      setNote('')
+      setSelectedVariant(product?.product?.variants?.[0] || null)
+      setIsOpen(false)
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
     }
-    addNewMenuItem(orderItem, {
-      onSuccess: () => {
-        setIsOpen(false)
-        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
-        onSuccess?.()
-      },
-    })
-    // Reset states
-    setNote('')
-    setSelectedVariant(product.product.variants[0] || null)
-    setIsOpen(false)
   }
-
-  // Determine which handler to use based on context
-  const getButtonHandler = () => {
-    if (isUpdateOrder) {
-      return handleAddToCurrentOrder; // API call for existing order
-    }
-
-    // Sử dụng Order Flow Store nếu đang trong flow
-    if (currentStep === 'updating' || currentStep === 'ordering') {
-      return handleAddToOrderFlow;
-    }
-
-    // Fallback to cart store 
-    return handleAddToCart;
-  };
-
-  const isButtonDisabled = () => {
-    if (!selectedVariant) return true;
-
-    if (isUpdateOrder) {
-      return false; // API call luôn available
-    }
-
-    if (currentStep === 'updating') {
-      return !updatingData; // Cần có updating data
-    }
-
-    return false; // Ordering hoặc cart mode luôn available
-  };
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -263,7 +208,7 @@ export default function SystemAddToCartDrawer({ product, onSuccess, isUpdateOrde
                 <DrawerClose asChild>
                   <Button variant="outline">{tCommon('common.cancel')}</Button>
                 </DrawerClose>
-                <Button onClick={getButtonHandler()} disabled={isButtonDisabled()}>
+                <Button onClick={handleAddToCart} disabled={!selectedVariant}>
                   {t('menu.addToCart')}
                 </Button>
               </div>
