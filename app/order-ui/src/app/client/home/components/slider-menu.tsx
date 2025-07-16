@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -16,7 +17,6 @@ import { ClientAddToCartDialog } from "@/components/app/dialog";
 import { ROUTE } from "@/constants";
 import { PromotionTag } from "@/components/app/badge";
 import { OrderFlowStep, useOrderFlowStore } from "@/stores";
-import moment from "moment";
 
 interface ISliderMenuPromotionProps {
     menus: IMenuItem[] | undefined
@@ -36,8 +36,6 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         addOrderingItem,
         setCurrentStep
     } = useOrderFlowStore()
-    // const { addCartItem, isHydrated } = useCartItemStore()
-    // const { getUserInfo } = useUserStore()
     const isMobile = useIsMobile()
     const getPriceRange = (variants: IProduct['variants']) => {
         if (!variants || variants.length === 0) return null
@@ -101,10 +99,6 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
     const handleAddToCart = (product: IMenuItem) => {
         if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
 
-        // const generateCartItemId = () => {
-        //     return Date.now().toString(36);
-        // };
-
         // ✅ Step 2: Ensure ORDERING phase
         if (currentStep !== OrderFlowStep.ORDERING) {
             setCurrentStep(OrderFlowStep.ORDERING)
@@ -144,36 +138,6 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             // eslint-disable-next-line no-console
             console.error('❌ Error adding item to cart:', error)
         }
-
-        // const cartItem = {
-        //     id: generateCartItemId(),
-        //     slug: product.slug,
-        //     owner: getUserInfo()?.slug || '',
-        //     type: OrderTypeEnum.AT_TABLE, // Default value
-        //     orderItems: [
-        //         {
-        //             id: generateCartItemId(),
-        //             slug: product.product.slug,
-        //             image: product.product.image,
-        //             name: product.product.name,
-        //             quantity: 1,
-        //             variant: product?.product?.variants[0],
-        //             allVariants: product?.product?.variants,
-        //             size: product?.product?.variants[0]?.size?.name,
-        //             originalPrice: product?.product?.variants[0]?.price,
-        //             // price: finalPrice,
-        //             description: product?.product?.description || '',
-        //             isLimit: product?.product?.isLimit || false,
-        //             promotion: product?.promotion ? product?.promotion?.slug : '',
-        //             promotionValue: product?.promotion ? product?.promotion?.value : 0,
-        //             promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
-        //             note: '',
-        //         },
-        //     ],
-        //     table: '', // Will be set later if needed
-        // };
-
-        // addCartItem(cartItem);
     };
 
     return (
@@ -195,18 +159,11 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}
-                                        {/* {item.product.isNew &&
-                                        <div className="absolute -top-[3px] -right-[3px] z-50 w-[3.5rem]">
-                                            <img src={NewTagImage} alt="promotion-tag" className="w-full" />
-                                        </div>} */}
                                     </>
 
                                     <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                         <div>
                                             <h3 className="text-lg font-bold line-clamp-1">{item.product.name}</h3>
-                                            {/* <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
-                                                {item?.product?.description || "Hương vị đặc biệt"}
-                                            </p> */}
                                         </div>
                                         <div className="flex gap-1 justify-between items-center h-full">
                                             <div className="flex flex-col">
@@ -288,7 +245,6 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                         </Button>
                                     </div>
                                 )}
-                                {/* {type === "best-sell" && <div className="space-y-1.5 p-2 text-[12px] text-yellow-500">{t('menu.sold')} <b>{item?.product.isTopSell ? filteredMenus[0].product.saleQuantityHistory : item?.product?.saleQuantityHistory}</b></div>} */}
                             </div>
                         ) : (
                             <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
@@ -299,19 +255,12 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}
-                                        {/* {item.product.isNew &&
-                                        <div className="absolute -top-[3px] -right-[3px] z-50 w-[3.5rem]">
-                                            <img src={NewTagImage} alt="promotion-tag" className="w-full" />
-                                        </div>} */}
                                     </>
                                 </NavLink>
 
                                 <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
                                     <div>
                                         <h3 className="text-sm font-bold line-clamp-1">{item.product.name}</h3>
-                                        {/* <p className="text-[12px] text-gray-500 dark:text-gray-300 break-words line-clamp-2 text-ellipsis overflow-hidden min-h-[36px]">
-                                            {item?.product?.description || "Hương vị đặc biệt"}
-                                        </p> */}
                                     </div>
                                     <div className="flex gap-1 justify-between items-center h-full">
                                         <div className="flex flex-col justify-end w-full h-full">
@@ -408,34 +357,9 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                                                         </Button>
                                                                     </div>
                                                                 )}
-                                                                {/* {item.currentStock > 0 || !item?.product?.isLimit ? (
-                                                                <div className="flex gap-2 justify-end items-end w-full">
-                                                                    {isMobile ? (
-                                                                        <ClientAddToCartDrawer product={item} />
-                                                                    ) : (
-                                                                        <ClientAddToCartDialog product={item} />
-                                                                    )}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="flex gap-2 justify-center p-2 w-full">
-                                                                    <Button
-                                                                        className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white rounded-full bg-destructive"
-                                                                        disabled
-                                                                    >
-                                                                        {t('menu.outOfStock')}
-                                                                    </Button>
-                                                                </div>
-                                                            )} */}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    {/* {item?.product?.isLimit &&
-                                                    <span className="text-[0.7rem] text-muted-foreground">
-                                                        {t('menu.amount')}
-                                                        {item.currentStock}/{item.defaultStock}
-                                                    </span>
-                                                } */}
-
                                                 </div>
                                             ) : (
                                                 <span className="text-sm font-bold text-primary">
@@ -445,9 +369,6 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                         </div>
                                     </div>
                                 </div>
-
-
-                                {/* {type === "best-sell" && <div className="space-y-1.5 p-2 text-[12px] text-yellow-500">{t('menu.sold')} <b>{item?.product.isTopSell ? filteredMenus[0].product.saleQuantityHistory : item?.product?.saleQuantityHistory}</b></div>} */}
                             </div>
                         )}
 
