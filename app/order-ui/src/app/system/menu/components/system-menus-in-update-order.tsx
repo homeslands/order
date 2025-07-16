@@ -7,14 +7,13 @@ import { SystemAddToCurrentOrderDialog } from '@/components/app/dialog'
 import { Button } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
-import { SystemAddToCartDrawer } from '@/components/app/drawer'
 import { PromotionTag } from '@/components/app/badge'
 import ProductImage from '@/assets/images/ProductImage.png'
+import SystemAddToCurrentOrderDrawer from '@/components/app/drawer/system-add-to-current-order-drawer'
 
 interface IMenuProps {
   menu: ISpecificMenu | undefined
   isLoading: boolean
-  // onSuccess: () => void
 }
 
 export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps) {
@@ -81,29 +80,31 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
         group.items.length > 0 &&
         <div key={index} className='flex flex-col gap-4 mt-4'>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className='grid w-full grid-cols-2 gap-1 sm:grid-cols-3 xl:grid-cols-4'>
+          <div className='grid grid-cols-1 gap-4 w-full sm:grid-cols-2 lg:grid-cols-3'>
             {group.items.map((item) => (
               <div
                 key={item.slug}
-                className="flex flex-row sm:flex-col justify-between bg-white border shadow-xl dark:bg-transparent rounded-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[13rem] hover:shadow-2xl"
+                className="flex flex-row sm:flex-col justify-between rounded-xl bg-white border border-muted-foreground/40 transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[16rem] dark:bg-transparent hover:shadow-lg"
               >
-                <div className="flex flex-row w-full sm:flex-col">
-                  <div className="relative items-center justify-center flex-shrink-0 w-24 h-full px-2 py-4 sm:p-0 sm:w-full sm:h-28">
+                <div
+                  className="flex flex-row w-full sm:flex-col"
+                >
+                  <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                     {item?.product?.image ? (
                       <img
                         src={`${publicFileURL}/${item.product.image}`}
                         alt={item.product.name}
-                        className="object-cover w-full h-full p-1.5 rounded-xl sm:h-28"
+                        className="object-cover w-full h-full rounded-xl p-1.5 sm:h-40"
                       />
                     ) : (
                       <img
                         src={ProductImage}
                         alt={item.product.name}
-                        className="object-cover w-full h-full p-1.5 rounded-xl sm:h-28"
+                        className="object-cover w-full h-full rounded-xl p-1.5 sm:h-40"
                       />
                     )}
                     {item.product.isLimit && !isMobile && (
-                      <span className="absolute z-50 px-3 py-1 text-xs text-white rounded-full bottom-3 left-3 bg-primary w-fit">
+                      <span className="absolute bottom-3 left-3 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
                         {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                       </span>
                     )}
@@ -112,9 +113,9 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                     )}
                   </div>
 
-                  <div className="flex flex-col justify-between flex-1 p-2">
+                  <div className="flex flex-col flex-1 justify-between p-2">
                     <div className="h-auto sm:h-fit">
-                      <h3 className="font-bold text-md sm:text-md line-clamp-1">{item.product.name}</h3>
+                      <h3 className="font-bold text-md sm:text-lg line-clamp-1">{item.product.name}</h3>
                       {item.product.isLimit && isMobile && (
                         <span className="px-3 py-1 mt-1 text-xs text-white rounded-full bg-primary w-fit">
                           {t('menu.amount')} {item.currentStock}/{item.defaultStock}
@@ -126,7 +127,7 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                       <div className="flex flex-col gap-1">
                         <div className="flex flex-col">
                           {item?.promotion?.value > 0 ? (
-                            <div className="flex flex-row items-center gap-2">
+                            <div className="flex flex-row gap-2 items-center">
                               <span className="text-xs line-through sm:text-sm text-muted-foreground/70">
                                 {(() => {
                                   const range = getPriceRange(item.product.variants)
@@ -159,10 +160,10 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                   </div>
                 </div>
 
-                <div className="flex items-end justify-end p-2 sm:w-full">
+                <div className="flex justify-end items-end p-2 sm:w-full">
                   {!item.isLocked && (item.currentStock > 0 || !item.product.isLimit) ? (
                     isMobile ? (
-                      <SystemAddToCartDrawer isUpdateOrder={true} product={item} />
+                      <SystemAddToCurrentOrderDrawer product={item} />
                     ) : (
                       <SystemAddToCurrentOrderDialog product={item} />
                     )
