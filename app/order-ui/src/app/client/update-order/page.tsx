@@ -187,30 +187,63 @@ export default function ClientUpdateOrderPage() {
             )}
             {/* Order type selection */}
             {order?.result &&
-                <div className="flex flex-col-reverse gap-4 lg:flex-row">
-                    {/* Left content */}
-                    <div className={`flex ${isMobile ? 'w-full' : 'w-[70%] pr-6 xl:pr-0'} flex-col gap-2 py-3`}>
-                        {/* Note */}
-                        <div className="flex items-end justify-between">
-                            <div className="flex items-center gap-1">
-                                <CircleAlert size={14} className="text-destructive" />
-                                <span className="text-xs italic text-destructive">
-                                    {t('order.selectTableNote')}
-                                </span>
+                <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                    {/* Mobile: Content first (top), Desktop: Menu first (left) */}
+                    {isMobile ? (
+                        <>
+                            {/* Content trên mobile */}
+                            <div className="w-full">
+                                <ClientUpdateOrderContent
+                                    orderType={orderType}
+                                    table={table}
+                                />
                             </div>
-                        </div>
 
-                        {/* Menu & Table select */}
-                        <ScrollArea className="h-[calc(100vh-9rem)]">
-                            <ClientMenuTabs />
-                        </ScrollArea>
-                    </div>
+                            {/* Menu dưới mobile */}
+                            <div className="flex flex-col w-full gap-2 py-3">
+                                {/* Note */}
+                                <div className="flex items-end justify-between">
+                                    <div className="flex items-center gap-1">
+                                        <CircleAlert size={14} className="text-destructive" />
+                                        <span className="text-xs italic text-destructive">
+                                            {t('order.selectTableNote')}
+                                        </span>
+                                    </div>
+                                </div>
 
-                    {/* Right content */}
-                    <ClientUpdateOrderContent
-                        orderType={orderType}
-                        table={table}
-                    />
+                                {/* Menu & Table select */}
+                                <div className="min-h-[50vh]">
+                                    <ClientMenuTabs />
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Desktop layout - Menu left */}
+                            <div className="flex w-[70%] pr-6 xl:pr-0 flex-col gap-2 py-3">
+                                {/* Note */}
+                                <div className="flex items-end justify-between">
+                                    <div className="flex items-center gap-1">
+                                        <CircleAlert size={14} className="text-destructive" />
+                                        <span className="text-xs italic text-destructive">
+                                            {t('order.selectTableNote')}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Menu & Table select */}
+                                <ScrollArea className="h-[calc(100vh-9rem)]">
+                                    <ClientMenuTabs />
+                                </ScrollArea>
+                            </div>
+
+                            {/* Desktop layout - Content right */}
+                            <ClientUpdateOrderContent
+                                orderType={orderType}
+                                table={table}
+                            />
+                        </>
+                    )}
                 </div>
             }
         </div>

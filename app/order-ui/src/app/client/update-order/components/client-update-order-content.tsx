@@ -13,6 +13,7 @@ import UpdateOrderQuantity from './client-update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
 import { ClientConfirmUpdateOrderDialog } from '@/components/app/dialog'
+import { useIsMobile } from '@/hooks'
 
 interface ClientUpdateOrderContentProps {
     orderType: OrderTypeEnum
@@ -27,6 +28,7 @@ export default function ClientUpdateOrderContent({
     const { t: tCommon } = useTranslation(['common'])
     const { t: tVoucher } = useTranslation(['voucher'])
     const { updatingData, removeDraftItem } = useOrderFlowStore()
+    const isMobile = useIsMobile()
 
     const voucher = updatingData?.updateDraft?.voucher || null
     const orderItems = updatingData?.updateDraft?.orderItems || []
@@ -39,13 +41,14 @@ export default function ClientUpdateOrderContent({
     }
 
     return (
-        <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="flex flex-col z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[30%] xl:w-[25%] shadow-lg overflow-hidden bg-background transition-all duration-300"
+        <div
+            className={`flex flex-col ${isMobile
+                ? 'w-screen max-w-none -mx-4 sm:-mx-6 px-4 sm:px-6 min-h-[50vh] border-t border-b bg-background'
+                : 'z-30 fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-full md:w-[30%] xl:w-[30%] shadow-lg overflow-hidden bg-background transition-all duration-300'
+                }`}
         >
             {/* Header */}
-            <div className="flex flex-col gap-2 p-2 backdrop-blur-sm shrink-0 bg-background/95">
+            <div className={`flex flex-col gap-2 p-2 ${isMobile ? 'border-b bg-background' : 'backdrop-blur-sm shrink-0 bg-background/95'}`}>
                 <div className='flex flex-col items-center'>
                     <div className="w-full">
                         <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
@@ -59,8 +62,8 @@ export default function ClientUpdateOrderContent({
             </div>
 
             {/* Order Items */}
-            <ScrollArea className="flex-1 p-0 scrollbar-hidden">
-                <div className="flex flex-col gap-2 p-2">
+            <ScrollArea className={`${isMobile ? 'overflow-y-auto p-0 max-h-[35vh] min-h-[200px]' : 'flex-1 p-0 scrollbar-hidden'}`}>
+                <div className={`flex flex-col gap-2 p-2 ${isMobile ? 'pb-4' : ''}`}>
                     <AnimatePresence>
                         {orderItems && orderItems.length > 0 ? (
                             orderItems.map((item: IOrderItem, index: number) => {
@@ -159,7 +162,7 @@ export default function ClientUpdateOrderContent({
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="z-10 p-2 border-t backdrop-blur-sm shrink-0 bg-background/95"
+                    className={`p-2 border-t ${isMobile ? 'bg-background' : 'z-10 backdrop-blur-sm shrink-0 bg-background/95'}`}
                 >
                     <div className='space-y-1'>
                         <div className="flex flex-col">
@@ -246,6 +249,6 @@ export default function ClientUpdateOrderContent({
                     </div>
                 </motion.div>
             )}
-        </motion.div>
+        </div>
     )
 } 
