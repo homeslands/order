@@ -1,4 +1,4 @@
-import { useCartItemStore, useThemeStore } from '@/stores'
+import { useOrderFlowStore, useThemeStore } from '@/stores'
 import { OrderTypeEnum } from '@/types'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
@@ -8,7 +8,7 @@ import ReactSelect, { SingleValue } from 'react-select'
 export default function OrderTypeSelect() {
   const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
-  const { addOrderType, removeTable, getCartItems } = useCartItemStore()
+  const { addOrderType, removeTable, getCartItems } = useOrderFlowStore()
   const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
     return [
       {

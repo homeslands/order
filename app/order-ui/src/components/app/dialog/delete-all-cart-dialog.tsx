@@ -13,18 +13,18 @@ import {
   DialogTrigger,
   Label,
 } from '@/components/ui'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 
 
 export default function DeleteAllCartDialog() {
   const { t } = useTranslation('menu')
   const { t: tCommon } = useTranslation('common')
   const [isOpen, setIsOpen] = useState(false)
-  const { clearCart } = useCartItemStore()
+  const { clearAllData } = useOrderFlowStore()
 
   const handleDelete = () => {
     setIsOpen(false)
-    clearCart()
+    clearAllData()
   }
 
   return (
@@ -39,7 +39,7 @@ export default function DeleteAllCartDialog() {
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="flex gap-2 items-center text-destructive">
             <TriangleAlert />
             {t('order.deleteAll')}
           </DialogTitle>
@@ -48,13 +48,13 @@ export default function DeleteAllCartDialog() {
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex gap-4 items-center mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
               {t('order.deleteAllWarning')}
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row justify-end gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-end">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

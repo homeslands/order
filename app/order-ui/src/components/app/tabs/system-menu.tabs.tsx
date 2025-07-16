@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemTableSelect } from '../select'
 import { SystemMenuTabscontent } from '../tabscontent'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { OrderTypeEnum } from '@/types'
 
 export function SystemMenuTabs() {
   const { t } = useTranslation(['menu'])
-  const { getCartItems } = useCartItemStore()
+  const { getCartItems } = useOrderFlowStore()
   const cartItems = getCartItems()
 
   const [activeTab, setActiveTab] = useState('menu')

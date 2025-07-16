@@ -2,7 +2,7 @@ import React from 'react'
 import { Minus, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { IOrderDetail, IOrderItem } from '@/types'
 import { useStore } from 'zustand'
 
@@ -12,12 +12,12 @@ interface QuantitySelectorProps {
 
 export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const [quantity, setQuantity] = React.useState(cartItem.quantity)
-  const updateCartItemQuantity = useStore(useCartItemStore, (state) => state.updateCartItemQuantity)
+  const updateOrderingItemQuantity = useStore(useOrderFlowStore, (state) => state.updateOrderingItemQuantity)
 
   const handleIncrement = () => {
     setQuantity((prev) => {
       const newQuantity = prev + 1
-      updateCartItemQuantity(cartItem.id!, newQuantity)
+      updateOrderingItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
@@ -25,7 +25,7 @@ export default function QuantitySelector({ cartItem }: QuantitySelectorProps) {
   const handleDecrement = () => {
     setQuantity((prev) => {
       const newQuantity = Math.max(prev - 1, 1)
-      updateCartItemQuantity(cartItem.id!, newQuantity)
+      updateOrderingItemQuantity(cartItem.id!, newQuantity)
       return newQuantity
     })
   }
