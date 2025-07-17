@@ -27,6 +27,10 @@ import { VerifyEmailToken } from './entity/verify-email-token.entity';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { AuthUtils } from './auth.utils';
 import { UserUtils } from 'src/user/user.utils';
+import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entity';
+import { ZaloOaConnectorClient } from 'src/zalo-oa-connector/zalo-oa-connector.client';
+import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-connector.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -42,6 +46,23 @@ describe('AuthController', () => {
         TransactionManagerService,
         AuthUtils,
         UserUtils,
+        ZaloOaConnectorClient,
+        HttpService,
+        {
+          provide: getRepositoryToken(ZaloOaConnectorConfig),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VerifyPhoneNumberToken),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
+        },
         {
           provide: 'BullQueue_mail',
           useValue: {},

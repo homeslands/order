@@ -67,6 +67,11 @@ services:
       # Session
       SESSION_SECRET: ${SESSION_SECRET}
 
+      # ZaloOA
+      ZALO_OA_API_KEY: ${ZALO_OA_API_KEY}
+      ZALO_OA_SECRET_KEY: ${ZALO_OA_SECRET_KEY}
+      ZALO_OA_ID: ${ZALO_OA_ID}
+
       TZ: Asia/Ho_Chi_Minh
 
     deploy:
