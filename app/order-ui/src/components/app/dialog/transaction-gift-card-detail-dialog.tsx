@@ -391,6 +391,17 @@ export default function TransactionGiftCardDetailDialog({
                                     : giftCardOrderDetails.type}
                             </span>
                           </div>
+                          {/* Customer Name */}
+                          <div className="flex items-start justify-between">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              {tGiftCard('giftCard.giverName')}
+                            </span>
+                            <span
+                              className={`${isMobile ? 'max-w-[120px]' : 'max-w-[300px]'} truncate font-medium text-gray-900 dark:text-gray-100`}
+                            >
+                              {giftCardOrderDetails.customerName}
+                            </span>
+                          </div>
                           {/* Quantity */}
                           <div className="flex items-start justify-between">
                             <span className="text-gray-600 dark:text-gray-400">
