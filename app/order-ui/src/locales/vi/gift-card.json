@@ -128,7 +128,8 @@
         "paymentExpired": "Thanh toán đã hết hạn",
 
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
-        "receiverName": "Tên người nhận"
+        "receiverName": "Tên người nhận",
+        "giverName": "Tên người tặng"
     },
     "schema": {
         "title": {
