@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +25,7 @@ export default function ProtectedElement({
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const [isInitializing, setIsInitializing] = useState(true)
 
   const handleLogout = useCallback(() => {
     setLogout()
@@ -81,10 +82,45 @@ export default function ProtectedElement({
   }, [token, userInfo])
 
   useEffect(() => {
+    // Nếu có token nhưng chưa có userInfo, đợi một chút để userInfo load
+    if (token && !userInfo && isAuthenticated()) {
+      const timer = setTimeout(() => {
+        setIsInitializing(false)
+      }, 500) // 500ms cho optimistic approach
+
+      return () => clearTimeout(timer)
+    } else {
+      setIsInitializing(false)
+    }
+  }, [token, userInfo, isAuthenticated])
+
+  // Effect riêng để handle khi userInfo load xong
+  useEffect(() => {
+    // Khi userInfo vừa load xong và đang ở home page, redirect đến trang phù hợp
+    if (userInfo && token && location.pathname === ROUTE.HOME && !isInitializing) {
+      const allowedRoute = findFirstAllowedRoute();
+      if (allowedRoute !== ROUTE.HOME) {
+        navigate(allowedRoute);
+      }
+    }
+  }, [userInfo, token, location.pathname, isInitializing, findFirstAllowedRoute, navigate])
+
+  useEffect(() => {
+    // Không thực hiện check nếu đang trong quá trình khởi tạo
+    if (isInitializing) return
+
     if (!isAuthenticated()) {
       setCurrentUrl(location.pathname)
       handleLogout()
       showToast(t('toast.sessionExpired'))
+      return;
+    }
+
+    // Nếu có token nhưng không có userInfo sau khi hết thời gian chờ
+    // cho phép navigate nhưng với fallback route an toàn
+    if (!userInfo) {
+      // Redirect về home hoặc profile page thay vì logout
+      navigate(ROUTE.HOME)
       return;
     }
 
@@ -94,7 +130,9 @@ export default function ProtectedElement({
       navigate(allowedRoute);
     }
   }, [
+    isInitializing,
     isAuthenticated,
+    userInfo,
     location.pathname,
     hasPermissionForRoute,
     findFirstAllowedRoute,

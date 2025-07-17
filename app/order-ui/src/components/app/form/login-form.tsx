@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +23,7 @@ import { showToast } from '@/utils'
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const {
     setToken,
     setRefreshToken,
@@ -42,20 +43,39 @@ export const LoginForm: React.FC = () => {
   })
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
+    setIsLoggingIn(true)
     login(data, {
       onSuccess: async (response) => {
-        clearCart()
-        setToken(response.result.accessToken)
-        setRefreshToken(response.result.refreshToken)
-        setExpireTime(response.result.expireTime)
-        setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+        try {
+          clearCart()
 
-        const profile = await refetchProfile()
-        if (profile.data) {
-          setUserInfo(profile.data.result)
+          // Set token ngay lập tức để user có thể navigate nhanh
+          setToken(response.result.accessToken)
+          setRefreshToken(response.result.refreshToken)
+          setExpireTime(response.result.expireTime)
+          setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+
+          showToast(t('toast.loginSuccess'))
+
+          // Fetch profile song song (non-blocking cho navigation)
+          refetchProfile().then((profile) => {
+            if (profile.data) {
+              setUserInfo(profile.data.result)
+            }
+          }).catch(() => {
+            // Nếu profile fetch fail, giữ token nhưng redirect về profile page
+            // để user có thể thấy thông báo và retry
+          })
+
+        } catch {
+          showToast(t('toast.loginFailed'))
+        } finally {
+          setIsLoggingIn(false)
         }
-        showToast(t('toast.loginSuccess'))
       },
+      onError: () => {
+        setIsLoggingIn(false)
+      }
     })
   }
 
@@ -107,8 +127,8 @@ export const LoginForm: React.FC = () => {
             ))}
           </div>
           <div className="flex justify-between items-center w-full">
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? <ButtonLoading /> : t('login.title')}
+            <Button type="submit" className="w-full" disabled={isPending || isLoggingIn}>
+              {(isPending || isLoggingIn) ? <ButtonLoading /> : t('login.title')}
             </Button>
           </div>
         </form>
