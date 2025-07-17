@@ -13,6 +13,7 @@ import { useProfile } from '@/hooks'
 import { showToast } from '@/utils'
 import {
   SendVerifyEmailDialog,
+  SendVerifyPhoneNumberDialog,
   UpdateCustomerProfileDialog,
   UpdatePasswordDialog,
 } from '../dialog'
@@ -22,15 +23,19 @@ import { useEffect, useState } from 'react'
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
+  const [isVerifyingPhoneNumber, setIsVerifyingPhoneNumber] = useState(false)
   const { data, refetch } = useProfile()
-  const { emailVerificationStatus } = useUserStore()
+  const { emailVerificationStatus, phoneNumberVerificationStatus } = useUserStore()
 
   // check if emailVerificationStatus is not null, then set isVerifyingEmail to true
   useEffect(() => {
     if (emailVerificationStatus?.expiresAt) {
       setIsVerifyingEmail(true)
     }
-  }, [emailVerificationStatus?.expiresAt])
+    if (phoneNumberVerificationStatus?.expiresAt) {
+      setIsVerifyingPhoneNumber(true)
+    }
+  }, [emailVerificationStatus?.expiresAt, phoneNumberVerificationStatus?.expiresAt])
 
   const handleCopyEmail = () => {
     if (userProfile?.email) {
@@ -41,6 +46,11 @@ export function CustomerInfoTabsContent() {
 
   const handleVerifyEmailSuccess = () => {
     setIsVerifyingEmail(false)
+    refetch()
+  }
+
+  const handleVerifyPhoneNumberSuccess = () => {
+    setIsVerifyingPhoneNumber(false)
     refetch()
   }
 
@@ -70,7 +80,7 @@ export function CustomerInfoTabsContent() {
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{t('profile.email')}</span>
           {userProfile?.isVerifiedEmail ? (
             <div className="flex items-center text-green-500">
@@ -83,7 +93,7 @@ export function CustomerInfoTabsContent() {
             </div>
           )}
         </div>
-        <div className="flex relative gap-2">
+        <div className="relative flex gap-2">
           <Input
             value={userProfile?.email}
             readOnly
@@ -97,7 +107,7 @@ export function CustomerInfoTabsContent() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={handleCopyEmail}
-                    className="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2 hover:text-gray-700 dark:hover:text-gray-300"
+                    className="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -113,13 +123,28 @@ export function CustomerInfoTabsContent() {
     ),
     phonenumber: (
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-normal">{t('profile.phoneNumber')}</span>
-        <Input
-          value={userProfile?.phonenumber}
-          readOnly
-          disabled
-          placeholder={`${t('profile.phoneNumber')}`}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{t('profile.phoneNumber')}</span>
+          {userProfile?.isVerifiedPhonenumber ? (
+            <div className="flex items-center text-green-500">
+              <ShieldCheck className="w-4 h-4" />
+              <span className="text-xs">{t('profile.verified')}</span>
+            </div>
+          ) : (
+            <div className="flex items-center text-destructive">
+              <span className="text-xs">{isVerifyingPhoneNumber ? t('profile.verifyingPhoneNumber') : t('profile.notVerified')}</span>
+            </div>
+          )}
+        </div>
+        <div className="relative flex gap-2">
+          <Input
+            value={userProfile?.phonenumber}
+            readOnly
+            disabled
+            placeholder={t('profile.phoneNumber')}
+            className={`border ${userProfile?.isVerifiedPhonenumber ? 'border-green-500 text-green-600 bg-green-50' : 'border-destructive text-destructive bg-destructive/10'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
+          />
+        </div>
       </div>
     ),
     dob: (
@@ -148,10 +173,13 @@ export function CustomerInfoTabsContent() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-4 justify-center md:justify-end">
+      <div className="flex justify-center gap-4 md:justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
         {!userProfile?.isVerifiedEmail && (
           <SendVerifyEmailDialog onSuccess={handleVerifyEmailSuccess} />
+        )}
+        {!userProfile?.isVerifiedPhonenumber && (
+          <SendVerifyPhoneNumberDialog onSuccess={handleVerifyPhoneNumberSuccess} />
         )}
         <UpdatePasswordDialog />
       </div>
