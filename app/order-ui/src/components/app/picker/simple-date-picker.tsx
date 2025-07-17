@@ -176,6 +176,10 @@ export default function SimpleDatePicker({
                     disabled={isDateDisabled}
                     initialFocus
                     month={new Date(year, month)}
+                    onMonthChange={(newMonthDate) => {
+                        setMonth(newMonthDate.getMonth())
+                        setYear(newMonthDate.getFullYear())
+                    }}
                 />
             </PopoverContent>
         </Popover>
