@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Loader2, Phone, ShoppingCart } from 'lucide-react'
+import { Loader2, ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -115,8 +115,7 @@ export default function SendVerifyPhoneNumberDialog({ onSuccess }: { onSuccess: 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild className="flex justify-start w-fit">
         <Button className="gap-1 px-2 text-sm" onClick={() => handleOpenDialog()}>
-          <Phone className="hidden sm:block" />
-          <span className="text-xs sm:text-sm">{t('profile.verifyPhoneNumber')}</span>
+          <span className="text-xs sm:text-sm">{t('profile.verify')}</span>
         </Button>
       </DialogTrigger>
 
