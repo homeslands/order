@@ -26,6 +26,7 @@
     "updateProfile": "Update Profile",
     "updateProfileDescription": "Please. Modify the details below to update your personal information",
     "copyEmail": "Copy Email",
+    "verify": "Verify",
     "verifyEmail": "Verify Email",
     "verifyPhoneNumber": "Verify Phone Number",
     "verifyEmailDescription": "Check and verify your email to receive an OTP.",
