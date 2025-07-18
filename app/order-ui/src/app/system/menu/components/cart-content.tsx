@@ -4,7 +4,7 @@ import { Trash2, ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Button, ScrollArea } from '@/components/ui'
+import { Badge, Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
 import { useOrderFlowStore } from '@/stores'
@@ -19,6 +19,7 @@ export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
+  const { t: tVoucher } = useTranslation(['voucher'])
   const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
 
   const cartItems = getCartItems()
@@ -123,18 +124,18 @@ export function CartContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex flex-col gap-1 p-2 rounded-lg border transition-colors border-primary/80 group bg-primary/10"
+                  className="flex flex-col gap-1 p-2 transition-colors border rounded-lg border-primary/80 group bg-primary/10"
                 >
                   <div className="flex flex-col flex-1 min-w-0">
-                    <div className='flex justify-between items-center'>
-                      <div className='flex gap-1 items-end'>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-end gap-1'>
                         <span className="text-[13px] xl:text-sm font-semibold truncate max-w-[9rem] xl:max-w-[15rem]">{item.name}</span>
                       </div>
                       <span className="text-[14px]">
                         {`${formatCurrency((displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity)}`}
                       </span>
                     </div>
-                    <div className='flex justify-between items-center'>
+                    <div className='flex items-center justify-between'>
                       <span className="text-[10px] text-muted-foreground">
                         ({item.size.toUpperCase()})
                       </span>
@@ -187,13 +188,33 @@ export function CartContent() {
               {cartItems?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
-                    <div className="flex gap-2 items-center mt-2">
-                      <span className="text-xs text-muted-foreground">
-                        {t('order.usedVoucher')}:
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[10px] text-muted-foreground">
+                        {t('order.usedVoucher')}
                       </span>
-                      <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                      <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
                         -{`${formatCurrency(cartTotals.voucherDiscount)}`}
-                      </span>
+                      </Badge>
+                    </div>
+                    {/* Hiển thị nội dung chi tiết theo loại voucher */}
+                    <div className="text-[10px] italic text-muted-foreground">
+                      {(() => {
+                        if (!cartItems?.voucher) return null
+
+                        switch (cartItems?.voucher.type) {
+                          case VOUCHER_TYPE.PERCENT_ORDER:
+                            return `${tVoucher('voucher.discountValue')}${cartItems?.voucher.value}% ${tVoucher('voucher.orderValue')}`
+
+                          case VOUCHER_TYPE.FIXED_VALUE:
+                            return `${tVoucher('voucher.discountValue')}${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.orderValue')}`
+
+                          case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
+                            return `${tVoucher('voucher.samePrice')} ${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+
+                          default:
+                            return ''
+                        }
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -201,16 +222,16 @@ export function CartContent() {
             </div>
 
             <div className="space-y-1 text-sm">
-              <div className="flex flex-col gap-2 w-full text-sm text-muted-foreground">
+              <div className="flex flex-col w-full text-sm text-muted-foreground">
                 {/* Tổng giá gốc */}
-                <div className="flex justify-between">
+                <div className="flex justify-between text-xs">
                   <span>{t('order.subtotalBeforeDiscount')}</span>
                   <span>{formatCurrency(cartTotals.subTotalBeforeDiscount)}</span>
                 </div>
 
                 {/* Giảm giá khuyến mãi (promotion) */}
                 {cartTotals.promotionDiscount > 0 && (
-                  <div className="flex justify-between italic text-yellow-600">
+                  <div className="flex justify-between text-[10px] italic text-yellow-600">
                     <span>{t('order.promotionDiscount')}</span>
                     <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                   </div>
@@ -218,18 +239,18 @@ export function CartContent() {
 
                 {/* Tổng giảm giá voucher */}
                 {cartTotals.voucherDiscount > 0 && (
-                  <div className="flex justify-between italic text-green-600">
+                  <div className="flex justify-between text-[10px] italic text-green-600">
                     <span>{t('order.voucherDiscount')}</span>
                     <span>-{formatCurrency(cartTotals.voucherDiscount)}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
+                <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
-                  <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
               </div>
-              <div className='flex justify-end items-center'>
+              <div className='flex items-center justify-end'>
                 <CreateOrderDialog
                   disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
                 />
