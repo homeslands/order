@@ -32,6 +32,7 @@ import { fileToBase64DataUri } from 'src/shared/utils/file.util';
 import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction.dto';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { CardOrder } from '../card-order/entities/card-order.entity';
 
 @Injectable()
 export class PointTransactionService {
@@ -45,6 +46,8 @@ export class PointTransactionService {
     private orderRepository: Repository<Order>,
     @InjectRepository(GiftCard)
     private gcRepository: Repository<GiftCard>,
+    @InjectRepository(CardOrder)
+    private coRepository: Repository<CardOrder>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -53,7 +56,7 @@ export class PointTransactionService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
     private readonly pdfService: PdfService,
-  ) {}
+  ) { }
 
   async exportAll(query: ExportAllPointTransactionDto) {
     const context = `${PointTransactionService.name}.${this.export.name}`;
@@ -110,7 +113,7 @@ export class PointTransactionService {
         PointTransactionValidation.POINT_TRANSACTION_NOT_FOUND,
       );
 
-    const ref: Order | GiftCard = await this.getObjectRef({
+    const ref: Order | GiftCard | CardOrder = await this.getObjectRef({
       objectType: pt.objectType,
       objectSlug: pt.objectSlug,
     });
@@ -131,7 +134,7 @@ export class PointTransactionService {
   }
 
   async getObjectRef(payload: { objectType: string; objectSlug: string }) {
-    let objectRef: Order | GiftCard = null;
+    let objectRef: Order | GiftCard | CardOrder = null;
 
     switch (payload.objectType) {
       case PointTransactionObjectTypeEnum.ORDER:
@@ -143,6 +146,12 @@ export class PointTransactionService {
         objectRef = await this.gcRepository.findOne({
           where: { slug: payload.objectSlug },
           relations: ['cardOrder'],
+        });
+        break;
+      case PointTransactionObjectTypeEnum.CARD_ORDER:
+        objectRef = await this.coRepository.findOne({
+          where: { slug: payload.objectSlug },
+          relations: ['payment'],
         });
         break;
       default:
