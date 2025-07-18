@@ -165,7 +165,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                         <img
                           src={`${publicFileURL}/${item.product.image}`}
                           alt={item.product.name}
-                          className="object-cover w-full h-[5rem] xl:h-[8rem] rounded-xl p-1.5"
+                          className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
                         />
                         {item.promotion && item.promotion.value > 0 && (
                           <StaffPromotionTag promotion={item.promotion} />
