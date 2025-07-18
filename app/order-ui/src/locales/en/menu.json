@@ -191,6 +191,8 @@
     "orderStatus": "Order status",
     "cash": "Cash",
     "bankTransfer": "Bank transfer",
+    "point": "Coin",
+    "deductedCoinAmount": "Deducted coin amount",
     "deliveryOrderType": "Delivery order type",
     "pending": "Pending",
     "paid": "Paid",
@@ -280,6 +282,7 @@
     "exportOrderProvisionalBill": "Export provisional bill",
     "noQRCode": "No QR code",
     "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful.",
-    "thankYouForOrdering": "Thank you for ordering at TREND Coffee!"
+    "thankYouForOrdering": "Thank you for ordering at TREND Coffee!",
+    "point": "Coin payment"
   }
 }

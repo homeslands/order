@@ -67,7 +67,7 @@ export default function PaymentMethodRadioGroup({
       {userInfo && userInfo.role.name == Role.CUSTOMER && (
         <div className="flex space-x-2">
           <RadioGroupItem
-            value={PaymentMethod.COIN}
+            value={PaymentMethod.POINT}
             id="r4"
             className="mt-[2px]"
           />

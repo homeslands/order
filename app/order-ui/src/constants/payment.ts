@@ -2,7 +2,7 @@ export enum PaymentMethod {
   INTERNAL_WALLET = 'internalWallet',
   BANK_TRANSFER = 'bank-transfer',
   CASH = 'cash',
-  COIN = 'coin',
+  POINT = 'point',
 }
 
 export enum paymentStatus {
