@@ -17,7 +17,7 @@ import {
   Textarea,
 } from '@/components/ui'
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
-import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
@@ -255,15 +255,21 @@ export default function OrderHistoryPage() {
                       {orderInfo?.payment?.paymentMethod && (
                         <>
                           {orderInfo?.payment.paymentMethod ===
-                            'bank-transfer' && (
+                            PaymentMethod.BANK_TRANSFER && (
                               <span className="italic">
                                 {t('paymentMethod.bankTransfer')}
                               </span>
                             )}
                           {orderInfo?.payment.paymentMethod ===
-                            'cash' && (
+                            PaymentMethod.CASH && (
                               <span className="italic">
                                 {t('paymentMethod.cash')}
+                              </span>
+                            )}
+                          {orderInfo?.payment.paymentMethod ===
+                            PaymentMethod.POINT && (
+                              <span className="italic">
+                                {t('paymentMethod.point')}
                               </span>
                             )}
                         </>
