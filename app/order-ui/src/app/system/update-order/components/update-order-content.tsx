@@ -62,7 +62,8 @@ export default function UpdateOrderContent({
                     <AnimatePresence>
                         {orderItems && orderItems.length > 0 ? (
                             orderItems.map((item: IOrderItem, index: number) => {
-                                const displayItem = displayItems.find(di => di.productSlug === item.slug)
+                                const displayItem = displayItems.find(di => di.productSlug === item.productSlug)
+
                                 const original = item.variant.price || 0
                                 const priceAfterPromotion = displayItem?.priceAfterPromotion || original
                                 const finalPrice = displayItem?.finalPrice || priceAfterPromotion
@@ -173,7 +174,7 @@ export default function UpdateOrderContent({
                                             <span className="text-xs text-muted-foreground">
                                                 {t('order.usedVoucher')}:
                                             </span>
-                                            <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                                            <span className="px-3 py-1 text-[10px] font-semibold rounded-full border border-primary bg-primary/20 text-primary">
                                                 -{formatCurrency(cartTotals?.voucherDiscount || 0)}
                                             </span>
                                         </div>
@@ -213,7 +214,7 @@ export default function UpdateOrderContent({
 
                                 {/* Giảm giá khuyến mãi (promotion) */}
                                 {(cartTotals?.promotionDiscount || 0) > 0 && (
-                                    <div className="flex justify-between italic text-yellow-600">
+                                    <div className="flex justify-between text-xs italic text-yellow-600">
                                         <span>{t('order.promotionDiscount')}</span>
                                         <span>-{formatCurrency(cartTotals?.promotionDiscount || 0)}</span>
                                     </div>
@@ -221,7 +222,7 @@ export default function UpdateOrderContent({
 
                                 {/* Tổng giảm giá voucher */}
                                 {(cartTotals?.voucherDiscount || 0) > 0 && (
-                                    <div className="flex justify-between italic text-green-600">
+                                    <div className="flex justify-between text-xs italic text-green-600">
                                         <span>{t('order.voucherDiscount')}</span>
                                         <span>-{formatCurrency(cartTotals?.voucherDiscount || 0)}</span>
                                     </div>

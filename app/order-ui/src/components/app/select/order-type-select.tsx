@@ -1,16 +1,27 @@
+import { useMemo } from 'react'
+import _ from 'lodash'
+import { useTranslation } from 'react-i18next'
+
 import { useOrderFlowStore, useThemeStore } from '@/stores'
 import { OrderTypeEnum } from '@/types'
-import _ from 'lodash'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import ReactSelect, { SingleValue } from 'react-select'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui'
 
 export default function OrderTypeSelect() {
   const { getTheme } = useThemeStore()
   const { t } = useTranslation('menu')
-  const { addOrderType, removeTable, getCartItems } = useOrderFlowStore()
-  const [orderTypes] = useState<{ value: string; label: string }[]>(() => {
-    return [
+  const { setOrderingType, getCartItems } = useOrderFlowStore()
+
+  const cartItems = getCartItems()
+
+  const orderTypes = useMemo(
+    () => [
       {
         value: OrderTypeEnum.AT_TABLE,
         label: t('menu.dineIn'),
@@ -19,72 +30,31 @@ export default function OrderTypeSelect() {
         value: OrderTypeEnum.TAKE_OUT,
         label: t('menu.takeAway'),
       },
-    ]
-  })
-  const [selectedType, setSelectedType] = useState<{
-    value: string
-    label: string
-  }>(orderTypes[0])
+    ],
+    [t]
+  )
 
-  useEffect(() => {
-    const cartItems = getCartItems()
-    if (cartItems?.type) {
-      const result = orderTypes.find((type) => type.value === cartItems.type)
-      if (result) {
-        setSelectedType(result)
-      }
-    }
-  }, [getCartItems, orderTypes])
+  const selectedType = useMemo(() => {
+    return cartItems?.type ? orderTypes.find((type) => type.value === cartItems.type) : orderTypes[0]
+  }, [cartItems, orderTypes])
 
-  const handleChange = (
-    selectedOption: SingleValue<{ value: string; label: string }>,
-  ) => {
-    if (selectedOption) {
-      setSelectedType(selectedOption)
-      if (selectedOption.value === OrderTypeEnum.TAKE_OUT) {
-        removeTable()
-      }
-      addOrderType(selectedOption.value as OrderTypeEnum)
-    }
+  const handleChange = (value: OrderTypeEnum) => {
+    setOrderingType(value as OrderTypeEnum)
   }
 
   return (
-    <ReactSelect
-      isSearchable={false}
-      placeholder={t('menu.selectOrderType')}
-      className="w-full text-sm border-muted-foreground text-muted-foreground"
-      styles={{
-        control: (baseStyles) => ({
-          ...baseStyles,
-          backgroundColor: getTheme() === 'light' ? 'white' : '',
-          borderColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
-        }),
-        menu: (baseStyles) => ({
-          ...baseStyles,
-          backgroundColor: getTheme() === 'light' ? 'white' : '#121212',
-        }),
-        option: (baseStyles, state) => ({
-          ...baseStyles,
-          backgroundColor: state.isFocused
-            ? getTheme() === 'light'
-              ? '#e2e8f0'
-              : '#2d2d2d'
-            : getTheme() === 'light'
-              ? 'white'
-              : '#121212',
-          color: getTheme() === 'light' ? 'black' : 'white',
-          '&:hover': {
-            backgroundColor: getTheme() === 'light' ? '#e2e8f0' : '#2d2d2d',
-          },
-        }),
-        singleValue: (baseStyles) => ({
-          ...baseStyles,
-          color: getTheme() === 'light' ? 'black' : 'white',
-        }),
-      }}
-      value={selectedType}
-      options={orderTypes}
-      onChange={handleChange}
-    />
+
+    <Select value={selectedType?.value} onValueChange={handleChange}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder={t('menu.selectOrderType')} />
+      </SelectTrigger>
+      <SelectContent className={getTheme() === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}>
+        {orderTypes.map((type) => (
+          <SelectItem key={type.value} value={type.value}>
+            {type.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }

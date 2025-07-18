@@ -483,15 +483,46 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
 
       setOrderingType: (type: OrderTypeEnum) => {
         const { orderingData } = get()
-        if (!orderingData) return
 
-        set({
-          orderingData: {
+        // Nếu orderingData là null, khởi tạo nó trước
+        if (!orderingData) {
+          get().initializeOrdering()
+          // Lấy lại orderingData sau khi khởi tạo
+          const { orderingData: newOrderingData } = get()
+          if (!newOrderingData) {
+            return
+          }
+
+          const updatedData = {
+            ...newOrderingData,
+            type,
+            // Nếu type là take-out, remove table
+            ...(type === OrderTypeEnum.TAKE_OUT && {
+              table: '',
+              tableName: '',
+            }),
+          }
+
+          set({
+            orderingData: updatedData,
+            lastModified: moment().valueOf(),
+          })
+        } else {
+          const updatedData = {
             ...orderingData,
             type,
-          },
-          lastModified: moment().valueOf(),
-        })
+            // Nếu type là take-out, remove table
+            ...(type === OrderTypeEnum.TAKE_OUT && {
+              table: '',
+              tableName: '',
+            }),
+          }
+
+          set({
+            orderingData: updatedData,
+            lastModified: moment().valueOf(),
+          })
+        }
       },
 
       setOrderingDescription: (description: string) => {
@@ -641,7 +672,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           productSlug: originalOrder.orderItems[0].variant.product.slug || '',
           status: originalOrder.status || OrderStatus.PENDING,
           owner: originalOrder.owner?.slug || '',
-          ownerFullName: originalOrder.owner?.firstName || '',
+          ownerFullName:
+            originalOrder.owner?.firstName +
+              ' ' +
+              originalOrder.owner?.lastName || '',
           ownerPhoneNumber: originalOrder.owner?.phonenumber || '',
           ownerRole: originalOrder.owner?.role.name || '',
           paymentMethod: originalOrder.payment?.paymentMethod || '',
@@ -947,6 +981,11 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updatedDraft = {
           ...updatingData.updateDraft,
           type,
+          // Nếu type là take-out, remove table
+          ...(type === OrderTypeEnum.TAKE_OUT && {
+            table: '',
+            tableName: '',
+          }),
         }
 
         set({

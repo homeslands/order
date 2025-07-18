@@ -64,7 +64,6 @@ export default function ClientMenuPage() {
     e.stopPropagation()
     clearPriceRange()
     setPriceRange(PriceRange.MIN_PRICE, PriceRange.MAX_PRICE)
-
   }
 
   return (
@@ -78,7 +77,7 @@ export default function ClientMenuPage() {
       </Helmet>
       <div className="flex flex-col items-start gap-5 lg:flex-row">
         {/* Left - sidebar */}
-        <div className="w-full lg:sticky lg:top-20 lg:z-10 lg:w-1/4">
+        <div className="w-full lg:sticky lg:top-24 lg:z-10 lg:w-1/4">
           <div className="flex flex-col gap-4">
             <div className="flex items-end gap-1 text-xs text-primary">
               <MapPinIcon className="w-5 h-5" />
