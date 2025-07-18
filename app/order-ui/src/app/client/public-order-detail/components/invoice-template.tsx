@@ -3,7 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 
 import { Logo } from '@/assets/images';
-import { formatCurrency } from '@/utils';
+import { capitalizeFirstLetter, formatCurrency } from '@/utils';
 import { IOrder } from '@/types';
 import { PaymentMethod, VOUCHER_TYPE } from '@/constants';
 
@@ -30,7 +30,7 @@ export default function Invoice({
     const loss = order?.loss || 0;
 
     return (
-        <div className="p-5 pt-0">
+        <div className="px-3 py-5 bg-white rounded-md dark:bg-transparent">
             {/* Logo */}
             <div className="mb-1">
                 <div className="flex items-center justify-center">
@@ -69,70 +69,87 @@ export default function Invoice({
             {/* Invoice items */}
             <table className="min-w-full mt-4 text-sm border-collapse table-auto">
                 <thead>
-                    <tr className="text-sm font-semibold text-left bg-gray-100 border-b">
-                        <th className="w-2/5 px-2 py-2">{t('order.item')}</th>
-                        <th className="w-1/12 px-2 py-2 text-center">{t('order.itemQuantity')}</th>
-                        <th className="w-1/6 px-2 py-2 text-right">{t('order.unitPrice')}</th>
-                        <th className="w-1/6 px-2 py-2 text-center">{t('menu.promotion')} (%)</th>
-                        <th className="w-1/5 px-2 py-2 text-right">{t('order.grandTotal')}</th>
+                    <tr className="text-sm font-semibold text-left border-b border-dashed border-muted-foreground">
+                        <th className="w-[35%] sm:w-[40%] py-2">{t('order.item')}</th>
+                        <th className="w-[10%] sm:w-[5%] py-2 text-center">{t('order.itemQuantity')}</th>
+                        <th className="w-[25%] py-2 text-right">{t('order.unitPrice')}</th>
+                        <th className="w-[10%] sm:w-[15%] py-2 text-center">{t('menu.promotion')} (%)</th>
+                        <th className="w-[30%] sm:w-[25%] py-2 text-right">{t('order.grandTotal')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {order?.orderItems.map((item, idx) => (
-                        <tr key={idx} className="border-b hover:bg-gray-50">
-                            <td className="px-2 py-2">
-                                {item?.variant?.product?.name}{' '}
-                                <span className="uppercase">({item?.variant?.size?.name})</span>
-                            </td>
-                            <td className="px-2 py-2 text-center">{item?.quantity}</td>
-                            <td className="px-2 py-2 text-right">{formatCurrency(item?.variant?.price || 0)}</td>
-                            <td className="px-2 py-2 text-center">{item?.promotion?.value || 0}</td>
-                            <td className="px-2 py-2 text-right">{formatCurrency(item?.subtotal || 0)}</td>
-                        </tr>
+                        <>
+                            <tr key={`item-${idx}`} className="text-xs border-b border-dashed border-muted-foreground sm:text-sm">
+                                <td className="py-2">
+                                    {item?.variant?.product?.name}{' '}
+                                    <span className="uppercase">
+                                        ({capitalizeFirstLetter(item?.variant?.size?.name)})
+                                    </span>
+                                </td>
+                                <td className="py-2 text-center">{item?.quantity}</td>
+                                <td className="py-2 text-right">
+                                    {formatCurrency(item?.variant?.price || 0)}
+                                </td>
+                                <td className="py-2 text-center">{item?.promotion?.value || 0}</td>
+                                <td className="py-2 text-right">
+                                    {formatCurrency(item?.subtotal || 0)}
+                                </td>
+                            </tr>
+
+                            {item?.note && (
+                                <tr key={`note-${idx}`} className="border-b border-dashed border-muted-foreground">
+                                    <td colSpan={5} className="py-1 sm:py-2 text-[11px] sm:text-xs text-muted-foreground italic bg-gray-50/50">
+                                        📝 {t('order.note')}: {item.note}
+                                    </td>
+                                </tr>
+                            )}
+                        </>
                     ))}
                 </tbody>
 
+
                 {/* Payment Summary */}
                 <tfoot className="text-sm">
-                    <tr className="border-t border-gray-300 bg-gray-50">
-                        <td className="px-2 py-2" colSpan={3}>
+                    <tr className="">
+                        <td className="py-2" colSpan={3}>
                             {t('order.pttt')}
                         </td>
-                        <td colSpan={2} className="px-2 py-2 font-semibold text-right">
+                        <td colSpan={2} className="py-2 font-semibold text-right">
                             {order?.payment?.paymentMethod === PaymentMethod.CASH
                                 ? t('order.cash')
                                 : t('order.transfer')}
                         </td>
                     </tr>
                     <tr>
-                        <td className="px-2 py-2" colSpan={3}>
+                        <td className="py-2" colSpan={3}>
                             {t('order.totalPayment')}
                         </td>
-                        <td colSpan={2} className="px-2 py-2 text-right">
+                        <td colSpan={2} className="py-2 text-right">
                             {formatCurrency(originalTotal - discount || 0)}
                         </td>
                     </tr>
                     <tr>
-                        <td className="px-2 py-2" colSpan={3}>
+                        <td className="py-2" colSpan={3}>
                             {t('order.discount')}
                         </td>
-                        <td colSpan={2} className="px-2 py-2 text-right">
+                        <td colSpan={2} className="py-2 text-right">
                             {formatCurrency(voucherDiscount || 0)}
                         </td>
                     </tr>
                     <tr>
-                        <td className="px-2 py-2" colSpan={3}>
+                        <td className="py-2" colSpan={3}>
                             {t('order.invoiceAutoDiscountUnderThreshold')}
                         </td>
-                        <td colSpan={2} className="px-2 py-2 text-right">
+                        <td colSpan={2} className="py-2 text-right">
                             {formatCurrency(loss || 0)}
                         </td>
                     </tr>
-                    <tr className="border-t-2 border-black">
-                        <td className="px-2 py-3 text-base font-semibold" colSpan={3}>
+                    <tr className="border-t-2 border-dashed border-muted-foreground">
+                        <td className="py-3 text-base font-semibold" colSpan={3}>
                             {t('order.totalPayment')}
                         </td>
-                        <td colSpan={2} className="px-2 py-3 text-xl font-bold text-right text-primary">
+                        <td colSpan={2} className="py-3 text-xl font-bold text-right text-primary">
                             {formatCurrency(order?.subtotal || 0)}
                         </td>
                     </tr>

@@ -65,6 +65,8 @@ const errorCodes: { [key: number]: string } = {
   119020: 'toast.errorWhenConfirmEmailVerification',
   119021: 'toast.emailAlreadyExists',
   119022: 'toast.invalidEmail',
+  119027: 'toast.verifyPhoneNumberTokenExists',
+  119030: 'toast.verifyPhoneNumberTokenNotFound',
   121000: 'toast.fileNotFound',
   123000: 'toast.paymentQueryInvalid',
   123001: 'toast.paymentMethodInvalid',

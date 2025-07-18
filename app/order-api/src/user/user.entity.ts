@@ -8,6 +8,7 @@ import { Role } from 'src/role/role.entity';
 import { VerifyEmailToken } from 'src/auth/entity/verify-email-token.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
+import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -73,12 +74,18 @@ export class User extends Base {
   @AutoMap()
   isVerifiedEmail: boolean;
 
+  @OneToMany(() => VerifyEmailToken, (token) => token.user)
+  verifyEmailTokens: VerifyEmailToken[];
+
   @Column({ name: 'is_verified_phonenumber_column', default: false })
   @AutoMap()
   isVerifiedPhonenumber: boolean;
 
-  @OneToMany(() => VerifyEmailToken, (token) => token.user)
-  verifyEmailTokens: VerifyEmailToken[];
+  @OneToMany(
+    () => VerifyPhoneNumberToken,
+    (verifyPhoneNumberToken) => verifyPhoneNumberToken.user,
+  )
+  verifyPhoneNumberTokens: VerifyPhoneNumberToken[];
 
   @OneToMany(() => CardOrder, (cardOrder) => cardOrder.customer, {
     onDelete: 'SET NULL',
