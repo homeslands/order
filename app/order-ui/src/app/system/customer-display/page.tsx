@@ -4,19 +4,18 @@ import { useTranslation } from "react-i18next"
 import { User, Phone, MapPin, FileText, QrCode, AlertCircle } from "lucide-react"
 
 import { Badge } from "@/components/ui"
-import { calculateCartItemDisplay, calculateCartTotals, calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from "@/utils"
+import { calculateCartItemDisplay, calculateCartTotals, calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, transformOrderItemToOrderDetail } from "@/utils"
 import { OrderSuccess, Logo } from "@/assets/images"
 import { useCartItemStore, useOrderFlowStore, usePaymentMethodStore, OrderFlowStep } from "@/stores"
 import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from "@/constants"
 import { useOrderBySlug } from "@/hooks"
-import { OrderStatus, OrderTypeEnum, IOrderItem, IOrderDetail, ISize } from "@/types"
+import { OrderStatus, OrderTypeEnum, IOrderItem, IOrderDetail } from "@/types"
 import { IDisplayCartItem, IDisplayOrderItem } from "@/types/dish.type"
 import { CustomerDisplayCountdown } from "@/components/app/countdown"
 
 export default function CustomerDisplayPage() {
     const { t } = useTranslation("menu")
     const navigate = useNavigate()
-    // const cartItems = useCartItemStore((state) => state.cartItems)
     const {
         orderingData,
         paymentData,
@@ -367,7 +366,7 @@ export default function CustomerDisplayPage() {
 
                 {/* Order Summary - Always show */}
                 <div className="overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                    <div className="p-2 bg-gray-50 dark:bg-gray-800">
                         <div className="space-y-2 text-sm">
                             {/* Subtotal */}
                             <div className="flex justify-between items-center">
@@ -433,80 +432,82 @@ export default function CustomerDisplayPage() {
 
     return (
         <div className="min-h-screen">
-            <div className="container px-3 py-4 mx-auto max-w-7xl">
+            <div className="container px-3 py-4 mx-auto max-w-7xl min-h-80">
                 <div className="grid gap-2 lg:grid-cols-3">
                     {/* Left: Order Details */}
                     <div className="space-y-2 lg:col-span-2">
-                        {/* Customer Information Card */}
-                        <div className="p-2 bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700">
-                            <div className="flex gap-2 items-start mb-3">
-                                <div className="p-1.5 rounded-lg bg-primary/10">
-                                    <User className="w-4 h-4 text-primary" />
+                        {/* Customer Information Card - Only show if customer info exists */}
+                        {(currentOwner || currentType || currentTable || currentDescription) && (
+                            <div className="p-2 bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700">
+                                <div className="flex gap-2 items-center mb-3">
+                                    <div className="p-1.5 rounded-lg bg-primary/10">
+                                        <User className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <h2 className="font-semibold text-md">{t("menu.customerInformation")}</h2>
                                 </div>
-                                <h2 className="text-lg font-semibold">{t("menu.customerInformation")}</h2>
-                            </div>
 
-                            <div className="grid gap-3 text-sm sm:grid-cols-2">
-                                {currentOwner && (
-                                    <div className="flex gap-2 items-start">
-                                        <User className="w-3 h-3 text-muted-foreground" />
-                                        <div>
-                                            <div className="text-xs text-muted-foreground">{t("menu.customerName")}</div>
-                                            <div className="font-medium">{currentOwner?.firstName} {currentOwner?.lastName}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {currentOwner && (
-                                    <div className="flex gap-2 items-start">
-                                        <Phone className="w-3 h-3 text-muted-foreground" />
-                                        <div>
-                                            <div className="text-xs text-muted-foreground">{t("order.phoneNumber")}</div>
-                                            <div className="font-medium">{currentOwner?.phonenumber}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {currentType && (
-                                    <div className="flex gap-2 items-start">
-                                        <MapPin className="w-3 h-3 text-muted-foreground" />
-                                        <div>
-                                            <div className="text-xs text-muted-foreground">{t("menu.orderType")}</div>
-                                            <div className="flex gap-2 items-center">
-                                                <span className="font-medium">
-                                                    {currentType === OrderTypeEnum.AT_TABLE ? t("menu.dineIn") : t("menu.takeAway")}
-                                                </span>
-                                                {currentTable && (
-                                                    <Badge className="px-1 py-0 text-xs">
-                                                        {t("menu.tableNumber")} {currentTable?.name}
-                                                    </Badge>
-                                                )}
+                                <div className="grid gap-3 text-sm sm:grid-cols-2">
+                                    {currentOwner && currentOwner.firstName && (
+                                        <div className="flex gap-2 items-start">
+                                            <User className="w-3 h-3 text-muted-foreground" />
+                                            <div>
+                                                <div className="text-xs text-muted-foreground">{t("menu.customerName")}</div>
+                                                <div className="font-medium">{currentOwner?.firstName} {currentOwner?.lastName}</div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {currentDescription && (
-                                    <div className="flex gap-2 items-start sm:col-span-2">
-                                        <FileText className="mt-1 w-3 h-3 text-muted-foreground" />
-                                        <div>
-                                            <div className="text-xs text-muted-foreground">{t("menu.description")}</div>
-                                            <div className="font-medium">{currentDescription}</div>
+                                    {currentOwner && currentOwner.phonenumber && (
+                                        <div className="flex gap-2 items-start">
+                                            <Phone className="w-3 h-3 text-muted-foreground" />
+                                            <div>
+                                                <div className="text-xs text-muted-foreground">{t("order.phoneNumber")}</div>
+                                                <div className="font-medium">{currentOwner?.phonenumber}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+
+                                    {currentType && (
+                                        <div className="flex gap-2 items-start">
+                                            <MapPin className="w-3 h-3 text-muted-foreground" />
+                                            <div>
+                                                <div className="text-xs text-muted-foreground">{t("menu.orderType")}</div>
+                                                <div className="flex gap-2 items-center">
+                                                    <span className="text-sm font-medium">
+                                                        {currentType === OrderTypeEnum.AT_TABLE ? t("menu.dineIn") : t("menu.takeAway")}
+                                                    </span>
+                                                    {currentTable && currentTable.name && (
+                                                        <Badge className="px-1 py-0 text-xs">
+                                                            {t("menu.tableNumber")} {currentTable?.name}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {currentDescription && (
+                                        <div className="flex gap-2 items-start sm:col-span-2">
+                                            <FileText className="mt-1 w-3 h-3 text-muted-foreground" />
+                                            <div>
+                                                <div className="text-xs text-muted-foreground">{t("menu.description")}</div>
+                                                <div className="font-medium">{currentDescription}</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Order Items Card - Compact Grid Layout */}
                         <div className="overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700">
-                            <div className="p-2 border-b border-gray-200 bg-muted-foreground/10 dark:border-gray-70 dark:bg-transparent0">
-                                <h2 className="font-semibold text-md">{t("order.orderItems")}</h2>
+                            <div className="p-2 border-b border-gray-200 bg-primary/10 dark:border-gray-70 dark:bg-transparent0">
+                                <h2 className="text-sm font-semibold">{t("order.orderItems")}</h2>
                             </div>
 
                             {/* Compact Items Display */}
-                            <div className="max-h-[70vh] overflow-y-auto">
-                                <div className="p-2 space-y-2">
+                            <div className="overflow-y-auto">
+                                <div className="p-2">
                                     {isPaymentFlowLoading ? (
                                         <div className="flex flex-col items-center justify-center min-h-[12rem] gap-2 text-muted-foreground">
                                             <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-primary"></div>
@@ -519,116 +520,132 @@ export default function CustomerDisplayPage() {
                                             <img src={OrderSuccess} className="w-32 h-32 opacity-20" />
                                         </div>
                                     ) : (
-                                        currentOrderItems.map((item: IOrderItem | IOrderDetail, index: number) => {
-                                            // Extract data based on different item structures
-                                            let productName = ''
-                                            let productSize = ''
-                                            let originalPrice = 0
-                                            let itemSlug = ''
-                                            let itemNote = ''
-                                            let itemQuantity = 1
+                                        <div className="grid grid-cols-1 gap-x-3">
+                                            {currentOrderItems.map((item: IOrderItem | IOrderDetail, index: number) => {
+                                                // Extract data based on different item structures
+                                                let productName = ''
+                                                // let productSize = ''
+                                                let originalPrice = 0
+                                                let itemSlug = ''
+                                                let itemNote = ''
+                                                let itemQuantity = 1
 
-                                            if (dataSource === 'cart') {
-                                                // IOrderItem structure from Order Flow Store
-                                                const cartItem = item as IOrderItem
-                                                productName = cartItem.name || ''
-                                                productSize = typeof cartItem.size === 'string' ? cartItem.size : (cartItem.size as ISize)?.name || ''
-                                                originalPrice = cartItem.originalPrice || 0
-                                                itemSlug = cartItem.slug || ''
-                                                itemNote = cartItem.note || ''
-                                                itemQuantity = cartItem.quantity || 1
-                                            } else if (dataSource === 'updateOrderStore') {
-                                                // From update order store
-                                                const updateItem = item as IOrderItem
-                                                productName = updateItem.name || ''
-                                                productSize = typeof updateItem.size === 'string' ? updateItem.size : (updateItem.size as ISize)?.name || ''
-                                                originalPrice = updateItem.originalPrice || 0
-                                                itemSlug = updateItem.slug || ''
-                                                itemNote = updateItem.note || ''
-                                                itemQuantity = updateItem.quantity || 1
-                                            } else {
-                                                // IOrderDetail structure from API (payment/orderData)
-                                                const orderDetail = item as IOrderDetail
-                                                productName = orderDetail?.variant?.product?.name || ''
-                                                productSize = orderDetail?.variant?.size?.name || ''
-                                                originalPrice = orderDetail?.variant?.price || 0
-                                                itemSlug = orderDetail?.variant?.product?.slug || ''
-                                                itemNote = orderDetail?.note || ''
-                                                itemQuantity = orderDetail?.quantity || 1
-                                            }
-
-                                            const displayItem = displayItems?.find((di: IDisplayCartItem | IDisplayOrderItem) => {
-                                                let displaySlug = ''
-
-                                                if (dataSource === 'updateOrderStore') {
-                                                    displaySlug = (di as IDisplayOrderItem).productSlug
-                                                } else if (dataSource === 'cart') {
-                                                    displaySlug = (di as IDisplayCartItem).slug
+                                                if (dataSource === 'cart') {
+                                                    // IOrderItem structure from Order Flow Store
+                                                    const cartItem = item as IOrderItem
+                                                    productName = cartItem.name || ''
+                                                    // productSize = typeof cartItem.size === 'string' ? cartItem.size : (cartItem.size as ISize)?.name || ''
+                                                    originalPrice = cartItem.originalPrice || 0
+                                                    itemSlug = cartItem.slug || ''
+                                                    itemNote = cartItem.note || ''
+                                                    itemQuantity = cartItem.quantity || 1
+                                                } else if (dataSource === 'updateOrderStore') {
+                                                    // From update order store
+                                                    const updateItem = item as IOrderItem
+                                                    productName = updateItem.name || ''
+                                                    // productSize = typeof updateItem.size === 'string' ? updateItem.size : (updateItem.size as ISize)?.name || ''
+                                                    originalPrice = updateItem.originalPrice || 0
+                                                    itemSlug = updateItem.productSlug || ''
+                                                    itemNote = updateItem.note || ''
+                                                    itemQuantity = updateItem.quantity || 1
                                                 } else {
-                                                    displaySlug = 'productSlug' in di ? di.productSlug : di.slug
+                                                    // IOrderDetail structure from API (payment/orderData)
+                                                    const orderDetail = item as IOrderDetail
+                                                    productName = orderDetail?.variant?.product?.name || ''
+                                                    // productSize = orderDetail?.variant?.size?.name || ''
+                                                    originalPrice = orderDetail?.variant?.price || 0
+                                                    itemSlug = orderDetail?.variant?.product?.slug || ''
+                                                    itemNote = orderDetail?.note || ''
+                                                    itemQuantity = orderDetail?.quantity || 1
                                                 }
 
-                                                return displaySlug === itemSlug
-                                            })
+                                                const displayItem = displayItems?.find((di: IDisplayCartItem | IDisplayOrderItem) => {
+                                                    let displaySlug = ''
 
-                                            const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                                            const finalPrice = displayItem?.finalPrice || 0
+                                                    if (dataSource === 'updateOrderStore') {
+                                                        displaySlug = (di as IDisplayOrderItem).productSlug
+                                                    } else if (dataSource === 'cart') {
+                                                        displaySlug = (di as IDisplayCartItem).slug
+                                                    } else {
+                                                        displaySlug = 'productSlug' in di ? di.productSlug : di.slug
+                                                    }
 
-                                            const isSamePriceVoucher =
-                                                currentVoucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                                                currentVoucher?.voucherProducts?.some((vp) => {
-                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                    const voucherProductSlug = (vp as any)?.product?.slug
-                                                    return voucherProductSlug && itemSlug && voucherProductSlug === itemSlug
+                                                    return displaySlug === itemSlug
                                                 })
 
-                                            const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                                                const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                                                const finalPrice = displayItem?.finalPrice || 0
 
-                                            const displayPrice = isSamePriceVoucher
-                                                ? finalPrice
-                                                : hasPromotionDiscount
-                                                    ? priceAfterPromotion
-                                                    : originalPrice
+                                                const isSamePriceVoucher =
+                                                    currentVoucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                                                    currentVoucher?.voucherProducts?.some((vp) => {
+                                                        const voucherProductSlug = vp?.product?.slug
+                                                        return voucherProductSlug && itemSlug && voucherProductSlug === itemSlug
+                                                    })
 
-                                            const shouldShowLineThrough = isSamePriceVoucher || hasPromotionDiscount
+                                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                                            return (
-                                                <div key={item.id || index} className={`border-b border-dashed border-muted-foreground/60 pb-2 ${index % 2 === 0 ? 'bg-gray-50/50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-900'} dark:border-gray-700`}>
-                                                    <div className="grid grid-cols-12 gap-3 items-center text-sm">
-                                                        {/* Product Name & Note */}
-                                                        <div className="col-span-8">
-                                                            <div className="font-bold dark:text-gray-100">
-                                                                {productName} {productSize && `(${capitalizeFirstLetter(productSize)})`}
-                                                            </div>
-                                                            {itemNote ? (
-                                                                <div className="flex flex-wrap text-xs text-muted-foreground dark:text-gray-400">{itemNote}</div>
-                                                            ) : (
-                                                                <div className="text-xs italic text-muted-foreground">{t("order.noNote")}</div>
-                                                            )}
-                                                        </div>
+                                                const displayPrice = isSamePriceVoucher
+                                                    ? finalPrice
+                                                    : hasPromotionDiscount
+                                                        ? priceAfterPromotion
+                                                        : originalPrice
 
-                                                        {/* Quantity */}
-                                                        <div className="col-span-1 text-center">
-                                                            <Badge className="px-2 py-1 text-xs">
-                                                                x{itemQuantity}
-                                                            </Badge>
-                                                        </div>
+                                                // const shouldShowLineThrough = isSamePriceVoucher || hasPromotionDiscount
 
-                                                        {/* Price */}
-                                                        <div className="col-span-3 text-right">
-                                                            <div className="flex flex-col items-end">
-                                                                {shouldShowLineThrough && originalPrice !== displayPrice && (
-                                                                    <span className="text-xs line-through text-muted-foreground">
-                                                                        {formatCurrency(originalPrice)}
-                                                                    </span>
+                                                return (
+                                                    <div key={item.id || index} className={`py-2 px-0.5 border-b border-dashed border-gray-300 min-h-[32px] ${index % 2 === 0 ? 'bg-gray-50/30' : ''} dark:border-gray-600`}>
+                                                        {/* Grid layout: Product info + Unit price | Quantity | Total price */}
+                                                        <div className="grid grid-cols-8 gap-3 items-start">
+                                                            {/* Column 1: Product Name + Note + Size + Unit Price */}
+                                                            <div className="flex flex-col gap-1.5 min-w-0 col-span-5">
+                                                                <div className="flex flex-wrap gap-2 items-center w-full text-sm font-bold leading-tight truncate dark:text-gray-100">
+                                                                    <span className="truncate">{productName}</span>
+                                                                </div>
+                                                                {itemNote && (
+                                                                    <div className="text-sm leading-tight text-muted-foreground dark:text-gray-400">
+                                                                        {itemNote}
+                                                                    </div>
                                                                 )}
-                                                                <span className="font-bold text-primary">{formatCurrency(displayPrice)}</span>
+                                                            </div>
+
+                                                            {/* Column 2: Price */}
+                                                            <div className="col-span-1 flex justify-center pt-0.5">
+                                                                <Badge variant='outline' className='text-xs w-fit border-muted-foreground/50 text-muted-foreground'>
+                                                                    {formatCurrency(displayPrice)}
+                                                                    {/* {shouldShowLineThrough && originalPrice !== displayPrice ? (
+                                                                            <>
+                                                                                <span className="mr-1 line-through text-muted-foreground">
+                                                                                    {formatCurrency(originalPrice)}
+                                                                                </span>
+                                                                                {formatCurrency(displayPrice)}
+                                                                            </>
+                                                                        ) : (
+                                                                            formatCurrency(displayPrice)
+                                                                        )} */}
+                                                                </Badge>
+                                                            </div>
+
+                                                            {/* Column 3: Quantity */}
+                                                            <div className="col-span-1 flex justify-center pt-0.5">
+                                                                <Badge className='text-xs w-fit'>
+                                                                    x{itemQuantity}
+                                                                </Badge>
+                                                            </div>
+
+                                                            {/* Column 4: Total Price (Unit Price * Quantity) */}
+                                                            <div className="col-span-1 flex flex-shrink-0 justify-end pt-0.5">
+                                                                <div className="text-right">
+                                                                    <div className="leading-none text-md text-primary">
+                                                                        {formatCurrency(displayPrice * itemQuantity)}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )
-                                        })
+                                                )
+                                            })}
+                                        </div>
                                     )}
                                 </div>
                             </div>
