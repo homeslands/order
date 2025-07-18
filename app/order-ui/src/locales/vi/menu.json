@@ -154,6 +154,8 @@
     "orderStatus": "Trạng thái đơn hàng",
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
+    "point": "Xu",
+    "deductedCoinAmount": "Số xu đã trừ",
     "deliveryOrderType": "Loại đơn hàng",
     "orderItemList": "Danh sách món",
     "pending": "Chờ thanh toán",
@@ -296,6 +298,7 @@
     "exportOrderProvisionalBill": "Xuất hóa đơn tạm thời",
     "noQRCode": "Không có QR code",
     "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công.",
-    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!"
+    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!",
+    "point": "Thanh toán bằng xu"
   }
 }
