@@ -6,5 +6,5 @@ export enum PointTransactionTypeEnum {
 export enum PointTransactionObjectTypeEnum {
   ORDER = 'order',
   GIFT_CARD = 'gift-card',
-  CARD_ORDER = 'card-order',
+  CARD_ORDER = 'card-order'
 }
