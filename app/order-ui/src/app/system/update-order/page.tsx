@@ -8,7 +8,7 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import { ROUTE } from '@/constants'
-import { Button, ScrollArea } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { useIsMobile, useOrderBySlug } from '@/hooks'
 import { OrderTypeEnum, OrderStatus } from '@/types'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
@@ -81,8 +81,8 @@ export default function UpdateOrderPage() {
 
     // Get current order data from Order Flow Store for updates
     const currentOrder = updatingData?.updateDraft
-    const orderType = currentOrder?.type as OrderTypeEnum || order?.result?.type as OrderTypeEnum || OrderTypeEnum.AT_TABLE
-    const table = currentOrder?.table || order?.result?.table?.slug || ""
+    const orderType = currentOrder?.type as OrderTypeEnum
+    const table = currentOrder?.table || ""
 
     // Fallback initialization nếu data không được load vào store sau 2 giây
     useEffect(() => {
@@ -150,7 +150,7 @@ export default function UpdateOrderPage() {
     if (isExpired) {
         return (
             <div className="container py-20 lg:h-[60vh]">
-                <div className="flex flex-col gap-5 justify-center items-center">
+                <div className="flex flex-col items-center justify-center gap-5">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
                     <p className="text-center text-[13px] sm:text-base">
                         {t('order.noOrders')}
@@ -196,7 +196,7 @@ export default function UpdateOrderPage() {
                             </div>
 
                             {/* Menu dưới mobile */}
-                            <div className="flex flex-col gap-2 py-3 w-full">
+                            <div className="flex flex-col w-full gap-2 py-3">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
                                     <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
@@ -204,13 +204,11 @@ export default function UpdateOrderPage() {
                             </div>
                         </>
                     ) : (
-                        <>
+                        <div className='flex flex-col w-full h-screen'>
                             {/* Desktop layout - Menu left */}
-                            <div className="flex w-[70%] pr-6 xl:pr-0 flex-col gap-2 py-3">
+                            <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <ScrollArea className="h-[calc(100vh-9rem)]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
-                                </ScrollArea>
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
                             </div>
 
                             {/* Desktop layout - Content right */}
@@ -218,7 +216,7 @@ export default function UpdateOrderPage() {
                                 orderType={orderType}
                                 table={table}
                             />
-                        </>
+                        </div>
                     )}
                 </div>
             }
