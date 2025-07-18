@@ -118,6 +118,9 @@ export function CustomerInfoTabsContent() {
               </Tooltip>
             </TooltipProvider>
           )}
+          {!userProfile?.isVerifiedEmail && (
+            <SendVerifyEmailDialog onSuccess={handleVerifyEmailSuccess} />
+          )}
         </div>
       </div>
     ),
@@ -144,6 +147,9 @@ export function CustomerInfoTabsContent() {
             placeholder={t('profile.phoneNumber')}
             className={`border ${userProfile?.isVerifiedPhonenumber ? 'border-green-500 text-green-600 bg-green-50' : 'border-destructive text-destructive bg-destructive/10'} cursor-not-allowed dark:bg-gray-800 dark:text-gray-300`}
           />
+          {!userProfile?.isVerifiedPhonenumber && (
+            <SendVerifyPhoneNumberDialog onSuccess={handleVerifyPhoneNumberSuccess} />
+          )}
         </div>
       </div>
     ),
@@ -175,15 +181,9 @@ export function CustomerInfoTabsContent() {
     <div className="flex flex-col gap-4">
       <div className="flex justify-center gap-4 md:justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
-        {!userProfile?.isVerifiedEmail && (
-          <SendVerifyEmailDialog onSuccess={handleVerifyEmailSuccess} />
-        )}
-        {!userProfile?.isVerifiedPhonenumber && (
-          <SendVerifyPhoneNumberDialog onSuccess={handleVerifyPhoneNumberSuccess} />
-        )}
         <UpdatePasswordDialog />
       </div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6">
         {Object.keys(formFields).map((key) => (
           <div key={key}>{formFields[key as keyof typeof formFields]}</div>
         ))}
