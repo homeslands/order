@@ -44,7 +44,7 @@
 //     <ReactSelect
 //       isSearchable={false}
 //       placeholder={t('menu.selectOrderType')}
-//       // className="pr-4 w-full text-sm border-muted-foreground text-muted-foreground"
+//       // className="w-full pr-4 text-sm border-muted-foreground text-muted-foreground"
 //       styles={{
 //         control: (baseStyles) => ({
 //           ...baseStyles,
@@ -101,7 +101,7 @@ interface OrderTypeSelectProps {
 export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
   const { t } = useTranslation('menu')
   const { getTheme } = useThemeStore()
-  const { updatingData, setDraftType, removeDraftTable } = useOrderFlowStore()
+  const { updatingData, setDraftType } = useOrderFlowStore()
 
   const orderTypes = useMemo(
     () => [
@@ -119,10 +119,7 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
 
   const selectedValue = updatingData?.updateDraft?.type || typeOrder || ''
 
-  const handleChange = (value: string) => {
-    if (value === OrderTypeEnum.TAKE_OUT) {
-      removeDraftTable()
-    }
+  const handleChange = (value: OrderTypeEnum) => {
     setDraftType(value as OrderTypeEnum)
   }
 

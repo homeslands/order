@@ -15,7 +15,7 @@ export default function SystemTableSelect() {
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
     )
-    const { getCartItems, addTable, removeTable } = useOrderFlowStore()
+    const { getCartItems, setOrderingTable, removeOrderingTable } = useOrderFlowStore()
     const cartItems = getCartItems()
     const [reservedTable, setReservedTable] = useState<ITable | null>(null)
 
@@ -30,20 +30,20 @@ export default function SystemTableSelect() {
         if (selectedTableId === table.slug) {
             // Remove table for any status
             setSelectedTableId(undefined)
-            removeTable()
+            removeOrderingTable()
         } else {
             if (table.status === 'reserved') {
                 setReservedTable(table) // Show confirmation dialog
             } else if (table.status === 'available') {
                 setSelectedTableId(table.slug)
-                addTable(table)
+                setOrderingTable(table)
             }
         }
     }
 
     const confirmAddReservedTable = (table: ITable) => {
         setSelectedTableId(table.slug)
-        addTable(table)
+        setOrderingTable(table)
         setReservedTable(null) // Close the dialog
     }
 
