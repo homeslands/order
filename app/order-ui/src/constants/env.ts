@@ -8,3 +8,6 @@ export const fanpageUrl = import.meta.env.VITE_TREND_FANPAGE_URL
 export const phone = import.meta.env.VITE_TREND_PHONE
 export const mail = import.meta.env.VITE_TREND_EMAIL
 export const youtubeVideoId = import.meta.env.VITE_TREND_YOUTUBE_VIDEO_ID
+export const orderExpirationTimeInSeconds = Number(
+  import.meta.env.VITE_ORDER_EXPIRATION_TIME_SECONDS || '900',
+) // Default to 15 minutes (900 seconds)
