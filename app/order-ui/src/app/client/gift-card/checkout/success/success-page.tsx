@@ -17,8 +17,6 @@ export default function GiftCardSuccessPage() {
     return () => clearTimeout(timer)
   }, [])
 
-  const handleViewDetail = () => {}
-
   const handleBackToGiftCard = () => {
     navigate(ROUTE.CLIENT_GIFT_CARD)
   }
@@ -29,14 +27,9 @@ export default function GiftCardSuccessPage() {
       <div className="text-xl font-semibold text-primary">
         {t('giftCard.purchaseSuccess', 'Gift Card Purchase Successful')}
       </div>{' '}
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={handleViewDetail}>
-          {t('giftCard.viewDetails')}
-        </Button>
-        <Button onClick={handleBackToGiftCard}>
-          {t('giftCard.backToGiftCards')}
-        </Button>
-      </div>
+      <Button onClick={handleBackToGiftCard}>
+        {t('giftCard.backToGiftCards')}
+      </Button>
     </div>
   )
 }
