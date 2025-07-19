@@ -182,6 +182,7 @@
     "discount": "Discount",
     "grandTotal": "Grand total",
     "totalPayment": "Total",
+    "estimatedTotal": "Estimated total",
     "confirmPaid": "Confirm payment",
     "complete": "Complete",
     "orderSuccess": "Order placed successfully",
