@@ -44,7 +44,7 @@ export default function Invoice({
                     <QRCodeSVG value={order?.slug || ''} size={128} />
                 </div>
                 <p className="text-xs text-center">
-                    <span>{t('order.slug')}</span>
+                    <span>{t('order.slug')}</span>{' '}
                     <span>{order?.referenceNumber}</span>
                 </p>
             </div>
@@ -73,13 +73,10 @@ export default function Invoice({
             <table className="min-w-full mt-4 text-sm border-collapse table-auto">
                 <thead>
                     <tr className="text-sm font-semibold text-left border-b border-dashed border-muted-foreground">
-                        <th className="w-[30%] sm:w-[40%] py-2">{t('order.item')}</th>
+                        <th className="w-[35%] sm:w-[40%] py-2">{t('order.item')}</th>
                         <th className="w-[10%] sm:w-[5%] py-2 text-center">{t('order.itemQuantity')}</th>
-                        <th className="w-[20%] py-2 text-right">{t('order.unitPrice')}</th>
+                        <th className="w-[25%] py-2 text-right">{t('order.unitPrice')}</th>
                         <th className="w-[10%] sm:w-[15%] py-2 text-center">{t('menu.promotion')} (%)</th>
-                        {isPointPayment && (
-                            <th className="w-[10%] py-2 text-right">{t('order.deductedCoinAmount')}</th>
-                        )}
                         <th className="w-[30%] sm:w-[25%] py-2 text-right">{t('order.grandTotal')}</th>
                     </tr>
                 </thead>
@@ -98,9 +95,6 @@ export default function Invoice({
                                     {formatCurrency(item?.variant?.price || 0)}
                                 </td>
                                 <td className="py-2 text-center">{item?.promotion?.value || 0}</td>
-                                {isPointPayment && (
-                                    <td className="py-2 text-center">{item?.subtotal || 0}</td>
-                                )}
                                 <td className="py-2 text-right text-nowrap">
                                     {formatCurrency(item?.subtotal || 0)}
                                 </td>
@@ -134,7 +128,7 @@ export default function Invoice({
                     </tr>
                     <tr>
                         <td className="py-2" colSpan={3}>
-                            {t('order.totalPayment')}
+                            {t('order.estimatedTotal')}
                         </td>
                         <td colSpan={3} className="py-2 text-right">
                             {formatCurrency(originalTotal - discount || 0)}
@@ -171,7 +165,7 @@ export default function Invoice({
                             {t('order.totalPayment')}
                         </td>
                         <td colSpan={3} className="py-3 text-xl font-bold text-right text-primary">
-                            {formatCurrency(order?.subtotal || 0)}
+                            {isPointPayment ? formatCurrency(0): formatCurrency(order?.subtotal || 0)}
                         </td>
                     </tr>
                 </tfoot>
