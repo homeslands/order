@@ -111,6 +111,8 @@
     "allTransactions": "All Transactions",
     "applyFilter": "Apply Filter",
     "clearFilter": "Clear Filter",
-    "exportAll": "Export All"
+    "exportAll": "Export All",
+    "coinEarned": "Coin earned",
+    "coinSpent": "Coin used"
   }
 }

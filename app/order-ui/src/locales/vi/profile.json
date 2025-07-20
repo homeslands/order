@@ -111,6 +111,8 @@
     "allTransactions": "Tất cả giao dịch",
     "applyFilter": "Áp dụng lọc",
     "clearFilter": "Xóa lọc",
-    "exportAll": "Xuất tất cả"
+    "exportAll": "Xuất tất cả",
+    "coinEarned": "Nhận xu",
+    "coinSpent": "Dùng xu"
   }
 }
