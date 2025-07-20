@@ -134,7 +134,8 @@
         "enterSerial": "Enter serial number",
         "enterCode": "Enter code",
         "enterGiftCard": "Enter gift card information to redeem points",
-        "giftCardCode": "Gift Card Code"
+        "giftCardCode": "Gift Card Code",
+        "giverName": "Giver Name"
     },
     "schema": {
         "title": {

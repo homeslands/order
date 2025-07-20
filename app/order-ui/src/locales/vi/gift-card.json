@@ -134,7 +134,8 @@
         "enterSerial": "Nhập số serial",
         "enterCode": "Nhập mã thẻ",
         "enterGiftCard": "Nhập thông tin thẻ quà tặng để quy đổi điểm",
-        "giftCardCode": "Mã thẻ quà tặng"
+        "giftCardCode": "Mã thẻ quà tặng",
+        "giverName": "Tên người tặng"
     },
     "schema": {
         "title": {

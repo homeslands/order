@@ -3,17 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { useCallback, useState } from 'react'
 
 import { Input } from '@/components/ui'
-import { IOrder, IUpdateOrderTypeRequest } from '@/types'
+import { IOrderToUpdate, IUpdateOrderTypeRequest } from '@/types'
 import { useUpdateOrderType } from '@/hooks'
 import { Button } from '@/components/ui'
 import { showToast } from '@/utils'
 
 interface OrderNoteInputProps {
-    onSuccess: () => void
-    order: IOrder | undefined
+    order?: IOrderToUpdate
 }
 
-export default function UpdateOrderNoteInput({ order, onSuccess }: OrderNoteInputProps) {
+export default function UpdateOrderNoteInput({ order }: OrderNoteInputProps) {
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
     const [note, setNote] = useState(order?.description || '')
@@ -22,7 +21,7 @@ export default function UpdateOrderNoteInput({ order, onSuccess }: OrderNoteInpu
     const handleUpdateNote = useCallback(() => {
         const params: IUpdateOrderTypeRequest = {
             type: order?.type || '',
-            table: order?.table?.slug || null,
+            table: order?.table || null,
             description: note
         }
         updateOrderType(
@@ -30,15 +29,14 @@ export default function UpdateOrderNoteInput({ order, onSuccess }: OrderNoteInpu
             {
                 onSuccess: () => {
                     showToast(tToast('toast.updateOrderNoteSuccess'))
-                    onSuccess()
                 }
             }
         )
-    }, [note, order?.slug, updateOrderType, order?.type, order?.table?.slug, onSuccess, tToast])
+    }, [note, order?.slug, updateOrderType, order?.type, order?.table, tToast])
 
     return (
         <div className="flex w-full flex-row items-center justify-center gap-2.5">
-            <div className="flex flex-row items-center justify-between flex-1 w-full gap-2">
+            <div className="flex flex-row flex-1 gap-2 justify-between items-center w-full">
                 <NotepadText className="text-muted-foreground" />
                 <Input
                     value={note}

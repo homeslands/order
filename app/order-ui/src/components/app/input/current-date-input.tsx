@@ -3,8 +3,6 @@ import { Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { ISpecificMenu } from '@/types'
-import { useUserStore } from '@/stores'
-import { Badge } from '@/components/ui'
 import { useIsMobile } from '@/hooks'
 
 interface CurrentDateInputProps {
@@ -13,7 +11,7 @@ interface CurrentDateInputProps {
 
 export const CurrentDateInput = ({ menu }: CurrentDateInputProps) => {
   const { t } = useTranslation('common')
-  const { userInfo } = useUserStore()
+  // const { userInfo } = useUserStore()
   const isMobile = useIsMobile()
   const currentDate = moment(new Date()).format('DD/MM/YYYY')
   const dayOfWeek = menu?.dayIndex !== undefined ? t(`dayOfWeek.${menu.dayIndex}`) : ''
@@ -27,9 +25,9 @@ export const CurrentDateInput = ({ menu }: CurrentDateInputProps) => {
           {dayOfWeek} {currentDate}
         </span>
       </div>
-      <Badge className='py-2 text-xs xl:text-sm w-fit'>
+      {/* <Badge className='py-2 text-xs xl:text-sm w-fit'>
         {userInfo?.branch?.name} - {userInfo?.branch?.address}
-      </Badge>
+      </Badge> */}
     </div>
   )
 }

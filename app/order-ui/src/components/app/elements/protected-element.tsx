@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -37,6 +37,7 @@ export default function ProtectedElement({
       navigate(to);
     }
   }, [navigate]);
+  const [isInitializing, setIsInitializing] = useState(true)
 
   const handleLogout = useCallback(() => {
     setLogout()
@@ -82,7 +83,52 @@ export default function ProtectedElement({
     return hasPermission;
   }, [token, userInfo])
 
+  const findFirstAllowedRoute = useCallback(() => {
+    if (!token || !userInfo?.role?.name) return ROUTE.LOGIN;
+
+    if (userInfo.role.name === Role.CUSTOMER) {
+      return ROUTE.HOME;
+    }
+
+    const decoded: IToken = jwtDecode(token);
+    if (!decoded.scope) return ROUTE.LOGIN;
+
+    const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
+    const permissions = scope.permissions || [];
+
+    // Tìm route đầu tiên mà user có quyền truy cập
+    const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
+    return firstAllowedRoute ? firstAllowedRoute.path : ROUTE.LOGIN;
+  }, [token, userInfo])
+
   useEffect(() => {
+    // Nếu có token nhưng chưa có userInfo, đợi một chút để userInfo load
+    if (token && !userInfo && isAuthenticated()) {
+      const timer = setTimeout(() => {
+        setIsInitializing(false)
+      }, 500) // 500ms cho optimistic approach
+
+      return () => clearTimeout(timer)
+    } else {
+      setIsInitializing(false)
+    }
+  }, [token, userInfo, isAuthenticated])
+
+  // Effect riêng để handle khi userInfo load xong
+  useEffect(() => {
+    // Khi userInfo vừa load xong và đang ở home page, redirect đến trang phù hợp
+    if (userInfo && token && location.pathname === ROUTE.HOME && !isInitializing) {
+      const allowedRoute = findFirstAllowedRoute();
+      if (allowedRoute !== ROUTE.HOME) {
+        navigate(allowedRoute);
+      }
+    }
+  }, [userInfo, token, location.pathname, isInitializing, findFirstAllowedRoute, navigate])
+
+  useEffect(() => {
+    // Không thực hiện check nếu đang trong quá trình khởi tạo
+    if (isInitializing) return
+
     // Nếu đang refresh token thì chờ, không làm gì cả
     if (isRefreshing) {
       return;
@@ -95,6 +141,14 @@ export default function ProtectedElement({
       return;
     }
 
+    // Nếu có token nhưng không có userInfo sau khi hết thời gian chờ
+    // cho phép navigate nhưng với fallback route an toàn
+    if (!userInfo) {
+      // Redirect về home hoặc profile page thay vì logout
+      navigate(ROUTE.HOME)
+      return;
+    }
+
     // Kiểm tra quyền truy cập route hiện tại
     const hasPermission = hasPermissionForRoute(location.pathname);
 
@@ -102,14 +156,17 @@ export default function ProtectedElement({
       loggedNavigate(ROUTE.FORBIDDEN);
     }
   }, [
+    isInitializing,
     isAuthenticated,
     isRefreshing,
+    userInfo,
     location.pathname,
     hasPermissionForRoute,
     loggedNavigate,
     handleLogout,
     setCurrentUrl,
-    t
+    t,
+    navigate
   ])
 
   // Hiển thị loading khi đang refresh token

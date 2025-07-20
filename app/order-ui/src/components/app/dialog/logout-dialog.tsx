@@ -16,6 +16,7 @@ import {
 import { useAuthStore, useBranchStore, useCartItemStore, useMenuItemStore, useSelectedChefOrderStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
 import { ROUTE } from '@/constants'
+import { useOrderFlowStore } from '@/stores'
 
 export default function LogoutDialog() {
   const { t } = useTranslation(['auth'])
@@ -24,16 +25,20 @@ export default function LogoutDialog() {
   const { setLogout } = useAuthStore()
   const { clearSelectedChefOrder } = useSelectedChefOrderStore()
   const { removeBranch } = useBranchStore()
+
+  const { clearAllData } = useOrderFlowStore()
   const { clearCart } = useCartItemStore()
   const { clearMenuItems } = useMenuItemStore()
-  const { removeUserInfo } = useUserStore()
+  const { removeUserInfo, clearUserData } = useUserStore()
   const navigate = useNavigate()
 
   const handleLogout = () => {
     setLogout()
     removeUserInfo()
+    clearUserData()
     removeBranch()
     clearCart()
+    clearAllData()
     clearMenuItems()
     clearSelectedChefOrder()
     navigate(ROUTE.HOME, { replace: true })
@@ -45,7 +50,7 @@ export default function LogoutDialog() {
       <DialogTrigger className="flex justify-start w-full" asChild>
         <Button
           variant="ghost"
-          className="gap-1 w-full text-sm"
+          className="w-full gap-1 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <LogOut className="icon" />
@@ -57,7 +62,7 @@ export default function LogoutDialog() {
           <DialogTitle>{t('logout.title')}</DialogTitle>
           <DialogDescription>{t('logout.description')}</DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex flex-row gap-2 justify-between sm:justify-end">
+        <DialogFooter className="flex flex-row justify-between gap-2 sm:justify-end">
           <Button
             variant="outline"
             className="w-full sm:w-auto"

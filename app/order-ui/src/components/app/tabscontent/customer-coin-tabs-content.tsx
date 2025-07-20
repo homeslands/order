@@ -94,10 +94,6 @@ export function CustomerCoinTabsContent() {
         const blob = await exportPointTransactionBySlug(transactionSlug)
         const filename = `transaction-${transactionSlug}-${new Date().toISOString().split('T')[0]}.pdf`
         saveAs(blob, filename)
-
-        // Success - you can add toast notification here
-      } catch {
-        // Error - you can add toast notification here
       } finally {
         setExportingTransactionSlug(null)
       }
@@ -140,7 +136,7 @@ export function CustomerCoinTabsContent() {
         const response = await getPointTransactions(params)
 
         const totalCount = response.result.total
-        const hasMoreData = page * pageSize < totalCount
+        const hasMoreData = response.result.hasNext
 
         if (isInitial) {
           setTransactions(response.result.items)
@@ -256,7 +252,8 @@ export function CustomerCoinTabsContent() {
 
     // Determine object type specific styling
     const isGiftCard =
-      transaction.objectType === PointTransactionObjectType.GIFT_CARD
+      transaction.objectType === PointTransactionObjectType.GIFT_CARD ||
+      PointTransactionObjectType.CARD_ORDER
     const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
 
     // Get object type icon
@@ -276,38 +273,27 @@ export function CustomerCoinTabsContent() {
         <div
           className={`mb-3 cursor-pointer rounded-md px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${bgClass} ${borderClass}`}
         >
-          <div className="mb-2 flex items-center justify-between">
-            <div
-              className={`${amountClass} flex items-center text-lg font-bold`}
+          <div
+            className={`${amountClass} mb-2 flex items-center text-lg font-bold`}
+          >
+            <span
+              className={`mr-1 rounded-full p-1 ${
+                isAdd
+                  ? isGiftCard
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                  : isOrder
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+              }`}
             >
-              <span
-                className={`mr-1 rounded-full p-1 ${
-                  isAdd
-                    ? isGiftCard
-                      ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                      : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                    : isOrder
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                }`}
-              >
-                {getTransactionIcon()}
-              </span>
-              {isAdd ? '+ ' : '- '}
-              <span className={`${isMobile ? 'text-sm' : 'text-lg'}`}>
-                {formatCurrency(Math.abs(transaction.points), '')}
-              </span>
-              <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
-            </div>
-
-            {/* Time */}
-            <div
-              className={`flex items-center text-xs text-gray-500 dark:text-gray-400 ${isMobile ? 'w-max' : ''}`}
-            >
-              <Clock size={12} className="mr-1" />
-
-              <span>{moment(transaction.createdAt).format('DD/MM/YYYY')}</span>
-            </div>
+              {getTransactionIcon()}
+            </span>
+            {isAdd ? '+ ' : '- '}
+            <span className={`${isMobile ? 'text-sm' : 'text-lg'}`}>
+              {formatCurrency(Math.abs(transaction.points), '')}
+            </span>
+            <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
           </div>
 
           <div
@@ -323,20 +309,11 @@ export function CustomerCoinTabsContent() {
             variant="light"
           />
           <div className="flex items-center justify-between">
-            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <Tag size={12} className="mr-1" />
-              <span className="mr-2">{t('profile.transactionCode') + ':'}</span>
-              <span
-                className={`rounded px-2 py-1 font-mono ${
-                  isGiftCard
-                    ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
-                    : isOrder
-                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                      : 'bg-gray-100 dark:bg-gray-800 dark:text-gray-300'
-                }`}
-              >
-                {transaction.objectSlug}
-              </span>
+            <div
+              className={`mt-1 flex w-full items-center text-[10px] text-gray-500 dark:text-gray-400`}
+            >
+              <Clock size={12} className="mr-1" />
+              {moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')}
             </div>
             {/* Export Transaction Button */}
             <Button

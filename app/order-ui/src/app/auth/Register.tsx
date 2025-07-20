@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate, NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import _ from 'lodash'
@@ -18,7 +19,6 @@ import { cn } from '@/lib/utils'
 import { useRegister } from '@/hooks'
 import { IRegisterSchema } from '@/types'
 import { useTheme } from '@/components/app/theme-provider'
-import { useEffect } from 'react'
 
 export default function Register() {
   const { t } = useTranslation(['auth'])
@@ -51,7 +51,7 @@ export default function Register() {
       />
 
       <div className="flex items-center justify-center w-full h-full">
-        <Card className="mx-auto sm:w-[36rem] h-[32rem] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
+        <Card className="mx-auto sm:w-[36rem] h-[40rem] sm:h-fit overflow-y-auto w-[calc(100vw-1rem)] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl">
           <CardHeader className="pb-0">
             <CardTitle className={cn('text-xl text-center text-white sm:text-2xl')}>
               {/* {t('register.welcome')}{' '} */}

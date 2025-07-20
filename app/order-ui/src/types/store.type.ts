@@ -55,10 +55,20 @@ export interface IUserStore {
   userInfo: IUserInfo | null
   setUserInfo: (userInfo: IUserInfo) => void
   isVerifyingEmail: boolean
+  isVerifyingPhoneNumber: boolean
   emailVerificationStatus: {
     expiresAt: string // ISO string timestamp when OTP expires
     slug?: string // verification slug from response
   } | null
+  phoneNumberVerificationStatus: {
+    expiresAt: string // ISO string timestamp when OTP expires
+    slug?: string // verification slug from response
+  } | null
+  setPhoneNumberVerificationStatus: (
+    emailVerificationStatus: {
+      expiresAt: string // ISO string timestamp when OTP expires
+    } | null,
+  ) => void
   setEmailVerificationStatus: (
     emailVerificationStatus: {
       expiresAt: string // ISO string timestamp when OTP expires
@@ -69,10 +79,17 @@ export interface IUserStore {
     expiresAt: string // ISO string timestamp when OTP expires
     slug?: string // verification slug from response
   } | null
+  getPhoneNumberVerificationStatus: () => {
+    expiresAt: string // ISO string timestamp when OTP expires
+    slug?: string // verification slug from response
+  } | null
   getUserInfo: () => IUserInfo | null
   getIsVerifyingEmail: () => boolean
+  getIsVerifyingPhoneNumber: () => boolean
   setIsVerifyingEmail: (isVerifyingEmail: boolean) => void
+  setIsVerifyingPhoneNumber: (isVerifyingPhoneNumber: boolean) => void
   removeUserInfo: () => void
+  clearUserData: () => void
 }
 
 export interface IPaymentMethodStore {

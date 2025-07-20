@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -19,10 +20,10 @@ import {
   Textarea,
 } from '@/components/ui'
 
-import { ICartItem, OrderTypeEnum, IProductVariant, IMenuItem } from '@/types'
-import { useCartItemStore, useUserStore } from '@/stores'
+import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
+import { OrderFlowStep, useOrderFlowStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -35,25 +36,32 @@ export default function ClientAddToCartDialog({
 }: AddToCartDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
+  const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
-  const { addCartItem, isHydrated } = useCartItemStore()
-  const { getUserInfo } = useUserStore()
+  const {
+    currentStep,
+    isHydrated,
+    orderingData,
+    initializeOrdering,
+    addOrderingItem,
+    setCurrentStep
+  } = useOrderFlowStore()
 
-  const generateCartItemId = () => {
-    return Date.now().toString(36)
-  }
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      setCurrentStep(OrderFlowStep.ORDERING)
 
-  // useEffect(() => {
-  //   if (!isHydrated) {
-  //     console.log('⏳ Chờ rehydrate...')
-  //   } else {
-  //     console.log('✅ Store đã sẵn sàng!')
-  //   }
-  // }, [isHydrated])
-
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
@@ -61,36 +69,76 @@ export default function ClientAddToCartDialog({
       return
     }
 
-    const cartItem: ICartItem = {
-      id: generateCartItemId(),
-      slug: product?.product?.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-      // branch: getUserInfo()?.branch.slug, // get branch from user info
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product?.product?.slug,
-          image: product?.product?.image,
-          name: product?.product?.name,
-          quantity: 1,
-          allVariants: product?.product?.variants,
-          variant: selectedVariant,
-          size: selectedVariant?.size?.name,
-          originalPrice: selectedVariant?.price,
-          // price: finalPrice, // Use the calculated final price
-          description: product?.product?.description,
-          isLimit: product?.product?.isLimit,
-          promotion: product?.promotion ? product?.promotion?.slug : '',
-          promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
-          // catalog: product.catalog,
-          note: note,
-        },
-      ],
-      table: '', // will be set later via addTable
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      if (!orderingData) {
+        initializeOrdering()
+      }
     }
 
-    addCartItem(cartItem)
+    // ✅ Step 3: Create order item with proper structure
+    const orderItem: IOrderItem = {
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
+      quantity: 1,
+      size: product?.product?.variants[0]?.size?.name,
+      allVariants: product?.product?.variants,
+      variant: product?.product?.variants[0],
+      originalPrice: product?.product?.variants[0]?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: note.trim(),
+    }
+
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
+
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
+    }
+
+    // const cartItem: ICartItem = {
+    //   id: generateCartItemId(),
+    //   slug: product?.product?.slug,
+    //   owner: getUserInfo()?.slug,
+    //   type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
+    //   // branch: getUserInfo()?.branch.slug, // get branch from user info
+    //   orderItems: [
+    //     {
+    //       id: generateCartItemId(),
+    //       slug: product?.product?.slug,
+    //       image: product?.product?.image,
+    //       name: product?.product?.name,
+    //       quantity: 1,
+    //       allVariants: product?.product?.variants,
+    //       variant: selectedVariant,
+    //       size: selectedVariant?.size?.name,
+    //       originalPrice: selectedVariant?.price,
+    //       // price: finalPrice, // Use the calculated final price
+    //       description: product?.product?.description,
+    //       isLimit: product?.product?.isLimit,
+    //       promotion: product?.promotion ? product?.promotion?.slug : '',
+    //       promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
+    //       // catalog: product.catalog,
+    //       note: note,
+    //     },
+    //   ],
+    //   table: '', // will be set later via addTable
+    // }
+
+    // addCartItem(cartItem)
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
@@ -98,44 +146,58 @@ export default function ClientAddToCartDialog({
   }
 
   const handleBuyNow = () => {
-    if (!selectedVariant) return
-
-    // const finalPrice = product.promotion && product?.promotion?.value > 0
-    //   ? selectedVariant.price * (1 - product?.promotion?.value / 100)
-    //   : selectedVariant.price;
-
-    const cartItem: ICartItem = {
-      id: generateCartItemId(),
-      slug: product.slug,
-      owner: getUserInfo()?.slug,
-      type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-      // branch: getUserInfo()?.branch.slug, // get branch from user info
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product?.product?.slug,
-          image: product?.product?.image,
-          name: product?.product?.name,
-          quantity: 1,
-          allVariants: product.product.variants,
-          variant: selectedVariant,
-          size: selectedVariant.size.name,
-          originalPrice: selectedVariant.price,
-          // price: finalPrice, // Use the calculated final price
-          description: product.product.description,
-          isLimit: product.product.isLimit,
-          promotion: product.promotion ? product.promotion?.slug : '',
-          promotionValue: product?.promotion ? product?.promotion?.value : 0,
-          promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
-          // catalog: product.catalog,
-          note: note,
-        },
-      ],
-      table: '', // will be set later via addTable
+    if (!isHydrated) {
+      return
     }
 
-    addCartItem(cartItem)
-    // Reset states
+    if (!selectedVariant) {
+      return
+    }
+
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+
+    // ✅ Step 3: Create order item with proper structure
+    const orderItem: IOrderItem = {
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
+      quantity: 1,
+      size: selectedVariant?.size?.name,
+      allVariants: product?.product?.variants,
+      variant: selectedVariant,
+      originalPrice: selectedVariant?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: note.trim(),
+    }
+
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
+
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
+
+      // ✅ Step 6: Reset form state
+      setNote('')
+      setSelectedVariant(product?.product?.variants?.[0] || null)
+      setIsOpen(false)
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
+    }
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
     setIsOpen(false)
@@ -147,7 +209,6 @@ export default function ClientAddToCartDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="flex [&_svg]:size-4 flex-row items-center justify-center gap-1 text-white text-sm rounded-full w-full shadow-none">
-            {/* <ShoppingCart className='icon' /> */}
             {t('menu.addToCart')}
           </Button>
         )}
@@ -216,26 +277,19 @@ export default function ClientAddToCartDialog({
               </div>
             )}
 
-            {/* Price */}
-            {/* <div className="text-lg font-bold text-primary">
-              {t('menu.price')}
-              {selectedVariant ? `${selectedVariant.price.toLocaleString('vi-VN')}đ` : 'Liên hệ'}
-            </div> */}
-
             {/* Note */}
             <div className="flex flex-col items-start space-y-2">
               <span className="text-sm">{t('menu.note')}</span>
-              {/* <NotepadText size={28} className="text-muted-foreground" /> */}
               <Textarea
                 value={note}
-                onChange={(e) => setNote(e.target.value)} // Cập nhật state note khi người dùng nhập
+                onChange={(e) => setNote(e.target.value)}
                 placeholder={t('menu.enterNote')}
               />
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
+        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
           <Button onClick={handleBuyNow}>
             {t('menu.buyNow')}
           </Button>

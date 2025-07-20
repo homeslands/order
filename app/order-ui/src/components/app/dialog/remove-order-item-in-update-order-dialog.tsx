@@ -14,20 +14,17 @@ import {
   DialogTrigger,
   Label,
 } from '@/components/ui'
-import { IOrderDetail } from '@/types'
-import { useDeleteOrderItem } from '@/hooks'
+import { IOrderItem } from '@/types'
 import { showToast } from '@/utils'
-import { useQueryClient } from '@tanstack/react-query'
 import { ROUTE } from '@/constants'
+import { useOrderFlowStore } from '@/stores'
 
 interface DialogDeleteCartItemProps {
-  onSubmit: () => void
-  orderItem: IOrderDetail
+  orderItem: IOrderItem
   totalOrderItems: number
 }
 
 export default function RemoveOrderItemInUpdateOrderDialog({
-  onSubmit,
   orderItem,
   totalOrderItems,
 }: DialogDeleteCartItemProps) {
@@ -35,27 +32,21 @@ export default function RemoveOrderItemInUpdateOrderDialog({
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const [isOpen, setIsOpen] = useState(false)
-  const { mutate: deleteOrderItem } = useDeleteOrderItem()
-  const queryClient = useQueryClient()
+  const { removeDraftItem } = useOrderFlowStore()
   const navigate = useNavigate()
 
   const isLastItem = totalOrderItems === 1
 
   const handleDelete = (orderItemSlug: string) => {
-    deleteOrderItem(orderItemSlug, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['specific-menu'] });
+    removeDraftItem(orderItemSlug)
 
-        if (isLastItem) {
-          showToast(tToast('toast.orderCanceled'))
-          navigate(ROUTE.CLIENT_MENU)
-        } else {
-          showToast(tToast('toast.deleteOrderItemSuccess'))
-          setIsOpen(false)
-          onSubmit()
-        }
-      }
-    })
+    if (isLastItem) {
+      showToast(tToast('toast.orderCanceled'))
+      navigate(ROUTE.CLIENT_MENU)
+    } else {
+      showToast(tToast('toast.deleteOrderItemSuccess'))
+      setIsOpen(false)
+    }
   }
 
   return (
@@ -67,7 +58,7 @@ export default function RemoveOrderItemInUpdateOrderDialog({
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[36rem]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="flex gap-2 items-center text-destructive">
             <TriangleAlert />
             {isLastItem ? t('order.cancelOrder') : t('order.deleteItem')}
           </DialogTitle>
@@ -76,11 +67,11 @@ export default function RemoveOrderItemInUpdateOrderDialog({
           </DialogDescription>
         </DialogHeader>
         <div>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="flex gap-4 items-center mt-4">
             <Label htmlFor="name" className="leading-5 text-left">
               {isLastItem ? (
                 <>
-                  {t('order.cancelOrderContent')} <strong>{orderItem.variant.product.name}</strong> {t('order.cancelOrderContent2')}
+                  {t('order.cancelOrderContent')} <strong>{orderItem.name}</strong> {t('order.cancelOrderContent2')}
                 </>
               ) : (
                 <>
@@ -90,7 +81,7 @@ export default function RemoveOrderItemInUpdateOrderDialog({
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-row justify-end gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-end">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

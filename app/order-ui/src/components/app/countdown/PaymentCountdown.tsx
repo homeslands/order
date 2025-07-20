@@ -6,7 +6,7 @@ interface PaymentCountdownProps {
     // isExpired: boolean
 }
 
-export function PaymentCountdown({ timeRemaining }: PaymentCountdownProps) {
+export default function PaymentCountdown({ timeRemaining }: PaymentCountdownProps) {
     const { t } = useTranslation('menu')
     const [minutes, setMinutes] = useState(Math.floor(timeRemaining / 60))
     const [seconds, setSeconds] = useState(timeRemaining % 60)

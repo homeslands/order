@@ -1,14 +1,9 @@
 import { useTranslation } from 'react-i18next'
 
-import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { ClientMenuTabscontent } from '../tabscontent/client-menu.tabscontent'
-// import { ClientUpdateOrderTableSelect } from '@/app/system/menu'
 
-interface ClientMenusProps {
-  onSuccess: () => void
-}
-
-export function ClientMenuTabs({ onSuccess }: ClientMenusProps) {
+export function ClientMenuTabs() {
   const { t } = useTranslation(['menu'])
   return (
     <Tabs defaultValue="menu">
@@ -21,11 +16,9 @@ export function ClientMenuTabs({ onSuccess }: ClientMenusProps) {
           {t('menu.table')}
         </TabsTrigger> */}
       </TabsList>
-      <ScrollArea className="h-[calc(100vh-200px)]">
-        <TabsContent value="menu" className="p-0">
-          <ClientMenuTabscontent onSuccess={onSuccess} />
-        </TabsContent>
-      </ScrollArea>
+      <TabsContent value="menu" className="p-0">
+        <ClientMenuTabscontent />
+      </TabsContent>
       {/* <TabsContent value="table" className="p-0">
         <ClientUpdateOrderTableSelect onSuccess={onSuccess} order={order} defaultValue={defaultValue} />
       </TabsContent> */}
