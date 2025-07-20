@@ -39,6 +39,7 @@ import { PrinterManager } from 'src/printer/printer.manager';
 import { Printer } from 'src/printer/entity/printer.entity';
 import { PrinterProducer } from 'src/printer/printer.producer';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('ChefOrderController', () => {
   let controller: ChefOrderController;
@@ -68,6 +69,10 @@ describe('ChefOrderController', () => {
         PrinterProducer,
         {
           provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
         },
         {
