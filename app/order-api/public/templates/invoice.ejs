@@ -131,6 +131,25 @@
               </td>
             </tr>
 
+            <tr class="border-t border-black">
+              <% if (voucherCode !=='N/A' ) { %>
+                <td class="py-2 text-left" colspan="2">
+                  Tổng giảm giá (đ)
+                </td>
+                <td class="py-2 text-left" colspan="2">
+                  <span class="text-xs italic break-all">(Mã: <%= voucherCode %>)</span>
+                </td>
+                <% } %>
+                  <% if (voucherCode==='N/A' ) { %>
+                    <td class="py-2 text-left" colspan="4">
+                      Tổng giảm giá (đ)
+                    </td>
+                    <% } %>
+                      <td class="py-2 text-right">
+                        <%= formatCurrency(voucherValue) %>
+                      </td>
+            </tr>
+
             <% if ((paymentMethod==='point' )) { %>
               <tr class="border-t border-black">
                 <td class="py-2 text-left" colspan="4">
