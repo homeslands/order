@@ -11,4 +11,12 @@ export enum PrinterType {
 export enum PrinterJobType {
   CHEF_ORDER = 'chef-order',
   LABEL_TICKET = 'label-ticket',
+  INVOICE = 'invoice',
+}
+
+export enum PrinterJobStatus {
+  PENDING = 'pending',
+  PRINTING = 'printing',
+  PRINTED = 'printed',
+  FAILED = 'failed',
 }

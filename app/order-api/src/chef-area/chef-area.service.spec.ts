@@ -7,7 +7,7 @@ import { ChefArea } from './chef-area.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Branch } from 'src/branch/branch.entity';
-import { Printer } from 'src/printer/printer.entity';
+import { Printer } from 'src/printer/entity/printer.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { PrinterUtils } from 'src/printer/printer.utils';
 import { PrinterManager } from 'src/printer/printer.manager';

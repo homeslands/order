@@ -1,12 +1,21 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
-import { PrinterJobType, PrinterType } from './printer.constants';
+import {
+  PrinterJobStatus,
+  PrinterJobType,
+  PrinterType,
+} from './printer.constants';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { createCanvas } from 'canvas';
 import { PrinterProducer } from './printer.producer';
 import moment from 'moment';
 import { PrinterManager } from './printer.manager';
+import { PrinterJob } from './entity/printer-job.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PrinterException } from './printer.exception';
+import PrinterValidation from './printer.validation';
 
 @Injectable()
 export class PrinterUtils {
@@ -14,6 +23,8 @@ export class PrinterUtils {
     private readonly printerManager: PrinterManager,
     private readonly printerProducer: PrinterProducer,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    @InjectRepository(PrinterJob)
+    private readonly printerJobRepository: Repository<PrinterJob>,
   ) {}
 
   async printChefOrderItemTicket(
@@ -49,6 +60,7 @@ export class PrinterUtils {
       }
     } catch (error) {
       this.logger.error(`Error printing ticket`, error.stack, context);
+      throw new PrinterException(PrinterValidation.ERROR_PRINTING_TICKET);
     } finally {
       this.logger.log(
         `Sent ${buffersToSend.length} buffers for ${bitmapDataList.length} labels`,
@@ -111,6 +123,7 @@ export class PrinterUtils {
       await socket.send(buffersToSend);
     } catch (error) {
       this.logger.error(`Error printing chef order`, error.stack, context);
+      throw new PrinterException(PrinterValidation.ERROR_PRINTING_CHEF_ORDER);
     } finally {
       this.logger.log(
         `Sent ${buffersToSend.length} chef order buffer for printer ${printerIp}:${printerPort}`,
@@ -276,5 +289,23 @@ export class PrinterUtils {
     }
 
     return lines;
+  }
+
+  async createPrintJob(
+    jobType: PrinterJobType,
+    data: string,
+    printerIp: string,
+    printerPort: string,
+  ) {
+    const context = `${PrinterUtils.name}.${this.createPrintJob.name}`;
+    this.logger.log(`Creating print job for ${jobType}`, context);
+    const printerJob = new PrinterJob();
+    printerJob.jobType = jobType;
+    printerJob.data = data;
+    printerJob.printerIp = printerIp;
+    printerJob.printerPort = printerPort;
+    printerJob.status = PrinterJobStatus.PENDING;
+    await this.printerJobRepository.save(printerJob);
+    this.logger.log(`Print job created`, context);
   }
 }

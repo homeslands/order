@@ -168,3 +168,35 @@ export class CreatePrintJobRequestDto {
   @IsOptional()
   chefOrder?: ChefOrder;
 }
+
+export class PrinterJobQueryResponseDto {
+  @AutoMap()
+  id: string;
+
+  @AutoMap()
+  slug: string;
+
+  @AutoMap()
+  printerIp: string;
+
+  @AutoMap()
+  printerPort: string;
+
+  @AutoMap()
+  jobType: string;
+
+  @AutoMap()
+  status: string;
+
+  @AutoMap()
+  createdAt: Date;
+
+  @AutoMap()
+  updatedAt: Date;
+
+  @AutoMap()
+  data: string;
+
+  @AutoMap()
+  error: string;
+}

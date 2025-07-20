@@ -1,7 +1,7 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { createMap, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Printer } from './printer.entity';
+import { Printer } from './entity/printer.entity';
 import {
   CreatePrinterRequestDto,
   PrinterResponseDto,

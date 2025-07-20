@@ -18,7 +18,7 @@ import {
   PrinterResponseDto,
   UpdatePrinterRequestDto,
 } from 'src/printer/printer.dto';
-import { Printer } from 'src/printer/printer.entity';
+import { Printer } from 'src/printer/entity/printer.entity';
 import PrinterValidation from 'src/printer/printer.validation';
 import { PrinterException } from 'src/printer/printer.exception';
 import { PrinterDataType } from 'src/printer/printer.constants';
