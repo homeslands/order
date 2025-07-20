@@ -109,8 +109,9 @@
     "clearFilter": "Clear Filter",
     "transactionType": "Transaction Type",
     "exportAll": "Export All",
+    "coinEarned": "Coin earned",
+    "coinSpent": "Coin used",
     "transactionDetails": "Transaction Details",
-    "transactionType": "Transaction Type",
     "Serial": "Serial Number"
   }
 }

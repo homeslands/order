@@ -109,8 +109,9 @@
     "clearFilter": "Xóa lọc",
     "transactionType": "Loại giao dịch",
     "exportAll": "Xuất tất cả",
+    "coinEarned": "Nhận xu",
+    "coinSpent": "Dùng xu",
     "transactionDetails": "Chi tiết giao dịch",
-    "transactionType": "Loại giao dịch",
     "serial": "Số seri"
   }
 }
