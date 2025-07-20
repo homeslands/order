@@ -100,6 +100,8 @@
     "applyFilter": "Áp dụng lọc",
     "clearFilter": "Xóa lọc",
     "transactionType": "Loại giao dịch",
-    "exportAll": "Xuất tất cả"
+    "exportAll": "Xuất tất cả",
+    "coinEarned": "Nhận xu",
+    "coinSpent": "Dùng xu"
   }
 }

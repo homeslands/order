@@ -100,6 +100,8 @@
     "applyFilter": "Apply Filter",
     "clearFilter": "Clear Filter",
     "transactionType": "Transaction Type",
-    "exportAll": "Export All"
+    "exportAll": "Export All",
+    "coinEarned": "Coin earned",
+    "coinSpent": "Coin used"
   }
 }

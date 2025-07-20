@@ -469,10 +469,10 @@ export function CustomerCoinTabsContent() {
                           {t('profile.allTransactions')}
                         </SelectItem>
                         <SelectItem value={PointTransactionType.IN}>
-                          {t('profile.giftCardTransaction')}
+                          {t('profile.coinEarned')}
                         </SelectItem>
                         <SelectItem value={PointTransactionType.OUT}>
-                          {t('profile.orderTransaction')}
+                          {t('profile.coinSpent')}
                         </SelectItem>
                       </SelectContent>
                     </Select>
