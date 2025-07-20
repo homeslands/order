@@ -13,6 +13,7 @@ import { PrinterUtils } from 'src/printer/printer.utils';
 import { PrinterManager } from 'src/printer/printer.manager';
 import { PrinterProducer } from 'src/printer/printer.producer';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('ChefAreaService', () => {
   let service: ChefAreaService;
@@ -29,6 +30,10 @@ describe('ChefAreaService', () => {
         PrinterProducer,
         {
           provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
         },
         {

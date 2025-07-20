@@ -14,6 +14,7 @@ import { PdfService } from 'src/pdf/pdf.service';
 import { PrinterUtils } from 'src/printer/printer.utils';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { PrinterProducer } from 'src/printer/printer.producer';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('ChefAreaController', () => {
   let controller: ChefAreaController;
@@ -31,6 +32,10 @@ describe('ChefAreaController', () => {
         PrinterProducer,
         {
           provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
         },
         {
