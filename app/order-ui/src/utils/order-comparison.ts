@@ -2,10 +2,16 @@ import { ICartItem, IOrderItem } from '@/types'
 import i18next from 'i18next'
 
 export interface IOrderItemChange {
-  type: 'added' | 'removed' | 'quantity_changed' | 'unchanged'
+  type:
+    | 'added'
+    | 'removed'
+    | 'quantity_changed'
+    | 'orderItemNoteChanged'
+    | 'unchanged'
   item: IOrderItem
   originalQuantity?: number
   newQuantity?: number
+  note?: string
   slug?: string
 }
 
@@ -29,6 +35,7 @@ export function compareOrders(
       tableChanged: false,
       ownerChanged: false,
       noteChanged: false,
+      // orderItemNoteChanged: false,
       hasChanges: false,
     }
   }
@@ -83,60 +90,48 @@ export function compareOrders(
           type: 'added',
           item: newItem,
           newQuantity: newItem.quantity,
+          note: newItem.note || '',
           slug: newItem.slug || newItem.id,
         })
       }
 
-      // Các items cũ vẫn unchanged
+      // Các items cũ - kiểm tra quantity và note changes
       for (let i = 0; i < originalCount; i++) {
         const originalItem = originalTypeItems[i]
         const newItem = newTypeItems[i]
-        itemChanges.push({
-          type: 'unchanged',
-          item: newItem,
-          originalQuantity: originalItem.quantity,
-          newQuantity: newItem.quantity,
-          slug: originalItem.slug || originalItem.id,
-        })
-      }
-    } else if (originalCount > newCount) {
-      // Có items bị xóa
-      // const removedCount = originalCount - newCount
-      // Thêm các items bị xóa
-      for (let i = newCount; i < originalCount; i++) {
-        const originalItem = originalTypeItems[i] || originalTypeItems[0]
-        itemChanges.push({
-          type: 'removed',
-          item: originalItem,
-          originalQuantity: originalItem.quantity,
-          slug: originalItem.slug || originalItem.id,
-        })
-      }
-
-      // Các items còn lại vẫn unchanged
-      for (let i = 0; i < newCount; i++) {
-        const originalItem = originalTypeItems[i]
-        const newItem = newTypeItems[i]
-        itemChanges.push({
-          type: 'unchanged',
-          item: newItem,
-          originalQuantity: originalItem.quantity,
-          newQuantity: newItem.quantity,
-          slug: originalItem.slug || originalItem.id,
-        })
-      }
-    } else {
-      // Số lượng items không đổi, kiểm tra quantity changes
-      for (let i = 0; i < originalCount; i++) {
-        const originalItem = originalTypeItems[i] || originalTypeItems[0]
-        const newItem = newTypeItems[i] || newTypeItems[0]
-
-        if (originalItem.quantity !== newItem.quantity) {
+        
+        // Kiểm tra note changes
+        const originalNote = originalItem.note || ''
+        const newNote = newItem.note || ''
+        const noteChanged = originalNote !== newNote
+        const quantityChanged = originalItem.quantity !== newItem.quantity
+        
+        if (quantityChanged && noteChanged) {
+          // Cả quantity và note đều thay đổi - ưu tiên quantity_changed
           itemChanges.push({
             type: 'quantity_changed',
             item: newItem,
             originalQuantity: originalItem.quantity,
             newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (quantityChanged) {
+          itemChanges.push({
+            type: 'quantity_changed',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (noteChanged) {
+          itemChanges.push({
+            type: 'orderItemNoteChanged',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
             slug: originalItem.slug || originalItem.id,
           })
         } else {
@@ -145,6 +140,121 @@ export function compareOrders(
             item: newItem,
             originalQuantity: originalItem.quantity,
             newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        }
+      }
+    } else if (originalCount > newCount) {
+      // Có items bị xóa
+      // Thêm các items bị xóa
+      for (let i = newCount; i < originalCount; i++) {
+        const originalItem = originalTypeItems[i] || originalTypeItems[0]
+        itemChanges.push({
+          type: 'removed',
+          item: originalItem,
+          originalQuantity: originalItem.quantity,
+          note: originalItem.note || '',
+          slug: originalItem.slug || originalItem.id,
+        })
+      }
+
+      // Các items còn lại - kiểm tra quantity và note changes
+      for (let i = 0; i < newCount; i++) {
+        const originalItem = originalTypeItems[i]
+        const newItem = newTypeItems[i]
+        
+        // Kiểm tra note changes
+        const originalNote = originalItem.note || ''
+        const newNote = newItem.note || ''
+        const noteChanged = originalNote !== newNote
+        const quantityChanged = originalItem.quantity !== newItem.quantity
+        
+        if (quantityChanged && noteChanged) {
+          // Cả quantity và note đều thay đổi - ưu tiên quantity_changed
+          itemChanges.push({
+            type: 'quantity_changed',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (quantityChanged) {
+          itemChanges.push({
+            type: 'quantity_changed',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (noteChanged) {
+          itemChanges.push({
+            type: 'orderItemNoteChanged',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else {
+          itemChanges.push({
+            type: 'unchanged',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        }
+      }
+    } else {
+      // Số lượng items không đổi, kiểm tra quantity và note changes
+      for (let i = 0; i < originalCount; i++) {
+        const originalItem = originalTypeItems[i] || originalTypeItems[0]
+        const newItem = newTypeItems[i] || newTypeItems[0]
+
+        const originalNote = originalItem.note || ''
+        const newNote = newItem.note || ''
+        const noteChanged = originalNote !== newNote
+        const quantityChanged = originalItem.quantity !== newItem.quantity
+
+        if (quantityChanged && noteChanged) {
+          // Cả quantity và note đều thay đổi - ưu tiên quantity_changed
+          itemChanges.push({
+            type: 'quantity_changed',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (quantityChanged) {
+          itemChanges.push({
+            type: 'quantity_changed',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else if (noteChanged) {
+          itemChanges.push({
+            type: 'orderItemNoteChanged',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
+            slug: originalItem.slug || originalItem.id,
+          })
+        } else {
+          itemChanges.push({
+            type: 'unchanged',
+            item: newItem,
+            originalQuantity: originalItem.quantity,
+            newQuantity: newItem.quantity,
+            note: newNote,
             slug: originalItem.slug || originalItem.id,
           })
         }
@@ -159,12 +269,15 @@ export function compareOrders(
   const noteChanged =
     (originalOrder.description || '') !== (newOrder.description || '')
 
+  const orderItemNoteChanged = itemChanges.some(change => change.type === 'orderItemNoteChanged')
+
   const hasChanges =
     itemChanges.some((change) => change.type !== 'unchanged') ||
     voucherChanged ||
     tableChanged ||
     ownerChanged ||
-    noteChanged
+    noteChanged ||
+    orderItemNoteChanged
 
   return {
     itemChanges,
@@ -172,6 +285,7 @@ export function compareOrders(
     tableChanged,
     ownerChanged,
     noteChanged,
+    // orderItemNoteChanged,
     hasChanges,
   }
 }
@@ -185,6 +299,9 @@ export function getChangesSummary(comparison: IOrderComparison): string {
   )
   const quantityChangedItems = comparison.itemChanges.filter(
     (c) => c.type === 'quantity_changed',
+  )
+  const noteChangedItems = comparison.itemChanges.filter(
+    (c) => c.type === 'orderItemNoteChanged',
   )
 
   if (addedItems.length > 0) {
@@ -205,27 +322,33 @@ export function getChangesSummary(comparison: IOrderComparison): string {
     )
   }
 
+  if (noteChangedItems.length > 0) {
+    changes.push(
+      `${i18next.t('order.itemNoteChanged', { ns: 'menu' })} ${noteChangedItems.length} ${i18next.t('order.items', { ns: 'menu' })}`,
+    )
+  }
+
   if (comparison.voucherChanged) {
     changes.push(
-      `${i18next.t('order.voucherChanged', { ns: 'menu' })} ${i18next.t('order.items', { ns: 'menu' })}`,
+      `${i18next.t('order.voucherChanged', { ns: 'menu' })}`,
     )
   }
 
   if (comparison.tableChanged) {
     changes.push(
-      `${i18next.t('order.tableChanged', { ns: 'menu' })} ${i18next.t('order.items', { ns: 'menu' })}`,
+      `${i18next.t('order.tableChanged', { ns: 'menu' })}`,
     )
   }
 
   if (comparison.ownerChanged) {
     changes.push(
-      `${i18next.t('order.ownerChanged', { ns: 'menu' })} ${i18next.t('order.items', { ns: 'menu' })}`,
+      `${i18next.t('order.ownerChanged', { ns: 'menu' })}`,
     )
   }
 
   if (comparison.noteChanged) {
     changes.push(
-      `${i18next.t('order.noteChanged', { ns: 'menu' })} ${i18next.t('order.items', { ns: 'menu' })}`,
+      `${i18next.t('order.noteChanged', { ns: 'menu' })}`,
     )
   }
 

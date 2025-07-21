@@ -244,6 +244,7 @@
     "tableChanged": "Table changed",
     "ownerChanged": "Owner changed",
     "noteChanged": "Note changed",
+    "itemNoteChanged": "Item note changed",
     "noChanges": "No changes"
   },
   "table": {

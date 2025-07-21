@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum } from '@/types'
-import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem } from '@/hooks'
+import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { compareOrders, getChangesSummary } from '@/utils/order-comparison'
 import { Role, ROUTE } from '@/constants'
@@ -42,6 +42,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
   const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
   const { mutate: updateOrderItem, isPending: isPendingUpdateOrderItem } = useUpdateOrderItem()
+  const { mutate: updateOrderItemNote, isPending: isPendingUpdateOrderItemNote } = useUpdateNoteOrderItem()
 
   const [isOpen, setIsOpen] = useState(false)
   const { userInfo } = useUserStore()
@@ -114,7 +115,9 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
 
   // So sánh orders để tìm thay đổi
   const orderComparison = compareOrders(originalOrderForComparison, order)
+  // console.log('orderComparison', orderComparison)
   const changesSummary = getChangesSummary(orderComparison)
+  // console.log('changesSummary', changesSummary)
 
   // Calculate display items and totals
   const transformedOrderItems = orderDraft ? transformOrderItemToOrderDetail(orderDraft.orderItems) : []
@@ -123,7 +126,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
 
   // Check if any operation is pending
   const isAnyPending = isPendingUpdateOrderType || isPendingAddNewOrderItem ||
-    isPendingDeleteOrderItem || isPendingUpdateOrderItem
+    isPendingDeleteOrderItem || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
 
   const handleSubmit = async () => {
     if (!orderDraft || !originalOrder) return
@@ -150,6 +153,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
       const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
       const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
+      const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
 
       // Add new items
       for (const change of addedItems) {
@@ -193,7 +197,24 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
               note: change.item.note || '',
               variant: change.item.variant.slug,
               promotion: change.item.promotion || undefined,
-              action: action
+              action: action,
+            }
+          }, {
+            onSuccess: () => resolve(true),
+            onError: (error) => reject(error)
+          })
+        })
+      }
+
+      // Update note of existing items
+      for (const change of orderItemNoteChangedItems) {
+        if (!change.slug) continue
+
+        await new Promise((resolve, reject) => {
+          updateOrderItemNote({
+            slug: change.slug!,
+            data: {
+              note: change.item.note || '',
             }
           }, {
             onSuccess: () => resolve(true),
@@ -252,11 +273,13 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
             return (
               <div key={index} className={`flex items-center gap-2 p-2 rounded ${change.type === 'added' ? 'bg-green-50 text-green-700' :
                 change.type === 'removed' ? 'bg-red-50 text-red-700' :
-                  'bg-yellow-50 text-yellow-700'
+                  change.type === 'orderItemNoteChanged' ? 'bg-purple-50 text-purple-700' :
+                    'bg-yellow-50 text-yellow-700'
                 }`}>
                 {change.type === 'added' && <Plus className="w-3 h-3" />}
                 {change.type === 'removed' && <Minus className="w-3 h-3" />}
                 {change.type === 'quantity_changed' && <Edit3 className="w-3 h-3" />}
+                {change.type === 'orderItemNoteChanged' && <Notebook className="w-3 h-3" />}
 
                 <span className="flex-1">{change.item.name}</span>
 
@@ -268,6 +291,9 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
                 )}
                 {change.type === 'quantity_changed' && (
                   <span>SL: {change.originalQuantity} → {change.newQuantity}</span>
+                )}
+                {change.type === 'orderItemNoteChanged' && (
+                  <span>Ghi chú đã thay đổi</span>
                 )}
               </div>
             )
