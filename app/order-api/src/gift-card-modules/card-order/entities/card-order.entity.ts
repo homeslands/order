@@ -50,6 +50,10 @@ export class CardOrder extends Base {
   @AutoMap()
   cardId: string;
 
+  @Column({ name: 'card_slug_column' })
+  @AutoMap()
+  cardSlug: string;
+
   @Column({ name: 'card_title_column' })
   @AutoMap()
   cardTitle: string;
@@ -74,6 +78,10 @@ export class CardOrder extends Base {
   @AutoMap()
   customerId: string;
 
+  @Column({ name: 'customer_slug_column' })
+  @AutoMap()
+  customerSlug: string;
+
   @Column({ name: 'customer_name_column' })
   @AutoMap()
   customerName: string;
@@ -89,6 +97,10 @@ export class CardOrder extends Base {
   @Column({ name: 'cashier_id_column', nullable: true })
   @AutoMap()
   cashierId?: string;
+
+  @Column({ name: 'cashier_slug_column', nullable: true })
+  @AutoMap()
+  cashierSlug?: string;
 
   @Column({ name: 'cashier_name_column', nullable: true })
   @AutoMap()
@@ -118,8 +130,16 @@ export class CardOrder extends Base {
   @AutoMap()
   paymentMethod: string;
 
+  @Column({ name: 'payment_slug_column', nullable: true })
+  @AutoMap()
+  paymentSlug: string;
+
+  @Column({ name: 'payment_id_column', nullable: true })
+  @AutoMap()
+  paymentId: string;
+
   // One to one with payment
-  @OneToOne(() => Payment, (payment) => payment.order)
+  @OneToOne(() => Payment, (payment) => payment.cardOrder)
   @JoinColumn({ name: 'payment_column' })
   @AutoMap(() => Payment)
   payment: Payment;

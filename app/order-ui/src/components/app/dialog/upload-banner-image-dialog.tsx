@@ -17,12 +17,15 @@ import {
 import { useUploadBannerImage } from '@/hooks'
 import { IBanner } from '@/types'
 import { showToast } from '@/utils'
+import { useQueryClient } from '@tanstack/react-query'
+import { QUERYKEY } from '@/constants'
 
 interface IUploadBannerImageDialogProps {
   banner: IBanner
 }
 
 export default function UploadBannerImageDialog({ banner }: IUploadBannerImageDialogProps) {
+  const queryClient = useQueryClient()
   const { t } = useTranslation(['banner'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
@@ -51,6 +54,9 @@ export default function UploadBannerImageDialog({ banner }: IUploadBannerImageDi
         { slug: banner.slug, file: selectedFile },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: [QUERYKEY.banners],
+            })
             showToast(tToast('toast.uploadImageSuccess'))
             setIsOpen(false)
             setPreviewImage(null)

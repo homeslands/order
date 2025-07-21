@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { GiftCardResponseDto } from 'src/gift-card-modules/gift-card/dto/gift-card-response.dto';
 import { RecipientResponseDto } from 'src/gift-card-modules/receipient/dto/recipient-response.dto';
+import { PaymentResponseDto } from 'src/payment/payment.dto';
 export class CardOrderResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
@@ -28,6 +29,10 @@ export class CardOrderResponseDto extends BaseResponseDto {
   @ApiProperty()
   cardId: string;
 
+  @ApiProperty()
+  @AutoMap()
+  cardSlug: string;
+
   @AutoMap()
   @ApiProperty()
   cardTitle: string;
@@ -46,7 +51,7 @@ export class CardOrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  customerId: string;
+  customerSlug: string;
 
   @AutoMap()
   @ApiProperty()
@@ -58,7 +63,7 @@ export class CardOrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  cashierId: string;
+  cashierSlug: string;
 
   @AutoMap()
   @ApiProperty()
@@ -78,9 +83,17 @@ export class CardOrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
+  paymentSlug: string;
+
+  @AutoMap()
+  @ApiProperty()
   paymentStatus: string;
 
   @AutoMap()
   @ApiProperty()
   paymentMethod: string;
+
+  @ApiProperty()
+  @AutoMap(() => PaymentResponseDto)
+  payment: PaymentResponseDto;
 }

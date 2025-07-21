@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
+import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 import { Order } from 'src/order/order.entity';
 import { Column, Entity, OneToOne } from 'typeorm';
 
@@ -48,4 +49,8 @@ export class Payment extends Base {
   @AutoMap()
   @Column({ name: 'order_id_bank_transfer_column', nullable: true })
   orderIdBankTransfer?: string;
+
+  // One to one with order
+  @OneToOne(() => CardOrder, (co) => co.payment)
+  cardOrder: CardOrder;
 }

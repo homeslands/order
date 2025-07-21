@@ -33,7 +33,7 @@ export default function SwiperBanner({
       }}
       initialSlide={1}
       modules={[Autoplay, Pagination, Navigation]}
-      className="relative h-[50vh] sm:h-[80vh] w-full"
+      className="relative h-[60vh] sm:h-[80vh] w-full"
     >
       {bannerData?.map((banner, index) => {
         const bgImage = banner.image
@@ -43,13 +43,13 @@ export default function SwiperBanner({
             : LandingPageBackground
 
         return (
-          <SwiperSlide key={index} className="flex justify-center items-center bg-black">
-            <div className="relative w-full h-[50vh] sm:h-full flex items-center justify-center overflow-hidden">
+          <SwiperSlide key={index} className="flex items-center justify-center bg-black">
+            <div className="relative w-full h-[60vh] sm:h-full flex items-center justify-center overflow-hidden">
               {/* Ảnh nền mờ + scale */}
               <img
                 src={bgImage}
                 alt="blurred background"
-                className="object-cover absolute top-0 left-0 w-full h-full blur-md scale-110"
+                className="absolute top-0 left-0 object-cover w-full h-full scale-110 blur-md"
                 aria-hidden="true"
               />
 
@@ -68,7 +68,7 @@ export default function SwiperBanner({
 
           // <SwiperSlide
           //   key={index}
-          //   className="flex justify-center items-center"
+          //   className="flex items-center justify-center"
           //   style={{
           //     backgroundImage: `url(${isMobile ? LandingPageBackgroundMobile : bgImage})`,
           //   }}
@@ -85,7 +85,7 @@ export default function SwiperBanner({
 
           //   <div className="hidden col-span-1 sm:block" />
           //   <motion.div
-          //     className="col-span-2 mt-12 w-full text-center text-white sm:mt-0"
+          //     className="w-full col-span-2 mt-12 text-center text-white sm:mt-0"
           //     initial={{ opacity: 0, scale: 0.9 }}
           //     animate={isImageLoaded ? { opacity: 1, scale: 1 } : {}}
           //     transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -101,7 +101,7 @@ export default function SwiperBanner({
           //         : 'Hương vị đẳng cấp, khơi nguồn cảm hứng cho mọi khoảnh khắc.'}
           //     </p>
           //     {banner?.useButtonUrl && isImageLoaded && (
-          //       <div className="flex gap-4 justify-center mt-6 sm:flex-row">
+          //       <div className="flex justify-center gap-4 mt-6 sm:flex-row">
           //         <Button
           //           variant="outline"
           //           className="text-white bg-transparent"
