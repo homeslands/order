@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ChangeEvent } from 'react'
 
 import { Input } from '@/components/ui'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { IOrderItem } from '@/types'
 
 interface CartNoteInputProps {
@@ -12,7 +12,7 @@ interface CartNoteInputProps {
 
 export default function CartNoteInput({ cartItem }: CartNoteInputProps) {
   const { t } = useTranslation('menu')
-  const { addNote } = useCartItemStore()
+  const { addNote } = useOrderFlowStore()
 
   const handleNoteChange = (e: ChangeEvent<HTMLInputElement>) => {
     const note = e.target.value

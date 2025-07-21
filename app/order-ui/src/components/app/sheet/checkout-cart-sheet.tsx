@@ -71,7 +71,7 @@ export default function CheckoutCartSheet() {
   // Tính tổng tiền
   const subtotal = useMemo(() => {
     return cartItems?.orderItems.reduce((acc, orderItem) => {
-      return acc + (orderItem.price || 0) * orderItem.quantity
+      return acc + (orderItem.originalPrice || 0) * orderItem.quantity
     }, 0)
   }, [cartItems])
 
@@ -124,7 +124,7 @@ export default function CheckoutCartSheet() {
                       </Button>
                     </div>
                     {cartItems && (
-                      <div className="flex gap-2 items-center">
+                      <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">
                           {cartItems.ownerFullName}
                         </span>
@@ -137,7 +137,7 @@ export default function CheckoutCartSheet() {
 
                   {/* Dropdown danh sách user */}
                   {users.length > 0 && (
-                    <div className="absolute z-10 p-2 mt-16 w-full bg-white rounded-md border shadow-lg">
+                    <div className="absolute z-10 w-full p-2 mt-16 bg-white border rounded-md shadow-lg">
                       {users.map((user, index) => (
                         <div
                           key={user.slug}
@@ -161,8 +161,8 @@ export default function CheckoutCartSheet() {
                 <div className="flex flex-col gap-4 pb-6 mt-5 border-b">
                   <div className="flex flex-col gap-2">
                     <Label>{t('order.deliveryMethod')}</Label>
-                    <div className="flex flex-row gap-4 items-center">
-                      <div className="flex justify-center items-center px-4 py-1 text-xs font-thin rounded-full w-fit bg-primary/15 text-primary">
+                    <div className="flex flex-row items-center gap-4">
+                      <div className="flex items-center justify-center px-4 py-1 text-xs font-thin rounded-full w-fit bg-primary/15 text-primary">
                         {t('order.dineIn')}
                       </div>
                       <div>
@@ -182,7 +182,7 @@ export default function CheckoutCartSheet() {
                   >
                     <div
                       key={`${item.slug}`}
-                      className="flex gap-2 items-center w-full rounded-xl"
+                      className="flex items-center w-full gap-2 rounded-xl"
                     >
                       <img
                         src={`${publicFileURL}/${item.image}`}
@@ -190,13 +190,13 @@ export default function CheckoutCartSheet() {
                         className="object-cover w-20 h-20 rounded-2xl"
                       />
                       <div className="flex flex-col flex-1 gap-2">
-                        <div className="flex flex-row justify-between items-start">
+                        <div className="flex flex-row items-start justify-between">
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="font-bold truncate">
                               {item.name}
                             </span>
                             <span className="text-xs font-thin text-muted-foreground">
-                              {`${formatCurrency(item.price || 0)}`}
+                              {`${formatCurrency(item.originalPrice || 0)}`}
                             </span>
                           </div>
                           <Button
@@ -209,12 +209,12 @@ export default function CheckoutCartSheet() {
                             />
                           </Button>
                         </div>
-                        <div className="flex justify-between items-center w-full text-sm font-medium">
+                        <div className="flex items-center justify-between w-full text-sm font-medium">
                           <span>
                             {t('order.quantity')} {item.quantity}
                           </span>
                           <span className="font-semibold text-muted-foreground">
-                            {`${formatCurrency((item.price || 0) * item.quantity)}`}
+                            {`${formatCurrency((item.originalPrice || 0) * item.quantity)}`}
                           </span>
                         </div>
                       </div>
@@ -259,7 +259,7 @@ export default function CheckoutCartSheet() {
                 </div> */}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 justify-between items-center py-4">
+            <div className="grid items-center justify-between grid-cols-2 gap-2 py-4">
               <div className="col-span-1">
                 <Button
                   variant="outline"

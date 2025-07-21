@@ -13,17 +13,6 @@ export default function SystemLayout() {
   const isMobile = useIsMobile()
   const { progress, fileName, isDownloading } = useDownloadStore()
 
-  // useEffect(() => {
-  //   // Chỉ clear store khi rời khỏi trang payment hoàn toàn
-  //   // Không clear khi đang ở trang payment để payment page tự quản lý
-  //   if (!location.pathname.startsWith(ROUTE.STAFF_ORDER_PAYMENT)) {
-  //     // Chỉ clear khi thực sự rời khỏi payment flow
-  //     const isLeavingPaymentFlow = !location.pathname.includes('payment')
-  //     if (isLeavingPaymentFlow) {
-  //       clearStore()
-  //     }
-  //   }
-  // }, [location.pathname, clearStore])
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="box-border flex flex-1 min-h-screen">

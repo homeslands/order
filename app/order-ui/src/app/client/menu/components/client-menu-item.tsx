@@ -1,16 +1,19 @@
+import moment from 'moment'
+import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 
-import { IMenuItem, IProduct, OrderTypeEnum } from '@/types'
+import { IMenuItem, IOrderItem, IProduct } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import ProductImage from '@/assets/images/ProductImage.png'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { ClientAddToCartDialog } from '@/components/app/dialog'
 import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
-import { useCartItemStore, useUserStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+
 
 interface IClientMenuItemProps {
   item: IMenuItem
@@ -18,9 +21,18 @@ interface IClientMenuItemProps {
 
 export function ClientMenuItem({ item }: IClientMenuItemProps) {
   const { t } = useTranslation('menu')
+  const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
-  const { addCartItem } = useCartItemStore();
-  const { getUserInfo } = useUserStore();
+  // 🔥 Sử dụng Order Flow Store
+  const {
+    currentStep,
+    isHydrated,
+    orderingData,
+    initializeOrdering,
+    addOrderingItem,
+    setCurrentStep
+  } = useOrderFlowStore()
+  // const { getUserInfo } = useUserStore();
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
 
@@ -35,68 +47,113 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
     }
   }
 
-  const generateCartItemId = () => {
-    return Date.now().toString(36);
-  };
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
+
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = (product: IMenuItem) => {
-    if (!product?.product?.variants || product?.product?.variants.length === 0) return;
+    if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
 
-    // const finalPrice = product?.promotion && product?.promotion?.value > 0
-    //   ? product?.product?.variants[0].price * (1 - product?.promotion?.value / 100)
-    //   : product?.product?.variants[0]?.price;
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
+    }
 
-    const cartItem = {
-      id: generateCartItemId(),
-      slug: product.slug,
-      owner: getUserInfo()?.slug || '',
-      type: OrderTypeEnum.AT_TABLE, // Default value
-      orderItems: [
-        {
-          id: generateCartItemId(),
-          slug: product.product.slug,
-          image: product.product.image,
-          name: product.product.name,
-          quantity: 1,
-          variant: product?.product?.variants[0],
-          allVariants: product?.product?.variants,
-          size: product?.product?.variants[0]?.size?.name,
-          originalPrice: product?.product?.variants[0]?.price,
-          // price: finalPrice,
-          description: product?.product?.description || '',
-          isLimit: product?.product?.isLimit || false,
-          promotion: product?.promotion ? product?.promotion?.slug : '',
-          promotionValue: product?.promotion ? product?.promotion?.value : 0,
-          promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
-          note: '',
-        },
-      ],
-      table: '', // Will be set later if needed
-    };
+    if (!orderingData) {
+      initializeOrdering()
+    }
 
-    addCartItem(cartItem);
+    // ✅ Step 3: Create order item with proper structure
+    const orderItem: IOrderItem = {
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
+      quantity: 1,
+      size: product?.product?.variants[0]?.size?.name,
+      allVariants: product?.product?.variants,
+      variant: product?.product?.variants[0],
+      originalPrice: product?.product?.variants[0]?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: '',
+    }
+
+    // const cartItem = {
+    //   id: generateCartItemId(),
+    //   slug: product.slug,
+    //   owner: getUserInfo()?.slug || '',
+    //   type: OrderTypeEnum.AT_TABLE, // Default value
+    //   orderItems: [
+    //     {
+    //       id: generateCartItemId(),
+    //       slug: product.product.slug,
+    //       image: product.product.image,
+    //       name: product.product.name,
+    //       quantity: 1,
+    //       variant: product?.product?.variants[0],
+    //       allVariants: product?.product?.variants,
+    //       size: product?.product?.variants[0]?.size?.name,
+    //       originalPrice: product?.product?.variants[0]?.price,
+    //       // price: finalPrice,
+    //       description: product?.product?.description || '',
+    //       isLimit: product?.product?.isLimit || false,
+    //       promotion: product?.promotion ? product?.promotion?.slug : '',
+    //       promotionValue: product?.promotion ? product?.promotion?.value : 0,
+    //       promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
+    //       note: '',
+    //     },
+    //   ],
+    //   table: '', // Will be set later if needed
+    // };
+
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
+
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
+    }
   };
 
   return (
     <div
       key={item.slug}
-      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md sm:shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[16rem] dark:bg-transparent"
+      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md sm:shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[12rem] dark:bg-transparent"
     >
       {/* Image */}
       <NavLink
         to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}
       >
-        <div className="relative items-center justify-center flex-shrink-0 w-32 h-full p-2 sm:p-0 sm:w-full sm:h-40">
+        <div className="relative items-center justify-center flex-shrink-0 w-32 h-full p-2 sm:p-0 sm:w-full sm:h-32">
           {item.product.image ? (
             <>
               <img
                 src={`${publicFileURL}/${item.product.image}`}
                 alt={item.product.name}
-                className="object-cover w-full p-1.5 h-full rounded-xl sm:h-40"
+                className="object-cover w-full p-1.5 h-full rounded-xl sm:h-32"
               />
               {/* Stock */}
               {item.product.isLimit && !isMobile && (
-                <span className="absolute z-50 px-3 py-1 text-xs text-white rounded-full bottom-1 left-1 bg-primary w-fit">
+                <span className="absolute z-50 px-3 py-1 text-xs text-white rounded-full bottom-3 left-3 bg-primary w-fit">
                   {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                 </span>
               )}
