@@ -17,6 +17,11 @@ import { CardOrderException } from './card-order.exception';
 import { CardOrderValidation } from './card-order.validation';
 import { CardOrderStatus } from './card-order.enum';
 import { createSortOptions } from 'src/shared/utils/obj.util';
+import { OrderException } from 'src/order/order.exception';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
+import { CardException } from '../card/card.exception';
+import { CardValidation } from '../card/card.validation';
 
 @Injectable()
 export class CardOrderService {
@@ -32,7 +37,56 @@ export class CardOrderService {
     @InjectMapper()
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
+    private readonly bankTransferStrategy: BankTransferStrategy,
   ) { }
+
+  async initiatePayment(payload: InitiateCardOrderPaymentDto) {
+    const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
+    this.logger.log(`Initiate a payment: ${payload}`, context);
+
+    const cardOrder = await this.cardOrderRepository.findOne({
+      where: { slug: payload.cardorderSlug ?? IsNull() },
+      relations: ['payment'],
+    });
+    if (!cardOrder)
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+
+    if (cardOrder.status !== CardOrderStatus.PENDING)
+      throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+
+    if (cardOrder.payment)
+      return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
+
+    const payment = await this.bankTransferStrategy.processCardOrder(cardOrder);
+
+    // Update card order
+    cardOrder.payment = payment;
+    Object.assign(cardOrder, {
+      payment,
+      paymentMethod: payment.paymentMethod,
+      paymentId: payment.id,
+      paymentSlug: payment.slug,
+    } as Partial<CardOrder>);
+
+    await this.cardOrderRepository.save(cardOrder);
+    this.transactionService.execute<CardOrder>(
+      async (manager) => {
+        return await manager.save(cardOrder);
+      },
+      (result) => {
+        this.logger.log(`Card order payment: ${result.slug} updated`, context);
+      },
+      (err) => {
+        this.logger.log(
+          `Error when updating card order: ${err.message}`,
+          err.stack,
+          context,
+        );
+      },
+    );
+
+    return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
+  }
 
   async cancel(slug: string): Promise<void> {
     const context = `${CardOrderService.name}.${this.cancel.name}`;
@@ -71,7 +125,7 @@ export class CardOrderService {
     });
 
     if (!card) {
-      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+      throw new CardException(CardValidation.CARD_NOT_FOUND);
     }
 
     if (!card.isActive) {
@@ -144,9 +198,11 @@ export class CardOrderService {
           name: `${receipient.firstName} ${receipient.lastName}`,
           phone: receipient.phonenumber,
           recipientId: receipient.id,
+          recipientSlug: receipient.slug,
           recipient: receipient,
 
           senderId: customer.id,
+          senderSlug: customer.slug,
           senderName: `${customer.firstName} ${customer.lastName}`,
           senderPhone: customer.phonenumber,
           sender: customer,
@@ -166,6 +222,7 @@ export class CardOrderService {
       type: createCardOrderDto.cardOrderType,
 
       cardId: card.id,
+      cardSlug: card.slug,
       cardPoint: card.points,
       cardTitle: card.title,
       cardImage: card.image,
@@ -173,11 +230,13 @@ export class CardOrderService {
       card,
 
       customerId: customer.id,
+      customerSlug: customer.slug,
       customerName: `${customer.firstName} ${customer.lastName}`,
       customerPhone: customer.phonenumber,
       customer,
 
       cashierId: cashier ? cashier.id : null,
+      cashierSlug: cashier ? cashier.slug : null,
       cashierName: cashier ? `${cashier.firstName} ${cashier.lastName}` : null,
       cashierPhone: cashier ? cashier.phonenumber : null,
       cashier: cashier ? cashier : null,
@@ -189,6 +248,7 @@ export class CardOrderService {
 
         receipients.forEach((item: Recipient) => {
           item.cardOrder = createdCardOrder;
+          item.cardOrderSlug = createdCardOrder.slug;
           item.cardOrderId = createdCardOrder.id;
         });
 

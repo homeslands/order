@@ -24,6 +24,13 @@ import { RecipientService } from './receipient/recipient.service';
 import { RecipientProfile } from './receipient/recipient.mapper';
 import { Recipient } from './receipient/entities/receipient.entity';
 import { CardOrderSubscriber } from './card-order/card-order.subscriber';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { Payment } from 'src/payment/payment.entity';
+import { HttpModule } from '@nestjs/axios';
+import { CardOrderListener } from './card-order/card-order.listener';
+import { JobModule } from 'src/job/job.module';
 
 const controllers = [
   CardController,
@@ -39,6 +46,8 @@ const providers = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  BankTransferStrategy,
+  ACBConnectorClient,
 ];
 
 const mappers = [
@@ -57,9 +66,13 @@ const modules = [
     GiftCard,
     Recipient,
     User,
+    ACBConnectorConfig,
+    Payment,
   ]),
   FileModule,
   DbModule,
+  HttpModule,
+  JobModule,
 ];
 
 const exportServices = [
@@ -70,6 +83,8 @@ const exportServices = [
   RecipientService,
 ];
 
+const listeners = [CardOrderListener];
+
 const exportMappers = [];
 
 const subscribers = [CardOrderSubscriber];
@@ -77,7 +92,7 @@ const subscribers = [CardOrderSubscriber];
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [...providers, ...mappers, ...subscribers],
+  providers: [...providers, ...mappers, ...subscribers, ...listeners],
   exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}
