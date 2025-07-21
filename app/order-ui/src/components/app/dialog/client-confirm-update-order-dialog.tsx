@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum } from '@/types'
-import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem } from '@/hooks'
+import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { compareOrders } from '@/utils/order-comparison'
 import { Role, ROUTE } from '@/constants'
@@ -41,6 +41,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
   const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
   const { mutate: updateOrderItem, isPending: isPendingUpdateOrderItem } = useUpdateOrderItem()
+  const { mutate: updateOrderItemNote, isPending: isPendingUpdateOrderItemNote } = useUpdateNoteOrderItem()
 
   const [isOpen, setIsOpen] = useState(false)
   const { userInfo } = useUserStore()
@@ -119,7 +120,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
   // Check if any operation is pending
   const isAnyPending = isPendingUpdateOrderType || isPendingAddNewOrderItem ||
-    isPendingDeleteOrderItem || isPendingUpdateOrderItem
+    isPendingDeleteOrderItem || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
 
   const handleSubmit = async () => {
     if (!orderDraft || !originalOrder) return
@@ -146,6 +147,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
       const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
+      const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
 
       // Add new items
       for (const change of addedItems) {
@@ -190,6 +192,23 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               variant: change.item.variant.slug,
               promotion: change.item.promotion || undefined,
               action: action
+            }
+          }, {
+            onSuccess: () => resolve(true),
+            onError: (error) => reject(error)
+          })
+        })
+      }
+
+      // Update note of existing items
+      for (const change of orderItemNoteChangedItems) {
+        if (!change.slug) continue
+
+        await new Promise((resolve, reject) => {
+          updateOrderItemNote({
+            slug: change.slug!,
+            data: {
+              note: change.item.note || '',
             }
           }, {
             onSuccess: () => resolve(true),
