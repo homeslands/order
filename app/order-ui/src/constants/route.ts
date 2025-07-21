@@ -8,6 +8,7 @@ export const ROUTE = {
   RESET_PASSWORD: '/reset-password',
   ORDER_SUCCESS: '/order-success',
   CLIENT_ORDER_SUCCESS: '/client/order-success',
+  CLIENT_GIFT_CARD_SUCCESS: '/client/gift-card/confirmation',
   VERIFY_EMAIL: '/verify-email', // Make sure this matches exactly with your URL path
 
   // System Routes
@@ -55,6 +56,7 @@ export const ROUTE = {
   CLIENT_ORDERS_PUBLIC: '/orders-public',
   CLIENT_GIFT_CARD: '/gift-card',
   CLIENT_GIFT_CARD_CHECKOUT: '/gift-card/checkout',
+  CLIENT_GIFT_CARD_CHECKOUT_WITH_SLUG: '/gift-card/checkout/:slug',
   // CLIENT_VOUCHER: '/voucher',
 
   // General Routes

@@ -194,13 +194,15 @@ export default function GiftCardSheet() {
         receipients: recipients,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           showToast(t('giftCard.createGiftCardOrderSuccess'))
           handleClearGiftCard(false)
           handleSheetOpenChange(false)
           setConfirmDialogOpen(false)
 
-          navigate('/gift-card/checkout')
+          // Navigate to checkout page with order slug
+          const orderSlug = response.result.slug
+          navigate(`/gift-card/checkout/${orderSlug}`)
         },
         onError: () => {
           showErrorToast(1006)
@@ -338,7 +340,7 @@ export default function GiftCardSheet() {
                   />
                 )}
               </form>
-            </Form>{' '}
+            </Form>
           </div>
         </SheetContent>
 
