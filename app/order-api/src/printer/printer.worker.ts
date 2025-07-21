@@ -136,7 +136,10 @@ export class PrinterWorker implements OnModuleInit {
       // await new Promise((resolve) => setTimeout(resolve, 30000));
       await queryRunner.commitTransaction();
       await queryRunner.release();
-      this.logger.log('queryRunner released', context);
+      this.logger.log(
+        'queryRunner to get pending printer job released',
+        context,
+      );
     } catch (error) {
       this.logger.error(
         `Unhandled error in handlePrintJob`,
