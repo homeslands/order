@@ -258,7 +258,8 @@
     "tableChanged": "Thay đổi bàn",
     "ownerChanged": "Thay đổi khách hàng",
     "noteChanged": "Thay đổi ghi chú",
-    "noChanges": "Không có thay đổi"
+    "noChanges": "Không có thay đổi",
+    "itemNoteChanged": "Ghi chú món đã thay đổi"
   },
   "table": {
     "title": "Danh sách bàn"
