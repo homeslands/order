@@ -19,7 +19,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import _ from 'lodash';
 import { ProductUtils } from 'src/product/product.utils';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
-import { VoucherType } from './voucher.constant';
+import { VoucherApplicabilityRule, VoucherType } from './voucher.constant';
 
 @Injectable()
 export class VoucherUtils {
@@ -184,8 +184,26 @@ export class VoucherUtils {
       });
       productSlugs.push(product.slug);
     }
-    switch (voucher.type) {
-      case VoucherType.SAME_PRICE_PRODUCT:
+
+    switch (voucher.applicabilityRule) {
+      case VoucherApplicabilityRule.ALL_REQUIRED:
+        for (const productSlug of productSlugs) {
+          const voucherProduct = voucher?.voucherProducts.find(
+            (voucherProduct) => voucherProduct.product.slug === productSlug,
+          );
+          if (!voucherProduct) {
+            this.logger.warn(
+              `Product ${productSlug} not applied to voucher ${voucher.slug}`,
+              context,
+            );
+            throw new VoucherException(
+              VoucherValidation.ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER,
+            );
+          }
+        }
+        return true;
+
+      case VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED:
         const voucherProducts = await this.voucherProductRepository.find({
           where: {
             product: {
@@ -203,31 +221,64 @@ export class VoucherUtils {
             context,
           );
           throw new VoucherException(
-            VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
+            VoucherValidation.AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER,
           );
         }
         return true;
-      case VoucherType.PERCENT_ORDER:
-      case VoucherType.FIXED_VALUE:
-        for (const productSlug of productSlugs) {
-          const voucherProduct = voucher?.voucherProducts.find(
-            (voucherProduct) => voucherProduct.product.slug === productSlug,
-          );
-          if (!voucherProduct) {
-            this.logger.warn(
-              `Product ${productSlug} not applied to voucher ${voucher.slug}`,
-              context,
-            );
-            throw new VoucherException(
-              VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
-            );
-          }
-        }
-        return true;
+
       default:
-        this.logger.warn(`Invalid voucher type ${voucher.slug}`, context);
-        throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
+        this.logger.warn(
+          `Invalid voucher applicability rule ${voucher.slug}`,
+          context,
+        );
+        throw new VoucherException(
+          VoucherValidation.INVALID_VOUCHER_APPLICABILITY_RULE,
+        );
     }
+    // switch (voucher.type) {
+    //   case VoucherType.SAME_PRICE_PRODUCT:
+    //     const voucherProducts = await this.voucherProductRepository.find({
+    //       where: {
+    //         product: {
+    //           slug: In(productSlugs),
+    //         },
+    //         voucher: {
+    //           slug: voucher.slug,
+    //         },
+    //       },
+    //     });
+
+    //     if (_.size(voucherProducts) < 1) {
+    //       this.logger.warn(
+    //         `Product not applied to voucher ${voucher.slug}`,
+    //         context,
+    //       );
+    //       throw new VoucherException(
+    //         VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
+    //       );
+    //     }
+    //     return true;
+    //   case VoucherType.PERCENT_ORDER:
+    //   case VoucherType.FIXED_VALUE:
+    //     for (const productSlug of productSlugs) {
+    //       const voucherProduct = voucher?.voucherProducts.find(
+    //         (voucherProduct) => voucherProduct.product.slug === productSlug,
+    //       );
+    //       if (!voucherProduct) {
+    //         this.logger.warn(
+    //           `Product ${productSlug} not applied to voucher ${voucher.slug}`,
+    //           context,
+    //         );
+    //         throw new VoucherException(
+    //           VoucherValidation.PRODUCT_NOT_APPLIED_TO_VOUCHER,
+    //         );
+    //       }
+    //     }
+    //     return true;
+    //   default:
+    //     this.logger.warn(`Invalid voucher type ${voucher.slug}`, context);
+    //     throw new VoucherException(VoucherValidation.INVALID_VOUCHER_TYPE);
+    // }
   }
 
   async validateVoucherProductForDeleteOrderItem(
@@ -328,6 +379,12 @@ export class VoucherUtils {
     order: Order,
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateMinOrderValue.name}`;
+    if (
+      voucher.applicabilityRule ===
+      VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+    )
+      return true;
+
     if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) return true;
 
     const { subtotal } = await this.orderUtils.getOrderSubtotal(order);
@@ -348,6 +405,12 @@ export class VoucherUtils {
     order: Order,
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateMinOrderValue.name}`;
+    if (
+      voucher.applicabilityRule ===
+      VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+    )
+      return true;
+
     if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) return true;
 
     const { subtotal } = await this.orderUtils.getOrderSubtotal(order);

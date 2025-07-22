@@ -665,33 +665,47 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       // UPDATING PHASE
       // ===================
       initializeUpdating: (originalOrder: IOrder) => {
-        // Create initial draft from original order
+        // console.log('Initializing updating phase with originalOrder:', originalOrder.orderItems)
+        
+        // Tạo ID cho các order items và cập nhật originalOrder
+        const orderItemsWithIds = originalOrder.orderItems.map(item => ({
+          ...item,
+          id: item.id || generateOrderItemId(), // Giữ ID cũ nếu có, tạo mới nếu không
+        }))
+
+        const updatedOriginalOrder: IOrder = {
+          ...originalOrder,
+          orderItems: orderItemsWithIds,
+        }
+
+        // Create initial draft from original order với cùng IDs
         const updateDraft: IOrderToUpdate = {
-          id: generateOrderId(),
-          slug: originalOrder.slug,
-          productSlug: originalOrder.orderItems[0].variant.product.slug || '',
-          status: originalOrder.status || OrderStatus.PENDING,
-          owner: originalOrder.owner?.slug || '',
+          id: generateOrderId(), // Draft có ID riêng
+          slug: updatedOriginalOrder.slug,
+          productSlug: updatedOriginalOrder.orderItems[0]?.variant.product.slug || '',
+          status: updatedOriginalOrder.status || OrderStatus.PENDING,
+          owner: updatedOriginalOrder.owner?.slug || '',
           ownerFullName:
-            originalOrder.owner?.firstName +
-              ' ' +
-              originalOrder.owner?.lastName || '',
-          ownerPhoneNumber: originalOrder.owner?.phonenumber || '',
-          ownerRole: originalOrder.owner?.role.name || '',
-          paymentMethod: originalOrder.payment?.paymentMethod || '',
-          type: originalOrder.type,
-          table: originalOrder.table?.slug || '',
-          tableName: originalOrder.table?.name || '',
-          orderItems: originalOrder.orderItems.map(
-            convertOrderDetailToOrderItem,
-          ),
-          voucher: originalOrder.voucher,
-          description: originalOrder.description || '',
-          approvalBy: originalOrder.approvalBy?.slug || '',
+            updatedOriginalOrder.owner?.firstName +
+            ' ' +
+            updatedOriginalOrder.owner?.lastName || '',
+          ownerPhoneNumber: updatedOriginalOrder.owner?.phonenumber || '',
+          ownerRole: updatedOriginalOrder.owner?.role.name || '',
+          paymentMethod: updatedOriginalOrder.payment?.paymentMethod || '',
+          type: updatedOriginalOrder.type,
+          table: updatedOriginalOrder.table?.slug || '',
+          tableName: updatedOriginalOrder.table?.name || '',
+          orderItems: orderItemsWithIds.map(item => ({
+            ...convertOrderDetailToOrderItem(item),
+            id: item.id, // Sử dụng cùng ID
+          })),
+          voucher: updatedOriginalOrder.voucher,
+          description: updatedOriginalOrder.description || '',
+          approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
 
         const newUpdatingData: IUpdatingData = {
-          originalOrder,
+          originalOrder: updatedOriginalOrder,
           updateDraft,
           hasChanges: false,
         }

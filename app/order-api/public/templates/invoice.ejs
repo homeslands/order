@@ -84,31 +84,67 @@
               <%= item.quantity %>
             </td>
             <td class="px-2 py-2 text-xs">
-              <% if (item.discountType==='voucher' && item.price> valueEachVoucher) { %>
+              <% if (
+                voucherType === 'same_price_product'
+                && item.discountType === 'voucher' 
+                && item.price > valueEachVoucher
+              ) { %>
                 <span class="line-through text-red-500">
                   <%= formatCurrency(item.price) %>
                 </span><br />
                 <span>
                   <%= formatCurrency(valueEachVoucher) %>
                 </span>
-                <% } else { %>
+              <% } else if (
+                voucherType === 'same_price_product'
+                && item.discountType === 'voucher'
+                && item.price <= valueEachVoucher
+              ) { %>
+                <span>
                   <%= formatCurrency(item.price) %>
-                    <% } %>
+                </span>
+              <% } else if (
+                voucherRule === 'at_least_one_required'
+                && voucherType === 'percent_order'
+                && item.discountType === 'voucher'
+              ) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(item.price - (item.voucherValue / item.quantity)) %>
+                </span>
+              <% } else if (
+                voucherRule === 'at_least_one_required'
+                && voucherType === 'fixed_value'
+                && item.discountType === 'voucher'
+              ) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(item.price - (item.voucherValue / item.quantity)) %>
+                </span>
+              <% } else { %>
+                <span>
+                  <%= formatCurrency(item.price) %>
+                </span>
+              <% } %>
             </td>
             <td class="px-2 py-2 text-xs text-center">
               <% if (item.discountType==='voucher' ) { %>
                 0
-                <% } else { %>
-                  <%= item.promotionValue %>
-                    <% } %>
+              <% } else { %>
+                <%= item.promotionValue %>
+              <% } %>
             </td>
             <td class="px-2 py-2 text-xs">
               <%= formatCurrency(item.total) %>
                 <% if (item.discountType==='promotion' ) { %>
                   (*)
-                  <% } else if (item.discountType==='voucher' ) { %>
-                    (**)
-                    <% } %>
+                <% } else if (item.discountType==='voucher' ) { %>
+                  (**)
+                <% } %>
             </td>
           </tr>
           <% }); %>
@@ -131,6 +167,25 @@
               </td>
             </tr>
 
+            <tr class="border-t border-black">
+              <% if (voucherCode !=='N/A' ) { %>
+                <td class="py-2 text-left" colspan="2">
+                  Tổng giảm giá (đ)
+                </td>
+                <td class="py-2 text-left" colspan="2">
+                  <span class="text-xs italic break-all">(Mã: <%= voucherCode %>)</span>
+                </td>
+                <% } %>
+                  <% if (voucherCode==='N/A' ) { %>
+                    <td class="py-2 text-left" colspan="4">
+                      Tổng giảm giá (đ)
+                    </td>
+                    <% } %>
+                      <td class="py-2 text-right">
+                        <%= formatCurrency(voucherValue) %>
+                      </td>
+            </tr>
+
             <% if ((paymentMethod==='point' )) { %>
               <tr class="border-t border-black">
                 <td class="py-2 text-left" colspan="4">
@@ -141,16 +196,16 @@
                 </td>
               </tr>
               <% } %>
-                <tr class="border-t border-black">
-                  <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
-                  <td class="py-2 text-xl font-bold text-right">
-                    <% if ((paymentMethod==='point' )) { %>
-                      <%= formatCurrency(0) %>
-                        <% } else { %>
-                          <%= formatCurrency(amount) %>
-                            <% } %>
-                  </td>
-                </tr>
+              <tr class="border-t border-black">
+                <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
+                <td class="py-2 text-xl font-bold text-right">
+                  <% if ((paymentMethod==='point' )) { %>
+                    <%= formatCurrency(0) %>
+                  <% } else { %>
+                    <%= formatCurrency(amount) %>
+                  <% } %>
+                </td>
+              </tr>
       </tbody>
     </table>
     <p class="text-xs mt-2">

@@ -62,15 +62,19 @@
           </td>
         </tr>
         <tr class="border-t border-black">
-          <td class="pl-2 text-left border-l border-r border-black">
+          <td class="pl-2 text-left border-l border-r border-black w-28">
             Giao dịch
           </td>
-          <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
-            <% if (type==='in' ) { %>
-              <p>Nạp xu</p>
-              <% } else { %>
-                <p>Sử dụng xu</p>
-                <% } %>
+          <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+            <% if (objectType==='order' ) { %>
+              <p>Thanh toán đơn hàng</p>
+              <% } %>
+                <% if (objectType==='card-order' ) { %>
+                  <p>Giao dịch thẻ quà tặng</p>
+                  <% } %>
+                    <% if (objectType==='gift-card' ) { %>
+                      <p>Sử dụng thẻ quà tặng</p>
+                      <% } %>
           </td>
         </tr>
         <tr class="border-t border-black">
@@ -87,25 +91,107 @@
                 <% } %>
           </td>
         </tr>
-        <% if (objectType==='order' ) { %>
+        <tr class="border-t border-black">
+          <td class="pl-2 text-left border-l border-r border-black w-28">
+            Mô tả
+          </td>
+          <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+            <%= desc %>
+          </td>
+        </tr>
+        <% if (objectType==='gift-card' ) { %>
           <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black">
-              Mã đơn hàng
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Thẻ quà tặng
             </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
-              <%= objectSlug %>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <%= ref?.cardName %>
             </td>
           </tr>
-          <% } else { %>
-            <tr class="border-t border-black">
-              <td class="pl-2 text-left border-l border-r border-black">
-                Mã thẻ quà tặng
-              </td>
-              <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black" colspan="4">
-                <%= objectSlug %>
-              </td>
-            </tr>
-            <% } %>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Serial
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <%= ref?.serial %>
+            </td>
+          </tr>
+          <% } %>
+
+            <% if (objectType==='card-order' ) { %>
+              <tr class="border-t border-black">
+                <td class="pl-2 text-left border-l border-r border-black w-28">
+                  Thẻ quà tặng
+                </td>
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                  <%= ref?.cardTitle %>
+                </td>
+              </tr>
+              <tr class="border-t border-black">
+                <td class="pl-2 text-left border-l border-r border-black w-28">
+                  Loại đơn hàng
+                </td>
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                  <% if (ref?.type==='SELF' ) { %>
+                    Nạp cho bản thân
+                    <% } %>
+                      <% if (ref?.type==='GIFT' ) { %>
+                        Nạp cho người khác
+                        <% } %>
+                </td>
+              </tr>
+              <tr class="border-t border-black">
+                <td class="pl-2 text-left border-l border-r border-black w-28">
+                  Số lượng
+                </td>
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                  <%= ref?.quantity %>
+                </td>
+              </tr>
+              <tr class="border-t border-black">
+                <td class="pl-2 text-left border-l border-r border-black w-28">
+                  Người mua
+                </td>
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                  <%= ref?.customerName %>
+                </td>
+              </tr>
+              <tr class="border-t border-black">
+                <td class="pl-2 text-left border-l border-r border-black w-28">
+                  SĐT người mua
+                </td>
+                <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                  <%= ref?.customerPhone %>
+                </td>
+              </tr>
+              <% } %>
+
+                <% if (objectType==='order' ) { %>
+                  <tr class="border-t border-black">
+                    <td class="pl-2 text-left border-l border-r border-black w-28">
+                      Mã đơn hàng
+                    </td>
+                    <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                      <%= ref?.slug %>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-black">
+                    <td class="pl-2 text-left border-l border-r border-black w-28">
+                      Số đơn hàng
+                    </td>
+                    <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                      <%= ref?.referenceNumber %>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-black">
+                    <td class="pl-2 text-left border-l border-r border-black w-28">
+                      Tổng tiền
+                    </td>
+                    <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+                      <%= formatCurrency(ref?.subtotal) %>
+                    </td>
+                  </tr>
+                  <% } %>
       </tbody>
     </table>
   </div>

@@ -6,6 +6,8 @@ export const UN_SUPPORTED_PRINTER_TYPE = 'UN_SUPPORTED_PRINTER_TYPE';
 export const EOS_POST_SEND_ERROR = 'EOS_POST_SEND_ERROR';
 export const ERROR_PRINTING_JOB = 'ERROR_PRINTING_JOB';
 export const PRINTER_NOT_ACTIVE = 'PRINTER_NOT_ACTIVE';
+export const ERROR_PRINTING_CHEF_ORDER = 'ERROR_PRINTING_CHEF_ORDER';
+export const ERROR_PRINTING_TICKET = 'ERROR_PRINTING_TICKET';
 
 export type TPrinterErrorCodeKey =
   | typeof PRINTER_NOT_FOUND
@@ -13,7 +15,9 @@ export type TPrinterErrorCodeKey =
   | typeof UN_SUPPORTED_PRINTER_TYPE
   | typeof EOS_POST_SEND_ERROR
   | typeof ERROR_PRINTING_JOB
-  | typeof PRINTER_NOT_ACTIVE;
+  | typeof PRINTER_NOT_ACTIVE
+  | typeof ERROR_PRINTING_CHEF_ORDER
+  | typeof ERROR_PRINTING_TICKET;
 
 export type TPrinterErrorCode = Record<TPrinterErrorCodeKey, TErrorCodeValue>;
 
@@ -28,6 +32,11 @@ const PrinterValidation: TPrinterErrorCode = {
   EOS_POST_SEND_ERROR: createErrorCode(158604, 'ESC/POS send error'),
   ERROR_PRINTING_JOB: createErrorCode(158605, 'Error printing job'),
   PRINTER_NOT_ACTIVE: createErrorCode(158606, 'Printer not active'),
+  ERROR_PRINTING_CHEF_ORDER: createErrorCode(
+    158607,
+    'Error printing chef order',
+  ),
+  ERROR_PRINTING_TICKET: createErrorCode(158608, 'Error printing ticket'),
 };
 
 export default PrinterValidation;

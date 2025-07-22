@@ -211,7 +211,10 @@ export function ClientPaymentPage() {
             }
           },
         )
-      } else if (paymentMethod === PaymentMethod.CASH) {
+      } else if (
+        paymentMethod === PaymentMethod.CASH ||
+        paymentMethod === PaymentMethod.POINT
+      ) {
         initiatePublicPayment(
           { orderSlug: slug, paymentMethod },
           {
@@ -248,7 +251,10 @@ export function ClientPaymentPage() {
             }
           },
         )
-      } else if (paymentMethod === PaymentMethod.CASH) {
+      } else if (
+        paymentMethod === PaymentMethod.CASH ||
+        paymentMethod === PaymentMethod.POINT
+      ) {
         initiatePayment(
           { orderSlug: slug, paymentMethod },
           {
@@ -556,7 +562,8 @@ export function ClientPaymentPage() {
         />
         <div className="flex flex-wrap-reverse gap-2 justify-end px-2 py-6">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
-            paymentMethod === PaymentMethod.CASH) &&
+            paymentMethod === PaymentMethod.CASH ||
+            paymentMethod === PaymentMethod.POINT) &&
             <div className="flex gap-2">
               {(hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER) ?
                 <DownloadQrCode qrCode={qrCode} slug={slug} />

@@ -147,6 +147,7 @@
     "discount": "Giảm giá",
     "grandTotal": "Thành tiền",
     "totalPayment": "Tổng tiền",
+    "estimatedTotal": "Tạm tính",
     "confirmPaid": "Xác nhận đã thanh toán",
     "complete": "Hoàn tất",
     "orderSuccess": "Đặt hàng thành công",
@@ -155,6 +156,8 @@
     "orderStatus": "Trạng thái đơn hàng",
     "cash": "Tiền mặt",
     "bankTransfer": "Chuyển khoản ngân hàng",
+    "point": "Xu",
+    "deductedCoinAmount": "Số xu đã trừ",
     "deliveryOrderType": "Loại đơn hàng",
     "orderItemList": "Danh sách món",
     "pending": "Chờ thanh toán",
@@ -259,7 +262,8 @@
     "tableChanged": "Thay đổi bàn",
     "ownerChanged": "Thay đổi khách hàng",
     "noteChanged": "Thay đổi ghi chú",
-    "noChanges": "Không có thay đổi"
+    "noChanges": "Không có thay đổi",
+    "itemNoteChanged": "Ghi chú món đã thay đổi"
   },
   "table": {
     "title": "Danh sách bàn"
@@ -268,6 +272,7 @@
     "userInfo": "Thông tin khách hàng",
     "title": "Phương thức thanh toán",
     "cash": "Thanh toán bằng tiền mặt",
+    "coin": "Thanh toán bằng xu",
     "status": "Trạng thái",
     "bankTransfer": "Chuyển khoản ngân hàng",
     "internalWallet": "Ví nội bộ",
@@ -295,6 +300,7 @@
     "exportOrderProvisionalBill": "Xuất hóa đơn tạm thời",
     "noQRCode": "Không có QR code",
     "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công.",
-    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!"
+    "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!",
+    "point": "Thanh toán bằng xu"
   }
 }
