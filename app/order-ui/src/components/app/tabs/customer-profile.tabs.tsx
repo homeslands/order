@@ -3,11 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import {
-  CustomerInfoTabsContent,
-  CustomerNotificationTabsContent,
-  CustomerCoinTabsContent,
-} from '@/components/app/tabscontent'
+import { CustomerInfoTabsContent, CustomerCoinTabsContent } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
 export function CustomerProfileTabs() {
