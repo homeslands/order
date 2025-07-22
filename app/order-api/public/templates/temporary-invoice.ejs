@@ -87,15 +87,51 @@
               <%= item.quantity %>
             </td>
             <td class="px-2 py-2 text-xs">
-              <% if (item.discountType === 'voucher' && item.price > valueEachVoucher) { %>
+              <% if (
+                voucherType === 'same_price_product'
+                && item.discountType === 'voucher' 
+                && item.price > valueEachVoucher
+              ) { %>
                 <span class="line-through text-red-500">
                   <%= formatCurrency(item.price) %>
                 </span><br />
                 <span>
                   <%= formatCurrency(valueEachVoucher) %>
                 </span>
+              <% } else if (
+                voucherType === 'same_price_product'
+                && item.discountType === 'voucher'
+                && item.price <= valueEachVoucher
+              ) { %>
+                <span>
+                  <%= formatCurrency(item.price) %>
+                </span>
+              <% } else if (
+                voucherRule === 'at_least_one_required'
+                && voucherType === 'percent_order'
+                && item.discountType === 'voucher'
+              ) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(item.price - (item.voucherValue / item.quantity)) %>
+                </span>
+              <% } else if (
+                voucherRule === 'at_least_one_required'
+                && voucherType === 'fixed_value'
+                && item.discountType === 'voucher'
+              ) { %>
+                <span class="line-through text-red-500">
+                  <%= formatCurrency(item.price) %>
+                </span><br />
+                <span>
+                  <%= formatCurrency(item.price - (item.voucherValue / item.quantity)) %>
+                </span>
               <% } else { %>
-                <%= formatCurrency(item.price) %>
+                <span>
+                  <%= formatCurrency(item.price) %>
+                </span>
               <% } %>
             </td>
             <td class="px-2 py-2 text-xs text-center">

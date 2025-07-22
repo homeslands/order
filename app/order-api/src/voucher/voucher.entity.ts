@@ -64,6 +64,16 @@ export class Voucher extends Base {
   @Column({ name: 'is_private_column', default: false })
   isPrivate: boolean;
 
+  // if all_required, all product in order must be valid
+  // => calculate base on subtotal order
+  // if at_least_one_required, only one product in order must be valid
+  // => calculate base on subtotal order item
+  @AutoMap()
+  @Column({
+    name: 'applicability_rule_column',
+  })
+  applicabilityRule: string;
+
   @AutoMap()
   @Column({ name: 'type_column', default: VoucherType.PERCENT_ORDER })
   type: string;
