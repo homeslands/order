@@ -6,7 +6,10 @@ import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { Voucher } from 'src/voucher/voucher.entity';
-import { VoucherType } from 'src/voucher/voucher.constant';
+import {
+  VoucherApplicabilityRule,
+  VoucherType,
+} from 'src/voucher/voucher.constant';
 import { DiscountType } from 'src/order/order.constants';
 
 @Injectable()
@@ -41,40 +44,89 @@ export class OrderItemUtils {
     voucherValue: number;
   } {
     let discountPromotion = 0;
+    const originalSubtotal = orderItem.variant.price * orderItem.quantity;
+    let voucherValue = 0;
     if (promotion) {
       const percentPromotion = promotion.value;
-      discountPromotion =
-        (orderItem.quantity * orderItem.variant.price * percentPromotion) / 100;
+      discountPromotion = (originalSubtotal * percentPromotion) / 100;
     }
-    const subtotal = orderItem.quantity * orderItem.variant.price;
 
     if (voucher) {
-      switch (voucher.type) {
-        case VoucherType.SAME_PRICE_PRODUCT:
-          let voucherValue = 0;
-          if (orderItem.variant.price - voucher.value > 0) {
-            voucherValue =
-              (orderItem.variant.price - voucher.value) * orderItem.quantity;
+      if (
+        voucher.applicabilityRule ===
+        VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+      ) {
+        switch (voucher.type) {
+          case VoucherType.SAME_PRICE_PRODUCT:
+            const sameProductValueTotal = voucher.value * orderItem.quantity;
+            if (originalSubtotal > sameProductValueTotal) {
+              voucherValue = originalSubtotal - sameProductValueTotal;
+              return {
+                subtotal: sameProductValueTotal,
+                voucherValue,
+              };
+            } else {
+              // voucher value is greater than variant price
+              // use price of variant
+              return {
+                subtotal: originalSubtotal,
+                voucherValue: 0,
+              };
+            }
+
+          case VoucherType.PERCENT_ORDER:
+            voucherValue = (originalSubtotal * voucher.value) / 100;
             return {
-              subtotal: orderItem.quantity * voucher.value,
+              subtotal: originalSubtotal - voucherValue,
               voucherValue,
             };
-          } else {
-            // voucher value is greater than variant price
-            // use price of variant
-            return {
-              subtotal: orderItem.quantity * orderItem.variant.price,
-              voucherValue: 0,
-            };
-          }
+          case VoucherType.FIXED_VALUE:
+            voucherValue = voucher.value * orderItem.quantity;
+            if (originalSubtotal > voucherValue) {
+              return {
+                subtotal: originalSubtotal - voucherValue,
+                voucherValue,
+              };
+            } else {
+              return {
+                subtotal: 0,
+                voucherValue: originalSubtotal,
+              };
+            }
 
-        default:
-          break;
+          default:
+            break;
+        }
+      } else if (
+        voucher.applicabilityRule === VoucherApplicabilityRule.ALL_REQUIRED
+      ) {
+        switch (voucher.type) {
+          case VoucherType.SAME_PRICE_PRODUCT:
+            const sameProductValueTotal = voucher.value * orderItem.quantity;
+            if (originalSubtotal > sameProductValueTotal) {
+              voucherValue = originalSubtotal - sameProductValueTotal;
+              return {
+                subtotal: sameProductValueTotal,
+                voucherValue,
+              };
+            } else {
+              // voucher value is greater than variant price
+              // use price of variant
+              return {
+                subtotal: originalSubtotal,
+                voucherValue: 0,
+              };
+            }
+
+          default:
+            // Calculate voucher value base on subtotal order with voucher type (amount, percentage)
+            break;
+        }
       }
     }
 
     return {
-      subtotal: subtotal - discountPromotion,
+      subtotal: originalSubtotal - discountPromotion,
       voucherValue: 0,
     };
   }
@@ -121,7 +173,20 @@ export class OrderItemUtils {
         orderItem.voucherValue = 0;
         orderItem.discountType = DiscountType.PROMOTION;
       }
-      if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+      if (
+        appliedVoucher?.applicabilityRule ===
+        VoucherApplicabilityRule.ALL_REQUIRED
+      ) {
+        if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+          orderItem.voucherValue = voucherValue;
+          orderItem.discountType = DiscountType.VOUCHER;
+        }
+      }
+
+      if (
+        appliedVoucher?.applicabilityRule ===
+        VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+      ) {
         orderItem.voucherValue = voucherValue;
         orderItem.discountType = DiscountType.VOUCHER;
       }
