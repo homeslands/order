@@ -27,7 +27,10 @@ import {
   OrderStatus,
   OrderType,
 } from 'src/order/order.constants';
-import { VoucherType } from 'src/voucher/voucher.constant';
+import {
+  VoucherApplicabilityRule,
+  VoucherType,
+} from 'src/voucher/voucher.constant';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import moment from 'moment';
 import { PaymentMethod } from 'src/payment/payment.constants';
@@ -44,7 +47,7 @@ export class InvoiceService {
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
     private readonly transactionManagerService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async updateDiscountTypeForExistedInvoice() {
     const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
@@ -151,10 +154,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-          (current.variant.price *
-            (current.promotion?.value ?? 0) *
-            current.quantity) /
-          100
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
           : total,
       0,
     );
@@ -165,7 +168,7 @@ export class InvoiceService {
         (total, current) =>
           current.discountType === DiscountType.PROMOTION
             ? total +
-            (current.price * current.promotionValue * current.quantity) / 100
+              (current.price * current.promotionValue * current.quantity) / 100
             : total,
         0,
       );
@@ -176,6 +179,7 @@ export class InvoiceService {
       usedPoints = order.subtotal;
     }
 
+    // with: at least one required type
     const orderItemVoucherValue = order.orderItems?.reduce(
       (total, current) => total + current.voucherValue,
       0,
@@ -186,20 +190,28 @@ export class InvoiceService {
       0,
     );
 
+    // after calculate promotion
     const subtotalOrderItem = order.orderItems?.reduce(
       (total, current) => total + current.subtotal,
       0,
     );
 
     let voucherValue = order.loss + orderItemVoucherValue;
-    if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
-    }
-    if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
-      if (subtotalOrderItem > order.voucher.value) {
-        voucherValue += order.voucher.value;
-      } else {
-        voucherValue += subtotalOrderItem;
+
+    // with: all required type
+    if (
+      order?.voucher?.applicabilityRule ===
+      VoucherApplicabilityRule.ALL_REQUIRED
+    ) {
+      if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+        voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
+      }
+      if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
+        if (subtotalOrderItem > order.voucher.value) {
+          voucherValue += order.voucher.value;
+        } else {
+          voucherValue += subtotalOrderItem;
+        }
       }
     }
 
@@ -215,7 +227,7 @@ export class InvoiceService {
         orderItemPromotionValue,
         voucherCode: order.voucher?.code ?? 'N/A',
         valueEachVoucher: order.voucher?.value ?? 0,
-        usedPoints
+        usedPoints,
       });
       return order.invoice;
     }
@@ -257,6 +269,7 @@ export class InvoiceService {
       voucherId: order.voucher?.id ?? null,
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
+      voucherRule: order.voucher?.applicabilityRule ?? null,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -280,7 +293,7 @@ export class InvoiceService {
       subtotalOrderItem,
       orderItemPromotionValue,
       voucherCode: order.voucher?.code ?? 'N/A',
-      usedPoints
+      usedPoints,
     });
 
     return invoice;
@@ -362,10 +375,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-          (current.variant.price *
-            (current.promotion?.value ?? 0) *
-            current.quantity) /
-          100
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
           : total,
       0,
     );
@@ -386,14 +399,20 @@ export class InvoiceService {
     );
 
     let voucherValue = order.loss + orderItemVoucherValue;
-    if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-      voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
-    }
-    if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
-      if (subtotalOrderItem > order.voucher.value) {
-        voucherValue += order.voucher.value;
-      } else {
-        voucherValue += subtotalOrderItem;
+
+    if (
+      order?.voucher?.applicabilityRule ===
+      VoucherApplicabilityRule.ALL_REQUIRED
+    ) {
+      if (order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+        voucherValue += (subtotalOrderItem * order.voucher.value) / 100;
+      }
+      if (order?.voucher?.type === VoucherType.FIXED_VALUE) {
+        if (subtotalOrderItem > order.voucher.value) {
+          voucherValue += order.voucher.value;
+        } else {
+          voucherValue += subtotalOrderItem;
+        }
       }
     }
 
@@ -438,6 +457,7 @@ export class InvoiceService {
       voucherId: order.voucher?.id ?? null,
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
+      voucherRule: order.voucher?.applicabilityRule ?? null,
     });
 
     this.logger.log(`Temporary invoice created for order ${order.id}`, context);

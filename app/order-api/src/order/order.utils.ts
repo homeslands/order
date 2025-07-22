@@ -19,8 +19,11 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PaymentStatus } from 'src/payment/payment.constants';
 import * as _ from 'lodash';
-import { VoucherType } from 'src/voucher/voucher.constant';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import {
+  VoucherApplicabilityRule,
+  VoucherType,
+} from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class OrderUtils {
@@ -109,19 +112,21 @@ export class OrderUtils {
       0,
     );
     if (voucher) {
-      switch (voucher.type) {
-        case VoucherType.PERCENT_ORDER:
-          if (voucher) discount = (subtotal * voucher.value) / 100;
-          break;
-        case VoucherType.FIXED_VALUE:
-          if (subtotal > voucher.value) {
-            discount = voucher.value;
-          } else {
-            discount = subtotal;
-          }
-          break;
-        default:
-          break;
+      if (voucher.applicabilityRule === VoucherApplicabilityRule.ALL_REQUIRED) {
+        switch (voucher.type) {
+          case VoucherType.PERCENT_ORDER:
+            if (voucher) discount = (subtotal * voucher.value) / 100;
+            break;
+          case VoucherType.FIXED_VALUE:
+            if (subtotal > voucher.value) {
+              discount = voucher.value;
+            } else {
+              discount = subtotal;
+            }
+            break;
+          default:
+            break;
+        }
       }
     }
 

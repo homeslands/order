@@ -52,8 +52,11 @@ import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { RoleEnum } from 'src/role/role.enum';
 import { User } from 'src/user/user.entity';
-import { VoucherType } from 'src/voucher/voucher.constant';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import {
+  VoucherApplicabilityRule,
+  VoucherType,
+} from 'src/voucher/voucher.constant';
 
 @Injectable()
 export class OrderService {
@@ -335,7 +338,39 @@ export class OrderService {
           order.voucher = voucher;
 
           // update order item => add voucher value
-          if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) {
+          if (
+            voucher.applicabilityRule === VoucherApplicabilityRule.ALL_REQUIRED
+          ) {
+            if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) {
+              const updatedOrderItems = order.orderItems.map((orderItem) => {
+                const updatedOrderItem =
+                  this.orderItemUtils.getUpdatedOrderItem(
+                    voucher,
+                    orderItem,
+                    true, // is add voucher
+                  );
+                return updatedOrderItem;
+              });
+              order.orderItems = updatedOrderItems;
+            } else {
+              // with other voucher type => remove voucher value
+              const updatedOrderItems = order.orderItems.map((orderItem) => {
+                const updatedOrderItem =
+                  this.orderItemUtils.getUpdatedOrderItem(
+                    null,
+                    orderItem,
+                    false, // is add voucher
+                  );
+                return updatedOrderItem;
+              });
+              order.orderItems = updatedOrderItems;
+            }
+          }
+
+          if (
+            voucher.applicabilityRule ===
+            VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+          ) {
             const updatedOrderItems = order.orderItems.map((orderItem) => {
               const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
                 voucher,
@@ -346,6 +381,7 @@ export class OrderService {
             });
             order.orderItems = updatedOrderItems;
           }
+
           const { subtotal } = await this.orderUtils.getOrderSubtotal(
             order,
             voucher,
@@ -670,7 +706,20 @@ export class OrderService {
       orderItem.voucherValue = 0;
       orderItem.discountType = DiscountType.PROMOTION;
     }
-    if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+    if (
+      appliedVoucher?.applicabilityRule ===
+      VoucherApplicabilityRule.ALL_REQUIRED
+    ) {
+      if (appliedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+        orderItem.voucherValue = voucherValue;
+        orderItem.discountType = DiscountType.VOUCHER;
+      }
+    }
+
+    if (
+      appliedVoucher?.applicabilityRule ===
+      VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+    ) {
       orderItem.voucherValue = voucherValue;
       orderItem.discountType = DiscountType.VOUCHER;
     }
