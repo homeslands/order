@@ -4,10 +4,10 @@ import { Trash2, ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Button, ScrollArea } from '@/components/ui'
+import { Badge, Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import { OrderTypeSelect } from '@/components/app/select'
@@ -19,8 +19,8 @@ export function CartContent() {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
-  const { removeVoucher, getCartItems } = useCartItemStore()
-  const removeCartItem = useCartItemStore((state) => state.removeCartItem)
+  const { t: tVoucher } = useTranslation(['voucher'])
+  const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
 
   const cartItems = getCartItems()
 
@@ -30,6 +30,7 @@ export function CartContent() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
+
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
     if (cartItems?.voucher && cartItems.voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
@@ -54,7 +55,7 @@ export function CartContent() {
       if (shouldCheckMinOrderValue) {
         // Tính subtotal trực tiếp từ orderItems sau promotion, không sử dụng calculations để tránh circular dependency
         const subtotalAfterPromotion = orderItems.reduce((total, item) => {
-          const original = item.originalPrice || item.price
+          const original = item?.originalPrice
           const afterPromotion = (original || 0) - (item.promotionDiscount || 0)
           return total + afterPromotion * item.quantity
         }, 0)
@@ -68,7 +69,7 @@ export function CartContent() {
   }, [cartItems, removeVoucher])
 
   const handleRemoveCartItem = (id: string) => {
-    removeCartItem(id)
+    removeOrderingItem(id)
   }
 
   // check if customer info is removed, then check if voucher.isVerificationIdentity is true, then show toast
@@ -78,6 +79,7 @@ export function CartContent() {
 
     if (hasNoCustomerInfo && isPrivateVoucher) {
       showToast(tToast('toast.voucherVerificationIdentity'))
+      removeOrderingCustomer()
       removeVoucher()
     }
   }, [
@@ -85,7 +87,8 @@ export function CartContent() {
     cartItems?.ownerPhoneNumber,
     cartItems?.voucher?.isVerificationIdentity,
     tToast,
-    removeVoucher
+    removeVoucher,
+    removeOrderingCustomer
   ])
 
   return (
@@ -111,28 +114,6 @@ export function CartContent() {
           <CustomerSearchInput />
         </div>
 
-        {/* Selected Table */}
-        {/* {cartItems?.type === OrderTypeEnum.AT_TABLE && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 px-4 py-3 text-sm border-b bg-muted/50"
-          >
-            {cartItems?.table ? (
-              <div className='flex items-center gap-2'>
-                <p className="text-muted-foreground">{t('menu.selectedTable')}</p>
-                <span className="px-3 py-1 font-medium text-white rounded-full shadow-sm bg-primary/90">
-                  {t('menu.tableName')} {cartItems?.tableName}
-                </span>
-              </div>
-            ) : (
-              <p className="flex items-center gap-2 text-muted-foreground">
-                <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-                {t('menu.noSelectedTable')}
-              </p>
-            )}
-          </motion.div>
-        )} */}
         <div className="flex flex-col gap-2 p-2">
           <AnimatePresence>
             {cartItems && cartItems?.orderItems?.length && cartItems?.orderItems?.length > 0 ? (
@@ -208,58 +189,49 @@ export function CartContent() {
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs text-muted-foreground">
-                        {t('order.usedVoucher')}:
+                      <span className="text-[10px] text-muted-foreground">
+                        {t('order.usedVoucher')}
                       </span>
-                      <span className="px-3 py-1 text-xs font-semibold border rounded-full border-primary bg-primary/20 text-primary">
+                      <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
                         -{`${formatCurrency(cartTotals.voucherDiscount)}`}
-                      </span>
+                      </Badge>
+                    </div>
+                    {/* Hiển thị nội dung chi tiết theo loại voucher */}
+                    <div className="text-[10px] italic text-muted-foreground">
+                      {(() => {
+                        if (!cartItems?.voucher) return null
+
+                        switch (cartItems?.voucher.type) {
+                          case VOUCHER_TYPE.PERCENT_ORDER:
+                            return `${tVoucher('voucher.discountValue')}${cartItems?.voucher.value}% ${tVoucher('voucher.orderValue')}`
+
+                          case VOUCHER_TYPE.FIXED_VALUE:
+                            return `${tVoucher('voucher.discountValue')}${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.orderValue')}`
+
+                          case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
+                            return `${tVoucher('voucher.samePrice')} ${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+
+                          default:
+                            return ''
+                        }
+                      })()}
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* {cartItems?.voucher && (
-              <div className="flex justify-start w-full">
-                <div className="flex items-center w-full gap-2 px-3 py-2 border rounded-lg bg-primary/10 border-primary/40">
-                  <span className='text-sm text-muted-foreground'>
-                    {t('order.usedVoucher')}:
-                  </span>
-                  <span className="px-3 py-1 text-sm font-semibold rounded-full text-primary bg-primary/10">
-                    -{`${formatCurrency(discount)}`}
-                  </span>
-                </div>
-              </div>
-            )} */}
-
             <div className="space-y-1 text-sm">
-              {/* <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground xl:text-sm">{t('menu.total')}</span>
-                <span className='text-xs font-medium xl:text-sm'>{`${formatCurrency(subTotal || 0)}`}</span>
-              </div> */}
-
-              {/* {discount > 0 && (
-                <div className="flex items-center justify-between">
-                  <span className="text-xs italic text-green-600">
-                    {t('order.voucher')}
-                  </span>
-                  <span className="text-xs italic text-green-600">
-                    - {`${formatCurrency(discount)}`}
-                  </span>
-                </div>
-              )} */}
-
-              <div className="flex flex-col w-full gap-2 text-sm text-muted-foreground">
+              <div className="flex flex-col w-full text-sm text-muted-foreground">
                 {/* Tổng giá gốc */}
-                <div className="flex justify-between">
+                <div className="flex justify-between text-xs">
                   <span>{t('order.subtotalBeforeDiscount')}</span>
                   <span>{formatCurrency(cartTotals.subTotalBeforeDiscount)}</span>
                 </div>
 
                 {/* Giảm giá khuyến mãi (promotion) */}
                 {cartTotals.promotionDiscount > 0 && (
-                  <div className="flex justify-between italic text-yellow-600">
+                  <div className="flex justify-between text-[10px] italic text-yellow-600">
                     <span>{t('order.promotionDiscount')}</span>
                     <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                   </div>
@@ -267,7 +239,7 @@ export function CartContent() {
 
                 {/* Tổng giảm giá voucher */}
                 {cartTotals.voucherDiscount > 0 && (
-                  <div className="flex justify-between italic text-green-600">
+                  <div className="flex justify-between text-[10px] italic text-green-600">
                     <span>{t('order.voucherDiscount')}</span>
                     <span>-{formatCurrency(cartTotals.voucherDiscount)}</span>
                   </div>
@@ -275,7 +247,7 @@ export function CartContent() {
 
                 <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
-                  <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
               </div>
               <div className='flex items-center justify-end'>

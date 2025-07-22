@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { ChangeEvent } from 'react'
 
 import { Textarea } from '@/components/ui'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { ICartItem } from '@/types'
 
 interface OrderNoteInputProps {
@@ -11,7 +11,7 @@ interface OrderNoteInputProps {
 
 export default function OrderNoteInput({ order }: OrderNoteInputProps) {
   const { t } = useTranslation('menu')
-  const { addOrderNote } = useCartItemStore()
+  const { addOrderNote } = useOrderFlowStore()
 
   const handleNoteChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const note = e.target.value
@@ -20,7 +20,7 @@ export default function OrderNoteInput({ order }: OrderNoteInputProps) {
 
   return (
     <div className="flex w-full flex-row items-center justify-center gap-2.5">
-      <div className="flex flex-row items-start justify-between flex-1 w-full gap-2">
+      <div className="flex flex-row flex-1 gap-2 justify-between items-start w-full">
         <Textarea
           defaultValue={order?.note || ''}
           className='bg-white text-[11px] shadow-none xl:text-sm'

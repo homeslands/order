@@ -42,6 +42,8 @@ export const formatPaymentMethod = (method: string) => {
       return 'Tiền mặt';
     case PaymentMethod.INTERNAL:
       return 'Ví nội bộ';
+    case PaymentMethod.POINT:
+      return 'Xu';
     default:
       return 'Không tìm thấy PTTT';
   }

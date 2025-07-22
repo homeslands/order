@@ -15,11 +15,11 @@ import {
   DrawerTrigger,
   ScrollArea,
 } from '@/components/ui'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { publicFileURL } from '@/constants'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency } from '@/utils'
+import { publicFileURL, VOUCHER_TYPE } from '@/constants'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
 import { CreateCustomerDialog, CreateOrderDialog } from '../dialog'
@@ -28,11 +28,12 @@ import { StaffVoucherListSheet } from '../sheet'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
+  const { t: tToast } = useTranslation(['toast'])
   const { t: tCommon } = useTranslation(['common'])
   const drawerCloseRef = useRef<HTMLButtonElement>(null)
 
   const [, setSelectedUser] = useState<IUserInfo | null>(null)
-  const { getCartItems, removeCartItem } = useCartItemStore()
+  const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
   const cartItems = getCartItems()
 
   const displayItems = calculateCartItemDisplay(
@@ -41,6 +42,64 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
+
+  useEffect(() => {
+    if (cartItems?.voucher && cartItems.voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      const voucherProductSlugs = cartItems.voucher.voucherProducts?.map(vp => vp.product.slug) || []
+      const hasValidProducts = cartItems.orderItems.some(item => voucherProductSlugs.includes(item.slug))
+
+      if (!hasValidProducts) {
+        showErrorToast(143422)
+        removeVoucher()
+      }
+    }
+  }, [cartItems, removeVoucher])
+
+  useEffect(() => {
+    if (cartItems && cartItems.voucher) {
+      const { voucher, orderItems } = cartItems
+
+      // Nếu không phải SAME_PRICE_PRODUCT thì mới cần check
+      const shouldCheckMinOrderValue = voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT
+
+      if (shouldCheckMinOrderValue) {
+        // Tính subtotal trực tiếp từ orderItems sau promotion, không sử dụng calculations để tránh circular dependency
+        const subtotalAfterPromotion = orderItems.reduce((total, item) => {
+          const original = item?.originalPrice
+          const afterPromotion = (original || 0) - (item.promotionDiscount || 0)
+          return total + afterPromotion * item.quantity
+        }, 0)
+
+        if (subtotalAfterPromotion < (voucher.minOrderValue || 0)) {
+          removeVoucher()
+          showErrorToast(1004)
+        }
+      }
+    }
+  }, [cartItems, removeVoucher])
+
+  const handleRemoveCartItem = (id: string) => {
+    removeOrderingItem(id)
+  }
+
+  // check if customer info is removed, then check if voucher.isVerificationIdentity is true, then show toast
+  useEffect(() => {
+    const hasNoCustomerInfo = !cartItems?.ownerFullName && !cartItems?.ownerPhoneNumber
+    const isPrivateVoucher = cartItems?.voucher?.isVerificationIdentity === true
+
+    if (hasNoCustomerInfo && isPrivateVoucher) {
+      showToast(tToast('toast.voucherVerificationIdentity'))
+      removeOrderingCustomer()
+      removeVoucher()
+    }
+  }, [
+    cartItems?.ownerFullName,
+    cartItems?.ownerPhoneNumber,
+    cartItems?.voucher?.isVerificationIdentity,
+    tToast,
+    removeVoucher,
+    removeOrderingCustomer
+  ])
 
   // check if cartItems is null, setSelectedUser to null
   useEffect(() => {
@@ -134,7 +193,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
                             </div>
                             <Button
                               variant="ghost"
-                              onClick={() => removeCartItem(item.id)}
+                              onClick={() => handleRemoveCartItem(item.id)}
                             >
                               <Trash2 className="text-destructive" />
                             </Button>

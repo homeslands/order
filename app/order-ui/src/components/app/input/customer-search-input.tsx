@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { CircleX, User2Icon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { IUserInfo } from '@/types'
 import { useDebouncedInput, usePagination, useUsers } from '@/hooks'
 import {
@@ -19,7 +19,7 @@ export default function CustomerSearchInput() {
     const [users, setUsers] = useState<IUserInfo[]>([])
     const { pagination, setPagination } = usePagination()
     const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput()
-    const { getCartItems, addCustomerInfo, removeCustomerInfo } = useCartItemStore()
+    const { getCartItems, addCustomerInfo, removeCustomerInfo } = useOrderFlowStore()
     const cartItems = getCartItems()
     const userListRef = useRef<HTMLDivElement>(null)
 

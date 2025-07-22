@@ -33,7 +33,11 @@ export default function PublicClientLayout() {
   }, [tableSlug, addTable, tableRes])
 
   useEffect(() => {
-    if (!location.pathname.startsWith(ROUTE.CLIENT_PAYMENT)) {
+    // Don't clear payment store when on any payment page (client or staff)
+    const isOnPaymentPage = location.pathname.startsWith(ROUTE.CLIENT_PAYMENT) ||
+      location.pathname.startsWith(ROUTE.STAFF_ORDER_PAYMENT)
+
+    if (!isOnPaymentPage) {
       clearStore()
     }
     if (userInfo && userInfo.role.name !== Role.CUSTOMER) {

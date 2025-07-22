@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Loader2, Mail, ShoppingCart } from 'lucide-react'
+import { Loader2, ShoppingCart } from 'lucide-react'
 
 import {
   Button,
@@ -164,15 +164,14 @@ export default function SendVerifyEmailDialog({ onSuccess }: { onSuccess: () => 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild className="flex justify-start w-fit">
         <Button className="gap-1 px-2 text-sm" onClick={() => handleOpenDialog()}>
-          <Mail className="hidden sm:block" />
-          <span className="text-xs sm:text-sm">{t('profile.verifyEmail')}</span>
+          <span className="text-xs sm:text-sm">{t('profile.verify')}</span>
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
-            <div className="flex gap-2 items-center text-primary">
+            <div className="flex items-center gap-2 text-primary">
               <ShoppingCart className="w-6 h-6" />
               {t('profile.verifyEmail')}
             </div>

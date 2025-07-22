@@ -87,9 +87,9 @@ export const OrderManagementPage = React.lazy(() =>
 )
 
 //Client view page
-export const ClientViewPage = React.lazy(() =>
-  import('@/app/system/client-view').then((module) => ({
-    default: module.ClientViewPage,
+export const CustomerDisplayPage = React.lazy(() =>
+  import('@/app/system/customer-display').then((module) => ({
+    default: module.CustomerDisplayPage,
   })),
 )
 // Chef order management page
