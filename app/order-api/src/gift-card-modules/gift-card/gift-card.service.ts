@@ -52,7 +52,7 @@ export class GiftCardService {
     private readonly transactionService: TransactionManagerService,
     private readonly balanceService: BalanceService,
     private readonly ptService: PointTransactionService,
-  ) {}
+  ) { }
 
   async use(req: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.use.name}`;
@@ -64,7 +64,7 @@ export class GiftCardService {
     // 3. Create transaction record
     await this.ptService.create({
       type: PointTransactionTypeEnum.IN,
-      desc: `Nap the qua tang ${gc.cardPoints} xu`,
+      desc: `Nap the qua tang ${gc.cardPoints.toLocaleString()} xu`,
       objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
       objectSlug: gc.slug,
       points: gc.cardPoints,
