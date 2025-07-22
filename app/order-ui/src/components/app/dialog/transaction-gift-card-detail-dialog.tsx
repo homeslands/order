@@ -110,15 +110,14 @@ export default function TransactionGiftCardDetailDialog({
   }
 
   const getTransactionTypeText = () => {
-    if (
-      transaction.objectType === PointTransactionObjectType.GIFT_CARD ||
-      transaction.objectType === PointTransactionObjectType.ORDER
-    ) {
+    if (transaction.objectType === PointTransactionObjectType.GIFT_CARD) {
       return t('profile.useGiftCard')
     } else if (
       transaction.objectType === PointTransactionObjectType.CARD_ORDER
     ) {
       return t('profile.giftCardTransaction')
+    } else if (transaction.objectType === PointTransactionObjectType.ORDER) {
+      return t('profile.paymentForOrder')
     }
     return t('profile.transaction')
   }
@@ -392,16 +391,18 @@ export default function TransactionGiftCardDetailDialog({
                             </span>
                           </div>
                           {/* Customer Name */}
-                          <div className="flex items-start justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">
-                              {tGiftCard('giftCard.giverName')}
-                            </span>
-                            <span
-                              className={`${isMobile ? 'max-w-[120px]' : 'max-w-[300px]'} truncate font-medium text-gray-900 dark:text-gray-100`}
-                            >
-                              {giftCardOrderDetails.customerName}
-                            </span>
-                          </div>
+                          {giftCardOrderDetails.type === GiftCardType.GIFT && (
+                            <div className="flex items-start justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                {tGiftCard('giftCard.giverName')}
+                              </span>
+                              <span
+                                className={`${isMobile ? 'max-w-[120px]' : 'max-w-[300px]'} truncate font-medium text-gray-900 dark:text-gray-100`}
+                              >
+                                {giftCardOrderDetails.customerName}
+                              </span>
+                            </div>
+                          )}
                           {/* Quantity */}
                           <div className="flex items-start justify-between">
                             <span className="text-gray-600 dark:text-gray-400">

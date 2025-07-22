@@ -102,6 +102,7 @@
     "exportAll": "Xuất tất cả",
     "transactionDetails": "Chi tiết giao dịch",
     "transactionType": "Loại giao dịch",
-    "serial": "Số seri"
+    "serial": "Số seri",
+    "paymentForOrder": "Thanh toán đơn hàng"
   }
 }

@@ -102,6 +102,7 @@
     "exportAll": "Export All",
     "transactionDetails": "Transaction Details",
     "transactionType": "Transaction Type",
-    "Serial": "Serial Number"
+    "Serial": "Serial Number",
+    "paymentForOrder": "Payment for Order"
   }
 }
