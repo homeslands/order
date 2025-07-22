@@ -1,24 +1,13 @@
-import moment from 'moment'
-
-import { useUserStore } from '@/stores'
-import { useSpecificMenu } from '@/hooks'
 import SystemMenus from '@/app/system/menu/components/system-menus'
+import { ISpecificMenu } from '@/types'
 
-export function SystemMenuTabscontent() {
-  const { userInfo } = useUserStore()
-  function getCurrentDate() {
-    return moment().format('YYYY-MM-DD')
-  }
-  const { data: specificMenu, isLoading } = useSpecificMenu({
-    date: getCurrentDate(),
-    branch: userInfo?.branch?.slug || '',
-  })
+export function SystemMenuTabscontent({ menu, isLoading }: { menu?: ISpecificMenu, isLoading?: boolean }) {
 
   return (
     <div
       className={`flex flex-col w-full`}
     >
-      <SystemMenus menu={specificMenu?.result} isLoading={isLoading} />
+      <SystemMenus menu={menu} isLoading={isLoading} />
     </div>
   )
 }

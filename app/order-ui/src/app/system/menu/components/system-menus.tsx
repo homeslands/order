@@ -1,26 +1,39 @@
+import { useEffect } from 'react'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 
 import { SkeletonMenuList } from '@/components/app/skeleton'
-import { IProduct, ISpecificMenu } from '@/types'
+import { IMenuItem, IOrderItem, IProduct, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
-import { AddToCartDialog } from '@/components/app/dialog'
 import { Button, useSidebar } from '@/components/ui'
 import ProductImage from '@/assets/images/ProductImage.png'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
-import { StaffAddToCartDrawer } from '@/components/app/drawer'
+import { SystemAddToCartDrawer } from '@/components/app/drawer'
 import { StaffPromotionTag } from '@/components/app/badge'
+import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+
 
 interface IMenuProps {
-  menu: ISpecificMenu | undefined
-  isLoading: boolean
+  menu?: ISpecificMenu
+  isLoading?: boolean
 }
 
 export default function SystemMenus({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
+  const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { state } = useSidebar()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
+  const {
+    currentStep,
+    isHydrated,
+    orderingData,
+    initializeOrdering,
+    addOrderingItem,
+    setCurrentStep
+  } = useOrderFlowStore()
+
   const menuItems = menu?.menuItems?.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
     if (a.isLocked !== b.isLocked) {
@@ -40,6 +53,63 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
     }
     return 0;
   });
+
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      setCurrentStep(OrderFlowStep.ORDERING)
+
+      // Khởi tạo ordering data nếu chưa có
+      if (!orderingData) {
+        initializeOrdering()
+      }
+    }
+  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+
+  const handleAddToCart = (product: IMenuItem) => {
+    if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
+
+    // ✅ Step 2: Ensure ORDERING phase
+    if (currentStep !== OrderFlowStep.ORDERING) {
+      setCurrentStep(OrderFlowStep.ORDERING)
+    }
+
+    if (!orderingData) {
+      initializeOrdering()
+    }
+
+    // ✅ Step 3: Create order item with proper structure
+    const orderItem: IOrderItem = {
+      id: `item_${moment().valueOf()}_${Math.random().toString(36).substr(2, 9)}`,
+      slug: product?.product?.slug,
+      image: product?.product?.image,
+      name: product?.product?.name,
+      quantity: 1,
+      size: product?.product?.variants[0]?.size?.name,
+      allVariants: product?.product?.variants,
+      variant: product?.product?.variants[0],
+      originalPrice: product?.product?.variants[0]?.price,
+      description: product?.product?.description,
+      isLimit: product?.product?.isLimit,
+      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotionValue: product?.promotion ? product?.promotion?.value : 0,
+      note: '',
+    }
+
+    try {
+      // ✅ Step 4: Add to ordering data
+      addOrderingItem(orderItem)
+
+      // ✅ Step 5: Success feedback
+      showToast(tToast('toast.addSuccess'))
+
+    } catch (error) {
+      // ✅ Step 7: Error handling
+      // eslint-disable-next-line no-console
+      console.error('❌ Error adding item to cart:', error)
+    }
+  };
 
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
@@ -81,55 +151,53 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
         group.items.length > 0 &&
         <div className='flex flex-col mt-4'>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
-          <div className={`grid gap-3 mt-4 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 gap-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 pr-0 sm:pr-9 xl:pr-0'}`} key={index}>
+          <div className={`grid gap-2 pb-8 mt-2 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 gap-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 pr-0 sm:pr-9 xl:pr-0'}`} key={index}>
             {group.items.map((item) => (
               <div
                 key={item.slug}
-                className="flex flex-col justify-between rounded-xl border min-h-[12rem] xl:min-h-[15rem] shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="flex flex-col justify-between rounded-xl border min-h-[10rem] xl:min-h-[15rem] shadow-xl hover:shadow-2xl transition-all duration-300"
               >
                 {/* Image Section with Discount Tag */}
-                <div className="relative">
-                  {item.product.image ? (
-                    <>
-                      <img
-                        src={`${publicFileURL}/${item.product.image}`}
-                        alt={item.product.name}
-                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5 bg-muted-foreground/10"
-                      />
-                      {item.promotion && item.promotion.value > 0 && (
-                        <StaffPromotionTag promotion={item.promotion} />
-                      )}
-                    </>
-                  ) : (
-                    <div className="relative">
-                      <img
-                        src={ProductImage}
-                        alt="Product Image"
-                        className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
-                      />
-                      {item.promotion && item.promotion.value > 0 && (
-                        <StaffPromotionTag promotion={item.promotion} />
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Content Section - More compact */}
-                <div className="flex flex-1 flex-col justify-between space-y-1.5 p-2">
-                  <div className='flex flex-col gap-1'>
+                <div className="flex flex-col gap-0">
+                  <div className='relative'>
+                    {item.product.image ? (
+                      <>
+                        <img
+                          src={`${publicFileURL}/${item.product.image}`}
+                          alt={item.product.name}
+                          className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
+                        />
+                        {item.promotion && item.promotion.value > 0 && (
+                          <StaffPromotionTag promotion={item.promotion} />
+                        )}
+                      </>
+                    ) : (
+                      <div className="relative">
+                        <img
+                          src={ProductImage}
+                          alt="Product Image"
+                          className="object-cover w-full h-[6rem] xl:h-[8rem] rounded-xl p-1.5"
+                        />
+                        {item.promotion && item.promotion.value > 0 && (
+                          <StaffPromotionTag promotion={item.promotion} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className='flex flex-col px-2'>
                     <span className="text-sm font-bold xl:text-[18px] truncate line-clamp-1">
                       {item.product.name}
                     </span>
                     {/* <p className="text-xs text-gray-500 line-clamp-2">
                       {item.product.description}
                     </p> */}
-                    <div className="flex gap-1 items-center">
+                    <div className="flex items-center gap-1">
                       <div className="flex flex-col w-full">
                         {item.product.variants.length > 0 ? (
-                          <div className="flex flex-col gap-1 justify-start items-start w-full">
-                            <div className='flex flex-row gap-1 items-center w-full'>
+                          <div className="flex flex-col items-start justify-start w-full gap-1">
+                            <div className='flex flex-row items-center w-full gap-1'>
                               {item?.promotion?.value > 0 ? (
-                                <div className='flex gap-2 justify-start items-center w-full'>
+                                <div className='flex flex-col items-start justify-start w-full'>
                                   <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70">
                                     {(() => {
                                       const range = getPriceRange(item.product.variants)
@@ -173,17 +241,28 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Content Section - More compact */}
+                <div className="flex flex-1 flex-col justify-end space-y-1.5 p-2">
                   {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
                     <div>
                       {isMobile ? (
-                        <StaffAddToCartDrawer product={item} />
+                        <SystemAddToCartDrawer product={item} />
                       ) : (
-                        <AddToCartDialog product={item} />
+                        <Button
+                          className="flex items-center justify-center w-full gap-1 text-xs text-white rounded-full shadow-none xl:text-sm"
+                          onClick={() => handleAddToCart(item)}
+                          disabled={!isHydrated}
+                        >
+                          {t('menu.addToCart')}
+                        </Button>
+                        // <AddToCartDialog product={item} />
                       )}
                     </div>
                   ) : (
                     <Button
-                      className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
+                      className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
                       disabled
                     >
                       {t('menu.outOfStock')}
