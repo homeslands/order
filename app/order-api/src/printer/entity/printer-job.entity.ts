@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 
+@Index('idx_status_created_at', ['status', 'createdAt'])
 @Entity('printer_job_tbl')
 export class PrinterJob extends Base {
   @AutoMap()
