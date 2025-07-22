@@ -67,7 +67,7 @@ export class GiftCardService {
     // 3. Create transaction record
     await this.ptService.create({
       type: PointTransactionTypeEnum.IN,
-      desc: `Nap the qua tang ${gc.cardPoints} xu`,
+      desc: `Nap the qua tang ${gc.cardPoints.toLocaleString()} xu`,
       objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
       objectSlug: gc.slug,
       points: gc.cardPoints,
