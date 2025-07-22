@@ -278,6 +278,7 @@ const errorCodes: { [key: number]: string } = {
   154514: 'toast.chefOrderMustBeAccepted',
   157002: 'toast.voucherGroupAlreadyExists',
   // Gift card error codes
+  158205: 'toast.insufficientBalance',
   158402: 'toast.giftCardNotFound',
   158404: 'toast.errorWhenRemoveGiftCard',
   158406: 'toast.errorWhenUseGiftCard',

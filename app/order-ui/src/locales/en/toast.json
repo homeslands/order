@@ -393,6 +393,7 @@
     "giftCardNotFound": "Gift card not found",
     "giftCardExpired": "Gift card has expired",
     "giftCardAlreadyUsed": "Gift card has already been used",
-    "giftCardUsedSuccess": "Gift card used successfully"
+    "giftCardUsedSuccess": "Gift card used successfully",
+    "insufficientBalance": "You don’t have enough balance to pay for the order"
   }
 }
