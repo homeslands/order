@@ -38,6 +38,11 @@ import { PointTransaction } from './point-transaction/entities/point-transaction
 import { Order } from 'src/order/order.entity';
 import { GiftCardScheduler } from './gift-card/gift-card.scheduler';
 import { PdfModule } from 'src/pdf/pdf.module';
+import { FeatureFlagController } from './feature-flag/feature-flag.controller';
+import { FeatureFlagService } from './feature-flag/feature-flag.service';
+import { FeatureFlagProfile } from './feature-flag/feature-flag.mapper';
+import { FeatureFlag } from './feature-flag/entities/feature-flag.entity';
+import { FeatureGroup } from './feature-flag/entities/feature-group.entity';
 
 const controllers = [
   CardController,
@@ -46,6 +51,7 @@ const controllers = [
   GiftCardController,
   ReceipientController,
   PointTransactionController,
+  FeatureFlagController,
 ];
 
 const providers = [
@@ -55,6 +61,7 @@ const providers = [
   GiftCardService,
   RecipientService,
   PointTransactionService,
+  FeatureFlagService,
   BankTransferStrategy,
   ACBConnectorClient,
 ];
@@ -66,6 +73,7 @@ const mappers = [
   RecipientProfile,
   GiftCardProfile,
   PointTransactionProfile,
+  FeatureFlagProfile,
 ];
 
 const modules = [
@@ -80,6 +88,8 @@ const modules = [
     Payment,
     PointTransaction,
     Order,
+    FeatureFlag,
+    FeatureGroup,
   ]),
   FileModule,
   DbModule,
@@ -95,6 +105,7 @@ const exportServices = [
   GiftCardService,
   RecipientService,
   PointTransactionService,
+  FeatureFlagService,
 ];
 
 const listeners = [CardOrderListener];
@@ -117,4 +128,4 @@ const schedulers = [GiftCardScheduler];
   ],
   exports: [...exportServices, ...exportMappers],
 })
-export class GiftCardModule {}
+export class GiftCardModule { }
