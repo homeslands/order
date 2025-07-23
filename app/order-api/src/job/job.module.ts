@@ -84,4 +84,4 @@ import { SharedModule } from 'src/shared/shared.module';
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })
-export class JobModule { }
+export class JobModule {}
