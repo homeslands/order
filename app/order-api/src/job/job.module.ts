@@ -82,4 +82,4 @@ import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.
   ],
   exports: [JobProducer, JobConsumer, BullModule],
 })
-export class JobModule { }
+export class JobModule {}

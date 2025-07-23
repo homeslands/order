@@ -143,7 +143,7 @@ export class CardOrderService {
     }
 
     if (!card.isActive) {
-      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE)
+      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE);
     }
 
     const customer = await this.userRepository.findOne({
