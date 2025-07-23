@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrinterJob } from './entity/printer-job.entity';
 import { DataSource, Repository } from 'typeorm';
