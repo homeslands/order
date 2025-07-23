@@ -31,6 +31,13 @@ import { Payment } from 'src/payment/payment.entity';
 import { HttpModule } from '@nestjs/axios';
 import { CardOrderListener } from './card-order/card-order.listener';
 import { JobModule } from 'src/job/job.module';
+import { PointTransactionController } from './point-transaction/point-transaction.controller';
+import { PointTransactionService } from './point-transaction/point-transaction.service';
+import { PointTransactionProfile } from './point-transaction/point-transaction.mapper';
+import { PointTransaction } from './point-transaction/entities/point-transaction.entity';
+import { Order } from 'src/order/order.entity';
+import { GiftCardScheduler } from './gift-card/gift-card.scheduler';
+import { PdfModule } from 'src/pdf/pdf.module';
 
 const controllers = [
   CardController,
@@ -38,6 +45,7 @@ const controllers = [
   CardOrderController,
   GiftCardController,
   ReceipientController,
+  PointTransactionController,
 ];
 
 const providers = [
@@ -46,6 +54,7 @@ const providers = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  PointTransactionService,
   BankTransferStrategy,
   ACBConnectorClient,
 ];
@@ -56,6 +65,7 @@ const mappers = [
   CardOrderProfile,
   RecipientProfile,
   GiftCardProfile,
+  PointTransactionProfile,
 ];
 
 const modules = [
@@ -68,11 +78,14 @@ const modules = [
     User,
     ACBConnectorConfig,
     Payment,
+    PointTransaction,
+    Order,
   ]),
   FileModule,
   DbModule,
   HttpModule,
   JobModule,
+  PdfModule,
 ];
 
 const exportServices = [
@@ -81,6 +94,7 @@ const exportServices = [
   CardOrderService,
   GiftCardService,
   RecipientService,
+  PointTransactionService,
 ];
 
 const listeners = [CardOrderListener];
@@ -89,10 +103,18 @@ const exportMappers = [];
 
 const subscribers = [CardOrderSubscriber];
 
+const schedulers = [GiftCardScheduler];
+
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [...providers, ...mappers, ...subscribers, ...listeners],
+  providers: [
+    ...providers,
+    ...mappers,
+    ...subscribers,
+    ...listeners,
+    ...schedulers,
+  ],
   exports: [...exportServices, ...exportMappers],
 })
 export class GiftCardModule {}

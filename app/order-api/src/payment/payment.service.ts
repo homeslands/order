@@ -40,6 +40,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import { UserUtils } from 'src/user/user.utils';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { PaymentUtils } from './payment.utils';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
 
 @Injectable()
 export class PaymentService {
@@ -57,7 +58,8 @@ export class PaymentService {
     private readonly pdfService: PdfService,
     private readonly userUtils: UserUtils,
     private readonly paymentUtils: PaymentUtils,
-  ) { }
+    private readonly transactionService: TransactionManagerService,
+  ) {}
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -70,6 +72,8 @@ export class PaymentService {
 
   async update(slug: string) {
     const context = `${PaymentService.name}.${this.update.name}`;
+    this.logger.log(`Update payment: ${slug}`, context);
+
     const payment = await this.paymentRepository.findOne({
       where: {
         slug: slug ?? IsNull(),
@@ -81,22 +85,30 @@ export class PaymentService {
       throw new PaymentException(PaymentValidation.PAYMENT_NOT_FOUND);
 
     payment.statusCode = PaymentStatus.COMPLETED;
-    payment.message = Math.random().toString();
+    payment.message = 'Thanh toan thanh cong';
 
-    try {
-      await this.paymentRepository.save(payment);
-    } catch (error) {
-      this.logger.error(
-        `Error when updating payment: ${error.message}`,
-        error.stack,
-        context,
-      );
-      throw new PaymentException(PaymentValidation.ERROR_WHEN_UPDATE_PAYEMNT);
-    }
+    const updated = await this.transactionService.execute<Payment>(
+      async (manager) => {
+        return await manager.save(payment);
+      },
+      (res) => {
+        this.logger.log(`Payment ${res.slug} updated`, context);
+      },
+      (error) => {
+        this.logger.error(
+          `Error when updating payment: ${error.message}`,
+          error.stack,
+          context,
+        );
+        throw new PaymentException(PaymentValidation.ERROR_WHEN_UPDATE_PAYEMNT);
+      },
+    );
 
-    if (payment.cardOrder) {
+    this.logger.log(`Updated payment: ${JSON.stringify(updated)}`, context);
+
+    if (updated.cardOrder) {
       this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
-        orderId: payment.cardOrder.id,
+        orderSlug: updated.cardOrder?.slug,
       });
     }
   }
@@ -418,7 +430,7 @@ export class PaymentService {
 
     if (payment.cardOrder) {
       this.eventEmitter.emit(PaymentAction.CARD_ORDER_PAYMENT_PAID, {
-        orderId: payment.cardOrder.id,
+        orderSlug: payment.cardOrder?.slug,
       });
     }
 
@@ -429,7 +441,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-            ACBConnectorTransactionStatus.COMPLETED
+          ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,

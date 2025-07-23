@@ -44,11 +44,11 @@ export class JobConsumer extends WorkerHost {
           const result =
             await this.jobService.updateOrderStatusAfterPaymentPaid(job);
           return result;
-        case JobType.UPDATE_CARD_ORDER_STATUS_AFTER_PAYMENT_PAID:
-          await this.jobService.updateCardOrderStatusAfterPaymentCompletion({
-            orderId: job.data,
-          });
-          break;
+        // case JobType.UPDATE_CARD_ORDER_STATUS_AFTER_PAYMENT_PAID:
+        //   await this.jobService.updateCardOrderStatusAfterPaymentCompletion({
+        //     orderSlug: job.data,
+        //   });
+        //   break;
       }
       Object.assign(job, { status: JobStatus.COMPLETED });
       await this.jobRepository.save(job);

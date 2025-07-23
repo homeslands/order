@@ -22,6 +22,7 @@
     "typeorm:g": "npm run typeorm -- -d src/config/database.config.ts migration:generate ./src/migrations/%npm_config_name%",
     "typeorm:gln": "npm run typeorm -- -d src/config/database.config.ts migration:generate ./src/migrations/$npm_config_name",
     "typeorm:c": "npm run typeorm -- migration:create ./src/migrations/%npm_config_name%",
+    "typeorm:cln": "npm run typeorm -- migration:create ./src/migrations/$npm_config_name",
     "typeorm:rv": "npm run typeorm -- -d ./src/config/database.config.ts migration:revert",
     "test:large": "node --max-old-space-size=4096 ./node_modules/jest/bin/jest.js"
   },
@@ -77,6 +78,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "mysql2": "^3.11.3",
+    "nanoid": "^3.3.11",
     "nest-winston": "^1.9.7",
     "net": "^1.0.2",
     "node-thermal-printer": "^4.5.0",
