@@ -52,7 +52,7 @@ export class CardOrderService {
     private readonly gcService: GiftCardService,
     private readonly ptService: PointTransactionService,
     private readonly balanceService: BalanceService,
-  ) {}
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -374,7 +374,7 @@ export class CardOrderService {
           // 3. Create transaction record
           await this.ptService.create({
             type: PointTransactionTypeEnum.IN,
-            desc: `Nap the qua tang ${totalAmount} xu`,
+            desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
             objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
             objectSlug: databaseEntity.slug,
             points: totalAmount,
@@ -411,7 +411,7 @@ export class CardOrderService {
         // 3. Create transaction record
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
-          desc: `Nap the qua tang ${totalAmount} xu`,
+          desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
           objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
           objectSlug: databaseEntity.slug,
           points: totalAmount,

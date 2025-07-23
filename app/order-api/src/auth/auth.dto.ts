@@ -16,7 +16,6 @@ import { VIETNAMESE_PHONE_REGEX } from './constants';
 export class LoginAuthRequestDto {
   @ApiProperty({ example: '0376295216' })
   @IsNotEmpty({ message: INVALID_PHONENUMBER })
-  @Matches(VIETNAMESE_PHONE_REGEX, { message: 'Phone number must be a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, or 09)' })
   @AutoMap()
   phonenumber: string;
 
@@ -45,6 +44,12 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @IsEmail({}, { message: INVALID_EMAIL })
   @AutoMap()
   email?: string;
+
+  @ApiProperty({ example: '08123456789' })
+  @IsNotEmpty({ message: INVALID_PHONENUMBER })
+  @Matches(VIETNAMESE_PHONE_REGEX, { message: 'Phone number must be a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, or 09)' })
+  @AutoMap()
+  phonenumber: string;
 }
 
 export class LoginAuthResponseDto {

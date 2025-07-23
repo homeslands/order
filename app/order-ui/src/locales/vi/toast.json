@@ -337,6 +337,7 @@
     "giftCardNotFound": "Thẻ quà tặng không tồn tại",
     "giftCardExpired": "Thẻ quà tặng đã hết hạn",
     "giftCardAlreadyUsed": "Thẻ quà tặng đã sử dụng",
-    "giftCardUsedSuccess": "Thẻ quà tặng đã sử dụng thành công"
+    "giftCardUsedSuccess": "Thẻ quà tặng đã sử dụng thành công",
+    "insufficientBalance": "Bạn không đủ số dư để thanh toán đơn hàng"
   }
 }
