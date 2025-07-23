@@ -75,7 +75,11 @@ export default function UseGiftCardDialog() {
       </DialogTrigger>
 
       <DialogContent
-        className={`${isMobile ? 'max-w-[90%] rounded-sm' : 'max-w-md'}mborder-0 bg-white/95 backdrop-blur-xl dark:bg-gray-900/95`}
+        className={
+          isMobile
+            ? 'max-w-[90%] rounded-lg border-0 bg-white/95 px-2 py-4 backdrop-blur-xl dark:bg-gray-900/95'
+            : 'max-w-md border-0 bg-white/95 backdrop-blur-xl dark:bg-gray-900/95'
+        }
       >
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden rounded-lg">
@@ -88,44 +92,74 @@ export default function UseGiftCardDialog() {
             style={{ animationDelay: '1s' }}
           />
         </div>
-
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute right-4 top-4 z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-          disabled={useGiftCardMutation.isPending}
-        >
-          <X className="h-4 w-4" />
-        </button>
-
+        {/* Dialog header */}
         <div className="relative z-10">
           <DialogHeader className="space-y-4 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-purple-600 shadow-lg shadow-primary/25">
-              <Gift className="h-8 w-8 text-white" />
+            <div
+              className={
+                isMobile
+                  ? 'mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-purple-600 shadow-lg shadow-primary/25'
+                  : 'mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-purple-600 shadow-lg shadow-primary/25'
+              }
+            >
+              <Gift
+                className={
+                  isMobile ? 'h-10 w-10 text-white' : 'h-8 w-8 text-white'
+                }
+              />
             </div>
-            <DialogTitle className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-xl font-bold text-transparent">
+            <DialogTitle
+              className={
+                isMobile
+                  ? 'bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-2xl font-bold text-transparent'
+                  : 'bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-xl font-bold text-transparent'
+              }
+            >
               {t('giftCard.useGiftCard')}
             </DialogTitle>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p
+                className={
+                  isMobile
+                    ? 'text-base text-gray-600 dark:text-gray-400'
+                    : 'text-sm text-gray-600 dark:text-gray-400'
+                }
+              >
                 {t('giftCard.enterGiftCardDetails')}
               </p>
-              <div className="mx-auto flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs text-primary dark:bg-primary/20">
-                <Gift className="h-3 w-3" />
-                <span className="font-medium">
+              <div
+                className={
+                  isMobile
+                    ? 'mx-auto flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary dark:bg-primary/20'
+                    : 'mx-auto flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs text-primary dark:bg-primary/20'
+                }
+              >
+                <Gift className={isMobile ? 'h-4 w-4' : 'h-3 w-3'} />
+                <span className={`${isMobile ? 'text-xs' : 'font-medium'}`}>
                   {t('giftCard.enterGiftCard')}
                 </span>
               </div>
             </div>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className={isMobile ? 'mt-8 space-y-8' : 'mt-6 space-y-6'}
+          >
             <div className="space-y-3">
               <Label
                 htmlFor="serial"
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className={
+                  isMobile
+                    ? 'flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300'
+                    : 'flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300'
+                }
               >
-                <Gift className="h-4 w-4 text-primary" />
+                <Gift
+                  className={
+                    isMobile ? 'h-5 w-5 text-primary' : 'h-4 w-4 text-primary'
+                  }
+                />
                 {t('giftCard.giftCardSerial')}
               </Label>
               <div className="relative">
@@ -135,7 +169,11 @@ export default function UseGiftCardDialog() {
                   value={serial}
                   onChange={(e) => setSerial(e.target.value)}
                   placeholder={t('giftCard.enterSerial')}
-                  className="h-12 border-2 border-gray-200 bg-gray-50/50 pl-4 pr-4 font-mono text-base tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800"
+                  className={
+                    isMobile
+                      ? 'h-14 border-2 border-gray-200 bg-gray-50/50 pl-5 pr-5 font-mono text-lg tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800'
+                      : 'h-12 border-2 border-gray-200 bg-gray-50/50 pl-4 pr-4 font-mono text-base tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800'
+                  }
                   disabled={useGiftCardMutation.isPending}
                 />
               </div>
@@ -144,9 +182,17 @@ export default function UseGiftCardDialog() {
             <div className="space-y-3">
               <Label
                 htmlFor="code"
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className={
+                  isMobile
+                    ? 'flex items-center gap-2 text-base font-semibold text-gray-700 dark:text-gray-300'
+                    : 'flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300'
+                }
               >
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Sparkles
+                  className={
+                    isMobile ? 'h-5 w-5 text-primary' : 'h-4 w-4 text-primary'
+                  }
+                />
                 {t('giftCard.giftCardCode')}
               </Label>
               <div className="relative">
@@ -156,7 +202,11 @@ export default function UseGiftCardDialog() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder={t('giftCard.enterCode')}
-                  className="h-12 border-2 border-gray-200 bg-gray-50/50 pl-4 pr-4 font-mono text-base tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800"
+                  className={
+                    isMobile
+                      ? 'h-14 border-2 border-gray-200 bg-gray-50/50 pl-5 pr-5 font-mono text-lg tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800'
+                      : 'h-12 border-2 border-gray-200 bg-gray-50/50 pl-4 pr-4 font-mono text-base tracking-wider transition-all duration-200 hover:border-gray-300 focus:border-gray-300 focus:bg-white focus:ring-4 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-gray-600 dark:focus:border-gray-600 dark:focus:bg-gray-800'
+                  }
                   disabled={useGiftCardMutation.isPending}
                 />
               </div>
@@ -168,10 +218,20 @@ export default function UseGiftCardDialog() {
                 variant="outline"
                 onClick={handleClose}
                 disabled={useGiftCardMutation.isPending}
-                className="hover:via-red-25 group relative h-12 flex-1 overflow-hidden rounded-xl border-2 border-gray-300/60 bg-gradient-to-br from-gray-50 via-white to-gray-100 font-semibold text-gray-700 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-red-300 hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:shadow-xl hover:shadow-red-500/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:text-gray-300 dark:hover:border-red-500 dark:hover:from-red-900 dark:hover:to-red-800 dark:hover:text-red-200"
+                className={
+                  isMobile
+                    ? 'hover:via-red-25 group relative h-14 flex-1 overflow-hidden rounded-xl border-2 border-gray-300/60 bg-gradient-to-br from-gray-50 via-white to-gray-100 font-semibold text-gray-700 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-red-300 hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:shadow-xl hover:shadow-red-500/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:text-gray-300 dark:hover:border-red-500 dark:hover:from-red-900 dark:hover:to-red-800 dark:hover:text-red-200'
+                    : 'hover:via-red-25 group relative h-12 flex-1 overflow-hidden rounded-xl border-2 border-gray-300/60 bg-gradient-to-br from-gray-50 via-white to-gray-100 font-semibold text-gray-700 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-red-300 hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:shadow-xl hover:shadow-red-500/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:text-gray-300 dark:hover:border-red-500 dark:hover:from-red-900 dark:hover:to-red-800 dark:hover:text-red-200'
+                }
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  <X className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+                  <X
+                    className={
+                      isMobile
+                        ? 'h-5 w-5 transition-transform duration-200 group-hover:rotate-90'
+                        : 'h-4 w-4 transition-transform duration-200 group-hover:rotate-90'
+                    }
+                  />
                   {tCommon('common.close')}
                 </span>
                 <div className="absolute inset-0 translate-x-[-100%] bg-gradient-to-r from-transparent via-red-500/10 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
@@ -184,18 +244,36 @@ export default function UseGiftCardDialog() {
                   !code.trim() ||
                   useGiftCardMutation.isPending
                 }
-                className="group relative h-12 flex-1 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 font-bold text-white shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:from-emerald-400 hover:via-teal-400 hover:to-cyan-400 hover:shadow-2xl hover:shadow-emerald-500/40 active:translate-y-0 active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:scale-100"
+                className={
+                  isMobile
+                    ? 'group relative h-14 flex-1 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-lg font-bold text-white shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:from-emerald-400 hover:via-teal-400 hover:to-cyan-400 hover:shadow-2xl hover:shadow-emerald-500/40 active:translate-y-0 active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:scale-100'
+                    : 'group relative h-12 flex-1 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 font-bold text-white shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:from-emerald-400 hover:via-teal-400 hover:to-cyan-400 hover:shadow-2xl hover:shadow-emerald-500/40 active:translate-y-0 active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:scale-100'
+                }
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {useGiftCardMutation.isPending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2
+                      className={
+                        isMobile
+                          ? 'h-6 w-6 animate-spin'
+                          : 'h-5 w-5 animate-spin'
+                      }
+                    />
                   ) : (
                     <div className="relative">
-                      <Gift className="h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                      <Gift
+                        className={
+                          isMobile
+                            ? 'h-6 w-6 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110'
+                            : 'h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110'
+                        }
+                      />
                       <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-30" />
                     </div>
                   )}
-                  <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text font-extrabold tracking-wide text-transparent">
+                  <span
+                    className={`${isMobile ? 'text-[10px]' : 'text-sm'} bg-gradient-to-r from-yellow-200 to-white bg-clip-text font-extrabold tracking-wide text-transparent`}
+                  >
                     {t('giftCard.useGiftCard')}
                   </span>
                 </span>
