@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrinterJob } from './entity/printer-job.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -80,7 +80,7 @@ export class PrinterWorker implements OnModuleInit {
   }
 
   // @Cron(CronExpression.EVERY_SECOND)
-  @Cron('*/2 * * * * *')
+  // @Cron('*/2 * * * * *')
   async handlePrintJob() {
     const context = `${PrinterWorker.name}.${this.handlePrintJob.name}`;
     this.logger.log(`Handling print job`, context);
