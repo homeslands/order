@@ -9,7 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FeatureFlagService } from './feature-flag.service';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { FeatureFlagResponseDto } from './dto/feature-flag-response.dto';
 import { AppResponseDto } from 'src/app/app.dto';
@@ -18,8 +18,10 @@ import { BulkUpdateFeatureFlagDto } from './dto/bulk-update-feature-flag.dto';
 import { FeatureGroupResponseDto } from './dto/feature-group-response.dto';
 
 @Controller('feature-flag')
+@ApiTags('Feature Flag Resource')
+@ApiBearerAuth()
 export class FeatureFlagController {
-  constructor(private readonly featureFlagService: FeatureFlagService) {}
+  constructor(private readonly featureFlagService: FeatureFlagService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all feature flags' })
