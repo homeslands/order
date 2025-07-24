@@ -4,8 +4,12 @@
         "clientPageTitle": "Gift Cards",
         "noGiftCardsAvailable": "No gift cards available at the moment",
         "buyNow": "Buy Now",
-        "addToCart": "Add to Cart",
-        "coin": "Points",
+        "addToCart": "Add to Cart",        "coin": "Coin",
+        "coinTransaction": "Coin Transaction",
+        "coinBalance": "Coin Balance",
+        "coinAdd": "Add Coin",
+        "coinSubtract": "Use Coin",
+        "transactionCode": "Transaction Code",
         "viewDetails": "View Details",
         "notAvailable": "Gift Card Not Available",
         
@@ -125,7 +129,8 @@
         "paymentExpired": "Payment has expired",
 
         "loginRequired": "Login to view the list of gift cards.",
-        "receiverName": "Receiver Name"
+        "receiverName": "Receiver Name",
+        "giverName": "Giver Name"
     },
     "schema": {
         "title": {

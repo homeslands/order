@@ -4,8 +4,12 @@
         "clientPageTitle": "Thẻ quà tặng",
         "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
         "buyNow": "Mua ngay",
-        "addToCart": "Thêm vào giỏ hàng",
-        "coin": "Xu",
+        "addToCart": "Thêm vào giỏ hàng",        "coin": "Coin",
+        "coinTransaction": "Giao dịch coin",
+        "coinBalance": "Số dư coin",
+        "coinAdd": "Nạp coin",
+        "coinSubtract": "Sử dụng coin",
+        "transactionCode": "Mã giao dịch",
         "viewDetails": "Xem chi tiết",
         "notAvailable": "Thẻ quà tặng không khả dụng",
         
@@ -124,7 +128,8 @@
         "paymentExpired": "Thanh toán đã hết hạn",
 
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
-        "receiverName": "Tên người nhận"
+        "receiverName": "Tên người nhận",
+        "giverName": "Tên người tặng"
     },
     "schema": {
         "title": {
