@@ -55,7 +55,7 @@ export class GiftCardService {
     private readonly transactionService: TransactionManagerService,
     private readonly balanceService: BalanceService,
     private readonly ptService: PointTransactionService,
-  ) { }
+  ) {}
 
   async use(req: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.use.name}`;

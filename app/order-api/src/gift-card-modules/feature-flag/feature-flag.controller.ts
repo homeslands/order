@@ -16,14 +16,15 @@ import { AppResponseDto } from 'src/app/app.dto';
 import { QueryFeatureFlagDto } from './dto/query-feature-flag.dto';
 import { BulkUpdateFeatureFlagDto } from './dto/bulk-update-feature-flag.dto';
 import { FeatureGroupResponseDto } from './dto/feature-group-response.dto';
+import { FindFeatureFlagDto } from './dto/find-feature-flag.dto';
 
 @Controller('feature-flag')
 @ApiTags('Feature Flag Resource')
 @ApiBearerAuth()
 export class FeatureFlagController {
-  constructor(private readonly featureFlagService: FeatureFlagService) { }
+  constructor(private readonly featureFlagService: FeatureFlagService) {}
 
-  @Get()
+  @Get('')
   @ApiOperation({ summary: 'Get all feature flags' })
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -64,5 +65,20 @@ export class FeatureFlagController {
     body: BulkUpdateFeatureFlagDto,
   ) {
     await this.featureFlagService.bulkToggle(body);
+  }
+
+  @Get('find')
+  @ApiOperation({ summary: 'Find feature flag' })
+  @HttpCode(HttpStatus.OK)
+  async find(
+    @Query(new ValidationPipe({ whitelist: true, transform: true }))
+    req: FindFeatureFlagDto,
+  ) {
+    const result = await this.featureFlagService.find(req);
+    return {
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<FeatureFlagResponseDto>;
   }
 }
