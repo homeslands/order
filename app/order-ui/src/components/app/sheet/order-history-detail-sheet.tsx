@@ -222,7 +222,8 @@ export default function OrderHistoryDetailSheet({
                 </div>
                 {/* Order table */}
                 <div className="overflow-x-auto">
-                  <Table className="min-w-full border border-collapse table-fixed">
+                  {/* Desktop Table */}
+                  <Table className="hidden min-w-full border border-collapse table-fixed sm:table">
                     <TableCaption>{t('order.orderListCaption')}</TableCaption>
 
                     <TableHeader className="bg-muted-foreground/10 dark:bg-transparent">
@@ -260,11 +261,6 @@ export default function OrderHistoryDetailSheet({
                         return (
                           <TableRow key={item.slug}>
                             <TableCell className="font-semibold truncate">
-                              {/* <img
-                                src={`${publicFileURL}/${item.variant?.product.image}`}
-                                alt={item.variant?.product.name}
-                                className="object-cover h-10 rounded-md w-14 shrink-0"
-                              /> */}
                               <span className="truncate max-w-[150px]">{item.variant?.product.name}</span>
                             </TableCell>
 
@@ -300,6 +296,76 @@ export default function OrderHistoryDetailSheet({
                     </TableBody>
                   </Table>
 
+                  {/* Mobile Card Layout */}
+                  <div className="flex flex-col gap-3 sm:hidden">
+                    <h3 className="text-sm font-medium text-center text-muted-foreground">
+                      {t('order.orderListCaption')}
+                    </h3>
+                    {orderDetail?.orderItems?.map((item) => {
+                      const displayItem = displayItems.find(di => di.slug === item.slug)
+                      const original = item.variant?.price || 0
+                      const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                      const finalPrice = displayItem?.finalPrice || 0
+
+                      const isSamePriceVoucher =
+                        voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                        voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant?.product.slug)
+
+                      const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                      const displayPrice = isSamePriceVoucher
+                        ? finalPrice
+                        : hasPromotionDiscount
+                          ? priceAfterPromotion
+                          : original
+
+                      const shouldShowLineThrough = isSamePriceVoucher || hasPromotionDiscount
+
+                      return (
+                        <div key={item.slug} className="p-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                          {/* Product Name */}
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="flex-1 pr-2 text-sm font-semibold">{item.variant?.product.name}</h4>
+                            <span className="px-2 py-1 text-xs bg-gray-100 rounded dark:bg-gray-700">
+                              {capitalizeFirstLetter(item.variant?.size?.name || '')}
+                            </span>
+                          </div>
+
+                          {/* Quantity and Price Row */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs text-muted-foreground">{t('order.quantity')}:</span>
+                              <span className="text-sm font-medium">{item.quantity}</span>
+                            </div>
+                            <div className="flex items-end gap-0.5">
+                              {shouldShowLineThrough && original !== finalPrice && (
+                                <span className="text-xs line-through text-muted-foreground">
+                                  {formatCurrency(original)}
+                                </span>
+                              )}
+                              <span className="text-sm font-bold text-primary">
+                                {formatCurrency(displayPrice)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Note */}
+                          {item.note && (
+                            <div className="mb-2">
+                              <span className="text-xs text-muted-foreground">{t('order.note')}: </span>
+                              <span className="text-xs text-muted-foreground">{item.note}</span>
+                            </div>
+                          )}
+
+                          {/* Total */}
+                          {/* <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-600">
+                            <span className="text-xs font-medium text-muted-foreground">{t('order.grandTotal')}:</span>
+                            <span className="font-bold text-primary">{formatCurrency(item.subtotal)}</span>
+                          </div> */}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 p-2 border rounded-sm">
                   <div className="flex items-center justify-between">
