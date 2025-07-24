@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FeatureFlag } from './entities/feature-flag.entity';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -13,6 +13,8 @@ import { FeatureGroup } from './entities/feature-group.entity';
 import { FeatureGroupResponseDto } from './dto/feature-group-response.dto';
 import { FeatureFlagException } from './feature-flag.exception';
 import { FeatureFlagValidation } from './feature-flag.validation';
+import { FindFeatureFlagDto } from './dto/find-feature-flag.dto';
+import * as _ from 'lodash';
 
 @Injectable()
 export class FeatureFlagService {
@@ -27,6 +29,25 @@ export class FeatureFlagService {
     private readonly mapper: Mapper,
     private transactionService: TransactionManagerService,
   ) {}
+
+  async find(req: FindFeatureFlagDto) {
+    const context = `${FeatureFlagService.name}.${this.find.name}`;
+    this.logger.log(`Find feature flag req: ${JSON.stringify(req)}`, context);
+
+    if (_.isEmpty(req)) {
+      throw new FeatureFlagException(FeatureFlagValidation.MISSING_PARAMS);
+    }
+
+    const whereOpts: FindOptionsWhere<FeatureFlag> = {};
+    if (req.name) whereOpts.name = req.name;
+    if (req.slug) whereOpts.slug = req.slug;
+
+    const ff = await this.ffRepository.findOne({
+      where: whereOpts,
+    });
+
+    return this.mapper.map(ff, FeatureFlag, FeatureFlagResponseDto);
+  }
 
   async bulkToggle(body: BulkUpdateFeatureFlagDto) {
     const context = `${FeatureFlagService.name}.${this.bulkToggle.name}`;
@@ -75,8 +96,14 @@ export class FeatureFlagService {
   }
 
   async query(req: QueryFeatureFlagDto) {
+    const context = `${FeatureFlagService.name}.${this.query.name}`;
+    this.logger.log(`Query feature flag req: ${JSON.stringify(req)}`, context);
+
+    const whereOpts: FindOptionsWhere<FeatureFlag> = {};
+    if (req.groupName) whereOpts.groupName = req.groupName;
+
     const ffs = await this.ffRepository.find({
-      where: { groupSlug: req.group },
+      where: whereOpts,
       order: {
         order: 'ASC',
       },

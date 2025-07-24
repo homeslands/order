@@ -128,4 +128,4 @@ const schedulers = [GiftCardScheduler];
   ],
   exports: [...exportServices, ...exportMappers],
 })
-export class GiftCardModule { }
+export class GiftCardModule {}
