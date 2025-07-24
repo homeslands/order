@@ -80,7 +80,7 @@ export class PrinterWorker implements OnModuleInit {
   }
 
   // @Cron(CronExpression.EVERY_SECOND)
-  // @Cron('*/2 * * * * *')
+  @Cron('*/2 * * * * *')
   async handlePrintJob() {
     const context = `${PrinterWorker.name}.${this.handlePrintJob.name}`;
     this.logger.log(`Handling print job`, context);
