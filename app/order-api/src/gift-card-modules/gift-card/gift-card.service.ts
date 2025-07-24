@@ -55,7 +55,7 @@ export class GiftCardService {
     private readonly transactionService: TransactionManagerService,
     private readonly balanceService: BalanceService,
     private readonly ptService: PointTransactionService,
-  ) { }
+  ) {}
 
   async use(req: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.use.name}`;
@@ -157,8 +157,8 @@ export class GiftCardService {
       usedById: user.id,
       usedBySlug: user.slug,
       usedBy: user,
-      status: GiftCardStatus.USED
-    } as Partial<GiftCard>)
+      status: GiftCardStatus.USED,
+    } as Partial<GiftCard>);
 
     // TODO: Need checksum before updating status
 
