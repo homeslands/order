@@ -1,8 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
-export class QueryFeatureFlagDto {
+export class FindFeatureFlagDto {
   @IsOptional()
   @ApiProperty({ required: false })
-  groupName: string;
+  name: string;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  slug: string;
 }
