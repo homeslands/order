@@ -44,7 +44,7 @@ export default function SystemHorizontalCatalogSelect({
     // const extendedCatalogs = Array(5).fill(catalogs).flat(); // Lặp lại catalogs 5 lần
 
     return (
-        <div className="max-w-sm overflow-x-auto sm:max-w-4xl scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+        <div className="max-w-sm overflow-x-auto sm:max-w-4xl">
             <div className="flex items-center gap-2 pb-2">
                 {catalogs.map((catalog, index) => (
                     <button
