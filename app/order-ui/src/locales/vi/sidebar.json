@@ -11,6 +11,7 @@
       "dishManagement": "Quản lý món",
       "customerManagement": "Quản lý người dùng",
       "giftCardManagement": "Quản lý thẻ quà tặng",
+      "giftCardFeatureFlag": "Quản lý khóa thẻ quà tặng",
       "chefOrderManagement": "Khu vực bếp",
       "userManagement": "Quản lý nhân viên",
       "roleManagement": "Quản lý vai trò",

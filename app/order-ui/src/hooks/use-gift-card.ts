@@ -18,6 +18,9 @@ import {
   initiateCardOrderPayment,
   getGiftCard,
   useGiftCard,
+  getFeatureFlagGroups,
+  getFeatureFlagsByGroup,
+  bulkToggleFeatureFlags,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore } from '@/stores'
@@ -154,6 +157,28 @@ export const useUseGiftCard = () => {
     mutationFn: useGiftCard,
     onSuccess: () => {
       showToast(t('toast.giftCardUsedSuccess'))
+    },
+  })
+}
+
+export const useGetFeatureFlagsByGroup = (group: string) => {
+  return useQuery({
+    queryKey: ['feature-flags', group],
+    queryFn: () => getFeatureFlagsByGroup(group),
+  })
+}
+
+export const useGetFeatureFlagGroups = () => {
+  return useQuery({
+    queryKey: ['feature-flag-groups'],
+    queryFn: getFeatureFlagGroups,
+  })
+}
+
+export const useBulkToggleFeatureFlags = () => {
+  return useMutation({
+    mutationFn: async (updates: { slug: string; isLocked: boolean }[]) => {
+      return bulkToggleFeatureFlags(updates)
     },
   })
 }
