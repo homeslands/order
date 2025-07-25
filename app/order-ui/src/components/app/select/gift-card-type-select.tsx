@@ -14,7 +14,7 @@ interface GiftCardTypeSelectProps {
   value: GiftCardType
   onChange: (value: GiftCardType) => void
   className?: string
-  featureFlags?: IGiftCardFlagFeature[]
+  featureFlags: IGiftCardFlagFeature[]
 }
 
 export default function GiftCardTypeSelect({
@@ -31,12 +31,10 @@ export default function GiftCardTypeSelect({
     [GiftCardType.NONE]: t('giftCard.giftCardLock'),
   }
 
-  const isAllLocked = featureFlags?.every((flag) => flag.isLocked) ?? false
-  const availableFlags =
-    featureFlags?.filter(
-      (flag) =>
-        !flag.isLocked && Object.values(GiftCardType).includes(flag.name),
-    ) ?? []
+  const isAllLocked = featureFlags.every((flag) => flag.isLocked)
+  const availableFlags = featureFlags.filter(
+    (flag) => !flag.isLocked && Object.values(GiftCardType).includes(flag.name),
+  )
 
   return (
     <>

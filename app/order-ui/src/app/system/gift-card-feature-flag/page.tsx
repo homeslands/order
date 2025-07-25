@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { LockOpen, Lock, Save } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import {
   Card,
@@ -20,7 +20,7 @@ import {
   useBulkToggleFeatureFlags,
 } from '@/hooks/use-gift-card'
 import { GiftCardFlagGroup, GiftCardType } from '@/constants'
-import { showToast, showErrorToast } from '@/utils'
+import { showToast } from '@/utils'
 import { IGiftCardFlagFeature } from '@/types'
 
 export default function GiftCardFeatureFlagPage() {
@@ -34,7 +34,10 @@ export default function GiftCardFeatureFlagPage() {
   const { data: featureFlagsResponse, isLoading } = useGetFeatureFlagsByGroup(
     GiftCardFlagGroup.GIFT_CARD,
   )
-  const featureFlags = featureFlagsResponse?.result || []
+  const featureFlags = useMemo(
+    () => (featureFlagsResponse && featureFlagsResponse?.result) || [],
+    [featureFlagsResponse],
+  )
 
   const { mutate: bulkToggleFlags, isPending: isSaving } =
     useBulkToggleFeatureFlags()
@@ -66,9 +69,6 @@ export default function GiftCardFeatureFlagPage() {
       onSuccess: () => {
         showToast(t('giftCard.giftCardFeatureFlag.updateSuccess'))
         setHasChanges(false)
-      },
-      onError: () => {
-        showErrorToast(5001) // Generic error code
       },
     })
   }
@@ -112,7 +112,7 @@ export default function GiftCardFeatureFlagPage() {
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               <Save className="mr-2 h-4 w-4" />
-              {isSaving ? tCommon('common.saving') : tCommon('common.save')}
+              {tCommon('common.save')}
             </Button>
           </div>
         )}

@@ -146,7 +146,8 @@
             "unlocked": "Unlocked",
             "giftDescription": "Can gift gift card to others. The amount of points will be added directly to the account of the receiver.",
             "selfDescription": "Top up points for myself. The amount of points will be added directly to the account.",
-            "buyDescription": "Will receive the serial code of the gift card. When using, the receiver will enter the serial code to top up points into their account."
+            "buyDescription": "Will receive the serial code of the gift card. When using, the receiver will enter the serial code to top up points into their account.",
+            "updateSuccess": "Update successful"
         }
     },
     "schema": {

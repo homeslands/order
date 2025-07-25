@@ -60,10 +60,11 @@ export default function GiftCardSheet() {
     GiftCardFlagGroup.GIFT_CARD,
   )
   const featureFlags = featureFlagsResponse?.result || []
-  const isAllLocked = featureFlags?.every((flag) => flag.isLocked) ?? false
+  const isAllLocked =
+    featureFlags && featureFlags.every((flag) => flag.isLocked)
   const defaultGiftCardType = isAllLocked
     ? GiftCardType.NONE
-    : GiftCardType.SELF
+    : featureFlags.find((flag) => !flag.isLocked)?.name || GiftCardType.SELF
 
   // Wrapper function for clearGiftCard to also reset the receivers section
   const handleClearGiftCard = (showNotification = true) => {
@@ -82,7 +83,13 @@ export default function GiftCardSheet() {
   const form = useForm<TGiftCardCheckoutSchema>({
     resolver: zodResolver(dynamicSchema),
     defaultValues: {
-      giftType: giftCardItem?.type ? giftCardItem.type : defaultGiftCardType,
+      giftType:
+        giftCardItem?.type &&
+        featureFlags.some(
+          (flag) => flag.name === giftCardItem.type && !flag.isLocked,
+        )
+          ? giftCardItem.type
+          : defaultGiftCardType,
       receivers:
         giftCardItem?.receipients && giftCardItem.receipients.length > 0
           ? giftCardItem.receipients
@@ -124,42 +131,60 @@ export default function GiftCardSheet() {
     }
   }
   // Reset receivers when gift type changes to SELF
-  useEffect(() => {
-    // Ensure form always has a default giftType value
-    if (!watchedGiftType) {
-      // Set default giftType to SELF if not already set
-      form.setValue('giftType', defaultGiftCardType)
-      return
-    }
-
-    if (
-      watchedGiftType === GiftCardType.SELF ||
-      watchedGiftType === GiftCardType.BUY
-    ) {
-      // Clear any existing validation errors for receivers
-      form.clearErrors('receivers')
-      // Reset receivers array to empty when SELF is selected
-      form.setValue('receivers', [])
-      // Reset item quantity to 1
-      updateQuantity(1)
-      // Reset recipient selection state
-      setHasSelectedRecipients(false)
-    } else if (watchedGiftType === GiftCardType.GIFT) {
-      // Ensure at least one receiver when GIFT is selected
-      const receivers = form.getValues('receivers')
-      if (!receivers || receivers.length === 0) {
-        form.setValue('receivers', [
-          {
-            recipientSlug: '',
-            quantity: 1,
-            message: '',
-            name: '',
-            userInfo: undefined,
-          },
-        ])
+  useEffect(
+    () => {
+      // Ensure form always has a default giftType value
+      if (!watchedGiftType) {
+        // Set default giftType to SELF if not already set
+        form.setValue('giftType', defaultGiftCardType)
+        return
       }
-    }
-  }, [watchedGiftType, form, updateQuantity, isAllLocked])
+
+      if (
+        watchedGiftType === GiftCardType.SELF ||
+        watchedGiftType === GiftCardType.BUY
+      ) {
+        // Clear any existing validation errors for receivers
+        form.clearErrors('receivers')
+        // Reset receivers array to empty when SELF is selected
+        form.setValue('receivers', [])
+        // Reset item quantity to 1
+        updateQuantity(1)
+        // Reset recipient selection state
+        setHasSelectedRecipients(false)
+      } else if (watchedGiftType === GiftCardType.GIFT) {
+        // Ensure at least one receiver when GIFT is selected
+        const receivers = form.getValues('receivers')
+        if (!receivers || receivers.length === 0) {
+          form.setValue('receivers', [
+            {
+              recipientSlug: '',
+              quantity: 1,
+              message: '',
+              name: '',
+              userInfo: undefined,
+            },
+          ])
+        }
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [watchedGiftType, form, updateQuantity],
+  )
+
+  useEffect(
+    () => {
+      if (featureFlags.length > 0) {
+        const unlockedType = featureFlags.some(
+          (flag) => flag.name === giftCardItem?.type && !flag.isLocked,
+        )
+          ? giftCardItem?.type
+          : featureFlags.find((flag) => !flag.isLocked)?.name ||
+            GiftCardType.NONE
+        form.setValue('giftType', unlockedType ?? GiftCardType.SELF)
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [featureFlags],
+  )
 
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(

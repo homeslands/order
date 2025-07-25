@@ -146,7 +146,8 @@
             "unlocked": "Mở khóa",
             "giftDescription": "Có thể tặng thẻ quà tặng cho người khác. Số xu được tặng sẽ được cộng trực tiếp vào tài khoản của người nhận.",
             "selfDescription": "Nạp xu cho bản thân. Số xu sẽ được cộng trực tiếp vào tài khoản.",
-            "buyDescription": "Sẽ nhận được seri code của thẻ quà tặng. Khi sử dụng, người nhận sẽ nhập seri code để nạp xu vào tài khoản của mình."
+            "buyDescription": "Sẽ nhận được seri code của thẻ quà tặng. Khi sử dụng, người nhận sẽ nhập seri code để nạp xu vào tài khoản của mình.",
+            "updateSuccess": "Cập nhật thành công"
         }
     },
     "schema": {
