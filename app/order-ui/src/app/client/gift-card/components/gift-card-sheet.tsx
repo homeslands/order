@@ -25,12 +25,16 @@ import {
 } from './'
 import { showErrorToast, showToast } from '@/utils'
 import { useGiftCardStore, useUserStore } from '@/stores'
-import { GiftCardType } from '@/constants'
+import { GiftCardFlagGroup, GiftCardType } from '@/constants'
 import {
   createGiftCardCheckoutSchema,
   type TGiftCardCheckoutSchema,
 } from '@/schemas'
-import { useCreateCardOrder, useSyncGiftCard } from '@/hooks/use-gift-card'
+import {
+  useCreateCardOrder,
+  useGetFeatureFlagsByGroup,
+  useSyncGiftCard,
+} from '@/hooks/use-gift-card'
 import { useIsMobile } from '@/hooks'
 
 export default function GiftCardSheet() {
@@ -52,6 +56,14 @@ export default function GiftCardSheet() {
       enabled: sheetOpen && !!giftCardItem?.slug,
     },
   )
+  const { data: featureFlagsResponse } = useGetFeatureFlagsByGroup(
+    GiftCardFlagGroup.GIFT_CARD,
+  )
+  const featureFlags = featureFlagsResponse?.result || []
+  const isAllLocked = featureFlags?.every((flag) => flag.isLocked) ?? false
+  const defaultGiftCardType = isAllLocked
+    ? GiftCardType.NONE
+    : GiftCardType.SELF
 
   // Wrapper function for clearGiftCard to also reset the receivers section
   const handleClearGiftCard = (showNotification = true) => {
@@ -59,7 +71,7 @@ export default function GiftCardSheet() {
     // Reset receivers array to empty
     form.setValue('receivers', [])
     // Reset giftType to SELF
-    form.setValue('giftType', GiftCardType.SELF)
+    form.setValue('giftType', defaultGiftCardType)
   }
 
   // Create dynamic schema with max quantity validation
@@ -70,7 +82,7 @@ export default function GiftCardSheet() {
   const form = useForm<TGiftCardCheckoutSchema>({
     resolver: zodResolver(dynamicSchema),
     defaultValues: {
-      giftType: giftCardItem?.type ? giftCardItem.type : GiftCardType.SELF,
+      giftType: giftCardItem?.type ? giftCardItem.type : defaultGiftCardType,
       receivers:
         giftCardItem?.receipients && giftCardItem.receipients.length > 0
           ? giftCardItem.receipients
@@ -99,7 +111,7 @@ export default function GiftCardSheet() {
     if (!open) {
       // Reset form to default values when sheet closes
       form.reset({
-        giftType: GiftCardType.SELF,
+        giftType: defaultGiftCardType,
         receivers: [],
       })
       // Reset recipient selection state
@@ -107,7 +119,7 @@ export default function GiftCardSheet() {
     } else {
       // Ensure form has default value when opening
       if (!form.getValues('giftType')) {
-        form.setValue('giftType', GiftCardType.SELF)
+        form.setValue('giftType', defaultGiftCardType)
       }
     }
   }
@@ -116,7 +128,7 @@ export default function GiftCardSheet() {
     // Ensure form always has a default giftType value
     if (!watchedGiftType) {
       // Set default giftType to SELF if not already set
-      form.setValue('giftType', GiftCardType.SELF)
+      form.setValue('giftType', defaultGiftCardType)
       return
     }
 
@@ -147,7 +159,7 @@ export default function GiftCardSheet() {
         ])
       }
     }
-  }, [watchedGiftType, form, updateQuantity])
+  }, [watchedGiftType, form, updateQuantity, isAllLocked])
 
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(
@@ -285,6 +297,7 @@ export default function GiftCardSheet() {
                                   onChange={(value) =>
                                     field.onChange(value as string)
                                   }
+                                  featureFlags={featureFlags}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -335,7 +348,8 @@ export default function GiftCardSheet() {
                       form.formState.isSubmitting ||
                       !giftCardItem.isActive ||
                       (watchedGiftType === GiftCardType.GIFT &&
-                        !hasSelectedRecipients)
+                        !hasSelectedRecipients) ||
+                      isAllLocked
                     }
                   />
                 )}

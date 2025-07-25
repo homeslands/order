@@ -72,6 +72,7 @@ import { BranchManagementPage } from '@/app/system/branch'
 import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
+import { GiftCardFeatureFlagPage } from '@/app/system/gift-card-feature-flag'
 
 export const router = createBrowserRouter([
   {
@@ -807,6 +808,26 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={GiftCardPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={
+                  <SuspenseElement component={GiftCardFeatureFlagPage} />
+                }
               />
             ),
           },

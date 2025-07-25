@@ -132,7 +132,19 @@
         "enterSerial": "Enter serial number",
         "enterCode": "Enter code",
         "enterGiftCard": "Enter gift card information to redeem points",
-        "giftCardCode": "Gift Card Code"
+        "giftCardCode": "Gift Card Code",
+        "giftCardLock": "Feature locked, please try again later",
+        "giftCardFeatureFlag": {
+            "pageTitle": "Gift Card Feature Flag Management",
+            "featureControls": "Gift Card Feature Flag",
+            "featureControlsDescription": "This is the gift card feature flag. You can lock or unlock this feature for each feature of the gift card.",
+            "noFeatureFlags": "No Gift Card Feature Flag",
+            "locked": "Locked",
+            "unlocked": "Unlocked",
+            "giftDescription": "Can gift gift card to others. The amount of points will be added directly to the account of the receiver.",
+            "selfDescription": "Top up points for myself. The amount of points will be added directly to the account.",
+            "buyDescription": "Will receive the serial code of the gift card. When using, the receiver will enter the serial code to top up points into their account."
+        }
     },
     "schema": {
         "title": {
