@@ -14,6 +14,7 @@ import { BalanceValidation } from 'src/gift-card-modules/balance/balance.validat
 import { CardOrderValidation } from 'src/gift-card-modules/card-order/card-order.validation';
 import { CardValidation } from 'src/gift-card-modules/card/card.validation';
 import { GiftCardValidation } from 'src/gift-card-modules/gift-card/gift-card.validation';
+import { PointTransactionValidation } from 'src/gift-card-modules/point-transaction/point-transaction.validation';
 import { InvoiceValidation } from 'src/invoice/invoice.validation';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuValidation } from 'src/menu/menu.validation';
@@ -98,6 +99,7 @@ export const AppValidation: TErrorCode = {
   ...GiftCardValidation,
   ...BalanceValidation,
   ...ZaloOaConnectorValidation,
+  ...PointTransactionValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

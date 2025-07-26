@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { ProfileAvatar } from '@/components/app/avatar'
-import { LogoutDialog } from '@/components/app/dialog'
+import { LogoutDialog, UseGiftCardDialog } from '@/components/app/dialog'
 import { ROUTE } from '@/constants'
 import { useAuthStore } from '@/stores'
 
@@ -74,6 +74,7 @@ export default function ClientHeaderDropdown() {
             </NavLink>
           </DropdownMenuItem>
         </DropdownMenuGroup>
+        <UseGiftCardDialog />
         <DropdownMenuSeparator />
         <LogoutDialog />
       </DropdownMenuContent>

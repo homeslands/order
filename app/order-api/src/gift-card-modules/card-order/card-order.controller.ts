@@ -111,4 +111,19 @@ export class CardOrderController {
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;
   }
+
+  @Post(':slug/gift-card/gen')
+  @ApiOperation({ summary: 'Generate and use gift cards' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    type: CardOrderResponseDto,
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async generateAndRedeem(@Param('slug') slug: string) {
+    await this.cardOrderService.generateAndRedeem(slug);
+    return {
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
 }

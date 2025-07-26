@@ -1,14 +1,19 @@
-{      "giftCard": {
+{
+    "giftCard": {
         "giftCard": "Thẻ quà tặng",
         "pageTitle": "Quản lý thẻ quà tặng",
         "clientPageTitle": "Thẻ quà tặng",
         "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
         "buyNow": "Mua ngay",
         "addToCart": "Thêm vào giỏ hàng",
-        "coin": "Xu",
+        "coin": "Coin",
+        "coinTransaction": "Giao dịch coin",
+        "coinBalance": "Số dư coin",
+        "coinAdd": "Nạp coin",
+        "coinSubtract": "Sử dụng coin",
+        "transactionCode": "Mã giao dịch",
         "viewDetails": "Xem chi tiết",
         "notAvailable": "Thẻ quà tặng không khả dụng",
-        
         "title": "Tiêu đề",
         "description": "Mô tả",
         "image": "Hình ảnh",
@@ -27,7 +32,7 @@
         "update": "Cập nhật thẻ quà tặng",
         "delete": "Xóa thẻ quà tặng",
         "deleteTitle": "Xóa thẻ quà tặng",
-        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",        
+        "deleteDescription": "Bạn có chắc chắn muốn xóa thẻ quà tặng này không?",
         "deleteGiftCardWarning1": "Bạn sắp xóa thẻ quà tặng:",
         "deleteGiftCardConfirmation": "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?",
         "filterByPrice": "Lọc theo giá",
@@ -35,8 +40,7 @@
         "priceDescending": "Giá giảm dần",
         "pointsAscending": "Xu tăng dần",
         "pointsDescending": "Xu giảm dần",
-        
-        "giftCardCart": "Giỏ hàng thẻ quà tặng",        
+        "giftCardCart": "Giỏ hàng thẻ quà tặng",
         "availableGiftCards": "Thẻ quà tặng có sẵn",
         "noGiftCardsInCart": "Không có thẻ quà tặng trong giỏ hàng",
         "addGiftCardsToCart": "Thêm thẻ quà tặng vào giỏ hàng để bắt đầu",
@@ -47,7 +51,7 @@
         "quantity": "Số lượng",
         "total": "Tổng cộng",
         "totalPoints": "Tổng số xu",
-        "checkout": "Thanh toán",        
+        "checkout": "Thanh toán",
         "receiver": "Người nhận",
         "receiverPhone": "Số điện thoại người nhận",
         "enterReceiverPhone": "Nhập số điện thoại người nhận",
@@ -55,14 +59,13 @@
         "numbersRemaining": "số còn lại",
         "enterQuantity": "Nhập số lượng",
         "note": "Ghi chú",
-        "enterNote": "Nhập ghi chú (tùy chọn)",        
+        "enterNote": "Nhập ghi chú (tùy chọn)",
         "addReceiver": "Thêm người nhận",
-        "availableQuantity": "Số lượng có sẵn",        
+        "availableQuantity": "Số lượng có sẵn",
         "totalReceiverQuantity": "Tổng số lượng người nhận",
-        "quantityExceedsAvailable": "Tổng số lượng người nhận vượt quá số lượng thẻ quà tặng có sẵn",        
+        "quantityExceedsAvailable": "Tổng số lượng người nhận vượt quá số lượng thẻ quà tặng có sẵn",
         "checkoutSuccess": "Thanh toán thành công!",
         "createGiftCardOrderSuccess": "Đặt hàng thẻ quà tặng thành công!",
-        
         "confirmCheckout": "Xác nhận mua hàng",
         "confirmCheckoutDescription": "Vui lòng xác nhận rằng bạn đã kiểm tra đầy đủ thông tin trước khi tiến hành mua hàng.",
         "confirmPurchase": "Xác nhận mua hàng",
@@ -72,13 +75,11 @@
         "checkoutDescription": "Hoàn tất việc mua thẻ quà tặng của bạn",
         "checkoutPageComingSoon": "Trang thanh toán sẽ sớm có mặt",
         "checkoutPageDescription": "Trang thanh toán này hiện đang được phát triển. Bạn có thể hoàn tất việc mua thẻ quà tặng thông qua giỏ hàng thẻ quà tặng.",
-
         "giftCardExistsWarning": "Thẻ quà tặng đã tồn tại",
         "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
         "replaceGiftCard": "Thay thế",
         "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:",
         "phoneNumberNotFound": "Không tìm thấy số điện thoại",
-        
         "customerInfo": "Thông tin khách hàng",
         "customerName": "Tên khách hàng",
         "orderInfo": "Thông tin đơn hàng",
@@ -122,9 +123,16 @@
         "backToGiftCards": "Quay lại thẻ quà tặng",
         "paymentCompleted": "Thanh toán đã hoàn tất",
         "paymentExpired": "Thanh toán đã hết hạn",
-
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
-        "receiverName": "Tên người nhận"
+        "receiverName": "Tên người nhận",
+        "giverName": "Tên người tặng",
+        "useGiftCard": "Sử dụng thẻ quà tặng",
+        "enterGiftCardDetails": "Nhập số serial và mã thẻ quà tặng để quy đổi điểm",
+        "giftCardSerial": "Số serial thẻ quà tặng",
+        "enterSerial": "Nhập số serial",
+        "enterCode": "Nhập mã thẻ",
+        "enterGiftCard": "Nhập thông tin thẻ quà tặng để quy đổi điểm",
+        "giftCardCode": "Mã thẻ quà tặng"
     },
     "schema": {
         "title": {

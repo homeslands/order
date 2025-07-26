@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <% var dir=process.cwd() %>
+    <style>
+      <%- include(dir + '/public/css/tailwind.min.css') %>
+    </style>
+</head>
+
+<body>
+  <div class="p-5 pt-0">
+    <!-- Logo -->
+    <div class="mb-1">
+      <div class="flex justify-center items-center">
+        <img src="<%= logoUri %>" alt="" class="w-52">
+      </div>
+    </div>
+
+    <!-- Point transaction info -->
+    <div class="flex flex-col gap-2">
+      <p class="text-xs"><span class="font-bold">Thời gian:</span>
+        <%= formatDate(exportAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+      </p>
+      <p class="text-xs">
+        <span class="font-bold">
+          Khách hàng:
+        </span>
+        <span>
+          <%= user.firstName %>
+            <%= user.lastName %>
+        </span>
+      </p>
+    </div>
+
+    <!-- Point transaction list -->
+    <% pts.forEach(function(item) { %>
+      <table class="mt-4 text-sm border-collapse border border-black">
+        <tbody>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Thời gian
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <%= formatDate(item.createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Mã giao dịch
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <%= item.slug %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Giao dịch
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <% if (item.objectType==='order' ) { %>
+                <p>Thanh toán đơn hàng</p>
+                <% } %>
+                  <% if (item.objectType==='card-order' ) { %>
+                    <p>Giao dịch thẻ quà tặng</p>
+                    <% } %>
+                      <% if (item.objectType==='gift-card' ) { %>
+                        <p>Sử dụng thẻ quà tặng</p>
+                        <% } %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Xu
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <% if (item.type==='in' ) { %>
+                <p>+<%= formatCurrency(item.points) %>
+                </p>
+                <% } else { %>
+                  <p>-<%= formatCurrency(item.points) %>
+                  </p>
+                  <% } %>
+            </td>
+          </tr>
+          <tr class="border-t border-black">
+            <td class="pl-2 text-left border-l border-r border-black w-28">
+              Mô tả
+            </td>
+            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+              <%= item.desc %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <% }); %>
+  </div>
+</body>
+
+</html>

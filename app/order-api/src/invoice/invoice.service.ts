@@ -30,6 +30,7 @@ import {
 import { VoucherType } from 'src/voucher/voucher.constant';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import moment from 'moment';
+import { PaymentMethod } from 'src/payment/payment.constants';
 
 @Injectable()
 export class InvoiceService {
@@ -43,7 +44,7 @@ export class InvoiceService {
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
     private readonly transactionManagerService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async updateDiscountTypeForExistedInvoice() {
     const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
@@ -150,10 +151,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-            (current.variant.price *
-              (current.promotion?.value ?? 0) *
-              current.quantity) /
-              100
+          (current.variant.price *
+            (current.promotion?.value ?? 0) *
+            current.quantity) /
+          100
           : total,
       0,
     );
@@ -164,10 +165,15 @@ export class InvoiceService {
         (total, current) =>
           current.discountType === DiscountType.PROMOTION
             ? total +
-              (current.price * current.promotionValue * current.quantity) / 100
+            (current.price * current.promotionValue * current.quantity) / 100
             : total,
         0,
       );
+    }
+
+    let usedPoints = 0;
+    if (order.payment?.paymentMethod === PaymentMethod.POINT) {
+      usedPoints = order.subtotal;
     }
 
     const orderItemVoucherValue = order.orderItems?.reduce(
@@ -209,6 +215,7 @@ export class InvoiceService {
         orderItemPromotionValue,
         voucherCode: order.voucher?.code ?? 'N/A',
         valueEachVoucher: order.voucher?.value ?? 0,
+        usedPoints
       });
       return order.invoice;
     }
@@ -273,6 +280,7 @@ export class InvoiceService {
       subtotalOrderItem,
       orderItemPromotionValue,
       voucherCode: order.voucher?.code ?? 'N/A',
+      usedPoints
     });
 
     return invoice;
@@ -354,10 +362,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-            (current.variant.price *
-              (current.promotion?.value ?? 0) *
-              current.quantity) /
-              100
+          (current.variant.price *
+            (current.promotion?.value ?? 0) *
+            current.quantity) /
+          100
           : total,
       0,
     );

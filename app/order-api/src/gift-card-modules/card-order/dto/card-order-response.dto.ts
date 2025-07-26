@@ -74,11 +74,11 @@ export class CardOrderResponseDto extends BaseResponseDto {
   cashierPhone: string;
 
   @AutoMap(() => RecipientResponseDto)
-  @ApiProperty()
+  @ApiProperty({ type: () => [RecipientResponseDto] })
   receipients: RecipientResponseDto[];
 
   @AutoMap(() => GiftCardResponseDto)
-  @ApiProperty()
+  @ApiProperty({ type: () => [GiftCardResponseDto] })
   giftCards: GiftCardResponseDto[];
 
   @AutoMap()
@@ -93,7 +93,7 @@ export class CardOrderResponseDto extends BaseResponseDto {
   @ApiProperty()
   paymentMethod: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => PaymentResponseDto })
   @AutoMap(() => PaymentResponseDto)
   payment: PaymentResponseDto;
 }

@@ -15,13 +15,24 @@ import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { CardOrderException } from './card-order.exception';
 import { CardOrderValidation } from './card-order.validation';
-import { CardOrderStatus } from './card-order.enum';
+import { CardOrderStatus, CardOrderType } from './card-order.enum';
 import { createSortOptions } from 'src/shared/utils/obj.util';
 import { OrderException } from 'src/order/order.exception';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
 import { CardException } from '../card/card.exception';
 import { CardValidation } from '../card/card.validation';
+import { GiftCardService } from '../gift-card/gift-card.service';
+import { PointTransactionService } from '../point-transaction/point-transaction.service';
+import { BalanceService } from '../balance/balance.service';
+import {
+  PointTransactionObjectTypeEnum,
+  PointTransactionTypeEnum,
+} from '../point-transaction/entities/point-transaction.enum';
+import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
+import { UseGiftCardDto } from '../gift-card/dto/use-gift-card.dto';
+import _ from 'lodash';
+import { PaymentStatus } from 'src/payment/payment.constants';
 
 @Injectable()
 export class CardOrderService {
@@ -38,11 +49,14 @@ export class CardOrderService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
     private readonly bankTransferStrategy: BankTransferStrategy,
+    private readonly gcService: GiftCardService,
+    private readonly ptService: PointTransactionService,
+    private readonly balanceService: BalanceService,
   ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
-    this.logger.log(`Initiate a payment: ${payload}`, context);
+    this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
@@ -263,7 +277,7 @@ export class CardOrderService {
       },
       (error) => {
         this.logger.error(
-          `Error creating card order: ${JSON.stringify(error)}`,
+          `Error creating card order: ${error.message}`,
           error.stack,
           context,
         );
@@ -312,5 +326,174 @@ export class CardOrderService {
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
     }
     return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
+  }
+
+  async generateAndRedeem(slug: string) {
+    const co = await this.cardOrderRepository.findOne({
+      where: { slug },
+      relations: ['receipients', 'giftCards'],
+    });
+    if (!co)
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+
+    if (co.status === CardOrderStatus.COMPLETED && _.isEmpty(co.giftCards))
+      await this._generateAndRedeem(co);
+    else
+      throw new CardOrderException(
+        CardOrderValidation.GIFT_CARD_HAS_ALREADY_GENERATED,
+      );
+  }
+
+  async _generateAndRedeem(databaseEntity: CardOrder) {
+    const context = `${CardOrderService.name}.${this._generateAndRedeem.name}`;
+    this.logger.log(`handle card payment order success req`, context);
+
+    switch (databaseEntity.type) {
+      case CardOrderType.GIFT:
+        for (const item of databaseEntity.receipients) {
+          const { recipientSlug, quantity } = item;
+          let totalAmount = 0;
+          for (let i = 0; i < quantity; i++) {
+            // 1. Gen
+            const gc = await this.gcService.gen({
+              cardOrderSlug: databaseEntity.slug,
+              cardSlug: databaseEntity.cardSlug,
+            });
+
+            // 2. Auto-redeem
+            await this.gcService.redeem({
+              code: gc.code,
+              serial: gc.serial,
+              userSlug: recipientSlug,
+            } as UseGiftCardDto);
+
+            totalAmount += databaseEntity.cardPoint;
+          }
+
+          // 3. Create transaction record
+          await this.ptService.create({
+            type: PointTransactionTypeEnum.IN,
+            desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
+            objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
+            objectSlug: databaseEntity.slug,
+            points: totalAmount,
+            userSlug: recipientSlug,
+          } as CreatePointTransactionDto);
+
+          // 4. Update recipient balance ONCE after all cards
+          await this.balanceService.calcBalance({
+            userSlug: recipientSlug,
+            points: totalAmount,
+            type: PointTransactionTypeEnum.IN,
+          });
+        }
+        break;
+      case CardOrderType.SELF:
+        let totalAmount = 0;
+        for (let i = 0; i < databaseEntity.quantity; i++) {
+          // 1. Gen
+          const gc = await this.gcService.gen({
+            cardOrderSlug: databaseEntity.slug,
+            cardSlug: databaseEntity.cardSlug,
+          });
+
+          // 2. Auto-redeem
+          await this.gcService.redeem({
+            code: gc.code,
+            serial: gc.serial,
+            userSlug: databaseEntity.customerSlug,
+          } as UseGiftCardDto);
+
+          totalAmount += databaseEntity.cardPoint;
+        }
+
+        // 3. Create transaction record
+        await this.ptService.create({
+          type: PointTransactionTypeEnum.IN,
+          desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
+          objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
+          objectSlug: databaseEntity.slug,
+          points: totalAmount,
+          userSlug: databaseEntity.customerSlug,
+        } as CreatePointTransactionDto);
+
+        // 4. Update recipient balance ONCE after all cards
+        await this.balanceService.calcBalance({
+          userSlug: databaseEntity.customerSlug,
+          points: totalAmount,
+          type: PointTransactionTypeEnum.IN,
+        });
+        break;
+      case CardOrderType.BUY:
+        // Just create gift cards
+        await this.gcService.bulkGen({
+          quantity: databaseEntity.quantity,
+          cardSlug: databaseEntity.cardSlug,
+          cardOrderSlug: databaseEntity.slug,
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  async handlePaymentCompletion(payload: { orderSlug: string }) {
+    const context = `${CardOrderService.name}.${this.handlePaymentCompletion.name}`;
+    this.logger.log(
+      `Update card order ${payload?.orderSlug} status after payment completion req: ${JSON.stringify(payload)}`,
+      context,
+    );
+
+    const order = await this.cardOrderRepository.findOne({
+      where: {
+        slug: payload.orderSlug,
+      },
+      relations: ['payment', 'receipients'],
+    });
+
+    if (!order) {
+      this.logger.log(`Card order ${payload.orderSlug} not found`, context);
+    }
+
+    if (order.status !== CardOrderStatus.PENDING) {
+      this.logger.log(`Card order ${order.slug} is not pending`, context);
+      return;
+    }
+
+    if (order.payment?.statusCode === PaymentStatus.PENDING) {
+      this.logger.log(
+        `Payment ${order?.payment?.slug} status is pending`,
+        context,
+      );
+      return;
+    }
+
+    Object.assign(order, {
+      status:
+        order.payment?.statusCode === PaymentStatus.COMPLETED
+          ? CardOrderStatus.COMPLETED
+          : CardOrderStatus.FAIL,
+      paymentStatus: order.payment?.statusCode,
+    } as Partial<CardOrder>);
+
+    const updated = await this.transactionService.execute<CardOrder>(
+      async (manager) => {
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Card order ${result.slug} status ${result.status}`,
+          context,
+        );
+      },
+      (err) => {
+        this.logger.error(
+          `Error when updating card order status: ${err.message}`,
+          err.stack,
+          context,
+        );
+      },
+    );
+    await this._generateAndRedeem(updated);
   }
 }

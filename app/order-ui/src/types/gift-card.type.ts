@@ -1,4 +1,5 @@
 import { GiftCardStatus } from '@/constants'
+import { ICardOrderResponse } from './card-order.type'
 
 export interface IGiftCard {
   slug: string
@@ -64,4 +65,33 @@ export interface IGiftCardItem {
   price: number
   points: number
   quantity: number
+}
+
+export interface IGiftCardDetail {
+  cardName: string
+  cardPoints: number
+  status: string
+  usedAt: string | null
+  cardOrder: ICardOrderResponse
+  createdAt: string
+  slug: string
+  serial: string
+}
+
+export interface IUseGiftCardResponse {
+  cardName: string
+  cardPoints: number
+  status: string
+  usedAt: string
+  code: string
+  serial: string
+  expiredAt: string
+  createdAt: string
+  slug: string
+}
+
+export interface IUseGiftCardRequest {
+  serial: string
+  code: string
+  userSlug: string
 }

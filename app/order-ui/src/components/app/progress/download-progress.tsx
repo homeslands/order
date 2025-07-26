@@ -11,7 +11,7 @@ interface IDownloadProgressProps {
 export default function DownloadProgress({ progress, fileName }: IDownloadProgressProps) {
   const { t } = useTranslation('progress')
   return (
-    <div className="fixed bg-white rounded-lg shadow-lg right-4 bottom-4 w-72 z-50">
+    <div className="fixed bg-white rounded-lg shadow-lg right-4 bottom-4 w-72 z-[100]">
       <div className="flex flex-col justify-start px-3 py-4 rounded-t-md bg-muted">
         <h3 className="text-sm font-semibold">{t('progress.downloading')}</h3>
       </div>

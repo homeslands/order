@@ -14,6 +14,10 @@ import { CardOrderStatus } from './card-order.enum';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { createCancelCardOrderJobName } from './card-order.constants';
 import { ConfigService } from '@nestjs/config';
+import { GiftCardService } from '../gift-card/gift-card.service';
+import { PointTransactionService } from '../point-transaction/point-transaction.service';
+import { BalanceService } from '../balance/balance.service';
+import { CardOrderService } from './card-order.service';
 
 @EventSubscriber()
 export class CardOrderSubscriber
@@ -28,6 +32,10 @@ export class CardOrderSubscriber
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly configService: ConfigService,
+    private readonly gcService: GiftCardService,
+    private readonly ptService: PointTransactionService,
+    private readonly balanceService: BalanceService,
+    private readonly cardOrderService: CardOrderService,
   ) {
     dataSource.subscribers.push(this);
   }
@@ -43,16 +51,30 @@ export class CardOrderSubscriber
 
   async afterUpdate(event: UpdateEvent<CardOrder>): Promise<any> {
     const { databaseEntity } = event;
-    await this.deleteCancelCardOrderJob(databaseEntity);
+    const updatedEntity = await event.manager.getRepository(CardOrder).findOne({
+      where: {
+        id: databaseEntity.id,
+      },
+      relations: ['receipients'],
+    });
+
+    if (!updatedEntity) return;
+
+    // Delete job
+    if (
+      updatedEntity.status === CardOrderStatus.COMPLETED ||
+      updatedEntity.status === CardOrderStatus.CANCELLED
+    )
+      await this.deleteCancelCardOrderJob(updatedEntity);
   }
 
   async addCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.addCancelCardOrderJob.name}`;
-    this.logger.log(`Adding cancel card order job ${entity.id}`, context);
+    this.logger.log(`Adding \`cancel card order\` job ${entity.slug}`, context);
 
     if (entity.status !== CardOrderStatus.PENDING) return;
 
-    const JobName = createCancelCardOrderJobName(entity.id);
+    const JobName = createCancelCardOrderJobName(entity.slug);
     const delay =
       +this.configService.get('CARD_ORDER_PAYMENT_TIMEOUT') ||
       this.CANCEL_CARD_ORDER_JOB_DELAY;
@@ -87,13 +109,14 @@ export class CardOrderSubscriber
 
   async deleteCancelCardOrderJob(entity: CardOrder) {
     const context = `${CardOrderSubscriber.name}.${this.deleteCancelCardOrderJob.name}`;
-    this.logger.log(`Deleting cancel card order job ${entity.id}`, context);
+    this.logger.log(
+      `Deleting \`cancel card order job\` ${entity.slug}`,
+      context,
+    );
 
-    if (entity.status === CardOrderStatus.PENDING) return;
+    const JobName = createCancelCardOrderJobName(entity.slug);
 
-    const JobName = createCancelCardOrderJobName(entity.id);
-
-    let job;
+    let job: any;
     try {
       job = this.schedulerRegistry.getTimeout(JobName);
     } catch (error) {

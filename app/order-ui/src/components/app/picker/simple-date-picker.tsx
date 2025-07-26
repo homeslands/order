@@ -24,6 +24,9 @@ interface ISimpleDatePickerProps {
     onChange: (date: string) => void
     disabledDates?: (date: Date) => boolean
     disableFutureDates?: boolean
+    minDate?: string 
+    maxDate?: string
+    allowEmpty?: boolean
 }
 
 // Utility to generate an array of years
@@ -40,6 +43,9 @@ export default function SimpleDatePicker({
     onChange,
     disabledDates,
     disableFutureDates,
+    minDate,
+    maxDate,
+    allowEmpty = false,
 }: ISimpleDatePickerProps) {
     const { t } = useTranslation('menu')
     const [month, setMonth] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
@@ -50,7 +56,7 @@ export default function SimpleDatePicker({
             const momentDate = moment(value, ['YYYY-MM-DD', 'DD/MM/YYYY'])
             return momentDate.isValid() ? momentDate.toDate() : new Date()
         }
-        return new Date()
+        return allowEmpty ? undefined : new Date()
     })
 
     // Update internal date when value prop changes
@@ -61,9 +67,9 @@ export default function SimpleDatePicker({
                 setDate(momentDate.toDate())
             }
         } else {
-            setDate(new Date())
+            setDate(allowEmpty ? undefined : new Date())
         }
-    }, [value])
+    }, [value, allowEmpty])
 
     const handleDateChange = (selectedDate?: Date) => {
         if (selectedDate) {
@@ -88,6 +94,18 @@ export default function SimpleDatePicker({
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         if (disableFutureDates && date > today) return true
+
+        if (minDate) {
+            const minDateObj = moment(minDate, 'YYYY-MM-DD').toDate()
+            minDateObj.setHours(0, 0, 0, 0)
+            if (date < minDateObj) return true
+        }
+
+        if (maxDate) {
+            const maxDateObj = moment(maxDate, 'YYYY-MM-DD').toDate()
+            maxDateObj.setHours(0, 0, 0, 0)
+            if (date > maxDateObj) return true
+        }
 
         // Áp dụng các điều kiện disabled khác nếu có
         if (disabledDates) return disabledDates(date)
@@ -157,6 +175,11 @@ export default function SimpleDatePicker({
                     onSelect={handleDateChange}
                     disabled={isDateDisabled}
                     initialFocus
+                    month={new Date(year, month)}
+                    onMonthChange={(newMonthDate) => {
+                        setMonth(newMonthDate.getMonth())
+                        setYear(newMonthDate.getFullYear())
+                    }}
                 />
             </PopoverContent>
         </Popover>
