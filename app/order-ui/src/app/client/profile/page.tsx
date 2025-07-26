@@ -44,7 +44,7 @@ export default function ProfilePage() {
       <div className="flex flex-col items-start gap-6 lg:flex-row">
         {/* Profile picture */}
         <div
-          className={`flex justify-between w-full bg-white rounded-sm dark:border dark:bg-transparent lg:w-1/4`}
+          className={`flex flex-col justify-between w-full bg-white rounded-sm dark:border dark:bg-transparent lg:w-1/4`}
         >
           <div className="flex flex-row p-4">
             <ProfilePicture
