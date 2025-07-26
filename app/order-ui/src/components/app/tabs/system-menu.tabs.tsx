@@ -67,9 +67,10 @@ export function SystemMenuTabs() {
       {/* Tab Content: Menu */}
       <TabsContent value="menu" className="w-full p-0 pb-4 mt-0">
         {/* Sticky CatalogSelect chỉ trong tab này */}
-        <div className="sticky z-20 py-2 bg-white shadow-sm top-14">
+        <div className="sticky z-20 w-full py-2 overflow-x-auto bg-white top-14">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
+
 
         {/* Scrollable nội dung menu */}
         <ScrollArea className="w-full h-full">
@@ -84,7 +85,5 @@ export function SystemMenuTabs() {
         </TabsContent>
       )}
     </Tabs>
-
-
   )
 }
