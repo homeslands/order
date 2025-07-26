@@ -1,10 +1,12 @@
-{    "giftCard": {
+{
+    "giftCard": {
         "giftCard": "Gift Card",
         "pageTitle": "Gift Card Management",
         "clientPageTitle": "Gift Cards",
         "noGiftCardsAvailable": "No gift cards available at the moment",
         "buyNow": "Buy Now",
-        "addToCart": "Add to Cart",        "coin": "Coin",
+        "addToCart": "Add to Cart",
+        "coin": "Coin",
         "coinTransaction": "Coin Transaction",
         "coinBalance": "Coin Balance",
         "coinAdd": "Add Coin",
@@ -12,7 +14,6 @@
         "transactionCode": "Transaction Code",
         "viewDetails": "View Details",
         "notAvailable": "Gift Card Not Available",
-        
         "title": "Title",
         "description": "Description",
         "image": "Image",
@@ -33,14 +34,13 @@
         "deleteTitle": "Delete Gift Card",
         "deleteDescription": "Are you sure you want to delete this gift card?",
         "deleteGiftCardWarning1": "You are about to delete the gift card:",
-        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?",        
+        "deleteGiftCardConfirmation": "This action cannot be undone. Are you sure you want to delete?",
         "filterByPrice": "Filter by Price",
         "priceAscending": "Price Ascending",
         "priceDescending": "Price Descending",
         "pointsAscending": "Points Ascending",
         "pointsDescending": "Points Descending",
-        
-        "giftCardCart": "Gift Card Cart",        
+        "giftCardCart": "Gift Card Cart",
         "availableGiftCards": "Available Gift Cards",
         "noGiftCardsInCart": "No Gift Cards in Cart",
         "addGiftCardsToCart": "Add gift cards to your cart to get started",
@@ -51,7 +51,7 @@
         "quantity": "Quantity",
         "total": "Total",
         "totalPoints": "Total Points",
-        "checkout": "Checkout",        
+        "checkout": "Checkout",
         "receiver": "Receiver",
         "receiverPhone": "Receiver Phone",
         "enterReceiverPhone": "Enter receiver phone number",
@@ -59,16 +59,14 @@
         "numbersRemaining": "numbers remaining",
         "enterQuantity": "Enter quantity",
         "note": "Note",
-        "enterNote": "Enter note (optional)",        
+        "enterNote": "Enter note (optional)",
         "addReceiver": "Add Receiver",
-        "availableQuantity": "Available Quantity",        
-        "totalReceiverQuantity": "Total Receiver Quantity",        
+        "availableQuantity": "Available Quantity",
+        "totalReceiverQuantity": "Total Receiver Quantity",
         "quantityExceedsAvailable": "Total receiver quantities exceed available gift card quantity",
-        
         "confirmCheckout": "Confirm Purchase",
         "confirmCheckoutDescription": "Please confirm that you have reviewed all information before proceeding with your purchase.",
         "confirmPurchase": "Confirm Purchase",
-        
         "checkoutSuccess": "Checkout completed successfully!",
         "createGiftCardOrderSuccess": "Gift card order created successfully!",
         "redirectingToCheckout": "Redirecting to checkout page...",
@@ -77,13 +75,11 @@
         "checkoutDescription": "Complete your gift card purchase",
         "checkoutPageComingSoon": "Checkout Page Coming Soon",
         "checkoutPageDescription": "This checkout page is currently under development. You can complete your gift card purchase through the gift card cart.",
-        
         "giftCardExistsWarning": "Gift Card Already Exists",
         "giftCardExistsDescription": "You already have a gift card in your cart. Would you like to replace it with this gift card?",
         "replaceGiftCard": "Replace",
         "giftCardExistsMessage": "The current gift card will be replaced with:",
         "phoneNumberNotFound": "Phone number not found",
-        
         "customerInfo": "Customer Information",
         "customerName": "Customer Name",
         "orderInfo": "Order Information",
@@ -127,10 +123,16 @@
         "backToGiftCards": "Back to Gift Card",
         "paymentCompleted": "Payment completed successfully",
         "paymentExpired": "Payment has expired",
-
         "loginRequired": "Login to view the list of gift cards.",
         "receiverName": "Receiver Name",
-        "giverName": "Giver Name"
+        "giverName": "Giver Name",
+        "useGiftCard": "Use Gift Card",
+        "enterGiftCardDetails": "Enter your gift card serial and code to redeem points",
+        "giftCardSerial": "Gift Card Serial",
+        "enterSerial": "Enter serial number",
+        "enterCode": "Enter code",
+        "enterGiftCard": "Enter gift card information to redeem points",
+        "giftCardCode": "Gift Card Code"
     },
     "schema": {
         "title": {

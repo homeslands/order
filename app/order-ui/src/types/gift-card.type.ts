@@ -77,3 +77,21 @@ export interface IGiftCardDetail {
   slug: string
   serial: string
 }
+
+export interface IUseGiftCardResponse {
+  cardName: string
+  cardPoints: number
+  status: string
+  usedAt: string
+  code: string
+  serial: string
+  expiredAt: string
+  createdAt: string
+  slug: string
+}
+
+export interface IUseGiftCardRequest {
+  serial: string
+  code: string
+  userSlug: string
+}
