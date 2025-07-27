@@ -209,7 +209,7 @@ export class ChefOrderController {
     });
   }
 
-  @Post(':slug/test-export/tickets/:maxCount')
+  @Post(':slug/test-export/tickets/:maxCount/:type')
   @HasRoles(
     RoleEnum.Staff,
     RoleEnum.Chef,
@@ -242,8 +242,9 @@ export class ChefOrderController {
   async printer(
     @Param('slug') slug: string,
     @Param('maxCount') maxCount: number,
+    @Param('type') type: string,
   ) {
-    await this.chefOrderService.printChefOrderTest(slug, maxCount);
+    await this.chefOrderService.printChefOrderTest(slug, maxCount, type);
     return {
       message: 'The chef order was printed successfully',
       statusCode: HttpStatus.OK,

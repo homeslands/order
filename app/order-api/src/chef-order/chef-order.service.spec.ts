@@ -34,10 +34,11 @@ import { ConfigService } from '@nestjs/config';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { Payment } from 'src/payment/payment.entity';
 import { PrinterUtils } from 'src/printer/printer.utils';
-import { Printer } from 'src/printer/printer.entity';
+import { Printer } from 'src/printer/entity/printer.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrinterManager } from 'src/printer/printer.manager';
 import { PrinterProducer } from 'src/printer/printer.producer';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('ChefOrderService', () => {
   let service: ChefOrderService;
@@ -66,6 +67,10 @@ describe('ChefOrderService', () => {
         PrinterProducer,
         {
           provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
         },
         {
