@@ -7,7 +7,7 @@ import { ChefAreaProfile } from './chef-area.mapper';
 import { ChefAreaUtils } from './chef-area.utils';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
-import { Printer } from 'src/printer/printer.entity';
+import { Printer } from 'src/printer/entity/printer.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { PrinterModule } from 'src/printer/printer.module';
 
