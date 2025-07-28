@@ -65,6 +65,7 @@ import {
   PaymentInstructionsPage,
   ClientGiftCardCheckoutWithSlugPage,
   GiftCardSuccessPage,
+  FeatureLockManagementPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -73,7 +74,6 @@ import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
 import ForbiddenPage from '@/app/forbidden-page'
-import { GiftCardFeatureFlagPage } from '@/app/system/gift-card-feature-flag'
 
 export const router = createBrowserRouter([
   {
@@ -827,7 +827,7 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 element={
-                  <SuspenseElement component={GiftCardFeatureFlagPage} />
+                  <SuspenseElement component={FeatureLockManagementPage} />
                 }
               />
             ),

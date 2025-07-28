@@ -23,7 +23,7 @@ import { GiftCardFlagGroup, GiftCardType } from '@/constants'
 import { showToast } from '@/utils'
 import { IGiftCardFlagFeature } from '@/types'
 
-export default function GiftCardFeatureFlagPage() {
+export default function FeatureLockManagementPage() {
   const { t } = useTranslation(['giftCard'])
   const { t: tHelmet } = useTranslation('helmet')
   const { t: tCommon } = useTranslation(['common'])
@@ -121,9 +121,47 @@ export default function GiftCardFeatureFlagPage() {
       <div className="mt-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" />
-              {t('giftCard.giftCardFeatureFlag.featureControls')}
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock className="h-5 w-5" />
+                {t('giftCard.giftCardFeatureFlag.featureControls')}
+              </div>
+              <div>
+                {/* Button Unlock All */}
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setLocalFlags((prev) =>
+                      prev.map((flag) => ({ ...flag, isLocked: false })),
+                    )
+                    setHasChanges(true)
+                  }}
+                  disabled={
+                    isSaving ||
+                    isLoading ||
+                    localFlags.every((flag) => !flag.isLocked)
+                  }
+                >
+                  {t('giftCard.giftCardFeatureFlag.unlockAll')}
+                </Button>
+                {/* Button Lock All */}
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setLocalFlags((prev) =>
+                      prev.map((flag) => ({ ...flag, isLocked: true })),
+                    )
+                    setHasChanges(true)
+                  }}
+                  disabled={
+                    isSaving ||
+                    isLoading ||
+                    localFlags.every((flag) => flag.isLocked)
+                  }
+                >
+                  {t('giftCard.giftCardFeatureFlag.lockAll')}
+                </Button>
+              </div>
             </CardTitle>
             <CardDescription>
               {t('giftCard.giftCardFeatureFlag.featureControlsDescription')}
@@ -173,7 +211,7 @@ export default function GiftCardFeatureFlagPage() {
                     </div>
                     <Switch
                       id={flag.slug}
-                      checked={!flag.isLocked}
+                      checked={flag.isLocked}
                       onCheckedChange={() => handleToggleFlag(flag.slug)}
                       disabled={isSaving}
                     />
