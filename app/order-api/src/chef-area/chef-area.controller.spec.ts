@@ -15,6 +15,13 @@ import { PrinterUtils } from 'src/printer/printer.utils';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { PrinterProducer } from 'src/printer/printer.producer';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { Order } from 'src/order/order.entity';
+import { InvoiceService } from 'src/invoice/invoice.service';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('ChefAreaController', () => {
   let controller: ChefAreaController;
@@ -61,6 +68,21 @@ describe('ChefAreaController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        InvoiceService,
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: {},
+        },
+        QrCodeService,
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
       ],
     }).compile();
