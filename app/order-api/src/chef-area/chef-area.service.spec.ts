@@ -45,10 +45,6 @@ describe('ChefAreaService', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(Printer),
-          useValue: {},
-        },
-        {
           provide: getRepositoryToken(Branch),
           useValue: {},
         },
