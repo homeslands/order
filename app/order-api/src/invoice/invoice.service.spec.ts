@@ -12,6 +12,11 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { DataSource } from 'typeorm';
+import { Printer } from 'src/printer/entity/printer.entity';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { PrinterManager } from 'src/printer/printer.manager';
+import { PrinterUtils } from 'src/printer/printer.utils';
+import { PrinterProducer } from 'src/printer/printer.producer';
 
 describe('InvoiceService', () => {
   let service: InvoiceService;
@@ -42,6 +47,22 @@ describe('InvoiceService', () => {
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
+        },
+        PdfService,
+        PrinterUtils,
+        PrinterManager,
+        PrinterProducer,
+        {
+          provide: getRepositoryToken(Printer),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: 'BullQueue_printer',
+          useValue: {},
         },
       ],
     }).compile();
