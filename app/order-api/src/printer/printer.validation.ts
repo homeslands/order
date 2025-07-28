@@ -8,6 +8,7 @@ export const ERROR_PRINTING_JOB = 'ERROR_PRINTING_JOB';
 export const PRINTER_NOT_ACTIVE = 'PRINTER_NOT_ACTIVE';
 export const ERROR_PRINTING_CHEF_ORDER = 'ERROR_PRINTING_CHEF_ORDER';
 export const ERROR_PRINTING_TICKET = 'ERROR_PRINTING_TICKET';
+export const ERROR_PRINTING_INVOICE = 'ERROR_PRINTING_INVOICE';
 
 export type TPrinterErrorCodeKey =
   | typeof PRINTER_NOT_FOUND
@@ -17,7 +18,8 @@ export type TPrinterErrorCodeKey =
   | typeof ERROR_PRINTING_JOB
   | typeof PRINTER_NOT_ACTIVE
   | typeof ERROR_PRINTING_CHEF_ORDER
-  | typeof ERROR_PRINTING_TICKET;
+  | typeof ERROR_PRINTING_TICKET
+  | typeof ERROR_PRINTING_INVOICE;
 
 export type TPrinterErrorCode = Record<TPrinterErrorCodeKey, TErrorCodeValue>;
 
@@ -37,6 +39,7 @@ const PrinterValidation: TPrinterErrorCode = {
     'Error printing chef order',
   ),
   ERROR_PRINTING_TICKET: createErrorCode(158608, 'Error printing ticket'),
+  ERROR_PRINTING_INVOICE: createErrorCode(158609, 'Error printing invoice'),
 };
 
 export default PrinterValidation;

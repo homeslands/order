@@ -57,6 +57,12 @@ import {
   VoucherApplicabilityRule,
   VoucherType,
 } from 'src/voucher/voucher.constant';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import {
+  PrinterJobStatus,
+  PrinterJobType,
+} from 'src/printer/printer.constants';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 
 @Injectable()
 export class OrderService {
@@ -66,6 +72,8 @@ export class OrderService {
     @InjectMapper() private readonly mapper: Mapper,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(PrinterJob)
+    private readonly printerJobRepository: Repository<PrinterJob>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly orderScheduler: OrderScheduler,
     private readonly transactionManagerService: TransactionManagerService,
@@ -812,6 +820,35 @@ export class OrderService {
     const [orders, total] =
       await this.orderRepository.findAndCount(findManyOptions);
 
+    // get job print invoice
+    const orderIds = orders.map((order) => order.id);
+
+    const printerJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.INVOICE,
+        data: In(orderIds),
+      },
+    });
+
+    // job.data is orderId
+    const jobsMap = _.groupBy(printerJobs, (job) => job.data);
+    const jobDtosMap = _.mapValues(jobsMap, (jobs) =>
+      this.mapper.mapArray(jobs, PrinterJob, PrinterJobResponseDto),
+    );
+
+    // order type any because order does not have printerInvoices field
+    orders.forEach((order: any) => {
+      order.printerInvoices = jobDtosMap[order.id] || [];
+    });
+
+    // order does not have printerInvoices field
+    // OrderResponseDto have printerInvoices field
+    // to map and keep printerInvoices field, need change mapper
+    // forMember(
+    //   (destination) => destination.printerInvoices,
+    //   mapFrom((source: any) => source.printerInvoices),
+    // )
+    // squeeze type any
     const ordersDto = this.mapper.mapArray(orders, Order, OrderResponseDto);
     const page = options.hasPaging ? options.page : 1;
     const pageSize = options.hasPaging ? options.size : total;
@@ -831,6 +868,43 @@ export class OrderService {
       pageSize,
       totalPages,
     } as AppPaginatedResponseDto<OrderResponseDto>;
+  }
+
+  async rePrintFailedInvoicePrinterJobs(slug: string) {
+    const context = `${OrderService.name}.${this.rePrintFailedInvoicePrinterJobs.name}`;
+
+    const order = await this.orderRepository.findOne({
+      where: { slug },
+    });
+    if (!order) {
+      this.logger.warn(`Order ${slug} not found`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+    if (order.status !== OrderStatus.PAID) {
+      this.logger.warn(
+        `Order ${slug} is not paid, can not re-print failed invoice printer jobs`,
+        context,
+      );
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PAID);
+    }
+    const printerJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.INVOICE,
+        data: order.id,
+        status: PrinterJobStatus.FAILED,
+      },
+    });
+    printerJobs.map((job) => {
+      job.status = PrinterJobStatus.PENDING;
+      job.error = null;
+    });
+
+    await this.printerJobRepository.save(printerJobs);
+    this.logger.log(
+      `Re-print ${printerJobs.length} failed printer jobs for invoice ${slug}`,
+      context,
+    );
+    return this.mapper.mapArray(printerJobs, PrinterJob, PrinterJobResponseDto);
   }
 
   async getAllOrdersBySlugArray(data: string[]): Promise<OrderResponseDto[]> {
