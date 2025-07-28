@@ -30,3 +30,4 @@ export { default as SystemTableSelectInUpdateOrder } from './system-table-select
 export { default as ClientTableSelectInUpdateOrder } from './client-table-select-in-update-order'
 export { default as GiftCardStatusSelect } from './gift-card-status-select'
 export { default as GiftCardTypeSelect } from './gift-card-type-select'
+export { default as VoucherApplicabilityRuleSelect } from './voucher-applicability-rule-type-select'

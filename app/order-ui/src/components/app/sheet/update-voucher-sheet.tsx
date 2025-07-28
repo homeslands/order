@@ -27,9 +27,9 @@ import { IUpdateVoucherRequest, IVoucher } from '@/types'
 import { SimpleDatePicker } from '../picker'
 import { TUpdateVoucherSchema, updateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherTypeSelect } from '../select'
+import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
 import { useSpecificVoucher } from '@/hooks'
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 
 interface IUpdateVoucherSheetProps {
   voucher: IVoucher
@@ -56,6 +56,7 @@ export default function UpdateVoucherSheet({
       voucherGroup: slug as string,
       createdAt: '',
       title: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: '',
       startDate: '',
@@ -81,6 +82,7 @@ export default function UpdateVoucherSheet({
         voucherGroup: slug as string,
         createdAt: specificVoucherData.createdAt,
         title: specificVoucherData.title,
+        applicabilityRule: specificVoucherData.applicabilityRule,
         description: specificVoucherData.description,
         type: specificVoucherData.type,
         startDate: specificVoucherData.startDate,
@@ -100,13 +102,6 @@ export default function UpdateVoucherSheet({
       })
     }
   }, [specificVoucherData, form, slug])
-
-  // Use useWatch to watch type field without causing re-renders
-  // const voucherType = useWatch({
-  //   control: form.control,
-  //   name: 'type',
-  //   defaultValue: voucher.type
-  // })
 
   const isDateBeforeToday = (date: Date) => {
     const today = new Date()
@@ -250,7 +245,31 @@ export default function UpdateVoucherSheet({
               {t('voucher.type')}</FormLabel>
             <FormControl>
               <VoucherTypeSelect
-                disabled={true}
+                defaultValue={field.value}
+                {...field}
+                onChange={(value) => {
+                  field.onChange(value);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    applicabilityRule: (
+      <FormField
+        control={form.control}
+        name="applicabilityRule"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.applicabilityRule')}</FormLabel>
+            <FormControl>
+              <VoucherApplicabilityRuleSelect
                 defaultValue={field.value}
                 {...field}
                 onChange={(value) => {
@@ -364,6 +383,9 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
               {t('voucher.remainingUsage')}</FormLabel>
             <FormControl>
               <Input
@@ -515,6 +537,7 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
+              <span className="text-destructive">*</span>
               {t('voucher.isVerificationIdentity')}
             </FormLabel>
             <FormControl>
@@ -538,6 +561,7 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-start gap-1 leading-6">
+              <span className="mt-1 text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
             <FormControl>
@@ -601,14 +625,19 @@ export default function UpdateVoucherSheet({
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
                   <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
-                    {formFields.code}
+                    {formFields.applicabilityRule}
                     {formFields.type}
                   </div>
 
-                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  {/* Nhóm: Code */}
                   <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
-                    {formFields.minOrderValue}
+                    {formFields.code}
                     {formFields.value}
+                  </div>
+
+                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  <div className="grid grid-cols-1 gap-2 p-4 bg-white border rounded-md">
+                    {formFields.minOrderValue}
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}

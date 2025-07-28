@@ -7,7 +7,6 @@ import { IMenuItem, IOrderItem, IProduct, IProductVariant } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { formatCurrency, showToast } from '@/utils'
-import { AddNewOrderItemDialog } from '@/components/app/dialog'
 import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
 import { useOrderFlowStore } from '@/stores'
@@ -76,7 +75,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
         to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}
         className="flex flex-row w-full sm:flex-col"
       >
-        <div className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
+        <div className="relative items-center justify-center flex-shrink-0 w-24 h-full px-2 py-4 sm:p-0 sm:w-full sm:h-40">
           {item.product.image ? (
             <>
               <img
@@ -85,7 +84,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
                 className="object-cover w-full h-full rounded-xl p-1.5 sm:h-40"
               />
               {item?.product?.isLimit && !isMobile && (
-                <span className="absolute bottom-3 left-3 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
+                <span className="absolute z-50 px-3 py-1 text-xs text-white rounded-full bottom-3 left-3 bg-primary w-fit">
                   {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                 </span>
               )}
@@ -98,7 +97,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
           )}
         </div>
 
-        <div className="flex flex-col flex-1 justify-between p-2">
+        <div className="flex flex-col justify-between flex-1 p-2">
           <div className="h-auto sm:h-fit">
             <h3 className="font-bold text-md sm:text-lg line-clamp-1">{item.product.name}</h3>
             {item?.product?.isLimit && isMobile && (
@@ -112,7 +111,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
             <div className="flex flex-col gap-1">
               <div className="flex flex-col">
                 {item?.promotion?.value > 0 ? (
-                  <div className="flex flex-row gap-2 items-center">
+                  <div className="flex flex-row items-center gap-2">
                     <span className="text-xs line-through sm:text-sm text-muted-foreground/70">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
@@ -147,14 +146,21 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
         </div>
       </NavLink>
 
-      <div className="flex justify-end items-end p-2 sm:w-full">
+      <div className="flex items-end justify-end p-2 sm:w-full">
         {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
           isMobile ? (
             <Button disabled={!updatingData} onClick={() => handleAddToCart(item)} className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
               <Plus className='icon' />
             </Button>
           ) : (
-            <AddNewOrderItemDialog product={item} />
+            <Button
+              className="flex items-center justify-center w-full gap-1 text-xs text-white rounded-full shadow-none xl:text-sm"
+              onClick={() => handleAddToCart(item)}
+              disabled={!updatingData}
+            >
+              {t('menu.addToCart')}
+            </Button>
+            // <AddNewOrderItemDialog product={item} />
           )
         ) : (
           <Button
