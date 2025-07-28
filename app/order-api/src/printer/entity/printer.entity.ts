@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
+import { InvoiceArea } from 'src/invoice-area/invoice-area.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('printer_tbl')
@@ -33,4 +34,13 @@ export class Printer extends Base {
   @ManyToOne(() => ChefArea, (chefArea) => chefArea.printers)
   @JoinColumn({ name: 'chef_area_column' })
   chefArea: ChefArea;
+
+  @AutoMap()
+  @ManyToOne(() => InvoiceArea, (invoiceArea) => invoiceArea.printers)
+  @JoinColumn({ name: 'invoice_area_column' })
+  invoiceArea: InvoiceArea;
+
+  @AutoMap()
+  @Column({ name: 'number_printing_column', default: 1 })
+  numberPrinting: number;
 }

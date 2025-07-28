@@ -14,6 +14,13 @@ import { PrinterManager } from 'src/printer/printer.manager';
 import { PrinterProducer } from 'src/printer/printer.producer';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { InvoiceService } from 'src/invoice/invoice.service';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { Order } from 'src/order/order.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { DataSource } from 'typeorm';
 
 describe('ChefAreaService', () => {
   let service: ChefAreaService;
@@ -45,10 +52,6 @@ describe('ChefAreaService', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(Printer),
-          useValue: {},
-        },
-        {
           provide: getRepositoryToken(Branch),
           useValue: {},
         },
@@ -59,6 +62,21 @@ describe('ChefAreaService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        InvoiceService,
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Order),
+          useValue: {},
+        },
+        QrCodeService,
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
         },
       ],
     }).compile();
