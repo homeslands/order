@@ -27,6 +27,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -77,6 +78,10 @@ describe('OrderController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

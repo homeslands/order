@@ -73,6 +73,7 @@ import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -223,6 +224,10 @@ describe('OrderService', () => {
         },
         {
           provide: getRepositoryToken(Product),
+          useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
         },
       ],
