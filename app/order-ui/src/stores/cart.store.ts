@@ -344,6 +344,7 @@ export const useCartItemStore = create<ICartItemStore>()(
             ...cartItems,
             voucher: {
               voucherGroup: voucher.voucherGroup,
+              applicabilityRule: voucher.applicabilityRule,
               createdAt: voucher.createdAt,
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,

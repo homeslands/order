@@ -1,3 +1,4 @@
+import { APPLICABILITY_RULE } from '@/constants'
 import { IBase } from './base.type'
 import { IProduct } from './product.type'
 
@@ -20,6 +21,7 @@ export interface IUpdateVoucherGroupRequest {
 export interface IVoucher extends IBase {
   voucherGroup: string
   title: string
+  applicabilityRule: APPLICABILITY_RULE
   description?: string
   code: string
   value: number

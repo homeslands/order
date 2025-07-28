@@ -43,7 +43,6 @@ export default function OrderTypeSelect() {
   }
 
   return (
-
     <Select value={selectedType?.value} onValueChange={handleChange}>
       <SelectTrigger className="w-full">
         <SelectValue placeholder={t('menu.selectOrderType')} />

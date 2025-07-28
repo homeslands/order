@@ -412,6 +412,7 @@ export const useUpdateOrderStore = create<IUpdateOrderStore>()(
             ...orderItems,
             voucher: {
               voucherGroup: voucher.voucherGroup,
+              applicabilityRule: voucher.applicabilityRule,
               createdAt: voucher.createdAt,
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,
@@ -879,6 +880,7 @@ export const useOriginalOrderStore = create<IOriginalOrderStore>()(
             ...originalOrderItems,
             voucher: {
               voucherGroup: voucher.voucherGroup,
+              applicabilityRule: voucher.applicabilityRule,
               createdAt: voucher.createdAt,
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,

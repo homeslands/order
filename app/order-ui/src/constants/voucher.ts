@@ -3,3 +3,8 @@ export const VOUCHER_TYPE = {
   FIXED_VALUE: 'fixed_value',
   SAME_PRICE_PRODUCT: 'same_price_product',
 }
+
+export enum APPLICABILITY_RULE {
+  ALL_REQUIRED = 'all_required',
+  AT_LEAST_ONE_REQUIRED = 'at_least_one_required',
+}

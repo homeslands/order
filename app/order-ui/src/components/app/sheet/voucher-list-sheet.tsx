@@ -40,13 +40,13 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
-import { Role, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export default function VoucherListSheet() {
   const isMobile = useIsMobile()
@@ -215,7 +215,7 @@ export default function VoucherListSheet() {
   // calculate subtotal
   const displayItems = calculateCartItemDisplay(cartItems, voucher)
   const cartTotals = calculateCartTotals(displayItems, voucher)
-  const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  // const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -223,35 +223,35 @@ export default function VoucherListSheet() {
   }
 
   // Filter and sort vouchers to get the best one
-  const getBestVoucher = () => {
-    if (!Array.isArray(localVoucherList)) {
-      return null
-    }
+  // const getBestVoucher = () => {
+  //   if (!Array.isArray(localVoucherList)) {
+  //     return null
+  //   }
 
-    const currentDate = new Date()
+  //   const currentDate = new Date()
 
-    const validVouchers = localVoucherList
-      .filter((voucher) => {
-        const isValid = voucher.isActive &&
-          moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
-          moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
-          voucher.remainingUsage > 0 &&
-          (!userInfo ? voucher.isVerificationIdentity === false : true)
-        return isValid
-      })
-      .sort((a, b) => {
-        const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-        if (endDateDiff !== 0) return endDateDiff
-        if (a.minOrderValue !== b.minOrderValue) {
-          return a.minOrderValue - b.minOrderValue
-        }
-        return b.value - a.value
-      })
+  //   const validVouchers = localVoucherList
+  //     .filter((voucher) => {
+  //       const isValid = voucher.isActive &&
+  //         moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
+  //         moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
+  //         voucher.remainingUsage > 0 &&
+  //         (!userInfo ? voucher.isVerificationIdentity === false : true)
+  //       return isValid
+  //     })
+  //     .sort((a, b) => {
+  //       const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
+  //       if (endDateDiff !== 0) return endDateDiff
+  //       if (a.minOrderValue !== b.minOrderValue) {
+  //         return a.minOrderValue - b.minOrderValue
+  //       }
+  //       return b.value - a.value
+  //     })
 
-    return validVouchers.length > 0 ? validVouchers[0] : null
-  }
+  //   return validVouchers.length > 0 ? validVouchers[0] : null
+  // }
 
-  const bestVoucher = getBestVoucher()
+  // const bestVoucher = getBestVoucher()
 
   const isVoucherSelected = (voucherSlug: string) => {
     return (
@@ -384,47 +384,82 @@ export default function VoucherListSheet() {
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
 
     const hasValidProducts = (() => {
-      // If voucher doesn't have voucherProducts or it's empty, return false
       if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
         return false
       }
 
-      // If cart is empty, return false
       if (!cartItems?.orderItems || cartItems.orderItems.length === 0) {
         return false
       }
 
-      // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
 
-      // Get all possible product slugs from cart items
       const cartProductSlugs = cartItems.orderItems.reduce((acc, item) => {
-        // Add item.slug if exists
-        if (item.slug) {
-          acc.push(item.slug)
-        }
-        // Add item.variant.product.slug if exists
-        if (item.variant?.product?.slug) {
-          acc.push(item.variant.product.slug)
-        }
-        // Add item.variant.slug if exists (fallback)
-        if (item.variant?.slug) {
-          acc.push(item.variant.slug)
-        }
+        if (item.slug) acc.push(item.slug) // Slug của product
         return acc
       }, [] as string[])
 
-      return voucherProductSlugs.some(voucherSlug =>
-        cartProductSlugs.includes(voucherSlug)
+      return isVoucherApplicableToCartItems(
+        cartProductSlugs,
+        voucherProductSlugs,
+        voucher.applicabilityRule
       )
     })()
 
     return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
   }
 
-  const renderVoucherCard = (voucher: IVoucher, isBest: boolean) => {
+  const getVoucherErrorMessage = (voucher: IVoucher) => {
+    const cartProductSlugs = cartItems?.orderItems?.map((item) => item.slug) || []
+    const voucherProductSlugs = voucher.voucherProducts?.map((vp) => vp.product?.slug) || []
+
+    const allCartProductsInVoucher = cartProductSlugs.every(slug => voucherProductSlugs.includes(slug))
+    const hasAnyCartProductInVoucher = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+
+    const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
+    if (voucher.isVerificationIdentity && !isCustomerOwner) {
+      return t('voucher.needVerifyIdentity')
+    }
+
+    if (voucher.remainingUsage === 0) {
+      return t('voucher.outOfStock')
+    }
+
+    if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
+      return t('voucher.expired')
+    }
+
+    if (
+      voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+      voucher.minOrderValue > subTotalAfterPromotion
+    ) {
+      return t('voucher.minOrderNotMet')
+    }
+
+    // 💡 Bổ sung lỗi theo applicabilityRule
+    if (voucher.voucherProducts?.length > 0) {
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED &&
+        !allCartProductsInVoucher
+      ) {
+        return t('voucher.requireOnlyApplicableProducts')
+      }
+
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+        !hasAnyCartProductInVoucher
+      ) {
+        return t('voucher.requireSomeApplicableProducts')
+      }
+    }
+
+    return ''
+  }
+
+  const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
+    const baseCardClass = `grid h-48 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -435,11 +470,11 @@ export default function VoucherListSheet() {
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
-        {isBest && (
+        {/* {isBest && (
           <div className="absolute px-2 py-1 text-xs text-white -top-0 -left-0 rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
-        )}
+        )} */}
         <div
           className={`col-span-2 flex w-full items-center justify-center rounded-md ${isVoucherSelected(voucher.slug) ? `bg-${getTheme() === 'light' ? 'white' : 'black'}` : 'bg-muted-foreground/10'}`}
         >
@@ -485,13 +520,14 @@ export default function VoucherListSheet() {
               </TooltipProvider>
             </span>
             <span className="text-xs italic text-destructive">
-              {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
+              {getVoucherErrorMessage(voucher)}
+              {/* {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
                 ? t('voucher.minOrderNotMet')
                 : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
                   ? t('voucher.expired')
                   : voucher.isVerificationIdentity && !userInfo?.slug
                     ? t('voucher.needVerifyIdentity')
-                    : ''}
+                    : ''} */}
             </span>
             <span className="hidden text-muted-foreground/60 sm:text-xs">
               {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
@@ -601,7 +637,7 @@ export default function VoucherListSheet() {
               <PopoverContent
                 className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
               >
-                <div className="flex flex-col justify-between gap-4">
+                <div className="flex flex-col justify-between gap-4 text-xs sm:text-sm">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
@@ -744,7 +780,7 @@ export default function VoucherListSheet() {
                   localVoucherList?.map((voucher) =>
                     renderVoucherCard(
                       voucher,
-                      bestVoucher?.slug === voucher.slug,
+                      // bestVoucher?.slug === voucher.slug,
                     ),
                   )
                 ) : (
