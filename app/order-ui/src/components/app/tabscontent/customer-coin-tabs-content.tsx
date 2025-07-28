@@ -54,9 +54,14 @@ export function CustomerCoinTabsContent() {
   const [hasError, setHasError] = useState(false)
 
   // Filter states
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const today = moment()
+  const [fromDate, setFromDate] = useState(
+    today.startOf('month').format('YYYY-MM-DD'),
+  )
+  const [toDate, setToDate] = useState(
+    today.endOf('month').format('YYYY-MM-DD'),
+  )
   const [filterType, setFilterType] = useState<PointTransactionType>(
     PointTransactionType.ALL,
   )
