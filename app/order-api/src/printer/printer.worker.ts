@@ -18,6 +18,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PrinterJobQueryResponseDto } from './printer.dto';
+import { Order } from 'src/order/order.entity';
 
 @Injectable()
 export class PrinterWorker implements OnModuleInit {
@@ -31,6 +32,8 @@ export class PrinterWorker implements OnModuleInit {
     private readonly printerUtils: PrinterUtils,
     @InjectRepository(ChefOrder)
     private readonly chefOrderRepository: Repository<ChefOrder>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     @InjectQueue(QueueRegisterKey.PRINTER)
     private readonly printerQueue: Queue,
     private readonly pdfService: PdfService,
@@ -76,6 +79,20 @@ export class PrinterWorker implements OnModuleInit {
       SystemConfigKey.DELAY_PRINT_CHEF_ORDER_PRINTER,
     );
 
+    return delay ? parseInt(delay) : 2000;
+  }
+
+  async getTtlLockInvoicePrinter() {
+    const ttl = await this.systemConfigService.get(
+      SystemConfigKey.TTL_LOCK_INVOICE_PRINTER,
+    );
+    return ttl ? parseInt(ttl) : 30000;
+  }
+
+  async getDelayPrintInvoicePrinter() {
+    const delay = await this.systemConfigService.get(
+      SystemConfigKey.DELAY_PRINT_INVOICE_PRINTER,
+    );
     return delay ? parseInt(delay) : 2000;
   }
 
@@ -179,11 +196,11 @@ export class PrinterWorker implements OnModuleInit {
       let lockLabelTicket: any = null;
       try {
         const labelTicketKey = `printer-job:${printerJob.printerIp}:${printerJob.printerPort}`;
-        const ttlX = await this.getTtlLockLabelTicketPrinter();
+        const ttl = await this.getTtlLockLabelTicketPrinter();
         const resource = [labelTicketKey];
         const lockStartTime = Date.now();
 
-        lockLabelTicket = await this.redlock.acquire(resource, ttlX);
+        lockLabelTicket = await this.redlock.acquire(resource, ttl);
         this.logger.log(
           `Lock success for label ticket printer ${printerJob.printerIp}:${printerJob.printerPort}`,
           context,
@@ -210,12 +227,12 @@ export class PrinterWorker implements OnModuleInit {
           data = null;
           bitmapDataList.push(bitmapData);
         }
-        const maxRetriesX = 3;
-        let attemptX = 1;
-        const delayX = await this.getDelayPrintLabelTicketPrinter();
-        while (attemptX <= maxRetriesX) {
+        const maxRetries = 3;
+        let attempt = 1;
+        const delay = await this.getDelayPrintLabelTicketPrinter();
+        while (attempt <= maxRetries) {
           try {
-            if (Date.now() - lockStartTime > ttlX) {
+            if (Date.now() - lockStartTime > ttl) {
               // default: auto release lock
               // need to update status to failed
               this.logger.warn(
@@ -229,7 +246,7 @@ export class PrinterWorker implements OnModuleInit {
               break;
             }
             this.logger.log(
-              `Attempt ${attemptX} to print label ticket of chef order ${printerJob.data}`,
+              `Attempt ${attempt} to print label ticket of chef order ${printerJob.data}`,
               context,
             );
             await this.printerUtils.handlePrintChefOrderItemTicket(
@@ -281,15 +298,15 @@ export class PrinterWorker implements OnModuleInit {
             break;
           } catch (error) {
             this.logger.error(`Error handling print job`, error.stack, context);
-            if (attemptX === maxRetriesX) {
+            if (attempt === maxRetries) {
               await this.printerJobRepository.update(printerJob.id, {
                 status: PrinterJobStatus.FAILED,
                 error: error.message,
               });
               break;
             }
-            attemptX++;
-            if (Date.now() - lockStartTime > ttlX) {
+            attempt++;
+            if (Date.now() - lockStartTime > ttl) {
               // default: auto release lock
               // need to update status to failed
               this.logger.warn(
@@ -302,13 +319,13 @@ export class PrinterWorker implements OnModuleInit {
               });
               break;
             }
-            if (attemptX <= maxRetriesX) {
+            if (attempt <= maxRetries) {
               this.logger.log(`Waiting for next attempt`, context);
               await new Promise((resolve) =>
-                setTimeout(resolve, delayX * attemptX),
+                setTimeout(resolve, delay * attempt),
               );
             }
-            if (Date.now() - lockStartTime > ttlX) {
+            if (Date.now() - lockStartTime > ttl) {
               // default: auto release lock
               // need to update status to failed
               this.logger.warn(
@@ -521,6 +538,167 @@ export class PrinterWorker implements OnModuleInit {
       }
     } else if (printerJob.jobType === PrinterJobType.INVOICE) {
       // PRINT INVOICE
+      const order = await this.orderRepository.findOne({
+        where: { id: printerJob.data },
+      });
+
+      if (!order) {
+        this.logger.error(
+          `Order not found when print invoice in worker`,
+          context,
+        );
+        return;
+      }
+
+      let lockInvoice: any = null;
+      try {
+        const invoiceKey = `printer-job:${printerJob.printerIp}:${printerJob.printerPort}`;
+        const ttl = await this.getTtlLockInvoicePrinter();
+        const resource = [invoiceKey];
+        const lockStartTime = Date.now();
+        lockInvoice = await this.redlock.acquire(resource, ttl);
+        this.logger.log(
+          `Lock success for invoice printer ${printerJob.printerIp}:${printerJob.printerPort}`,
+          context,
+        );
+        const maxRetries = 3;
+        let attempt = 1;
+        const delay = await this.getDelayPrintInvoicePrinter();
+        while (attempt <= maxRetries) {
+          try {
+            if (Date.now() - lockStartTime > ttl) {
+              // default: auto release lock
+              // need to update status to failed
+              this.logger.warn(
+                `Lock expired for invoice printer ${printerJob.printerIp}:${printerJob.printerPort}`,
+                context,
+              );
+              await this.printerJobRepository.update(printerJob.id, {
+                status: PrinterJobStatus.FAILED,
+                error: 'Lock expired',
+              });
+              break;
+            }
+            this.logger.log(
+              `Attempt ${attempt} to print invoice ${printerJob.data}`,
+              context,
+            );
+            await this.printerUtils.handlePrintInvoice(
+              printerJob.printerIp,
+              printerJob.printerPort,
+              order.slug,
+            );
+            await this.transactionManagerService.execute(
+              async (manager) => {
+                await manager.update(
+                  'order_db.printer_job_tbl',
+                  { id_column: printerJob.id },
+                  { status_column: PrinterJobStatus.PRINTED },
+                );
+              },
+              async () => {
+                this.logger.log(
+                  `Printer job ${printerJob.id} updated`,
+                  context,
+                );
+                if (lockInvoice) {
+                  try {
+                    await lockInvoice.release();
+                    this.logger.log(
+                      `Lock released when print job success`,
+                      context,
+                    );
+                  } catch (error) {
+                    this.logger.error(
+                      `Error releasing lock when print job success`,
+                      error.stack,
+                      context,
+                    );
+                  }
+                }
+              },
+              (error) => {
+                this.logger.error(
+                  `Error updating printer job`,
+                  error.stack,
+                  context,
+                );
+              },
+            );
+            break;
+          } catch (error) {
+            this.logger.error(`Error handling print job`, error.stack, context);
+            if (attempt === maxRetries) {
+              await this.printerJobRepository.update(printerJob.id, {
+                status: PrinterJobStatus.FAILED,
+                error: error.message,
+              });
+              break;
+            }
+            attempt++;
+            if (Date.now() - lockStartTime > ttl) {
+              // default: auto release lock
+              // need to update status to failed
+              this.logger.warn(
+                `Lock expired for invoice printer ${printerJob.printerIp}:${printerJob.printerPort}`,
+                context,
+              );
+              await this.printerJobRepository.update(printerJob.id, {
+                status: PrinterJobStatus.FAILED,
+                error: 'Lock expired',
+              });
+              break;
+            }
+            if (attempt <= maxRetries) {
+              this.logger.log(`Waiting for next attempt`, context);
+              await new Promise((resolve) =>
+                setTimeout(resolve, delay * attempt),
+              );
+            }
+            if (Date.now() - lockStartTime > ttl) {
+              // default: auto release lock
+              // need to update status to failed
+              this.logger.warn(
+                `Lock expired for invoice printer ${printerJob.printerIp}:${printerJob.printerPort}`,
+                context,
+              );
+              await this.printerJobRepository.update(printerJob.id, {
+                status: PrinterJobStatus.FAILED,
+                error: 'Lock expired',
+              });
+              break;
+            }
+          }
+        }
+        if (lockInvoice) {
+          try {
+            await lockInvoice.release();
+            this.logger.warn(
+              `Lock released when exceed max retries for printer job ${printerJob.printerIp}:${printerJob.printerPort}`,
+              context,
+            );
+          } catch (error) {
+            this.logger.error(
+              `Error releasing lock when exceed max retries for printer job ${printerJob.printerIp}:${printerJob.printerPort}`,
+              error.stack,
+              context,
+            );
+          }
+        }
+      } catch (error) {
+        this.logger.error(
+          `Error acquiring lock for print invoice`,
+          error.stack,
+          context,
+        );
+        await this.printerJobRepository.update(printerJob.id, {
+          status: PrinterJobStatus.PENDING,
+        });
+        this.logger.warn(
+          `Re-pending printer job invoice when acquire lock failed`,
+          context,
+        );
+      }
     } else {
       this.logger.error(`Unknown job type ${printerJob.jobType}`, context);
     }

@@ -4,9 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { Printer } from './entity/printer.entity';
 import {
   CreatePrinterRequestDto,
+  PrinterJobResponseDto,
   PrinterResponseDto,
   UpdatePrinterRequestDto,
 } from './printer.dto';
+import { PrinterJob } from './entity/printer-job.entity';
 
 @Injectable()
 export class PrinterProfile extends AutomapperProfile {
@@ -19,6 +21,7 @@ export class PrinterProfile extends AutomapperProfile {
       createMap(mapper, Printer, PrinterResponseDto);
       createMap(mapper, CreatePrinterRequestDto, Printer);
       createMap(mapper, UpdatePrinterRequestDto, Printer);
+      createMap(mapper, PrinterJob, PrinterJobResponseDto);
     };
   }
 }

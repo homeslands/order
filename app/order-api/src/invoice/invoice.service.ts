@@ -44,7 +44,7 @@ export class InvoiceService {
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
     private readonly transactionManagerService: TransactionManagerService,
-  ) { }
+  ) {}
 
   async updateDiscountTypeForExistedInvoice() {
     const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
@@ -122,6 +122,26 @@ export class InvoiceService {
     return data;
   }
 
+  async exportBufferPng(requestData: ExportInvoiceDto): Promise<Buffer> {
+    const context = `${InvoiceService.name}.${this.exportInvoice.name}`;
+    const invoice = await this.create(requestData.order);
+
+    const logoPath = resolve('public/images/dark_logo.png');
+    const logoBuffer = readFileSync(logoPath);
+
+    // Convert the buffer to a Base64 string
+    const logoString = logoBuffer.toString('base64');
+
+    const data = await this.pdfService.generatePngFromTemplate('invoice', {
+      ...invoice,
+      logoString,
+    });
+
+    this.logger.log(`Invoice png ${invoice.slug} exported`, context);
+
+    return data;
+  }
+
   private async create(orderSlug: string) {
     const context = `${InvoiceService.name}.${this.create.name}`;
     const order = await this.orderRepository.findOne({
@@ -151,10 +171,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-          (current.variant.price *
-            (current.promotion?.value ?? 0) *
-            current.quantity) /
-          100
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
           : total,
       0,
     );
@@ -165,7 +185,7 @@ export class InvoiceService {
         (total, current) =>
           current.discountType === DiscountType.PROMOTION
             ? total +
-            (current.price * current.promotionValue * current.quantity) / 100
+              (current.price * current.promotionValue * current.quantity) / 100
             : total,
         0,
       );
@@ -215,7 +235,7 @@ export class InvoiceService {
         orderItemPromotionValue,
         voucherCode: order.voucher?.code ?? 'N/A',
         valueEachVoucher: order.voucher?.value ?? 0,
-        usedPoints
+        usedPoints,
       });
       return order.invoice;
     }
@@ -280,7 +300,7 @@ export class InvoiceService {
       subtotalOrderItem,
       orderItemPromotionValue,
       voucherCode: order.voucher?.code ?? 'N/A',
-      usedPoints
+      usedPoints,
     });
 
     return invoice;
@@ -362,10 +382,10 @@ export class InvoiceService {
       (total, current) =>
         current.discountType === DiscountType.PROMOTION
           ? total +
-          (current.variant.price *
-            (current.promotion?.value ?? 0) *
-            current.quantity) /
-          100
+            (current.variant.price *
+              (current.promotion?.value ?? 0) *
+              current.quantity) /
+              100
           : total,
       0,
     );

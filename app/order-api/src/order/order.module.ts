@@ -49,6 +49,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -71,6 +72,7 @@ import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
       ChefOrderItem,
       Payment,
       ACBConnectorConfig,
+      PrinterJob,
     ]),
     RobotConnectorModule,
     DbModule,

@@ -20,3 +20,8 @@ export enum PrinterJobStatus {
   PRINTED = 'printed',
   FAILED = 'failed',
 }
+
+export enum ModePrinter {
+  REDIS = 'redis',
+  DATABASE = 'database',
+}

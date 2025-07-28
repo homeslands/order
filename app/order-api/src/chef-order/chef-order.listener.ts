@@ -6,8 +6,14 @@ import { ChefOrderUtils } from './chef-order.utils';
 import { PrinterUtils } from 'src/printer/printer.utils';
 import { PdfService } from 'src/pdf/pdf.service';
 import sharp from 'sharp';
-import { PrinterDataType } from 'src/printer/printer.constants';
+import {
+  ModePrinter,
+  PrinterDataType,
+  PrinterJobType,
+} from 'src/printer/printer.constants';
 import _ from 'lodash';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
 
 @Injectable()
 export class ChefOrderListener {
@@ -17,13 +23,23 @@ export class ChefOrderListener {
     private readonly chefOrderUtils: ChefOrderUtils,
     private readonly printerUtils: PrinterUtils,
     private readonly pdfService: PdfService,
+    private readonly systemConfigService: SystemConfigService,
   ) {}
+
+  async getModePrinter() {
+    return (
+      (await this.systemConfigService.get(SystemConfigKey.MODE_PRINTER)) ||
+      ModePrinter.REDIS
+    );
+  }
 
   @OnEvent(ChefOrderAction.CHEF_ORDER_CREATED)
   async handleAutoPrintCreatedChefOrder(requestData: { chefOrderId: string }) {
     this.logger.log(
       `Start handle auto print created chef order: ${requestData.chefOrderId}`,
     );
+
+    const modePrinter = await this.getModePrinter();
 
     const chefOrder = await this.chefOrderUtils.getChefOrder({
       where: { id: requestData.chefOrderId },
@@ -47,37 +63,76 @@ export class ChefOrderListener {
     );
 
     if (_.size(tsplZplPrinters) > 0) {
-      const bitmapDataList: Buffer[] = [];
-      for (const chefOrderItem of chefOrder.chefOrderItems) {
-        let data = await this.pdfService.generatePdfImage(
-          'chef-order-item-ticket-image',
-          {
-            productName:
-              chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
-            referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
-            note: chefOrderItem?.orderItem?.note ?? 'N/A',
-            variantName: chefOrderItem?.orderItem?.variant?.size?.name ?? 'N/A',
-            createdAt: chefOrder?.order?.createdAt ?? 'N/A',
-          },
-          {
-            type: 'png',
-            omitBackground: false,
-          },
-        );
-        const bitmapData = await this.convertImageToBitmap(data);
-        data = null;
-        bitmapDataList.push(bitmapData);
-      }
+      if (modePrinter === ModePrinter.REDIS) {
+        const bitmapDataList: Buffer[] = [];
+        for (const chefOrderItem of chefOrder.chefOrderItems) {
+          let data = await this.pdfService.generatePdfImage(
+            'chef-order-item-ticket-image',
+            {
+              productName:
+                chefOrderItem?.orderItem?.variant?.product?.name ?? 'N/A',
+              referenceNumber: chefOrder?.order?.referenceNumber ?? 'N/A',
+              note: chefOrderItem?.orderItem?.note ?? 'N/A',
+              variantName:
+                chefOrderItem?.orderItem?.variant?.size?.name ?? 'N/A',
+              createdAt: chefOrder?.order?.createdAt ?? 'N/A',
+            },
+            {
+              type: 'png',
+              omitBackground: false,
+            },
+          );
+          const bitmapData = await this.convertImageToBitmap(data);
+          data = null;
+          bitmapDataList.push(bitmapData);
+        }
 
-      await Promise.allSettled(
-        tsplZplPrinters.map((printer) =>
-          this.printerUtils.printChefOrderItemTicket(
-            printer.ip,
-            printer.port,
-            bitmapDataList,
+        // await Promise.allSettled(
+        //   tsplZplPrinters.map((printer) =>
+        //     this.printerUtils.printChefOrderItemTicket(
+        //       printer.ip,
+        //       printer.port,
+        //       bitmapDataList,
+        //     ),
+        //   ),
+        // );
+
+        await Promise.allSettled(
+          tsplZplPrinters.flatMap((printer) =>
+            Array.from({ length: printer.numberPrinting ?? 1 }, () =>
+              this.printerUtils.printChefOrderItemTicket(
+                printer.ip,
+                printer.port,
+                bitmapDataList,
+              ),
+            ),
           ),
-        ),
-      );
+        );
+      } else if (modePrinter === ModePrinter.DATABASE) {
+        // await Promise.allSettled(
+        //   tsplZplPrinters.map((printer) =>
+        //     this.printerUtils.createPrintJob(
+        //       PrinterJobType.LABEL_TICKET,
+        //       chefOrder.id,
+        //       printer.ip,
+        //       printer.port,
+        //     ),
+        //   ),
+        // );
+
+        await Promise.allSettled(
+          tsplZplPrinters.flatMap((printer) =>
+            Array.from({ length: printer.numberPrinting ?? 1 }, () =>
+              this.printerUtils.createPrintJob(
+                PrinterJobType.LABEL_TICKET,
+                chefOrder.id,
+                printer.ip,
+                printer.port,
+              ),
+            ),
+          ),
+        );
+      }
     } else {
       this.logger.warn(
         `No active raw printer found for chef order: ${requestData.chefOrderId}`,
@@ -85,11 +140,53 @@ export class ChefOrderListener {
     }
 
     if (_.size(escPosPrinters) > 0) {
-      await Promise.allSettled(
-        escPosPrinters.map((printer) =>
-          this.printerUtils.printChefOrder(printer.ip, printer.port, chefOrder),
-        ),
-      );
+      if (modePrinter === ModePrinter.REDIS) {
+        // await Promise.allSettled(
+        //   escPosPrinters.map((printer) =>
+        //     this.printerUtils.printChefOrder(
+        //       printer.ip,
+        //       printer.port,
+        //       chefOrder,
+        //     ),
+        //   ),
+        // );
+
+        await Promise.allSettled(
+          escPosPrinters.flatMap((printer) =>
+            Array.from({ length: printer.numberPrinting ?? 1 }, () =>
+              this.printerUtils.printChefOrder(
+                printer.ip,
+                printer.port,
+                chefOrder,
+              ),
+            ),
+          ),
+        );
+      } else if (modePrinter === ModePrinter.DATABASE) {
+        // await Promise.allSettled(
+        //   escPosPrinters.map((printer) =>
+        //     this.printerUtils.createPrintJob(
+        //       PrinterJobType.CHEF_ORDER,
+        //       chefOrder.id,
+        //       printer.ip,
+        //       printer.port,
+        //     ),
+        //   ),
+        // );
+
+        await Promise.allSettled(
+          escPosPrinters.flatMap((printer) =>
+            Array.from({ length: printer.numberPrinting ?? 1 }, () =>
+              this.printerUtils.createPrintJob(
+                PrinterJobType.CHEF_ORDER,
+                chefOrder.id,
+                printer.ip,
+                printer.port,
+              ),
+            ),
+          ),
+        );
+      }
     } else {
       this.logger.warn(
         `No active esc pos printer found for chef order: ${requestData.chefOrderId}`,

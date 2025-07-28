@@ -2,6 +2,7 @@ import {
   createMap,
   extend,
   forMember,
+  mapFrom,
   Mapper,
   mapWith,
 } from '@automapper/core';
@@ -45,6 +46,14 @@ export class ChefOrderProfile extends AutomapperProfile {
             ChefOrderItem,
             (c) => c.chefOrderItems,
           ),
+        ),
+        forMember(
+          (destination) => destination.printerChefOrders,
+          mapFrom((source: any) => source.printerChefOrders),
+        ),
+        forMember(
+          (destination) => destination.printerLabels,
+          mapFrom((source: any) => source.printerLabels),
         ),
         extend(baseMapper(mapper)),
       );

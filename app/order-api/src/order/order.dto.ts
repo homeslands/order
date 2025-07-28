@@ -26,6 +26,7 @@ import { INVALID_BRANCH_SLUG } from 'src/branch/branch.validation';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 
 export class CreateOrderRequestDto {
   @AutoMap()
@@ -218,6 +219,9 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap(() => [ChefOrderResponseDto])
   chefOrders: ChefOrderResponseDto[];
+
+  @AutoMap(() => [PrinterJobResponseDto])
+  printerInvoices?: PrinterJobResponseDto[];
 }
 
 export class GetOrderRequestDto extends BaseQueryDto {

@@ -13,10 +13,14 @@ import { PrinterWorker } from './printer.worker';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { PdfService } from 'src/pdf/pdf.service';
 import { DbModule } from 'src/db/db.module';
+import { Order } from 'src/order/order.entity';
+import { InvoiceService } from 'src/invoice/invoice.service';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PrinterJob, ChefOrder]),
+    TypeOrmModule.forFeature([PrinterJob, ChefOrder, Order, Invoice]),
     BullModule.registerQueue({
       name: QueueRegisterKey.PRINTER,
     }),
@@ -31,6 +35,8 @@ import { DbModule } from 'src/db/db.module';
     PrinterProducer,
     PrinterWorker,
     PdfService,
+    InvoiceService,
+    QrCodeService,
   ],
   exports: [PrinterService, PrinterUtils],
 })

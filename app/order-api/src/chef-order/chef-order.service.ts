@@ -15,7 +15,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import ChefOrderValidation from './chef-order.validation';
 import { ChefOrderException } from './chef-order.exception';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, FindOptionsWhere, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, In, Repository } from 'typeorm';
 import { ChefOrderStatus } from './chef-order.constants';
 import { ChefOrderItemStatus } from 'src/chef-order-item/chef-order-item.constants';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
@@ -29,7 +29,13 @@ import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { PDFDocument } from 'pdf-lib';
 import { OrderStatus } from 'src/order/order.constants';
 import { PrinterUtils } from 'src/printer/printer.utils';
-import { PrinterDataType, PrinterJobType } from 'src/printer/printer.constants';
+import {
+  PrinterDataType,
+  PrinterJobStatus,
+  PrinterJobType,
+} from 'src/printer/printer.constants';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 @Injectable()
 export class ChefOrderService {
   constructor(
@@ -42,6 +48,8 @@ export class ChefOrderService {
     private readonly pdfService: PdfService,
     private readonly systemConfigService: SystemConfigService,
     private readonly printerUtils: PrinterUtils,
+    @InjectRepository(PrinterJob)
+    private readonly printerJobRepository: Repository<PrinterJob>,
   ) {}
 
   async getBarChefOrderItemPrinterIp() {
@@ -143,6 +151,39 @@ export class ChefOrderService {
 
     const totalPages = Math.ceil(total / query.size);
 
+    const chefOrderIds = chefOrders.map((chefOrder) => chefOrder.id);
+    // get job print chef order
+    const chefOrderPrinterJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.CHEF_ORDER,
+        data: In(chefOrderIds),
+      },
+    });
+    const chefOrderJobsMap = _.groupBy(chefOrderPrinterJobs, (job) => job.data);
+    const chefOrderJobDtosMap = _.mapValues(chefOrderJobsMap, (jobs) =>
+      this.mapper.mapArray(jobs, PrinterJob, PrinterJobResponseDto),
+    );
+
+    chefOrders.forEach((chefOrder: any) => {
+      chefOrder.printerChefOrders = chefOrderJobDtosMap[chefOrder.id] || [];
+    });
+
+    // get job print label
+    const labelPrinterJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.LABEL_TICKET,
+        data: In(chefOrderIds),
+      },
+    });
+    const labelJobsMap = _.groupBy(labelPrinterJobs, (job) => job.data);
+    const labelJobDtosMap = _.mapValues(labelJobsMap, (jobs) =>
+      this.mapper.mapArray(jobs, PrinterJob, PrinterJobResponseDto),
+    );
+
+    chefOrders.forEach((chefOrder: any) => {
+      chefOrder.printerLabels = labelJobDtosMap[chefOrder.id] || [];
+    });
+
     return {
       totalPages,
       hasPrevios: query.page > 1,
@@ -152,6 +193,64 @@ export class ChefOrderService {
       total,
       items: this.mapper.mapArray(chefOrders, ChefOrder, ChefOrderResponseDto),
     };
+  }
+
+  async rePrintFailedChefOrderPrinterJobs(slug: string) {
+    const context = `${ChefOrderService.name}.${this.rePrintFailedChefOrderPrinterJobs.name}`;
+    const chefOrder = await this.chefOrderUtils.getChefOrder({
+      where: { slug },
+    });
+    if (!chefOrder) {
+      this.logger.warn(`Chef order ${slug} not found`, context);
+      throw new ChefOrderException(ChefOrderValidation.CHEF_ORDER_NOT_FOUND);
+    }
+    const printerJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.CHEF_ORDER,
+        data: chefOrder.id,
+        status: PrinterJobStatus.FAILED,
+      },
+    });
+    printerJobs.map((job) => {
+      job.status = PrinterJobStatus.PENDING;
+      job.error = null;
+    });
+
+    await this.printerJobRepository.save(printerJobs);
+    this.logger.log(
+      `Re-print ${printerJobs.length} failed printer jobs for chef order ${slug}`,
+      context,
+    );
+    return this.mapper.mapArray(printerJobs, PrinterJob, PrinterJobResponseDto);
+  }
+
+  async rePrintFailedLabelPrinterJobs(slug: string) {
+    const context = `${ChefOrderService.name}.${this.rePrintFailedLabelPrinterJobs.name}`;
+    const chefOrder = await this.chefOrderUtils.getChefOrder({
+      where: { slug },
+    });
+    if (!chefOrder) {
+      this.logger.warn(`Chef order ${slug} not found`, context);
+      throw new ChefOrderException(ChefOrderValidation.CHEF_ORDER_NOT_FOUND);
+    }
+    const printerJobs = await this.printerJobRepository.find({
+      where: {
+        jobType: PrinterJobType.LABEL_TICKET,
+        data: chefOrder.id,
+        status: PrinterJobStatus.FAILED,
+      },
+    });
+    printerJobs.map((job) => {
+      job.status = PrinterJobStatus.PENDING;
+      job.error = null;
+    });
+
+    await this.printerJobRepository.save(printerJobs);
+    this.logger.log(
+      `Re-print ${printerJobs.length} failed printer jobs for chef order ${slug}`,
+      context,
+    );
+    return this.mapper.mapArray(printerJobs, PrinterJob, PrinterJobResponseDto);
   }
 
   /**

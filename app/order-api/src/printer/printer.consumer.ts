@@ -35,8 +35,14 @@ export class PrinterConsumer extends WorkerHost {
 
   async process(data: BullJob<CreatePrintJobRequestDto>): Promise<any> {
     const context = `${PrinterConsumer.name}.${this.process.name}`;
-    const { jobType, printerIp, printerPort, bitmapDataList, chefOrder } =
-      data.data;
+    const {
+      jobType,
+      printerIp,
+      printerPort,
+      bitmapDataList,
+      chefOrder,
+      orderSlug,
+    } = data.data;
 
     try {
       if (jobType === PrinterJobType.CHEF_ORDER) {
@@ -62,6 +68,12 @@ export class PrinterConsumer extends WorkerHost {
           printerIp,
           printerPort,
           bitmapDataList,
+        );
+      } else if (jobType === PrinterJobType.INVOICE) {
+        await this.printerUtils.handlePrintInvoice(
+          printerIp,
+          printerPort,
+          orderSlug,
         );
       }
 

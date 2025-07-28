@@ -7,6 +7,7 @@ import { ChefOrderItemResponseDto } from 'src/chef-order-item/chef-order-item.dt
 import { OrderResponseDto } from 'src/order/order.dto';
 import { ChefOrderStatus } from './chef-order.constants';
 import { Type } from 'class-transformer';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 
 export class CreateChefOrderRequestDto {
   @AutoMap()
@@ -30,6 +31,12 @@ export class ChefOrderResponseDto extends BaseResponseDto {
 
   @AutoMap(() => [ChefOrderItemResponseDto])
   chefOrderItems: ChefOrderItemResponseDto[];
+
+  @AutoMap(() => [PrinterJobResponseDto])
+  printerChefOrders?: PrinterJobResponseDto[];
+
+  @AutoMap(() => [PrinterJobResponseDto])
+  printerLabels?: PrinterJobResponseDto[];
 }
 
 export class QueryGetAllChefOrderRequestDto extends BaseQueryDto {
@@ -97,4 +104,18 @@ export class UpdateChefOrderRequestDto {
     message: 'Status must be pending or accepted or rejected or completed',
   })
   status?: string;
+}
+
+export class RePrintFailedChefOrderPrinterJobsRequestDto {
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of chef order' })
+  @IsNotEmpty()
+  chefOrder: string;
+}
+
+export class RePrintFailedLabelPrinterJobsRequestDto {
+  @AutoMap()
+  @ApiProperty({ description: 'The slug of chef order' })
+  @IsNotEmpty()
+  label: string;
 }

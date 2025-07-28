@@ -69,6 +69,7 @@ import { GiftCardModule } from 'src/gift-card-modules/gift-card.module';
 import { PrinterModule } from 'src/printer/printer.module';
 import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.module';
 import { SharedModule } from 'src/shared/shared.module';
+import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 
 @Module({
   imports: [
@@ -160,6 +161,7 @@ import { SharedModule } from 'src/shared/shared.module';
     PrinterModule,
     ZaloOaConnectorModule,
     SharedModule,
+    InvoiceAreaModule,
   ],
   controllers: [AppController],
   providers: [

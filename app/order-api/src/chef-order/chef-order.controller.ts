@@ -30,6 +30,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { HasRoles } from 'src/role/roles.decorator';
 import { RoleEnum } from 'src/role/role.enum';
 import { ChefAreaResponseDto } from 'src/chef-area/chef-area.dto';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 
 @ApiTags('Chef Order')
 @Controller('chef-order')
@@ -251,5 +252,45 @@ export class ChefOrderController {
       timestamp: new Date().toISOString(),
       result: 'Printing chef order successfully',
     } as AppResponseDto<string>;
+  }
+
+  @Patch(':slug/re-print-failed-chef-order-printer-jobs')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-print failed chef order printer jobs' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Re-print failed chef order printer jobs successfully',
+    type: PrinterJobResponseDto,
+    isArray: true,
+  })
+  async rePrintFailedChefOrderPrinterJobs(@Param('slug') slug: string) {
+    const result =
+      await this.chefOrderService.rePrintFailedChefOrderPrinterJobs(slug);
+    return {
+      message: 'Re-print failed chef order printer jobs successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterJobResponseDto[]>;
+  }
+
+  @Patch(':slug/re-print-failed-label-printer-jobs')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-print failed invoice printer jobs' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Re-print failed invoice printer jobs successfully',
+    type: PrinterJobResponseDto,
+    isArray: true,
+  })
+  async rePrintFailedLabelPrinterJobs(@Param('slug') slug: string) {
+    const result =
+      await this.chefOrderService.rePrintFailedLabelPrinterJobs(slug);
+    return {
+      message: 'Re-print failed label printer jobs successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterJobResponseDto[]>;
   }
 }
