@@ -160,10 +160,10 @@
       "keywords": "thẻ quà tặng, phiếu quà tặng, thẻ quà tặng quán ăn"
     },
     "giftCardFeatureFlag": {
-      "title": "Quản lý khóa thẻ quà tặng",
-      "manageGiftCardFeatureFlag": "Quản lý khóa thẻ quà tặng",
-      "description": "Quản lý khóa thẻ quà tặng của bạn tại đây",
-      "keywords": "khóa thẻ quà tặng, quản lý khóa thẻ quà tặng, khóa thẻ quà tặng quán ăn"
+      "title": "Quản lý khóa chức năng",
+      "manageGiftCardFeatureFlag": "Quản lý khóa chức năng",
+      "description": "Quản lý khóa chức năng của bạn tại đây",
+      "keywords": "khóa thẻ quà tặng, Quản lý khóa chức năng, khóa thẻ quà tặng quán ăn"
     }
   }
 }
