@@ -16,6 +16,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PrinterException } from './printer.exception';
 import PrinterValidation from './printer.validation';
+import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
+import { InvoiceService } from 'src/invoice/invoice.service';
 
 @Injectable()
 export class PrinterUtils {
@@ -25,6 +27,7 @@ export class PrinterUtils {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(PrinterJob)
     private readonly printerJobRepository: Repository<PrinterJob>,
+    private readonly invoiceService: InvoiceService,
   ) {}
 
   async printChefOrderItemTicket(
@@ -307,5 +310,46 @@ export class PrinterUtils {
     printerJob.status = PrinterJobStatus.PENDING;
     await this.printerJobRepository.save(printerJob);
     this.logger.log(`Print job created`, context);
+  }
+
+  async printInvoice(
+    printerIp: string,
+    printerPort: string,
+    orderSlug: string,
+  ) {
+    this.printerProducer.createPrintJob({
+      jobType: PrinterJobType.INVOICE,
+      printerIp,
+      printerPort,
+      orderSlug,
+    });
+  }
+
+  async handlePrintInvoice(
+    printerIp: string,
+    printerPort: string,
+    orderSlug: string,
+  ) {
+    const context = `${PrinterUtils.name}.${this.handlePrintChefOrder.name}`;
+    const buffersToSend = await this.invoiceService.exportBufferPng({
+      order: orderSlug,
+    } as ExportInvoiceDto);
+    try {
+      const socket = this.printerManager.getOrCreateConnection(
+        printerIp,
+        printerPort,
+        PrinterType.ESC_POS,
+      );
+
+      await socket.send(buffersToSend);
+    } catch (error) {
+      this.logger.error(`Error printing invoice`, error.stack, context);
+      throw new PrinterException(PrinterValidation.ERROR_PRINTING_INVOICE);
+    } finally {
+      this.logger.log(
+        `Sent ${buffersToSend.length} invoice buffer for printer ${printerIp}:${printerPort}`,
+        context,
+      );
+    }
   }
 }

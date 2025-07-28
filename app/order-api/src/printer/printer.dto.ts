@@ -25,6 +25,14 @@ export class PrinterResponseDto extends BaseResponseDto {
   isActive: boolean;
 }
 
+export class PrinterJobResponseDto extends BaseResponseDto {
+  @AutoMap()
+  jobType: string;
+
+  @AutoMap()
+  status: string;
+}
+
 export class CreatePrinterRequestDto {
   @AutoMap()
   @ApiProperty({
@@ -167,6 +175,15 @@ export class CreatePrintJobRequestDto {
   })
   @IsOptional()
   chefOrder?: ChefOrder;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The slug of order',
+    example: 'order-123',
+    required: false,
+  })
+  @IsOptional()
+  orderSlug?: string;
 }
 
 export class PrinterJobQueryResponseDto {

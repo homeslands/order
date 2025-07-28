@@ -26,8 +26,8 @@ import { ICreateVoucherRequest } from '@/types'
 import { SimpleDatePicker } from '../picker'
 import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherTypeSelect } from '../select'
-import { VOUCHER_TYPE } from '@/constants'
+import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { useCatalogs, useProducts } from '@/hooks'
 import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
@@ -65,6 +65,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
     defaultValues: {
       voucherGroup: slug as string,
       title: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
@@ -157,6 +158,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       voucherGroup: slug as string,
       title: '',
       description: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
@@ -264,6 +266,30 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                 onChange={(value) => {
                   field.onChange(value);
                   form.setValue('value', 0); // Reset value when type changes
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    applicabilityRule: (
+      <FormField
+        control={form.control}
+        name="applicabilityRule"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.applicabilityRule')}</FormLabel>
+            <FormControl>
+              <VoucherApplicabilityRuleSelect
+                {...field}
+                onChange={(value) => {
+                  field.onChange(value);
                 }}
               />
             </FormControl>
@@ -560,14 +586,19 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    {formFields.code}
+                    {formFields.applicabilityRule}
                     {formFields.type}
                   </div>
 
-                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  {/* Nhóm: Code */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    {formFields.minOrderValue}
+                    {formFields.code}
                     {formFields.value}
+                  </div>
+
+                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    {formFields.minOrderValue}
                   </div>
                   {/* Nhóm: Số lượng sử dụng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
