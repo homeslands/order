@@ -160,10 +160,10 @@
       "keywords": "gift card, gift certificate, restaurant gift cards, gift voucher"
     },
     "giftCardFeatureFlag": {
-      "title": "Gift Card Feature Flag Management",
-      "manageGiftCardFeatureFlag": "Manage Gift Card Feature Flag",
-      "description": "Manage your gift card feature flag here",
-      "keywords": "gift card feature flag, gift card feature flag management, gift card feature flag restaurant"
+      "title": "Feature Lock Management",
+      "manageGiftCardFeatureFlag": "Manage Feature Flags",
+      "description": "Manage your feature flags here",
+      "keywords": "feature flag, Feature Lock Management, gift card feature flag"
     }
   }
 }
