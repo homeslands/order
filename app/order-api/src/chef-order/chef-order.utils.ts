@@ -63,6 +63,7 @@ export class ChefOrderUtils {
         'orderItems.variant.product.productChefAreas.chefArea.branch',
         'branch.chefAreas',
         'chefOrders',
+        'branch.invoiceAreas.printers',
       ],
     });
 
