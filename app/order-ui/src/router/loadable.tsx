@@ -423,3 +423,10 @@ export const ClientGiftCardCheckoutWithSlugPage = React.lazy(() =>
     default: module.GiftCardCheckoutPageBySlug,
   })),
 )
+
+//Feature lock management page
+export const FeatureLockManagementPage = React.lazy(() =>
+  import('@/app/system/feature-lock-management').then((module) => ({
+    default: module.FeatureLockManagementPage,
+  })),
+)

@@ -42,7 +42,7 @@ export const ROUTE = {
   STAFF_BANNER: '/system/banner',
   STAFF_CONFIG: '/system/config',
   STAFF_GIFT_CARD: '/system/gift-card',
-  STAFF_GIFT_CARD_FEATURE_FLAG: '/system/gift-card-feature-flag',
+  STAFF_GIFT_CARD_FEATURE_FLAG: '/system/feature-lock-management',
 
   //Client Routes
   CLIENT_HOME: '/',
