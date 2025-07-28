@@ -42,7 +42,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -63,7 +63,6 @@ export default function VoucherListSheetInUpdateOrder({
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { updatingData, setDraftVoucher, removeDraftVoucher } = useOrderFlowStore()
-  // const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
@@ -76,8 +75,6 @@ export default function VoucherListSheetInUpdateOrder({
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
-
-  // const orderItems = orderDraft?.orderItems || []
 
   // Create a temporary cart item for calculation
   const tempCartItem = orderDraft ? {
@@ -462,11 +459,20 @@ export default function VoucherListSheetInUpdateOrder({
 
       // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = orderDraft?.orderItems.map(item => item.variant.product.slug)
+      // const cartProductSlugs = orderDraft?.orderItems.map(item => item.productSlug)
+      const cartProductSlugs = orderDraft?.orderItems
+        .map(item => item.productSlug)
+        .filter((slug): slug is string => Boolean(slug))
 
-      return voucherProductSlugs.some(voucherSlug =>
-        cartProductSlugs.includes(voucherSlug)
+      return isVoucherApplicableToCartItems(
+        cartProductSlugs,
+        voucherProductSlugs,
+        voucher.applicabilityRule
       )
+
+      // return voucherProductSlugs.some(voucherSlug =>
+      //   cartProductSlugs.includes(voucherSlug)
+      // )
     })()
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
@@ -491,7 +497,7 @@ export default function VoucherListSheetInUpdateOrder({
     return (
       <div className={baseCardClass} key={voucher.slug}>
         {isBest && (
-          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
+          <div className="absolute px-2 py-1 text-xs text-white -top-0 -left-0 rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
         )}
@@ -500,7 +506,7 @@ export default function VoucherListSheetInUpdateOrder({
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col col-span-4 justify-between w-full">
+        <div className="flex flex-col justify-between w-full col-span-4">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -520,7 +526,7 @@ export default function VoucherListSheetInUpdateOrder({
                 {formatCurrency(voucher.value)} {t('voucher.orderValue')}
               </span>
             )}
-            <span className="flex gap-1 items-center text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
                 <Tooltip>
@@ -554,7 +560,7 @@ export default function VoucherListSheetInUpdateOrder({
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
                 {(voucher.remainingUsage > 0 || isVoucherSelected(voucher.slug))
                   ? `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`
@@ -570,14 +576,14 @@ export default function VoucherListSheetInUpdateOrder({
             {moment(voucher.endDate).format('DD/MM/YYYY')}
           </span>
         </div>
-        <div className="flex flex-col col-span-2 justify-between items-end">
+        <div className="flex flex-col items-end justify-between col-span-2">
           {!isMobile ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="p-2 h-8 text-muted-foreground"
+                    className="h-8 p-2 text-muted-foreground"
                   >
                     <CircleHelp />
                   </Button>
@@ -586,12 +592,12 @@ export default function VoucherListSheetInUpdateOrder({
                   side="bottom"
                   className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
                 >
-                  <div className="flex flex-col gap-4 justify-between">
+                  <div className="flex flex-col justify-between gap-4">
                     <div className="grid grid-cols-5">
                       <span className="col-span-2 text-muted-foreground/70">
                         {t('voucher.code')}
                       </span>
-                      <span className="flex col-span-3 gap-1 items-center">
+                      <span className="flex items-center col-span-3 gap-1">
                         {voucher.code}
                         <Button
                           variant="ghost"
@@ -647,7 +653,7 @@ export default function VoucherListSheetInUpdateOrder({
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="p-2 h-8 text-muted-foreground"
+                  className="h-8 p-2 text-muted-foreground"
                 >
                   <CircleHelp />
                 </Button>
@@ -655,12 +661,12 @@ export default function VoucherListSheetInUpdateOrder({
               <PopoverContent
                 className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
               >
-                <div className="flex flex-col gap-4 justify-between">
+                <div className="flex flex-col justify-between gap-4">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
                     </span>
-                    <span className="flex col-span-3 gap-1 items-center">
+                    <span className="flex items-center col-span-3 gap-1">
                       {voucher.code}
                       <Button
                         variant="ghost"
@@ -723,7 +729,7 @@ export default function VoucherListSheetInUpdateOrder({
                 : t('voucher.use')}
             </Button>
           ) : (
-            <div className="flex flex-col gap-1 items-end">
+            <div className="flex flex-col items-end gap-1">
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
@@ -739,9 +745,9 @@ export default function VoucherListSheetInUpdateOrder({
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="px-0 w-full bg-primary/15 hover:bg-primary/20">
-          <div className="flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer">
-            <div className="flex gap-1 items-center">
+        <Button variant="ghost" className="w-full px-0 bg-primary/15 hover:bg-primary/20">
+          <div className="flex items-center justify-between w-full gap-1 p-2 rounded-md cursor-pointer">
+            <div className="flex items-center gap-1">
               <TicketPercent className="icon text-primary" />
               <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
@@ -763,9 +769,9 @@ export default function VoucherListSheetInUpdateOrder({
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
+              <div className="grid items-center grid-cols-4 gap-2 sm:grid-cols-5">
                 <div className="relative col-span-3 p-1 sm:col-span-4">
-                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
+                  <TicketPercent className="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
@@ -784,7 +790,7 @@ export default function VoucherListSheetInUpdateOrder({
             </div>
             {/* Voucher list */}
             <div>
-              <div className="flex justify-between items-center py-4">
+              <div className="flex items-center justify-between py-4">
                 <Label className="text-md text-muted-foreground">
                   {t('voucher.list')}
                 </Label>

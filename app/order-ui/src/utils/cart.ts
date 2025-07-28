@@ -2,7 +2,7 @@ import moment from 'moment'
 import _ from 'lodash'
 
 import { useCartItemStore } from '@/stores'
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import {
   ICartItem,
   IDisplayCartItem,
@@ -86,17 +86,38 @@ export const setupAutoClearCart = () => {
   }
 }
 
+function isVoucherApplicable(cartItems: ICartItem, voucher: IVoucher): boolean {
+  if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) return true
+
+  const cartSlugs = cartItems.orderItems.map(item => item.slug)
+  const requiredSlugs = voucher.voucherProducts.map(vp => vp.product?.slug)
+
+  const matchedCount = requiredSlugs.filter(slug => cartSlugs.includes(slug)).length
+
+  if (voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
+    return matchedCount === requiredSlugs.length
+  }
+
+  if (voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
+    return matchedCount > 0
+  }
+
+  return false
+}
+
+
 export function calculateCartItemDisplay(
   cartItems: ICartItem | null,
   voucher: IVoucher | null,
 ): IDisplayCartItem[] {
   if (!cartItems || !cartItems.orderItems) return []
 
+  const isVoucherValid = voucher ? isVoucherApplicable(cartItems, voucher) : false
   const voucherProductSlugs =
     voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
   const displayItems = cartItems.orderItems.map((item) => {
-    const original = item.originalPrice ?? item.originalPrice ?? 0
+    const original = item.originalPrice ?? 0
 
     const promotionDiscount =
       item.promotionDiscount ??
@@ -104,59 +125,59 @@ export function calculateCartItemDisplay(
 
     const priceAfterPromotion = Math.max(0, original - promotionDiscount)
 
-    // Nếu là voucher SAME_PRICE_PRODUCT và áp dụng cho item này
-    const shouldApplyItemVoucher =
-      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-      voucherProductSlugs.includes(item.slug)
-    const shouldApplyPercentOrderItemVoucher =
-      voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-    const shouldApplyFixedValueItemVoucher =
-      voucher?.type === VOUCHER_TYPE.FIXED_VALUE
+    const isItemInVoucherList = voucherProductSlugs.includes(item.slug)
 
-    if (shouldApplyItemVoucher) {
-      let newPrice = 0
-      if (voucher.value <= 1) {
-        newPrice = Math.round(original * (1 - voucher.value))
-      } else {
-        newPrice = Math.min(original, voucher.value)
+    // === APPLY VOUCHER ===
+    if (isVoucherValid) {
+      if (
+        voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+        isItemInVoucherList
+      ) {
+        let newPrice = 0
+        if (voucher.value <= 1) {
+          newPrice = Math.round(original * (1 - voucher.value))
+        } else {
+          newPrice = Math.min(original, voucher.value)
+        }
+
+        const voucherDiscount = original - newPrice
+        return {
+          ...item,
+          finalPrice: newPrice,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount,
+        }
       }
 
-      const voucherDiscount = original - newPrice
-      return {
-        ...item,
-        finalPrice: newPrice,
-        priceAfterPromotion: priceAfterPromotion,
-        promotionDiscount: promotionDiscount,
-        voucherDiscount,
+      if (voucher?.type === VOUCHER_TYPE.PERCENT_ORDER) {
+        const voucherDiscount = (voucher.value * original) / 100
+        return {
+          ...item,
+          finalPrice: priceAfterPromotion,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount,
+        }
+      }
+
+      if (voucher?.type === VOUCHER_TYPE.FIXED_VALUE) {
+        const voucherDiscount = voucher.value / cartItems.orderItems.length
+        return {
+          ...item,
+          finalPrice: priceAfterPromotion,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount,
+        }
       }
     }
 
-    if (shouldApplyPercentOrderItemVoucher) {
-      const voucherDiscount = (voucher.value * (item?.originalPrice ?? 0)) / 100
-      return {
-        ...item,
-        finalPrice: priceAfterPromotion,
-        priceAfterPromotion: priceAfterPromotion,
-        promotionDiscount: promotionDiscount,
-        voucherDiscount,
-      }
-    }
-
-    if (shouldApplyFixedValueItemVoucher) {
-      const voucherDiscount = (item?.originalPrice ?? 0) - voucher.value
-      return {
-        ...item,
-        priceAfterPromotion: priceAfterPromotion,
-        finalPrice: priceAfterPromotion,
-        promotionDiscount,
-        voucherDiscount,
-      }
-    }
-
+    // === DEFAULT ===
     return {
       ...item,
       finalPrice: priceAfterPromotion,
-      priceAfterPromotion: priceAfterPromotion,
+      priceAfterPromotion,
       promotionDiscount,
       voucherDiscount: 0,
     }
@@ -164,6 +185,7 @@ export function calculateCartItemDisplay(
 
   return displayItems
 }
+
 
 export function calculateOrderItemDisplay(
   orderItems: IOrderDetail[],

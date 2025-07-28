@@ -113,6 +113,7 @@ const errorCodes: { [key: number]: string } = {
   143417: 'toast.voucherHasOrder',
   143421: 'toast.mustVerifyIdentityToUseVoucher',
   143422: 'toast.voucherProductNotApplicable',
+  143424: 'toast.allProductMustBeAppliedToVoucher',
   // Error data duplicate product and branch in product chef area
   154501: 'toast.duplicateProductAndBranch',
 
