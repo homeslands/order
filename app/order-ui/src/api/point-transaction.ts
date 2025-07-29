@@ -22,6 +22,9 @@ export async function getPointTransactions(
 // Export all point transactions for a user
 export async function exportAllPointTransactions(
   userSlug: string,
+  fromDate: string | undefined,
+  toDate: string | undefined,
+  type: string | undefined,
 ): Promise<Blob> {
   const { setProgress, setFileName, setIsDownloading, reset } =
     useDownloadStore.getState()
@@ -32,7 +35,12 @@ export async function exportAllPointTransactions(
 
   try {
     const response = await http.get(`/point-transaction/export`, {
-      params: { userSlug },
+      params: {
+        userSlug,
+        fromDate,
+        toDate,
+        type,
+      },
       responseType: 'blob',
       headers: {
         Accept:
