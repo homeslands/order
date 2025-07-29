@@ -141,7 +141,7 @@ export class JobService {
           order: order.slug,
         } as ExportInvoiceDto);
 
-        this.eventEmitter.emit(InvoiceAction.INVOICE_CREATED, {
+        await this.eventEmitter.emitAsync(InvoiceAction.INVOICE_CREATED, {
           orderId: order.id,
         });
 
