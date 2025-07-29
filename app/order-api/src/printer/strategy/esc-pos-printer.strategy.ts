@@ -4,6 +4,7 @@ import { IPrinterConnection } from './printer.strategy';
 import { PrinterException } from '../printer.exception';
 import PrinterValidation from '../printer.validation';
 import { Logger } from '@nestjs/common';
+import sharp from 'sharp';
 
 export class EscPosPrinterConnection implements IPrinterConnection {
   public readonly type = PrinterType.ESC_POS;
@@ -28,7 +29,10 @@ export class EscPosPrinterConnection implements IPrinterConnection {
         `Sending ${data.length} bytes to printer ${this.ip}:${this.port}`,
         context,
       );
-      await this.printer.printImageBuffer(data);
+      const slices = await splitImageBuffer(data, 1000);
+      for (const slice of slices) {
+        await this.printer.printImageBuffer(slice);
+      }
       await this.printer.cut();
       await this.printer.execute();
 
@@ -57,4 +61,28 @@ export class EscPosPrinterConnection implements IPrinterConnection {
   close(): void {
     // Not explicitly supported in library, leave empty
   }
+}
+
+async function splitImageBuffer(
+  buffer: Buffer,
+  sliceHeight: number,
+): Promise<Buffer[]> {
+  const metadata = await sharp(buffer).metadata();
+  const slices: Buffer[] = [];
+
+  const totalSlices = Math.ceil(metadata.height / sliceHeight);
+  for (let i = 0; i < totalSlices; i++) {
+    const top = i * sliceHeight;
+    const slice = await sharp(buffer)
+      .extract({
+        top,
+        left: 0,
+        width: metadata.width,
+        height: Math.min(sliceHeight, metadata.height - top),
+      })
+      .png()
+      .toBuffer();
+    slices.push(slice);
+  }
+  return slices;
 }
