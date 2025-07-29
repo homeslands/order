@@ -21,3 +21,9 @@ export interface IPointTransactionQuery {
   toDate?: string // YYYY-MM-DD format
   type?: PointTransactionType
 }
+
+export interface UsePointTransactionsFilters {
+  fromDate?: string
+  toDate?: string
+  type?: PointTransactionType
+}
