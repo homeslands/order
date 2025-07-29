@@ -113,6 +113,9 @@
     "transactionDetails": "Transaction Details",
     "transactionType": "Transaction Type",
     "Serial": "Serial Number",
-    "paymentForOrder": "Payment for Order"
+    "paymentForOrder": "Payment for Order",
+    "totalEarned": "Total Earned",
+    "totalSpent": "Total Spent",
+    "netDifference": "Net Difference"
   }
 }
