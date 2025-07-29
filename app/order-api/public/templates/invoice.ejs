@@ -9,6 +9,20 @@
     <style>
       <%- include(dir + '/public/css/tailwind.min.css') %>
     </style>
+    <style>
+      @font-face {
+        font-family: 'MyFont';
+        src: url('file://<%= process.cwd() %>/public/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+        font-weight: 100 900;
+        font-style: normal;
+      }
+    
+      html, body, * {
+        font-family: 'MyFont', sans-serif !important;
+        font-weight: 400;
+      }
+    </style>
+    
 </head>
 
 <body>
@@ -65,11 +79,11 @@
     <table class="mt-4 min-w-full text-sm border-collapse table-auto">
       <thead>
         <tr class="border-b border-black bg-white-100">
-          <th class="py-2 w-2/3 text-left">Món</th>
-          <th class="px-1 py-2 text-left">SL</th>
-          <th class="px-2 py-2 text-left">Đ.Giá</th>
-          <th class="px-2 py-2 text-left">K.Mãi(%) </th>
-          <th class="px-2 py-2 text-left">T.Tiền</th>
+          <th class="py-2 w-2/3 text-left font-bold">Món</th>
+          <th class="px-1 py-2 text-left font-bold">SL</th>
+          <th class="px-2 py-2 text-left font-bold">Đ.Giá</th>
+          <th class="px-2 py-2 text-left font-bold">K.Mãi(%) </th>
+          <th class="px-2 py-2 text-left font-bold">T.Tiền</th>
         </tr>
       </thead>
       <tbody>
