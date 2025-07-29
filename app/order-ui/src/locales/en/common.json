@@ -30,7 +30,8 @@
     "somethingWentWrong": "Something went wrong",
     "hour": "Hour",
     "minute": "Minute",
-    "endDateMustBeGreaterThanStartDate": "End date must be greater than start date"
+    "endDateMustBeGreaterThanStartDate": "End date must be greater than start date",
+    "reset": "Reset"
   },
   "dataTable": {
     "rowsPerPage": "Rows per page",

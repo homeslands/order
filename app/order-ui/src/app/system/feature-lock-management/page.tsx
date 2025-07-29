@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { LockOpen, Lock, Save } from 'lucide-react'
+import { LockOpen, Lock, Save, Unlock } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 
 import {
@@ -105,17 +105,19 @@ export default function FeatureLockManagementPage() {
           {t('giftCard.giftCardFeatureFlag.pageTitle')}
         </span>
 
-        {hasChanges && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleReset} disabled={isSaving}>
-              {tCommon('common.close')}
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              <Save className="mr-2 h-4 w-4" />
-              {tCommon('common.save')}
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            disabled={isSaving || !hasChanges}
+          >
+            {tCommon('common.reset')}
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving || !hasChanges}>
+            <Save className="mr-2 h-4 w-4" />
+            {tCommon('common.save')}
+          </Button>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -126,41 +128,41 @@ export default function FeatureLockManagementPage() {
                 <Lock className="h-5 w-5" />
                 {t('giftCard.giftCardFeatureFlag.featureControls')}
               </div>
-              <div>
-                {/* Button Unlock All */}
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setLocalFlags((prev) =>
-                      prev.map((flag) => ({ ...flag, isLocked: false })),
-                    )
-                    setHasChanges(true)
-                  }}
-                  disabled={
-                    isSaving ||
-                    isLoading ||
-                    localFlags.every((flag) => !flag.isLocked)
-                  }
-                >
-                  {t('giftCard.giftCardFeatureFlag.unlockAll')}
-                </Button>
-                {/* Button Lock All */}
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setLocalFlags((prev) =>
-                      prev.map((flag) => ({ ...flag, isLocked: true })),
-                    )
-                    setHasChanges(true)
-                  }}
-                  disabled={
-                    isSaving ||
-                    isLoading ||
-                    localFlags.every((flag) => flag.isLocked)
-                  }
-                >
-                  {t('giftCard.giftCardFeatureFlag.lockAll')}
-                </Button>
+              <div className="pr-4">
+                {/* Switch Unlock/lock All */}
+                <div className="flex items-center gap-2">
+                  <Label
+                    htmlFor="lock-all-switch"
+                    className={`cursor-pointer font-semibold transition-colors ${
+                      localFlags.every((flag) => flag.isLocked)
+                        ? 'text-red-600 hover:text-red-700'
+                        : 'text-green-600 hover:text-green-700'
+                    }`}
+                  >
+                    {localFlags.every((flag) => flag.isLocked) ? (
+                      <div className="flex items-center gap-1">
+                        <Unlock className="h-4 w-4" />
+                        {t('giftCard.giftCardFeatureFlag.unlockAll')}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <Lock className="h-4 w-4" />
+                        {t('giftCard.giftCardFeatureFlag.lockAll')}
+                      </div>
+                    )}
+                  </Label>
+                  <Switch
+                    id="lock-all-switch"
+                    checked={localFlags.every((flag) => flag.isLocked)}
+                    disabled={isSaving || isLoading || localFlags.length === 0}
+                    onCheckedChange={(checked) => {
+                      setLocalFlags((prev) =>
+                        prev.map((flag) => ({ ...flag, isLocked: checked })),
+                      )
+                      setHasChanges(true)
+                    }}
+                  />
+                </div>
               </div>
             </CardTitle>
             <CardDescription>
