@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -55,6 +55,7 @@ export default function VoucherListSheet() {
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { getCartItems, addVoucher, removeVoucher, isHydrated } = useOrderFlowStore()
+  const isRemovingVoucherRef = useRef(false)
   // const { cartItems, addVoucher, removeVoucher, isHydrated } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
@@ -116,6 +117,30 @@ export default function VoucherListSheet() {
       code: selectedVoucher
     },
   )
+
+  // Auto-check voucher validity when orderItems change
+  useEffect(() => {
+    if (cartItems?.voucher && cartItems?.orderItems && !isRemovingVoucherRef.current) {
+      const currentVoucher = cartItems.voucher
+
+      // Only check for vouchers with ALL_REQUIRED rule
+      if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
+        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || item.slug)
+        const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
+        // Check if there are any products in cart that are NOT in voucher products
+        const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
+          !voucherProductSlugs.includes(cartSlug)
+        )
+
+        if (hasInvalidProducts) {
+          isRemovingVoucherRef.current = true
+          handleToggleVoucher(currentVoucher)
+        }
+      }
+    } else {
+      isRemovingVoucherRef.current = false
+    }
+  }, [cartItems?.orderItems, cartItems?.voucher?.slug]) // Trigger when orderItems change
 
   // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
   useEffect(() => {

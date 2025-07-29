@@ -119,6 +119,29 @@ export default function StaffVoucherListSheet() {
     }
   )
 
+  // Auto-check voucher validity when orderItems change
+  useEffect(() => {
+    if (cartItems?.voucher && cartItems?.orderItems) {
+      const currentVoucher = cartItems.voucher
+
+      // Only check for vouchers with ALL_REQUIRED rule
+      if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
+        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || '')
+        const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
+
+        // Check if there are any products in cart that are NOT in voucher products
+        const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
+          !voucherProductSlugs.includes(cartSlug)
+        )
+
+        if (hasInvalidProducts) {
+          // Auto remove voucher
+          handleToggleVoucher(currentVoucher)
+        }
+      }
+    }
+  }, [cartItems?.orderItems]) // Trigger when orderItems change
+
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
     const vouchers = [specificVoucher?.result].filter((v): v is IVoucher => !!v)

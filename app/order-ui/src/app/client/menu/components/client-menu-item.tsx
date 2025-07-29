@@ -85,6 +85,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       allVariants: product?.product?.variants,
       variant: product?.product?.variants[0],
       originalPrice: product?.product?.variants[0]?.price,
+      productSlug: product?.product?.slug,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
       promotion: product?.promotion ? product?.promotion?.slug : null,

@@ -119,8 +119,6 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
     }
   )
 
-  // ...existing code...
-
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
     if (orderDraft?.voucher && orderDraft?.orderItems) {
@@ -142,7 +140,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
         }
       }
     }
-  }, [orderDraft?.orderItems]) // Trigger when orderItems change
+  }, [orderDraft?.orderItems, orderDraft?.voucher?.slug]) // Trigger when orderItems change
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
