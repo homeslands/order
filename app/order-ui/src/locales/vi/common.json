@@ -37,7 +37,8 @@
     "time": "giờ",
     "hour": "Giờ",
     "minute": "Phút",
-    "endDateMustBeGreaterThanStartDate": "Ngày kết thúc phải lớn hơn ngày bắt đầu"
+    "endDateMustBeGreaterThanStartDate": "Ngày kết thúc phải lớn hơn ngày bắt đầu",
+    "reset": "Đặt lại"
   },
   "dataTable": {
     "rowsPerPage": "Số hàng mỗi trang",
