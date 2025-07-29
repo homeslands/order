@@ -83,7 +83,6 @@ export class PrinterWorker implements OnModuleInit {
   @Cron('*/2 * * * * *')
   async handlePrintJob() {
     const context = `${PrinterWorker.name}.${this.handlePrintJob.name}`;
-    this.logger.log(`Handling print job`, context);
 
     let printerJob: any;
 
@@ -119,7 +118,6 @@ export class PrinterWorker implements OnModuleInit {
         // await new Promise((resolve) => setTimeout(resolve, 10000));
         await queryRunner.rollbackTransaction();
         await queryRunner.release();
-        this.logger.log(`No pending print job`, context);
         return;
       }
 
@@ -156,6 +154,8 @@ export class PrinterWorker implements OnModuleInit {
     // await queryRunner.commitTransaction();
     // await queryRunner.release();
     // console.log('queryRunner released');
+
+    this.logger.log(`Handling print job`, context);
 
     if (printerJob.jobType === PrinterJobType.LABEL_TICKET) {
       this.logger.log('Printing label ticket', context);
