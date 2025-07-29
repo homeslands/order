@@ -113,6 +113,9 @@
     "transactionDetails": "Chi tiết giao dịch",
     "transactionType": "Loại giao dịch",
     "serial": "Số seri",
-    "paymentForOrder": "Thanh toán đơn hàng"
+    "paymentForOrder": "Thanh toán đơn hàng",
+    "totalEarned": "Tổng thu",
+    "totalSpent": "Tổng chi",
+    "netDifference": "Chênh lệch"
   }
 }

@@ -72,13 +72,34 @@ export class PointTransactionService {
     });
     if (!user) throw new AuthException(AuthValidation.USER_NOT_FOUND);
 
+    const { userSlug } = query;
+
+    const whereOpts: FindOptionsWhere<PointTransaction> = {};
+
+    if (userSlug) {
+      whereOpts.user = {
+        slug: userSlug,
+      };
+    }
+
+    if (query.type) {
+      whereOpts.type = query.type;
+    }
+
+    if (query.fromDate && !query.toDate) {
+      whereOpts.createdAt = MoreThan(query.fromDate);
+    }
+
+    if (query.fromDate && query.toDate) {
+      whereOpts.createdAt = Between(query.fromDate, query.toDate);
+    }
+
     const pts = await this.ptRepository.find({
-      where: {
-        user: {
-          slug: query.userSlug,
-        },
-      },
+      where: whereOpts,
       relations: ['user'],
+      order: {
+        createdAt: 'ASC'
+      }
     });
 
     const logoUri = fileToBase64DataUri('public/images/logo.png', 'image/png');
