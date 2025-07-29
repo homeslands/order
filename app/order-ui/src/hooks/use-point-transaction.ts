@@ -178,13 +178,18 @@ export function usePointTransactions({
 
     setIsExportingAll(true)
     try {
-      const blob = await exportAllPointTransactions(userSlug)
+      const blob = await exportAllPointTransactions(
+        userSlug,
+        filters.fromDate,
+        filters.toDate,
+        filters.type == PointTransactionType.ALL ? undefined : filters.type,
+      )
       const filename = `point-transactions-${userSlug}-${new Date().toISOString().split('T')[0]}.pdf`
       saveAs(blob, filename)
     } finally {
       setIsExportingAll(false)
     }
-  }, [userSlug])
+  }, [filters.fromDate, filters.toDate, filters.type, userSlug])
 
   // Export single transaction
   const exportTransaction = useCallback(async (transactionSlug: string) => {
