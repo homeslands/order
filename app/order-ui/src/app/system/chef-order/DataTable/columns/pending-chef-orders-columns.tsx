@@ -2,7 +2,7 @@ import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import ejs from 'ejs'
 import { useTranslation } from 'react-i18next'
-import { DownloadIcon, MoreHorizontal } from 'lucide-react'
+import { DownloadIcon, Loader2, MoreHorizontal } from 'lucide-react'
 
 import {
   Button,
@@ -22,6 +22,8 @@ import { openPrintWindow, showToast } from '@/utils'
 import { Be_Vietnam_Pro_base64 } from '@/assets/font/base64';
 import { Logo } from '@/assets/images';
 import { useUserStore } from '@/stores'
+import { PrinterJobType } from '@/constants'
+import { useReprintFailedChefOrderPrinterJobs, useReprintFailedLabelPrinterJobs } from '@/hooks'
 
 const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
 <html lang="vi">
@@ -260,6 +262,9 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
+  const { mutate: reprintFailedChefOrderJobs, isPending: isReprintingFailedChefOrderJobs } = useReprintFailedChefOrderPrinterJobs()
+  const { mutate: reprintFailedLabelJobs, isPending: isReprintingFailedLabelJobs } = useReprintFailedLabelPrinterJobs()
+
 
   const handleExportChefOrder = async (chefOrder: IChefOrders | undefined) => {
     await exportChefOrder(chefOrder)
@@ -366,6 +371,24 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
     } catch {
       showToast(tToast('toast.exportChefOrderTicketError'));
     }
+  };
+
+  const handleReprintFailedChefOrderPrinterJobs = async (chefOrder: IChefOrders | undefined) => {
+    if (!chefOrder) return;
+    await Promise.all([
+      reprintFailedChefOrderJobs(chefOrder.slug, {
+        onSuccess: () => showToast(tToast('toast.reprintFailedChefOrderSuccess')),
+      })
+    ]);
+  };
+
+  const handleReprintFailedLabelPrinterJobs = async (chefOrder: IChefOrders | undefined) => {
+    if (!chefOrder) return;
+    await Promise.all([
+      reprintFailedLabelJobs(chefOrder.slug, {
+        onSuccess: () => showToast(tToast('toast.reprintFailedLabelJobsSuccess')),
+      }),
+    ]);
   };
 
   return [
@@ -506,12 +529,111 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         )
       },
     },
+    {
+      accessorKey: 'printerChefOrders',
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          key={column.id}
+          column={column}
+          title={t('chefOrder.printerChefOrders')}
+        />
+      ),
+      cell: ({ row }) => {
+        const printerChefOrders = row.original.printerChefOrders || []
+
+        const countByStatus: Record<PrinterJobType, number> = {
+          pending: 0,
+          printing: 0,
+          printed: 0,
+          failed: 0,
+        }
+
+        for (const job of printerChefOrders) {
+          const status = job.status as PrinterJobType
+          countByStatus[status]++
+        }
+
+        const statusLabels: Record<PrinterJobType, string> = {
+          printed: t('chefOrder.printed'),   // ví dụ: 'Đã in'
+          printing: t('chefOrder.printing'), // ví dụ: 'Đang in'
+          pending: t('chefOrder.pendingPrint'),   // ví dụ: 'Chờ in'
+          failed: t('chefOrder.failed'),     // ví dụ: 'Lỗi'
+        }
+
+        const statusColors: Record<PrinterJobType, string> = {
+          printed: 'text-green-600',
+          printing: 'text-blue-600',
+          pending: 'text-gray-500',
+          failed: 'text-red-600',
+        }
+
+        return (
+          <div className="flex flex-col flex-wrap text-xs font-medium gap-x-3 xl:text-sm">
+            {(['printed', 'printing', 'pending', 'failed'] as PrinterJobType[]).map(status => (
+              <span key={status} className={statusColors[status]}>
+                {statusLabels[status]}: {countByStatus[status]}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    },
+    {
+      accessorKey: 'printerLabels',
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          key={column.id}
+          column={column}
+          title={t('chefOrder.printerLabels')}
+        />
+      ),
+      cell: ({ row }) => {
+        const printerLabels = row.original.printerLabels || []
+
+        const countByStatus: Record<PrinterJobType, number> = {
+          pending: 0,
+          printing: 0,
+          printed: 0,
+          failed: 0,
+        }
+
+        for (const job of printerLabels) {
+          const status = job.status as PrinterJobType
+          countByStatus[status]++
+        }
+
+        const statusLabels: Record<PrinterJobType, string> = {
+          printed: t('chefOrder.printed'),   // ví dụ: 'Đã in'
+          printing: t('chefOrder.printing'), // ví dụ: 'Đang in'
+          pending: t('chefOrder.pendingPrint'),   // ví dụ: 'Chờ in'
+          failed: t('chefOrder.failed'),     // ví dụ: 'Lỗi'
+        }
+
+        const statusColors: Record<PrinterJobType, string> = {
+          printed: 'text-green-600',
+          printing: 'text-blue-600',
+          pending: 'text-gray-500',
+          failed: 'text-red-600',
+        }
+
+        return (
+          <div className="flex flex-col flex-wrap text-xs font-medium gap-x-3 xl:text-sm">
+            {(['printed', 'printing', 'pending', 'failed'] as PrinterJobType[]).map(status => (
+              <span key={status} className={statusColors[status]}>
+                {statusLabels[status]}: {countByStatus[status]}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    },
 
     {
       id: 'actions',
       header: tCommon('common.action'),
       cell: ({ row }) => {
         const chefOrder = row.original
+        const failedJobs = chefOrder.printerChefOrders?.some(job => job.status !== PrinterJobType.PRINTED)
         return (
           <div>
             <DropdownMenu>
@@ -521,7 +643,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="flex flex-col gap-2">
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
@@ -530,6 +652,36 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
+                {chefOrder.status !== ChefOrderStatus.PENDING && failedJobs ? (
+                  <Button
+                    disabled={isReprintingFailedChefOrderJobs}
+                    variant="ghost"
+                    className="text-xs xl:text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleReprintFailedChefOrderPrinterJobs(chefOrder)
+                    }}
+                  >
+                    {isReprintingFailedChefOrderJobs && <Loader2 className="mr-2 animate-spin" />}
+                    <DownloadIcon />
+                    {t('chefOrder.reprintFailedChefOrderJobs')}
+                  </Button>
+                ) : null}
+                {chefOrder.status !== ChefOrderStatus.PENDING && failedJobs ? (
+                  <Button
+                    disabled={isReprintingFailedLabelJobs}
+                    variant="ghost"
+                    className="text-xs xl:text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleReprintFailedLabelPrinterJobs(chefOrder)
+                    }}
+                  >
+                    {isReprintingFailedLabelJobs && <Loader2 className="mr-2 animate-spin" />}
+                    <DownloadIcon />
+                    {t('chefOrder.reprintFailedLabelJobs')}
+                  </Button>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

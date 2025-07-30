@@ -18,6 +18,9 @@ import {
   getSpecificChefOrder,
   pingPrinterForChefArea,
   removeProductFromChefArea,
+  reprintFailedChefOrderPrinterJobs,
+  reprintFailedLabelPrinterJobs,
+  testExportTickets,
   togglePrinterForChefArea,
   updateChefArea,
   updateChefOrderItemStatus,
@@ -234,6 +237,30 @@ export const usePingPrinterForChefArea = () => {
   return useMutation({
     mutationFn: async ({ slug, printerSlug }: { slug: string; printerSlug: string }) => {
       return pingPrinterForChefArea(slug, printerSlug)
+    },
+  })
+}
+
+export const useTestExportTickets = () => {
+  return useMutation({
+    mutationFn: async ({slug, maxCount, type}: {slug: string; maxCount: number; type: string}) => {
+      return testExportTickets(slug, maxCount, type)
+    },
+  })
+}
+
+export const useReprintFailedChefOrderPrinterJobs = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return reprintFailedChefOrderPrinterJobs(slug)
+    },
+  })
+}
+
+export const useReprintFailedLabelPrinterJobs = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return reprintFailedLabelPrinterJobs(slug)
     },
   })
 }
