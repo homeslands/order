@@ -343,3 +343,10 @@ export async function deleteOrderWithoutLogin(
   )
   return response.data
 }
+
+export async function reprintFailedInvoicePrinterJobs(
+  slug: string,
+): Promise<IApiResponse<{ success: boolean }>> {
+  const response = await http.patch(`/orders/${slug}/re-print-failed-invoice-printer-jobs`)
+  return response.data
+}
