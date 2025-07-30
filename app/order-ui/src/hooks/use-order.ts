@@ -24,6 +24,7 @@ import {
   updateOrderItem,
   updateVoucherInOrder,
   getOrderProvisionalBill,
+  reprintFailedInvoicePrinterJobs,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -254,5 +255,13 @@ export const useGetAllOrderWithoutLogin = () => {
   return useQuery({
     queryKey: ['orders-without-login'],
     queryFn: () => getAllOrderWithoutLogin(),
+  })
+}
+
+export const useReprintFailedInvoicePrinterJobs = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return reprintFailedInvoicePrinterJobs(slug)
+    },
   })
 }

@@ -1,4 +1,4 @@
-import { PaymentMethod, paymentStatus } from '@/constants'
+import { PaymentMethod, paymentStatus, PrinterJobType } from '@/constants'
 import { IBase } from './base.type'
 // import { ICatalog } from './catalog.type'
 import { IProduct, IProductVariant } from './product.type'
@@ -160,6 +160,11 @@ export interface IPayment extends IBase {
   statusMessage: string
 }
 
+export interface IOrderPrinterInvoices extends IBase {
+  jobType: string
+  status: PrinterJobType
+}
+
 export interface IOrder extends IBase {
   approvalBy: {
     createdAt: string
@@ -170,6 +175,7 @@ export interface IOrder extends IBase {
   }
   referenceNumber: number
   chefOrders: IChefOrders[]
+  printerInvoices: IOrderPrinterInvoices[]  
   type: string
   table: ITable
   payment: IPayment
