@@ -161,6 +161,7 @@ export default function FeatureLockManagementPage() {
                       )
                       setHasChanges(true)
                     }}
+                    className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-primary"
                   />
                 </div>
               </div>
@@ -216,6 +217,7 @@ export default function FeatureLockManagementPage() {
                       checked={flag.isLocked}
                       onCheckedChange={() => handleToggleFlag(flag.slug)}
                       disabled={isSaving}
+                      className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-primary"
                     />
                   </div>
                 ))
