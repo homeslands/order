@@ -265,7 +265,12 @@
     "ownerChanged": "Thay đổi khách hàng",
     "noteChanged": "Thay đổi ghi chú",
     "noChanges": "Không có thay đổi",
-    "itemNoteChanged": "Ghi chú món đã thay đổi"
+    "itemNoteChanged": "Ghi chú món đã thay đổi",
+    "printerOrders": "Trạng thái in hóa đơn",
+    "pendingPrint": "Chờ in",
+    "printed": "Đã in",
+    "printing": "Đang in",
+    "reprintFailedOrderJobs": "In lại hóa đơn"
   },
   "table": {
     "title": "Danh sách bàn"
