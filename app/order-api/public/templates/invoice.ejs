@@ -8,34 +8,11 @@
   <% var dir=process.cwd() %>
     <style>
       <%- include(dir + '/public/css/tailwind.min.css') %>
-    </style>
-    <style>
-      @font-face {
-        font-family: 'MyFont';
-        src: url('file://<%= process.cwd() %>/public/fonts/Roboto_Condensed-Regular') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-      }
-    
-      html, body, * {
-        font-family: 'MyFont', sans-serif !important;
-        font-weight: 400;
-      }
-
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        min-width: 302px;
-        max-width: 302px;
-        box-sizing: border-box;
-      }
-    </style>
-    
+    </style>    
 </head>
 
 <body>
-  <div class="p-5 pt-0">
+  <div class="p-3 pt-0">
     <!-- Logo -->
     <div class="mb-1">
       <div class="flex justify-center items-center">
@@ -92,7 +69,7 @@
           <th class="px-1 py-2 text-left font-bold">SL</th>
           <th class="px-2 py-2 text-left font-bold">Đ.Giá</th>
           <th class="px-2 py-2 text-left font-bold">K.Mãi(%) </th>
-          <th class="px-2 py-2 text-left font-bold">T.Tiền</th>
+          <th class="px-2 py-2 text-right font-bold">T.Tiền</th>
         </tr>
       </thead>
       <tbody>
@@ -161,7 +138,7 @@
                 <%= item.promotionValue %>
               <% } %>
             </td>
-            <td class="px-2 py-2 text-xs">
+            <td class="px-2 py-2 text-xs text-right">
               <%= formatCurrency(item.total) %>
                 <% if (item.discountType==='promotion' ) { %>
                   (*)
@@ -219,16 +196,16 @@
                 </td>
               </tr>
               <% } %>
-              <tr class="border-t border-black">
-                <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
-                <td class="py-2 text-xl font-bold text-right">
-                  <% if ((paymentMethod==='point' )) { %>
-                    <%= formatCurrency(0) %>
-                  <% } else { %>
-                    <%= formatCurrency(amount) %>
-                  <% } %>
-                </td>
-              </tr>
+                <tr class="border-t border-black">
+                  <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
+                  <td class="py-2 font-bold text-right">
+                    <% if ((paymentMethod==='point' )) { %>
+                      <%= formatCurrency(0) %>
+                        <% } else { %>
+                          <%= formatCurrency(amount) %>
+                            <% } %>
+                  </td>
+                </tr>
       </tbody>
     </table>
     <p class="text-xs mt-2">
