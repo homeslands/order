@@ -130,15 +130,16 @@ export class PdfService {
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
 
     await page.setViewport({
-      width: 290,
+      // width: 290,
+      width: 302,
       height: 100,
-      // deviceScaleFactor: 1,
-      deviceScaleFactor: 2,
+      deviceScaleFactor: 1,
+      // deviceScaleFactor: 2,
     });
 
     // await page.emulateMediaType('screen');
