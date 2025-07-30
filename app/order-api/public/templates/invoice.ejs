@@ -66,24 +66,36 @@
       <thead>
         <tr class="border-b border-black bg-white-100">
           <th class="py-2 w-2/3 text-left font-bold">Món</th>
-          <th class="px-1 py-2 text-left font-bold">SL</th>
-          <th class="px-2 py-2 text-left font-bold">Đ.Giá</th>
-          <th class="px-2 py-2 text-left font-bold">K.Mãi(%) </th>
-          <th class="px-2 py-2 text-right font-bold">T.Tiền</th>
+          <th class="px-1 py-2 text-right font-bold">SL</th>
+          <th class="px-2 py-2 text-right font-bold">
+            <span>Đ.Giá</span>
+            <br>
+            <span>(đ)</span>
+          </th>
+          <th class="px-2 py-2 text-right font-bold">
+            <span>K.Mãi</span>
+            <br>
+            <span>(%)</span>
+          </th>
+          <th class="px-2 py-2 text-right font-bold">
+            <span>T.Tiền</span>
+            <br>
+            <span>(đ)</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         <% invoiceItems.forEach(function(item) { %>
           <tr class="border-b border-black hover:bg-gray-50">
-            <td class="py-2 w-2/3 text-xs">
+            <td class="py-2 w-2/3 text-xs text-left">
               <%= item.productName %> <span class="uppercase">
                   (<%= item.size %>)
                 </span>
             </td>
-            <td class="px-1 py-2 text-xs">
+            <td class="px-1 py-2 text-xs text-right">
               <%= item.quantity %>
             </td>
-            <td class="px-2 py-2 text-xs">
+            <td class="px-2 py-2 text-xs text-right">
               <% if (
                 voucherType === 'same_price_product'
                 && item.discountType === 'voucher' 
@@ -131,7 +143,7 @@
                 </span>
               <% } %>
             </td>
-            <td class="px-2 py-2 text-xs text-center">
+            <td class="px-2 py-2 text-xs text-right">
               <% if (item.discountType==='voucher' ) { %>
                 0
               <% } else { %>
