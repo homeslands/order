@@ -1,4 +1,4 @@
-import { PrinterDataType } from '@/constants'
+import { PrinterDataType, PrinterJobType } from '@/constants'
 import { IBase } from './base.type'
 import { IBranch } from './branch.type'
 import { IProduct, IProductVariant } from './product.type'
@@ -71,6 +71,8 @@ export interface IChefOrders extends IBase {
   status: ChefOrderStatus
   order: IChefOrderInfo
   chefOrderItems: ISpecificChefOrderItemInfo[]
+  printerChefOrders: IPrinterChefOrders[]
+  printerLabels: IPrinterLabels[]
 }
 
 export interface IChefSpecificOrder extends IBase {
@@ -127,6 +129,16 @@ export interface IPrinterForChefArea extends IBase {
   description?: string
   chefArea: IChefArea
   isActive: boolean
+}
+
+export interface IPrinterChefOrders extends IBase {
+  jobType: string
+  status: PrinterJobType
+}
+
+export interface IPrinterLabels extends IBase {
+  jobType: string
+  status: PrinterJobType
 }
 
 export interface ICreatePrinterForChefAreaRequest {
