@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { AutoMap } from '@automapper/classes';
 import { CardOrderResponseDto } from 'src/gift-card-modules/card-order/dto/card-order-response.dto';
+import { UserResponseDto } from 'src/user/user.dto';
 
 export class GiftCardResponseDto extends BaseResponseDto {
   @AutoMap()
@@ -20,9 +21,9 @@ export class GiftCardResponseDto extends BaseResponseDto {
   @ApiProperty()
   usedAt: string;
 
-  @AutoMap()
+  @AutoMap(() => UserResponseDto)
   @ApiProperty()
-  usedBy: string;
+  usedBy: UserResponseDto;
 
   @AutoMap(() => CardOrderResponseDto)
   @ApiProperty({ type: () => CardOrderResponseDto })
@@ -39,4 +40,8 @@ export class GiftCardResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   serial: string;
+
+  @ApiProperty()
+  @AutoMap()
+  usedBySlug: string;
 }
