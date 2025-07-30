@@ -139,8 +139,8 @@ export class PdfService {
       // width: 302,
       width: 320,
       height: 100,
-      deviceScaleFactor: 1,
-      // deviceScaleFactor: 2,
+      // deviceScaleFactor: 1,
+      deviceScaleFactor: 2,
     });
 
     // await page.emulateMediaType('screen');
