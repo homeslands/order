@@ -6,14 +6,16 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { GiftCardResponseDto } from './dto/gift-card-response.dto';
 import { GiftCardService } from './gift-card.service';
-import { AppResponseDto } from 'src/app/app.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { UseGiftCardDto } from './dto/use-gift-card.dto';
+import { FindAllGiftCardDto } from './dto/find-all-gift-card.dto';
 
 @Controller('gift-card')
 @ApiTags('Gift Card Resource')
@@ -32,13 +34,16 @@ export class GiftCardController {
     type: GiftCardResponseDto,
     isArray: true,
   })
-  async findAll() {
-    const result = await this.gcService.findAll();
+  async findAll(
+    @Query(new ValidationPipe({ whitelist: true, transform: true }))
+    req: FindAllGiftCardDto,
+  ) {
+    const result = await this.gcService.findAll(req);
     return {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<GiftCardResponseDto[]>;
+    } as AppResponseDto<AppPaginatedResponseDto<GiftCardResponseDto>>;
   }
 
   @Get(':slug')

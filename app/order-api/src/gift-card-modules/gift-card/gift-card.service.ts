@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftCard } from './entities/gift-card.entity';
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, MoreThan, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -31,6 +31,9 @@ import { BalanceService } from '../balance/balance.service';
 import moment from 'moment';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { FindAllGiftCardDto } from './dto/find-all-gift-card.dto';
+import { createSortOptions } from 'src/shared/utils/obj.util';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class GiftCardService {
@@ -97,13 +100,81 @@ export class GiftCardService {
     return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
   }
 
-  async findAll() {
+  buildFindOptionsWhere(req: FindAllGiftCardDto) {
+    const findOptionsWhere: FindOptionsWhere<GiftCard> = {};
+
+    // if (req.customerSlug) {
+    //   findOptionsWhere.cardOrder = {
+    //     customerSlug: req.customerSlug
+    //   }
+    //   // findOptionsWhere.usedBySlug = req.customerSlug;
+    // }
+
+    if (req.status) {
+      findOptionsWhere.status = req.status;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      findOptionsWhere.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      findOptionsWhere.createdAt = Between(req.fromDate, req.toDate);
+    }
+
+    return findOptionsWhere;
+  }
+
+  async findAll(req: FindAllGiftCardDto) {
+    const context = `${GiftCardService.name}.${this.findAll.name}`;
+    this.logger.log(`Find all gift card req: ${JSON.stringify(req)}`, context);
+
+    const findOptionsWhere: FindOptionsWhere<GiftCard> =
+      this.buildFindOptionsWhere(req);
+
+    const sortOpts = createSortOptions<GiftCard>(req.sort);
+
     const gcs = await this.gcRepository.find({
-      order: {
-        createdAt: 'DESC',
-      },
+      where: findOptionsWhere,
+      order: sortOpts,
+      take: req.size,
+      skip: (req.page - 1) * req.size,
+      relations: ['usedBy', 'cardOrder'],
     });
-    return this.mapper.mapArray(gcs, GiftCard, GiftCardResponseDto);
+
+    let filteredGcs = [...gcs];
+    if (req.customerSlug) {
+      filteredGcs = gcs.filter((item) => {
+        return (
+          item.usedBySlug === req.customerSlug ||
+          item.cardOrder?.customerSlug === req.customerSlug
+        );
+      });
+    }
+
+    const gcsResponse = this.mapper.mapArray(
+      filteredGcs,
+      GiftCard,
+      GiftCardResponseDto,
+    );
+
+    const total = filteredGcs.length;
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / req.size);
+    // Determine hasNext and hasPrevious
+    const hasNext = req.page < totalPages;
+    const hasPrevious = req.page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: gcsResponse,
+      total,
+      page: req.page,
+      pageSize: req.size,
+      totalPages,
+    } as AppPaginatedResponseDto<GiftCardResponseDto>;
   }
 
   // async create(payload: CreateGiftCardDto) {

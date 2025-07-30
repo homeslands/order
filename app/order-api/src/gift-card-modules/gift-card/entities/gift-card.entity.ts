@@ -52,7 +52,7 @@ export class GiftCard extends Base {
   @Column({ name: 'used_by_slug_column', nullable: true })
   usedBySlug: string;
 
-  @AutoMap()
+  @AutoMap(() => User)
   @ManyToOne(() => User, (u) => u.giftCards, {
     onDelete: 'SET NULL',
   })
