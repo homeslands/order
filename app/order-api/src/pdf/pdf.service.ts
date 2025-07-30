@@ -136,7 +136,8 @@ export class PdfService {
 
     await page.setViewport({
       // width: 290,
-      width: 302,
+      // width: 302,
+      width: 320,
       height: 100,
       deviceScaleFactor: 1,
       // deviceScaleFactor: 2,
