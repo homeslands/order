@@ -117,6 +117,21 @@ export class InvoiceController {
     });
   }
 
+  @Post('export/png')
+  @ApiOperation({ summary: 'Export invoice png' })
+  @HttpCode(HttpStatus.OK)
+  async exportInvoicePng(
+    @Body(new ValidationPipe({ transform: true }))
+    requestData: ExportInvoiceDto,
+  ): Promise<StreamableFile> {
+    const result = await this.invoiceService.exportBufferPng(requestData);
+    return new StreamableFile(result, {
+      type: 'image/png',
+      length: result.length,
+      disposition: `attachment; filename="invoice-${new Date().toISOString()}.png"`,
+    });
+  }
+
   @Post('export/temporary')
   @ApiOperation({ summary: 'Export temporary invoice' })
   @HttpCode(HttpStatus.OK)
