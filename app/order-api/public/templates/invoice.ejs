@@ -9,6 +9,11 @@
     <style>
       <%- include(dir + '/public/css/tailwind.min.css') %>
     </style>    
+    <style>
+      html {
+          font-size: 16px !important;
+        }
+      </style>
 </head>
 
 <body>
@@ -168,7 +173,7 @@
             </tr>
             <tr class="border-t border-black">
               <td class="py-2 text-left" colspan="4">Tổng cộng (đ)</td>
-              <td class="py-2 text-right">
+              <td class="py-2 text-right break-all">
                 <%= formatCurrency(originalSubtotalOrder) %>
               </td>
             </tr>
@@ -210,7 +215,7 @@
               <% } %>
                 <tr class="border-t border-black">
                   <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
-                  <td class="py-2 font-bold text-right">
+                  <td class="py-2 font-bold text-right break-all">
                     <% if ((paymentMethod==='point' )) { %>
                       <%= formatCurrency(0) %>
                         <% } else { %>
