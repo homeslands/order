@@ -271,6 +271,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
+
                 {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
