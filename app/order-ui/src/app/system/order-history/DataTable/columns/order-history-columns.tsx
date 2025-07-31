@@ -272,22 +272,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
 
-                {/* Export invoice */}
-                {(order.status !== OrderStatus.PENDING) && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      className="flex justify-start w-full gap-1 px-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportOrderInvoice(order);
-                      }}
-                    >
-                      <DownloadIcon />
-                      {t('order.exportInvoice')}
-                    </Button>
-                  </div>
-                )}
                 {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
