@@ -602,11 +602,16 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
           countByStatus[status]++
         }
 
+        const totalJobs = Object.values(countByStatus).reduce((sum, value) => sum + value, 0)
+
+        // ❌ Nếu tất cả đều là 0 thì không render
+        if (totalJobs === 0) return null
+
         const statusLabels: Record<PrinterJobType, string> = {
-          printed: t('chefOrder.printed'),   // ví dụ: 'Đã in'
-          printing: t('chefOrder.printing'), // ví dụ: 'Đang in'
-          pending: t('chefOrder.pendingPrint'),   // ví dụ: 'Chờ in'
-          failed: t('chefOrder.failed'),     // ví dụ: 'Lỗi'
+          printed: t('chefOrder.printed'),
+          printing: t('chefOrder.printing'),
+          pending: t('chefOrder.pendingPrint'),
+          failed: t('chefOrder.failed'),
         }
 
         const statusColors: Record<PrinterJobType, string> = {
@@ -656,7 +661,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                   <Button
                     disabled={isReprintingFailedChefOrderJobs}
                     variant="ghost"
-                    className="text-xs xl:text-sm"
+                    className="flex justify-start w-full px-2 text-xs xl:text-sm"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleReprintFailedChefOrderPrinterJobs(chefOrder)
@@ -671,7 +676,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                   <Button
                     disabled={isReprintingFailedLabelJobs}
                     variant="ghost"
-                    className="text-xs xl:text-sm"
+                    className="flex justify-start w-full px-2 text-xs xl:text-sm"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleReprintFailedLabelPrinterJobs(chefOrder)
@@ -688,25 +693,5 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         )
       },
     },
-    // {
-    //   accessorKey: 'productName',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('chefOrder.productName')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const product = row.original.product
-    //     return <span className="text-sm text-muted-foreground">{product.name}</span>
-    //   },
-    // },
-    // {
-    //   accessorKey: 'note',
-    //   header: ({ column }) => (
-    //     <DataTableColumnHeader column={column} title={t('chefOrder.note')} />
-    //   ),
-    //   cell: ({ row }) => {
-    //     const product = row.original.product
-    //     return <span className="text-sm text-muted-foreground">{product?.note ? product?.note : t('chefOrder.noNote')}</span>
-    //   },
-    // },
   ]
 }
