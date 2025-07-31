@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div class="p-5 pt-0 mr-5 box-border">
+  <div class="p-3 pt-0 mr-5 box-border">
     <!-- Logo -->
     <div class="mb-1">
       <div class="flex justify-center items-center">
@@ -70,7 +70,7 @@
     <table class="mt-4 min-w-full text-sm border-collapse table-auto">
       <thead>
         <tr class="border-b border-black bg-white-100">
-          <th class="py-2 w-2/3 text-left font-bold">Món</th>
+          <th class="py-2 w-1/4 text-left font-bold">Món</th>
           <th class="px-1 py-2 text-right font-bold">SL</th>
           <th class="px-2 py-2 text-right font-bold">
             <span>Đ.Giá</span>
@@ -92,7 +92,7 @@
       <tbody>
         <% invoiceItems.forEach(function(item) { %>
           <tr class="border-b border-black hover:bg-gray-50">
-            <td class="py-2 w-2/3 text-xs text-left">
+            <td class="py-2 w-1/4 text-xs text-left">
               <%= item.productName %> <span class="uppercase">
                   (<%= item.size %>)
                 </span>
@@ -172,8 +172,8 @@
               </td>
             </tr>
             <tr class="border-t border-black">
-              <td class="py-2 text-left" colspan="4">Tổng cộng (đ)</td>
-              <td class="py-2 text-right break-all">
+              <td class="py-2 text-left" colspan="3">Tổng cộng (đ)</td>
+              <td class="py-2 text-right break-all" colspan="2">
                 <%= formatCurrency(originalSubtotalOrder) %>
               </td>
             </tr>
@@ -213,9 +213,9 @@
                 </td>
               </tr>
               <% } %>
-                <tr class="border-t border-black">
-                  <td class="py-2 text-left" colspan="4">Thành tiền (đ)</td>
-                  <td class="py-2 font-bold text-right break-all">
+                <tr class="border-t border-black" >
+                  <td class="py-2 text-left" colspan="3">Thành tiền (đ)</td>
+                  <td class="py-2 font-bold text-right break-all" colspan="2">
                     <% if ((paymentMethod==='point' )) { %>
                       <%= formatCurrency(0) %>
                         <% } else { %>
