@@ -633,7 +633,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       header: tCommon('common.action'),
       cell: ({ row }) => {
         const chefOrder = row.original
-        const failedJobs = chefOrder.printerChefOrders?.some(job => job.status !== PrinterJobType.PRINTED)
+        const failedJobs = chefOrder.printerChefOrders?.filter(job => job.status === PrinterJobType.FAILED)
         return (
           <div>
             <DropdownMenu>
@@ -652,7 +652,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                     <ConfirmCompleteChefOrderDialog chefOrder={chefOrder} />
                   </div>
                 )}
-                {chefOrder.status !== ChefOrderStatus.PENDING && failedJobs ? (
+                {chefOrder.status !== ChefOrderStatus.PENDING && failedJobs.length > 0 ? (
                   <Button
                     disabled={isReprintingFailedChefOrderJobs}
                     variant="ghost"
