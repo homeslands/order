@@ -364,7 +364,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                       <OutlineCancelOrderDialog order={order} />
                     </div>
                   )}
-                {order.status !== OrderStatus.PENDING && failedJobs ? (
+                {order.status !== OrderStatus.PENDING && failedJobs.length > 0 ? (
                   <Button
                     disabled={isReprinting}
                     variant="ghost"
