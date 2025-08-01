@@ -21,16 +21,16 @@ import { GenGiftCardDto } from './dto/gen-gift-card.dto';
 import { GiftCardResponseDto } from './dto/gift-card-response.dto';
 import { CreateGiftCardDto } from './dto/create-gift-card.dto';
 import { User } from 'src/user/user.entity';
-import { PointTransactionService } from '../point-transaction/point-transaction.service';
 import {
   PointTransactionObjectTypeEnum,
   PointTransactionTypeEnum,
 } from '../point-transaction/entities/point-transaction.enum';
 import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
-import { BalanceService } from '../balance/balance.service';
 import moment from 'moment';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 
 @Injectable()
 export class GiftCardService {
@@ -53,9 +53,11 @@ export class GiftCardService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionService: TransactionManagerService,
-    private readonly balanceService: BalanceService,
-    private readonly ptService: PointTransactionService,
-  ) {}
+    // private readonly balanceService: BalanceService,
+    // private readonly ptService: PointTransactionService,
+    private readonly balanceService: SharedBalanceService,
+    private readonly ptService: SharedPointTransactionService,
+  ) { }
 
   async use(req: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.use.name}`;
@@ -63,6 +65,8 @@ export class GiftCardService {
 
     // 2. Auto-redeem
     const gc = await this.redeem(req);
+
+    const currentBalance = await this.balanceService.findOneByField({ userSlug: req.userSlug, slug: null })
 
     // 3. Create transaction record
     await this.ptService.create({
@@ -72,6 +76,7 @@ export class GiftCardService {
       objectSlug: gc.slug,
       points: gc.cardPoints,
       userSlug: gc.usedBySlug,
+      balance: currentBalance.points
     } as CreatePointTransactionDto);
 
     // 4. Update recipient balance ONCE after all cards

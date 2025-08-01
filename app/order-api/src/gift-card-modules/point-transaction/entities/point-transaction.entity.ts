@@ -43,4 +43,14 @@ export class PointTransaction extends Base {
   @Column({ name: 'user_slug_column' })
   @AutoMap()
   userSlug: string;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    name: 'balance_column',
+    default: 0,
+  })
+  @AutoMap()
+  balance: number;
 }

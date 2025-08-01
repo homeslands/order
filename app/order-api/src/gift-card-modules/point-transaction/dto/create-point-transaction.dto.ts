@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import {
   PointTransactionObjectTypeEnum,
   PointTransactionTypeEnum,
@@ -48,4 +48,10 @@ export class CreatePointTransactionDto {
   @AutoMap()
   @IsNotEmpty()
   userSlug: string;
+
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  balance: number;
 }
