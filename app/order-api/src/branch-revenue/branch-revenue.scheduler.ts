@@ -21,6 +21,10 @@ import { BranchRevenueService } from './branch-revenue.service';
 import moment from 'moment';
 import { OrderUtils } from 'src/order/order.utils';
 import { Mutex } from 'async-mutex';
+import { DistributeLockJobKey, QueueRegisterKey } from 'src/app/app.constants';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import Redlock from 'redlock';
 @Injectable()
 export class BranchRevenueScheduler {
   constructor(
@@ -37,6 +41,8 @@ export class BranchRevenueScheduler {
     private readonly transactionManagerService: TransactionManagerService,
     private readonly orderUtils: OrderUtils,
     private readonly mutex: Mutex,
+    @InjectQueue(QueueRegisterKey.DISTRIBUTE_LOCK_JOB)
+    private readonly distributeLockJobQueue: Queue,
   ) {}
 
   @Timeout(5000)
@@ -333,25 +339,33 @@ export class BranchRevenueScheduler {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
-  // @Timeout(5000)
   async refreshBranchRevenueAnyWhen() {
-    await this.mutex.runExclusive(async () => {
-      const context = `${BranchRevenue.name}.${this.refreshBranchRevenueAnyWhen.name}`;
+    const context = `${BranchRevenue.name}.${this.refreshBranchRevenueAnyWhen.name}`;
+
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.BRANCH_REVENUE_REFRESH_EVERY_DAY_AT_1AM;
+    const ttl = 1000 * 30; // 30 seconds
+    const resource = [key];
+    let lock: any = null;
+
+    try {
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for branch revenue refresh every day at 1am`,
+        context,
+      );
 
       const yesterdayDate = new Date();
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       yesterdayDate.setHours(7, 0, 0, 0);
-
-      // console.log({yesterdayDate})
 
       const hasBranchRevenues = await this.branchRevenueRepository.find({
         where: {
           date: yesterdayDate,
         },
       });
-      // console.log({hasBranchRevenues})
       const branches = await this.branchRepository.find();
-      // console.log({branches})
       if (_.size(hasBranchRevenues) > _.size(branches)) {
         this.logger.error(
           BranchRevenueValidation
@@ -368,13 +382,11 @@ export class BranchRevenueScheduler {
         await this.branchRevenueRepository.query(
           getYesterdayBranchRevenueClause,
         );
-      // console.log({results})
 
       const branchRevenueQueryResponseDtos = plainToInstance(
         BranchRevenueQueryResponseDto,
         results,
       );
-      // console.log({branchRevenueQueryResponseDtos})
 
       const revenues = branchRevenueQueryResponseDtos.map((item) => {
         return this.mapper.map(
@@ -383,7 +395,6 @@ export class BranchRevenueScheduler {
           BranchRevenue,
         );
       });
-      // console.log({revenues})
 
       const newBranchRevenues: BranchRevenue[] =
         await this.branchRevenueService.getBranchRevenueDataToCreateAndUpdate(
@@ -391,8 +402,6 @@ export class BranchRevenueScheduler {
           revenues,
           yesterdayDate,
         );
-
-      // console.log({newBranchRevenues})
 
       const queryRunner = this.dataSource.createQueryRunner();
       await queryRunner.connect();
@@ -417,8 +426,27 @@ export class BranchRevenueScheduler {
           error.message,
         );
       } finally {
-        await queryRunner.release();
+        if (lock) {
+          await lock.release();
+          this.logger.log(
+            `Lock released for branch revenue refresh every day at 1am`,
+            context,
+          );
+        }
       }
-    });
+    } catch (error) {
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for branch revenue refresh every day at 1am`,
+          context,
+        );
+      }
+      this.logger.error(
+        `Error when creating branch revenues: ${JSON.stringify(error)}`,
+        error.stack,
+        context,
+      );
+    }
   }
 }
