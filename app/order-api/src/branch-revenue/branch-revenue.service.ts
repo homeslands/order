@@ -493,7 +493,7 @@ export class BranchRevenueService {
   ): Promise<BranchRevenue[]> {
     const newBranchRevenues: BranchRevenue[] = [];
     const branches = await this.branchRepository.find();
-    // console.log({branches})
+
     for (const branch of branches) {
       const existedBranchRevenue = hasBranchRevenues.find(
         (item) => item.branchId === branch.id,
