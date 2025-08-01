@@ -3,7 +3,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, IsNull, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, IsNull, MoreThan, Repository } from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
@@ -23,8 +23,6 @@ import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.d
 import { CardException } from '../card/card.exception';
 import { CardValidation } from '../card/card.validation';
 import { GiftCardService } from '../gift-card/gift-card.service';
-import { PointTransactionService } from '../point-transaction/point-transaction.service';
-import { BalanceService } from '../balance/balance.service';
 import {
   PointTransactionObjectTypeEnum,
   PointTransactionTypeEnum,
@@ -37,6 +35,9 @@ import { FeatureFlag } from '../feature-flag/entities/feature-flag.entity';
 import { FeatureFlagException } from '../feature-flag/feature-flag.exception';
 import { FeatureFlagValidation } from '../feature-flag/feature-flag.validation';
 import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class CardOrderService {
@@ -56,8 +57,8 @@ export class CardOrderService {
     private readonly transactionService: TransactionManagerService,
     private readonly bankTransferStrategy: BankTransferStrategy,
     private readonly gcService: GiftCardService,
-    private readonly ptService: PointTransactionService,
-    private readonly balanceService: BalanceService,
+    private readonly balanceService: SharedBalanceService,
+    private readonly ptService: SharedPointTransactionService,
   ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
@@ -305,21 +306,39 @@ export class CardOrderService {
     return this.mapper.map(createdCardOrder, CardOrder, CardOrderResponseDto);
   }
 
+  buildFindOptionsWhere(req: FindAllCardOrderDto) {
+    const findOptionsWhere: FindOptionsWhere<CardOrder> = {};
+
+    if (req.customerSlug) {
+      findOptionsWhere.customerSlug = req.customerSlug;
+    }
+
+    if (req.status) {
+      findOptionsWhere.status = req.status;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      findOptionsWhere.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      findOptionsWhere.createdAt = Between(req.fromDate, req.toDate);
+    }
+
+    return findOptionsWhere;
+  }
+
   async findAll(payload: FindAllCardOrderDto) {
     const context = `${CardOrderService.name}.${this.findAll.name}`;
     this.logger.log(`Find all card order: ${JSON.stringify(payload)}`, context);
 
     const { page, size, sort } = payload;
 
-    const whereOpts: FindOptionsWhere<CardOrder> = {};
-    if (payload.customerSlug) {
-      whereOpts.customer = {
-        slug: payload.customerSlug,
-      };
-    }
+    const whereOpts: FindOptionsWhere<CardOrder> = this.buildFindOptionsWhere(payload);
+
     const sortOpts = createSortOptions<CardOrder>(sort);
 
-    const cardOrders = await this.cardOrderRepository.find({
+    const [cardOrders, total] = await this.cardOrderRepository.findAndCount({
       relations: ['receipients', 'giftCards'],
       where: whereOpts,
       order: sortOpts,
@@ -327,7 +346,21 @@ export class CardOrderService {
       skip: (page - 1) * size,
     });
 
-    return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
+    // Calculate total pages
+    const totalPages = Math.ceil(total / size);
+    // Determine hasNext and hasPrevious
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto),
+      total,
+      page: page,
+      pageSize: size,
+      totalPages,
+    } as AppPaginatedResponseDto<CardOrderResponseDto>;
   }
 
   async findOne(slug: string) {
@@ -388,6 +421,8 @@ export class CardOrderService {
             totalAmount += databaseEntity.cardPoint;
           }
 
+          const currentBalance = await this.balanceService.findOneByField({ userSlug: recipientSlug, slug: null })
+
           // 3. Create transaction record
           await this.ptService.create({
             type: PointTransactionTypeEnum.IN,
@@ -396,6 +431,7 @@ export class CardOrderService {
             objectSlug: databaseEntity.slug,
             points: totalAmount,
             userSlug: recipientSlug,
+            balance: currentBalance.points
           } as CreatePointTransactionDto);
 
           // 4. Update recipient balance ONCE after all cards
@@ -425,6 +461,8 @@ export class CardOrderService {
           totalAmount += databaseEntity.cardPoint;
         }
 
+        const currentBalance = await this.balanceService.findOneByField({ userSlug: databaseEntity.customerSlug, slug: null })
+
         // 3. Create transaction record
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
@@ -433,6 +471,7 @@ export class CardOrderService {
           objectSlug: databaseEntity.slug,
           points: totalAmount,
           userSlug: databaseEntity.customerSlug,
+          balance: currentBalance.points
         } as CreatePointTransactionDto);
 
         // 4. Update recipient balance ONCE after all cards

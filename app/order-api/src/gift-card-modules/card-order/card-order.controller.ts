@@ -12,7 +12,7 @@ import {
 import { CardOrderService } from './card-order.service';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AppResponseDto } from 'src/app/app.dto';
+import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
@@ -22,7 +22,7 @@ import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.d
 @ApiTags('Card Order Resource')
 @ApiBearerAuth()
 export class CardOrderController {
-  constructor(private readonly cardOrderService: CardOrderService) {}
+  constructor(private readonly cardOrderService: CardOrderService) { }
 
   @Post('/payment/initiate')
   @ApiOperation({ summary: 'Initiate a card order payment' })
@@ -83,7 +83,7 @@ export class CardOrderController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<CardOrderResponseDto[]>;
+    } as AppResponseDto<AppPaginatedResponseDto<CardOrderResponseDto>>;
   }
 
   @Get(':slug')
