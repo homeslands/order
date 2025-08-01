@@ -33,6 +33,10 @@ import { CreatePointTransactionDto } from '../point-transaction/dto/create-point
 import { UseGiftCardDto } from '../gift-card/dto/use-gift-card.dto';
 import _ from 'lodash';
 import { PaymentStatus } from 'src/payment/payment.constants';
+import { FeatureFlag } from '../feature-flag/entities/feature-flag.entity';
+import { FeatureFlagException } from '../feature-flag/feature-flag.exception';
+import { FeatureFlagValidation } from '../feature-flag/feature-flag.validation';
+import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
 
 @Injectable()
 export class CardOrderService {
@@ -43,6 +47,8 @@ export class CardOrderService {
     private cardRepository: Repository<Card>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(FeatureFlag)
+    private featureRepository: Repository<FeatureFlag>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     @InjectMapper()
@@ -132,6 +138,17 @@ export class CardOrderService {
       context,
     );
 
+    const featureFlag = await this.featureRepository.findOne({
+      where: {
+        name: createCardOrderDto.cardOrderType,
+        groupName: FeatureGroupConstant.GIFT_CARD
+      },
+    });
+
+    if (featureFlag?.isLocked) {
+      throw new FeatureFlagException(FeatureFlagValidation.FEATURE_IS_LOCKED);
+    }
+
     const card = await this.cardRepository.findOne({
       where: {
         slug: createCardOrderDto.cardSlug,
@@ -143,7 +160,7 @@ export class CardOrderService {
     }
 
     if (!card.isActive) {
-      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE)
+      throw new CardOrderException(CardOrderValidation.CARD_IS_NOT_ACTIVE);
     }
 
     const customer = await this.userRepository.findOne({

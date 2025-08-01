@@ -12,6 +12,7 @@
     "dishManagement": "Dish Management",
     "customerManagement": "Customer Management",
     "giftCardManagement": "Gift Card Management",
+    "giftCardFeatureFlag": "Feature Flag Management",
     "userManagement": "Employee Management",
     "roleManagement": "Role Management",
     "branchManagement": "Branch Management",

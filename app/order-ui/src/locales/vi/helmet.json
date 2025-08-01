@@ -158,6 +158,12 @@
       "manageGiftCard": "Quản lý thẻ quà tặng",
       "description": "Quản lý thẻ quà tặng của bạn tại đây",
       "keywords": "thẻ quà tặng, phiếu quà tặng, thẻ quà tặng quán ăn"
+    },
+    "giftCardFeatureFlag": {
+      "title": "Quản lý khóa chức năng",
+      "manageGiftCardFeatureFlag": "Quản lý khóa chức năng",
+      "description": "Quản lý khóa chức năng của bạn tại đây",
+      "keywords": "khóa thẻ quà tặng, Quản lý khóa chức năng, khóa thẻ quà tặng quán ăn"
     }
   }
 }

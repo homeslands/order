@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogTrigger, Button } from '@/components/ui'
 import { GiftCardExistsWarningDialog } from '@/components/app/dialog'
 import { IGiftCard, IGiftCardCartItem } from '@/types'
 import { formatCurrency } from '@/utils'
-import { publicFileURL } from '@/constants'
+import { GiftCardFlagGroup, GiftCardType, publicFileURL } from '@/constants'
 import { useGiftCardStore } from '@/stores'
+import { useGetFeatureFlagsByGroup } from '@/hooks'
 
 interface GiftCardSelectedDialogProps {
   selectedCard: IGiftCard
@@ -25,6 +26,9 @@ export function GiftCardSelectedDialog({
   const [isOpen, setIsOpen] = useState(false)
   const [showWarningDialog, setShowWarningDialog] = useState(false)
   const { setGiftCardItem, getGiftCardItem } = useGiftCardStore()
+  const { data: featureFlagsResponse } = useGetFeatureFlagsByGroup(
+    GiftCardFlagGroup.GIFT_CARD,
+  )
 
   const handleAddToCart = () => {
     // Check if gift card already exists in cart
@@ -52,6 +56,9 @@ export function GiftCardSelectedDialog({
       quantity,
       isActive: selectedCard.isActive,
       receipients: [],
+      type:
+        featureFlagsResponse?.result?.find((flag) => !flag.isLocked)?.name ??
+        GiftCardType.NONE,
     }
 
     setGiftCardItem(cartItem)

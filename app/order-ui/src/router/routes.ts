@@ -17,6 +17,7 @@ import {
   Gift,
   UserCog,
   Users,
+  LockOpen,
 } from 'lucide-react'
 
 import type { ISidebarRoute } from '@/types'
@@ -145,6 +146,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.giftCardManagement',
     path: ROUTE.STAFF_GIFT_CARD,
     icon: Gift,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.giftCardFeatureFlag',
+    path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
+    icon: LockOpen,
     permission: Permission.BANNER_MANAGEMENT,
   },
   {
