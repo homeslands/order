@@ -3,7 +3,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, IsNull, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, IsNull, MoreThan, Repository } from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
@@ -36,6 +36,7 @@ import { FeatureFlagValidation } from '../feature-flag/feature-flag.validation';
 import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class CardOrderService {
@@ -307,21 +308,39 @@ export class CardOrderService {
     return this.mapper.map(createdCardOrder, CardOrder, CardOrderResponseDto);
   }
 
+  buildFindOptionsWhere(req: FindAllCardOrderDto) {
+    const findOptionsWhere: FindOptionsWhere<CardOrder> = {};
+
+    if (req.customerSlug) {
+      findOptionsWhere.customerSlug = req.customerSlug;
+    }
+
+    if (req.status) {
+      findOptionsWhere.status = req.status;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      findOptionsWhere.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      findOptionsWhere.createdAt = Between(req.fromDate, req.toDate);
+    }
+
+    return findOptionsWhere;
+  }
+
   async findAll(payload: FindAllCardOrderDto) {
     const context = `${CardOrderService.name}.${this.findAll.name}`;
     this.logger.log(`Find all card order: ${JSON.stringify(payload)}`, context);
 
     const { page, size, sort } = payload;
 
-    const whereOpts: FindOptionsWhere<CardOrder> = {};
-    if (payload.customerSlug) {
-      whereOpts.customer = {
-        slug: payload.customerSlug,
-      };
-    }
+    const whereOpts: FindOptionsWhere<CardOrder> = this.buildFindOptionsWhere(payload);
+
     const sortOpts = createSortOptions<CardOrder>(sort);
 
-    const cardOrders = await this.cardOrderRepository.find({
+    const [cardOrders, total] = await this.cardOrderRepository.findAndCount({
       relations: ['receipients', 'giftCards'],
       where: whereOpts,
       order: sortOpts,
@@ -329,7 +348,21 @@ export class CardOrderService {
       skip: (page - 1) * size,
     });
 
-    return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
+    // Calculate total pages
+    const totalPages = Math.ceil(total / size);
+    // Determine hasNext and hasPrevious
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto),
+      total,
+      page: page,
+      pageSize: size,
+      totalPages,
+    } as AppPaginatedResponseDto<CardOrderResponseDto>;
   }
 
   async findOne(slug: string) {
