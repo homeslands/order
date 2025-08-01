@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
@@ -9,6 +9,7 @@ import { BalanceValidation } from 'src/gift-card-modules/balance/balance.validat
 import { User } from 'src/user/user.entity';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
+import { FindByFieldDto } from 'src/gift-card-modules/balance/dto/find-by-field.dto';
 
 @Injectable()
 export class SharedBalanceService {
@@ -20,7 +21,7 @@ export class SharedBalanceService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async create(payload: { userSlug: string }) {
     const context = `${SharedBalanceService.name}.${this.create.name}`;
@@ -51,6 +52,24 @@ export class SharedBalanceService {
           context,
         ),
     );
+  }
+
+  async findOneByField(payload: FindByFieldDto) {
+    const context = `${SharedBalanceService.name}.${this.findOneByField.name}`;
+    this.logger.debug(
+      `Finding balance by field: ${JSON.stringify(payload)}`,
+      context,
+    );
+
+    const where: FindOptionsWhere<Balance> = {};
+    if (payload.slug) where.slug = payload.slug;
+    if (payload.userSlug) where.user = { slug: payload.userSlug };
+
+    const balance = await this.balanceRepository.findOne({ where: where });
+    if (!balance)
+      throw new BalanceException(BalanceValidation.BALANCE_NOT_FOUND);
+
+    return balance;
   }
 
   async validate(payload: { userSlug: string; points: number }) {

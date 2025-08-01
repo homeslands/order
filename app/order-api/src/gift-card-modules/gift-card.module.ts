@@ -43,6 +43,7 @@ import { FeatureFlagService } from './feature-flag/feature-flag.service';
 import { FeatureFlagProfile } from './feature-flag/feature-flag.mapper';
 import { FeatureFlag } from './feature-flag/entities/feature-flag.entity';
 import { FeatureGroup } from './feature-flag/entities/feature-group.entity';
+import { SharedModule } from 'src/shared/shared.module';
 
 const controllers = [
   CardController,
@@ -96,6 +97,7 @@ const modules = [
   HttpModule,
   JobModule,
   PdfModule,
+  SharedModule,
 ];
 
 const exportServices = [

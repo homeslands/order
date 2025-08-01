@@ -11,93 +11,133 @@
     </style>
 </head>
 
-<body>
-  <div class="p-5 pt-0">
-    <!-- Logo -->
-    <div class="mb-1">
-      <div class="flex justify-center items-center">
-        <img src="<%= logoUri %>" alt="" class="w-52">
+<body class="m-4 font-beVietNam">
+  <div class="my-6 mt-2">
+    <!-- Header -->
+    <section class="flex items-center justify-between">
+      <img src=" <%=logoUri %>" alt="" class="w-56">
+      <p class="uppercase text-xl font-semibold">
+        LỊCH SỬ CHI TIẾT GIAO DỊCH
+      </p>
+    </section>
+  </div>
+
+  <!-- Date info -->
+  <section class="mt-2">
+    <div class="flex items-center justify-center gap-5">
+      <div>
+        <label for="" class="font-semibold">Từ ngày:</label>
+        <span class="italic">
+          <%= formatDate(query?.fromDate, 'DD/MM/YYYY' ) %>
+        </span>
+      </div>
+      <div>
+        <label for="" class="font-semibold">Đến ngày:</label>
+        <span class="italic">
+          <%= formatDate(query?.toDate, 'DD/MM/YYYY' ) %>
+        </span>
       </div>
     </div>
+  </section>
 
-    <!-- Point transaction info -->
-    <div class="flex flex-col gap-2">
-      <p class="text-xs"><span class="font-bold">Thời gian:</span>
-        <%= formatDate(exportAt, 'HH:mm:ss DD/MM/YYYY' ) %>
-      </p>
-      <p class="text-xs">
+  <!-- User info -->
+  <section class="mt-5">
+    <div class="">
+      <span class="italic">
+        Khách hàng:
+      </span>
+      <span class="uppercase font-bold">
+        <%= user.firstName %>
+          <%= user.lastName %>
+      </span>
+    </div>
+    <div class="mt-1">
+      <span class="italic">
+        Địa chỉ:
+      </span>
+      <span class="font-bold">
+        <%= user.address %>
+      </span>
+    </div>
+    <div class="mt-1">
+      <p class="italic">
+        Lịch sử chi tiết giao dịch tài khoản
         <span class="font-bold">
-          Khách hàng:
+          <%= user.phonenumber %>
         </span>
-        <span>
-          <%= user.firstName %>
-            <%= user.lastName %>
-        </span>
+        như sau:
       </p>
     </div>
+  </section>
 
-    <!-- Point transaction list -->
-    <% pts.forEach(function(item) { %>
-      <table class="mt-4 text-sm border-collapse border border-black">
-        <tbody>
-          <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black w-28">
-              Thời gian
-            </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+  <!-- Point transaction list -->
+  <section class="mt-4">
+    <table class="text-sm border-collapse border border-black px-1 w-full">
+      <thead>
+        <tr>
+          <th class="border border-black px-1 w-40" rowspan="2">
+            Thời gian
+          </th>
+          <th class="border border-black px-1 " rowspan="2">Nội dung giao dịch</th>
+          <th colspan="2" class="border border-black px-1 py-2">
+            Số xu giao dịch
+          </th>
+          <th rowspan="2" class="border border-black px-1 w-28">Số dư</th>
+        </tr>
+        <!-- Header row 2 -->
+        <tr>
+          <th class="border border-black px-1 py-2 w-28">Giao dịch <br /> nận xu</th>
+          <th class="border border-black px-1 py-2 w-28">Giao dịch <br /> sử dụng xu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pts.forEach(function(item) { %>
+          <tr class="">
+            <td class="border border-black px-1">
               <%= formatDate(item.createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
             </td>
-          </tr>
-          <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black w-28">
-              Mã giao dịch
-            </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
-              <%= item.slug %>
-            </td>
-          </tr>
-          <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black w-28">
-              Giao dịch
-            </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
-              <% if (item.objectType==='order' ) { %>
-                <p>Thanh toán đơn hàng</p>
-                <% } %>
-                  <% if (item.objectType==='card-order' ) { %>
-                    <p>Giao dịch thẻ quà tặng</p>
-                    <% } %>
-                      <% if (item.objectType==='gift-card' ) { %>
-                        <p>Sử dụng thẻ quà tặng</p>
-                        <% } %>
-            </td>
-          </tr>
-          <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black w-28">
-              Xu
-            </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
-              <% if (item.type==='in' ) { %>
-                <p>+<%= formatCurrency(item.points) %>
-                </p>
-                <% } else { %>
-                  <p>-<%= formatCurrency(item.points) %>
-                  </p>
-                  <% } %>
-            </td>
-          </tr>
-          <tr class="border-t border-black">
-            <td class="pl-2 text-left border-l border-r border-black w-28">
-              Mô tả
-            </td>
-            <td class="pl-2 text-xs font-bold text-left pr-2 border-l border-r border-black">
+            <td class="border border-black px-1">
               <%= item.desc %>
             </td>
+            <td class="border border-black px-1 text-right">
+              <% if (item.type==='in' ) { %>
+                <%= formatCurrency(item.points) %>
+                  <% } %>
+            </td>
+            <td class="border border-black px-1 text-right">
+              <% if (item.type==='out' ) { %>
+                <%= formatCurrency(item.points) %>
+                  <% } %>
+            </td>
+            <td class="border border-black px-1 text-right">
+              <%= formatCurrency(item.balance) %>
+            </td>
           </tr>
-        </tbody>
-      </table>
-      <% }); %>
-  </div>
+          <% }); %>
+            <tr class="">
+              <td class="border border-black px-1 font-bold" colspan="2">
+                Tổng phát sinh
+              </td>
+              <td class="border border-black px-1 text-right">
+                <%= formatCurrency(totalIn) %>
+              </td>
+              <td class="border border-black px-1 text-right">
+                <%= formatCurrency(totalOut) %>
+              </td>
+              <td class="border border-black px-1">
+              </td>
+            </tr>
+            <tr class="">
+              <td class="border border-black px-1 font-bold" colspan="4">
+                Số dư
+              </td>
+              <td class="border border-black px-1 text-right">
+                <%= formatCurrency(totalPoints) %>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+  </section>
 </body>
 
 </html>
