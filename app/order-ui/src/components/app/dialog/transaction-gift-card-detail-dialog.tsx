@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import {
@@ -22,7 +22,7 @@ import {
   XCircle,
   Loader2,
 } from 'lucide-react'
-import { IPointTransaction, IGiftCardDetail, ICardOrderResponse } from '@/types'
+import { IPointTransaction } from '@/types'
 import {
   GiftCardType,
   PointTransactionObjectType,
@@ -33,7 +33,7 @@ import { formatCurrency } from '@/utils'
 import { ROUTE } from '@/constants'
 import moment from 'moment'
 import { useIsMobile } from '@/hooks'
-import { getCardOrder, getGiftCardBySlug } from '@/api/gift-card'
+import { useGetCardOrder, useGetGiftCardBySlug } from '@/hooks/use-gift-card'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip } from 'react-tooltip'
 
@@ -51,12 +51,6 @@ export default function TransactionGiftCardDetailDialog({
 
   const [isOpen, setIsOpen] = useState(false)
   const isMobile = useIsMobile()
-  const [giftCardDetails, setGiftCardDetails] =
-    useState<IGiftCardDetail | null>(null)
-  const [giftCardOrderDetails, setGiftCardOrderDetails] =
-    useState<ICardOrderResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const isAdd = transaction.type === PointTransactionType.IN
   const isGiftCard =
@@ -65,40 +59,23 @@ export default function TransactionGiftCardDetailDialog({
     transaction.objectType === PointTransactionObjectType.CARD_ORDER
   const isOrder = transaction.objectType === PointTransactionObjectType.ORDER
 
-  useEffect(() => {
-    if (isOpen && transaction.objectSlug) {
-      setIsLoading(true)
-      setError(null)
-      if (isGiftCard) {
-        getGiftCardBySlug(transaction.objectSlug)
-          .then((response) => {
-            if (response.result) {
-              setGiftCardDetails(response.result)
-            }
-          })
-          .catch(() => {
-            setError(t('profile.errorFetchingGiftCard'))
-          })
-          .finally(() => {
-            setIsLoading(false)
-          })
-      }
-    }
-    if (isGiftCardOrder) {
-      getCardOrder(transaction.objectSlug)
-        .then((response) => {
-          if (response.result) {
-            setGiftCardOrderDetails(response.result)
-          }
-        })
-        .catch(() => {
-          setError(t('profile.errorFetchingGiftCard'))
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
-  }, [isOpen, isGiftCard, transaction.objectSlug, t, isGiftCardOrder])
+  const {
+    data: giftCardResponse,
+    isLoading: isLoadingGiftCard,
+    error: giftCardError,
+  } = useGetGiftCardBySlug(transaction.objectSlug, isOpen && isGiftCard)
+
+  const {
+    data: cardOrderResponse,
+    isLoading: isLoadingCardOrder,
+    error: cardOrderError,
+  } = useGetCardOrder(transaction.objectSlug, isOpen && isGiftCardOrder)
+
+  const isLoading = isLoadingGiftCard || isLoadingCardOrder
+  const error =
+    giftCardError || cardOrderError ? t('profile.errorFetchingGiftCard') : null
+  const giftCardDetails = giftCardResponse?.result || null
+  const giftCardOrderDetails = cardOrderResponse?.result || null
 
   const getTransactionIcon = () => {
     if (isGiftCard) {
