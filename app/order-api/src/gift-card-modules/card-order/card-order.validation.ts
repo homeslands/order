@@ -17,6 +17,7 @@ export const CARD_ORDER_HAS_ALREADY_PAYMENT = 'CARD_ORDER_HAS_ALREADY_PAYMENT';
 export const CARD_IS_NOT_ACTIVE = 'CARD_IS_NOT_ACTIVE';
 export const GIFT_CARD_HAS_ALREADY_GENERATED =
   'GIFT_CARD_HAS_ALREADY_GENERATED';
+export const INVALID_CARD_ORDER_STATUS = 'INVALID_CARD_ORDER_STATUS';
 
 export type TCardOrderErrorCodeKey =
   | typeof ERROR_WHEN_CREATE_CARD_ORDER
@@ -32,7 +33,8 @@ export type TCardOrderErrorCodeKey =
   | typeof INVALID_CARD_ORDER_SLUG
   | typeof CARD_ORDER_HAS_ALREADY_PAYMENT
   | typeof CARD_IS_NOT_ACTIVE
-  | typeof GIFT_CARD_HAS_ALREADY_GENERATED;
+  | typeof GIFT_CARD_HAS_ALREADY_GENERATED
+  | typeof INVALID_CARD_ORDER_STATUS;
 
 // 158101- 158200
 export type TCardOrderErrorCode = Record<
@@ -84,5 +86,9 @@ export const CardOrderValidation: TCardOrderErrorCode = {
   GIFT_CARD_HAS_ALREADY_GENERATED: createErrorCode(
     158114,
     'Gift cards have already generated',
+  ),
+  INVALID_CARD_ORDER_STATUS: createErrorCode(
+    158115,
+    'Card order status must be one of the following: [pending, completed, fail, cancelled]',
   ),
 };
