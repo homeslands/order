@@ -101,7 +101,6 @@ export function usePointTransactions({
         }
       },
       enabled: !!userSlug,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     })
 
   // Flatten paginated transactions
