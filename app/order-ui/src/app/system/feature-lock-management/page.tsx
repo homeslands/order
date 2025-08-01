@@ -31,9 +31,11 @@ export default function FeatureLockManagementPage() {
   const [localFlags, setLocalFlags] = useState<IGiftCardFlagFeature[]>([])
   const [hasChanges, setHasChanges] = useState(false)
 
-  const { data: featureFlagsResponse, isLoading } = useGetFeatureFlagsByGroup(
-    GiftCardFlagGroup.GIFT_CARD,
-  )
+  const {
+    data: featureFlagsResponse,
+    isLoading,
+    refetch: refetchFeatureFlags,
+  } = useGetFeatureFlagsByGroup(GiftCardFlagGroup.GIFT_CARD)
   const featureFlags = useMemo(
     () => (featureFlagsResponse && featureFlagsResponse?.result) || [],
     [featureFlagsResponse],
@@ -69,6 +71,7 @@ export default function FeatureLockManagementPage() {
       onSuccess: () => {
         showToast(t('giftCard.giftCardFeatureFlag.updateSuccess'))
         setHasChanges(false)
+        refetchFeatureFlags()
       },
     })
   }
