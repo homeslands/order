@@ -33,6 +33,8 @@ import { ExportAllPointTransactionDto } from './dto/export-all-point-transaction
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { CardOrder } from '../card-order/entities/card-order.entity';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import _ from 'lodash';
 
 @Injectable()
 export class PointTransactionService {
@@ -56,6 +58,7 @@ export class PointTransactionService {
     private readonly mapper: Mapper,
     private readonly transactionService: TransactionManagerService,
     private readonly pdfService: PdfService,
+    private readonly sharedPtService: SharedPointTransactionService
   ) { }
 
   async exportAll(query: ExportAllPointTransactionDto) {
@@ -102,6 +105,19 @@ export class PointTransactionService {
       }
     });
 
+    const totalIn = pts.filter(item => item.type === PointTransactionTypeEnum.IN).reduce((prev, cur) => prev + cur.points, 0)
+    const totalOut = pts.filter(item => item.type === PointTransactionTypeEnum.OUT).reduce((prev, cur) => prev + cur.points, 0)
+    let totalPoints = 0;
+
+    if (!_.isEmpty(pts)) {
+      const lastItem = pts.at(pts.length - 1)
+      if (lastItem.type === PointTransactionTypeEnum.IN)
+        totalPoints = +lastItem.balance + lastItem.points;
+      else
+        totalPoints = +lastItem.balance - lastItem.points;
+
+    }
+
     const logoUri = fileToBase64DataUri('public/images/logo.png', 'image/png');
     const exportAt = new Date();
 
@@ -112,9 +128,13 @@ export class PointTransactionService {
         pts,
         exportAt,
         user,
+        query,
+        totalIn,
+        totalOut,
+        totalPoints
       },
       {
-        width: '80mm',
+        format: "A4",
       },
     );
   }
@@ -184,112 +204,114 @@ export class PointTransactionService {
   }
 
   async create(req: CreatePointTransactionDto) {
-    const context = `${PointTransaction.name}.${this.create.name}`;
-    this.logger.log(
-      `Create point transaction req; ${JSON.stringify(req)}`,
-      context,
-    );
-
-    const payload = this.mapper.map(
-      req,
-      CreatePointTransactionDto,
-      PointTransaction,
-    );
-
-    if (
-      payload.type === PointTransactionTypeEnum.IN &&
-      payload.objectType === PointTransactionObjectTypeEnum.ORDER
-    ) {
-      throw new PointTransactionException(
-        PointTransactionValidation.INVALID_IN_ORDER_TRANSACTION,
-      );
-    }
-
-    if (
-      payload.type === PointTransactionTypeEnum.OUT &&
-      payload.objectType === PointTransactionObjectTypeEnum.GIFT_CARD
-    ) {
-      throw new PointTransactionException(
-        PointTransactionValidation.INVALID_OUT_ORDER_TRANSACTION,
-      );
-    }
-
-    if (
-      payload.type === PointTransactionTypeEnum.OUT &&
-      payload.objectType === PointTransactionObjectTypeEnum.CARD_ORDER
-    ) {
-      throw new PointTransactionException(
-        PointTransactionValidation.INVALID_OUT_CARD_ORDER_TRANSACTION,
-      );
-    }
-
-    let objectRef: Order | GiftCard | CardOrder = null;
-
-    switch (payload.objectType) {
-      case PointTransactionObjectTypeEnum.ORDER:
-        objectRef = await this.orderRepository.findOne({
-          where: { slug: payload.objectSlug },
-        });
-        break;
-      case PointTransactionObjectTypeEnum.GIFT_CARD:
-        objectRef = await this.gcRepository.findOne({
-          where: { slug: payload.objectSlug },
-        });
-        break;
-      case PointTransactionObjectTypeEnum.CARD_ORDER:
-        objectRef = await this.coRepository.findOne({
-          where: { slug: payload.objectSlug },
-        });
-        break;
-      default:
-        throw new PointTransactionException(
-          PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
-        );
-    }
-
-    if (!objectRef)
-      throw new PointTransactionException(
-        PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
-      );
-
-    const user = await this.userRepository.findOne({
-      where: {
-        slug: payload.userSlug,
-      },
-    });
-
-    if (!user)
-      throw new PointTransactionException(
-        PointTransactionValidation.USER_NOT_FOUND,
-      );
-
-    Object.assign(payload, {
-      objectId: objectRef.id,
-      userId: user.id,
-      user: user,
-    } as Partial<PointTransaction>);
-
-    const pt = await this.transactionService.execute<PointTransaction>(
-      async (manager) => {
-        return manager.save(payload);
-      },
-      (res) =>
-        this.logger.log(
-          `Point transaction created: ${JSON.stringify(res)}`,
-          context,
-        ),
-      (err) => {
-        this.logger.error(
-          `Error when creating point transaction: ${err.message}`,
-          err.stack,
-          context,
-        );
-        throw new PointTransactionException(
-          PointTransactionValidation.ERROR_WHEN_CREATE_POINT_TRANSACTION,
-        );
-      },
-    );
+    const pt = await this.sharedPtService.create(req);
     return this.mapper.map(pt, PointTransaction, PointTransactionResponseDto);
+    // const context = `${PointTransaction.name}.${this.create.name}`;
+    // this.logger.log(
+    //   `Create point transaction req; ${JSON.stringify(req)}`,
+    //   context,
+    // );
+
+    // const payload = this.mapper.map(
+    //   req,
+    //   CreatePointTransactionDto,
+    //   PointTransaction,
+    // );
+
+    // if (
+    //   payload.type === PointTransactionTypeEnum.IN &&
+    //   payload.objectType === PointTransactionObjectTypeEnum.ORDER
+    // ) {
+    //   throw new PointTransactionException(
+    //     PointTransactionValidation.INVALID_IN_ORDER_TRANSACTION,
+    //   );
+    // }
+
+    // if (
+    //   payload.type === PointTransactionTypeEnum.OUT &&
+    //   payload.objectType === PointTransactionObjectTypeEnum.GIFT_CARD
+    // ) {
+    //   throw new PointTransactionException(
+    //     PointTransactionValidation.INVALID_OUT_ORDER_TRANSACTION,
+    //   );
+    // }
+
+    // if (
+    //   payload.type === PointTransactionTypeEnum.OUT &&
+    //   payload.objectType === PointTransactionObjectTypeEnum.CARD_ORDER
+    // ) {
+    //   throw new PointTransactionException(
+    //     PointTransactionValidation.INVALID_OUT_CARD_ORDER_TRANSACTION,
+    //   );
+    // }
+
+    // let objectRef: Order | GiftCard | CardOrder = null;
+
+    // switch (payload.objectType) {
+    //   case PointTransactionObjectTypeEnum.ORDER:
+    //     objectRef = await this.orderRepository.findOne({
+    //       where: { slug: payload.objectSlug },
+    //     });
+    //     break;
+    //   case PointTransactionObjectTypeEnum.GIFT_CARD:
+    //     objectRef = await this.gcRepository.findOne({
+    //       where: { slug: payload.objectSlug },
+    //     });
+    //     break;
+    //   case PointTransactionObjectTypeEnum.CARD_ORDER:
+    //     objectRef = await this.coRepository.findOne({
+    //       where: { slug: payload.objectSlug },
+    //     });
+    //     break;
+    //   default:
+    //     throw new PointTransactionException(
+    //       PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
+    //     );
+    // }
+
+    // if (!objectRef)
+    //   throw new PointTransactionException(
+    //     PointTransactionValidation.OBJECT_TYPE_NOT_FOUND,
+    //   );
+
+    // const user = await this.userRepository.findOne({
+    //   where: {
+    //     slug: payload.userSlug,
+    //   },
+    // });
+
+    // if (!user)
+    //   throw new PointTransactionException(
+    //     PointTransactionValidation.USER_NOT_FOUND,
+    //   );
+
+    // Object.assign(payload, {
+    //   objectId: objectRef.id,
+    //   userId: user.id,
+    //   user: user,
+    // } as Partial<PointTransaction>);
+
+    // const pt = await this.transactionService.execute<PointTransaction>(
+    //   async (manager) => {
+    //     return manager.save(payload);
+    //   },
+    //   (res) =>
+    //     this.logger.log(
+    //       `Point transaction created: ${JSON.stringify(res)}`,
+    //       context,
+    //     ),
+    //   (err) => {
+    //     this.logger.error(
+    //       `Error when creating point transaction: ${err.message}`,
+    //       err.stack,
+    //       context,
+    //     );
+    //     throw new PointTransactionException(
+    //       PointTransactionValidation.ERROR_WHEN_CREATE_POINT_TRANSACTION,
+    //     );
+    //   },
+    // );
+    // return this.mapper.map(pt, PointTransaction, PointTransactionResponseDto);
   }
 
   async findAll(req: FindAllPointTransactionDto) {
