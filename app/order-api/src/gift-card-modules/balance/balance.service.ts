@@ -26,7 +26,7 @@ export class BalanceService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async findOneByField(payload: FindByFieldDto) {
     const context = `${BalanceService.name}.${this.findOneByField.name}`;
@@ -77,55 +77,55 @@ export class BalanceService {
     );
   }
 
-  async calcBalance(payload: {
-    userSlug: string;
-    points: number;
-    type: 'in' | 'out';
-  }) {
-    const context = `${BalanceService.name}.${this.calcBalance.name}`;
-    this.logger.log(`Calc balance req: ${JSON.stringify(payload)}`, context);
+  // async calcBalance(payload: {
+  //   userSlug: string;
+  //   points: number;
+  //   type: 'in' | 'out';
+  // }) {
+  //   const context = `${BalanceService.name}.${this.calcBalance.name}`;
+  //   this.logger.log(`Calc balance req: ${JSON.stringify(payload)}`, context);
 
-    let balance = await this.balanceRepository.findOne({
-      where: {
-        user: {
-          slug: payload.userSlug,
-        },
-      },
-    });
-    if (!balance) {
-      balance = await this.create({ userSlug: payload.userSlug });
-    }
+  //   let balance = await this.balanceRepository.findOne({
+  //     where: {
+  //       user: {
+  //         slug: payload.userSlug,
+  //       },
+  //     },
+  //   });
+  //   if (!balance) {
+  //     balance = await this.create({ userSlug: payload.userSlug });
+  //   }
 
-    const points = Math.abs(payload.points);
-    balance.points = Number(balance.points);
+  //   const points = Math.abs(payload.points);
+  //   balance.points = Number(balance.points);
 
-    switch (payload.type) {
-      case 'in':
-        balance.points += points;
-        break;
-      case 'out':
-        // Throw exceptions
-        balance.points -= points;
-        break;
-      default:
-        break;
-    }
-    await this.transactionService.execute<Balance>(
-      async (manager) => {
-        return await manager.save(balance);
-      },
-      (result) => {
-        this.logger.log(`${JSON.stringify(result)}`, context);
-      },
-      (error) => {
-        this.logger.error(
-          `Error when calc balance: ${error.message}`,
-          error.stack,
-          context,
-        );
-      },
-    );
-  }
+  //   switch (payload.type) {
+  //     case 'in':
+  //       balance.points += points;
+  //       break;
+  //     case 'out':
+  //       // Throw exceptions
+  //       balance.points -= points;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   await this.transactionService.execute<Balance>(
+  //     async (manager) => {
+  //       return await manager.save(balance);
+  //     },
+  //     (result) => {
+  //       this.logger.log(`${JSON.stringify(result)}`, context);
+  //     },
+  //     (error) => {
+  //       this.logger.error(
+  //         `Error when calc balance: ${error.message}`,
+  //         error.stack,
+  //         context,
+  //       );
+  //     },
+  //   );
+  // }
 
   async validate(payload: { userSlug: string; points: number }) {
     const context = `${BalanceService.name}.${this.validate.name}`;
