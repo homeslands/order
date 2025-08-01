@@ -21,6 +21,7 @@ import {
   getFeatureFlagGroups,
   getFeatureFlagsByGroup,
   bulkToggleFeatureFlags,
+  getGiftCardBySlug,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore } from '@/stores'
@@ -71,30 +72,6 @@ export const useCreateCardOrder = () => {
     },
     meta: {
       ignoreGlobalError: true,
-    },
-  })
-}
-
-export const useGetCardOrder = (slug: string) => {
-  return useQuery({
-    queryKey: [QUERYKEY.cardOrder, slug],
-    queryFn: () => getCardOrder(slug),
-    refetchOnWindowFocus: false,
-  })
-}
-
-export const useCancelCardOrder = () => {
-  return useMutation({
-    mutationFn: async (slug: string) => {
-      return cancelCardOrder(slug)
-    },
-  })
-}
-
-export const useInitiateCardOrderPayment = () => {
-  return useMutation({
-    mutationFn: async (slug: string) => {
-      return initiateCardOrderPayment(slug)
     },
   })
 }
@@ -150,6 +127,31 @@ export const useSyncGiftCard = (
   }
 }
 
+export const useGetCardOrder = (slug: string, enable: boolean = true) => {
+  return useQuery({
+    queryKey: [QUERYKEY.cardOrder, slug],
+    queryFn: () => getCardOrder(slug),
+    refetchOnWindowFocus: false,
+    enabled: enable,
+  })
+}
+
+export const useCancelCardOrder = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return cancelCardOrder(slug)
+    },
+  })
+}
+
+export const useInitiateCardOrderPayment = () => {
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      return initiateCardOrderPayment(slug)
+    },
+  })
+}
+
 export const useUseGiftCard = () => {
   const { t } = useTranslation(['toast'])
 
@@ -180,5 +182,13 @@ export const useBulkToggleFeatureFlags = () => {
     mutationFn: async (updates: { slug: string; isLocked: boolean }[]) => {
       return bulkToggleFeatureFlags(updates)
     },
+  })
+}
+
+export const useGetGiftCardBySlug = (slug: string, enable: boolean = true) => {
+  return useQuery({
+    queryKey: [QUERYKEY.giftCards, slug],
+    queryFn: () => getGiftCardBySlug(slug),
+    enabled: !!slug && enable,
   })
 }

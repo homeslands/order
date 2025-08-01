@@ -160,12 +160,20 @@ export function CustomerCoinTabsContent() {
       {
         title: t('profile.netDifference'),
         value: summary.netDifference,
-        icon: ArrowUp,
-        color: 'text-green-600',
-        bg: 'bg-green-50 dark:bg-green-900/10',
-        border: 'border-green-200 dark:border-green-800',
+        icon: summary.netDifference >= 0 ? ArrowUp : ArrowDown,
+        color: summary.netDifference >= 0 ? 'text-green-600' : 'text-red-600',
+        bg:
+          summary.netDifference >= 0
+            ? 'bg-green-50 dark:bg-green-900/10'
+            : 'bg-red-50 dark:bg-red-900/10',
+        border:
+          summary.netDifference >= 0
+            ? 'border-green-200 dark:border-green-800'
+            : 'border-red-200 dark:border-red-800',
         iconBg:
-          'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+          summary.netDifference >= 0
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
       },
     ]
 
