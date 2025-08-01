@@ -7,16 +7,17 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
-import { formatCurrency, formatDate, formatPaymentMethod } from 'src/helper';
+import { formatDate, formatPaymentMethod } from 'src/helper';
 import * as ejs from 'ejs';
 import * as _ from 'lodash';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { CurrencyUtil } from 'src/shared/utils/currency.util';
 
 @Injectable()
 export class PdfService {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) { }
 
   private async compileTemplate(
     templateName: string,
@@ -36,7 +37,7 @@ export class PdfService {
     try {
       const template = ejs.render(templateSource, {
         ...data,
-        formatCurrency,
+        formatCurrency: CurrencyUtil.formatCurrency,
         formatDate,
         formatPaymentMethod,
         reslove: path.resolve,
