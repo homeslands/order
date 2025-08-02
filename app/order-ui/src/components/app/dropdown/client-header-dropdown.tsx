@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Inbox, LogIn, User } from 'lucide-react'
+import { Archive, Inbox, LogIn, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -70,6 +70,20 @@ export default function ClientHeaderDropdown() {
               >
                 <Inbox className="icon" />
                 {t('header.myOrders')}
+              </Button>
+            </NavLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="h-9 px-0">
+            <NavLink
+              to={`${ROUTE.CLIENT_PROFILE}?tab=gift-card`}
+              className="flex h-9 w-full justify-start"
+            >
+              <Button
+                variant="ghost"
+                className="flex w-full justify-start gap-1 text-sm"
+              >
+                <Archive className="icon" />
+                {t('header.listGiftCard')}
               </Button>
             </NavLink>
           </DropdownMenuItem>

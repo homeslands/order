@@ -116,6 +116,41 @@
     "paymentForOrder": "Thanh toán đơn hàng",
     "totalEarned": "Tổng thu",
     "totalSpent": "Tổng chi",
-    "netDifference": "Chênh lệch"
+    "netDifference": "Chênh lệch",
+    "giftCard": {
+      "transactions": "Giao dịch thẻ quà tặng",
+      "status": {
+        "label": "Trạng thái",
+        "all": "Tất cả trạng thái",
+        "available": "Khả dụng",
+        "used": "Đã sử dụng",
+        "expired": "Hết hạn"
+      },
+      "defaultTitle": "Thẻ quà tặng",
+      "points": "điểm",
+      "expiryDate": "Hết hạn",
+      "noGiftCards": "Không tìm thấy thẻ quà tặng",
+      "noGiftCardsDescription": "Giao dịch thẻ quà tặng của bạn sẽ hiển thị tại đây",
+      "loadError": "Không thể tải thẻ quà tặng. Vui lòng thử lại.",
+      "usedAt": "Đã sử dụng vào",
+      "usedBy": "Được sử dụng bởi",
+      "expiredAt": "Hết hạn vào",
+      "serial": "Số seri",
+      "code": "Mã thẻ quà tặng",
+      "createdAt": "Tạo vào lúc",
+      "owner": "Chủ sở hữu",
+      "expiredMessage": "Thẻ quà tặng này đã hết hạn và không thể sử dụng.",
+      "usedMessage": "Thẻ quà tặng này đã được sử dụng."
+    },
+    "common": {
+      "filter": "Lọc",
+      "copy": "Sao chép",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "error": "Đã có lỗi xảy ra",
+      "clearFilters": "Xóa bộ lọc",
+      "noMoreResults": "Đã hiển thị tất cả kết quả",
+      "showingResults": "Hiển thị {{current}} trong tổng số {{total}} kết quả"
+    }
   }
 }

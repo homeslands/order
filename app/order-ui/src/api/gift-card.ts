@@ -12,6 +12,7 @@ import {
   IUseGiftCardRequest,
   IGiftCardFlag,
   IGiftCardFlagFeature,
+  IGiftCardGetRequest,
 } from '@/types'
 import { http } from '@/utils'
 
@@ -42,6 +43,24 @@ export async function getGiftCard(
     doNotShowLoading: true,
   })
   return response.data as IApiResponse<IGiftCard>
+}
+
+/**
+ * Get user gift cards with filters
+ * @param params Query parameters including status, dates, pagination
+ * @returns List of user gift cards
+ */
+export async function getUserGiftCards(
+  params: IGiftCardGetRequest,
+): Promise<IApiResponse<IPaginationResponse<IGiftCardDetail>>> {
+  const response = await http.get<
+    IApiResponse<IPaginationResponse<IGiftCardDetail>>
+  >('/gift-card', {
+    // @ts-expect-error doNotShowLoading is not in AxiosRequestConfig
+    doNotShowLoading: true,
+    params,
+  })
+  return response.data as IApiResponse<IPaginationResponse<IGiftCardDetail>>
 }
 
 export async function createGiftCard(
