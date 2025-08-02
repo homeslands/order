@@ -116,6 +116,41 @@
     "paymentForOrder": "Payment for Order",
     "totalEarned": "Total Earned",
     "totalSpent": "Total Spent",
-    "netDifference": "Net Difference"
+    "netDifference": "Net Difference",
+    "giftCard": {
+      "transactions": "Gift Card Transactions",
+      "status": {
+        "label": "Status",
+        "all": "All Status",
+        "available": "Available",
+        "used": "Used",
+        "expired": "Expired"
+      },
+      "defaultTitle": "Gift Card",
+      "points": "points",
+      "expiryDate": "Expires",
+      "noGiftCards": "No gift cards found",
+      "noGiftCardsDescription": "Your gift card transactions will appear here",
+      "loadError": "Failed to load gift cards. Please try again.",
+      "usedAt": "Used at",
+      "usedBy": "Used by",
+      "expiredAt": "Expired at",
+      "serial": "Serial Number",
+      "code": "Gift Card Code",
+      "createdAt": "Created at",
+      "owner": "Owner",
+      "expiredMessage": "This gift card has expired and cannot be used.",
+      "usedMessage": "This gift card has already been used."
+    },
+    "common": {
+      "filter": "Filter",
+      "copy": "Copy",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "error": "Something went wrong",
+      "clearFilters": "Clear Filters",
+      "noMoreResults": "No more results to show",
+      "showingResults": "Showing {{current}} of {{total}} results"
+    }
   }
 }
