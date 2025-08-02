@@ -19,3 +19,10 @@ export enum ReceiverField {
 export enum GiftCardFlagGroup {
   GIFT_CARD = 'GIFT_CARD',
 }
+
+export enum GiftCardUsageStatus {
+  AVAILABLE = 'available',
+  USED = 'used',
+  EXPIRED = 'expired',
+  ALL = 'all',
+}
