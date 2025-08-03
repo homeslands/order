@@ -24,6 +24,8 @@ import { Payment } from 'src/payment/payment.entity';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { QueueRegisterKey } from 'src/app/app.constants';
+import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -36,6 +38,9 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
       Payment,
       ACBConnectorConfig,
     ]),
+    BullModule.registerQueue({
+      name: QueueRegisterKey.DISTRIBUTE_LOCK_JOB,
+    }),
     DbModule,
     ACBConnectorModule,
   ],
