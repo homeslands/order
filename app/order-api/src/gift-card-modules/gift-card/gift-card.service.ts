@@ -105,41 +105,42 @@ export class GiftCardService {
     return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
   }
 
-  buildFindOptionsWhere(req: FindAllGiftCardDto) {
-    const findOptionsWhere: FindOptionsWhere<GiftCard> = {};
-
-    // if (req.customerSlug) {
-    //   findOptionsWhere.cardOrder = {
-    //     customerSlug: req.customerSlug
-    //   }
-    //   // findOptionsWhere.usedBySlug = req.customerSlug;
-    // }
+  buildFindOptionsWhere(req: FindAllGiftCardDto): FindOptionsWhere<GiftCard>[] | FindOptionsWhere<GiftCard> {
+    const baseConditions: Partial<FindOptionsWhere<GiftCard>> = {};
 
     if (req.status) {
-      findOptionsWhere.status = req.status;
+      baseConditions.status = req.status;
     }
 
     if (req.fromDate && !req.toDate) {
-      findOptionsWhere.createdAt = MoreThan(req.fromDate);
+      baseConditions.createdAt = MoreThan(req.fromDate);
     }
 
     if (req.fromDate && req.toDate) {
-      findOptionsWhere.createdAt = Between(req.fromDate, req.toDate);
+      baseConditions.createdAt = Between(req.fromDate, req.toDate);
     }
 
-    return findOptionsWhere;
+    if (req.customerSlug) {
+      // Apply OR for customerSlug matching either usedBySlug or cardOrder.customerSlug
+      return [
+        { ...baseConditions, usedBySlug: req.customerSlug },
+        { ...baseConditions, cardOrder: { customerSlug: req.customerSlug } },
+      ];
+    }
+
+    // No OR needed if no customerSlug filter
+    return baseConditions;
   }
 
   async findAll(req: FindAllGiftCardDto) {
     const context = `${GiftCardService.name}.${this.findAll.name}`;
     this.logger.log(`Find all gift card req: ${JSON.stringify(req)}`, context);
 
-    const findOptionsWhere: FindOptionsWhere<GiftCard> =
-      this.buildFindOptionsWhere(req);
+    const findOptionsWhere = this.buildFindOptionsWhere(req);
 
     const sortOpts = createSortOptions<GiftCard>(req.sort);
 
-    const gcs = await this.gcRepository.find({
+    const [gcs, total] = await this.gcRepository.findAndCount({
       where: findOptionsWhere,
       order: sortOpts,
       take: req.size,
@@ -147,23 +148,11 @@ export class GiftCardService {
       relations: ['usedBy', 'cardOrder'],
     });
 
-    let filteredGcs = [...gcs];
-    if (req.customerSlug) {
-      filteredGcs = gcs.filter((item) => {
-        return (
-          item.usedBySlug === req.customerSlug ||
-          item.cardOrder?.customerSlug === req.customerSlug
-        );
-      });
-    }
-
     const gcsResponse = this.mapper.mapArray(
-      filteredGcs,
+      gcs,
       GiftCard,
       GiftCardResponseDto,
     );
-
-    const total = filteredGcs.length;
 
     // Calculate total pages
     const totalPages = Math.ceil(total / req.size);
@@ -181,26 +170,6 @@ export class GiftCardService {
       totalPages,
     } as AppPaginatedResponseDto<GiftCardResponseDto>;
   }
-
-  // async create(payload: CreateGiftCardDto) {
-  //   const card = await this.cardRepository.findOne({
-  //     where: {
-  //       slug: payload.cardSlug
-  //     }
-  //   })
-  //   if (!card) throw new CardException(CardValidation.CARD_NOT_FOUND);
-
-  //   const co = await this.coRepository.findOne({
-  //     where: {
-  //       slug: payload.cardOrderSlug
-  //     }
-  //   })
-  //   if (!co) throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
-
-  //   const gc = this.buildGiftCard(co, card);
-
-  //   return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
-  // }
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;
