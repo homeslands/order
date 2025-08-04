@@ -290,6 +290,8 @@ export class InvoiceService {
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
       voucherRule: order.voucher?.applicabilityRule ?? null,
+      branchId: order.branch.id,
+      date: order.createdAt,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
