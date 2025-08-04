@@ -383,6 +383,10 @@ export default function ClientCartPage() {
                       </div>
                     )}
 
+                    <div className="flex justify-between text-xs italic text-muted-foreground/80">
+                      <span>({t('order.partialAppliedNote')})</span>
+                    </div>
+
                     <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
                       <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
@@ -567,6 +571,10 @@ export default function ClientCartPage() {
                         <span>-{formatCurrency(cartTotals.voucherDiscount)}</span>
                       </div>
                     )}
+
+                    <div className="flex justify-between text-xs italic text-muted-foreground/80">
+                      <span>({t('order.partialAppliedNote')})</span>
+                    </div>
 
                     <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
