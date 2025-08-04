@@ -32,7 +32,6 @@ export default function ClientCartPage() {
   const isMobile = useIsMobile()
   const { removeVoucher, getCartItems, addOrderingProductVariant } = useOrderFlowStore()
 
-  // Không dùng state nữa, tính toán trực tiếp trong render để tránh stale state
   const currentCartItems = getCartItems()
 
   const displayItems = calculateCartItemDisplay(
