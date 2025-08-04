@@ -114,7 +114,7 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
         <div className="relative">
           {cartItems?.orderItems && cartItems.orderItems.length > 0 && (
             <span className="flex absolute -top-2 -right-2 justify-center items-center p-2 w-5 h-5 text-xs font-semibold bg-white rounded-full border border-gray-300 text-primary">
-              {cartItems?.orderItems.length}
+              {cartItems?.orderItems.reduce((total, item) => total + item.quantity, 0)}
             </span>
           )}
           <Button variant="default" size="icon">

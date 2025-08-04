@@ -369,7 +369,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/40">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
@@ -478,7 +478,7 @@ export default function ClientCartPage() {
                 <div className="p-3 border rounded-md bg-muted-foreground/5 border-muted-foreground/40">
                   <div className="flex items-start gap-2 text-sm">
                     <div className="flex-1">
-                      <p className="text-xs text-primary">
+                      <p className="text-xs">
                         <span className="font-extrabold">{t('order.voucher')}</span>
                       </p>
                       <ul className="mt-1 space-y-1 text-xs">
@@ -554,7 +554,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/80">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
