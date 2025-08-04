@@ -38,19 +38,6 @@ export function BottomBar() {
           <span className="text-[0.5rem]">{t('bottombar.menu')}</span>
         </NavLink>
 
-        {/* <NavLink
-                    to={`${ROUTE.CLIENT_PROFILE}?tab=notification`}
-                    className={cn(
-                        "inline-flex flex-col items-center gap-1 justify-center px-5",
-                        (location.pathname.includes(`${ROUTE.CLIENT_PROFILE}`) && location.search.includes('notification')) && "text-primary"
-                    )}
-                >
-                    <Bell className="w-5 h-5" />
-                    <span className="text-[0.5rem]">
-                        {t('bottombar.notification')}
-                    </span>
-                </NavLink> */}
-
         {isAuthenticated() &&
           userInfo &&
           userInfo?.role &&
@@ -80,7 +67,7 @@ export function BottomBar() {
           <span className="text-[0.5rem]">{t('bottombar.cart')}</span>
           {orderingItems?.length ? (
             <span className="flex absolute top-1 right-4 justify-center items-center w-5 h-5 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
-              {orderingItems.length}
+              {orderingItems.reduce((total, item) => total + item.quantity, 0)}
             </span>
           ) : null}
         </NavLink>

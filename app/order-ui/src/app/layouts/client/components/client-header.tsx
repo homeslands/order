@@ -71,30 +71,6 @@ export function ClientHeader() {
                 <span className="text-sm">{t('header.myOrders')}</span>
               </NavLink>
             )}
-            {/* <NavLink
-              to={ROUTE.ABOUT}
-              className={({ isActive }) =>
-                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
-              }
-            >
-              <span className="text-sm">{t('header.aboutUs')}</span>
-            </NavLink>
-            <NavLink
-              to={ROUTE.POLICY}
-              className={({ isActive }) =>
-                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
-              }
-            >
-              <span className="text-sm">{t('header.policy')}</span>
-            </NavLink>
-            <NavLink
-              to={ROUTE.SECURITY}
-              className={({ isActive }) =>
-                `flex items-center gap-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`
-              }
-            >
-              <span className="text-sm">{t('header.securityTerm')}</span>
-            </NavLink> */}
           </div>
 
           {/* Right content */}
@@ -112,7 +88,7 @@ export function ClientHeader() {
                   <ShoppingCart />
                   {cartItems?.orderItems?.length ? (
                     <span className="flex absolute top-2 right-2 justify-center items-center w-4 h-4 text-xs font-bold text-white rounded-full transform translate-x-1/2 -translate-y-1/2 bg-primary">
-                      {cartItems?.orderItems.length}
+                      {cartItems.orderItems.reduce((total, item) => total + item.quantity, 0)}
                     </span>
                   ) : null}
                 </Button>
