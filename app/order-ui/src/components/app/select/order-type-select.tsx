@@ -44,7 +44,7 @@ export default function OrderTypeSelect() {
 
   return (
     <Select value={selectedType?.value} onValueChange={handleChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full bg-white dark:bg-black">
         <SelectValue placeholder={t('menu.selectOrderType')} />
       </SelectTrigger>
       <SelectContent className={getTheme() === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}>
