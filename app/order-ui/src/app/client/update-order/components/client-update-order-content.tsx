@@ -237,15 +237,18 @@ export default function ClientUpdateOrderContent({
 
                                 {/* Tổng giảm giá voucher */}
                                 {(cartTotals?.voucherDiscount || 0) > 0 && (
-                                    <div className="flex justify-between italic text-green-600">
-                                        <span>{t('order.voucherDiscount')}</span>
-                                        <span>-{formatCurrency(cartTotals?.voucherDiscount || 0)}</span>
+                                    <div className='flex flex-col items-start justify-between w-full'>
+                                        <div className="flex justify-between w-full italic text-green-600">
+                                            <span>{t('order.voucherDiscount')}</span>
+                                            <span>-{formatCurrency(cartTotals?.voucherDiscount || 0)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs italic text-muted-foreground/80">
+                                            <span>({t('order.partialAppliedNote')})</span>
+                                        </div>
                                     </div>
                                 )}
 
-                                <div className="flex justify-between text-xs italic text-muted-foreground/80">
-                                    <span>({t('order.partialAppliedNote')})</span>
-                                </div>
+
 
                                 <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                                     <span>{t('order.totalPayment')}</span>
