@@ -32,6 +32,8 @@ export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
 export const PRODUCT_NOT_APPLIED_TO_VOUCHER = 'PRODUCT_NOT_APPLIED_TO_VOUCHER';
 export const MUST_VERIFY_EMAIL_TO_USE_VOUCHER =
   'MUST_VERIFY_EMAIL_TO_USE_VOUCHER';
+export const MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER =
+  'MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -54,7 +56,8 @@ export type TVoucherErrorCodeKey =
   | typeof INVALID_VOUCHER_SLUGS
   | typeof INVALID_VOUCHER_VALUE
   | typeof PRODUCT_NOT_APPLIED_TO_VOUCHER
-  | typeof MUST_VERIFY_EMAIL_TO_USE_VOUCHER;
+  | typeof MUST_VERIFY_EMAIL_TO_USE_VOUCHER
+  | typeof MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -111,6 +114,10 @@ export const VoucherValidation: TVoucherErrorCode = {
   MUST_VERIFY_EMAIL_TO_USE_VOUCHER: createErrorCode(
     143422,
     'User must verify email to use voucher',
+  ),
+  MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER: createErrorCode(
+    143423,
+    'User must verify email or phone number to use voucher',
   ),
 };
 
