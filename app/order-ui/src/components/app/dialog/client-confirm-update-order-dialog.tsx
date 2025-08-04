@@ -96,7 +96,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       allVariants: detail.variant.product.variants,
       variant: detail.variant,
       originalPrice: detail.variant.price,
-      promotion: detail.promotion?.slug || null,
+      promotion: detail.promotion ? detail.promotion : null,
       promotionValue: detail.promotion?.value || 0,
       description: detail.variant.product.description,
       isLimit: detail.variant.product.isLimit,
@@ -156,7 +156,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
             quantity: change.item.quantity,
             variant: change.item.variant.slug,
             note: change.item.note || '',
-            promotion: change.item.promotion || '',
+            promotion: change.item.promotion ? change.item.promotion.slug : '',
             order: originalOrder.slug
           }, {
             onSuccess: () => resolve(true),
@@ -190,7 +190,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               quantity: change.item.quantity,
               note: change.item.note || '',
               variant: change.item.variant.slug,
-              promotion: change.item.promotion || undefined,
+              promotion: change.item.promotion ? change.item.promotion.slug : '',
               action: action
             }
           }, {

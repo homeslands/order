@@ -92,7 +92,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
       originalPrice: product?.product?.variants[0]?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: '',
     }
@@ -191,13 +191,13 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                     {/* <p className="text-xs text-gray-500 line-clamp-2">
                       {item.product.description}
                     </p> */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex gap-1 items-center">
                       <div className="flex flex-col w-full">
                         {item.product.variants.length > 0 ? (
-                          <div className="flex flex-col items-start justify-start w-full gap-1">
-                            <div className='flex flex-row items-center w-full gap-1'>
+                          <div className="flex flex-col gap-1 justify-start items-start w-full">
+                            <div className='flex flex-row gap-1 items-center w-full'>
                               {item?.promotion?.value > 0 ? (
-                                <div className='flex flex-col items-start justify-start w-full'>
+                                <div className='flex flex-col justify-start items-start w-full'>
                                   <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70">
                                     {(() => {
                                       const range = getPriceRange(item.product.variants)
@@ -251,7 +251,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                         <SystemAddToCartDrawer product={item} />
                       ) : (
                         <Button
-                          className="flex items-center justify-center w-full gap-1 text-xs text-white rounded-full shadow-none xl:text-sm"
+                          className="flex gap-1 justify-center items-center w-full text-xs text-white rounded-full shadow-none xl:text-sm"
                           onClick={() => handleAddToCart(item)}
                           disabled={!isHydrated}
                         >
@@ -262,7 +262,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
                     </div>
                   ) : (
                     <Button
-                      className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                      className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
                       disabled
                     >
                       {t('menu.outOfStock')}

@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
       originalPrice: selectedVariant.price,
       description: productDetail?.product?.description || '',
       isLimit: productDetail?.product?.isLimit || false,
-      promotion: productDetail?.promotion ? productDetail?.promotion?.slug : null,
+      promotion: productDetail?.promotion ? productDetail?.promotion : null,
       promotionValue: productDetail?.promotion ? productDetail?.promotion?.value : 0,
       note: note.trim(),
     }
@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
       originalPrice: selectedVariant.price,
       description: productDetail?.product?.description || '',
       isLimit: productDetail?.product?.isLimit || false,
-      promotion: productDetail?.promotion ? productDetail?.promotion?.slug : null,
+      promotion: productDetail?.promotion ? productDetail?.promotion : null,
       promotionValue: productDetail?.promotion ? productDetail?.promotion?.value : 0,
       note: note.trim(),
     }
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
     }
   }
   return (
-    <div className="container flex flex-col items-start gap-10 py-10">
+    <div className="container flex flex-col gap-10 items-start py-10">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -203,8 +203,8 @@ export default function ProductDetailPage() {
         <meta name='description' content={tHelmet('helmet.productDetail.title')} />
       </Helmet>
       {/* Product detail */}
-      <div className="flex flex-col w-full gap-5 lg:flex-row">
-        <div className="flex flex-col w-full col-span-1 gap-2 lg:w-1/2">
+      <div className="flex flex-col gap-5 w-full lg:flex-row">
+        <div className="flex flex-col col-span-1 gap-2 w-full lg:w-1/2">
           {productDetail && (
             <img
               src={`${publicFileURL}/${selectedImage}`}
@@ -221,7 +221,7 @@ export default function ProductDetailPage() {
             onImageClick={setSelectedImage}
           />
         </div>
-        <div className="flex flex-col justify-between w-full col-span-1 gap-4 lg:w-1/2">
+        <div className="flex flex-col col-span-1 gap-4 justify-between w-full lg:w-1/2">
           {productDetail && (
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
@@ -232,12 +232,12 @@ export default function ProductDetailPage() {
                   {productDetail.product.description}
                 </span>
                 {price ? (
-                  <div className="flex flex-col items-start justify-start gap-2">
-                    <div className='flex flex-row items-center gap-2'>
+                  <div className="flex flex-col gap-2 justify-start items-start">
+                    <div className='flex flex-row gap-2 items-center'>
 
                       {productDetail?.promotion && productDetail?.promotion?.value > 0 ? (
-                        <div className='flex flex-col items-start gap-1 mt-3'>
-                          <div className='flex flex-row items-center gap-2'>
+                        <div className='flex flex-col gap-1 items-start mt-3'>
+                          <div className='flex flex-row gap-2 items-center'>
                             <span className='text-sm font-normal line-through text-muted-foreground'>
                               {`${formatCurrency(price)} `}
                             </span>
@@ -263,11 +263,11 @@ export default function ProductDetailPage() {
                 )}
               </div>
               {productDetail.product.variants.length > 0 && (
-                <div className="flex flex-row items-center w-full gap-6">
+                <div className="flex flex-row gap-6 items-center w-full">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {t('product.selectSize')}
                   </label>
-                  <div className="flex flex-row items-center justify-start gap-2">
+                  <div className="flex flex-row gap-2 justify-start items-center">
                     {productDetail.product.variants.map((variant) => (
                       <div
                         className={`flex w-fit px-5 py-[4px] cursor-pointer items-center justify-center rounded-full border border-gray-500  text-xs transition-colors hover:border-primary hover:bg-primary hover:text-white ${size === variant.size.name ? 'border-primary bg-primary text-white' : 'bg-transparent'}`}
@@ -281,11 +281,11 @@ export default function ProductDetailPage() {
                 </div>
               )}
               {productDetail.product.variants.length > 0 && (
-                <div className="flex flex-row items-center w-full gap-6">
+                <div className="flex flex-row gap-6 items-center w-full">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {t('product.selectQuantity')}
                   </label>
-                  <div className="flex flex-row items-center justify-start gap-2">
+                  <div className="flex flex-row gap-2 justify-start items-center">
                     <NonPropQuantitySelector
                       isLimit={productDetail.product.isLimit}
                       disabled={productDetail.isLocked}
@@ -302,8 +302,8 @@ export default function ProductDetailPage() {
               )}
               {/* Khuyến mãi */}
               {productDetail.promotion && (
-                <div className="flex flex-col gap-4 p-4 border-l-4 border-yellow-500 rounded-md bg-yellow-50">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-4 p-4 bg-yellow-50 rounded-md border-l-4 border-yellow-500">
+                  <div className="flex gap-2 items-center">
                     <span className="text-lg font-bold text-primary">
                       🎉 {t('product.specialOffer')}
                     </span>
@@ -318,7 +318,7 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <div className='fixed left-0 right-0 z-10 grid grid-cols-2 gap-2 bg-white border-t bottom-16 md:relative md:mt-14 md:bg-transparent md:border-0'>
+          <div className='grid fixed right-0 left-0 bottom-16 z-10 grid-cols-2 gap-2 bg-white border-t md:relative md:mt-14 md:bg-transparent md:border-0'>
             <Button
               onClick={handleBuyNow}
               disabled={productDetail?.isLocked || !size || quantity <= 0 || productDetail?.currentStock === 0}
