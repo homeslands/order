@@ -84,9 +84,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
-      accessorKey: 'createdAt',
+      accessorKey: 'exportInvoice',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('menu.createdAt')} />
+        <DataTableColumnHeader column={column} title={t('order.exportInvoice')} />
       ),
       cell: ({ row }) => {
         const order = row.original
@@ -96,7 +96,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
               <div onClick={(e) => e.stopPropagation()}>
                 <Button
                   variant="outline"
-                  className="flex justify-start w-full gap-1 px-2 text-xs xl:text-sm"
+                  className="flex gap-1 justify-start px-2 w-full text-xs xl:text-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleExportOrderInvoice(order);
@@ -202,7 +202,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -217,7 +217,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   <div onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="ghost"
-                      className="flex justify-start w-full gap-1 px-2"
+                      className="flex gap-1 justify-start px-2 w-full"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportOrderInvoice(order);
@@ -235,12 +235,12 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                     order?.payment.statusCode === paymentStatus.PENDING) && (
                     <NavLink
                       to={`${ROUTE.STAFF_ORDER_PAYMENT}?order=${order.slug}`}
-                      className="flex items-center justify-start w-full"
+                      className="flex justify-start items-center w-full"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button
                         variant="ghost"
-                        className="flex justify-start w-full gap-1 px-2 text-sm"
+                        className="flex gap-1 justify-start px-2 w-full text-sm"
                       >
                         <CreditCard className="icon" />
                         {t('order.updatePayment')}
@@ -255,12 +255,12 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   (!order?.payment || order?.payment?.statusCode === paymentStatus.PENDING) && (
                     <NavLink
                       to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}/update`}
-                      className="flex items-center justify-start w-full"
+                      className="flex justify-start items-center w-full"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button
                         variant="ghost"
-                        className="flex justify-start w-full gap-1 px-2 text-sm"
+                        className="flex gap-1 justify-start px-2 w-full text-sm"
                       >
                         <SquarePen className="icon" />
                         {t('order.updateOrder')}
@@ -286,7 +286,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                       handleExportPayment(order.payment!.slug);
                     }}
                     variant="ghost"
-                    className="flex justify-start w-full gap-1 px-2"
+                    className="flex gap-1 justify-start px-2 w-full"
                   >
                     <DownloadIcon />
                     {t('order.exportPayment')}

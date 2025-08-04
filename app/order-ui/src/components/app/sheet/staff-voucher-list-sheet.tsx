@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -55,6 +55,7 @@ export default function StaffVoucherListSheet() {
   const { getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { pagination } = usePagination()
+  const isRemovingVoucherRef = useRef(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
@@ -66,6 +67,14 @@ export default function StaffVoucherListSheet() {
 
   const displayItems = calculateCartItemDisplay(cartItems, voucher)
   const cartTotals = calculateCartTotals(displayItems, voucher)
+
+  const isVoucherSelected = useCallback((voucherSlug: string) => {
+    return (
+      cartItems?.voucher?.slug === voucherSlug ||
+      // selectedVoucher === voucherSlug
+      appliedVoucher === voucherSlug
+    )
+  }, [cartItems?.voucher?.slug, appliedVoucher])
 
   // let subTotal = 0
   // calculate subtotal
@@ -119,28 +128,69 @@ export default function StaffVoucherListSheet() {
     }
   )
 
+  const handleToggleVoucher = useCallback((voucher: IVoucher) => {
+    if (cartItems) {
+      if (isVoucherSelected(voucher.slug)) {
+        // Remove voucher
+        removeVoucher()
+        setAppliedVoucher('')
+        setSelectedVoucher('')
+        showToast(tToast('toast.removeVoucherSuccess'))
+      } else {
+        // Apply voucher
+        const validateVoucherParam: IValidateVoucherRequest = {
+          voucher: voucher.slug,
+          user: cartItems.owner || getUserInfo()?.slug || '',
+          orderItems: cartItems?.orderItems.map(item => ({
+            quantity: item.quantity,
+            variant: item.variant.slug,
+            note: item.note,
+            promotion: item.promotion ? item.promotion.slug : null,
+            order: null, // hoặc bỏ nếu không cần
+          })) || []
+        }
+
+        if (voucher.isVerificationIdentity && !cartItems.owner) {
+          showErrorToast(1004) // Show error if voucher requires verification but no owner
+          return
+        }
+        validateVoucher(validateVoucherParam, {
+          onSuccess: () => {
+            addVoucher(voucher)
+            setAppliedVoucher(voucher.slug)
+            setSelectedVoucher(voucher.code)
+            setSheetOpen(false)
+            showToast(tToast('toast.applyVoucherSuccess'))
+          },
+        })
+      }
+    }
+  }, [cartItems, getUserInfo, removeVoucher, addVoucher, setAppliedVoucher, setSelectedVoucher, setSheetOpen, tToast, validateVoucher, isVoucherSelected])
+
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
-    if (cartItems?.voucher && cartItems?.orderItems) {
+    if (cartItems?.voucher && cartItems?.orderItems && !isRemovingVoucherRef.current) {
       const currentVoucher = cartItems.voucher
 
       // Only check for vouchers with ALL_REQUIRED rule
       if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || '')
+        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || item.slug)
         const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
-
         // Check if there are any products in cart that are NOT in voucher products
         const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
           !voucherProductSlugs.includes(cartSlug)
         )
 
         if (hasInvalidProducts) {
-          // Auto remove voucher
+          isRemovingVoucherRef.current = true
           handleToggleVoucher(currentVoucher)
         }
       }
+    } else {
+      isRemovingVoucherRef.current = false
     }
-  }, [cartItems?.orderItems]) // Trigger when orderItems change
+  }, [cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher]) // Remove handleToggleVoucher from deps
+
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -230,7 +280,10 @@ export default function StaffVoucherListSheet() {
       // const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
 
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
+      const cartProductSlugs = cartItems.orderItems.reduce((acc, item) => {
+        if (item.slug) acc.push(item.slug) // Slug của product
+        return acc
+      }, [] as string[])
 
       const hasValidProducts = isVoucherApplicableToCartItems(cartProductSlugs, voucherProductSlugs, voucher.applicabilityRule)
 
@@ -248,136 +301,6 @@ export default function StaffVoucherListSheet() {
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
     return isActive && isValidAmount && isValidDate && isIdentityValid && hasValidProducts
   }
-
-  // Filter and sort vouchers to get the best one
-  // const getBestVoucher = () => {
-  //   if (!Array.isArray(localVoucherList)) {
-  //     return null
-  //   }
-
-  //   const currentDate = new Date()
-
-  //   const validVouchers = localVoucherList
-  //     .filter((voucher) => {
-  //       const isValid = voucher.isActive &&
-  //         moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
-  //         moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
-  //         voucher.remainingUsage > 0 &&
-  //         (!userInfo ? voucher.isVerificationIdentity === false : true)
-  //       return isValid
-  //     })
-  //     .sort((a, b) => {
-  //       const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-  //       if (endDateDiff !== 0) return endDateDiff
-  //       if (a.minOrderValue !== b.minOrderValue) {
-  //         return a.minOrderValue - b.minOrderValue
-  //       }
-  //       return b.value - a.value
-  //     })
-
-  //   return validVouchers.length > 0 ? validVouchers[0] : null
-  // }
-
-  // const bestVoucher = getBestVoucher()
-
-  const isVoucherSelected = (voucherSlug: string) => {
-    return (
-      cartItems?.voucher?.slug === voucherSlug ||
-      // selectedVoucher === voucherSlug
-      appliedVoucher === voucherSlug
-    )
-  }
-
-  const handleToggleVoucher = (voucher: IVoucher) => {
-    if (cartItems) {
-      if (isVoucherSelected(voucher.slug)) {
-        // Remove voucher
-        removeVoucher()
-        setAppliedVoucher('')
-        setSelectedVoucher('')
-        showToast(tToast('toast.removeVoucherSuccess'))
-      } else {
-        // Apply voucher
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: voucher.slug,
-          user: cartItems.owner || getUserInfo()?.slug || '',
-          orderItems: cartItems?.orderItems.map(item => ({
-            quantity: item.quantity,
-            variant: item.variant.slug,
-            note: item.note,
-            promotion: item.promotion ?? null,
-            order: null, // hoặc bỏ nếu không cần
-          })) || []
-        }
-
-        if (voucher.isVerificationIdentity && !cartItems.owner) {
-          showErrorToast(1004) // Show error if voucher requires verification but no owner
-          return
-        }
-        validateVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(voucher)
-            setAppliedVoucher(voucher.slug)
-            setSelectedVoucher(voucher.code)
-            setSheetOpen(false)
-            showToast(tToast('toast.applyVoucherSuccess'))
-          },
-        })
-      }
-    }
-  }
-
-  // const handleApplyVoucher = async () => {
-  //   if (!selectedVoucher) return;
-
-  //   if (appliedVoucher) {
-  //     removeVoucher()
-  //     setAppliedVoucher('')
-  //     return
-  //   }
-
-  //   if (cartItems?.ownerPhoneNumber) {
-  //     const { data } = await refetchSpecificVoucher();
-  //     const voucher = data?.result;
-
-  //     if (voucher) {
-  //       const validateVoucherParam: IValidateVoucherRequest = {
-  //         voucher: voucher.slug,
-  //         user: cartItems?.owner || '',
-  //       };
-
-  //       validateVoucher(validateVoucherParam, {
-  //         onSuccess: () => {
-  //           addVoucher(voucher);
-  //           setSheetOpen(false);
-  //           showToast(tToast('toast.applyVoucherSuccess'));
-  //         },
-  //       });
-  //     } else {
-  //       showErrorToast(1000);
-  //     }
-  //   } else {
-  //     const { data } = await refetchSpecificVoucher();
-  //     const publicVoucher = data?.result;
-
-  //     if (publicVoucher) {
-  //       const validateVoucherParam: IValidateVoucherRequest = {
-  //         voucher: publicVoucher.slug,
-  //         user: '',
-  //       };
-
-  //       validatePublicVoucher(validateVoucherParam, {
-  //         onSuccess: () => {
-  //           addVoucher(publicVoucher);
-  //           setSheetOpen(false);
-  //           showToast(tToast('toast.applyVoucherSuccess'));
-  //         },
-  //       });
-  //     } else {
-  //       showErrorToast(1000);
-  //     }
-  //   }
-  // };
 
   const getVoucherErrorMessage = (voucher: IVoucher) => {
     const cartProductSlugs = cartItems?.orderItems?.map((item) => item.slug) || []
@@ -427,10 +350,9 @@ export default function StaffVoucherListSheet() {
     return ''
   }
 
-
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-48 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -442,7 +364,7 @@ export default function StaffVoucherListSheet() {
     return (
       <div className={baseCardClass} key={voucher.slug}>
         {/* {isBest && (
-          <div className="absolute px-2 py-1 text-xs text-white -top-0 -left-0 rounded-tl-md rounded-br-md bg-primary">
+          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
             {t('voucher.bestChoice')}
           </div>
         )} */}
@@ -451,7 +373,7 @@ export default function StaffVoucherListSheet() {
         >
           <Ticket size={56} className="text-primary" />
         </div>
-        <div className="flex flex-col justify-between w-full col-span-4">
+        <div className="flex flex-col col-span-4 justify-between w-full">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
@@ -471,7 +393,7 @@ export default function StaffVoucherListSheet() {
                 {formatCurrency(voucher.value)} {t('voucher.orderValue')}
               </span>
             )}
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
                 <Tooltip>
@@ -497,7 +419,7 @@ export default function StaffVoucherListSheet() {
             </span>
           </div>
           <div className="flex flex-col gap-1 mt-1">
-            <div className="flex items-center justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
                   ? t('voucher.outOfStock')
@@ -513,14 +435,14 @@ export default function StaffVoucherListSheet() {
             {moment(voucher.endDate).format('DD/MM/YYYY')}
           </span>
         </div>
-        <div className="flex flex-col items-end justify-between col-span-2">
+        <div className="flex flex-col col-span-2 justify-between items-end">
           {!isMobile ? (
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-8 p-2 text-muted-foreground"
+                    className="p-2 h-8 text-muted-foreground"
                   >
                     <CircleHelp />
                   </Button>
@@ -529,12 +451,12 @@ export default function StaffVoucherListSheet() {
                   side="bottom"
                   className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
                 >
-                  <div className="flex flex-col justify-between gap-4">
+                  <div className="flex flex-col gap-4 justify-between">
                     <div className="grid grid-cols-5">
                       <span className="col-span-2 text-muted-foreground/70">
                         {t('voucher.code')}
                       </span>
-                      <span className="flex items-center col-span-3 gap-1">
+                      <span className="flex col-span-3 gap-1 items-center">
                         {voucher.code}
                         <Button
                           variant="ghost"
@@ -584,7 +506,7 @@ export default function StaffVoucherListSheet() {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-8 p-2 text-muted-foreground"
+                  className="p-2 h-8 text-muted-foreground"
                 >
                   <CircleHelp />
                 </Button>
@@ -597,7 +519,7 @@ export default function StaffVoucherListSheet() {
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
                     </span>
-                    <span className="flex items-center col-span-3 gap-1">
+                    <span className="flex col-span-3 gap-1 items-center">
                       {voucher.code}
                       <Button
                         variant="ghost"
@@ -654,7 +576,7 @@ export default function StaffVoucherListSheet() {
                 : t('voucher.use')}
             </Button>
           ) : (
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col gap-1 items-end">
               <img
                 src={VoucherNotValid}
                 alt="chua-thoa-dieu-kien"
@@ -670,9 +592,9 @@ export default function StaffVoucherListSheet() {
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="w-full px-0 mt-3 bg-primary/15 hover:bg-primary/20">
-          <div className="flex items-center w-full gap-3 p-2 rounded-md cursor-pointer">
-            <div className="flex items-center gap-1">
+        <Button variant="ghost" className="px-0 mt-3 w-full bg-primary/15 hover:bg-primary/20">
+          <div className="flex gap-3 items-center p-2 w-full rounded-md cursor-pointer">
+            <div className="flex gap-1 items-center">
               <TicketPercent className="icon text-primary" />
               <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
@@ -687,7 +609,7 @@ export default function StaffVoucherListSheet() {
             )} */}
             {/* {cartItems?.voucher && (
               <div className="flex justify-start w-full">
-                <div className="flex items-center w-full gap-2">
+                <div className="flex gap-2 items-center w-full">
                   <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
                     -{`${formatCurrency(discount || 0)}`}
                   </span>
@@ -710,9 +632,9 @@ export default function StaffVoucherListSheet() {
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              {/* <div className="grid items-center grid-cols-4 gap-2 sm:grid-cols-5">
+              {/* <div className="grid grid-cols-4 gap-2 items-center sm:grid-cols-5">
                 <div className="relative col-span-3 p-1 sm:col-span-4">
-                  <TicketPercent className="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2" />
+                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
@@ -728,9 +650,9 @@ export default function StaffVoucherListSheet() {
                   {t('voucher.apply')}
                 </Button>
               </div> */}
-              <div className="grid items-center grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2 items-center">
                 <div className="relative p-1">
-                  <TicketPercent className="absolute text-gray-400 -translate-y-1/2 left-2 top-1/2" />
+                  <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
@@ -742,7 +664,7 @@ export default function StaffVoucherListSheet() {
             </div>
             {/* Voucher list */}
             <div>
-              <div className="flex items-center justify-between py-4">
+              <div className="flex justify-between items-center py-4">
                 <Label className="text-md text-muted-foreground">
                   {t('voucher.list')}
                 </Label>

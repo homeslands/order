@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 import { Button, ScrollArea } from '@/components/ui'
 import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
-import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { VOUCHER_TYPE } from '@/constants'
@@ -13,7 +13,7 @@ import UpdateOrderQuantity from './client-update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
 import { ClientConfirmUpdateOrderDialog } from '@/components/app/dialog'
-import { useIsMobile } from '@/hooks'
+import { useDeleteOrderItem, useIsMobile } from '@/hooks'
 
 interface ClientUpdateOrderContentProps {
     orderType: OrderTypeEnum
@@ -27,8 +27,12 @@ export default function ClientUpdateOrderContent({
     const { t } = useTranslation(['menu'])
     const { t: tCommon } = useTranslation(['common'])
     const { t: tVoucher } = useTranslation(['voucher'])
-    const { updatingData, removeDraftItem } = useOrderFlowStore()
+    const { t: tToast } = useTranslation(['toast'])
+
     const isMobile = useIsMobile()
+    const { updatingData, removeDraftItem } = useOrderFlowStore()
+
+    const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
 
     const voucher = updatingData?.updateDraft?.voucher || null
     const orderItems = updatingData?.updateDraft?.orderItems || []
@@ -36,8 +40,14 @@ export default function ClientUpdateOrderContent({
     const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
     const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-    const handleRemoveCartItem = (id: string) => {
-        removeDraftItem(id)
+    // client-update-order-content.tsx
+    const handleRemoveOrderItem = (item: IOrderItem) => {
+        deleteOrderItem(item.slug, {
+            onSuccess: () => {
+                showToast(tToast('toast.deleteOrderItemSuccess'))
+                removeDraftItem(item.id)
+            }
+        })
     }
 
     return (
@@ -74,7 +84,7 @@ export default function ClientUpdateOrderContent({
 
                                 const isSamePriceVoucher =
                                     voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                                    voucher?.voucherProducts?.some((vp: IVoucherProduct) => vp.product?.slug === item.slug)
+                                    voucher?.voucherProducts?.some((vp: IVoucherProduct) => vp.product?.slug === item.productSlug)
 
                                 const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
@@ -124,10 +134,11 @@ export default function ClientUpdateOrderContent({
                                                 <div className="flex gap-2 items-center">
                                                     <UpdateOrderQuantity orderItem={item} />
                                                     <Button
+                                                        disabled={isPendingDeleteOrderItem}
                                                         title={t('common.remove')}
                                                         variant="ghost"
                                                         size="icon"
-                                                        onClick={() => handleRemoveCartItem(item.id)}
+                                                        onClick={() => handleRemoveOrderItem(item)}
                                                         className="hover:bg-destructive/10 hover:text-destructive"
                                                     >
                                                         <Trash2 size={18} className='icon text-destructive' />
