@@ -51,6 +51,12 @@ export class BranchRevenueQueryResponseDto {
 
   @AutoMap()
   totalOrderInternal: string;
+
+  @AutoMap()
+  totalVoucherValueOrderItemAmount: string;
+
+  @AutoMap()
+  totalLossAmount: string;
 }
 
 export class BranchRevenueQueryResponseForHourDto {
@@ -100,7 +106,7 @@ export class BranchRevenueQueryResponseForHourDto {
   totalVoucherValueOrderItemAmount: string;
 
   @AutoMap()
-  totalLossAmountOrder: string;
+  totalLossAmount: string;
 }
 
 export class GetBranchRevenueQueryDto {
@@ -205,6 +211,10 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   promotionAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  lossAmount: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {
