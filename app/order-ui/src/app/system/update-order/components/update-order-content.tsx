@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
-import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { VOUCHER_TYPE } from '@/constants'
@@ -13,7 +13,7 @@ import UpdateOrderQuantity from './update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
 import { ConfirmUpdateOrderDialog } from '@/components/app/dialog'
-import { useIsMobile } from '@/hooks'
+import { useDeleteOrderItem, useIsMobile } from '@/hooks'
 
 interface UpdateOrderContentProps {
     orderType: OrderTypeEnum
@@ -27,7 +27,9 @@ export default function UpdateOrderContent({
     const { t } = useTranslation(['menu'])
     const { t: tCommon } = useTranslation(['common'])
     const { t: tVoucher } = useTranslation(['voucher'])
+    const { t: tToast } = useTranslation(['toast'])
     const { updatingData, removeDraftItem } = useOrderFlowStore()
+    const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
     const isMobile = useIsMobile()
 
     const voucher = updatingData?.updateDraft?.voucher || null
@@ -36,8 +38,13 @@ export default function UpdateOrderContent({
     const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
     const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-    const handleRemoveCartItem = (id: string) => {
-        removeDraftItem(id)
+    const handleRemoveOrderItem = (item: IOrderItem) => {
+        deleteOrderItem(item.slug, {
+            onSuccess: () => {
+                showToast(tToast('toast.deleteOrderItemSuccess'))
+                removeDraftItem(item.id)
+            }
+        })
     }
 
     return (
@@ -91,22 +98,22 @@ export default function UpdateOrderContent({
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, x: -100 }}
                                         transition={{ delay: index * 0.1 }}
-                                        className="flex flex-col gap-1 p-2 transition-colors border rounded-lg border-primary/80 group bg-primary/10"
+                                        className="flex flex-col gap-1 p-2 rounded-lg border transition-colors border-primary/80 group bg-primary/10"
                                     >
                                         <div className="flex flex-col flex-1 min-w-0">
-                                            <div className='flex items-center justify-between'>
-                                                <div className='flex items-end gap-1'>
+                                            <div className='flex justify-between items-center'>
+                                                <div className='flex gap-1 items-end'>
                                                     <span className="text-[13px] xl:text-sm font-semibold truncate max-w-[9rem] xl:max-w-[15rem]">
                                                         {item.name}
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div className='flex items-center justify-between'>
+                                            <div className='flex justify-between items-center'>
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] text-muted-foreground">
                                                         ({capitalizeFirstLetter(item.variant.size.name)})
                                                     </span>
-                                                    <div className="flex flex-col items-start gap-1 mt-1">
+                                                    <div className="flex flex-col gap-1 items-start mt-1">
                                                         {shouldShowLineThrough && original !== finalPrice && (
                                                             <span className="text-[10px] line-through text-muted-foreground">
                                                                 {formatCurrency(original)}
@@ -117,13 +124,14 @@ export default function UpdateOrderContent({
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex gap-2 items-center">
                                                     <UpdateOrderQuantity orderItem={item} />
                                                     <Button
+                                                        disabled={isPendingDeleteOrderItem}
                                                         title={t('common.remove')}
                                                         variant="ghost"
                                                         size="icon"
-                                                        onClick={() => handleRemoveCartItem(item.id)}
+                                                        onClick={() => handleRemoveOrderItem(item)}
                                                         className="hover:bg-destructive/10 hover:text-destructive"
                                                     >
                                                         <Trash2 size={18} className='icon text-destructive' />
@@ -170,7 +178,7 @@ export default function UpdateOrderContent({
                             {voucher && (
                                 <div className="flex justify-start w-full">
                                     <div className="flex flex-col items-start">
-                                        <div className="flex items-center gap-2 mt-2">
+                                        <div className="flex gap-2 items-center mt-2">
                                             <span className="text-[10px] text-muted-foreground">
                                                 {t('order.usedVoucher')}
                                             </span>
@@ -228,14 +236,14 @@ export default function UpdateOrderContent({
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
+                                <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                                     <span>{t('order.totalPayment')}</span>
                                     <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals?.finalTotal || 0)}</span>
                                 </div>
                             </div>
 
                             {updatingData?.originalOrder?.status === OrderStatus.PENDING && (
-                                <div className='flex items-center justify-end'>
+                                <div className='flex justify-end items-center'>
                                     <ConfirmUpdateOrderDialog
                                         disabled={orderType === OrderTypeEnum.AT_TABLE && !table}
                                     />
