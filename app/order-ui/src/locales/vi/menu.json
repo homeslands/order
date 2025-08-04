@@ -144,6 +144,7 @@
     "orderLevelVoucher": "Giảm giá voucher (đơn hàng)",
     "promotionDiscount": "Giảm giá khuyến mãi",
     "voucherDiscount": "Giảm giá voucher",
+    "partialAppliedNote": "Voucher giảm tối đa theo giá trị đơn hàng",
     "discount": "Giảm giá",
     "grandTotal": "Thành tiền",
     "totalPayment": "Tổng tiền",

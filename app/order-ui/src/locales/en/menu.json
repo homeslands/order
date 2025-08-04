@@ -48,6 +48,7 @@
     "subtotalBeforeDiscount": "Subtotal before discount",
     "promotionDiscount": "Promotion discount",
     "voucherDiscount": "Voucher discount",
+    "partialAppliedNote": "Voucher applies up to order value",
     "discount": "Discount",
     "subTotal": "Subtotal",
     "continue": "Continue",
