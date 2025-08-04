@@ -1313,6 +1313,7 @@ export class BranchRevenueService {
       createdAt: new Date(),
       qrcodeBranch,
       branchSlug: branch,
+      totalLossAmount,
     };
 
     const data = await this.pdfService.generatePdf(
