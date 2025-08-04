@@ -2,51 +2,61 @@ import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
 
 import { AuthRules, EMOJI_REGEX, NAME_REGEX, PASSWORD_REGEX } from '@/constants'
+import moment from 'moment'
 
 export function useUpdateProfileSchema() {
   const { t } = useTranslation('profile')
 
   return z.object({
-    firstName: z
-      .string()
-      .min(AuthRules.MIN_NAME_LENGTH, t('profile.firstNameRequired'))
-      .max(AuthRules.MAX_NAME_LENGTH, t('profile.firstNameTooLong'))
-      .regex(NAME_REGEX, t('profile.firstNameInvalid'))
-      .refine((val) => !EMOJI_REGEX.test(val), {
-        message: t('profile.firstNameEmojiInvalid'),
-      }),
+    firstName: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : val),
+      z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, t('profile.firstNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, t('profile.firstNameTooLong'))
+        .regex(NAME_REGEX, t('profile.firstNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: t('profile.firstNameEmojiInvalid'),
+        }),
+    ),
 
-    lastName: z
-      .string()
-      .min(AuthRules.MIN_NAME_LENGTH, t('profile.lastNameRequired'))
-      .max(AuthRules.MAX_NAME_LENGTH, t('profile.lastNameTooLong'))
-      .regex(NAME_REGEX, t('profile.lastNameInvalid'))
-      .refine((val) => !EMOJI_REGEX.test(val), {
-        message: t('profile.lastNameEmojiInvalid'),
-      }),
+    lastName: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : val),
+      z
+        .string()
+        .min(AuthRules.MIN_NAME_LENGTH, t('profile.lastNameRequired'))
+        .max(AuthRules.MAX_NAME_LENGTH, t('profile.lastNameTooLong'))
+        .regex(NAME_REGEX, t('profile.lastNameInvalid'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: t('profile.lastNameEmojiInvalid'),
+        }),
+    ),
 
-    dob: z
-      .string()
-      .min(1, t('profile.dobRequired'))
-      .refine(
-        (val) => {
-          const date = new Date(val)
-          return !isNaN(date.getTime())
-        },
-        {
+    dob: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : ''),
+      z
+        .string()
+        .min(1, t('profile.dobRequired'))
+        .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
           message: t('profile.dobInvalid'),
-        },
-      ),
+        }),
+    ),
 
-    address: z
-      .string()
-      .min(1, t('profile.addressRequired'))
-      .max(AuthRules.MAX_ADDRESS_LENGTH, t('profile.addressTooLong'))
-      .refine((val) => !EMOJI_REGEX.test(val), {
-        message: t('profile.addressEmojiInvalid'),
-      }),
+    address: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : val),
+      z
+        .string()
+        .min(1, t('profile.addressRequired'))
+        .max(AuthRules.MAX_ADDRESS_LENGTH, t('profile.addressTooLong'))
+        .refine((val) => !EMOJI_REGEX.test(val), {
+          message: t('profile.addressEmojiInvalid'),
+        }),
+    ),
 
-    branch: z.string().optional(),
+    branch: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : val),
+      z.string().optional(),
+    ),
   })
 }
 
