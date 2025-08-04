@@ -32,7 +32,6 @@ export default function ClientCartPage() {
   const isMobile = useIsMobile()
   const { removeVoucher, getCartItems, addOrderingProductVariant } = useOrderFlowStore()
 
-  // Không dùng state nữa, tính toán trực tiếp trong render để tránh stale state
   const currentCartItems = getCartItems()
 
   const displayItems = calculateCartItemDisplay(
@@ -95,7 +94,7 @@ export default function ClientCartPage() {
   if (_.isEmpty(currentCartItems?.orderItems)) {
     return (
       <div className="container sm:py-20 lg:h-[60vh]">
-        <div className="flex flex-col gap-5 justify-center items-center">
+        <div className="flex flex-col items-center justify-center gap-5">
           <ShoppingCartIcon className="w-32 h-32 text-primary" />
           <p className="text-center text-[13px]">{t('order.noOrders')}</p>
           <NavLink to={ROUTE.CLIENT_MENU}>
@@ -116,7 +115,7 @@ export default function ClientCartPage() {
       {/* Order type selection */}
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full">
-          <div className="flex gap-1 items-center pb-4">
+          <div className="flex items-center gap-1 pb-4">
             <CircleAlert size={14} className="text-destructive" />
             <span className="text-xs italic text-destructive">
               {t('order.selectTableNote')}
@@ -173,15 +172,15 @@ export default function ClientCartPage() {
                 <span className="col-span-2 text-center">
                   {t('order.grandTotal')}
                 </span>
-                <span className="flex col-span-1 justify-center">
+                <span className="flex justify-center col-span-1">
                   <Trash2 size={18} />
                 </span>
               </div>
-              <div className="flex flex-col gap-3 mb-2 rounded-md border">
+              <div className="flex flex-col gap-3 mb-2 border rounded-md">
                 {currentCartItems?.orderItems.map((item) => (
                   <div
                     key={`${item.id}-${currentCartItems?.voucher?.slug || 'no-voucher'}`}
-                    className="grid grid-cols-7 gap-4 items-center p-4 pb-4 w-full bg-white rounded-md sm:grid-cols-8 dark:bg-transparent"
+                    className="grid items-center w-full grid-cols-7 gap-4 p-4 pb-4 bg-white rounded-md sm:grid-cols-8 dark:bg-transparent"
                   >
                     {item?.image ? (
                       <img
@@ -191,17 +190,17 @@ export default function ClientCartPage() {
                       />) : (
                       <img src={ProductImage} alt={item.name} className="object-cover w-20 rounded-md rounded-t-md sm:h-24 sm:w-36" />
                     )}
-                    <div className="grid flex-row col-span-7 gap-4 items-center w-full">
+                    <div className="grid flex-row items-center w-full col-span-7 gap-4">
                       <div
-                        className="grid flex-row grid-cols-7 gap-4 items-center w-full"
+                        className="grid flex-row items-center w-full grid-cols-7 gap-4"
                       >
-                        <div className="flex col-span-2 gap-2 w-full">
-                          <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
-                            <div className="flex flex-col gap-2 w-full">
-                              <span className="overflow-hidden w-full text-xs font-bold truncate whitespace-nowrap sm:text-sm text-ellipsis">
+                        <div className="flex w-full col-span-2 gap-2">
+                          <div className="flex flex-col items-center justify-start w-full gap-2 sm:flex-row sm:justify-center">
+                            <div className="flex flex-col w-full gap-2">
+                              <span className="w-full overflow-hidden text-xs font-bold truncate whitespace-nowrap sm:text-sm text-ellipsis">
                                 {item.name}
                               </span>
-                              <span className="inline-block relative text-xs sm:text-sm text-muted-foreground">
+                              <span className="relative inline-block text-xs sm:text-sm text-muted-foreground">
                                 {(() => {
                                   const displayItem = displayItems.find(di => di.slug === item.slug)
                                   const original = item.originalPrice || 0
@@ -230,7 +229,7 @@ export default function ClientCartPage() {
                                       : ''
 
                                   return (
-                                    <div className="flex gap-1 items-center">
+                                    <div className="flex items-center gap-1">
                                       {shouldShowLineThrough && original !== finalPrice && (
                                         <span className="text-sm line-through">
                                           {formatCurrency(original)}
@@ -247,7 +246,7 @@ export default function ClientCartPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex col-span-2 justify-center">
+                        <div className="flex justify-center col-span-2">
                           <QuantitySelector cartItem={item} />
                         </div>
                         <div className="col-span-2">
@@ -270,7 +269,7 @@ export default function ClientCartPage() {
                                   : original * item.quantity
 
                               return (
-                                <div className="flex gap-1 justify-center">
+                                <div className="flex justify-center gap-1">
                                   <span className="font-bold text-primary">
                                     {formatCurrency(displayPrice)}
                                   </span>
@@ -279,7 +278,7 @@ export default function ClientCartPage() {
                             })()}
                           </span>
                         </div>
-                        <div className="flex col-span-1 justify-center">
+                        <div className="flex justify-center col-span-1">
                           <DeleteCartItemDialog cartItem={item} />
                         </div>
                       </div>
@@ -291,18 +290,18 @@ export default function ClientCartPage() {
               <div className="flex flex-col gap-2">
                 <OrderNoteInput order={currentCartItems} />
                 {/* Chú thích bên dưới order note */}
-                <div className="p-3 rounded-md border bg-primary/10 border-primary">
-                  <div className="flex gap-2 items-start text-sm text-primary">
+                <div className="p-3 border rounded-md bg-primary/10 border-primary">
+                  <div className="flex items-start gap-2 text-sm text-primary">
                     <div className="flex-1">
                       <p className="text-xs text-primary">
                         <span className="font-extrabold">{t('order.voucher')}</span>
                       </p>
                       <ul className="mt-1 space-y-1 text-xs text-primary">
-                        <li className="flex gap-1 items-center">
+                        <li className="flex items-center gap-1">
                           <span className="font-bold text-primary">*</span>
                           <span>{t('order.promotionDiscount')}</span>
                         </li>
-                        <li className="flex gap-1 items-center">
+                        <li className="flex items-center gap-1">
                           <span className="font-bold text-primary">**</span>
                           <span>{t('order.itemLevelVoucher')}</span>
                         </li>
@@ -324,11 +323,11 @@ export default function ClientCartPage() {
                 {currentCartItems?.voucher && (
                   <div className="flex justify-start w-full">
                     <div className="flex flex-col items-start">
-                      <div className="flex gap-2 items-center mt-2">
+                      <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-muted-foreground">
                           {t('order.usedVoucher')}:
                         </span>
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                        <span className="px-3 py-1 text-xs font-semibold border rounded-full border-primary bg-primary/20 text-primary">
                           -{`${formatCurrency(cartTotals.voucherDiscount)}`}
                         </span>
                       </div>
@@ -358,9 +357,9 @@ export default function ClientCartPage() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col justify-between items-end p-4 pt-4 mt-4 bg-white rounded-md border dark:bg-transparent">
-                <div className="flex flex-col justify-between items-start w-full">
-                  <div className="flex flex-col gap-2 w-full text-sm text-muted-foreground">
+              <div className="flex flex-col items-end justify-between p-4 pt-4 mt-4 bg-white border rounded-md dark:bg-transparent">
+                <div className="flex flex-col items-start justify-between w-full">
+                  <div className="flex flex-col w-full gap-2 text-sm text-muted-foreground">
 
                     {/* Tổng giá gốc */}
                     <div className="flex justify-between">
@@ -384,7 +383,7 @@ export default function ClientCartPage() {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
+                    <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
                       <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                     </div>
@@ -394,13 +393,13 @@ export default function ClientCartPage() {
             </div>
           ) : (
             <div className="my-4">
-              <div className="flex flex-col gap-2 mb-2 rounded-md border">
+              <div className="flex flex-col gap-2 mb-2 border rounded-md">
                 {currentCartItems?.orderItems.map((item) => (
                   <div
                     key={`${item.id}-${currentCartItems?.voucher?.slug || 'no-voucher'}`}
-                    className="flex flex-col gap-4 items-center p-3 w-full bg-white rounded-md border dark:bg-transparent"
+                    className="flex flex-col items-center w-full gap-4 p-3 bg-white border rounded-md dark:bg-transparent"
                   >
-                    <div className="flex gap-2 items-center w-full h-24">
+                    <div className="flex items-center w-full h-24 gap-2">
                       {item?.image ? (
                         <img
                           src={publicFileURL + '/' + item?.image}
@@ -409,9 +408,9 @@ export default function ClientCartPage() {
                         />) : (
                         <img src={ProductImage} alt={item.name} className="object-cover w-20 rounded-md rounded-t-md sm:h-24 sm:w-36" />
                       )}
-                      <div className="flex flex-col gap-1 justify-between w-full h-full">
-                        <div className='flex justify-between items-start w-full h-full'>
-                          <div className='flex justify-between items-center w-full'>
+                      <div className="flex flex-col justify-between w-full h-full gap-1">
+                        <div className='flex items-start justify-between w-full h-full'>
+                          <div className='flex items-center justify-between w-full'>
                             <span className="w-full overflow-hidden text-[18px] font-bold truncate whitespace-nowrap sm:text-sm text-ellipsis">
                               {item.name}
                             </span>
@@ -419,8 +418,8 @@ export default function ClientCartPage() {
                           </div>
                         </div>
                         <ProductVariantSelect variant={item.allVariants} onChange={handleChangeVariant} />
-                        <div className="flex justify-between items-center w-full">
-                          <span className="inline-block relative text-xs sm:text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between w-full">
+                          <span className="relative inline-block text-xs sm:text-sm text-muted-foreground">
                             {(() => {
                               const displayItem = displayItems.find(di => di.slug === item.slug)
                               const original = item.originalPrice || 0
@@ -449,7 +448,7 @@ export default function ClientCartPage() {
                                   : ''
 
                               return (
-                                <div className="flex gap-1 items-center">
+                                <div className="flex items-center gap-1">
                                   {shouldShowLineThrough && original !== finalPrice && (
                                     <span className="text-[0.5rem] line-through sm:text-sm">
                                       {formatCurrency(original)}
@@ -472,24 +471,24 @@ export default function ClientCartPage() {
                 ))}
               </div>
               <div className="flex flex-col gap-2">
-                <div className='flex justify-center items-center bg-white rounded-md border dark:bg-transparent'>
+                <div className='flex items-center justify-center bg-white border rounded-md dark:bg-transparent'>
                   <OrderNoteInput order={currentCartItems} />
                 </div>
                 {/* Chú thích bên dưới order note */}
-                <div className="p-3 rounded-md border bg-primary/10 border-primary">
-                  <div className="flex gap-2 items-start text-sm text-primary">
+                <div className="p-3 border rounded-md bg-muted-foreground/5 border-muted-foreground/40">
+                  <div className="flex items-start gap-2 text-sm">
                     <div className="flex-1">
                       <p className="text-xs text-primary">
                         <span className="font-extrabold">{t('order.voucher')}</span>
                       </p>
-                      <ul className="mt-1 space-y-1 text-xs text-primary">
-                        <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">*</span>
-                          <span>{t('order.promotionDiscount')}</span>
+                      <ul className="mt-1 space-y-1 text-xs">
+                        <li className="flex items-center gap-1">
+                          <span className="font-bold">*</span>
+                          <span className="text-muted-foreground/80">{t('order.promotionDiscount')}</span>
                         </li>
-                        <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">**</span>
-                          <span>{t('order.itemLevelVoucher')}</span>
+                        <li className="flex items-center gap-1">
+                          <span className="font-bold">**</span>
+                          <span className="text-muted-foreground/80">{t('order.itemLevelVoucher')}</span>
                         </li>
                       </ul>
                     </div>
@@ -509,11 +508,11 @@ export default function ClientCartPage() {
                 {currentCartItems?.voucher && (
                   <div className="flex justify-start w-full">
                     <div className="flex flex-col items-start">
-                      <div className="flex gap-2 items-center mt-2">
+                      <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs text-muted-foreground">
                           {t('order.usedVoucher')}:
                         </span>
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
+                        <span className="px-3 py-1 text-xs font-semibold border rounded-full border-primary bg-primary/20 text-primary">
                           -{`${formatCurrency(cartTotals.voucherDiscount)}`}
                         </span>
                       </div>
@@ -543,9 +542,9 @@ export default function ClientCartPage() {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col justify-between items-end p-2 pt-4 mt-4 bg-white rounded-md border dark:bg-transparent">
-                <div className="flex flex-col justify-between items-start w-full">
-                  <div className="flex flex-col gap-2 w-full text-sm text-muted-foreground">
+              <div className="flex flex-col items-end justify-between p-2 pt-4 mt-4 bg-white border rounded-md dark:bg-transparent">
+                <div className="flex flex-col items-start justify-between w-full">
+                  <div className="flex flex-col w-full gap-2 text-sm text-muted-foreground">
 
                     {/* Tổng giá gốc */}
                     <div className="flex justify-between">
@@ -569,7 +568,7 @@ export default function ClientCartPage() {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
+                    <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
                       <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                     </div>
@@ -596,13 +595,13 @@ export default function ClientCartPage() {
             </div>
 
           ) : (
-            <div className='fixed right-0 left-0 bottom-16 z-50 bg-white'>
-              <div className='grid grid-cols-2 justify-between items-center p-4'>
-                <div className="flex col-span-1 gap-1 items-center font-semibold">
+            <div className='fixed left-0 right-0 z-50 bg-white bottom-16'>
+              <div className='grid items-center justify-between grid-cols-2 p-4'>
+                <div className="flex items-center col-span-1 gap-1 font-semibold">
                   <span>{t('order.totalPayment')}</span>
                   <span className="text-lg font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
-                <div className="flex col-span-1 justify-end p-2 w-full">
+                <div className="flex justify-end w-full col-span-1 p-2">
                   <CreateOrderDialog
                     disabled={
                       !currentCartItems ||
