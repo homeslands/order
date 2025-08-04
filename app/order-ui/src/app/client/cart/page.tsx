@@ -401,7 +401,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/40">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
@@ -524,20 +524,20 @@ export default function ClientCartPage() {
                   <OrderNoteInput order={currentCartItems} />
                 </div>
                 {/* Chú thích bên dưới order note */}
-                <div className="p-3 rounded-md border bg-primary/10 border-primary">
-                  <div className="flex gap-2 items-start text-sm text-primary">
+                <div className="p-3 rounded-md border bg-muted-foreground/5 border-muted-foreground/40">
+                  <div className="flex gap-2 items-start text-sm">
                     <div className="flex-1">
-                      <p className="text-xs text-primary">
+                      <p className="text-xs">
                         <span className="font-extrabold">{t('order.voucher')}</span>
                       </p>
-                      <ul className="mt-1 space-y-1 text-xs text-primary">
+                      <ul className="mt-1 space-y-1 text-xs">
                         <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">*</span>
-                          <span>{t('order.promotionDiscount')}</span>
+                          <span className="font-bold">*</span>
+                          <span className="text-muted-foreground/80">{t('order.promotionDiscount')}</span>
                         </li>
                         <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">**</span>
-                          <span>{t('order.itemLevelVoucher')}</span>
+                          <span className="font-bold">**</span>
+                          <span className="text-muted-foreground/80">{t('order.itemLevelVoucher')}</span>
                         </li>
                       </ul>
                     </div>
@@ -617,7 +617,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/80">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
