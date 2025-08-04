@@ -4,8 +4,8 @@ import { BranchRevenue } from './branch-revenue.entity';
 import { DataSource, Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {
-  getAllBranchRevenueClause,
-  getYesterdayBranchRevenueClause,
+  getAllBranchRevenueFromInvoiceClause,
+  getYesterdayBranchRevenueFromInvoiceClause,
 } from './branch-revenue.clause';
 import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { BranchRevenueQueryResponseDto } from './branch-revenue.dto';
@@ -58,8 +58,10 @@ export class BranchRevenueScheduler {
 
       // handle the date have not payment
       const results: BranchRevenueQueryResponseDto[] =
-        await this.branchRevenueRepository.query(getAllBranchRevenueClause);
-      // console.log({ results });
+        await this.branchRevenueRepository.query(
+          getAllBranchRevenueFromInvoiceClause,
+        );
+
       const branchRevenues = results.map((item) => {
         return this.mapper.map(
           item,
@@ -67,7 +69,6 @@ export class BranchRevenueScheduler {
           BranchRevenue,
         );
       });
-      // console.log({ branchRevenues });
 
       const groupedDatasByBranch = this.groupRevenueByBranch(branchRevenues);
 
@@ -233,7 +234,7 @@ export class BranchRevenueScheduler {
 
       const results: BranchRevenueQueryResponseDto[] =
         await this.branchRevenueRepository.query(
-          getYesterdayBranchRevenueClause,
+          getYesterdayBranchRevenueFromInvoiceClause,
         );
       // console.log({results})
 
@@ -366,6 +367,7 @@ export class BranchRevenueScheduler {
         },
       });
       const branches = await this.branchRepository.find();
+
       if (_.size(hasBranchRevenues) > _.size(branches)) {
         this.logger.error(
           BranchRevenueValidation
@@ -380,7 +382,7 @@ export class BranchRevenueScheduler {
 
       const results: BranchRevenueQueryResponseDto[] =
         await this.branchRevenueRepository.query(
-          getYesterdayBranchRevenueClause,
+          getYesterdayBranchRevenueFromInvoiceClause,
         );
 
       const branchRevenueQueryResponseDtos = plainToInstance(
