@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum } from '@/types'
-import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
+import { useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { compareOrders } from '@/utils/order-comparison'
 import { Role, ROUTE } from '@/constants'
@@ -38,8 +38,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
   // Các hooks để update order
   const { mutate: updateOrderType, isPending: isPendingUpdateOrderType } = useUpdateOrderType()
-  const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
-  const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
   const { mutate: updateOrderItem, isPending: isPendingUpdateOrderItem } = useUpdateOrderItem()
   const { mutate: updateOrderItemNote, isPending: isPendingUpdateOrderItemNote } = useUpdateNoteOrderItem()
 
@@ -119,8 +117,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
   const orderTotals = calculatePlacedOrderTotals(displayItems, orderDraft?.voucher || null)
 
   // Check if any operation is pending
-  const isAnyPending = isPendingUpdateOrderType || isPendingAddNewOrderItem ||
-    isPendingDeleteOrderItem || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
+  const isAnyPending = isPendingUpdateOrderType || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
 
   const handleSubmit = async () => {
     if (!orderDraft || !originalOrder) return
@@ -144,37 +141,37 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       }
 
       // 2. Handle item changes
-      const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
-      const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
+      // const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
+      // const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
       const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
 
       // Add new items
-      for (const change of addedItems) {
-        await new Promise((resolve, reject) => {
-          addNewOrderItem({
-            quantity: change.item.quantity,
-            variant: change.item.variant.slug,
-            note: change.item.note || '',
-            promotion: change.item.promotion ? change.item.promotion.slug : '',
-            order: originalOrder.slug
-          }, {
-            onSuccess: () => resolve(true),
-            onError: (error) => reject(error)
-          })
-        })
-      }
+      // for (const change of addedItems) {
+      //   await new Promise((resolve, reject) => {
+      //     addNewOrderItem({
+      //       quantity: change.item.quantity,
+      //       variant: change.item.variant.slug,
+      //       note: change.item.note || '',
+      //       promotion: change.item.promotion ? change.item.promotion.slug : '',
+      //       order: originalOrder.slug
+      //     }, {
+      //       onSuccess: () => resolve(true),
+      //       onError: (error) => reject(error)
+      //     })
+      //   })
+      // }
 
       // Remove items
-      for (const change of removedItems) {
-        if (!change.slug) continue
-        await new Promise((resolve, reject) => {
-          deleteOrderItem(change.slug!, {
-            onSuccess: () => resolve(true),
-            onError: (error) => reject(error)
-          })
-        })
-      }
+      // for (const change of removedItems) {
+      //   if (!change.slug) continue
+      //   await new Promise((resolve, reject) => {
+      //     deleteOrderItem(change.slug!, {
+      //       onSuccess: () => resolve(true),
+      //       onError: (error) => reject(error)
+      //     })
+      //   })
+      // }
 
       // Update quantity of existing items
       for (const change of quantityChangedItems) {
@@ -256,8 +253,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       <DialogContent className="max-w-[22rem] rounded-md p-0 gap-0 sm:max-w-[48rem] h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
         <DialogHeader className="p-4 h-fit">
           <DialogTitle className="pb-2 border-b">
-            <div className="flex gap-2 items-center">
-              <div className="flex justify-center items-center p-1 w-8 h-8 rounded-lg bg-primary/20 text-primary">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-primary/20 text-primary">
                 <ShoppingCart className="w-4 h-4 text-primary" />
               </div>
               {t('order.updateOrder')}
@@ -275,8 +272,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
           {/* Order Info */}
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-              <span className="flex gap-2 items-center text-gray-600">
+            <div className="flex items-center justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+              <span className="flex items-center gap-2 text-gray-600">
                 <Receipt className="w-4 h-4" />
                 {t('order.orderType')}
               </span>
@@ -285,8 +282,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               </Badge>
             </div>
             {order?.tableName && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
                   {t('menu.tableName')}
                 </span>
@@ -294,8 +291,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               </div>
             )}
             {order?.ownerFullName && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <User className="w-4 h-4" />
                   {t('order.customer')}
                 </span>
@@ -303,8 +300,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               </div>
             )}
             {order?.ownerPhoneNumber && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <Phone className="w-4 h-4" />
                   {t('order.phoneNumber')}
                 </span>
@@ -312,8 +309,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               </div>
             )}
             {order?.description && (
-              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
+                <span className="flex items-center gap-2 text-gray-600">
                   <Notebook className="w-4 h-4" />
                   {t('order.note')}
                 </span>
@@ -323,7 +320,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
           </div>
           <div className="flex flex-col gap-4 px-2 py-4 mt-6 border-t border-dashed border-muted-foreground/60">
             {order?.orderItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center">
+              <div key={index} className="flex items-center justify-between">
                 <div className="flex flex-col flex-1 gap-2">
                   <p className="font-bold">{item.name}</p>
                   <div className="flex gap-2">
@@ -340,7 +337,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
                   const hasDiscount = original > finalPrice
 
                   return (
-                    <div className="flex relative gap-1 items-center">
+                    <div className="relative flex items-center gap-1">
                       {hasDiscount ? (
                         <>
                           <span className="mr-1 line-through text-muted-foreground/70">
@@ -364,13 +361,13 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
         </ScrollArea>
         <DialogFooter className="p-4 h-fit">
           {/* Total Amount */}
-          <div className="flex flex-col gap-1 justify-start items-start w-full">
-            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+          <div className="flex flex-col items-start justify-start w-full gap-1">
+            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
               {t('order.subtotal')}:&nbsp;
               <span>{`${formatCurrency(orderTotals?.subTotalBeforeDiscount || 0)}`}</span>
             </div>
             {(orderTotals?.promotionDiscount || 0) > 0 && (
-              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+              <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
                 <span className="italic text-yellow-600">
                   {t('order.promotionDiscount')}:&nbsp;
                 </span>
@@ -379,7 +376,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
                 </span>
               </div>
             )}
-            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
               <span className="italic text-green-500">
                 {t('order.voucher')}:&nbsp;
               </span>
@@ -387,13 +384,13 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
                 -{`${formatCurrency(orderTotals?.voucherDiscount || 0)}`}
               </span>
             </div>
-            <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
+            <div className="flex items-center justify-between w-full gap-2 pt-2 mt-4 font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
                 {`${formatCurrency(orderTotals?.finalTotal || 0)}`}
               </span>
             </div>
-            <div className='flex flex-row gap-2 justify-end mt-4 w-full'>
+            <div className='flex flex-row justify-end w-full gap-2 mt-4'>
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}
