@@ -31,6 +31,15 @@ export default function DeleteCartItemDialog({
   const { removeOrderingItem, getCartItems, removeVoucher } = useOrderFlowStore()
 
   const handleDelete = (cartItemId: string) => {
+    const cartItems = getCartItems()
+    if (cartItems) {
+      const { orderItems } = cartItems
+
+      if (orderItems.length === 1) {
+        removeVoucher()
+      }
+    }
+
     setIsOpen(false)
     removeOrderingItem(cartItemId)
   }
