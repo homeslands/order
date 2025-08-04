@@ -19,6 +19,7 @@ import {
 } from '../dialog'
 import { useUserStore } from '@/stores'
 import { useEffect, useState } from 'react'
+import moment from 'moment'
 
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
@@ -80,7 +81,7 @@ export function CustomerInfoTabsContent() {
     ),
     email: (
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <span className="text-sm font-medium">{t('profile.email')}</span>
           {userProfile?.isVerifiedEmail ? (
             <div className="flex items-center text-green-500">
@@ -93,7 +94,7 @@ export function CustomerInfoTabsContent() {
             </div>
           )}
         </div>
-        <div className="relative flex gap-2">
+        <div className="flex relative gap-2">
           <Input
             value={userProfile?.email}
             readOnly
@@ -107,7 +108,7 @@ export function CustomerInfoTabsContent() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={handleCopyEmail}
-                    className="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-700 dark:hover:text-gray-300"
+                    className="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2 hover:text-gray-700 dark:hover:text-gray-300"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -126,7 +127,7 @@ export function CustomerInfoTabsContent() {
     ),
     phonenumber: (
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <span className="text-sm font-medium">{t('profile.phoneNumber')}</span>
           {userProfile?.isVerifiedPhonenumber ? (
             <div className="flex items-center text-green-500">
@@ -139,7 +140,7 @@ export function CustomerInfoTabsContent() {
             </div>
           )}
         </div>
-        <div className="relative flex gap-2">
+        <div className="flex relative gap-2">
           <Input
             value={userProfile?.phonenumber}
             readOnly
@@ -157,7 +158,7 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.dob')}</span>
         <Input
-          value={userProfile?.dob}
+          value={userProfile?.dob ? moment(userProfile.dob).format('DD/MM/YYYY') : ''}
           readOnly
           disabled
           placeholder={`${t('profile.dob')}`}
@@ -179,7 +180,7 @@ export function CustomerInfoTabsContent() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-center gap-4 md:justify-end">
+      <div className="flex gap-4 justify-center md:justify-end">
         <UpdateCustomerProfileDialog userProfile={userProfile} />
         <UpdatePasswordDialog />
       </div>
