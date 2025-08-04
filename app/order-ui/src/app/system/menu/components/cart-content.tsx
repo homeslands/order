@@ -69,6 +69,13 @@ export function CartContent() {
   }, [cartItems, removeVoucher])
 
   const handleRemoveCartItem = (id: string) => {
+    const cartItems = getCartItems()
+    if (cartItems) {
+      const { orderItems } = cartItems
+      if (orderItems.length === 1) {
+        removeVoucher()
+      }
+    }
     removeOrderingItem(id)
   }
 
@@ -124,18 +131,18 @@ export function CartContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex flex-col gap-1 p-2 transition-colors border rounded-lg border-primary/80 group bg-primary/10"
+                  className="flex flex-col gap-1 p-2 rounded-lg border transition-colors border-primary/80 group bg-primary/10"
                 >
                   <div className="flex flex-col flex-1 min-w-0">
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-end gap-1'>
+                    <div className='flex justify-between items-center'>
+                      <div className='flex gap-1 items-end'>
                         <span className="text-[13px] xl:text-sm font-semibold truncate max-w-[9rem] xl:max-w-[15rem]">{item.name}</span>
                       </div>
                       <span className="text-[14px]">
                         {`${formatCurrency((displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity)}`}
                       </span>
                     </div>
-                    <div className='flex items-center justify-between'>
+                    <div className='flex justify-between items-center'>
                       <span className="text-[10px] text-muted-foreground">
                         ({item.size.toUpperCase()})
                       </span>
@@ -188,7 +195,7 @@ export function CartContent() {
               {cartItems?.voucher && (
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex gap-2 items-center mt-2">
                       <span className="text-[10px] text-muted-foreground">
                         {t('order.usedVoucher')}
                       </span>
@@ -245,12 +252,12 @@ export function CartContent() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
+                <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
                   <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
               </div>
-              <div className='flex items-center justify-end'>
+              <div className='flex justify-end items-center'>
                 <CreateOrderDialog
                   disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
                 />
