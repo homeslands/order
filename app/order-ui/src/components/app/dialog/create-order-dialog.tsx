@@ -76,7 +76,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         return {
           quantity: orderItem.quantity,
           variant: orderItem.variant.slug,
-          promotion: orderItem.promotion || null, // luôn có field promotion
+          promotion: orderItem.promotion ? orderItem.promotion.slug : null,
           note: orderItem.note || '',
         }
       }),

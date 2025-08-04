@@ -20,6 +20,7 @@ import {
   IUpdateOrderItemRequest,
   IUpdateNoteRequest,
   IOrderItemsParam,
+  IOrderItem,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 
@@ -252,15 +253,18 @@ export async function exportPublicOrderInvoice(order: string): Promise<Blob> {
 //Update order
 export async function addNewOrderItem(
   params: IAddNewOrderItemRequest,
-): Promise<IApiResponse<IOrder>> {
-  const response = await http.post<IApiResponse<IOrder>>(`/order-items`, params)
+): Promise<IApiResponse<IOrderItem>> {
+  const response = await http.post<IApiResponse<IOrderItem>>(
+    `/order-items`,
+    params,
+  )
   return response.data
 }
 
 export async function deleteOrderItem(
   slug: string,
-): Promise<IApiResponse<IOrder>> {
-  const response = await http.delete<IApiResponse<IOrder>>(
+): Promise<IApiResponse<IOrderItem>> {
+  const response = await http.delete<IApiResponse<IOrderItem>>(
     `/order-items/${slug}`,
   )
   return response.data
