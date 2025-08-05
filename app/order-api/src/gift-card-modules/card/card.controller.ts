@@ -33,7 +33,7 @@ import { ApiResponseWithType } from 'src/app/app.decorator';
 @ApiBearerAuth()
 @ApiTags('Card Resource')
 export class CardController {
-  constructor(private readonly cardService: CardService) {}
+  constructor(private readonly cardService: CardService) { }
 
   @UseInterceptors(
     new CustomFileInterceptor('file', {
@@ -161,6 +161,9 @@ export class CardController {
           type: 'number',
         },
         points: {
+          type: 'number',
+        },
+        version: {
           type: 'number',
         },
         isActive: {

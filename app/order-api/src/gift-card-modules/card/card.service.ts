@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,7 +26,7 @@ export class CardService {
     private readonly logger: Logger,
     private readonly fileService: FileService,
     private readonly transactionService: TransactionManagerService,
-  ) {}
+  ) { }
 
   async create(
     createCardDto: CreateCardDto,
@@ -77,10 +77,10 @@ export class CardService {
       order:
         sort.length > 0
           ? sort.reduce((acc, sort) => {
-              const [field, direction] = sort.split(',');
-              acc[field] = direction?.toUpperCase() as 'ASC' | 'DESC';
-              return acc;
-            }, {} as FindOptionsOrder<Card>)
+            const [field, direction] = sort.split(',');
+            acc[field] = direction?.toUpperCase() as 'ASC' | 'DESC';
+            return acc;
+          }, {} as FindOptionsOrder<Card>)
           : { createdAt: 'DESC' },
     });
     const cardsResponse = this.mapper.mapArray(cards, Card, CardResponseDto);
@@ -123,6 +123,10 @@ export class CardService {
     if (!card) {
       this.logger.debug(`Card not found: ${slug}`, context);
       throw new CardException(CardValidation.CARD_NOT_FOUND);
+    }
+
+    if (card.version !== updateCardDto.version) {
+      throw new CardException(HttpStatus.CONFLICT);
     }
 
     const image = file ? await this.fileService.uploadFile(file) : null;
