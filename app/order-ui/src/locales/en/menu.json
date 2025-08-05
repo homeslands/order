@@ -286,6 +286,7 @@
     "noQRCode": "No QR code",
     "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful.",
     "thankYouForOrdering": "Thank you for ordering at TREND Coffee!",
-    "point": "Coin payment"
+    "point": "Coin payment",
+    "unpaid": "Unpaid"
   }
 }
