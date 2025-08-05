@@ -1,6 +1,6 @@
 import { CreateRecipientDto } from 'src/gift-card-modules/receipient/dto/create-recipient.dto';
 import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.entity';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, IsNull, MoreThan, Repository } from 'typeorm';
@@ -159,6 +159,10 @@ export class CardOrderService {
     if (!card) {
       this.logger.log(`Card not found`, context);
       throw new CardException(CardValidation.CARD_NOT_FOUND);
+    }
+
+    if (card.version !== createCardOrderDto.cardVersion) {
+      throw new CardException(HttpStatus.CONFLICT);
     }
 
     if (!card.isActive) {
