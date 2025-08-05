@@ -46,7 +46,7 @@ export const getPaymentMethodLabel = (method: string): string => {
     case PaymentMethod.POINT:
       return i18next.t('paymentMethod.point', { ns: 'menu' })
     default:
-      return i18next.t('paymentMethod.other', { ns: 'menu' })
+      return i18next.t('paymentMethod.unpaid', { ns: 'menu' })
   }
 }
 
