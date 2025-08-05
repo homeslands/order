@@ -50,4 +50,10 @@ export class CreateCardOrderDto {
   @ApiProperty()
   @Type(() => CreateRecipientDto)
   receipients: CreateRecipientDto[];
+
+  @IsNumber()
+  @IsNotEmpty()
+  @ApiProperty()
+  @AutoMap()
+  cardVersion: number;
 }

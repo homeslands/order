@@ -22,7 +22,7 @@ import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.d
 @ApiTags('Card Order Resource')
 @ApiBearerAuth()
 export class CardOrderController {
-  constructor(private readonly cardOrderService: CardOrderService) {}
+  constructor(private readonly cardOrderService: CardOrderService) { }
 
   @Post('/payment/initiate')
   @ApiOperation({ summary: 'Initiate a card order payment' })
