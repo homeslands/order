@@ -26,4 +26,8 @@ export class CardResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   isActive: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  version: number;
 }

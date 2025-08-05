@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, VersionColumn } from 'typeorm';
 
 @Entity('card_tbl')
 export class Card extends Base {
@@ -35,4 +35,8 @@ export class Card extends Base {
     onDelete: 'SET NULL',
   })
   cardOrders: CardOrder[];
+
+  @VersionColumn({ name: 'version_column' })
+  @AutoMap()
+  version: number;
 }
