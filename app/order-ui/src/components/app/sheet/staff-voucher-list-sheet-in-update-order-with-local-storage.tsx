@@ -598,7 +598,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
+                {voucher.value}% {t('voucher.forSelectedProducts')}
               </span>
             ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
               <span className="text-xs italic text-primary">
@@ -607,7 +607,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             ) : (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+                {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
               </span>
             )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
