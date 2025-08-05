@@ -51,6 +51,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
 
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
 
+  // console.log('cartTotals', cartTotals)
+
   const handleSubmit = (order: IOrderingData) => {
     if (!order) return
 

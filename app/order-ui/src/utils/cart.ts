@@ -87,51 +87,78 @@ export const setupAutoClearCart = () => {
 }
 
 function isVoucherApplicable(cartItems: ICartItem, voucher: IVoucher): boolean {
-  if (!voucher.voucherProducts || voucher.voucherProducts.length === 0)
-    return true
+  if (!cartItems?.orderItems || cartItems.orderItems.length === 0) {
+    return false // Không có sản phẩm → không áp dụng
+  }
 
-  const cartSlugs = cartItems.orderItems.map((item) => item.slug)
-  const requiredSlugs = voucher.voucherProducts.map((vp) => vp.product?.slug)
+  // Lấy slug sản phẩm trong giỏ
+  const cartSlugs = cartItems.orderItems.map((item) => item.slug ?? '')
 
-  const matchedCount = requiredSlugs.filter((slug) =>
-    cartSlugs.includes(slug),
-  ).length
+  // Lấy slug sản phẩm mà voucher áp dụng
+  const requiredSlugs =
+    voucher.voucherProducts?.map((vp) => vp.product?.slug ?? '') || []
 
+  // Nếu voucher không giới hạn sản phẩm nào → áp dụng cho tất cả
+  if (requiredSlugs.length === 0) {
+    return checkMinOrderValue(cartItems, voucher)
+  }
+
+  // Kiểm tra theo rule
   if (voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-    return matchedCount === requiredSlugs.length
+    // Tất cả sản phẩm trong giỏ phải nằm trong voucherProducts
+    const allInVoucher = cartSlugs.every((slug) => requiredSlugs.includes(slug))
+    if (!allInVoucher) return false
   }
 
   if (voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
-    return matchedCount > 0
+    // Ít nhất một sản phẩm trong giỏ nằm trong voucherProducts
+    const hasAtLeastOne = cartSlugs.some((slug) => requiredSlugs.includes(slug))
+    if (!hasAtLeastOne) return false
   }
 
-  return false
+  // Cuối cùng, check minOrderValue nếu có
+  return checkMinOrderValue(cartItems, voucher)
 }
 
-export function isVoucherApplicableFromOrderDetails(
+function checkMinOrderValue(cartItems: ICartItem, voucher: IVoucher): boolean {
+  if (!voucher.minOrderValue || voucher.minOrderValue <= 0) return true
+
+  // Tổng tiền GỐC (đã trừ promotion, chưa trừ voucher)
+  const subtotalBeforeVoucher = cartItems.orderItems.reduce((acc, item) => {
+    const original = item.originalPrice ?? 0
+    const promotionDiscount = item.promotionDiscount ?? 0
+    return acc + (original - promotionDiscount) * item.quantity
+  }, 0)
+
+  return subtotalBeforeVoucher >= voucher.minOrderValue
+}
+
+function isVoucherApplicableFromOrderDetails(
   orderItems: IOrderDetail[],
   voucher: IVoucher,
 ): boolean {
-  if (!voucher.voucherProducts || voucher.voucherProducts.length === 0)
-    return true
+  if (!orderItems || orderItems.length === 0) return false
 
   const cartSlugs = orderItems.map((item) => item.variant?.product?.slug ?? '')
-  const requiredSlugs = voucher.voucherProducts.map(
-    (vp) => vp.product?.slug ?? '',
-  )
+  const requiredSlugs =
+    voucher.voucherProducts?.map((vp) => vp.product?.slug ?? '') || []
 
-  const matchedCount = requiredSlugs.filter((slug) =>
-    cartSlugs.includes(slug),
-  ).length
+  // Nếu voucher áp dụng cho tất cả sản phẩm
+  if (requiredSlugs.length === 0) {
+    return true
+  }
 
   if (voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-    return matchedCount === requiredSlugs.length
+    // Tất cả sản phẩm trong giỏ phải nằm trong voucherProducts
+    const allInVoucher = cartSlugs.every((slug) => requiredSlugs.includes(slug))
+    return allInVoucher
   }
 
   if (voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
-    return matchedCount > 0
+    // Ít nhất một sản phẩm trong giỏ nằm trong voucherProducts
+    const hasAtLeastOne = cartSlugs.some((slug) => requiredSlugs.includes(slug))
+    return hasAtLeastOne
   }
-
   return false
 }
 
@@ -156,6 +183,7 @@ export function calculateCartItemDisplay(
   return orderItems.map((item) => {
     const original = item.originalPrice ?? 0
 
+    // Tính giảm từ promotion (nếu có)
     const promotionDiscount =
       item.promotionDiscount ??
       Math.round(original * ((item.promotionValue || 0) / 100))
@@ -163,8 +191,8 @@ export function calculateCartItemDisplay(
     const priceAfterPromotion = Math.max(0, original - promotionDiscount)
     const isEligible = inVoucherList(item)
 
-    // ========== Không có voucher hoặc không hợp lệ ==========
-    if (!isVoucherValid) {
+    // ===== Không có hoặc voucher không hợp lệ =====
+    if (!isVoucherValid || !voucher) {
       return {
         ...item,
         finalPrice: priceAfterPromotion,
@@ -174,13 +202,16 @@ export function calculateCartItemDisplay(
       }
     }
 
-    // ========== RULE: ALL_REQUIRED ==========
+    // ===== RULE: ALL_REQUIRED =====
     if (rule === APPLICABILITY_RULE.ALL_REQUIRED) {
       if (type === VOUCHER_TYPE.PERCENT_ORDER) {
-        const voucherDiscount = (voucher?.value || 0 * original) / 100
+        const voucherDiscount = Math.round(
+          ((voucher.value || 0) / 100) * priceAfterPromotion,
+        )
+        const finalPrice = Math.max(0, priceAfterPromotion - voucherDiscount)
         return {
           ...item,
-          finalPrice: priceAfterPromotion,
+          finalPrice,
           priceAfterPromotion,
           promotionDiscount,
           voucherDiscount,
@@ -188,60 +219,73 @@ export function calculateCartItemDisplay(
       }
 
       if (type === VOUCHER_TYPE.FIXED_VALUE) {
-        const voucherDiscount = voucher?.value || 0 / orderItems.length
+        // Chỉ chia giá trị voucher cho các món hợp lệ
+        const numEligible = eligibleItems.length || 1
+        const voucherDiscount = Math.min(
+          original,
+          (voucher.value || 0) / numEligible,
+        )
+        const finalPrice = Math.max(0, original - voucherDiscount)
         return {
           ...item,
-          finalPrice: priceAfterPromotion,
-          priceAfterPromotion,
-          promotionDiscount,
+          finalPrice,
+          priceAfterPromotion: original,
+          promotionDiscount: 0,
           voucherDiscount,
         }
       }
 
       if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT && isEligible) {
         const newPrice =
-          (voucher?.value || 0) <= 1
-            ? Math.round(original * (1 - (voucher?.value || 0)))
-            : Math.min(original, voucher?.value || 0)
-
-        const voucherDiscount = original - newPrice
+          (voucher.value || 0) <= 1
+            ? Math.round(original * (1 - (voucher.value || 0)))
+            : Math.min(original, voucher.value || 0)
+        const voucherDiscount = priceAfterPromotion - newPrice
         return {
           ...item,
           finalPrice: newPrice,
           priceAfterPromotion,
-          promotionDiscount: 0, // bỏ qua promotion
+          promotionDiscount: 0,
           voucherDiscount,
         }
       }
-
-      // Nếu SAME_PRICE_PRODUCT nhưng item không nằm trong list thì giữ nguyên
-      return {
-        ...item,
-        finalPrice: priceAfterPromotion,
-        priceAfterPromotion,
-        promotionDiscount,
-        voucherDiscount: 0,
-      }
     }
 
-    // ========== RULE: AT_LEAST_ONE_REQUIRED ==========
-    if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED && isEligible) {
+    // ===== RULE: AT_LEAST_ONE_REQUIRED =====
+    if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
+      if (!isEligible) {
+        // Không thuộc voucherProducts => giữ nguyên promotion
+        return {
+          ...item,
+          finalPrice: priceAfterPromotion,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount: 0,
+        }
+      }
+
       if (type === VOUCHER_TYPE.PERCENT_ORDER) {
-        const voucherDiscount = (voucher?.value || 0 * original) / 100
-        const finalPrice = original - voucherDiscount
+        const voucherDiscount = Math.round(
+          ((voucher.value || 0) * original) / 100,
+        )
+        const finalPrice = Math.max(0, original - voucherDiscount)
         return {
           ...item,
           finalPrice,
-          priceAfterPromotion: original, // không áp dụng promotion
+          priceAfterPromotion: original, // bỏ promotion vì áp voucher
           promotionDiscount: 0,
           voucherDiscount,
         }
       }
 
       if (type === VOUCHER_TYPE.FIXED_VALUE) {
-        const numEligible = eligibleItems.length || 1 // tránh chia 0
-        const voucherDiscount = (voucher?.value || 0) / numEligible
-        const finalPrice = original - voucherDiscount
+        // Chỉ chia giá trị voucher cho các món hợp lệ
+        const numEligible = eligibleItems.length || 1
+        const voucherDiscount = Math.min(
+          original,
+          (voucher.value || 0) / numEligible,
+        )
+        const finalPrice = Math.max(0, original - voucherDiscount)
         return {
           ...item,
           finalPrice,
@@ -253,9 +297,9 @@ export function calculateCartItemDisplay(
 
       if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
         const newPrice =
-          (voucher?.value || 0) <= 1
-            ? Math.round(original * (1 - (voucher?.value || 0)))
-            : Math.min(original, voucher?.value || 0)
+          (voucher.value || 0) <= 1
+            ? Math.round(original * (1 - (voucher.value || 0)))
+            : Math.min(original, voucher.value || 0)
         const voucherDiscount = original - newPrice
         return {
           ...item,
@@ -267,7 +311,7 @@ export function calculateCartItemDisplay(
       }
     }
 
-    // Mặc định: item không hợp lệ (không trong danh sách, hoặc không nằm trong rule)
+    // ===== Mặc định: không áp voucher =====
     return {
       ...item,
       finalPrice: priceAfterPromotion,
@@ -335,8 +379,10 @@ export function calculateOrderItemDisplay(
     // ===== RULE: ALL_REQUIRED =====
     if (rule === APPLICABILITY_RULE.ALL_REQUIRED) {
       if (type === VOUCHER_TYPE.PERCENT_ORDER) {
-        voucherDiscount = (voucher?.value || 0 * original) / 100
-        const finalPrice = original - original * voucherDiscount
+        voucherDiscount = Math.round(
+          ((voucher?.value || 0) * priceAfterPromotion) / 100,
+        )
+        finalPrice = Math.max(0, priceAfterPromotion - voucherDiscount)
         return {
           ...item,
           name,
@@ -350,16 +396,18 @@ export function calculateOrderItemDisplay(
       }
 
       if (type === VOUCHER_TYPE.FIXED_VALUE) {
-        const perItemDiscount = voucher?.value || 0 / orderItems.length
+        const perItemDiscount = (voucher?.value || 0) / orderItems.length
+        voucherDiscount = Math.min(priceAfterPromotion, perItemDiscount)
+        finalPrice = Math.max(0, priceAfterPromotion - voucherDiscount)
         return {
           ...item,
           name,
           productSlug,
           originalPrice: original,
-          finalPrice: priceAfterPromotion,
+          finalPrice,
           priceAfterPromotion,
           promotionDiscount,
-          voucherDiscount: perItemDiscount,
+          voucherDiscount,
         }
       }
 
@@ -382,7 +430,6 @@ export function calculateOrderItemDisplay(
         }
       }
 
-      // Trường hợp item không thuộc danh sách áp dụng
       return {
         ...item,
         name,
@@ -396,59 +443,90 @@ export function calculateOrderItemDisplay(
     }
 
     // ===== RULE: AT_LEAST_ONE_REQUIRED =====
-    if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED && isEligible) {
+    if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
       if (type === VOUCHER_TYPE.PERCENT_ORDER) {
-        voucherDiscount = (voucher?.value || 0 * original) / 100
-        const finalPrice = original - original * voucherDiscount
+        if (isEligible) {
+          // Giảm % cho sản phẩm hợp lệ, bỏ promotion
+          voucherDiscount = Math.round(((voucher?.value || 0) * original) / 100)
+          finalPrice = Math.max(0, original - voucherDiscount)
+          return {
+            ...item,
+            name,
+            productSlug,
+            originalPrice: original,
+            finalPrice,
+            priceAfterPromotion: original,
+            promotionDiscount: 0,
+            voucherDiscount,
+          }
+        }
+        // Không hợp lệ => giữ nguyên
         return {
           ...item,
           name,
           productSlug,
           originalPrice: original,
-          finalPrice,
-          priceAfterPromotion: original, // Bỏ promotion
-          promotionDiscount: 0,
-          voucherDiscount,
+          finalPrice: priceAfterPromotion,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount: 0,
         }
       }
 
       if (type === VOUCHER_TYPE.FIXED_VALUE) {
-        const perItemDiscount =
-          (voucher?.value || 0) / (eligibleItems.length || 1)
-        finalPrice = original - perItemDiscount
+        if (isEligible) {
+          // Chia đều cho sản phẩm hợp lệ
+          const numEligible = eligibleItems.length || 1
+          voucherDiscount = Math.min(
+            original,
+            (voucher?.value || 0) / numEligible,
+          )
+          finalPrice = Math.max(0, original - voucherDiscount)
+          return {
+            ...item,
+            name,
+            productSlug,
+            originalPrice: original,
+            finalPrice,
+            priceAfterPromotion: original,
+            promotionDiscount: 0,
+            voucherDiscount,
+          }
+        }
+        // Không hợp lệ => giữ nguyên
         return {
           ...item,
           name,
           productSlug,
           originalPrice: original,
-          finalPrice,
-          priceAfterPromotion: original, // Bỏ promotion
-          promotionDiscount: 0,
-          voucherDiscount: perItemDiscount,
+          finalPrice: priceAfterPromotion,
+          priceAfterPromotion,
+          promotionDiscount,
+          voucherDiscount: 0,
         }
       }
 
-      if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
-        const voucherPrice =
+      if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT && isEligible) {
+        const newPrice =
           (voucher?.value || 0) <= 1
             ? Math.round(original * (1 - (voucher?.value || 0)))
             : Math.min(original, voucher?.value || 0)
-        finalPrice = voucherPrice
-        voucherDiscount = original - voucherPrice
+        voucherDiscount = original - newPrice
+        finalPrice = newPrice
         return {
           ...item,
           name,
           productSlug,
           originalPrice: original,
           finalPrice,
-          priceAfterPromotion: original, // Bỏ promotion
+          priceAfterPromotion: original,
           promotionDiscount: 0,
           voucherDiscount,
         }
       }
     }
 
-    // ===== DEFAULT: không hợp lệ hoặc không được áp dụng =====
+    // ===== DEFAULT =====
     return {
       ...item,
       name,
@@ -466,7 +544,6 @@ export function calculateCartTotals(
   displayItems: IDisplayCartItem[],
   voucher: IVoucher | null,
 ) {
-  // console.log('Calculating cart totals for display items:', displayItems)
   const allowedProductSlugs =
     voucher?.voucherProducts?.map((vp) => vp.product?.slug) || []
 
@@ -493,24 +570,57 @@ export function calculateCartTotals(
   let voucherDiscount = 0
 
   if (voucher) {
-    if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
-      // Tổng giảm giá từ các item đã áp dụng giá đặc biệt
+    const rule = voucher.applicabilityRule
+    const type = voucher.type
+
+    if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      // Giảm giá từ các item có giá đặc biệt
       voucherDiscount = _.sumBy(displayItems, (item) => {
         if (allowedProductSlugs.includes(item.slug)) {
           return (item.voucherDiscount || 0) * (item.quantity || 0)
         }
         return 0
       })
-    } else if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
-      voucherDiscount = Math.round(
-        ((voucher.value || 0) * totalAfterPromo) / 100,
-      )
-    } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-      voucherDiscount = Math.min(
-        voucher.value || 0,
-        subTotalBeforeDiscount - promotionDiscount,
-      )
+    } else if (type === VOUCHER_TYPE.PERCENT_ORDER) {
+      if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
+        // Chỉ tính % trên các sản phẩm hợp lệ
+        const eligibleTotal = _.sumBy(displayItems, (item) => {
+          if (allowedProductSlugs.includes(item.slug)) {
+            const afterPromo =
+              (item.originalPrice || 0) - (item.promotionDiscount || 0)
+            return Math.max(0, afterPromo) * (item.quantity || 0)
+          }
+          return 0
+        })
+        voucherDiscount = Math.round(
+          ((voucher.value || 0) * eligibleTotal) / 100,
+        )
+      } else {
+        // ALL_REQUIRED → Áp cho toàn đơn sau promotion
+        const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+        voucherDiscount = Math.round(
+          ((voucher.value || 0) * totalAfterPromo) / 100,
+        )
+      }
+    } else if (type === VOUCHER_TYPE.FIXED_VALUE) {
+      if (rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED) {
+        // Chia đều giá trị voucher cho sản phẩm hợp lệ
+        const eligibleItems = displayItems.filter((item) =>
+          allowedProductSlugs.includes(item.slug),
+        )
+        const numEligible = eligibleItems.length || 1
+        voucherDiscount = _.sumBy(eligibleItems, (item) => {
+          const perItemDiscount = Math.min(
+            item.originalPrice || 0,
+            (voucher.value || 0) / numEligible,
+          )
+          return perItemDiscount * (item.quantity || 0)
+        })
+      } else {
+        // ALL_REQUIRED → Áp cho toàn đơn
+        const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+        voucherDiscount = Math.min(voucher.value || 0, totalAfterPromo)
+      }
     }
   }
 
@@ -536,48 +646,83 @@ export function calculatePlacedOrderTotals(
     []
 
   const subTotalBeforeDiscount = displayItems.reduce(
-    (sum: number, item: IDisplayOrderItem) =>
-      sum + (item.originalPrice || 0) * (item.quantity || 0),
+    (sum, item) => sum + (item.originalPrice || 0) * (item.quantity || 0),
     0,
   )
 
-  const promotionDiscount = displayItems.reduce(
-    (sum: number, item: IDisplayOrderItem) => {
-      const isSamePriceAndIncluded =
-        voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-        allowedProductSlugs.includes(item.productSlug)
+  const promotionDiscount = displayItems.reduce((sum, item) => {
+    const isSamePriceAndIncluded =
+      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+      allowedProductSlugs.includes(item.productSlug)
 
-      const discount =
-        !isSamePriceAndIncluded &&
-        item.promotionDiscount &&
-        item.promotionDiscount > 0
-          ? item.promotionDiscount
-          : 0
+    const discount =
+      !isSamePriceAndIncluded &&
+      item.promotionDiscount &&
+      item.promotionDiscount > 0
+        ? item.promotionDiscount
+        : 0
 
-      return sum + discount * (item.quantity || 0)
-    },
-    0,
-  )
+    return sum + discount * (item.quantity || 0)
+  }, 0)
 
   let voucherDiscount = 0
 
   if (voucher) {
+    // ===== SAME_PRICE_PRODUCT =====
     if (voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
-      voucherDiscount = displayItems.reduce(
-        (sum: number, item: IDisplayOrderItem) => {
+      voucherDiscount = displayItems.reduce((sum, item) => {
+        if (allowedProductSlugs.includes(item.productSlug)) {
+          return sum + (item.voucherDiscount || 0) * (item.quantity || 0)
+        }
+        return sum
+      }, 0)
+    }
+
+    // ===== PERCENT_ORDER =====
+    else if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+      ) {
+        // Chỉ tính % cho sản phẩm hợp lệ
+        const eligibleTotal = displayItems.reduce((sum, item) => {
           if (allowedProductSlugs.includes(item.productSlug)) {
-            return sum + (item.voucherDiscount || 0) * (item.quantity || 0)
+            return sum + (item.originalPrice || 0) * (item.quantity || 0)
           }
           return sum
-        },
-        0,
-      )
-    } else if (voucher.type === VOUCHER_TYPE.PERCENT_ORDER) {
-      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
-      voucherDiscount = Math.round((voucher.value * totalAfterPromo) / 100)
-    } else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
-      const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
-      voucherDiscount = Math.min(voucher.value || 0, totalAfterPromo)
+        }, 0)
+        voucherDiscount = Math.round(
+          ((voucher.value || 0) * eligibleTotal) / 100,
+        )
+      } else {
+        // ALL_REQUIRED hoặc không có rule => tính cho toàn bộ sau promotion
+        const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+        voucherDiscount = Math.round(
+          ((voucher.value || 0) * totalAfterPromo) / 100,
+        )
+      }
+    }
+
+    // ===== FIXED_VALUE =====
+    else if (voucher.type === VOUCHER_TYPE.FIXED_VALUE) {
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+      ) {
+        // Chỉ chia giá trị voucher cho sản phẩm hợp lệ
+        const eligibleItems = displayItems.filter((item) =>
+          allowedProductSlugs.includes(item.productSlug),
+        )
+        const numEligible = eligibleItems.length || 1
+        const perItemDiscount = (voucher.value || 0) / numEligible
+
+        voucherDiscount = eligibleItems.reduce((sum, item) => {
+          const discount = Math.min(item.originalPrice || 0, perItemDiscount)
+          return sum + discount * (item.quantity || 0)
+        }, 0)
+      } else {
+        // ALL_REQUIRED => áp dụng cho toàn đơn sau promotion
+        const totalAfterPromo = subTotalBeforeDiscount - promotionDiscount
+        voucherDiscount = Math.min(voucher.value || 0, totalAfterPromo)
+      }
     }
   }
 
