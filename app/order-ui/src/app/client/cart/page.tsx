@@ -14,7 +14,7 @@ import {
   DeleteAllCartDialog,
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
-import { ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
+import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
 import { Button } from '@/components/ui'
 import { OrderTypeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
@@ -39,7 +39,10 @@ export default function ClientCartPage() {
     currentCartItems?.voucher || null
   )
 
+  // console.log("displayItems", displayItems)
+
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
+  // console.log("cartTotals", cartTotals)
 
   const handleChangeVariant = (id: string) => {
     addOrderingProductVariant(id)
@@ -338,21 +341,41 @@ export default function ClientCartPage() {
                           const voucher = currentCartItems?.voucher
                           if (!voucher) return null
 
-                          switch (voucher.type) {
-                            case VOUCHER_TYPE.PERCENT_ORDER:
-                              return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+                          const { type, applicabilityRule, value } = voucher
 
-                            case VOUCHER_TYPE.FIXED_VALUE:
-                              return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+                          const discountValueText =
+                            type === VOUCHER_TYPE.PERCENT_ORDER
+                              ? `${tVoucher('voucher.discountValue')}${value}%`
+                              : type === VOUCHER_TYPE.FIXED_VALUE
+                                ? `${tVoucher('voucher.discountValue')}${formatCurrency(value)}`
+                                : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                  ? `${tVoucher('voucher.samePrice')} ${formatCurrency(value)}`
+                                  : ''
 
-                            case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
-                              return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+                          const ruleText =
+                            applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED
+                              ? tVoucher('voucher.forAllEligibleProducts') // ví dụ: "cho tất cả sản phẩm hợp lệ"
+                              : applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                ? tVoucher('voucher.forSelectedProducts') // ví dụ: "cho các sản phẩm được chọn"
+                                : ''
 
-                            default:
-                              return ''
+                          // Ghép câu
+                          if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+                            return `${discountValueText} ${ruleText}`
                           }
+
+                          if (type === VOUCHER_TYPE.FIXED_VALUE) {
+                            return `${discountValueText} ${tVoucher('voucher.forSelectedProducts')}`
+                          }
+
+                          if (type === VOUCHER_TYPE.PERCENT_ORDER) {
+                            return `${discountValueText} ${tVoucher('voucher.forSelectedProducts')}`
+                          }
+
+                          return ''
                         })()}
                       </div>
+
                     </div>
                   </div>
                 )}
@@ -530,14 +553,13 @@ export default function ClientCartPage() {
 
                           switch (voucher.type) {
                             case VOUCHER_TYPE.PERCENT_ORDER:
-                              return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+                              return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.forSelectedProducts')}`
 
                             case VOUCHER_TYPE.FIXED_VALUE:
-                              return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+                              return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
 
                             case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
                               return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
-
                             default:
                               return ''
                           }
