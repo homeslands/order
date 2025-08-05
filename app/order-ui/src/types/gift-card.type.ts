@@ -88,6 +88,7 @@ export interface IGiftCardDetail {
   serial: string
   usedBy: IUserGiftCard
   code: string
+  usedBySlug: string | null
 }
 
 export interface IUseGiftCardResponse {

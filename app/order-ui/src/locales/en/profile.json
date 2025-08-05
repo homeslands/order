@@ -118,6 +118,7 @@
     "totalSpent": "Total Spent",
     "netDifference": "Net Difference",
     "giftCard": {
+      "giftCardHistory": "Gift Card History",
       "transactions": "Gift Card Transactions",
       "status": {
         "label": "Status",
@@ -150,7 +151,42 @@
       "error": "Something went wrong",
       "clearFilters": "Clear Filters",
       "noMoreResults": "No more results to show",
-      "showingResults": "Showing {{current}} of {{total}} results"
+      "showingResults": "Showing {{current}} of {{total}} results",
+      "collapse": "Collapse",
+      "viewDetails": "View Details"
+    },
+    "cardOrder": {
+      "orders": "Gift Card Orders",
+      "status": {
+        "label": "Status",
+        "all": "All Status",
+        "pending": "Pending",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "quantity": "Quantity",
+      "points": "Coins",
+      "total": "Total",
+      "noOrders": "No gift card orders found",
+      "noOrdersDescription": "Your gift card orders will appear here",
+      "loadError": "Failed to load gift card orders. Please try again.",
+      "paymentInfo": "Payment Information",
+      "paymentMethod": "Payment Method",
+      "paymentStatus": "Payment Status",
+      "transactionId": "Transaction ID",
+      "paymentDate": "Payment Date",
+      "giftCardInfo": "Gift Card Information",
+      "cardType": "Card Type",
+      "cardPrice": "Card Price",
+      "giftCardCodes": "Gift Cards",
+      "code": "Code",
+      "serial": "Serial",
+      "expires": "Expires",
+      "used": "Used",
+      "recipients": "Recipients",
+      "message": "Message",
+      "noName": "_____"
     }
   }
 }

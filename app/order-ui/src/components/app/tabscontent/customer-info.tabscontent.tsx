@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Copy, ShieldCheck } from 'lucide-react'
 
@@ -18,8 +19,6 @@ import {
   UpdatePasswordDialog,
 } from '../dialog'
 import { useUserStore } from '@/stores'
-import { useEffect, useState } from 'react'
-import moment from 'moment'
 
 export function CustomerInfoTabsContent() {
   const { t } = useTranslation(['profile', 'toast'])
@@ -158,7 +157,7 @@ export function CustomerInfoTabsContent() {
       <div className="flex flex-col gap-1">
         <span className="text-sm text-normal">{t('profile.dob')}</span>
         <Input
-          value={userProfile?.dob ? moment(userProfile.dob).format('DD/MM/YYYY') : ''}
+          value={userProfile?.dob ? userProfile.dob : ''}
           readOnly
           disabled
           placeholder={`${t('profile.dob')}`}
