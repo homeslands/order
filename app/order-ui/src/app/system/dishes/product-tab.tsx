@@ -3,23 +3,52 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { DataTable } from '@/components/ui'
 import { useProductColumns } from './DataTable/columns'
-import { ProductActionOptions } from './DataTable/actions'
-import { usePagination, useProducts } from '@/hooks'
+import { ProductActionOptions, ProductFilterOptions } from './DataTable/actions'
+import { useCatalogs, usePagination, useProducts } from '@/hooks'
 import { IProduct } from '@/types'
 import { ROUTE } from '@/constants'
+import { useTranslation } from 'react-i18next'
 
 export default function ProductTab() {
   const navigate = useNavigate()
+  const { t } = useTranslation('catalog')
+  const { t: tCommon } = useTranslation('common')
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
+  const [catalog, setCatalog] = useState<string | null>(null)
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const { data: products, isLoading } = useProducts({
     page,
     size,
     hasPaging: true,
+    catalog: catalog || undefined,
   }, !!pagination.pageIndex)
+
+  const { data: catalogs } = useCatalogs()
   const [, setProductName] = useState<string>('')
+
+  const catalogsData = catalogs?.result
+
+  const filterConfig = [
+    {
+      id: 'catalog',
+      label: t('catalog.title'),
+      options: [
+        { label: tCommon('dataTable.all'), value: 'all' },
+        ...(catalogsData?.map(catalog => ({
+          label: catalog.name.charAt(0).toUpperCase() + catalog.name.slice(1),
+          value: catalog.slug,
+        })) || []),
+      ],
+    },
+  ]
+
+  const handleFilterChange = (filterId: string, value: string) => {
+    if (filterId === 'catalog') {
+      setCatalog(value === 'all' ? null : value)
+    }
+  }
 
   // add page size to query params
   useEffect(() => {
@@ -45,7 +74,10 @@ export default function ProductTab() {
         isLoading={isLoading}
         pages={products?.result.totalPages || 0}
         onInputChange={handleSearchChange}
-        hiddenInput={false}
+        hiddenInput={true}
+        filterOptions={ProductFilterOptions}
+        filterConfig={filterConfig}
+        onFilterChange={handleFilterChange}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         actionOptions={ProductActionOptions}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 import { DataTable } from '@/components/ui'
 import { useUsers, usePagination } from '@/hooks'
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 import { useUserStore } from '@/stores'
 import { useSearchParams } from 'react-router-dom'
+import { IUserQuery } from '@/types'
 export default function EmployeeListPage() {
   const { t: tHelmet } = useTranslation('helmet')
   const { t } = useTranslation('employee')
@@ -22,15 +23,25 @@ export default function EmployeeListPage() {
   const [role, setRole] = useState<Role | 'all'>('all')
   const { userInfo } = useUserStore()
 
-  const { data, isLoading } = useUsers({
+  useEffect(() => {
+    setSearchParams((prev) => {
+      prev.set('page', pagination.pageIndex.toString())
+      prev.set('size', pagination.pageSize.toString())
+      return prev
+    })
+  }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+
+  const employeesParams: IUserQuery = useMemo(() => ({
     page,
     size,
-    phonenumber,
+    phonenumber: phonenumber,
     order: 'DESC',
     hasPaging: true,
     role: role !== 'all' ? role : [Role.STAFF, Role.CHEF, Role.MANAGER, Role.ADMIN].join(','),
     ...((userInfo?.role?.name === Role.SUPER_ADMIN || userInfo?.role?.name === Role.ADMIN) ? {} : { branch: userInfo?.branch?.slug, })
-  })
+  }), [page, size, phonenumber, role, userInfo?.role?.name, userInfo?.branch?.slug])
+
+  const { data, isLoading } = useUsers(employeesParams)
 
   // add page size to query params
   useEffect(() => {
@@ -45,6 +56,7 @@ export default function EmployeeListPage() {
     {
       id: 'role',
       label: t('employee.role'),
+      value: role,
       options: [
         { label: tCommon('dataTable.all'), value: 'all' },
         { label: t('employee.ADMIN'), value: Role.ADMIN },
@@ -58,6 +70,7 @@ export default function EmployeeListPage() {
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'role') {
       setRole(value as Role | 'all')
+      handlePageChange(1)
     }
   }
 
@@ -79,6 +92,7 @@ export default function EmployeeListPage() {
         {t('employee.title')}
       </span>
       <DataTable
+        key={`${role}-${page}-${size}`}
         columns={useEmployeeListColumns()}
         data={data?.result.items || []}
         isLoading={isLoading}
