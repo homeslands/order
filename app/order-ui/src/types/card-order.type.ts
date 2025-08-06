@@ -9,6 +9,7 @@ export interface ICardOrderRequest {
   quantity: number
   totalAmount: number
   receipients?: IRecipient[]
+  cardVersion: number
 }
 
 export interface ICardOrderGetRequest {
@@ -80,6 +81,7 @@ export interface IGiftCardCartItem {
   receipients?: IReceiverGiftCardCart[]
   isActive?: boolean
   type?: string
+  version?: number
 }
 
 export interface IReceiverGiftCardCart {
