@@ -31,6 +31,7 @@ import { Payment } from 'src/payment/payment.entity';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
       MenuItem,
       Payment,
       ACBConnectorConfig,
+      Invoice,
     ]),
     FileModule,
     MenuModule,

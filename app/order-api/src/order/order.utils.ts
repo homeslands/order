@@ -17,13 +17,13 @@ import { OrderStatus } from './order.constants';
 import moment from 'moment';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { PaymentStatus } from 'src/payment/payment.constants';
 import * as _ from 'lodash';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import {
   VoucherApplicabilityRule,
   VoucherType,
 } from 'src/voucher/voucher.constant';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 @Injectable()
 export class OrderUtils {
@@ -31,6 +31,8 @@ export class OrderUtils {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Invoice)
+    private readonly invoiceRepository: Repository<Invoice>,
     private readonly menuItemUtils: MenuItemUtils,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly paymentUtils: PaymentUtils,
@@ -243,11 +245,10 @@ export class OrderUtils {
     minReferenceNumberOrder: number;
     maxReferenceNumberOrder: number;
   }> {
-    const orders = await this.orderRepository.find({
+    const invoices = await this.invoiceRepository.find({
       where: {
-        branch: { id: branchId },
-        createdAt: Between(startDate, endDate),
-        payment: { statusCode: PaymentStatus.COMPLETED },
+        branchId: branchId,
+        date: Between(startDate, endDate),
         referenceNumber: Not(IsNull()),
       },
       order: {
@@ -255,8 +256,8 @@ export class OrderUtils {
       },
     });
     return {
-      minReferenceNumberOrder: _.first(orders)?.referenceNumber ?? 0,
-      maxReferenceNumberOrder: _.last(orders)?.referenceNumber ?? 0,
+      minReferenceNumberOrder: _.first(invoices)?.referenceNumber ?? 0,
+      maxReferenceNumberOrder: _.last(invoices)?.referenceNumber ?? 0,
     };
   }
 }
