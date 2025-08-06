@@ -39,6 +39,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrinterManager } from 'src/printer/printer.manager';
 import { PrinterProducer } from 'src/printer/printer.producer';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('ChefOrderService', () => {
   let service: ChefOrderService;
@@ -145,6 +146,10 @@ describe('ChefOrderService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

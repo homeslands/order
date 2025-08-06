@@ -14,7 +14,7 @@ export class BranchRevenueQueryResponseDto {
   branchId: string;
 
   @AutoMap()
-  date: Date;
+  date: string;
 
   @AutoMap()
   totalAmount: string;
@@ -64,7 +64,7 @@ export class BranchRevenueQueryResponseForHourDto {
   branchId: string;
 
   @AutoMap()
-  date: Date;
+  date: string;
 
   @AutoMap()
   totalAmount: string;
