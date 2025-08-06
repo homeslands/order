@@ -342,6 +342,7 @@
     "giftCardExpired": "Thẻ quà tặng đã hết hạn",
     "giftCardAlreadyUsed": "Thẻ quà tặng đã sử dụng",
     "giftCardUsedSuccess": "Thẻ quà tặng đã sử dụng thành công",
-    "insufficientBalance": "Bạn không đủ số dư để thanh toán đơn hàng"
+    "insufficientBalance": "Bạn không đủ số dư để thanh toán đơn hàng",
+    "chooseTableSuccess": "Chọn bàn thành công"
   }
 }
