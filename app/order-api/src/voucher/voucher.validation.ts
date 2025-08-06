@@ -30,6 +30,12 @@ export const VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE =
 export const INVALID_VOUCHER_SLUGS = 'INVALID_VOUCHER_SLUGS';
 export const INVALID_VOUCHER_VALUE = 'INVALID_VOUCHER_VALUE';
 export const PRODUCT_NOT_APPLIED_TO_VOUCHER = 'PRODUCT_NOT_APPLIED_TO_VOUCHER';
+export const INVALID_VOUCHER_APPLICABILITY_RULE =
+  'INVALID_VOUCHER_APPLICABILITY_RULE';
+export const ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER =
+  'ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER';
+export const AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER =
+  'AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -51,7 +57,10 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_HAS_USED_CAN_NOT_UPDATE_MAX_USAGE
   | typeof INVALID_VOUCHER_SLUGS
   | typeof INVALID_VOUCHER_VALUE
-  | typeof PRODUCT_NOT_APPLIED_TO_VOUCHER;
+  | typeof PRODUCT_NOT_APPLIED_TO_VOUCHER
+  | typeof INVALID_VOUCHER_APPLICABILITY_RULE
+  | typeof ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER
+  | typeof AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -104,6 +113,18 @@ export const VoucherValidation: TVoucherErrorCode = {
   PRODUCT_NOT_APPLIED_TO_VOUCHER: createErrorCode(
     143421,
     'Product not applied to voucher',
+  ),
+  INVALID_VOUCHER_APPLICABILITY_RULE: createErrorCode(
+    143423,
+    'Invalid voucher applicability rule',
+  ),
+  ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER: createErrorCode(
+    143424,
+    'All product must be applied to voucher',
+  ),
+  AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER: createErrorCode(
+    143425,
+    'At least one product must be applied to voucher',
   ),
 };
 
