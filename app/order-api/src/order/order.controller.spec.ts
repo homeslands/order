@@ -28,6 +28,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -82,6 +83,10 @@ describe('OrderController', () => {
         {
           provide: getRepositoryToken(PrinterJob),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
