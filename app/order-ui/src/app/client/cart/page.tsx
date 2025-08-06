@@ -39,10 +39,7 @@ export default function ClientCartPage() {
     currentCartItems?.voucher || null
   )
 
-  // console.log("displayItems", displayItems)
-
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
-  // console.log("cartTotals", cartTotals)
 
   const handleChangeVariant = (id: string) => {
     addOrderingProductVariant(id)
