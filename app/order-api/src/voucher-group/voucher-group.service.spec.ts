@@ -33,6 +33,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ConfigService } from '@nestjs/config';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('VoucherGroupService', () => {
   let service: VoucherGroupService;
@@ -115,6 +116,10 @@ describe('VoucherGroupService', () => {
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

@@ -137,6 +137,10 @@ describe('VoucherService', () => {
           provide: getRepositoryToken(VoucherProduct),
           useFactory: repositoryMockFactory,
         },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
+        },
       ],
     }).compile();
 

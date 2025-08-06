@@ -35,6 +35,7 @@ import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strateg
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { Payment } from 'src/payment/payment.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -119,6 +120,10 @@ describe('VoucherController', () => {
         {
           provide: getRepositoryToken(VoucherProduct),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

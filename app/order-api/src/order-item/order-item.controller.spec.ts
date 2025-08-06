@@ -41,6 +41,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('OrderItemController', () => {
   let controller: OrderItemController;
@@ -146,6 +147,10 @@ describe('OrderItemController', () => {
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

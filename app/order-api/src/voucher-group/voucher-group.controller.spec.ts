@@ -34,6 +34,7 @@ import { HttpService } from '@nestjs/axios';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 describe('VoucherGroupController', () => {
   let controller: VoucherGroupController;
 
@@ -116,6 +117,10 @@ describe('VoucherGroupController', () => {
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
