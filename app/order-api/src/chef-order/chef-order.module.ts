@@ -28,6 +28,7 @@ import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PrinterModule } from 'src/printer/printer.module';
 import { ChefOrderListener } from './chef-order.listener';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
       Payment,
       ACBConnectorConfig,
       PrinterJob,
+      Invoice,
     ]),
     DbModule,
     ACBConnectorModule,

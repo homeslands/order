@@ -31,6 +31,7 @@ import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 describe('BranchRevenueController', () => {
   let controller: BranchRevenueController;
 
@@ -115,6 +116,10 @@ describe('BranchRevenueController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
