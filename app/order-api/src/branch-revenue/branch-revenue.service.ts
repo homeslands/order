@@ -78,8 +78,17 @@ export class BranchRevenueService {
   ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
     this.logger.log('query', JSON.stringify(query), context);
+
+    const branch = await this.branchRepository.findOne({
+      where: {
+        slug: branchSlug ?? IsNull(),
+      },
+    });
+    if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
     if (query.type === RevenueTypeQuery.HOUR) {
       this.logger.log('Get branch revenue by hour', context);
+
       if (!query.startDate || !query.endDate) {
         this.logger.error(
           BranchRevenueValidation.START_DATE_AND_END_DATE_MUST_BE_PROVIDED
@@ -91,12 +100,6 @@ export class BranchRevenueService {
           BranchRevenueValidation.START_DATE_AND_END_DATE_MUST_BE_PROVIDED,
         );
       }
-      const branch = await this.branchRepository.findOne({
-        where: {
-          slug: branchSlug ?? IsNull(),
-        },
-      });
-      if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
 
       const startDateQuery = moment(query.startDate).format(
         'YYYY-MM-DD HH:mm:ss',
@@ -138,17 +141,7 @@ export class BranchRevenueService {
       return fullDataDto;
     } else {
       const findOptionsWhere: FindOptionsWhere<BranchRevenue> = {};
-
-      if (branchSlug) {
-        const branch = await this.branchRepository.findOne({
-          where: {
-            slug: branchSlug,
-          },
-        });
-        if (!branch)
-          throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-        findOptionsWhere.branchId = branch.id;
-      }
+      findOptionsWhere.branchId = branch.id;
 
       let startDate: Date;
       let endDate: Date;
@@ -234,19 +227,51 @@ export class BranchRevenueService {
     // Lấy tất cả các giờ trong khoảng thời gian
     const hoursInRange = [];
     const current = start.clone();
-    while (current <= end) {
-      hoursInRange.push(current.format('YYYY-MM-DD HH:00:00'));
-      current.add(1, 'hour');
+
+    if (
+      start.format('YYYY-MM-DD HH:00:00') === end.format('YYYY-MM-DD HH:00:00')
+    ) {
+      hoursInRange.push([
+        start.format('YYYY-MM-DD HH:mm:ss.SSS'),
+        end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+      ]);
+    } else {
+      while (current < end) {
+        if (current.isSame(start)) {
+          hoursInRange.push([
+            start.format('YYYY-MM-DD HH:mm:ss.SSS'),
+            start.format('YYYY-MM-DD HH:59:59.999'),
+          ]);
+        } else if (current.isSame(end)) {
+          hoursInRange.push([
+            end.format('YYYY-MM-DD HH:00:00.000'),
+            end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+          ]);
+        } else {
+          hoursInRange.push([
+            current.format('YYYY-MM-DD HH:00:00.000'),
+            current.format('YYYY-MM-DD HH:59:59.999'),
+          ]);
+        }
+
+        current.add(1, 'hour');
+      }
+
+      hoursInRange.push([
+        end.format('YYYY-MM-DD HH:00:00.000'),
+        end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+      ]);
     }
 
     const dataMap = new Map(data.map((item) => [item.date, item]));
 
     const fullData: BranchRevenue[] = [];
-    for (const hour of hoursInRange) {
+    for (const hourRange of hoursInRange) {
+      const hour = moment(_.first(hourRange)).format('YYYY-MM-DD HH:00:00');
       const dataItem: BranchRevenueQueryResponseForHourDto = dataMap.get(hour);
       if (dataItem) {
-        const startDate = moment(hour).startOf('hours').toDate();
-        const endDate = moment(hour).endOf('hours').toDate();
+        const startDate = moment(_.first(hourRange)).toDate();
+        const endDate = moment(_.last(hourRange)).toDate();
         const { minReferenceNumberOrder, maxReferenceNumberOrder } =
           await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
             dataItem.branchId,
@@ -526,6 +551,21 @@ export class BranchRevenueService {
         );
 
         if (existedInNewData) {
+          const startDate = moment(existedInNewData.date)
+            .startOf('days')
+            .toDate();
+          const endDate = moment(existedInNewData.date).endOf('day').toDate();
+          const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+            await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+              existedInNewData.branchId,
+              startDate,
+              endDate,
+            );
+          Object.assign(existedInNewData, {
+            minReferenceNumberOrder,
+            maxReferenceNumberOrder,
+          });
+
           if (
             existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
             existedInNewData.totalOrder !== existedBranchRevenue.totalOrder ||
@@ -652,11 +692,12 @@ export class BranchRevenueService {
         .add(1, 'days')
         .format('YYYY-MM-DD');
 
+      // to get data in branch revenue table: date is defined at 07:00:00
       const startDate = new Date(query.startDate);
       startDate.setHours(7, 0, 0, 0);
       const endDate = new Date(query.endDate);
-      // note
-      endDate.setHours(23, 59, 59, 99);
+      endDate.setHours(7, 0, 0, 0);
+
       this.logger.log('refreshBranchRevenueForSpecificDay', context);
       this.logger.log('startQuery: ', startQuery, context);
       this.logger.log('endQuery: ', endQuery, context);

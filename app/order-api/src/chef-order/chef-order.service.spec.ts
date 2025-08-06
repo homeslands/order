@@ -152,7 +152,7 @@ describe('ChefOrderService', () => {
         InvoiceService,
         {
           provide: getRepositoryToken(Invoice),
-          useValue: {},
+          useFactory: repositoryMockFactory,
         },
         QrCodeService,
       ],
