@@ -113,6 +113,14 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
+    if (fieldName === 'startDate') {
+      const currentEndDate = form.getValues('endDate')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
+      }
+    }
   }
 
   const handleSelectionChange = (selectedSlugs: string[]) => {
@@ -358,14 +366,10 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '') {
-                        field.onChange('');
-                      } else {
-                        field.onChange(Number(value));
-                      }
+                      field.onChange(value === '' ? '' : Number(value));
                     }}
                     className='text-sm'
-                    value={field.value === 0 ? '' : field.value}
+                    value={field.value?.toString() ?? ''} // convert number -> string
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
@@ -416,7 +420,12 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 min={0}
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
@@ -440,10 +449,15 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   {t('voucher.usage')}
@@ -469,10 +483,15 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterMinOrderValue')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterMinOrderValue')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   ₫

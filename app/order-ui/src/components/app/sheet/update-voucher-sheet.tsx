@@ -118,10 +118,10 @@ export default function UpdateVoucherSheet({
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     if (fieldName === 'startDate') {
-      // Nếu thay đổi ngày bắt đầu, xóa ngày kết thúc nếu nó trước ngày bắt đầu mới
+      // Nếu thay đổi ngày bắt đầu, cập nhật ngày kết thúc nếu nó trước ngày bắt đầu mới
       const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) <= new Date(date)) {
-        form.setValue('endDate', '')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
       }
     }
     form.setValue(fieldName, date)
@@ -245,6 +245,7 @@ export default function UpdateVoucherSheet({
               {t('voucher.type')}</FormLabel>
             <FormControl>
               <VoucherTypeSelect
+                disabled={true}
                 defaultValue={field.value}
                 {...field}
                 onChange={(value) => {
@@ -377,9 +378,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className='flex items-center gap-1'>
-              <span className="text-destructive">
-                *
-              </span>
               {t('voucher.remainingUsage')}</FormLabel>
             <FormControl>
               <Input
@@ -409,8 +407,12 @@ export default function UpdateVoucherSheet({
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-                min={0}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
             </FormControl>
@@ -436,7 +438,12 @@ export default function UpdateVoucherSheet({
                   type="number"
                   {...field}
                   placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   {t('voucher.usage')}
@@ -464,8 +471,12 @@ export default function UpdateVoucherSheet({
                   type="number"
                   {...field}
                   placeholder={t('voucher.enterMinOrderValue')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  min={0}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   ₫
@@ -481,24 +492,34 @@ export default function UpdateVoucherSheet({
       <FormField
         control={form.control}
         name="isActive"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
-              {t('voucher.isActive')}
-            </FormLabel>
-            <FormControl>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is-active"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const startDate = form.getValues('startDate')
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const start = new Date(startDate)
+          start.setHours(0, 0, 0, 0)
+
+          const isStartDateAfterToday = start.getTime() > today.getTime()
+
+          return (
+            <FormItem>
+              <FormLabel className="flex items-center gap-1">
+                {t('voucher.isActive')}
+              </FormLabel>
+              <FormControl>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is-active"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isStartDateAfterToday}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )
+        }}
       />
     ),
     isVerificationIdentity: (
@@ -508,7 +529,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
               {t('voucher.isVerificationIdentity')}
             </FormLabel>
             <FormControl>
@@ -532,7 +552,6 @@ export default function UpdateVoucherSheet({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="flex items-start gap-1 leading-6">
-              <span className="mt-1 text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
             <FormControl>
@@ -612,9 +631,12 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-3 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.remainingUsage}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 p-4 bg-white border rounded-md">
                     {formFields.numberOfUsagePerUser}
                   </div>
 
