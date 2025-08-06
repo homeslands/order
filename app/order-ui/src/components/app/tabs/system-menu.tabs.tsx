@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
@@ -13,12 +13,14 @@ export function SystemMenuTabs() {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
-  const { getCartItems } = useOrderFlowStore()
+  const { getCartItems, initializeOrdering } = useOrderFlowStore()
   const cartItems = getCartItems()
   const { catalog } = useCatalogStore()
 
   const activeTab = searchParams.get('tab') || 'table'
 
+  const [isFirstLoad, setIsFirstLoad] = useState(true)
+  const preCartItems = useRef<OrderTypeEnum | null | undefined>(null)
   const [filters, setFilters] = useState<FilterState>({
     date: moment().format('YYYY-MM-DD'),
     branch: userInfo?.branch?.slug,
@@ -27,6 +29,16 @@ export function SystemMenuTabs() {
   })
   const { data: specificMenu, isLoading } = useSpecificMenu(filters)
   const specificMenuResult = specificMenu?.result;
+
+  useEffect(() => {
+    if (isFirstLoad) {
+      setIsFirstLoad(false)
+      if (!cartItems?.type) {
+        initializeOrdering()
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setFilters((prev: FilterState) => ({
@@ -50,11 +62,12 @@ export function SystemMenuTabs() {
   }
 
   useEffect(() => {
-    if (cartItems?.type === OrderTypeEnum.TAKE_OUT && searchParams.get('tab') !== 'menu') {
+    if (cartItems?.type === OrderTypeEnum.TAKE_OUT) {
       handleTabChange('menu')
-    } else if (cartItems?.type === OrderTypeEnum.AT_TABLE) {
+    } else if (cartItems?.type === OrderTypeEnum.AT_TABLE && !isFirstLoad && preCartItems.current) {
       handleTabChange('table')
     }
+    preCartItems.current = cartItems?.type
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartItems?.type])
 

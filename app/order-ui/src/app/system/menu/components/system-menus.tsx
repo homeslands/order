@@ -149,7 +149,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
     <div className={`flex flex-col gap-4 pr-2`}>
       {groupedItems.map((group, index) => (
         group.items.length > 0 &&
-        <div className='flex flex-col mt-4'>
+        <div className='flex flex-col mt-4' key={index}>
           <div className='text-lg font-extrabold uppercase primary-highlight'>{group.catalog.name}</div>
           <div className={`grid gap-2 pb-8 mt-2 w-full ${state === 'collapsed' ? 'grid-cols-3 md:grid-cols-3 gap-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 pr-0 sm:pr-9 xl:pr-0'}`} key={index}>
             {group.items.map((item) => (
