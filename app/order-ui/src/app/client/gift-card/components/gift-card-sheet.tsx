@@ -229,6 +229,7 @@ export default function GiftCardSheet() {
         quantity: giftCardItem!.quantity,
         totalAmount: totalAmount,
         receipients: recipients,
+        cardVersion: giftCardItem!.version || 1,
       },
       {
         onSuccess: (response) => {
