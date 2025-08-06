@@ -1,14 +1,13 @@
 import moment from 'moment'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { IMenuItem, IOrderItem, IProduct, IProductVariant } from '@/types'
+import { IAddNewOrderItemRequest, IMenuItem, IOrderItem, IProduct, IProductVariant } from '@/types'
 import { publicFileURL, ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { formatCurrency, showToast } from '@/utils'
-import { AddNewOrderItemDialog } from '@/components/app/dialog'
-import { useIsMobile } from '@/hooks'
+import { useAddNewOrderItem, useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
 import { useOrderFlowStore } from '@/stores'
 
@@ -20,7 +19,9 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
-  const { addDraftItem, updatingData } = useOrderFlowStore()
+  const { slug } = useParams()
+  const { updatingData, addDraftItem } = useOrderFlowStore()
+  const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
@@ -36,8 +37,36 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
     }
   }
 
+  const handleAddNewOrderItem = (item: IOrderItem) => {
+    const request: IAddNewOrderItemRequest = {
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      note: item.note ?? '',
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: slug || '',
+    }
+    addNewOrderItem(request, {
+      onSuccess: (response) => {
+        const itemResponse = response.result
+        const newItem = {
+          ...itemResponse,
+          name: itemResponse.variant.product.name,
+          size: itemResponse.variant.size.name,
+          productSlug: itemResponse.variant.product.slug,
+          originalPrice: itemResponse.variant.price,
+          promotion: itemResponse.promotion ? itemResponse.promotion : null,
+          promotionValue: itemResponse.promotion ? itemResponse.promotionDiscount : 0,
+          description: itemResponse.variant.product.description,
+          isLimit: itemResponse.variant.product.isLimit,
+          note: '',
+        }
+        addDraftItem(newItem)
+      }
+    })
+  }
+
   const handleAddToCart = (product: IMenuItem) => {
-    if (!product.product.variants[0]) return
+    if (!product?.product?.variants || product?.product?.variants.length === 0) return;
 
     const variant: IProductVariant = {
       ...product.product.variants[0],
@@ -57,13 +86,13 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
       allVariants: product.product.variants,
       variant: variant,
       originalPrice: product.product.variants[0].price,
-      promotion: product.promotion ? product.promotion.slug : null,
+      promotion: product.promotion ? product.promotion : null,
       promotionValue: product.promotion ? product.promotion.value : 0,
       description: product.product.description,
       isLimit: product.product.isLimit,
       note: '',
     }
-    addDraftItem(orderItem)
+    handleAddNewOrderItem(orderItem)
     showToast(tToast('toast.addSuccess'))
   }
 
@@ -150,11 +179,18 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
       <div className="flex justify-end items-end p-2 sm:w-full">
         {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
           isMobile ? (
-            <Button disabled={!updatingData} onClick={() => handleAddToCart(item)} className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+            <Button disabled={!updatingData || isPendingAddNewOrderItem} onClick={() => handleAddToCart(item)} className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
               <Plus className='icon' />
             </Button>
           ) : (
-            <AddNewOrderItemDialog product={item} />
+            <Button
+              className="flex gap-1 justify-center items-center w-full text-xs text-white rounded-full shadow-none xl:text-sm"
+              onClick={() => handleAddToCart(item)}
+              disabled={!updatingData || isPendingAddNewOrderItem}
+            >
+              {t('menu.addToCart')}
+            </Button>
+            // <AddNewOrderItemDialog product={item} />
           )
         ) : (
           <Button

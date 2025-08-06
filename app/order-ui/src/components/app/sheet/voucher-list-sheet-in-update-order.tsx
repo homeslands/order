@@ -42,7 +42,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -63,7 +63,6 @@ export default function VoucherListSheetInUpdateOrder({
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { updatingData, setDraftVoucher, removeDraftVoucher } = useOrderFlowStore()
-  // const { cartItems, addVoucher, removeVoucher } = useCartItemStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
@@ -76,8 +75,6 @@ export default function VoucherListSheetInUpdateOrder({
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
-
-  // const orderItems = orderDraft?.orderItems || []
 
   // Create a temporary cart item for calculation
   const tempCartItem = orderDraft ? {
@@ -310,7 +307,7 @@ export default function VoucherListSheetInUpdateOrder({
       quantity: item.quantity,
       variant: item.variant.slug,
       note: item.note,
-      promotion: item.promotion || null,
+      promotion: item.promotion ? item.promotion.slug : null,
       order: orderDraft?.slug || null
     }))
 
@@ -396,7 +393,7 @@ export default function VoucherListSheetInUpdateOrder({
             quantity: item.quantity,
             variant: item.variant.slug,
             note: item.note,
-            promotion: item.promotion ?? null,
+            promotion: item.promotion ? item.promotion.slug : null,
             order: null, // hoặc bỏ nếu không cần
           })) || []
         }
@@ -423,7 +420,7 @@ export default function VoucherListSheetInUpdateOrder({
             quantity: item.quantity,
             variant: item.variant.slug,
             note: item.note,
-            promotion: item.promotion ?? null,
+            promotion: item.promotion ? item.promotion.slug : null,
             order: null, // hoặc bỏ nếu không cần
           })) || []
         }
@@ -444,7 +441,6 @@ export default function VoucherListSheetInUpdateOrder({
   };
 
   const isVoucherValid = (voucher: IVoucher) => {
-    // console.log('isVoucherValid', voucher, orderItems)
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
@@ -463,11 +459,20 @@ export default function VoucherListSheetInUpdateOrder({
 
       // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = orderDraft?.orderItems.map(item => item.variant.product.slug)
+      // const cartProductSlugs = orderDraft?.orderItems.map(item => item.productSlug)
+      const cartProductSlugs = orderDraft?.orderItems
+        .map(item => item.productSlug)
+        .filter((slug): slug is string => Boolean(slug))
 
-      return voucherProductSlugs.some(voucherSlug =>
-        cartProductSlugs.includes(voucherSlug)
+      return isVoucherApplicableToCartItems(
+        cartProductSlugs,
+        voucherProductSlugs,
+        voucher.applicabilityRule
       )
+
+      // return voucherProductSlugs.some(voucherSlug =>
+      //   cartProductSlugs.includes(voucherSlug)
+      // )
     })()
     const isRemainingUsage = voucher.remainingUsage > 0
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
