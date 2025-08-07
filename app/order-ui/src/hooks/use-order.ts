@@ -44,6 +44,7 @@ export const useOrders = (q: IOrdersQuery) => {
     queryKey: ['orders', q],
     queryFn: () => getAllOrders(q),
     placeholderData: keepPreviousData,
+    select: (data) => data.result 
   })
 }
 
