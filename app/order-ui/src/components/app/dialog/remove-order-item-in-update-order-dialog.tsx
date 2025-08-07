@@ -18,6 +18,7 @@ import { IOrderItem } from '@/types'
 import { showToast } from '@/utils'
 import { ROUTE } from '@/constants'
 import { useOrderFlowStore } from '@/stores'
+import { useDeleteOrderItem } from '@/hooks'
 
 interface DialogDeleteCartItemProps {
   orderItem: IOrderItem
@@ -35,25 +36,37 @@ export default function RemoveOrderItemInUpdateOrderDialog({
   const { removeDraftItem } = useOrderFlowStore()
   const navigate = useNavigate()
 
+  const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
+
   const isLastItem = totalOrderItems === 1
 
-  const handleDelete = (orderItemSlug: string) => {
-    removeDraftItem(orderItemSlug)
+  const handleRemoveOrderItem = (item: IOrderItem) => {
+    deleteOrderItem(item.slug, {
+      onSuccess: () => {
+        removeDraftItem(item.id)
 
-    if (isLastItem) {
-      showToast(tToast('toast.orderCanceled'))
-      navigate(ROUTE.CLIENT_MENU)
-    } else {
-      showToast(tToast('toast.deleteOrderItemSuccess'))
-      setIsOpen(false)
-    }
+        if (isLastItem) {
+          showToast(tToast('toast.orderCanceled'))
+          navigate(ROUTE.CLIENT_MENU)
+        } else {
+          showToast(tToast('toast.deleteOrderItemSuccess'))
+          setIsOpen(false)
+        }
+      }
+    })
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost">
-          <Trash2 size={20} className="text-destructive" />
+        <Button
+          disabled={isPendingDeleteOrderItem}
+          title={t('common.remove')}
+          variant="ghost"
+          size="icon"
+          className="hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 size={18} className='icon text-destructive' />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[36rem]">
@@ -75,19 +88,20 @@ export default function RemoveOrderItemInUpdateOrderDialog({
                 </>
               ) : (
                 <>
-                  {t('order.deleteContent')} <strong>{orderItem.variant.product.name}</strong> {t('order.deleteContent2')}
+                  {t('order.deleteContent')} <strong>{orderItem.name}</strong> {t('order.deleteContent2')}
                 </>
               )}
             </Label>
           </div>
         </div>
         <DialogFooter className="flex flex-row gap-2 justify-end">
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isPendingDeleteOrderItem}>
             {tCommon('common.cancel')}
           </Button>
           <Button
             variant="destructive"
-            onClick={() => handleDelete(orderItem.slug)}
+            onClick={() => handleRemoveOrderItem(orderItem)}
+            disabled={isPendingDeleteOrderItem}
           >
             {isLastItem ? tCommon('common.confirmCancel') : tCommon('common.confirmDelete')}
           </Button>
