@@ -14,6 +14,7 @@ import {
   INVALID_USERID,
 } from 'src/auth/auth.validation';
 import { BranchResponseDto } from 'src/branch/branch.dto';
+import { BalanceResponseDto } from 'src/gift-card-modules/balance/dto/balance-response.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
 
 export class CreateUserRequestDto {
@@ -100,6 +101,10 @@ export class UserResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   isVerifiedPhonenumber: boolean;
+
+  @ApiProperty({ type: () => BalanceResponseDto })
+  @AutoMap(() => BalanceResponseDto)
+  balance: BalanceResponseDto;
 }
 
 export class UpdateUserRoleRequestDto {
