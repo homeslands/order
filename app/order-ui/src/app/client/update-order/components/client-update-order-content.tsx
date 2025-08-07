@@ -1,19 +1,19 @@
 import _ from 'lodash'
-import { ShoppingCart, Trash2 } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Button, ScrollArea } from '@/components/ui'
+import { ScrollArea } from '@/components/ui'
 import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
-import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './client-update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
-import { ClientConfirmUpdateOrderDialog } from '@/components/app/dialog'
-import { useDeleteOrderItem, useIsMobile } from '@/hooks'
+import { ClientConfirmUpdateOrderDialog, RemoveOrderItemInUpdateOrderDialog } from '@/components/app/dialog'
+import { useIsMobile } from '@/hooks'
 
 interface ClientUpdateOrderContentProps {
     orderType: OrderTypeEnum
@@ -27,28 +27,15 @@ export default function ClientUpdateOrderContent({
     const { t } = useTranslation(['menu'])
     const { t: tCommon } = useTranslation(['common'])
     const { t: tVoucher } = useTranslation(['voucher'])
-    const { t: tToast } = useTranslation(['toast'])
 
     const isMobile = useIsMobile()
-    const { updatingData, removeDraftItem } = useOrderFlowStore()
-
-    const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
+    const { updatingData } = useOrderFlowStore()
 
     const voucher = updatingData?.updateDraft?.voucher || null
     const orderItems = updatingData?.updateDraft?.orderItems || []
     const transformedOrderItems = transformOrderItemToOrderDetail(orderItems)
     const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
     const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
-
-    // client-update-order-content.tsx
-    const handleRemoveOrderItem = (item: IOrderItem) => {
-        deleteOrderItem(item.slug, {
-            onSuccess: () => {
-                showToast(tToast('toast.deleteOrderItemSuccess'))
-                removeDraftItem(item.id)
-            }
-        })
-    }
 
     return (
         <div
@@ -135,16 +122,10 @@ export default function ClientUpdateOrderContent({
                                                 </div>
                                                 <div className="flex gap-2 items-center">
                                                     <UpdateOrderQuantity orderItem={item} />
-                                                    <Button
-                                                        disabled={isPendingDeleteOrderItem}
-                                                        title={t('common.remove')}
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleRemoveOrderItem(item)}
-                                                        className="hover:bg-destructive/10 hover:text-destructive"
-                                                    >
-                                                        <Trash2 size={18} className='icon text-destructive' />
-                                                    </Button>
+                                                    <RemoveOrderItemInUpdateOrderDialog
+                                                        orderItem={item}
+                                                        totalOrderItems={orderItems.length}
+                                                    />
                                                 </div>
                                             </div>
                                             <OrderItemNoteInUpdateOrderInput orderItem={item} />
