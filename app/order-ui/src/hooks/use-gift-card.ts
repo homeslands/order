@@ -21,6 +21,7 @@ import {
   getFeatureFlagGroups,
   getFeatureFlagsByGroup,
   bulkToggleFeatureFlags,
+  getGiftCardBySlug,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore } from '@/stores'
@@ -126,11 +127,12 @@ export const useSyncGiftCard = (
   }
 }
 
-export const useGetCardOrder = (slug: string) => {
+export const useGetCardOrder = (slug: string, enable: boolean = true) => {
   return useQuery({
     queryKey: [QUERYKEY.cardOrder, slug],
     queryFn: () => getCardOrder(slug),
     refetchOnWindowFocus: false,
+    enabled: enable,
   })
 }
 
@@ -180,5 +182,13 @@ export const useBulkToggleFeatureFlags = () => {
     mutationFn: async (updates: { slug: string; isLocked: boolean }[]) => {
       return bulkToggleFeatureFlags(updates)
     },
+  })
+}
+
+export const useGetGiftCardBySlug = (slug: string, enable: boolean = true) => {
+  return useQuery({
+    queryKey: [QUERYKEY.giftCards, slug],
+    queryFn: () => getGiftCardBySlug(slug),
+    enabled: !!slug && enable,
   })
 }

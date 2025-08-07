@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Coins,
@@ -12,9 +12,11 @@ import {
   Filter,
   X,
   Download,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react'
 
-import { useIsMobile } from '@/hooks'
+import { useIsMobile, usePointTransactions } from '@/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -27,13 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { formatCurrency } from '@/utils'
-import { saveAs } from 'file-saver'
-import {
-  getPointTransactions,
-  exportAllPointTransactions,
-  exportPointTransactionBySlug,
-} from '@/api/point-transaction'
-import { IPointTransaction, IPointTransactionQuery } from '@/types'
+import { IPointTransaction } from '@/types'
 import { PointTransactionObjectType, PointTransactionType } from '@/constants'
 import { useUserStore } from '@/stores'
 import moment from 'moment'
@@ -41,162 +37,62 @@ import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-c
 import { Tooltip } from 'react-tooltip'
 import { TransactionGiftCardDetailDialog } from '@/components/app/dialog'
 import SimpleDatePicker from '@/components/app/picker/simple-date-picker'
+import { useState } from 'react'
 
 export function CustomerCoinTabsContent() {
   const { t } = useTranslation(['profile'])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize] = useState(10)
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [transactions, setTransactions] = useState<IPointTransaction[]>([])
-  const [hasMore, setHasMore] = useState(true)
-  const [totalItems, setTotalItems] = useState(0)
-  const [hasError, setHasError] = useState(false)
-
-  // Filter states
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
-  const today = moment()
-  const [fromDate, setFromDate] = useState(
-    today.startOf('month').format('YYYY-MM-DD'),
-  )
-  const [toDate, setToDate] = useState(
-    today.endOf('month').format('YYYY-MM-DD'),
-  )
-  const [filterType, setFilterType] = useState<PointTransactionType>(
-    PointTransactionType.ALL,
-  )
-
-  // Export states
-  const [isExportingAll, setIsExportingAll] = useState(false)
-  const [exportingTransactionSlug, setExportingTransactionSlug] = useState<
-    string | null
-  >(null)
-
   const isMobile = useIsMobile()
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const lastElementRef = useRef<HTMLDivElement | null>(null)
   const { userInfo } = useUserStore()
 
-  // Export all transactions
-  const handleExportAll = useCallback(async () => {
-    if (!userInfo?.slug) return
+  // Filter panel state
+  const [isFilterOpen, setIsFilterOpen] = useState(true)
 
-    setIsExportingAll(true)
-    try {
-      const blob = await exportAllPointTransactions(userInfo.slug)
-      const filename = `point-transactions-${userInfo.slug}-${new Date().toISOString().split('T')[0]}.pdf`
-      saveAs(blob, filename)
-    } finally {
-      setIsExportingAll(false)
-    }
-  }, [userInfo?.slug])
+  // Point transactions hook
+  const {
+    transactions,
+    summary,
+    totalCount,
+    isLoading,
+    loadingAllTransactions,
+    isFetchingNextPage,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    filters,
+    updateFilters,
+    clearFilters,
+    hasActiveFilters,
+    exportAll,
+    exportTransaction,
+    isExportingAll,
+    exportingTransactionSlug,
+  } = usePointTransactions({
+    userSlug: userInfo?.slug,
+    pageSize: 10,
+  })
 
-  // Export single transaction
-  const handleExportTransaction = useCallback(
-    async (transactionSlug: string) => {
-      setExportingTransactionSlug(transactionSlug)
-      try {
-        const blob = await exportPointTransactionBySlug(transactionSlug)
-        const filename = `transaction-${transactionSlug}-${new Date().toISOString().split('T')[0]}.pdf`
-        saveAs(blob, filename)
-      } finally {
-        setExportingTransactionSlug(null)
-      }
-    },
-    [],
-  )
-
-  const fetchCoinTransactions = useCallback(
-    async (page: number, isInitial = false, withFilters = false) => {
-      if (!userInfo?.slug) {
-        return
-      }
-
-      if (isInitial) {
-        setIsLoading(true)
-      } else {
-        setLoadingMore(true)
-      }
-
-      try {
-        const params: IPointTransactionQuery = {
-          page,
-          size: pageSize,
-          userSlug: userInfo.slug,
-        }
-
-        // Add filter parameters only when explicitly requested
-        if (withFilters) {
-          if (fromDate) {
-            params.fromDate = fromDate
-          }
-          if (toDate) {
-            params.toDate = toDate
-          }
-          if (filterType !== PointTransactionType.ALL) {
-            params.type = filterType
-          }
-        }
-
-        const response = await getPointTransactions(params)
-
-        const totalCount = response.result.total
-        const hasMoreData = response.result.hasNext
-
-        if (isInitial) {
-          setTransactions(response.result.items)
-        } else {
-          setTransactions((prev) => [...prev, ...response.result.items])
-        }
-
-        setHasMore(hasMoreData)
-        setTotalItems(totalCount)
-        setHasError(false)
-      } catch {
-        // Set error state for UI feedback
-        setHasError(true)
-      } finally {
-        if (isInitial) {
-          setIsLoading(false)
-        } else {
-          setLoadingMore(false)
-        }
-      }
-    },
-    [pageSize, userInfo?.slug, fromDate, toDate, filterType],
-  )
+  // Intersection observer for infinite scroll
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const lastElementRef = useRef<HTMLDivElement | null>(null)
 
   const handleLoadMore = useCallback(() => {
-    if (!loadingMore && hasMore) {
-      setCurrentPage((prev) => prev + 1)
+    if (!isFetchingNextPage && hasNextPage) {
+      fetchNextPage()
     }
-  }, [loadingMore, hasMore])
+  }, [isFetchingNextPage, hasNextPage, fetchNextPage])
 
   const handleClearFilter = useCallback(() => {
-    // Clear current filter values
-    setFromDate('')
-    setToDate('')
-    setFilterType(PointTransactionType.ALL)
-
-    // Reset pagination and close filter panel
-    setCurrentPage(1)
-    setTransactions([])
+    clearFilters()
     setIsFilterOpen(false)
-
-    // Directly fetch without filters instead of using shouldRefetch
-    fetchCoinTransactions(1, true, false)
-  }, [fetchCoinTransactions])
-
-  const hasActiveFilter =
-    fromDate || toDate || filterType !== PointTransactionType.ALL
+  }, [clearFilters])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (
           entries[0].isIntersecting &&
-          hasMore &&
-          !loadingMore &&
+          hasNextPage &&
+          !isFetchingNextPage &&
           !isLoading
         ) {
           handleLoadMore()
@@ -216,28 +112,109 @@ export function CustomerCoinTabsContent() {
         observerRef.current.disconnect()
       }
     }
-  }, [hasMore, loadingMore, isLoading, handleLoadMore])
+  }, [hasNextPage, isFetchingNextPage, isLoading, handleLoadMore])
 
-  useEffect(() => {
-    if (currentPage > 1) {
-      fetchCoinTransactions(currentPage, false, Boolean(hasActiveFilter))
+  // Coin Summary Cards Component
+  const CoinSummaryCards = () => {
+    if (loadingAllTransactions) {
+      return (
+        <div className="mb-6">
+          <div
+            className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4 lg:grid-cols-3'}`}
+          >
+            {Array(3)
+              .fill(0)
+              .map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <CardContent className="p-4">
+                    <div className="mb-2 h-4 rounded bg-gray-200"></div>
+                    <div className="h-8 rounded bg-gray-200"></div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </div>
+      )
     }
-  }, [currentPage, fetchCoinTransactions, hasActiveFilter])
 
-  // Fetch data when dates or filter type changes
-  useEffect(() => {
-    // Only trigger if there's a user
-    if (userInfo?.slug) {
-      // Reset pagination
-      setCurrentPage(1)
-      setTransactions([])
+    const summaryItems = [
+      {
+        title: t('profile.totalEarned'),
+        value: summary.totalEarned,
+        icon: TrendingUp,
+        color: 'text-green-600',
+        bg: 'bg-green-50 dark:bg-green-900/10',
+        border: 'border-green-200 dark:border-green-800',
+        iconBg:
+          'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+      },
+      {
+        title: t('profile.totalSpent'),
+        value: summary.totalSpent,
+        icon: TrendingDown,
+        color: 'text-red-600',
+        bg: 'bg-red-50 dark:bg-red-900/10',
+        border: 'border-red-200 dark:border-red-800',
+        iconBg: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+      },
+      {
+        title: t('profile.netDifference'),
+        value: summary.netDifference,
+        icon: summary.netDifference >= 0 ? ArrowUp : ArrowDown,
+        color: summary.netDifference >= 0 ? 'text-green-600' : 'text-red-600',
+        bg:
+          summary.netDifference >= 0
+            ? 'bg-green-50 dark:bg-green-900/10'
+            : 'bg-red-50 dark:bg-red-900/10',
+        border:
+          summary.netDifference >= 0
+            ? 'border-green-200 dark:border-green-800'
+            : 'border-red-200 dark:border-red-800',
+        iconBg:
+          summary.netDifference >= 0
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+      },
+    ]
 
-      // Fetch with current filter values
-      fetchCoinTransactions(1, true, true)
-    }
-  }, [fromDate, toDate, filterType, userInfo?.slug, fetchCoinTransactions])
-
-  // Remove automatic filter effect - only call API when Apply Filter is clicked
+    return (
+      <div className="mb-6">
+        <div
+          className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4 lg:grid-cols-3'}`}
+        >
+          {summaryItems.map((item, index) => (
+            <Card
+              key={index}
+              className={`border ${item.border} ${item.bg} shadow-sm transition-shadow hover:shadow-md`}
+            >
+              <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p
+                      className={`mb-1 text-xs font-medium text-gray-600 dark:text-gray-400 ${isMobile ? 'text-[10px]' : ''}`}
+                    >
+                      {item.title}
+                    </p>
+                    <div
+                      className={`flex items-center gap-1 ${item.color} font-bold ${isMobile ? 'text-lg' : 'text-xl'}`}
+                    >
+                      <span>{formatCurrency(Math.abs(item.value), '')}</span>
+                      <CoinsIcon
+                        className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-primary`}
+                      />
+                    </div>
+                  </div>
+                  <div className={`rounded-full p-2 ${item.iconBg}`}>
+                    <item.icon size={isMobile ? 16 : 20} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   const CoinTransactionCard = ({
     transaction,
@@ -298,7 +275,7 @@ export function CustomerCoinTabsContent() {
             <span className={`${isMobile ? 'text-sm' : 'text-lg'}`}>
               {formatCurrency(Math.abs(transaction.points), '')}
             </span>
-            <CoinsIcon className="ml-1 h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+            <CoinsIcon className="ml-1 h-5 w-5 text-primary" />
           </div>
 
           <div
@@ -326,7 +303,7 @@ export function CustomerCoinTabsContent() {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation()
-                handleExportTransaction(transaction.slug)
+                exportTransaction(transaction.slug)
               }}
               disabled={exportingTransactionSlug === transaction.slug}
               className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -360,9 +337,9 @@ export function CustomerCoinTabsContent() {
                 <Tag size={isMobile ? 16 : 18} />
               </span>
               {t('profile.coinTransactions')}
-              {totalItems > 0 && (
+              {totalCount > 0 && (
                 <span className="ml-2 text-xs text-gray-500">
-                  ({totalItems})
+                  ({totalCount})
                 </span>
               )}
             </CardTitle>
@@ -375,8 +352,8 @@ export function CustomerCoinTabsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleExportAll}
-                disabled={isExportingAll || totalItems === 0}
+                onClick={exportAll}
+                disabled={isExportingAll || totalCount === 0}
                 className="flex min-w-[120px] items-center gap-2"
               >
                 <Download size={16} />
@@ -388,11 +365,11 @@ export function CustomerCoinTabsContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`${hasActiveFilter ? 'border-primary text-primary' : ''} min-w-[120px]`}
+                className={`${hasActiveFilters ? 'border-primary text-primary' : ''} min-w-[120px]`}
               >
                 <Filter size={16} className="mr-2" />
                 {t('profile.filter')}
-                {hasActiveFilter && (
+                {hasActiveFilters && (
                   <span className="ml-1 text-xl text-primary">•</span>
                 )}
               </Button>
@@ -410,10 +387,10 @@ export function CustomerCoinTabsContent() {
                       {t('profile.fromDate')}
                     </Label>
                     <SimpleDatePicker
-                      value={fromDate}
-                      onChange={(date) => setFromDate(date)}
+                      value={filters.fromDate || ''}
+                      onChange={(date) => updateFilters({ fromDate: date })}
                       disableFutureDates={true}
-                      maxDate={toDate || undefined}
+                      maxDate={filters.toDate || undefined}
                       allowEmpty={true}
                     />
                   </div>
@@ -424,10 +401,10 @@ export function CustomerCoinTabsContent() {
                       {t('profile.toDate')}
                     </Label>
                     <SimpleDatePicker
-                      value={toDate}
-                      onChange={(date) => setToDate(date)}
+                      value={filters.toDate || ''}
+                      onChange={(date) => updateFilters({ toDate: date })}
                       disableFutureDates={true}
-                      minDate={fromDate || undefined}
+                      minDate={filters.fromDate || undefined}
                       allowEmpty={true}
                     />
                   </div>
@@ -438,9 +415,9 @@ export function CustomerCoinTabsContent() {
                       {t('profile.transactionType')}
                     </Label>
                     <Select
-                      value={filterType}
+                      value={filters.type}
                       onValueChange={(value: PointTransactionType) =>
-                        setFilterType(value)
+                        updateFilters({ type: value })
                       }
                     >
                       <SelectTrigger>
@@ -467,7 +444,7 @@ export function CustomerCoinTabsContent() {
                     onClick={handleClearFilter}
                     variant="outline"
                     size="sm"
-                    disabled={!hasActiveFilter}
+                    disabled={!hasActiveFilters}
                   >
                     <X className="mr-2 h-4 w-4" />
                     {t('profile.clearFilter')}
@@ -476,7 +453,10 @@ export function CustomerCoinTabsContent() {
               </div>
             </CollapsibleContent>
           </Collapsible>
+          {/* Coin Summary Cards */}
+          <CoinSummaryCards />
         </CardHeader>
+
         <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
           {isLoading ? (
             // Loading skeleton
@@ -485,7 +465,7 @@ export function CustomerCoinTabsContent() {
               .map((_, index) => (
                 <TransactionCardSkeleton key={`skeleton-${index}`} />
               ))
-          ) : hasError ? (
+          ) : isError ? (
             // Error state
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/30">
@@ -497,17 +477,6 @@ export function CustomerCoinTabsContent() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {t('profile.pleaseTryAgainLater')}
               </p>
-              <button
-                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90"
-                onClick={() => {
-                  setHasError(false)
-                  if (hasActiveFilter) {
-                    fetchCoinTransactions(1, true, true)
-                  }
-                }}
-              >
-                {t('profile.tryAgain')}
-              </button>
             </div>
           ) : transactions.length === 0 ? (
             // Empty state
@@ -537,14 +506,14 @@ export function CustomerCoinTabsContent() {
               ))}
 
               {/* Loading more indicator */}
-              {loadingMore && (
+              {isFetchingNextPage && (
                 <div className="py-2">
                   <TransactionCardSkeleton />
                 </div>
               )}
 
               {/* End of list message */}
-              {!hasMore && transactions.length > 0 && (
+              {!hasNextPage && transactions.length > 0 && (
                 <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                   {t('profile.noMoreTransactions')}
                 </div>
