@@ -140,7 +140,8 @@
   },
   "order": {
     "orderListCaption": "List of orders",
-    "title": "Order Management",
+    "deliveryManagement": "Delivery Management",
+    "orderManagement": "Order Management",
     "slug": "Order ID",
     "orderId": "Order ID",
     "items": "items",

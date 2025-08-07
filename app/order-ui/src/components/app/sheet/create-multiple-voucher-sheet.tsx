@@ -30,7 +30,7 @@ import { VoucherTypeSelect } from '../select'
 import { VOUCHER_TYPE } from '@/constants'
 import { useCatalogs, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
-import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
+import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
 
 export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
   const { t } = useTranslation(['voucher'])

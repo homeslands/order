@@ -17,7 +17,7 @@ import { ConfirmRemoveAppliedVoucherDialog } from '@/components/app/dialog'
 import { IRemoveAppliedVoucherRequest, IVoucher } from '@/types'
 import { useCatalogs, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
-import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
+import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
 
 interface IRemoveAppliedVoucherSheetProps {
   voucher: IVoucher
