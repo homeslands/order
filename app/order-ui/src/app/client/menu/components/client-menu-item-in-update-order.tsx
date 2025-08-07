@@ -194,7 +194,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
           )
         ) : (
           <Button
-            className="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
+            className="px-3 py-1 w-full text-xs font-semibold text-white bg-red-500 rounded-full"
             disabled
           >
             {t('menu.outOfStock')}
