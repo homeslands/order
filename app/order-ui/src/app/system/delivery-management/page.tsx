@@ -135,9 +135,9 @@ export default function OrderManagementPage() {
       <div className="grid grid-cols-1 gap-2 h-full">
         <DataTable
           isLoading={isLoading}
-          data={data?.result.items || []}
+          data={data?.items || []}
           columns={usePendingOrdersColumns()}
-          pages={data?.result?.totalPages || 1}
+          pages={data?.totalPages || 1}
           hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           onPageChange={handlePageChange}

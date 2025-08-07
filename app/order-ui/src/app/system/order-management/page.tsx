@@ -46,17 +46,17 @@ export default function OrderHistoryPage() {
   // use useEffect to check is there order param in url, then check is there order in data, if there is, then set selected order and open the dialog
   useEffect(() => {
     if (order) {
-      const orderData: IOrder | undefined = data?.result?.items?.find((item: IOrder) => item.slug === order)
+      const orderData: IOrder | undefined = data?.items?.find((item: IOrder) => item.slug === order)
       if (orderData) {
         setSelectedOrder(orderData)
         setIsSelected(true)
       }
     }
-  }, [data?.result?.items, order])
+  }, [data?.items, order])
 
   // Check for new orders and play sound
   useEffect(() => {
-    const currentOrderCount = data?.result?.items?.length || 0
+    const currentOrderCount = data?.items?.length || 0
     if (currentOrderCount > previousOrderCount && previousOrderCount > 0) {
       // Play notification sound
       if (audioRef.current) {
@@ -65,7 +65,7 @@ export default function OrderHistoryPage() {
       }
     }
     setPreviousOrderCount(currentOrderCount)
-  }, [data?.result?.items, previousOrderCount])
+  }, [data?.items, previousOrderCount])
 
   // Reset page when filters change
   useEffect(() => {
@@ -142,9 +142,9 @@ export default function OrderHistoryPage() {
       <div className="grid grid-cols-1 h-full">
         <DataTable
           columns={useOrderHistoryColumns()}
-          data={data?.result?.items || []}
+          data={data?.items || []}
           isLoading={isLoading}
-          pages={data?.result?.totalPages || 0}
+          pages={data?.totalPages || 0}
           hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           filterOptions={OrderFilter}
