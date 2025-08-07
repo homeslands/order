@@ -111,9 +111,9 @@
       "description": "Quản lý banner của bạn tại đây",
       "keywords": "banner, quản lý banner, banner quảng cáo"
     },
-    "orderHistory": {
-      "title": "Lịch sử đơn hàng",
-      "manageOrderHistory": "Lịch sử đơn hàng",
+    "orderManagement": {
+      "title": "Quản lý đơn hàng",
+      "manageOrderManagement": "Quản lý đơn hàng",
       "description": "Quản lý lịch sử đơn hàng của bạn tại đây",
       "keywords": "lịch sử đơn hàng, đơn hàng, quản lý đơn hàng"
     },
@@ -141,12 +141,12 @@
       "description": "Quản lý trang tĩnh của bạn tại đây",
       "keywords": "trang tĩnh, quản lý trang tĩnh, trang tĩnh quán ăn"
     },
-    "orderManagement": {
-      "title": "Quản lý đơn hàng",
-      "manageOrderManagement": "Quản lý đơn hàng",
+    "deliveryManagement": {
+      "title": "Quản lý giao hàng",
+      "manageDeliveryManagement": "Quản lý đơn hàng",
       "description": "Quản lý đơn hàng của bạn tại đây",
       "keywords": "đơn hàng, quản lý đơn hàng, đơn hàng quán ăn"
-    },    
+    },
     "notification": {
       "title": "Quản lý thông báo",
       "manageNotification": "Quản lý thông báo",
