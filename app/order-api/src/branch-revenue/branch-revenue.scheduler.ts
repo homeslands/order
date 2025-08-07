@@ -186,6 +186,8 @@ export class BranchRevenueScheduler {
           promotionAmount: 0,
           date: dateFull,
           branchId: firstBranchRevenue.branchId,
+          totalOrderPoint: 0,
+          totalAmountPoint: 0,
         });
         results.push(revenue);
       }

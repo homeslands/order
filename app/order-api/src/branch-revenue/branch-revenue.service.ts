@@ -306,6 +306,8 @@ export class BranchRevenueService {
           totalOrderInternal: '0',
           totalVoucherValueOrderItemAmount: '0',
           totalLossAmount: '0',
+          totalOrderPoint: '0',
+          totalAmountPoint: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -369,6 +371,8 @@ export class BranchRevenueService {
             voucherAmount: 0,
             promotionAmount: 0,
             lossAmount: 0,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -383,6 +387,8 @@ export class BranchRevenueService {
         acc[index].totalAmountCash += item.totalAmountCash;
         acc[index].totalAmountInternal += item.totalAmountInternal;
         acc[index].lossAmount += item.lossAmount;
+        acc[index].totalOrderPoint += item.totalOrderPoint;
+        acc[index].totalAmountPoint += item.totalAmountPoint;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -418,6 +424,8 @@ export class BranchRevenueService {
             minReferenceNumberOrder: 0,
             maxReferenceNumberOrder: 0,
             lossAmount: 0,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -432,6 +440,8 @@ export class BranchRevenueService {
         acc[index].totalAmountCash += item.totalAmountCash;
         acc[index].totalAmountInternal += item.totalAmountInternal;
         acc[index].lossAmount += item.lossAmount;
+        acc[index].totalOrderPoint += item.totalOrderPoint;
+        acc[index].totalAmountPoint += item.totalAmountPoint;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -591,7 +601,11 @@ export class BranchRevenueService {
               existedBranchRevenue.totalAmountCash ||
             existedInNewData.totalAmountInternal !==
               existedBranchRevenue.totalAmountInternal ||
-            existedInNewData.lossAmount !== existedBranchRevenue.lossAmount
+            existedInNewData.lossAmount !== existedBranchRevenue.lossAmount ||
+            existedInNewData.totalOrderPoint !==
+              existedBranchRevenue.totalOrderPoint ||
+            existedInNewData.totalAmountPoint !==
+              existedBranchRevenue.totalAmountPoint
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -641,6 +655,8 @@ export class BranchRevenueService {
             lossAmount: 0,
             date,
             branchId: branch.id,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -841,6 +857,8 @@ export class BranchRevenueService {
           date: dateFull,
           branchId,
           lossAmount: 0,
+          totalOrderPoint: 0,
+          totalAmountPoint: 0,
         });
         results.push(revenue);
       }
@@ -904,7 +922,11 @@ export class BranchRevenueService {
             newBranchRevenue.totalAmountCash ||
           existedBranchRevenue.totalAmountInternal !==
             newBranchRevenue.totalAmountInternal ||
-          existedBranchRevenue.lossAmount !== newBranchRevenue.lossAmount
+          existedBranchRevenue.lossAmount !== newBranchRevenue.lossAmount ||
+          existedBranchRevenue.totalOrderPoint !==
+            newBranchRevenue.totalOrderPoint ||
+          existedBranchRevenue.totalAmountPoint !==
+            newBranchRevenue.totalAmountPoint
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -1027,6 +1049,7 @@ export class BranchRevenueService {
       let totalAmountCash = 0;
       let totalAmountInternal = 0;
       let totalLossAmount = 0;
+      let totalAmountPoint = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1087,13 +1110,13 @@ export class BranchRevenueService {
           },
           {
             cellPosition: `H${currentRow}`,
-            value: '',
+            value: revenue.totalAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `I${currentRow}`,
-            value: revenue.totalAmount,
+            value: revenue.totalAmountPoint,
             type: 'data',
             style: cellStyle,
           },
@@ -1126,6 +1149,7 @@ export class BranchRevenueService {
         totalAmountCash += revenue.totalAmountCash;
         totalAmountInternal += revenue.totalAmountInternal;
         totalLossAmount += revenue.lossAmount;
+        totalAmountPoint += revenue.totalAmountPoint;
         currentRow++;
       });
 
@@ -1183,13 +1207,13 @@ export class BranchRevenueService {
         },
         {
           cellPosition: `H${currentRow}`,
-          value: '',
+          value: totalAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `I${currentRow}`,
-          value: totalAmount,
+          value: totalAmountPoint,
           type: 'data',
           style: totalRowStyle,
         },
@@ -1285,6 +1309,8 @@ export class BranchRevenueService {
     let totalAmountCash = 0;
     let totalAmountInternal = 0;
     let totalLossAmount = 0;
+    let totalAmountPoint = 0;
+    let totalOrderPoint = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1299,6 +1325,8 @@ export class BranchRevenueService {
       totalAmountCash += revenue.totalAmountCash;
       totalAmountInternal += revenue.totalAmountInternal;
       totalLossAmount += revenue.lossAmount;
+      totalAmountPoint += revenue.totalAmountPoint;
+      totalOrderPoint += revenue.totalOrderPoint;
     });
 
     if (
@@ -1347,7 +1375,6 @@ export class BranchRevenueService {
       totalOrderBank: totalOrderBank,
       totalPromotion: totalPromotionAmount,
       totalVoucher: totalVoucherAmount,
-      totalCoin: 0,
       totalRevenue: totalAmount,
       totalOrderInternal,
       totalAmountInternal,
@@ -1355,6 +1382,8 @@ export class BranchRevenueService {
       qrcodeBranch,
       branchSlug: branch,
       totalLossAmount,
+      totalOrderPoint: totalOrderPoint,
+      totalRevenuePoint: totalAmountPoint,
     };
 
     const data = await this.pdfService.generatePdf(
