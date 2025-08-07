@@ -66,9 +66,9 @@ export function AppSidebar() {
     return sidebarRoutes.map(route => {
       let notificationCount = undefined;
 
-      if (route.path === ROUTE.STAFF_ORDER_MANAGEMENT) {
+      if (route.path === ROUTE.STAFF_DELIVERY_MANAGEMENT) {
         notificationCount = orderNeedsDelivered;
-      } else if (route.path === ROUTE.STAFF_CHEF_ORDER || route.path === ROUTE.STAFF_ORDER_HISTORY) {
+      } else if (route.path === ROUTE.STAFF_CHEF_ORDER || route.path === ROUTE.STAFF_ORDER_MANAGEMENT) {
         notificationCount = orderNeedsProcessed;
       }
 

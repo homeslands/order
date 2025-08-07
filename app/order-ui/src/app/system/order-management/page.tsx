@@ -1,103 +1,95 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import moment from 'moment'
 import { Helmet } from 'react-helmet'
-import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
-import { useOrderBySlug, useOrders, usePagination } from '@/hooks'
-import {
-  useOrderStore,
-  useOrderTrackingStore,
-  useSelectedOrderStore,
-  useUserStore,
-} from '@/stores'
+import { useOrders, usePagination } from '@/hooks'
+import { useUserStore } from '@/stores'
+import { useOrderHistoryColumns } from './DataTable/columns'
 import { IOrder, OrderStatus } from '@/types'
-import { usePendingOrdersColumns } from './DataTable/columns'
-import { OrderItemDetailSheet } from '@/components/app/sheet'
-import { OrderFilter } from './DataTable/filters'
-import moment from 'moment'
+import OrderFilter from './DataTable/actions/order-filter'
+import { OrderHistoryDetailSheet } from '@/components/app/sheet'
+import { showToast } from '@/utils'
+import { notificationSound } from '@/assets/sound'
+import { useSearchParams } from 'react-router-dom'
 
-export default function OrderManagementPage() {
+export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
-  const { t: tHelmet } = useTranslation('helmet')
   const { t: tCommon } = useTranslation('common')
-
-  const {
-    setOrderSlug,
-    setIsSheetOpen,
-    setSelectedRow,
-    isSheetOpen,
-    orderSlug,
-    selectedRow,
-  } = useSelectedOrderStore()
-
+  const { t: tToast } = useTranslation('toast')
+  const { t: tHelmet } = useTranslation('helmet')
   const { userInfo } = useUserStore()
-  const { addOrder } = useOrderStore()
-  const { clearSelectedItems } = useOrderTrackingStore()
-  const { data: orderDetail } = useOrderBySlug(orderSlug)
-
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
-
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
+  const [isSelected, setIsSelected] = useState(false)
   const [searchParams] = useSearchParams()
+  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
-
-  useEffect(() => {
-    const urlSlug = searchParams.get('slug')
-    if (urlSlug) {
-      setOrderSlug(urlSlug)
-      setSelectedRow(urlSlug)
-      setIsSheetOpen(true)
-    }
-  }, [searchParams, setOrderSlug, setIsSheetOpen, setSelectedRow])
+  const [previousOrderCount, setPreviousOrderCount] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const order = searchParams.get('order')
 
   const { data, isLoading, refetch } = useOrders({
-    hasPaging: true,
     page: pagination.pageIndex,
     size: pagination.pageSize,
     order: 'DESC',
-    branch: userInfo?.branch?.slug,
-    startDate,
-    endDate,
-    status: status !== 'all'
-      ? status
-      : [OrderStatus.PAID, OrderStatus.SHIPPING, OrderStatus.FAILED].join(','),
+    branch: userInfo?.branch?.slug || '',
+    hasPaging: true,
+    startDate: startDate,
+    endDate: endDate,
+    status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
 
+  // use useEffect to check is there order param in url, then check is there order in data, if there is, then set selected order and open the dialog
+  useEffect(() => {
+    if (order) {
+      const orderData: IOrder | undefined = data?.result?.items?.find((item: IOrder) => item.slug === order)
+      if (orderData) {
+        setSelectedOrder(orderData)
+        setIsSelected(true)
+      }
+    }
+  }, [data?.result?.items, order])
+
+  // Check for new orders and play sound
+  useEffect(() => {
+    const currentOrderCount = data?.result?.items?.length || 0
+    if (currentOrderCount > previousOrderCount && previousOrderCount > 0) {
+      // Play notification sound
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0 // Reset the audio to start
+        audioRef.current.play()
+      }
+    }
+    setPreviousOrderCount(currentOrderCount)
+  }, [data?.result?.items, previousOrderCount])
+
+  // Reset page when filters change
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
-      pageIndex: 1,
+      pageIndex: 1
     }))
   }, [startDate, endDate, status, setPagination])
 
-  useEffect(() => {
-    if (orderDetail?.result) {
-      addOrder(orderDetail.result)
-    }
-  }, [orderDetail, addOrder])
+  // handle refresh and show toast when success
+  const handleRefresh = () => {
+    refetch()
+    showToast(tToast('toast.refreshSuccess'))
+  }
 
+  // polling useOrders every 5 seconds, but only when dialog is not open
   useEffect(() => {
+    if (isSelected) return // Skip polling when dialog is open
+
     const interval = setInterval(() => {
       refetch()
     }, 5000)
     return () => clearInterval(interval)
-  }, [refetch])
-
-  const handleOrderClick = (order: IOrder) => {
-    clearSelectedItems()
-    setOrderSlug(order.slug)
-    setSelectedRow(order.slug)
-    setIsSheetOpen(true)
-  }
-
-  const handleCloseSheet = () => {
-    setIsSheetOpen(false)
-    setOrderSlug('')
-    setSelectedRow('')
-  }
+  }, [refetch, isSelected])
 
   const filterConfig = [
     {
@@ -106,11 +98,20 @@ export default function OrderManagementPage() {
       options: [
         { label: tCommon('dataTable.all'), value: 'all' },
         { label: t('order.pending'), value: OrderStatus.PENDING },
-        { label: t('order.paid'), value: OrderStatus.PAID },
         { label: t('order.shipping'), value: OrderStatus.SHIPPING },
+        { label: t('order.paid'), value: OrderStatus.PAID },
         { label: t('order.failed'), value: OrderStatus.FAILED },
+        { label: t('order.completed'), value: OrderStatus.COMPLETED },
       ],
     },
+    // {
+    //   id: 'paymentStatus',
+    //   label: t('order.paymentStatus'),
+    //   options: [
+    //     { label: t('order.paid'), value: true },
+    //     { label: t('order.unpaid'), value: false },
+    //   ],
+    // },
   ]
 
   const handleFilterChange = (filterId: string, value: string) => {
@@ -119,46 +120,53 @@ export default function OrderManagementPage() {
     }
   }
 
-  return (
-    <div className="flex flex-col flex-1 gap-2">
-      <Helmet>
-        <meta charSet="utf-8" />
-        <title>{tHelmet('helmet.orderManagement.title')}</title>
-        <meta name="description" content={tHelmet('helmet.orderManagement.title')} />
-      </Helmet>
+  const handleOrderClick = (order: IOrder) => {
+    setIsSelected(true)
+    setSelectedOrder(order)
+  }
 
+  return (
+    <div className="flex flex-col">
+      <audio ref={audioRef} src={notificationSound} preload="auto" />
+      <Helmet>
+        <meta charSet='utf-8' />
+        <title>
+          {tHelmet('helmet.orderManagement.title')}
+        </title>
+        <meta name='description' content={tHelmet('helmet.orderManagement.title')} />
+      </Helmet>
       <span className="flex gap-1 justify-start items-center w-full text-lg">
         <SquareMenu />
-        {t('order.title')}
+        {t('order.orderManagement')}
       </span>
-
-      <div className="grid grid-cols-1 gap-2 h-full">
+      <div className="grid grid-cols-1 h-full">
         <DataTable
+          columns={useOrderHistoryColumns()}
+          data={data?.result?.items || []}
           isLoading={isLoading}
-          data={data?.result.items || []}
-          columns={usePendingOrdersColumns()}
-          pages={data?.result?.totalPages || 1}
+          pages={data?.result?.totalPages || 0}
           hiddenDatePicker={false}
           onRowClick={handleOrderClick}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
+          filterOptions={OrderFilter}
+          filterConfig={filterConfig}
           onDateChange={(start, end) => {
             setStartDate(start)
             setEndDate(end)
           }}
-          filterConfig={filterConfig}
-          filterOptions={OrderFilter}
           onFilterChange={handleFilterChange}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onRefresh={handleRefresh}
           rowClassName={(row) =>
-            row.slug === selectedRow
+            row.slug === selectedOrder?.slug
               ? 'bg-primary/20 border border-primary'
               : ''
           }
         />
-
-        <OrderItemDetailSheet
-          isOpen={isSheetOpen}
-          onClose={handleCloseSheet}
+        <OrderHistoryDetailSheet
+          order={selectedOrder}
+          isOpen={isSelected}
+          onClose={() => setIsSelected(false)}
         />
       </div>
     </div>
