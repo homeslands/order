@@ -56,9 +56,9 @@ export default function CustomerOrderTabsContent({
 
   return (
     <div>
-      {order?.result.items.length ? (
+      {order?.items.length ? (
         <div className="flex flex-col gap-4">
-          {order.result.items.map((orderItem) => {
+          {order.items.map((orderItem) => {
             const orderItems = orderItem.orderItems || []
             const voucher = orderItem.voucher || null
             const displayItems = calculateOrderItemDisplay(orderItems, voucher)
@@ -214,28 +214,28 @@ export default function CustomerOrderTabsContent({
         </div>
       )}
 
-      {order && order?.result.totalPages > 0 && (
-        <div className="flex justify-center items-center py-4 space-x-2">
+      {order && order?.totalPages > 0 && (
+        <div className="flex items-center justify-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => handlePageChange(pagination.pageIndex - 1)}
                   className={
-                    !order?.result.hasPrevious
+                    !order?.hasPrevious
                       ? 'pointer-events-none opacity-50'
                       : 'cursor-pointer'
                   }
                 />
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink isActive>{order?.result.page}</PaginationLink>
+                <PaginationLink isActive>{order?.page}</PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   onClick={() => handlePageChange(pagination.pageIndex + 1)}
                   className={
-                    !order?.result.hasNext
+                    !order?.hasNext
                       ? 'pointer-events-none opacity-50'
                       : 'cursor-pointer'
                   }

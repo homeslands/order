@@ -36,7 +36,7 @@ export default function OrderWaitListCounting() {
         </div>
       </div>
       <span className="flex h-full items-center text-3xl">
-        {data?.result.total}
+        {data?.total}
       </span>
     </div>
   )
