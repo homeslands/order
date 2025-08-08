@@ -328,7 +328,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
 
               const isSamePriceVoucher =
                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
 
               // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
