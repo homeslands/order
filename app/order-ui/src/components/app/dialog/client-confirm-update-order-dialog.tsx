@@ -147,33 +147,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
       const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
 
-      // Add new items
-      // for (const change of addedItems) {
-      //   await new Promise((resolve, reject) => {
-      //     addNewOrderItem({
-      //       quantity: change.item.quantity,
-      //       variant: change.item.variant.slug,
-      //       note: change.item.note || '',
-      //       promotion: change.item.promotion ? change.item.promotion.slug : '',
-      //       order: originalOrder.slug
-      //     }, {
-      //       onSuccess: () => resolve(true),
-      //       onError: (error) => reject(error)
-      //     })
-      //   })
-      // }
-
-      // Remove items
-      // for (const change of removedItems) {
-      //   if (!change.slug) continue
-      //   await new Promise((resolve, reject) => {
-      //     deleteOrderItem(change.slug!, {
-      //       onSuccess: () => resolve(true),
-      //       onError: (error) => reject(error)
-      //     })
-      //   })
-      // }
-
       // Update quantity of existing items
       for (const change of quantityChangedItems) {
         if (!change.slug) continue
@@ -328,7 +301,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
               const isSamePriceVoucher =
                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
 
               // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
