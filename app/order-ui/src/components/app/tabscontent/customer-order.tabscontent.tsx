@@ -103,7 +103,7 @@ export default function CustomerOrderTabsContent({
 
                               const isSamePriceVoucher =
                                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                                voucher?.voucherProducts?.some(vp => vp.product?.slug === product.slug)
+                                voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
 
                               // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
