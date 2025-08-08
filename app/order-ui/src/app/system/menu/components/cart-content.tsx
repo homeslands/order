@@ -13,7 +13,7 @@ import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErro
 import { OrderTypeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -196,32 +196,46 @@ export function CartContent() {
                 <div className="flex justify-start w-full">
                   <div className="flex flex-col items-start">
                     <div className="flex gap-2 items-center mt-2">
-                      <span className="text-[10px] text-muted-foreground">
-                        {t('order.usedVoucher')}
-                      </span>
                       <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
-                        -{`${formatCurrency(cartTotals.voucherDiscount)}`}
+                        {(() => {
+                          const voucher = cartItems?.voucher
+                          if (!voucher) return null
+
+                          const { type, value, applicabilityRule: rule } = voucher
+
+                          // Mô tả phần giá trị khuyến mãi
+                          const discountValueText =
+                            type === VOUCHER_TYPE.PERCENT_ORDER
+                              ? tVoucher('voucher.percentDiscount', { value }) // "Giảm {value}%"
+                              : type === VOUCHER_TYPE.FIXED_VALUE
+                                ? tVoucher('voucher.fixedDiscount', { value: formatCurrency(value) }) // "Giảm {value}₫"
+                                : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                  ? tVoucher('voucher.samePriceProduct', { value: formatCurrency(value) }) // "Đồng giá {value}₫"
+                                  : ''
+
+                          // Mô tả điều kiện áp dụng (rule)
+                          const ruleText =
+                            rule === APPLICABILITY_RULE.ALL_REQUIRED
+                              ? tVoucher(
+                                type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                  ? 'voucher.requireAllSamePrice'
+                                  : type === VOUCHER_TYPE.PERCENT_ORDER
+                                    ? 'voucher.requireAllPercent'
+                                    : 'voucher.requireAllFixed'
+                              )
+                              : rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                ? tVoucher(
+                                  type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? 'voucher.requireAtLeastOneSamePrice'
+                                    : type === VOUCHER_TYPE.PERCENT_ORDER
+                                      ? 'voucher.requireAtLeastOnePercent'
+                                      : 'voucher.requireAtLeastOneFixed'
+                                )
+                                : ''
+
+                          return `${discountValueText} ${ruleText}`
+                        })()}
                       </Badge>
-                    </div>
-                    {/* Hiển thị nội dung chi tiết theo loại voucher */}
-                    <div className="text-[10px] italic text-muted-foreground">
-                      {(() => {
-                        if (!cartItems?.voucher) return null
-
-                        switch (cartItems?.voucher.type) {
-                          case VOUCHER_TYPE.PERCENT_ORDER:
-                            return `${tVoucher('voucher.discountValue')}${cartItems?.voucher.value}% ${tVoucher('voucher.orderValue')}`
-
-                          case VOUCHER_TYPE.FIXED_VALUE:
-                            return `${tVoucher('voucher.discountValue')}${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.orderValue')}`
-
-                          case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
-                            return `${tVoucher('voucher.samePrice')} ${formatCurrency(cartItems?.voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
-
-                          default:
-                            return ''
-                        }
-                      })()}
                     </div>
                   </div>
                 </div>

@@ -3,12 +3,12 @@ import { ShoppingCart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { ScrollArea } from '@/components/ui'
+import { Badge, ScrollArea } from '@/components/ui'
 import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
-import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
+import { IOrderItem, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './client-update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
@@ -64,28 +64,35 @@ export default function ClientUpdateOrderContent({
                     <AnimatePresence>
                         {orderItems && orderItems.length > 0 ? (
                             orderItems.map((item: IOrderItem, index: number) => {
-                                const displayItem = displayItems.find(di => di.productSlug === item.productSlug)
-                                const original = item.variant.price || 0
-                                const priceAfterPromotion = displayItem?.priceAfterPromotion || original
+                                const displayItem = displayItems.find(di => di.slug === item.slug)
+                                const original = item.originalPrice || 0
+                                const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
                                 const finalPrice = displayItem?.finalPrice || 0
 
                                 const isSamePriceVoucher =
                                     voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                                    voucher?.voucherProducts?.some((vp: IVoucherProduct) => vp.product?.slug === item.productSlug)
+                                    voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
 
-                                const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                                // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                                const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
-                                // Use finalPrice for display when there's voucher discount, otherwise use priceAfterPromotion
-                                const displayPrice = hasVoucherDiscount
-                                    ? finalPrice
-                                    : hasPromotionDiscount
-                                        ? priceAfterPromotion
-                                        : original
+                                const isAtLeastOneVoucher =
+                                    voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                    voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
 
-                                // console.log('displayPrice', hasVoucherDiscount, finalPrice)
+                                const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+                                const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+                                // finalPrice là giá cuối cùng hiển thị trên UI
+                                const displayPrice = isSamePriceVoucher
+                                    ? finalPrice // đồng giá
+                                    : isAtLeastOneVoucher && hasVoucherDiscount
+                                        ? original - (displayItem?.voucherDiscount || 0)
+                                        : hasPromotionDiscount
+                                            ? priceAfterPromotion
+                                            : original
 
-                                const shouldShowLineThrough = hasVoucherDiscount || hasPromotionDiscount || isSamePriceVoucher
+                                const shouldShowLineThrough =
+                                    (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                                    (original > displayPrice)
 
                                 return (
                                     <motion.div
@@ -110,7 +117,7 @@ export default function ClientUpdateOrderContent({
                                                         ({capitalizeFirstLetter(item.variant.size.name)})
                                                     </span>
                                                     <div className="flex flex-col gap-1 items-start mt-1">
-                                                        {shouldShowLineThrough && original !== finalPrice && (
+                                                        {shouldShowLineThrough && (
                                                             <span className="text-[10px] line-through text-muted-foreground">
                                                                 {formatCurrency(original)}
                                                             </span>
@@ -169,33 +176,46 @@ export default function ClientUpdateOrderContent({
                                 <div className="flex justify-start w-full">
                                     <div className="flex flex-col items-start">
                                         <div className="flex gap-2 items-center mt-2">
-                                            <span className="text-xs text-muted-foreground">
-                                                {t('order.usedVoucher')}:
-                                            </span>
-                                            <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                                                -{formatCurrency(cartTotals?.voucherDiscount || 0)}
-                                            </span>
-                                        </div>
+                                            <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
+                                                {(() => {
+                                                    const voucher = updatingData?.updateDraft?.voucher
+                                                    if (!voucher) return null
 
-                                        {/* Hiển thị nội dung chi tiết theo loại voucher */}
-                                        <div className="mt-1 text-xs italic text-muted-foreground">
-                                            {(() => {
-                                                if (!voucher) return null
+                                                    const { type, value, applicabilityRule: rule } = voucher
 
-                                                switch (voucher.type) {
-                                                    case VOUCHER_TYPE.PERCENT_ORDER:
-                                                        return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+                                                    // Mô tả phần giá trị khuyến mãi
+                                                    const discountValueText =
+                                                        type === VOUCHER_TYPE.PERCENT_ORDER
+                                                            ? tVoucher('voucher.percentDiscount', { value }) // "Giảm {value}%"
+                                                            : type === VOUCHER_TYPE.FIXED_VALUE
+                                                                ? tVoucher('voucher.fixedDiscount', { value: formatCurrency(value) }) // "Giảm {value}₫"
+                                                                : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                                                    ? tVoucher('voucher.samePriceProduct', { value: formatCurrency(value) }) // "Đồng giá {value}₫"
+                                                                    : ''
 
-                                                    case VOUCHER_TYPE.FIXED_VALUE:
-                                                        return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+                                                    // Mô tả điều kiện áp dụng (rule)
+                                                    const ruleText =
+                                                        rule === APPLICABILITY_RULE.ALL_REQUIRED
+                                                            ? tVoucher(
+                                                                type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                                                    ? 'voucher.requireAllSamePrice'
+                                                                    : type === VOUCHER_TYPE.PERCENT_ORDER
+                                                                        ? 'voucher.requireAllPercent'
+                                                                        : 'voucher.requireAllFixed'
+                                                            )
+                                                            : rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                                                ? tVoucher(
+                                                                    type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                                                        ? 'voucher.requireAtLeastOneSamePrice'
+                                                                        : type === VOUCHER_TYPE.PERCENT_ORDER
+                                                                            ? 'voucher.requireAtLeastOnePercent'
+                                                                            : 'voucher.requireAtLeastOneFixed'
+                                                                )
+                                                                : ''
 
-                                                    case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
-                                                        return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
-
-                                                    default:
-                                                        return ''
-                                                }
-                                            })()}
+                                                    return `${discountValueText} ${ruleText}`
+                                                })()}
+                                            </Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +232,7 @@ export default function ClientUpdateOrderContent({
 
                                 {/* Giảm giá khuyến mãi (promotion) */}
                                 {(cartTotals?.promotionDiscount || 0) > 0 && (
-                                    <div className="flex justify-between italic text-yellow-600">
+                                    <div className="flex justify-between text-xs italic text-yellow-600">
                                         <span>{t('order.promotionDiscount')}</span>
                                         <span>-{formatCurrency(cartTotals?.promotionDiscount || 0)}</span>
                                     </div>
@@ -221,7 +241,7 @@ export default function ClientUpdateOrderContent({
                                 {/* Tổng giảm giá voucher */}
                                 {(cartTotals?.voucherDiscount || 0) > 0 && (
                                     <div className='flex flex-col justify-between items-start w-full'>
-                                        <div className="flex justify-between w-full italic text-green-600">
+                                        <div className="flex justify-between w-full text-xs italic text-green-600">
                                             <span>{t('order.voucherDiscount')}</span>
                                             <span>-{formatCurrency(cartTotals?.voucherDiscount || 0)}</span>
                                         </div>
