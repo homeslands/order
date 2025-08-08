@@ -108,7 +108,7 @@ export default function SystemAddToCartDrawer({ product }: AddToCartDialogProps)
       originalPrice: selectedVariant?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: note.trim(),
     }

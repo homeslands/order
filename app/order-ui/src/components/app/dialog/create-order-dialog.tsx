@@ -51,6 +51,8 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
 
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
 
+  // console.log('cartTotals', cartTotals)
+
   const handleSubmit = (order: IOrderingData) => {
     if (!order) return
 
@@ -76,7 +78,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
         return {
           quantity: orderItem.quantity,
           variant: orderItem.variant.slug,
-          promotion: orderItem.promotion || null, // luôn có field promotion
+          promotion: orderItem.promotion ? orderItem.promotion.slug : null,
           note: orderItem.note || '',
         }
       }),

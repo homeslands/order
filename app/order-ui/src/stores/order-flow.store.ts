@@ -171,7 +171,7 @@ const convertOrderDetailToOrderItem = (
 ): IOrderItem => {
   return {
     id: orderDetail.id || generateOrderItemId(),
-    slug: orderDetail.variant.product.slug,
+    slug: orderDetail.slug,
     image: orderDetail.variant.product.image,
     name: orderDetail.variant.product.name,
     quantity: orderDetail.quantity,
@@ -179,7 +179,7 @@ const convertOrderDetailToOrderItem = (
     allVariants: orderDetail.variant.product.variants,
     variant: orderDetail.variant,
     originalPrice: orderDetail.variant.price,
-    promotion: orderDetail.promotion?.slug || null,
+    promotion: orderDetail.promotion || null,
     promotionValue: orderDetail.promotion?.value || 0,
     productSlug: orderDetail.variant.product.slug,
     description: orderDetail.variant.product.description,
@@ -665,12 +665,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       // UPDATING PHASE
       // ===================
       initializeUpdating: (originalOrder: IOrder) => {
-        // console.log('Initializing updating phase with originalOrder:', originalOrder.orderItems)
-        
         // Tạo ID cho các order items và cập nhật originalOrder
-        const orderItemsWithIds = originalOrder.orderItems.map(item => ({
+        const orderItemsWithIds = originalOrder.orderItems.map((item) => ({
           ...item,
-          id: item.id || generateOrderItemId(), // Giữ ID cũ nếu có, tạo mới nếu không
+          id: item.slug || generateOrderItemId(), // Giữ ID cũ nếu có, tạo mới nếu không
         }))
 
         const updatedOriginalOrder: IOrder = {
@@ -682,20 +680,21 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updateDraft: IOrderToUpdate = {
           id: generateOrderId(), // Draft có ID riêng
           slug: updatedOriginalOrder.slug,
-          productSlug: updatedOriginalOrder.orderItems[0]?.variant.product.slug || '',
+          productSlug:
+            updatedOriginalOrder.orderItems[0]?.variant.product.slug || '',
           status: updatedOriginalOrder.status || OrderStatus.PENDING,
           owner: updatedOriginalOrder.owner?.slug || '',
           ownerFullName:
             updatedOriginalOrder.owner?.firstName +
-            ' ' +
-            updatedOriginalOrder.owner?.lastName || '',
+              ' ' +
+              updatedOriginalOrder.owner?.lastName || '',
           ownerPhoneNumber: updatedOriginalOrder.owner?.phonenumber || '',
           ownerRole: updatedOriginalOrder.owner?.role.name || '',
           paymentMethod: updatedOriginalOrder.payment?.paymentMethod || '',
           type: updatedOriginalOrder.type,
           table: updatedOriginalOrder.table?.slug || '',
           tableName: updatedOriginalOrder.table?.name || '',
-          orderItems: orderItemsWithIds.map(item => ({
+          orderItems: orderItemsWithIds.map((item) => ({
             ...convertOrderDetailToOrderItem(item),
             id: item.id, // Sử dụng cùng ID
           })),

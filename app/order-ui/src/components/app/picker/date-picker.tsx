@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
-import { format, isToday, isSameDay } from 'date-fns'
-import { vi } from 'date-fns/locale' // Thêm locale tiếng Việt
+import { format, isToday, isSameDay, parse } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,6 +28,22 @@ const generateYears = (start: number, end: number) => {
   return years
 }
 
+// Helper: parse date from "dd/MM/yyyy" string safely
+const parseDateString = (dateString: string): Date | null => {
+  if (!dateString) return null
+
+  // Ưu tiên parse định dạng dd/MM/yyyy
+  const parsedLocal = parse(dateString.trim(), 'dd/MM/yyyy', new Date())
+  if (!isNaN(parsedLocal.getTime())) return parsedLocal
+
+  // Nếu không parse được, thử ISO string
+  const parsedISO = new Date(dateString)
+  return isNaN(parsedISO.getTime()) ? null : parsedISO
+}
+
+// Helper: format date to "dd/MM/yyyy"
+const formatDateString = (date: Date): string => format(date, 'dd/MM/yyyy')
+
 interface DatePickerProps {
   date: string | null
   onSelect: (date: string | null) => void
@@ -45,21 +61,26 @@ export default function DatePicker({
   disabled,
   today,
   disabledDates = [],
-  disableFutureDate = false, // Thêm tùy chọn để vô hiệu hóa ngày tương lai
+  disableFutureDate = false,
 }: DatePickerProps) {
   const { t } = useTranslation(['common'])
-  const [month, setMonth] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
-  const [year, setYear] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getFullYear() : new Date().getFullYear())
-  const years = generateYears(1920, new Date().getFullYear()) // 100 years range
 
   const parsedDate = React.useMemo(() => {
-    return date ? new Date(date.split('/').reverse().join('-')) : undefined
+    return date ? parseDateString(date) : undefined
   }, [date])
 
+  const [month, setMonth] = React.useState<number>(parsedDate?.getMonth() ?? new Date().getMonth())
+  const [year, setYear] = React.useState<number>(parsedDate?.getFullYear() ?? new Date().getFullYear())
+  const years = generateYears(1920, new Date().getFullYear())
+
   const handleSelectDate = (selectedDate: Date | undefined) => {
-    if (selectedDate && validateDate && validateDate(selectedDate)) {
-      // Chọn ngày và hiển thị theo định dạng 'dd/MM/yyyy'
-      onSelect(format(selectedDate, 'dd/MM/yyyy'))
+    if (!selectedDate) return onSelect(null)
+
+    const valid = !isNaN(selectedDate.getTime()) &&
+      (!validateDate || validateDate(selectedDate))
+
+    if (valid) {
+      onSelect(formatDateString(selectedDate))
     } else {
       onSelect(null)
     }
@@ -67,15 +88,15 @@ export default function DatePicker({
 
   const handleTodayClick = () => {
     const today = new Date()
-    if (validateDate && validateDate(today)) {
-      onSelect(format(today, 'dd/MM/yyyy'))
+    if (!validateDate || validateDate(today)) {
+      onSelect(formatDateString(today))
     }
   }
 
   const isDateDisabled = (date: Date) => {
-    const isInDisabledList = disabledDates.some(disabledDate => isSameDay(date, disabledDate))
-    const isInFuture = disableFutureDate ? date > new Date() : false
-    return isInDisabledList || isInFuture
+    const isInDisabledList = disabledDates.some(d => isSameDay(date, d))
+    const isFuture = disableFutureDate && date > new Date()
+    return isInDisabledList || isFuture
   }
 
   return (
@@ -90,20 +111,14 @@ export default function DatePicker({
           )}
           disabled={disabled}
         >
-          <CalendarIcon className="w-4 h-4 mr-2" />
-          {date ? (
-            // Hiển thị ngày theo định dạng 'dd/MM/yyyy' khi đã chọn
-            format(new Date(date.split('/').reverse().join('-')), 'dd/MM/yyyy')
-          ) : (
-            <span>
-              {t('common.selectDate')}
-            </span>
-          )}
+          <CalendarIcon className="mr-2 w-4 h-4" />
+          {parsedDate ? formatDateString(parsedDate) : <span>{t('common.selectDate')}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-4" align="start">
-        {/* Month and Year Selection */}
-        <div className="flex items-center justify-between mb-4 space-x-2">
+
+      <PopoverContent className="p-4 w-auto" align="start">
+        {/* Month + Year select */}
+        <div className="flex justify-between items-center mb-4 space-x-2">
           <Select
             value={String(month)}
             onValueChange={(value) => setMonth(Number(value))}
@@ -112,11 +127,14 @@ export default function DatePicker({
               <SelectValue placeholder={t('common.month')} />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 12 }, (_, i) => (
-                <SelectItem key={i} value={String(i)}>
-                  {format(new Date(0, i), 'MMMM', { locale: vi }).charAt(0).toUpperCase() + format(new Date(0, i), 'MMMM', { locale: vi }).slice(1)} {/* Tháng bằng tiếng Việt, chữ cái đầu tiên in hoa */}
-                </SelectItem>
-              ))}
+              {Array.from({ length: 12 }, (_, i) => {
+                const monthName = format(new Date(0, i), 'MMMM', { locale: vi })
+                return (
+                  <SelectItem key={i} value={String(i)}>
+                    {monthName.charAt(0).toUpperCase() + monthName.slice(1)}
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
 
@@ -128,20 +146,20 @@ export default function DatePicker({
               <SelectValue placeholder={t('common.year')} />
             </SelectTrigger>
             <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={String(year)}>
-                  {year}
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Today Button */}
+        {/* Today shortcut */}
         {today && (
           <Button
             variant="outline"
-            className="w-full mb-4"
+            className="mb-4 w-full"
             onClick={handleTodayClick}
           >
             {t('common.today')}
@@ -151,7 +169,7 @@ export default function DatePicker({
         {/* Calendar */}
         <Calendar
           mode="single"
-          selected={parsedDate}
+          selected={parsedDate || undefined}
           onSelect={handleSelectDate}
           month={new Date(year, month)}
           onMonthChange={(newMonth) => {
@@ -159,10 +177,10 @@ export default function DatePicker({
             setYear(newMonth.getFullYear())
           }}
           initialFocus
-          locale={vi} // Chuyển đổi lịch sang tiếng Việt
+          locale={vi}
           disabled={isDateDisabled}
           modifiers={{
-            today: (date) => isToday(date),
+            today: (d) => isToday(d),
           }}
           modifiersStyles={{
             today: {

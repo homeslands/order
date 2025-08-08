@@ -128,7 +128,9 @@ export interface IOrderItem {
   allVariants: IProductVariant[]
   variant: IProductVariant
   originalPrice?: number
-  promotion?: string | null
+  // promotionSlug?: string
+  promotion?: IPromotion | null
+  discountType?: string
   promotionDiscount?: number
   voucherDiscount?: number
   productSlug?: string

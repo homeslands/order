@@ -152,7 +152,7 @@ export const useUpdateOrderStore = create<IUpdateOrderStore>()(
             size: item.variant.size.name,
             quantity: item.quantity,
             originalPrice: item.variant.price,
-            promotion: item?.promotion ? item?.promotion?.slug : '',
+            promotion: item?.promotion ? item?.promotion : null,
             promotionValue: item?.promotion ? item?.promotion?.value : 0,
             description: item.variant.product.description,
             isLimit: item.variant.product.isLimit,
@@ -412,6 +412,7 @@ export const useUpdateOrderStore = create<IUpdateOrderStore>()(
             ...orderItems,
             voucher: {
               voucherGroup: voucher.voucherGroup,
+              applicabilityRule: voucher.applicabilityRule,
               createdAt: voucher.createdAt,
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,
@@ -629,7 +630,7 @@ export const useOriginalOrderStore = create<IOriginalOrderStore>()(
             size: item.variant.size.name,
             quantity: item.quantity,
             originalPrice: item.variant.price,
-            promotion: item?.promotion ? item?.promotion?.slug : '',
+            promotion: item?.promotion ? item?.promotion : null,
             promotionValue: item?.promotion ? item?.promotion?.value : 0,
             description: item.variant.product.description,
             isLimit: item.variant.product.isLimit,
@@ -879,6 +880,7 @@ export const useOriginalOrderStore = create<IOriginalOrderStore>()(
             ...originalOrderItems,
             voucher: {
               voucherGroup: voucher.voucherGroup,
+              applicabilityRule: voucher.applicabilityRule,
               createdAt: voucher.createdAt,
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,

@@ -15,10 +15,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
-import { VoucherType } from './voucher.constant';
 import {
   INVALID_VOUCHER_SLUGS,
 } from './voucher.validation';
+import { VoucherApplicabilityRule, VoucherType } from './voucher.constant';
 import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
 import { INVALID_ORDER_ITEMS } from 'src/order/order.validation';
 import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
@@ -28,6 +28,15 @@ export class CreateVoucherDto {
   @IsNotEmpty({ message: 'INVALID_VOUCHER_GROUP' })
   @AutoMap()
   voucherGroup: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: 'INVALID_VOUCHER_APPLICABILITY_RULE' })
+  @IsEnum(VoucherApplicabilityRule, {
+    message:
+      'Voucher applicability rule must be all_required or at_least_one_required',
+  })
+  @AutoMap()
+  applicabilityRule: string;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'INVALID_TITLE' })
@@ -139,6 +148,15 @@ export class BulkCreateVoucherDto {
   @IsNotEmpty({ message: 'INVALID_VOUCHER_GROUP' })
   @AutoMap()
   voucherGroup: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: 'INVALID_VOUCHER_APPLICABILITY_RULE' })
+  @IsEnum(VoucherApplicabilityRule, {
+    message:
+      'Voucher applicability rule must be all_required or at_least_one_required',
+  })
+  @AutoMap()
+  applicabilityRule: string;
 
   @ApiProperty()
   @AutoMap()
@@ -476,6 +494,10 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   code: string;
+
+  @ApiProperty()
+  @AutoMap()
+  applicabilityRule: string;
 
   @ApiProperty()
   @AutoMap()

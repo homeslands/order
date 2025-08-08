@@ -113,6 +113,9 @@
     "clearFilter": "Xóa lọc",
     "exportAll": "Xuất tất cả",
     "coinEarned": "Nhận xu",
-    "coinSpent": "Dùng xu"
+    "coinSpent": "Dùng xu",
+    "totalEarned": "Tổng thu",
+    "totalSpent": "Tổng chi",
+    "netDifference": "Chênh lệch"
   }
 }

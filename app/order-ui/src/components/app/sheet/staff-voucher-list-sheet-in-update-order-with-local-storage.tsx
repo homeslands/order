@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -38,13 +38,13 @@ import {
   useVouchersForOrder,
   useUpdateVoucherInOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
-import { Role, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const isMobile = useIsMobile()
@@ -62,6 +62,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
   const [removedVouchers, setRemovedVouchers] = useState<IVoucher[]>([])
+  const isRemovingVoucherRef = useRef(false)
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
@@ -118,6 +119,184 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
       code: selectedVoucher
     }
   )
+
+  // Helper functions for voucher management
+  const addVoucher = useCallback((voucher: IVoucher) => {
+    setDraftVoucher(voucher)
+  }, [setDraftVoucher])
+
+  const removeVoucher = useCallback(() => {
+    removeDraftVoucher()
+  }, [removeDraftVoucher])
+
+  const isVoucherSelected = useCallback((voucherSlug: string) => {
+    return (
+      orderDraft?.voucher?.slug === voucherSlug ||
+      // selectedVoucher === voucherSlug
+      appliedVoucher === voucherSlug
+    )
+  }, [orderDraft?.voucher?.slug, appliedVoucher])
+
+  const handleToggleVoucher = useCallback((voucher: IVoucher) => {
+    if (!orderDraft || !updatingData?.originalOrder) return
+
+    const orderSlug = updatingData.originalOrder.slug
+    const isRemoving = isVoucherSelected(voucher.slug)
+
+    if (isRemoving) {
+      // Remove voucher - Update store immediately
+      removeVoucher()
+      setAppliedVoucher('')
+      setSelectedVoucher('')
+
+      // Add removed voucher to removedVouchers list to keep it available for reselection
+      setRemovedVouchers(prev => {
+        const existingIndex = prev.findIndex(v => v.slug === voucher.slug)
+        if (existingIndex === -1) {
+          return [voucher, ...prev]
+        }
+        return prev
+      })
+
+      // Call API to update order with null voucher
+      updateVoucherInOrder({
+        slug: orderSlug,
+        voucher: null,
+        orderItems: orderDraft.orderItems.map(item => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+      }, {
+        onSuccess: () => {
+          showToast(tToast('toast.removeVoucherSuccess'))
+        },
+        onError: () => {
+          // Rollback store changes on error
+          addVoucher(voucher)
+          setAppliedVoucher(voucher.slug)
+          setSelectedVoucher(voucher.code)
+          setRemovedVouchers(prev => prev.filter(v => v.slug !== voucher.slug))
+          showErrorToast(1000)
+        }
+      })
+    } else {
+      // Apply voucher - Check verification first
+      if (voucher.isVerificationIdentity && !orderDraft.owner) {
+        showErrorToast(1004) // Show error if voucher requires verification but no owner
+        return
+      }
+
+      // Update store immediately
+      addVoucher(voucher)
+      setAppliedVoucher(voucher.slug)
+      setSelectedVoucher(voucher.code)
+
+      // Remove from removedVouchers list since it's now applied
+      setRemovedVouchers(prev => prev.filter(v => v.slug !== voucher.slug))
+
+      // Prepare parameters for validation and API calls
+      const orderItemsParam = orderDraft.orderItems.map(item => ({
+        quantity: item.quantity,
+        variant: item.variant.slug,
+        note: item.note,
+        promotion: item.promotion ? item.promotion.slug : null,
+      }))
+
+      const validateVoucherParam: IValidateVoucherRequest = {
+        voucher: voucher.slug,
+        user: orderDraft.owner || getUserInfo()?.slug || '',
+        orderItems: orderItemsParam
+      }
+
+      // Call both validate and update API in parallel
+      Promise.all([
+        new Promise((resolve, reject) => {
+          validateVoucher(validateVoucherParam, {
+            onSuccess: resolve,
+            onError: reject
+          })
+        }),
+        new Promise((resolve, reject) => {
+          updateVoucherInOrder({
+            slug: orderSlug,
+            voucher: voucher.slug,
+            orderItems: orderItemsParam
+          }, {
+            onSuccess: resolve,
+            onError: reject
+          })
+        })
+      ]).then(() => {
+        setSheetOpen(false)
+        showToast(tToast('toast.applyVoucherSuccess'))
+      }).catch(() => {
+        // Rollback store changes on error
+        removeVoucher()
+        setAppliedVoucher('')
+        setSelectedVoucher('')
+        setRemovedVouchers(prev => {
+          const existingIndex = prev.findIndex(v => v.slug === voucher.slug)
+          if (existingIndex === -1) {
+            return [voucher, ...prev]
+          }
+          return prev
+        })
+        showErrorToast(1000)
+      })
+    }
+  }, [orderDraft, updatingData?.originalOrder, isVoucherSelected, setAppliedVoucher, setSelectedVoucher, setRemovedVouchers, tToast, validateVoucher, updateVoucherInOrder, addVoucher, removeVoucher, getUserInfo])
+
+  // Auto-check voucher validity when orderItems change
+  useEffect(() => {
+    if (!orderDraft?.voucher || !orderDraft?.orderItems || isRemovingVoucherRef.current) {
+      isRemovingVoucherRef.current = false
+      return
+    }
+
+    const { voucher, orderItems } = orderDraft
+    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const cartProductSlugs = orderItems.map(item => item.variant.product.slug)
+
+    // Tính tổng tiền sau promotion nhưng chưa áp voucher
+    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+      const original = item.originalPrice || 0
+      const promotionDiscount = item.promotionDiscount || 0
+      return acc + (original - promotionDiscount) * item.quantity
+    }, 0)
+
+    let shouldRemove = false
+
+    // Check applicability rule
+    switch (voucher.applicabilityRule) {
+      case APPLICABILITY_RULE.ALL_REQUIRED: {
+        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
+        if (hasInvalidProducts) shouldRemove = true
+        break
+      }
+      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
+        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+        if (!hasAtLeastOne) shouldRemove = true
+        break
+      }
+      default:
+        break
+    }
+
+    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
+    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
+        shouldRemove = true
+      }
+    }
+
+    // Remove voucher nếu cần
+    if (shouldRemove) {
+      isRemovingVoucherRef.current = true
+      handleToggleVoucher(voucher)
+    }
+  }, [orderDraft, handleToggleVoucher]) // Trigger when orderItems change
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -216,18 +395,10 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
-
-    // if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && orderDraft) {
-    //   const { cart: tempCart } = applyVoucherToCart(orderDraft)
-    //   const tempCalculations = calculateCartTotals(tempCart, 0)
-    //   subTotal = tempCalculations.subTotalAfterPromotion
-    // }
-
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
-    // const isActive = voucher.isActive
     // Check if voucher has voucherProducts and if cart items match
     const hasValidProducts = (() => {
       // If voucher doesn't have voucherProducts or it's empty, return false
@@ -242,11 +413,19 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
 
       // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = orderDraft.orderItems.map(item => item.slug)
-      return voucherProductSlugs.some(voucherSlug =>
-        cartProductSlugs.includes(voucherSlug)
+      // const cartProductSlugs = orderDraft?.orderItems.map(item => item.productSlug)
+      const cartProductSlugs = orderDraft.orderItems.reduce((acc, item) => {
+        if (item.productSlug) acc.push(item.productSlug) // Slug của product
+        return acc
+      }, [] as string[])
+      return isVoucherApplicableToCartItems(
+        cartProductSlugs,
+        voucherProductSlugs,
+        voucher.applicabilityRule
       )
     })()
+
+    // console.log('voucher:', voucher.title, hasValidProducts)
     // console.log('voucher:', voucher.title, isActive, isValidAmount, hasValidProducts)
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
@@ -287,133 +466,11 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
 
   // const bestVoucher = getBestVoucher()
 
-  const isVoucherSelected = (voucherSlug: string) => {
-    return (
-      orderDraft?.voucher?.slug === voucherSlug ||
-      // selectedVoucher === voucherSlug
-      appliedVoucher === voucherSlug
-    )
-  }
 
-  // Helper functions for voucher management
-  const addVoucher = (voucher: IVoucher) => {
-    setDraftVoucher(voucher)
-  }
 
-  const removeVoucher = () => {
-    removeDraftVoucher()
-  }
 
-  const handleToggleVoucher = (voucher: IVoucher) => {
-    if (!orderDraft || !updatingData?.originalOrder) return
 
-    const orderSlug = updatingData.originalOrder.slug
-    const isRemoving = isVoucherSelected(voucher.slug)
 
-    if (isRemoving) {
-      // Remove voucher - Update store immediately
-      removeVoucher()
-      setAppliedVoucher('')
-      setSelectedVoucher('')
-
-      // Add removed voucher to removedVouchers list to keep it available for reselection
-      setRemovedVouchers(prev => {
-        const existingIndex = prev.findIndex(v => v.slug === voucher.slug)
-        if (existingIndex === -1) {
-          return [voucher, ...prev]
-        }
-        return prev
-      })
-
-      // Call API to update order with null voucher
-      updateVoucherInOrder({
-        slug: orderSlug,
-        voucher: null,
-        orderItems: orderDraft.orderItems.map(item => ({
-          quantity: item.quantity,
-          variant: item.variant.slug,
-          note: item.note,
-          promotion: item.promotion ?? null,
-        }))
-      }, {
-        onSuccess: () => {
-          showToast(tToast('toast.removeVoucherSuccess'))
-        },
-        onError: () => {
-          // Rollback store changes on error
-          addVoucher(voucher)
-          setAppliedVoucher(voucher.slug)
-          setSelectedVoucher(voucher.code)
-          setRemovedVouchers(prev => prev.filter(v => v.slug !== voucher.slug))
-          showErrorToast(1000)
-        }
-      })
-    } else {
-      // Apply voucher - Check verification first
-      if (voucher.isVerificationIdentity && !orderDraft.owner) {
-        showErrorToast(1004) // Show error if voucher requires verification but no owner
-        return
-      }
-
-      // Update store immediately
-      addVoucher(voucher)
-      setAppliedVoucher(voucher.slug)
-      setSelectedVoucher(voucher.code)
-
-      // Remove from removedVouchers list since it's now applied
-      setRemovedVouchers(prev => prev.filter(v => v.slug !== voucher.slug))
-
-      // Prepare parameters for validation and API calls
-      const orderItemsParam = orderDraft.orderItems.map(item => ({
-        quantity: item.quantity,
-        variant: item.variant.slug,
-        note: item.note,
-        promotion: item.promotion ?? null,
-      }))
-
-      const validateVoucherParam: IValidateVoucherRequest = {
-        voucher: voucher.slug,
-        user: orderDraft.owner || getUserInfo()?.slug || '',
-        orderItems: orderItemsParam
-      }
-
-      // Call both validate and update API in parallel
-      Promise.all([
-        new Promise((resolve, reject) => {
-          validateVoucher(validateVoucherParam, {
-            onSuccess: resolve,
-            onError: reject
-          })
-        }),
-        new Promise((resolve, reject) => {
-          updateVoucherInOrder({
-            slug: orderSlug,
-            voucher: voucher.slug,
-            orderItems: orderItemsParam
-          }, {
-            onSuccess: resolve,
-            onError: reject
-          })
-        })
-      ]).then(() => {
-        setSheetOpen(false)
-        showToast(tToast('toast.applyVoucherSuccess'))
-      }).catch(() => {
-        // Rollback store changes on error
-        removeVoucher()
-        setAppliedVoucher('')
-        setSelectedVoucher('')
-        setRemovedVouchers(prev => {
-          const existingIndex = prev.findIndex(v => v.slug === voucher.slug)
-          if (existingIndex === -1) {
-            return [voucher, ...prev]
-          }
-          return prev
-        })
-        showErrorToast(1000)
-      })
-    }
-  }
 
   // const handleApplyVoucher = async () => {
   //   if (!selectedVoucher) return;
@@ -467,28 +524,76 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   //   }
   // };
 
+  // const getVoucherErrorMessage = (voucher: IVoucher) => {
+  //   if (voucher.isVerificationIdentity && !isCustomerOwner) {
+  //     return t('voucher.needVerifyIdentity')
+  //   }
+  //   if (voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))) {
+  //     return t('voucher.minOrderNotMet')
+  //   }
+  //   if (voucher.remainingUsage === 0) {
+  //     return t('voucher.outOfStock')
+  //   }
+  //   if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
+  //     return t('voucher.expired')
+  //   }
+  //   if (voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)) {
+  //     return t('voucher.minOrderNotMet')
+  //   }
+  //   return ''
+  // }
+
   const getVoucherErrorMessage = (voucher: IVoucher) => {
+    const cartProductSlugs = orderDraft?.orderItems?.map((item) => item.productSlug || '') || []
+    const voucherProductSlugs = voucher.voucherProducts?.map((vp) => vp.product?.slug) || []
+
+    const allCartProductsInVoucher = cartProductSlugs.every(slug => voucherProductSlugs.includes(slug))
+    const hasAnyCartProductInVoucher = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+
+    const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
     if (voucher.isVerificationIdentity && !isCustomerOwner) {
       return t('voucher.needVerifyIdentity')
     }
-    if (voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))) {
-      return t('voucher.minOrderNotMet')
-    }
+
     if (voucher.remainingUsage === 0) {
       return t('voucher.outOfStock')
     }
+
     if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
       return t('voucher.expired')
     }
-    if (voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)) {
+
+    if (
+      voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+      voucher.minOrderValue > subTotalAfterPromotion
+    ) {
       return t('voucher.minOrderNotMet')
     }
+
+    // 💡 Bổ sung lỗi theo applicabilityRule
+    if (voucher.voucherProducts?.length > 0) {
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED &&
+        !allCartProductsInVoucher
+      ) {
+        return t('voucher.requireOnlyApplicableProducts')
+      }
+
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+        !hasAnyCartProductInVoucher
+      ) {
+        return t('voucher.requireSomeApplicableProducts')
+      }
+    }
+
     return ''
   }
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-48 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -521,7 +626,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
+                {voucher.value}% {t('voucher.forSelectedProducts')}
               </span>
             ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
               <span className="text-xs italic text-primary">
@@ -530,7 +635,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             ) : (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+                {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
               </span>
             )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">

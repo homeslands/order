@@ -113,6 +113,9 @@
     "clearFilter": "Clear Filter",
     "exportAll": "Export All",
     "coinEarned": "Coin earned",
-    "coinSpent": "Coin used"
+    "coinSpent": "Coin used",
+    "totalEarned": "Total Earned",
+    "totalSpent": "Total Spent",
+    "netDifference": "Net Difference"
   }
 }

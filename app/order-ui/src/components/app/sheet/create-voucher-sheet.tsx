@@ -26,8 +26,8 @@ import { ICreateVoucherRequest } from '@/types'
 import { SimpleDatePicker } from '../picker'
 import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherTypeSelect } from '../select'
-import { VOUCHER_TYPE } from '@/constants'
+import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { useCatalogs, useProducts } from '@/hooks'
 import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
@@ -65,6 +65,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
     defaultValues: {
       voucherGroup: slug as string,
       title: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
@@ -112,6 +113,14 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
   const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
     form.setValue(fieldName, date)
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
+    if (fieldName === 'startDate') {
+      const currentEndDate = form.getValues('endDate')
+      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
+        form.setValue('endDate', date)
+      }
+    }
   }
 
   const handleSelectionChange = (selectedSlugs: string[]) => {
@@ -149,6 +158,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       voucherGroup: slug as string,
       title: '',
       description: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       type: VOUCHER_TYPE.PERCENT_ORDER,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
@@ -172,7 +182,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -191,7 +201,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -210,7 +220,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -229,7 +239,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -248,7 +258,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -267,13 +277,37 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         )}
       />
     ),
+    applicabilityRule: (
+      <FormField
+        control={form.control}
+        name="applicabilityRule"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex items-center gap-1'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.applicabilityRule')}</FormLabel>
+            <FormControl>
+              <VoucherApplicabilityRuleSelect
+                {...field}
+                onChange={(value) => {
+                  field.onChange(value);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     code: (
       <FormField
         control={form.control}
         name="code"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -296,7 +330,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="value"
         render={({ field }) => (
           <FormItem className='flex flex-col justify-between'>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -321,7 +355,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                     max={100}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                     %
                   </span>
                 </div>
@@ -332,17 +366,13 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '') {
-                        field.onChange('');
-                      } else {
-                        field.onChange(Number(value));
-                      }
+                      field.onChange(value === '' ? '' : Number(value));
                     }}
                     className='text-sm'
-                    value={field.value === 0 ? '' : field.value}
+                    value={field.value?.toString() ?? ''} // convert number -> string
                     placeholder={t('voucher.enterVoucherValue')}
                   />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                     ₫
                   </span>
                 </div>
@@ -363,7 +393,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                     value={field.value === 0 ? '' : field.value}
                     placeholder={t('voucher.enterFixedProductPrice')}
                   />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                  <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                     ₫
                   </span>
                 </div>
@@ -381,7 +411,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -390,7 +420,12 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 min={0}
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
@@ -406,7 +441,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="numberOfUsagePerUser"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -414,12 +449,17 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   {t('voucher.usage')}
                 </span>
               </div>
@@ -435,7 +475,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex gap-1 items-center'>
+            <FormLabel className='flex items-center gap-1'>
               <span className="text-destructive">
                 *
               </span>
@@ -443,12 +483,17 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterMinOrderValue')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterMinOrderValue')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
                   ₫
                 </span>
               </div>
@@ -464,7 +509,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="isVerificationIdentity"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex gap-1 items-center">
+            <FormLabel className="flex items-center gap-1">
               <span className="text-destructive">*</span>
               {t('voucher.isVerificationIdentity')}
             </FormLabel>
@@ -488,7 +533,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
         name="isPrivate"
         render={({ field }) => (
           <FormItem className='flex flex-col gap-2'>
-            <FormLabel className="flex gap-1 items-start leading-6">
+            <FormLabel className="flex items-start gap-1 leading-6">
               <span className="mt-1 text-destructive">*</span>
               {t('voucher.isPrivate')}
             </FormLabel>
@@ -545,14 +590,19 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    {formFields.code}
+                    {formFields.applicabilityRule}
                     {formFields.type}
                   </div>
 
-                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  {/* Nhóm: Code */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    {formFields.minOrderValue}
+                    {formFields.code}
                     {formFields.value}
+                  </div>
+
+                  {/* Nhóm: Giá trị đơn hàng tối thiểu */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    {formFields.minOrderValue}
                   </div>
                   {/* Nhóm: Số lượng sử dụng */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
@@ -561,7 +611,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                   </div>
                   {/* Nhóm: Sản phẩm */}
                   <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
-                    <div className='flex justify-between items-center'>
+                    <div className='flex items-center justify-between'>
                       <span className='text-sm font-medium'>
                         {t('voucher.products')}
                       </span>

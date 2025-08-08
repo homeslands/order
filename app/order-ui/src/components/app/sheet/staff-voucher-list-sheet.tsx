@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -37,13 +37,13 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
 } from '@/types'
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
-import { Role, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export default function StaffVoucherListSheet() {
   const isMobile = useIsMobile()
@@ -55,6 +55,7 @@ export default function StaffVoucherListSheet() {
   const { getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { pagination } = usePagination()
+  const isRemovingVoucherRef = useRef(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
@@ -66,6 +67,14 @@ export default function StaffVoucherListSheet() {
 
   const displayItems = calculateCartItemDisplay(cartItems, voucher)
   const cartTotals = calculateCartTotals(displayItems, voucher)
+
+  const isVoucherSelected = useCallback((voucherSlug: string) => {
+    return (
+      cartItems?.voucher?.slug === voucherSlug ||
+      // selectedVoucher === voucherSlug
+      appliedVoucher === voucherSlug
+    )
+  }, [cartItems?.voucher?.slug, appliedVoucher])
 
   // let subTotal = 0
   // calculate subtotal
@@ -118,6 +127,95 @@ export default function StaffVoucherListSheet() {
       code: selectedVoucher
     }
   )
+
+  const handleToggleVoucher = useCallback((voucher: IVoucher) => {
+    if (cartItems) {
+      if (isVoucherSelected(voucher.slug)) {
+        // Remove voucher
+        removeVoucher()
+        setAppliedVoucher('')
+        setSelectedVoucher('')
+        showToast(tToast('toast.removeVoucherSuccess'))
+      } else {
+        // Apply voucher
+        const validateVoucherParam: IValidateVoucherRequest = {
+          voucher: voucher.slug,
+          user: cartItems.owner || getUserInfo()?.slug || '',
+          orderItems: cartItems?.orderItems.map(item => ({
+            quantity: item.quantity,
+            variant: item.variant.slug,
+            note: item.note,
+            promotion: item.promotion ? item.promotion.slug : null,
+            order: null, // hoặc bỏ nếu không cần
+          })) || []
+        }
+
+        if (voucher.isVerificationIdentity && !cartItems.owner) {
+          showErrorToast(1004) // Show error if voucher requires verification but no owner
+          return
+        }
+        validateVoucher(validateVoucherParam, {
+          onSuccess: () => {
+            addVoucher(voucher)
+            setAppliedVoucher(voucher.slug)
+            setSelectedVoucher(voucher.code)
+            setSheetOpen(false)
+            showToast(tToast('toast.applyVoucherSuccess'))
+          },
+        })
+      }
+    }
+  }, [cartItems, getUserInfo, removeVoucher, addVoucher, setAppliedVoucher, setSelectedVoucher, setSheetOpen, tToast, validateVoucher, isVoucherSelected])
+
+  // Auto-check voucher validity when orderItems change
+  useEffect(() => {
+    if (!cartItems?.voucher || !cartItems?.orderItems || isRemovingVoucherRef.current) {
+      isRemovingVoucherRef.current = false
+      return
+    }
+
+    const { voucher, orderItems } = cartItems
+    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const cartProductSlugs = orderItems.map(item => item.productSlug || item.slug)
+
+    // Tổng tiền gốc (sau promotion nhưng chưa áp voucher)
+    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+      const original = item.originalPrice
+      const promotionDiscount = item.promotionDiscount ?? 0
+      return acc + ((original ?? 0) - promotionDiscount) * item.quantity
+    }, 0)
+
+    let shouldRemove = false
+
+    switch (voucher.applicabilityRule) {
+      case APPLICABILITY_RULE.ALL_REQUIRED: {
+        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
+        if (hasInvalidProducts) shouldRemove = true
+        break
+      }
+      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
+        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+        if (!hasAtLeastOne) shouldRemove = true
+        break
+      }
+      default:
+        break
+    }
+
+    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
+    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
+        shouldRemove = true
+      }
+    }
+
+    // Remove voucher nếu cần
+    if (shouldRemove) {
+      isRemovingVoucherRef.current = true
+      handleToggleVoucher(voucher)
+    }
+
+  }, [cartItems, cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher])
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -185,12 +283,6 @@ export default function StaffVoucherListSheet() {
   }
 
   const isVoucherValid = (voucher: IVoucher) => {
-    // if (voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && cartItems) {
-    //   const { cart: tempCart } = applyVoucherToCart(cartItems)
-    //   const tempCalculations = calculateCartTotals(tempCart, 0)
-    //   subTotal = tempCalculations.subTotalAfterPromotion
-    // }
-
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
@@ -209,12 +301,23 @@ export default function StaffVoucherListSheet() {
       }
 
       // Check if at least one cart item matches voucher products
-      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
-      const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
+      // const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      // const cartProductSlugs = cartItems.orderItems.map(item => item.slug)
 
-      return voucherProductSlugs.some(voucherSlug =>
-        cartProductSlugs.includes(voucherSlug)
-      )
+      const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
+      const cartProductSlugs = cartItems.orderItems.reduce((acc, item) => {
+        if (item.slug) acc.push(item.slug) // Slug của product
+        return acc
+      }, [] as string[])
+
+      const hasValidProducts = isVoucherApplicableToCartItems(cartProductSlugs, voucherProductSlugs, voucher.applicabilityRule)
+
+      return hasValidProducts
+
+
+      // return voucherProductSlugs.some(voucherSlug =>
+      //   cartProductSlugs.includes(voucherSlug)
+      // )
     })()
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
@@ -224,179 +327,57 @@ export default function StaffVoucherListSheet() {
     return isActive && isValidAmount && isValidDate && isIdentityValid && hasValidProducts
   }
 
-  // Filter and sort vouchers to get the best one
-  // const getBestVoucher = () => {
-  //   if (!Array.isArray(localVoucherList)) {
-  //     return null
-  //   }
-
-  //   const currentDate = new Date()
-
-  //   const validVouchers = localVoucherList
-  //     .filter((voucher) => {
-  //       const isValid = voucher.isActive &&
-  //         moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
-  //         moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
-  //         voucher.remainingUsage > 0 &&
-  //         (!userInfo ? voucher.isVerificationIdentity === false : true)
-  //       return isValid
-  //     })
-  //     .sort((a, b) => {
-  //       const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-  //       if (endDateDiff !== 0) return endDateDiff
-  //       if (a.minOrderValue !== b.minOrderValue) {
-  //         return a.minOrderValue - b.minOrderValue
-  //       }
-  //       return b.value - a.value
-  //     })
-
-  //   return validVouchers.length > 0 ? validVouchers[0] : null
-  // }
-
-  // const bestVoucher = getBestVoucher()
-
-  const isVoucherSelected = (voucherSlug: string) => {
-    return (
-      cartItems?.voucher?.slug === voucherSlug ||
-      // selectedVoucher === voucherSlug
-      appliedVoucher === voucherSlug
-    )
-  }
-
-  const handleToggleVoucher = (voucher: IVoucher) => {
-    if (cartItems) {
-      if (isVoucherSelected(voucher.slug)) {
-        // Remove voucher
-        removeVoucher()
-        setAppliedVoucher('')
-        setSelectedVoucher('')
-        showToast(tToast('toast.removeVoucherSuccess'))
-      } else {
-        // Apply voucher
-        const validateVoucherParam: IValidateVoucherRequest = {
-          voucher: voucher.slug,
-          user: cartItems.owner || getUserInfo()?.slug || '',
-          orderItems: cartItems?.orderItems.map(item => ({
-            quantity: item.quantity,
-            variant: item.variant.slug,
-            note: item.note,
-            promotion: item.promotion ?? null,
-            order: null, // hoặc bỏ nếu không cần
-          })) || []
-        }
-
-        if (voucher.isVerificationIdentity && !cartItems.owner) {
-          showErrorToast(1004) // Show error if voucher requires verification but no owner
-          return
-        }
-        validateVoucher(validateVoucherParam, {
-          onSuccess: () => {
-            addVoucher(voucher)
-            setAppliedVoucher(voucher.slug)
-            setSelectedVoucher(voucher.code)
-            setSheetOpen(false)
-            showToast(tToast('toast.applyVoucherSuccess'))
-          },
-        })
-        // if (voucher.isVerificationIdentity) {
-        //   validateVoucher(validateVoucherParam, {
-        //     onSuccess: () => {
-        //       addVoucher(voucher)
-        //       setAppliedVoucher(voucher.slug)
-        //       setSelectedVoucher(voucher.code)
-        //       setSheetOpen(false)
-        //       showToast(tToast('toast.applyVoucherSuccess'))
-        //     },
-        //   })
-        // } else {
-        //   validatePublicVoucher(validateVoucherParam, {
-        //     onSuccess: () => {
-        //       addVoucher(voucher)
-        //       setAppliedVoucher(voucher.slug)
-        //       setSelectedVoucher(voucher.code)
-        //       setSheetOpen(false)
-        //       showToast(tToast('toast.applyVoucherSuccess'))
-        //     },
-        //   })
-        // }
-      }
-    }
-  }
-
-  // const handleApplyVoucher = async () => {
-  //   if (!selectedVoucher) return;
-
-  //   if (appliedVoucher) {
-  //     removeVoucher()
-  //     setAppliedVoucher('')
-  //     return
-  //   }
-
-  //   if (cartItems?.ownerPhoneNumber) {
-  //     const { data } = await refetchSpecificVoucher();
-  //     const voucher = data?.result;
-
-  //     if (voucher) {
-  //       const validateVoucherParam: IValidateVoucherRequest = {
-  //         voucher: voucher.slug,
-  //         user: cartItems?.owner || '',
-  //       };
-
-  //       validateVoucher(validateVoucherParam, {
-  //         onSuccess: () => {
-  //           addVoucher(voucher);
-  //           setSheetOpen(false);
-  //           showToast(tToast('toast.applyVoucherSuccess'));
-  //         },
-  //       });
-  //     } else {
-  //       showErrorToast(1000);
-  //     }
-  //   } else {
-  //     const { data } = await refetchSpecificVoucher();
-  //     const publicVoucher = data?.result;
-
-  //     if (publicVoucher) {
-  //       const validateVoucherParam: IValidateVoucherRequest = {
-  //         voucher: publicVoucher.slug,
-  //         user: '',
-  //       };
-
-  //       validatePublicVoucher(validateVoucherParam, {
-  //         onSuccess: () => {
-  //           addVoucher(publicVoucher);
-  //           setSheetOpen(false);
-  //           showToast(tToast('toast.applyVoucherSuccess'));
-  //         },
-  //       });
-  //     } else {
-  //       showErrorToast(1000);
-  //     }
-  //   }
-  // };
-
   const getVoucherErrorMessage = (voucher: IVoucher) => {
+    const cartProductSlugs = cartItems?.orderItems?.map((item) => item.slug) || []
+    const voucherProductSlugs = voucher.voucherProducts?.map((vp) => vp.product?.slug) || []
+
+    const allCartProductsInVoucher = cartProductSlugs.every(slug => voucherProductSlugs.includes(slug))
+    const hasAnyCartProductInVoucher = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+
+    const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+
     if (voucher.isVerificationIdentity && !isCustomerOwner) {
       return t('voucher.needVerifyIdentity')
     }
-    if (voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher.minOrderValue > ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))) {
-      return t('voucher.minOrderNotMet')
-    }
+
     if (voucher.remainingUsage === 0) {
       return t('voucher.outOfStock')
     }
+
     if (moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))) {
       return t('voucher.expired')
     }
-    if (voucher.minOrderValue > (cartTotals?.subTotalBeforeDiscount || 0)) {
+
+    if (
+      voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+      voucher.minOrderValue > subTotalAfterPromotion
+    ) {
       return t('voucher.minOrderNotMet')
     }
+
+    // 💡 Bổ sung lỗi theo applicabilityRule
+    if (voucher.voucherProducts?.length > 0) {
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED &&
+        !allCartProductsInVoucher
+      ) {
+        return t('voucher.requireOnlyApplicableProducts')
+      }
+
+      if (
+        voucher.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+        !hasAnyCartProductInVoucher
+      ) {
+        return t('voucher.requireSomeApplicableProducts')
+      }
+    }
+
     return ''
   }
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-44 relative
+    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-48 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
@@ -404,10 +385,6 @@ export default function StaffVoucherListSheet() {
     border border-muted-foreground/50
     ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
   `
-
-    // const needsLogin = voucher.isVerificationIdentity && !cartItems?.ownerPhoneNumber
-    // const isVoucherUsable = isVoucherValid(voucher) && !needsLogin
-
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
@@ -426,21 +403,32 @@ export default function StaffVoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
-              </span>
-            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
-              </span>
-            ) : (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
-              </span>
-            )}
+            <span className="text-xs italic text-primary">
+              {(() => {
+                const { type, value, applicabilityRule: rule } = voucher
+                const discountValueText =
+                  type === VOUCHER_TYPE.PERCENT_ORDER
+                    ? t('voucher.percentDiscount', { value })
+                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
+                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
+
+                const ruleText =
+                  rule === APPLICABILITY_RULE.ALL_REQUIRED
+                    ? t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAllSamePrice'
+                        : 'voucher.requireAll'
+                    )
+                    : t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAtLeastOneSamePrice'
+                        : 'voucher.requireAtLeastOne'
+                    )
+
+                return `${discountValueText} ${ruleText}`
+              })()}
+            </span>
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
               <TooltipProvider>
@@ -562,7 +550,7 @@ export default function StaffVoucherListSheet() {
               <PopoverContent
                 className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
               >
-                <div className="flex flex-col gap-4 justify-between">
+                <div className="flex flex-col justify-between gap-4 text-[10px] sm:text-sm">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
@@ -591,7 +579,7 @@ export default function StaffVoucherListSheet() {
                     <span className="text-muted-foreground/70">
                       {t('voucher.condition')}
                     </span>
-                    <ul className="col-span-3 pl-4 list-disc">
+                    <ul className="col-span-3 pl-4 list-disc text-destructive">
                       <li>
                         {t('voucher.minOrderValue')}:{' '}
                         {formatCurrency(voucher.minOrderValue)}

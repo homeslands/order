@@ -18,10 +18,10 @@ import {
 } from '@/components/ui'
 
 import { ICartItem, OrderTypeEnum } from '@/types'
-import { useAddNewOrderItem, useDeleteOrderItem, useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
+import { useUpdateOrderType, useUpdateOrderItem, useUpdateNoteOrderItem } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, showErrorToast, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { compareOrders } from '@/utils/order-comparison'
-import { Role, ROUTE } from '@/constants'
+import { APPLICABILITY_RULE, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { useUserStore, useOrderFlowStore } from '@/stores'
 
 interface IClientConfirmUpdateOrderDialogProps {
@@ -38,8 +38,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
   // Các hooks để update order
   const { mutate: updateOrderType, isPending: isPendingUpdateOrderType } = useUpdateOrderType()
-  const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
-  const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
   const { mutate: updateOrderItem, isPending: isPendingUpdateOrderItem } = useUpdateOrderItem()
   const { mutate: updateOrderItemNote, isPending: isPendingUpdateOrderItemNote } = useUpdateNoteOrderItem()
 
@@ -49,6 +47,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
   // Get data from Order Flow Store
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
+  const voucher = updatingData?.updateDraft?.voucher || null
   // console.log('orderDraft in confirm update order dialog', originalOrder?.orderItems, orderDraft?.orderItems)
 
   // Convert orderDraft to ICartItem format for comparison
@@ -96,7 +95,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       allVariants: detail.variant.product.variants,
       variant: detail.variant,
       originalPrice: detail.variant.price,
-      promotion: detail.promotion?.slug || null,
+      promotion: detail.promotion ? detail.promotion : null,
       promotionValue: detail.promotion?.value || 0,
       description: detail.variant.product.description,
       isLimit: detail.variant.product.isLimit,
@@ -119,8 +118,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
   const orderTotals = calculatePlacedOrderTotals(displayItems, orderDraft?.voucher || null)
 
   // Check if any operation is pending
-  const isAnyPending = isPendingUpdateOrderType || isPendingAddNewOrderItem ||
-    isPendingDeleteOrderItem || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
+  const isAnyPending = isPendingUpdateOrderType || isPendingUpdateOrderItem || isPendingUpdateOrderItemNote
 
   const handleSubmit = async () => {
     if (!orderDraft || !originalOrder) return
@@ -144,37 +142,10 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
       }
 
       // 2. Handle item changes
-      const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
-      const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
+      // const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
+      // const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
       const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
-
-      // Add new items
-      for (const change of addedItems) {
-        await new Promise((resolve, reject) => {
-          addNewOrderItem({
-            quantity: change.item.quantity,
-            variant: change.item.variant.slug,
-            note: change.item.note || '',
-            promotion: change.item.promotion || '',
-            order: originalOrder.slug
-          }, {
-            onSuccess: () => resolve(true),
-            onError: (error) => reject(error)
-          })
-        })
-      }
-
-      // Remove items
-      for (const change of removedItems) {
-        if (!change.slug) continue
-        await new Promise((resolve, reject) => {
-          deleteOrderItem(change.slug!, {
-            onSuccess: () => resolve(true),
-            onError: (error) => reject(error)
-          })
-        })
-      }
 
       // Update quantity of existing items
       for (const change of quantityChangedItems) {
@@ -190,7 +161,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               quantity: change.item.quantity,
               note: change.item.note || '',
               variant: change.item.variant.slug,
-              promotion: change.item.promotion || undefined,
+              promotion: change.item.promotion ? change.item.promotion.slug : '',
               action: action
             }
           }, {
@@ -322,44 +293,69 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
             )}
           </div>
           <div className="flex flex-col gap-4 px-2 py-4 mt-6 border-t border-dashed border-muted-foreground/60">
-            {order?.orderItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <div className="flex flex-col flex-1 gap-2">
-                  <p className="font-bold">{item.name}</p>
-                  <div className="flex gap-2">
-                    <Badge className="text-xs text-muted-foreground w-fit" variant="outline">Size {item.size.toUpperCase()}</Badge>
-                    <p className="text-sm text-muted-foreground">
-                      x{item.quantity}
-                    </p>
+            {order?.orderItems.map((item, index) => {
+              const displayItem = displayItems.find(di => di.slug === item.slug)
+              const original = item.originalPrice || 0
+              const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+              const finalPrice = displayItem?.finalPrice || 0
+
+              const isSamePriceVoucher =
+                voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
+
+              // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+              const isAtLeastOneVoucher =
+                voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
+
+              const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+              const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+              // finalPrice là giá cuối cùng hiển thị trên UI
+              const displayPrice = isSamePriceVoucher
+                ? finalPrice // đồng giá
+                : isAtLeastOneVoucher && hasVoucherDiscount
+                  ? original - (displayItem?.voucherDiscount || 0)
+                  : hasPromotionDiscount
+                    ? priceAfterPromotion
+                    : original
+
+              const shouldShowLineThrough =
+                (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                (original > displayPrice)
+              const totalDisplayPrice = displayPrice * item.quantity
+              const totalOriginalPrice = original * item.quantity
+
+              return (
+                <div key={index} className="flex justify-between items-center">
+                  <div className="flex flex-col flex-1 gap-2">
+                    <p className="font-bold">{item.name}</p>
+                    <div className="flex gap-2">
+                      <Badge className="text-xs text-muted-foreground w-fit" variant="outline">Size {item.size.toUpperCase()}</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        x{item.quantity}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex relative gap-1 items-center">
+                    {shouldShowLineThrough && totalOriginalPrice !== totalDisplayPrice ? (
+                      <>
+                        <span className="mr-1 line-through text-muted-foreground/70">
+                          {formatCurrency(totalOriginalPrice)}
+                        </span>
+                        <span className="font-bold text-primary">
+                          {formatCurrency(totalDisplayPrice)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-bold text-primary">
+                        {formatCurrency(totalDisplayPrice)}
+                      </span>
+                    )}
                   </div>
                 </div>
-                {(() => {
-                  const finalPrice = (displayItems.find(di => di.slug === item.slug)?.finalPrice ?? 0) * item.quantity
-                  const original = (item.originalPrice ?? item.variant?.price ?? 0) * item.quantity
-
-                  const hasDiscount = original > finalPrice
-
-                  return (
-                    <div className="flex relative gap-1 items-center">
-                      {hasDiscount ? (
-                        <>
-                          <span className="mr-1 line-through text-muted-foreground/70">
-                            {formatCurrency(original)}
-                          </span>
-                          <span className="font-bold text-primary">
-                            {formatCurrency(finalPrice)}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="font-bold text-primary">
-                          {formatCurrency(finalPrice)}
-                        </span>
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </ScrollArea>
         <DialogFooter className="p-4 h-fit">

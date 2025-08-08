@@ -73,6 +73,7 @@ import { useEffect, useState } from "react"
 import { VOUCHER_TYPE } from "@/constants"
 
 interface SelectVoucherTypeProps {
+  disabled?: boolean
   defaultValue?: string
   onChange: (value: string) => void
 }
@@ -96,7 +97,7 @@ export default function VoucherTypeSelect({ defaultValue, onChange, ...props }: 
 
   return (
     <Select {...props} value={selectedVoucherType} onValueChange={handleChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full" disabled={props.disabled}>
         <SelectValue placeholder={t('voucher.enterVoucherType')} />
       </SelectTrigger>
       <SelectContent>
@@ -104,7 +105,7 @@ export default function VoucherTypeSelect({ defaultValue, onChange, ...props }: 
           <SelectLabel>{t('voucher.type')}</SelectLabel>
           <SelectItem value={VOUCHER_TYPE.FIXED_VALUE}>{t('voucher.fixedValue')}</SelectItem>
           <SelectItem value={VOUCHER_TYPE.PERCENT_ORDER}>{t('voucher.percentOrder')}</SelectItem>
-          <SelectItem value={VOUCHER_TYPE.SAME_PRICE_PRODUCT}>{t('voucher.samePriceProduct')}</SelectItem>
+          <SelectItem value={VOUCHER_TYPE.SAME_PRICE_PRODUCT}>{t('voucher.samePrice')}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

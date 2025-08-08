@@ -1,4 +1,4 @@
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import { z } from 'zod'
 
 export const createVoucherGroupSchema = z.object({
@@ -15,6 +15,7 @@ export const updateVoucherGroupSchema = z.object({
 export const createVoucherSchema = z.object({
   voucherGroup: z.string(),
   title: z.string().min(1),
+  applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
   description: z.optional(z.string()),
   type: z.enum([
     VOUCHER_TYPE.FIXED_VALUE,
@@ -42,6 +43,7 @@ export const createMultipleVoucherSchema = z.object({
   voucherGroup: z.string(),
   numberOfVoucher: z.number().int().positive(),
   title: z.string().min(1),
+  applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
   description: z.optional(z.string()),
   type: z.enum([
     VOUCHER_TYPE.FIXED_VALUE,
@@ -70,6 +72,7 @@ export const updateVoucherSchema = z
     slug: z.string(),
     createdAt: z.string(),
     title: z.string().min(1),
+    applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
     description: z.optional(z.string()),
     type: z.enum([
       VOUCHER_TYPE.FIXED_VALUE,
@@ -92,6 +95,10 @@ export const updateVoucherSchema = z
     isVerificationIdentity: z.boolean(),
     numberOfUsagePerUser: z.number().int().positive(),
     products: z.array(z.string()),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
   })
   .superRefine((data, ctx) => {
     if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {

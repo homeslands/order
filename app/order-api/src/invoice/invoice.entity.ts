@@ -33,6 +33,10 @@ export class Invoice extends Base {
   voucherType?: string;
 
   @AutoMap()
+  @Column({ name: 'voucher_rule_column', nullable: true })
+  voucherRule?: string;
+
+  @AutoMap()
   @Column({ name: 'voucher_value_column', default: 0 })
   voucherValue: number;
 

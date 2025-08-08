@@ -52,9 +52,11 @@ export default function ClientAddToCartDialog({
 
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
-    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+    if (isHydrated) {
       // Chuyển về ORDERING phase nếu đang ở phase khác
-      setCurrentStep(OrderFlowStep.ORDERING)
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
 
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
@@ -72,10 +74,10 @@ export default function ClientAddToCartDialog({
     // ✅ Step 2: Ensure ORDERING phase
     if (currentStep !== OrderFlowStep.ORDERING) {
       setCurrentStep(OrderFlowStep.ORDERING)
+    }
 
-      if (!orderingData) {
-        initializeOrdering()
-      }
+    if (!orderingData) {
+      initializeOrdering()
     }
 
     // ✅ Step 3: Create order item with proper structure
@@ -91,7 +93,7 @@ export default function ClientAddToCartDialog({
       originalPrice: product?.product?.variants[0]?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: note.trim(),
     }
@@ -157,10 +159,10 @@ export default function ClientAddToCartDialog({
     // ✅ Step 2: Ensure ORDERING phase
     if (currentStep !== OrderFlowStep.ORDERING) {
       setCurrentStep(OrderFlowStep.ORDERING)
+    }
 
-      if (!orderingData) {
-        initializeOrdering()
-      }
+    if (!orderingData) {
+      initializeOrdering()
     }
 
     // ✅ Step 3: Create order item with proper structure
@@ -176,7 +178,7 @@ export default function ClientAddToCartDialog({
       originalPrice: selectedVariant?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: note.trim(),
     }
