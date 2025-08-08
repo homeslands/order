@@ -107,7 +107,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? t('voucher.percentOrder') : t('voucher.samePriceProduct')}</div>
+        return <div className="text-xs sm:text-sm">{voucher?.type === VOUCHER_TYPE.FIXED_VALUE ? t('voucher.fixedValue') : voucher?.type === VOUCHER_TYPE.PERCENT_ORDER ? t('voucher.percentOrder') : t('voucher.samePrice')}</div>
       },
     },
     {
