@@ -175,8 +175,17 @@ export class InvoiceService {
     }
 
     let usedPoints = 0;
+
+    // default from order
     if (order.payment?.paymentMethod === PaymentMethod.POINT) {
       usedPoints = order.subtotal;
+    }
+
+    // from invoice
+    if (order.invoice) {
+      if (order.invoice.paymentMethod === PaymentMethod.POINT) {
+        usedPoints = order.invoice.amount;
+      }
     }
 
     // with: at least one required type
@@ -185,12 +194,23 @@ export class InvoiceService {
       0,
     );
 
-    const originalSubtotalOrder = order.orderItems?.reduce(
+    let originalSubtotalOrder = 0;
+
+    // default from order
+    originalSubtotalOrder = order.orderItems?.reduce(
       (total, current) => total + current.originalSubtotal,
       0,
     );
 
-    // after calculate promotion
+    // from invoice
+    if (order.invoice) {
+      originalSubtotalOrder = order.invoice.invoiceItems?.reduce(
+        (total, current) => total + current.price * current.quantity,
+        0,
+      );
+    }
+
+    // after calculate promotion + voucher(calculate in order item)
     const subtotalOrderItem = order.orderItems?.reduce(
       (total, current) => total + current.subtotal,
       0,
@@ -223,10 +243,9 @@ export class InvoiceService {
       );
       Object.assign(order.invoice, {
         originalSubtotalOrder,
-        subtotalOrderItem,
         orderItemPromotionValue,
-        voucherCode: order.voucher?.code ?? 'N/A',
-        valueEachVoucher: order.voucher?.value ?? 0,
+        voucherCode: order.invoice?.voucherCode ?? 'N/A',
+        valueEachVoucher: order.invoice?.valueEachVoucher ?? 0,
         usedPoints,
       });
       return order.invoice;
@@ -272,6 +291,7 @@ export class InvoiceService {
       voucherRule: order.voucher?.applicabilityRule ?? null,
       branchId: order.branch.id,
       date: order.createdAt,
+      voucherCode: order.voucher?.code ?? null,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -292,7 +312,6 @@ export class InvoiceService {
 
     Object.assign(invoice, {
       originalSubtotalOrder,
-      subtotalOrderItem,
       orderItemPromotionValue,
       voucherCode: order.voucher?.code ?? 'N/A',
       usedPoints,

@@ -45,6 +45,10 @@ export class Invoice extends Base {
   voucherId?: string;
 
   @AutoMap()
+  @Column({ name: 'voucher_code_column', nullable: true })
+  voucherCode?: string;
+
+  @AutoMap()
   @Column({ name: 'status_column' })
   status: string;
 
