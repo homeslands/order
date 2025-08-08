@@ -15,7 +15,7 @@ import {
 
 import { useOrders, usePagination } from '@/hooks'
 import { useUpdateOrderStore, useUserStore } from '@/stores'
-import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { IOrder, OrderStatus } from '@/types'
 import { OrderHistorySkeleton } from '@/components/app/skeleton'
@@ -66,8 +66,8 @@ export default function CustomerOrderTabsContent({
             const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
             // console.log(cartTotals)
             return (
-              <div key={orderItem.slug} className="flex flex-col gap-4 p-0 mt-2 bg-white border rounded-lg dark:bg-transparent">
-                <div className="flex items-center w-full gap-4 p-4 border-b bg-primary/15 dark:bg-muted-foreground/10">
+              <div key={orderItem.slug} className="flex flex-col gap-4 p-0 mt-2 bg-white rounded-lg border dark:bg-transparent">
+                <div className="flex gap-4 items-center p-4 w-full border-b bg-primary/15 dark:bg-muted-foreground/10">
                   <span className="text-xs text-muted-foreground">
                     {moment(orderItem.createdAt).format('HH:mm:ss DD/MM/YYYY')}
                   </span>
@@ -84,11 +84,11 @@ export default function CustomerOrderTabsContent({
                             alt={product.variant.product.name}
                             className="object-cover h-16 rounded-md sm:h-28 sm:w-36"
                           />
-                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full sm:text-sm -right-2 -bottom-2 sm:-right-4 lg:right-4 xl:-right-4 sm:w-10 sm:h-10 bg-primary">
+                          <div className="flex absolute -right-2 -bottom-2 justify-center items-center w-6 h-6 text-xs text-white rounded-full sm:text-sm sm:-right-4 lg:right-4 xl:-right-4 sm:w-10 sm:h-10 bg-primary">
                             x{product.quantity}
                           </div>
                         </div>
-                        <div className="flex flex-col justify-between col-span-9 sm:col-span-10">
+                        <div className="flex flex-col col-span-9 justify-between sm:col-span-10">
                           <div className='flex flex-col gap-1'>
                             <span className="flex flex-col gap-1 text-sm font-semibold truncate sm:flex-row sm:text-base">
                               {product.variant.product.name} <Badge variant='outline' className='text-xs w-fit border-primary text-primary bg-primary/10'>{capitalizeFirstLetter(product.variant.size.name)}</Badge>
@@ -103,27 +103,37 @@ export default function CustomerOrderTabsContent({
 
                               const isSamePriceVoucher =
                                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                                voucher?.voucherProducts?.some(vp => vp.product?.slug === product.slug)
+
+                              // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+
+                              const isAtLeastOneVoucher =
+                                voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
                                 voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
 
-                              const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
-
+                              const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+                              const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+                              // finalPrice là giá cuối cùng hiển thị trên UI
                               const displayPrice = isSamePriceVoucher
-                                ? finalPrice
-                                : hasPromotionDiscount
-                                  ? priceAfterPromotion
-                                  : original
+                                ? finalPrice // đồng giá
+                                : isAtLeastOneVoucher && hasVoucherDiscount
+                                  ? original - (displayItem?.voucherDiscount || 0)
+                                  : hasPromotionDiscount
+                                    ? priceAfterPromotion
+                                    : original
 
                               const shouldShowLineThrough =
-                                isSamePriceVoucher || hasPromotionDiscount
+                                (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                                (original > displayPrice)
 
                               return (
-                                <div className="flex items-center gap-1">
+                                <div className="flex gap-1 items-center">
                                   {shouldShowLineThrough && (
-                                    <span className="text-xs line-through sm:text-sm text-muted-foreground">
+                                    <span className="text-xs line-through sm:text-sm text-muted-foreground/60">
                                       {formatCurrency(original)}
                                     </span>
                                   )}
-                                  <span className="text-sm sm:text-md">
+                                  <span className="text-sm font-bold sm:text-md text-primary">
                                     {formatCurrency(displayPrice)}
                                   </span>
                                 </div>
@@ -135,15 +145,15 @@ export default function CustomerOrderTabsContent({
                       </div>
                     ))}
                   </div>
-                  <div className='flex justify-end w-full mt-4'>
+                  <div className='flex justify-end mt-4 w-full'>
                     <div className="flex flex-col gap-2 justify-end w-[20rem]">
-                      <div className="flex justify-between w-full pb-2 border-b">
+                      <div className="flex justify-between pb-2 w-full border-b">
                         <h3 className="text-sm font-semibold">{t('order.total')}</h3>
                         <p className="text-sm font-semibold">
                           {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
                         </p>
                       </div>
-                      <div className="flex justify-between w-full pb-2 border-b">
+                      <div className="flex justify-between pb-2 w-full border-b">
                         <h3 className="text-sm font-medium text-muted-foreground">
                           {t('order.promotionDiscount')}
                         </h3>
@@ -151,7 +161,7 @@ export default function CustomerOrderTabsContent({
                           - {`${formatCurrency(cartTotals?.promotionDiscount || 0)}`}
                         </p>
                       </div>
-                      <div className="flex justify-between w-full pb-2 border-b">
+                      <div className="flex justify-between pb-2 w-full border-b">
                         <h3 className="text-sm italic font-medium text-green-500">
                           {t('order.voucher')}
                         </h3>
@@ -175,7 +185,7 @@ export default function CustomerOrderTabsContent({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-4 bg-gray-50 dark:bg-transparent sm:flex-row">
+                  <div className="flex gap-2 justify-between items-center pt-4 bg-gray-50 dark:bg-transparent sm:flex-row">
                     <NavLink to={`${ROUTE.CLIENT_ORDER_HISTORY}?order=${orderItem.slug}`}>
                       <Button>{t('order.viewDetail')}</Button>
                     </NavLink>
@@ -205,7 +215,7 @@ export default function CustomerOrderTabsContent({
       )}
 
       {order && order?.result.totalPages > 0 && (
-        <div className="flex items-center justify-center py-4 space-x-2">
+        <div className="flex justify-center items-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

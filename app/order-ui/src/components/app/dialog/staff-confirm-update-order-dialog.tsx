@@ -24,12 +24,12 @@ import { compareOrders } from '@/utils/order-comparison'
 import { APPLICABILITY_RULE, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { useUserStore, useOrderFlowStore } from '@/stores'
 
-interface IClientConfirmUpdateOrderDialogProps {
+interface IStaffConfirmUpdateOrderDialogProps {
   disabled?: boolean | undefined
   onSuccessfulOrder?: () => void
 }
 
-export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder }: IClientConfirmUpdateOrderDialogProps) {
+export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder }: IStaffConfirmUpdateOrderDialogProps) {
   const navigate = useNavigate()
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')

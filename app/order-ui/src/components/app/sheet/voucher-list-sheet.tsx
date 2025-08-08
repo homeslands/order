@@ -581,21 +581,34 @@ export default function VoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.forSelectedProducts')}
-              </span>
-            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
-              </span>
-            ) : (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
-              </span>
-            )}
+            <span className="text-xs italic text-primary">
+              {(() => {
+                const { type, value, applicabilityRule: rule } = voucher
+
+                const discountValueText =
+                  type === VOUCHER_TYPE.PERCENT_ORDER
+                    ? t('voucher.percentDiscount', { value })
+                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
+                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
+
+                const ruleText =
+                  rule === APPLICABILITY_RULE.ALL_REQUIRED
+                    ? t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAllSamePrice'
+                        : 'voucher.requireAll'
+                    )
+                    : t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAtLeastOneSamePrice'
+                        : 'voucher.requireAtLeastOne'
+                    )
+
+                return `${discountValueText} ${ruleText}`
+              })()}
+            </span>
+
 
             <span className="flex gap-1 items-center text-sm text-muted-foreground">
               {voucher.code}
