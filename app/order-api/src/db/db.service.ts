@@ -7,6 +7,8 @@ import * as path from 'path';
 import { GoogleDriveService } from './google-drive.service';
 import { DbException } from './db.exception';
 import { DbValidation } from './db.validation';
+import { createReadStream, statSync } from 'fs';
+import { Readable } from 'stream';
 
 @Injectable()
 export class DbService {
@@ -23,6 +25,30 @@ export class DbService {
     private readonly configService: ConfigService,
     private readonly googleDriveService: GoogleDriveService,
   ) {}
+
+  async downloadBackup(): Promise<{
+    data: Readable;
+    name: string;
+    extension: string;
+    size: number;
+    mimetype: string;
+  }> {
+    const dumpFilePath = await this.export();
+
+    const extension = path.extname(dumpFilePath).substring(1);
+    const name = path.basename(dumpFilePath, `.${extension}`);
+    const size = statSync(dumpFilePath).size;
+    const mimetype =
+      extension === 'gz' ? 'application/gzip' : 'application/sql';
+
+    return {
+      data: createReadStream(dumpFilePath),
+      name,
+      extension,
+      size,
+      mimetype,
+    };
+  }
 
   async backup(): Promise<string> {
     const dumpFilePath = await this.export();
