@@ -8,11 +8,11 @@ import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
-import { VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
-import { ConfirmUpdateOrderDialog } from '@/components/app/dialog'
+import { StaffConfirmUpdateOrderDialog } from '@/components/app/dialog'
 import { useDeleteOrderItem, useIsMobile } from '@/hooks'
 
 interface UpdateOrderContentProps {
@@ -77,19 +77,27 @@ export default function UpdateOrderContent({
 
                                 const isSamePriceVoucher =
                                     voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                                    voucher?.voucherProducts?.some((vp: IVoucherProduct) => vp.product?.slug === item.slug)
+                                    voucher?.voucherProducts?.some((vp: IVoucherProduct) => vp.product?.slug === item.productSlug)
+
+                                const isAtLeastOneVoucher =
+                                    voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                    voucher?.voucherProducts?.some(vp => vp.product?.slug === item.productSlug)
 
                                 const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
                                 const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
 
                                 // Use finalPrice for display when there's voucher discount, otherwise use priceAfterPromotion
-                                const displayPrice = hasVoucherDiscount
-                                    ? finalPrice
-                                    : hasPromotionDiscount
-                                        ? priceAfterPromotion
-                                        : original
+                                const displayPrice = isSamePriceVoucher
+                                    ? finalPrice // đồng giá
+                                    : isAtLeastOneVoucher && hasVoucherDiscount
+                                        ? original - (displayItem?.voucherDiscount || 0)
+                                        : hasPromotionDiscount
+                                            ? priceAfterPromotion
+                                            : original
 
-                                const shouldShowLineThrough = hasVoucherDiscount || hasPromotionDiscount || isSamePriceVoucher
+                                const shouldShowLineThrough =
+                                    (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                                    (original > displayPrice)
 
                                 return (
                                     <motion.div
@@ -179,33 +187,25 @@ export default function UpdateOrderContent({
                                 <div className="flex justify-start w-full">
                                     <div className="flex flex-col items-start">
                                         <div className="flex gap-2 items-center mt-2">
-                                            <span className="text-[10px] text-muted-foreground">
-                                                {t('order.usedVoucher')}
-                                            </span>
-                                            <Badge variant='outline' className="px-1 text-[10px] border-primary text-primary">
-                                                -{formatCurrency(cartTotals?.voucherDiscount || 0)}
+                                            <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
+                                                {(() => {
+                                                    if (!voucher) return null
+
+                                                    switch (voucher.type) {
+                                                        case VOUCHER_TYPE.PERCENT_ORDER:
+                                                            return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
+
+                                                        case VOUCHER_TYPE.FIXED_VALUE:
+                                                            return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
+
+                                                        case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
+                                                            return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+
+                                                        default:
+                                                            return ''
+                                                    }
+                                                })()}
                                             </Badge>
-                                        </div>
-
-                                        {/* Hiển thị nội dung chi tiết theo loại voucher */}
-                                        <div className="text-[10px] italic text-muted-foreground">
-                                            {(() => {
-                                                if (!voucher) return null
-
-                                                switch (voucher.type) {
-                                                    case VOUCHER_TYPE.PERCENT_ORDER:
-                                                        return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.orderValue')}`
-
-                                                    case VOUCHER_TYPE.FIXED_VALUE:
-                                                        return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.orderValue')}`
-
-                                                    case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
-                                                        return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
-
-                                                    default:
-                                                        return ''
-                                                }
-                                            })()}
                                         </div>
                                     </div>
                                 </div>
@@ -244,7 +244,7 @@ export default function UpdateOrderContent({
 
                             {updatingData?.originalOrder?.status === OrderStatus.PENDING && (
                                 <div className='flex justify-end items-center'>
-                                    <ConfirmUpdateOrderDialog
+                                    <StaffConfirmUpdateOrderDialog
                                         disabled={orderType === OrderTypeEnum.AT_TABLE && !table}
                                     />
                                 </div>

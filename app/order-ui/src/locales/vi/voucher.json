@@ -14,6 +14,7 @@
     "samePrice": "Đồng giá",
     "moreProducts": "sản phẩm khác",
     "forSelectedProducts": "cho sản phẩm áp dụng",
+    "forOrder": "cho đơn hàng",
     "requireOnlyApplicableProducts": "Mã này chỉ áp dụng khi giỏ hàng chỉ chứa các sản phẩm được khuyến mãi",
     "requireSomeApplicableProducts": "Giỏ hàng không có sản phẩm nào phù hợp với mã khuyến mãi này",
     "applyForOrderValueFrom": "Áp dụng cho đơn hàng từ",
@@ -48,7 +49,7 @@
     "enterVoucherType": "Chọn loại voucher",
     "fixedValue": "Giá trị cố định",
     "percentOrder": "Phần trăm",
-    "samePriceProduct": "Sản phẩm đồng giá",
+    "samePriceProduct": "Đồng giá {{value}}",
     "value": "Giá trị",
     "products": "Sản phẩm áp dụng",
     "numberOfVoucher": "Số lượng voucher",
@@ -104,6 +105,16 @@
     "applyVoucher": "Áp dụng voucher",
     "confirmApplyVoucher": "Bạn có chắc chắn muốn áp dụng voucher này không?",
     "removeAppliedVoucher": "Hủy áp dụng voucher",
-    "confirmRemoveAppliedVoucher": "Bạn có chắc chắn muốn hủy áp dụng voucher này không?"
+    "confirmRemoveAppliedVoucher": "Bạn có chắc chắn muốn hủy áp dụng voucher này không?",
+    "requireAll": "áp dụng cho đơn hàng khi đủ tất cả sản phẩm",
+    "requireAtLeastOne": "cho từng sản phẩm đủ điều kiện",
+    "percentDiscount": "Giảm {{value}}%",
+    "fixedDiscount": "Giảm {{value}}",
+    "requireAllPercent": "cho đơn hàng",
+    "requireAllFixed": "cho đơn hàng",
+    "requireAllSamePrice": "cho từng sản phẩm áp dụng",
+    "requireAtLeastOnePercent": "cho từng sản phẩm áp dụng",
+    "requireAtLeastOneFixed": "cho từng sản phẩm áp dụng",
+    "requireAtLeastOneSamePrice": "cho từng sản phẩm áp dụng"
   }
 }
