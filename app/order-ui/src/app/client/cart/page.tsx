@@ -15,7 +15,7 @@ import {
   DeleteCartItemDialog,
 } from '@/components/app/dialog'
 import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
-import { Button } from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 import { OrderTypeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay } from '@/utils'
@@ -212,16 +212,29 @@ export default function ClientCartPage() {
                                     currentCartItems?.voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
                                     currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
 
-                                  const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                                  // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
+                                  const isAtLeastOneVoucher =
+                                    currentCartItems?.voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                    currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+
+                                  const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+                                  const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+
+                                  // finalPrice là giá cuối cùng hiển thị trên UI
                                   const displayPrice = isSamePriceVoucher
-                                    ? finalPrice
-                                    : hasPromotionDiscount
-                                      ? priceAfterPromotion
-                                      : original
+                                    ? finalPrice // đồng giá
+                                    : isAtLeastOneVoucher && hasVoucherDiscount
+                                      ? original - (displayItem?.voucherDiscount || 0)
+                                      : hasPromotionDiscount
+                                        ? priceAfterPromotion
+                                        : original
+                                  // const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
 
                                   const shouldShowLineThrough =
-                                    isSamePriceVoucher || hasPromotionDiscount
+                                    (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                                    (original > displayPrice)
+
 
                                   const note = isSamePriceVoucher
                                     ? '(**)'
@@ -257,6 +270,10 @@ export default function ClientCartPage() {
                               const original = item.originalPrice || 0
                               const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
                               const finalPrice = displayItem?.finalPrice || 0
+                              const isAtLeastOneVoucher =
+                                currentCartItems?.voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+                              const hasVoucherDiscount = displayItem?.voucherDiscount && displayItem?.voucherDiscount > 0
                               const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
                               const shouldUseFinalPrice =
@@ -265,9 +282,11 @@ export default function ClientCartPage() {
 
                               const displayPrice = shouldUseFinalPrice
                                 ? finalPrice * item.quantity
-                                : hasPromotionDiscount
-                                  ? priceAfterPromotion * item.quantity
-                                  : original * item.quantity
+                                : isAtLeastOneVoucher && hasVoucherDiscount
+                                  ? (original - (displayItem?.voucherDiscount || 0)) * item.quantity
+                                  : hasPromotionDiscount
+                                    ? priceAfterPromotion * item.quantity
+                                    : original * item.quantity
 
                               return (
                                 <div className="flex gap-1 justify-center">
@@ -325,55 +344,47 @@ export default function ClientCartPage() {
                   <div className="flex justify-start w-full">
                     <div className="flex flex-col items-start">
                       <div className="flex gap-2 items-center mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {t('order.usedVoucher')}:
-                        </span>
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                          -{`${formatCurrency(cartTotals.voucherDiscount)}`}
-                        </span>
-                      </div>
+                        <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
+                          {(() => {
+                            const voucher = currentCartItems?.voucher
+                            if (!voucher) return null
 
-                      {/* Hiển thị nội dung chi tiết theo loại voucher */}
-                      <div className="mt-1 text-xs italic text-muted-foreground">
-                        {(() => {
-                          const voucher = currentCartItems?.voucher
-                          if (!voucher) return null
+                            const { type, value, applicabilityRule: rule } = voucher
 
-                          const { type, applicabilityRule, value } = voucher
+                            // Mô tả phần giá trị khuyến mãi
+                            const discountValueText =
+                              type === VOUCHER_TYPE.PERCENT_ORDER
+                                ? tVoucher('voucher.percentDiscount', { value }) // "Giảm {value}%"
+                                : type === VOUCHER_TYPE.FIXED_VALUE
+                                  ? tVoucher('voucher.fixedDiscount', { value: formatCurrency(value) }) // "Giảm {value}₫"
+                                  : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? tVoucher('voucher.samePriceProduct', { value: formatCurrency(value) }) // "Đồng giá {value}₫"
+                                    : ''
 
-                          const discountValueText =
-                            type === VOUCHER_TYPE.PERCENT_ORDER
-                              ? `${tVoucher('voucher.discountValue')}${value}%`
-                              : type === VOUCHER_TYPE.FIXED_VALUE
-                                ? `${tVoucher('voucher.discountValue')}${formatCurrency(value)}`
-                                : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                                  ? `${tVoucher('voucher.samePrice')} ${formatCurrency(value)}`
+                            // Mô tả điều kiện áp dụng (rule)
+                            const ruleText =
+                              rule === APPLICABILITY_RULE.ALL_REQUIRED
+                                ? tVoucher(
+                                  type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? 'voucher.requireAllSamePrice'
+                                    : type === VOUCHER_TYPE.PERCENT_ORDER
+                                      ? 'voucher.requireAllPercent'
+                                      : 'voucher.requireAllFixed'
+                                )
+                                : rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                  ? tVoucher(
+                                    type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                      ? 'voucher.requireAtLeastOneSamePrice'
+                                      : type === VOUCHER_TYPE.PERCENT_ORDER
+                                        ? 'voucher.requireAtLeastOnePercent'
+                                        : 'voucher.requireAtLeastOneFixed'
+                                  )
                                   : ''
 
-                          const ruleText =
-                            applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED
-                              ? tVoucher('voucher.forAllEligibleProducts') // ví dụ: "cho tất cả sản phẩm hợp lệ"
-                              : applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
-                                ? tVoucher('voucher.forSelectedProducts') // ví dụ: "cho các sản phẩm được chọn"
-                                : ''
-
-                          // Ghép câu
-                          if (type === VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
                             return `${discountValueText} ${ruleText}`
-                          }
-
-                          if (type === VOUCHER_TYPE.FIXED_VALUE) {
-                            return `${discountValueText} ${tVoucher('voucher.forSelectedProducts')}`
-                          }
-
-                          if (type === VOUCHER_TYPE.PERCENT_ORDER) {
-                            return `${discountValueText} ${tVoucher('voucher.forSelectedProducts')}`
-                          }
-
-                          return ''
-                        })()}
+                          })()}
+                        </Badge>
                       </div>
-
                     </div>
                   </div>
                 )}
@@ -456,16 +467,28 @@ export default function ClientCartPage() {
                                 currentCartItems?.voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
                                 currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
 
-                              const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                              // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
+                              const isAtLeastOneVoucher =
+                                currentCartItems?.voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                currentCartItems?.voucher?.voucherProducts?.some(vp => vp.product?.slug === item.slug)
+
+                              const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+                              const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+                              // finalPrice là giá cuối cùng hiển thị trên UI
                               const displayPrice = isSamePriceVoucher
-                                ? finalPrice
-                                : hasPromotionDiscount
-                                  ? priceAfterPromotion
-                                  : original
+                                ? finalPrice // đồng giá
+                                : isAtLeastOneVoucher && hasVoucherDiscount
+                                  ? original - (displayItem?.voucherDiscount || 0)
+                                  : hasPromotionDiscount
+                                    ? priceAfterPromotion
+                                    : original
+
+                              // const hasVoucherDiscount = (displayItem?.voucherDiscount || 0) > 0
 
                               const shouldShowLineThrough =
-                                isSamePriceVoucher || hasPromotionDiscount
+                                isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount
+
 
                               const note = isSamePriceVoucher
                                 ? '(**)'
@@ -535,33 +558,48 @@ export default function ClientCartPage() {
                   <div className="flex justify-start w-full">
                     <div className="flex flex-col items-start">
                       <div className="flex gap-2 items-center mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {t('order.usedVoucher')}:
-                        </span>
-                        <span className="px-3 py-1 text-xs font-semibold rounded-full border border-primary bg-primary/20 text-primary">
-                          -{`${formatCurrency(cartTotals.voucherDiscount)}`}
-                        </span>
-                      </div>
+                        <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
+                          {(() => {
+                            const voucher = currentCartItems?.voucher
+                            if (!voucher) return null
 
-                      {/* Hiển thị nội dung chi tiết theo loại voucher */}
-                      <div className="mt-1 text-xs italic text-muted-foreground">
-                        {(() => {
-                          const voucher = currentCartItems?.voucher
-                          if (!voucher) return null
+                            const { type, value, applicabilityRule: rule } = voucher
 
-                          switch (voucher.type) {
-                            case VOUCHER_TYPE.PERCENT_ORDER:
-                              return `${tVoucher('voucher.discountValue')}${voucher.value}% ${tVoucher('voucher.forSelectedProducts')}`
+                            // Mô tả phần giá trị khuyến mãi
+                            const discountValueText =
+                              type === VOUCHER_TYPE.PERCENT_ORDER
+                                ? tVoucher('voucher.percentDiscount', { value }) // "Giảm {value}%"
+                                : type === VOUCHER_TYPE.FIXED_VALUE
+                                  ? tVoucher('voucher.fixedDiscount', { value: formatCurrency(value) }) // "Giảm {value}₫"
+                                  : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? tVoucher('voucher.samePriceProduct', { value: formatCurrency(value) }) // "Đồng giá {value}₫"
+                                    : ''
 
-                            case VOUCHER_TYPE.FIXED_VALUE:
-                              return `${tVoucher('voucher.discountValue')}${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
+                            // Mô tả điều kiện áp dụng (rule)
+                            const ruleText =
+                              rule === APPLICABILITY_RULE.ALL_REQUIRED
+                                ? tVoucher(
+                                  type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? 'voucher.requireAllSamePrice'
+                                    : type === VOUCHER_TYPE.PERCENT_ORDER
+                                      ? 'voucher.requireAllPercent'
+                                      : 'voucher.requireAllFixed'
+                                )
+                                : rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                  ? tVoucher(
+                                    type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                      ? 'voucher.requireAtLeastOneSamePrice'
+                                      : type === VOUCHER_TYPE.PERCENT_ORDER
+                                        ? 'voucher.requireAtLeastOnePercent'
+                                        : 'voucher.requireAtLeastOneFixed'
+                                  )
+                                  : ''
 
-                            case VOUCHER_TYPE.SAME_PRICE_PRODUCT:
-                              return `${tVoucher('voucher.samePrice')} ${formatCurrency(voucher.value)} ${tVoucher('voucher.forSelectedProducts')}`
-                            default:
-                              return ''
-                          }
-                        })()}
+                            return `${discountValueText} ${ruleText}`
+                          })()}
+
+
+                        </Badge>
                       </div>
                     </div>
                   </div>

@@ -57,6 +57,7 @@
     "enterVoucherType": "Select voucher type",
     "fixedValue": "Fixed Value",
     "percentOrder": "Percentage",
+    "samePriceProduct": "Same price {{value}}",
     "activeStatus": "Status",
     "active": "Active",
     "inactive": "Inactive",
@@ -83,6 +84,14 @@
     "exportVouchers": "Export Vouchers",
     "confirmExportVouchers": "Are you sure you want to export this voucher?",
     "applyVoucher": "Apply Voucher",
-    "confirmApplyVoucher": "Are you sure you want to apply this voucher?"
+    "confirmApplyVoucher": "Are you sure you want to apply this voucher?",
+    "removeAppliedVoucher": "Remove Applied Voucher",
+    "confirmRemoveAppliedVoucher": "Are you sure you want to remove this voucher?",
+    "percentDiscount": "Discount {{value}}%",
+    "fixedDiscount": "Discount {{value}}",
+    "requireAll": "for all products",
+    "requireAtLeastOne": "for selected products",
+    "requireAllSamePrice": "for selected products",
+    "requireAtLeastOneSamePrice": "for selected products"
   }
 }
