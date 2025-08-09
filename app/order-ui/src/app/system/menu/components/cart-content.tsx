@@ -180,7 +180,7 @@ export function CartContent() {
       </ScrollArea>
 
       {/* Footer - Payment */}
-      {cartItems && cartItems?.orderItems?.length && cartItems?.orderItems?.length > 0 && (
+      {cartItems && cartItems?.orderItems?.length && cartItems?.orderItems?.length > 0 ? (
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -279,7 +279,7 @@ export function CartContent() {
             </div>
           </div>
         </motion.div>
-      )}
+      ) : (<></>)}
     </motion.div>
   )
 }
