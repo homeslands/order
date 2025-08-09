@@ -38,8 +38,8 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.STAFF_MENU,
   },
   {
-    title: 'sidebar.orderManagement',
-    path: ROUTE.STAFF_ORDER_MANAGEMENT,
+    title: 'sidebar.deliveryManagement',
+    path: ROUTE.STAFF_DELIVERY_MANAGEMENT,
     icon: ShoppingCart,
     permission: Permission.DELIVERY_MANAGEMENT,
     notificationCount: 0,
@@ -52,8 +52,8 @@ export const sidebarRoutes: ISidebarRoute[] = [
     notificationCount: 0,
   },
   {
-    title: 'sidebar.orderHistory',
-    path: ROUTE.STAFF_ORDER_HISTORY,
+    title: 'sidebar.orderManagement',
+    path: ROUTE.STAFF_ORDER_MANAGEMENT,
     icon: Archive,
     permission: Permission.ORDER_MANAGEMENT,
     notificationCount: 0,

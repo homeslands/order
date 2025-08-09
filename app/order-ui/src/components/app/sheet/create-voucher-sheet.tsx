@@ -30,7 +30,7 @@ import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
 import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { useCatalogs, useProducts } from '@/hooks'
-import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
+import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
 
 export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { onSuccess: () => void, isOpen: boolean, openChange: (open: boolean) => void }) {
   const { slug } = useParams()

@@ -17,7 +17,7 @@ import { IApplyVoucherRequest, IVoucher } from '@/types'
 import { useCatalogs, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { ConfirmApplyVoucherDialog } from '@/components/app/dialog'
-import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
+import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
 
 interface IApplyVoucherSheetProps {
   voucher: IVoucher

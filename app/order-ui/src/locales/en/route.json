@@ -4,6 +4,7 @@
     "detail": "Branch Overview",
     "bank-config": "Bank Configuration",
     "checkout-order": "Checkout Order",
+    "order-success": "Order Success",
     "config": "Configuration",
     "details": "Details",
     "home": "Home",
@@ -11,9 +12,9 @@
     "menu": "Menu",
     "menu-management": "Menu Management",
     "order-payment": "Order Payment",
-    "order-management": "Order Management",
+    "delivery-management": "Delivery Management",
     "chef-order": "Chef Order Management",
-    "order-history": "Order History",
+    "order-management": "Order Management",
     "gift-card": "Gift Card Management",
     "feature-lock-management": "Feature Lock Management",
     "profile": "Profile",
@@ -36,7 +37,6 @@
     "banner": "Banner",
     "docs": "Documents",
     "notification": "Notification",
-    "update": "Update",
-    "order-success": "Order Success"
+    "update": "Update"
   }
 }

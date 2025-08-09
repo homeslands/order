@@ -79,10 +79,10 @@ export const GiftCardSuccessPage = React.lazy(() =>
   })),
 )
 
-//Order management page
-export const OrderManagementPage = React.lazy(() =>
-  import('@/app/system/order-management').then((module) => ({
-    default: module.OrderManagementPage,
+//Delivery management page
+export const DeliveryManagementPage = React.lazy(() =>
+  import('@/app/system/delivery-management').then((module) => ({
+    default: module.DeliveryManagementPage,
   })),
 )
 
@@ -99,10 +99,10 @@ export const ChefOrderPage = React.lazy(() =>
   })),
 )
 
-//Order history page
-export const OrderHistoryPage = React.lazy(() =>
-  import('@/app/system/order-history').then((module) => ({
-    default: module.OrderHistoryPage,
+//Order management page
+export const OrderManagementPage = React.lazy(() =>
+  import('@/app/system/order-management').then((module) => ({
+    default: module.OrderManagementPage,
   })),
 )
 
@@ -127,7 +127,7 @@ export const UpdateOrderPage = React.lazy(() =>
 )
 //Order detail page
 export const OrderDetailPage = React.lazy(() =>
-  import('@/app/system/order-history').then((module) => ({
+  import('@/app/system/order-management').then((module) => ({
     default: module.OrderDetailPage,
   })),
 )
@@ -141,7 +141,7 @@ export const TablePage = React.lazy(() =>
 
 //Product page
 export const ProductManagementPage = React.lazy(() =>
-  import('@/app/system/dishes').then((module) => ({
+  import('@/app/system/products').then((module) => ({
     default: module.ProductManagementPage,
   })),
 )
@@ -160,7 +160,7 @@ export const MenuDetailManagementPage = React.lazy(() =>
 )
 
 export const ProductDetailPage = React.lazy(() =>
-  import('@/app/system/dishes').then((module) => ({
+  import('@/app/system/products').then((module) => ({
     default: module.ProductDetail,
   })),
 )

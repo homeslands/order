@@ -18,7 +18,7 @@ import { useCatalogs, usePagination, useProducts } from '@/hooks'
 import { AddMultipleItemsDialog } from '../dialog'
 import { useProductColumns } from '@/app/system/menu-detail-management/DataTable/columns'
 import { IAddMenuItemRequest, IProduct } from '@/types'
-import { ProductFilterOptions } from '@/app/system/dishes/DataTable/actions'
+import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
 interface IAddMenuItemSheetProps {
   branch: string | undefined
   menuSlug: string | undefined
