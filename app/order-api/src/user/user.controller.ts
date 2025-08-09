@@ -28,7 +28,7 @@ import { RoleEnum } from 'src/role/role.enum';
 @ApiTags('User')
 @ApiBearerAuth()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -53,12 +53,12 @@ export class UserController {
   }
 
   @Post()
-  @HasRoles(
-    RoleEnum.Staff,
-    RoleEnum.Manager,
-    RoleEnum.Admin,
-    RoleEnum.SuperAdmin,
-  )
+  // @HasRoles(
+  //   RoleEnum.Staff,
+  //   RoleEnum.Manager,
+  //   RoleEnum.Admin,
+  //   RoleEnum.SuperAdmin,
+  // )
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create user' })
   @ApiResponseWithType({

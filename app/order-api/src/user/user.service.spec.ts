@@ -12,6 +12,11 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/role/role.entity';
 import { MailProducer } from 'src/mail/mail.producer';
 import { Branch } from 'src/branch/branch.entity';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('UserService', () => {
   let service: UserService;
@@ -23,11 +28,18 @@ describe('UserService', () => {
         MailService,
         ConfigService,
         MailProducer,
+        SharedBalanceService,
+        TransactionManagerService,
+        { provide: DataSource, useFactory: dataSourceMockFactory },
         {
           provide: 'BullQueue_mail',
           useValue: {},
         },
         { provide: MailerService, useValue: {} },
+        {
+          provide: getRepositoryToken(Balance),
+          useValue: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(User),
           useValue: repositoryMockFactory,

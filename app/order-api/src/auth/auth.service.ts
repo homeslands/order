@@ -69,6 +69,7 @@ import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-conn
 import { ZaloOaConnectorException } from 'src/zalo-oa-connector/zalo-oa-connector.exception';
 import { ZaloOaConnectorValidation } from 'src/zalo-oa-connector/zalo-oa-connector.validation';
 import { ZaloOaConnectorHistory } from 'src/zalo-oa-connector/entity/zalo-oa-connector-history.entity';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 @Injectable()
 export class AuthService {
   private saltOfRounds: number;
@@ -106,6 +107,7 @@ export class AuthService {
     private readonly zaloOaConnectorClient: ZaloOaConnectorClient,
     @InjectRepository(ZaloOaConnectorConfig)
     private readonly zaloOaConnectorConfigRepository: Repository<ZaloOaConnectorConfig>,
+    private readonly sharedBalanceService: SharedBalanceService
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
     this.duration = this.configService.get<number>('DURATION');
@@ -1149,6 +1151,9 @@ export class AuthService {
         );
       },
     );
+
+    if (createdUser) await this.sharedBalanceService.create({ userSlug: createdUser.slug });
+
     return this.mapper.map(createdUser, User, RegisterAuthResponseDto);
   }
 

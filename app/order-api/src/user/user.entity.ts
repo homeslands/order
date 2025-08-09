@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 import { Branch } from 'src/branch/branch.entity';
@@ -11,6 +11,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -114,4 +115,8 @@ export class User extends Base {
 
   @OneToMany(() => GiftCard, (gc) => gc.usedBy)
   giftCards?: GiftCard[];
+
+  @OneToOne(() => Balance, (b) => b.user)
+  @AutoMap(() => Balance)
+  balance: Balance;
 }

@@ -23,6 +23,7 @@ import { AuthUtils } from './auth.utils';
 import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-connector.entity';
 import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entity';
 import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.module';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
   imports: [
@@ -47,8 +48,9 @@ import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.m
     DbModule,
     UserModule,
     ZaloOaConnectorModule,
+    SharedModule
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, AuthProfile, AuthUtils],
 })
-export class AuthModule {}
+export class AuthModule { }

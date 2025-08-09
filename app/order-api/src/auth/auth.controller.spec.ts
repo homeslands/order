@@ -31,6 +31,8 @@ import { VerifyPhoneNumberToken } from './entity/verify-phone-number-token.entit
 import { ZaloOaConnectorClient } from 'src/zalo-oa-connector/zalo-oa-connector.client';
 import { ZaloOaConnectorConfig } from 'src/zalo-oa-connector/entity/zalo-oa-connector.entity';
 import { HttpService } from '@nestjs/axios';
+import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -48,6 +50,11 @@ describe('AuthController', () => {
         UserUtils,
         ZaloOaConnectorClient,
         HttpService,
+        SharedBalanceService,
+        {
+          provide: getRepositoryToken(Balance),
+          useFactory: repositoryMockFactory,
+        },
         {
           provide: getRepositoryToken(ZaloOaConnectorConfig),
           useFactory: repositoryMockFactory,

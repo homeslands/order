@@ -34,6 +34,7 @@ import { Branch } from 'src/branch/branch.entity';
 import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { RoleEnum } from 'src/role/role.enum';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 
 @Injectable()
 export class UserService {
@@ -52,6 +53,7 @@ export class UserService {
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
+    private readonly sharedBalanceService: SharedBalanceService
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
   }
@@ -156,8 +158,9 @@ export class UserService {
       user.branch = branch;
     }
 
+    let createdUser = null;
     try {
-      await this.userRepository.save(user);
+      createdUser = await this.userRepository.save(user);
       this.logger.log(`User has been created successfully`, context);
     } catch (error) {
       this.logger.error(
@@ -167,6 +170,8 @@ export class UserService {
       );
       throw new UserException(UserValidation.ERROR_CREATE_USER);
     }
+
+    if (createdUser) await this.sharedBalanceService.create({ userSlug: createdUser.slug });
 
     return this.mapper.map(user, User, UserResponseDto);
   }
@@ -241,7 +246,7 @@ export class UserService {
 
     // Construct find many options
     const findManyOptions: FindManyOptions = {
-      relations: ['branch', 'role'],
+      relations: ['branch', 'role', "balance"],
       where: whereOptions,
       order: { createdAt: 'DESC' },
       skip: (query.page - 1) * query.size,
