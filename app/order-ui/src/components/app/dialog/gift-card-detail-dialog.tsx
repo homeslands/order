@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   Gift,
@@ -33,6 +32,7 @@ import { GiftCardUsageStatus, publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
 import moment from 'moment'
 import { useIsMobile } from '@/hooks'
+import { GiftCardStatusBadge } from '../badge'
 
 interface GiftCardDetailDialogProps {
   giftCard: IGiftCardDetail
@@ -179,18 +179,10 @@ export default function GiftCardDetailDialog({
 
             {/* Status Badge */}
             <div className="flex justify-center">
-              <Badge
-                variant={
-                  giftCard.status === GiftCardUsageStatus.AVAILABLE
-                    ? 'default'
-                    : giftCard.status === GiftCardUsageStatus.USED
-                      ? 'secondary'
-                      : 'destructive'
-                }
-                className="px-3 py-1"
-              >
-                {statusInfo.label}
-              </Badge>
+              <GiftCardStatusBadge
+                status={giftCard.status || GiftCardUsageStatus.AVAILABLE}
+                rounded="md"
+              />
             </div>
           </DialogHeader>
 
