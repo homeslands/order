@@ -3,20 +3,13 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 
 import { useCatalogs } from '@/hooks'
-import { useThemeStore } from '@/stores'
+import { useMenuFilterStore, useThemeStore } from '@/stores'
 
-interface HorizontalCatalogSelectorProps {
-    defaultValue?: string
-    onChange: (value: string) => void
-}
-
-export default function HorizontalCatalogSelect({
-    defaultValue,
-    onChange,
-}: HorizontalCatalogSelectorProps) {
+export default function HorizontalCatalogSelect() {
     const { t } = useTranslation('menu')
     const { getTheme } = useThemeStore()
-    const [selected, setSelected] = useState<string>(defaultValue || '')
+    const { menuFilter, setMenuFilter } = useMenuFilterStore()
+    const [selected, setSelected] = useState<string>(menuFilter.catalog || '')
     const [catalogs, setCatalogs] = useState<{ label: string; value: string }[]>([
         { value: '', label: t('menu.all') },
     ])
@@ -33,16 +26,16 @@ export default function HorizontalCatalogSelect({
     }, [data, t])
 
     useEffect(() => {
-        setSelected(defaultValue || '')
-    }, [defaultValue])
+        setSelected(menuFilter.catalog || '')
+    }, [menuFilter.catalog])
 
     const handleClick = (value: string) => {
         setSelected(value)
-        onChange(value)
+        setMenuFilter({ ...menuFilter, catalog: value })
     }
 
     return (
-        <div className="flex items-center max-w-sm gap-2 px-2 overflow-x-auto whitespace-nowrap sm:max-w-full">
+        <div className="flex flex-wrap gap-2 items-center px-2 sm:max-w-full">
             {catalogs.map((catalog) => (
                 <button
                     key={catalog.value}
@@ -62,5 +55,6 @@ export default function HorizontalCatalogSelect({
                 </button>
             ))}
         </div>
+
     )
 }

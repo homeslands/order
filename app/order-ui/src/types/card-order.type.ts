@@ -1,3 +1,6 @@
+import { CardOrderStatus } from '@/constants'
+import { IGiftCardDetail } from './gift-card.type'
+
 export interface ICardOrderRequest {
   customerSlug: string
   cashierSlug?: string
@@ -6,6 +9,17 @@ export interface ICardOrderRequest {
   quantity: number
   totalAmount: number
   receipients?: IRecipient[]
+  cardVersion: number
+}
+
+export interface ICardOrderGetRequest {
+  page?: number
+  size?: number
+  sort?: string
+  fromDate?: string
+  toDate?: string
+  status?: CardOrderStatus
+  customerSlug?: string
 }
 
 export interface IRecipient {
@@ -13,7 +27,6 @@ export interface IRecipient {
   quantity: number
   message?: string
 }
-
 export interface ICardOrderResponse {
   slug: string
   type: string
@@ -33,7 +46,7 @@ export interface ICardOrderResponse {
   cashierName: string
   cashierPhone: string
   receipients: IReceiverGiftCardResponse[]
-  giftCards: string[]
+  giftCards: IGiftCardDetail[]
   cardSlug: string
   paymentStatus: string
   paymentMethod: string
@@ -68,6 +81,7 @@ export interface IGiftCardCartItem {
   receipients?: IReceiverGiftCardCart[]
   isActive?: boolean
   type?: string
+  version?: number
 }
 
 export interface IReceiverGiftCardCart {

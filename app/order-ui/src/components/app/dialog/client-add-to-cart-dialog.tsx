@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
+  Badge,
   Button,
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -24,6 +24,7 @@ import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
 import { OrderFlowStep, useOrderFlowStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
+import { NonPropQuantitySelector } from '../button'
 
 interface AddToCartDialogProps {
   product: IMenuItem
@@ -41,6 +42,7 @@ export default function ClientAddToCartDialog({
   const [note, setNote] = useState<string>('')
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariant | null>(product.product.variants[0] || null)
+  const [quantity, setQuantity] = useState<number>(1)
   const {
     currentStep,
     isHydrated,
@@ -50,11 +52,17 @@ export default function ClientAddToCartDialog({
     setCurrentStep
   } = useOrderFlowStore()
 
+  const handleQuantityChange = (quantity: number) => {
+    setQuantity(quantity)
+  }
+
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
-    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+    if (isHydrated) {
       // Chuyển về ORDERING phase nếu đang ở phase khác
-      setCurrentStep(OrderFlowStep.ORDERING)
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
 
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
@@ -72,10 +80,10 @@ export default function ClientAddToCartDialog({
     // ✅ Step 2: Ensure ORDERING phase
     if (currentStep !== OrderFlowStep.ORDERING) {
       setCurrentStep(OrderFlowStep.ORDERING)
+    }
 
-      if (!orderingData) {
-        initializeOrdering()
-      }
+    if (!orderingData) {
+      initializeOrdering()
     }
 
     // ✅ Step 3: Create order item with proper structure
@@ -84,14 +92,14 @@ export default function ClientAddToCartDialog({
       slug: product?.product?.slug,
       image: product?.product?.image,
       name: product?.product?.name,
-      quantity: 1,
+      quantity: quantity,
       size: product?.product?.variants[0]?.size?.name,
       allVariants: product?.product?.variants,
       variant: product?.product?.variants[0],
       originalPrice: product?.product?.variants[0]?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: note.trim(),
     }
@@ -108,37 +116,6 @@ export default function ClientAddToCartDialog({
       // eslint-disable-next-line no-console
       console.error('❌ Error adding item to cart:', error)
     }
-
-    // const cartItem: ICartItem = {
-    //   id: generateCartItemId(),
-    //   slug: product?.product?.slug,
-    //   owner: getUserInfo()?.slug,
-    //   type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-    //   // branch: getUserInfo()?.branch.slug, // get branch from user info
-    //   orderItems: [
-    //     {
-    //       id: generateCartItemId(),
-    //       slug: product?.product?.slug,
-    //       image: product?.product?.image,
-    //       name: product?.product?.name,
-    //       quantity: 1,
-    //       allVariants: product?.product?.variants,
-    //       variant: selectedVariant,
-    //       size: selectedVariant?.size?.name,
-    //       originalPrice: selectedVariant?.price,
-    //       // price: finalPrice, // Use the calculated final price
-    //       description: product?.product?.description,
-    //       isLimit: product?.product?.isLimit,
-    //       promotion: product?.promotion ? product?.promotion?.slug : '',
-    //       promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
-    //       // catalog: product.catalog,
-    //       note: note,
-    //     },
-    //   ],
-    //   table: '', // will be set later via addTable
-    // }
-
-    // addCartItem(cartItem)
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
@@ -157,10 +134,10 @@ export default function ClientAddToCartDialog({
     // ✅ Step 2: Ensure ORDERING phase
     if (currentStep !== OrderFlowStep.ORDERING) {
       setCurrentStep(OrderFlowStep.ORDERING)
+    }
 
-      if (!orderingData) {
-        initializeOrdering()
-      }
+    if (!orderingData) {
+      initializeOrdering()
     }
 
     // ✅ Step 3: Create order item with proper structure
@@ -169,14 +146,14 @@ export default function ClientAddToCartDialog({
       slug: product?.product?.slug,
       image: product?.product?.image,
       name: product?.product?.name,
-      quantity: 1,
+      quantity: quantity,
       size: selectedVariant?.size?.name,
       allVariants: product?.product?.variants,
       variant: selectedVariant,
       originalPrice: selectedVariant?.price,
       description: product?.product?.description,
       isLimit: product?.product?.isLimit,
-      promotion: product?.promotion ? product?.promotion?.slug : null,
+      promotion: product?.promotion ? product?.promotion : null,
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: note.trim(),
     }
@@ -214,89 +191,114 @@ export default function ClientAddToCartDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="h-[70%] max-w-[24rem] overflow-y-auto rounded-md p-4 sm:max-w-[60rem]">
+      <DialogContent className="max-w-[800px] w-full p-6 rounded-xl">
         <DialogHeader>
-          <DialogTitle>{t('menu.confirmProduct')}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg font-semibold">
+            {t('menu.confirmProduct')}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             {t('menu.confirmProductDescription')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          {/* Product Image */}
-          <div className="relative col-span-2">
-            {product.product.image ? (
-              <img
-                src={`${publicFileURL}/${product.product.image}`}
-                alt={product.product.name}
-                className="object-cover w-full h-56 rounded-md sm:h-64 lg:h-80"
-              />
-            ) : (
-              <div className="w-full rounded-md bg-muted/50" />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {/* Left: Image */}
+          <div className="relative">
+            <img
+              src={`${publicFileURL}/${product.product.image}`}
+              alt={product.product.name}
+              className="w-full h-[320px] object-cover rounded-xl shadow-md"
+            />
+            {product.promotion && (
+              <Badge className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold text-white bg-red-500 rounded-lg">
+                -{product.promotion.value}%
+              </Badge>
             )}
           </div>
 
-          <div className="flex flex-col col-span-2 gap-6">
-            {/* Product Details */}
+          {/* Right: Info & Actions */}
+          <div className="flex flex-col gap-4">
             <div>
-              <h3 className="text-lg font-semibold">{product.product.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xl font-semibold">{product.product.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {product.product.description}
               </p>
             </div>
 
-            {/* Size Selection */}
             {product.product.variants.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {t('menu.selectSize')}
-                </label>
-                <Select
-                  value={selectedVariant?.slug}
-                  onValueChange={(value) => {
-                    const variant = product.product.variants.find(
-                      (v) => v.slug === value,
-                    )
-                    setSelectedVariant(variant || null)
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('menu.selectSize')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.product.variants
-                      .sort((a, b) => a.price - b.price)
-                      .map((variant) => (
+              <Select
+                value={selectedVariant?.slug}
+                onValueChange={(value) => {
+                  const variant = product.product.variants.find(v => v.slug === value)
+                  setSelectedVariant(variant || null)
+                }}
+              >
+                <SelectTrigger className="rounded-lg">
+                  <SelectValue placeholder={t('menu.selectSize')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {product.product.variants
+                    .sort((a, b) => a.price - b.price)
+                    .map((variant) => {
+                      const hasPromotion = !!product.promotion?.value
+                      const discountedPrice = hasPromotion
+                        ? Math.round(variant.price * (1 - product.promotion.value / 100))
+                        : variant.price
+
+                      return (
                         <SelectItem key={variant.slug} value={variant.slug}>
                           {variant.size.name.toUpperCase()} -{' '}
-                          {product.promotion && product?.promotion?.value > 0 ? formatCurrency((variant.price) * (1 - (product?.promotion?.value) / 100)) : formatCurrency(variant.price)}
+                          {hasPromotion ? (
+                            <>
+                              <span className="mr-2 text-gray-400 line-through">
+                                {formatCurrency(variant.price)}
+                              </span>
+                              <span className="font-semibold text-primary">
+                                {formatCurrency(discountedPrice)}
+                              </span>
+                            </>
+                          ) : (
+                            formatCurrency(variant.price)
+                          )}
                         </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                      )
+                    })}
+                </SelectContent>
+              </Select>
             )}
 
-            {/* Note */}
-            <div className="flex flex-col items-start space-y-2">
-              <span className="text-sm">{t('menu.note')}</span>
-              <Textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder={t('menu.enterNote')}
-              />
+            <NonPropQuantitySelector
+              isLimit={product.product.isLimit}
+              disabled={product.isLocked}
+              currentQuantity={product.currentStock}
+              onChange={handleQuantityChange}
+            />
+
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={t('menu.enterNote')}
+              className="text-sm rounded-lg"
+            />
+
+            <div className="flex gap-3 mt-auto">
+              <Button
+                onClick={handleBuyNow}
+                className="flex-1"
+              >
+                {t('menu.buyNow')}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 border-primary text-primary hover:bg-primary/10"
+                onClick={handleAddToCart}
+                disabled={!selectedVariant}
+              >
+                {t('menu.addToCart')}
+              </Button>
             </div>
           </div>
         </div>
-
-        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
-          <Button onClick={handleBuyNow}>
-            {t('menu.buyNow')}
-          </Button>
-          <Button variant='outline' className='border-primary text-primary hover:bg-primary/10 hover:text-primary' onClick={handleAddToCart} disabled={!selectedVariant}>
-            {t('menu.addToCart')}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

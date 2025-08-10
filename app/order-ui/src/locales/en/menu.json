@@ -48,6 +48,7 @@
     "subtotalBeforeDiscount": "Subtotal before discount",
     "promotionDiscount": "Promotion discount",
     "voucherDiscount": "Voucher discount",
+    "partialAppliedNote": "Voucher applies up to order value",
     "discount": "Discount",
     "subTotal": "Subtotal",
     "continue": "Continue",
@@ -139,7 +140,8 @@
   },
   "order": {
     "orderListCaption": "List of orders",
-    "title": "Order Management",
+    "deliveryManagement": "Delivery Management",
+    "orderManagement": "Order Management",
     "slug": "Order ID",
     "orderId": "Order ID",
     "items": "items",
@@ -285,6 +287,7 @@
     "noQRCode": "No QR code",
     "latePaymentNote": "Note: If you pay after the displayed time, the order may not be recognized even if the transaction is successful.",
     "thankYouForOrdering": "Thank you for ordering at TREND Coffee!",
-    "point": "Coin payment"
+    "point": "Coin payment",
+    "unpaid": "Unpaid"
   }
 }

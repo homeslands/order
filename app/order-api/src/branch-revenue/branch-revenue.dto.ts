@@ -14,51 +14,7 @@ export class BranchRevenueQueryResponseDto {
   branchId: string;
 
   @AutoMap()
-  date: Date;
-
-  @AutoMap()
-  totalAmount: string;
-
-  @AutoMap()
-  totalAmountBank: string;
-
-  @AutoMap()
-  totalAmountCash: string;
-
-  @AutoMap()
-  totalAmountInternal: string;
-
-  @AutoMap()
-  totalFinalAmountOrder: string;
-
-  @AutoMap()
-  totalOriginalAmountOrder: string;
-
-  @AutoMap()
-  totalOriginalOrderItemAmount: string;
-
-  @AutoMap()
-  totalFinalOrderItemAmount: string;
-
-  @AutoMap()
-  totalOrder: string;
-
-  @AutoMap()
-  totalOrderCash: string;
-
-  @AutoMap()
-  totalOrderBank: string;
-
-  @AutoMap()
-  totalOrderInternal: string;
-}
-
-export class BranchRevenueQueryResponseForHourDto {
-  @AutoMap()
-  branchId: string;
-
-  @AutoMap()
-  date: Date;
+  date: string;
 
   @AutoMap()
   totalAmount: string;
@@ -100,7 +56,69 @@ export class BranchRevenueQueryResponseForHourDto {
   totalVoucherValueOrderItemAmount: string;
 
   @AutoMap()
-  totalLossAmountOrder: string;
+  totalLossAmount: string;
+
+  @AutoMap()
+  totalOrderPoint: string;
+
+  @AutoMap()
+  totalAmountPoint: string;
+}
+
+export class BranchRevenueQueryResponseForHourDto {
+  @AutoMap()
+  branchId: string;
+
+  @AutoMap()
+  date: string;
+
+  @AutoMap()
+  totalAmount: string;
+
+  @AutoMap()
+  totalAmountBank: string;
+
+  @AutoMap()
+  totalAmountCash: string;
+
+  @AutoMap()
+  totalAmountInternal: string;
+
+  @AutoMap()
+  totalFinalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalAmountOrder: string;
+
+  @AutoMap()
+  totalOriginalOrderItemAmount: string;
+
+  @AutoMap()
+  totalFinalOrderItemAmount: string;
+
+  @AutoMap()
+  totalOrder: string;
+
+  @AutoMap()
+  totalOrderCash: string;
+
+  @AutoMap()
+  totalOrderBank: string;
+
+  @AutoMap()
+  totalOrderInternal: string;
+
+  @AutoMap()
+  totalVoucherValueOrderItemAmount: string;
+
+  @AutoMap()
+  totalLossAmount: string;
+
+  @AutoMap()
+  totalOrderPoint: string;
+
+  @AutoMap()
+  totalAmountPoint: string;
 }
 
 export class GetBranchRevenueQueryDto {
@@ -205,6 +223,18 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   promotionAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  lossAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalOrderPoint: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountPoint: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {

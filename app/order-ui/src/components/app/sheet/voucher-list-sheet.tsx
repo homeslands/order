@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -66,6 +66,12 @@ export default function VoucherListSheet() {
 
   const cartItems = getCartItems()
   // Add useEffect to check voucher validation
+  const isVoucherSelected = useCallback((voucherSlug: string) => {
+    return (
+      cartItems?.voucher?.slug === voucherSlug ||
+      selectedVoucher === voucherSlug
+    )
+  }, [cartItems?.voucher?.slug, selectedVoucher])
   useEffect(() => {
     if (cartItems?.voucher) {
       // If user is not logged in but voucher requires verification
@@ -118,29 +124,99 @@ export default function VoucherListSheet() {
     },
   )
 
+  const handleToggleVoucher = useCallback((voucher: IVoucher) => {
+    const isSelected = isVoucherSelected(voucher.slug)
+
+    const handleRemove = () => {
+      removeVoucher()
+      setSelectedVoucher('')
+      showToast(tToast('toast.removeVoucherSuccess'))
+    }
+
+    const handleApply = () => {
+      addVoucher(voucher)
+      setSelectedVoucher(voucher.slug)
+      setSheetOpen(false)
+      showToast(tToast('toast.applyVoucherSuccess'))
+    }
+
+    const validateVoucherParam: IValidateVoucherRequest = {
+      voucher: voucher.slug,
+      user: userInfo?.slug || '',
+      orderItems: cartItems?.orderItems.map(item => ({
+        quantity: item.quantity,
+        variant: item.variant.slug,
+        note: item.note,
+        promotion: item.promotion ? item.promotion.slug : null,
+        order: null, // hoặc bỏ nếu không cần
+      })) || []
+    }
+
+
+    const onSuccess = () => handleApply()
+    // const onError = () => handleRemove()
+
+    if (isSelected) {
+      handleRemove()
+    } else {
+      if (userInfo && voucher?.isVerificationIdentity) {
+        validateVoucher(validateVoucherParam, { onSuccess })
+      } else {
+        validatePublicVoucher(validateVoucherParam, { onSuccess })
+      }
+    }
+  }, [removeVoucher, addVoucher, setSelectedVoucher, setSheetOpen, tToast, userInfo, validateVoucher, validatePublicVoucher, cartItems, isVoucherSelected])
+
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
-    if (cartItems?.voucher && cartItems?.orderItems && !isRemovingVoucherRef.current) {
-      const currentVoucher = cartItems.voucher
-
-      // Only check for vouchers with ALL_REQUIRED rule
-      if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || item.slug)
-        const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
-        // Check if there are any products in cart that are NOT in voucher products
-        const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
-          !voucherProductSlugs.includes(cartSlug)
-        )
-
-        if (hasInvalidProducts) {
-          isRemovingVoucherRef.current = true
-          handleToggleVoucher(currentVoucher)
-        }
-      }
-    } else {
+    if (!cartItems?.voucher || !cartItems?.orderItems || isRemovingVoucherRef.current) {
       isRemovingVoucherRef.current = false
+      return
     }
-  }, [cartItems?.orderItems, cartItems?.voucher?.slug]) // Trigger when orderItems change
+
+    const { voucher, orderItems } = cartItems
+    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const cartProductSlugs = orderItems.map(item => item.productSlug || item.slug)
+
+    // Tổng tiền gốc (sau promotion nhưng chưa áp voucher)
+    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+      const original = item.originalPrice
+      const promotionDiscount = item.promotionDiscount ?? 0
+      return acc + ((original ?? 0) - promotionDiscount) * item.quantity
+    }, 0)
+
+    let shouldRemove = false
+
+    switch (voucher.applicabilityRule) {
+      case APPLICABILITY_RULE.ALL_REQUIRED: {
+        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
+        if (hasInvalidProducts) shouldRemove = true
+        break
+      }
+      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
+        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+        if (!hasAtLeastOne) shouldRemove = true
+        break
+      }
+      default:
+        break
+    }
+
+    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
+    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
+        shouldRemove = true
+      }
+    }
+
+    // Remove voucher nếu cần
+    if (shouldRemove) {
+      isRemovingVoucherRef.current = true
+      handleToggleVoucher(voucher)
+    }
+
+  }, [cartItems, cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher])
+
 
   // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -278,55 +354,50 @@ export default function VoucherListSheet() {
 
   // const bestVoucher = getBestVoucher()
 
-  const isVoucherSelected = (voucherSlug: string) => {
-    return (
-      cartItems?.voucher?.slug === voucherSlug ||
-      selectedVoucher === voucherSlug
-    )
-  }
-
-  const handleToggleVoucher = (voucher: IVoucher) => {
-    const isSelected = isVoucherSelected(voucher.slug)
-
-    const handleRemove = () => {
-      removeVoucher()
-      setSelectedVoucher('')
-      showToast(tToast('toast.removeVoucherSuccess'))
-    }
-
-    const handleApply = () => {
-      addVoucher(voucher)
-      setSelectedVoucher(voucher.slug)
-      setSheetOpen(false)
-      showToast(tToast('toast.applyVoucherSuccess'))
-    }
-
-    const validateVoucherParam: IValidateVoucherRequest = {
-      voucher: voucher.slug,
-      user: userInfo?.slug || '',
-      orderItems: cartItems?.orderItems.map(item => ({
-        quantity: item.quantity,
-        variant: item.variant.slug,
-        note: item.note,
-        promotion: item.promotion ?? null,
-        order: null, // hoặc bỏ nếu không cần
-      })) || []
-    }
 
 
-    const onSuccess = () => handleApply()
-    // const onError = () => handleRemove()
+  // const handleToggleVoucher = (voucher: IVoucher) => {
+  //   const isSelected = isVoucherSelected(voucher.slug)
 
-    if (isSelected) {
-      handleRemove()
-    } else {
-      if (userInfo && voucher?.isVerificationIdentity) {
-        validateVoucher(validateVoucherParam, { onSuccess })
-      } else {
-        validatePublicVoucher(validateVoucherParam, { onSuccess })
-      }
-    }
-  }
+  //   const handleRemove = () => {
+  //     removeVoucher()
+  //     setSelectedVoucher('')
+  //     showToast(tToast('toast.removeVoucherSuccess'))
+  //   }
+
+  //   const handleApply = () => {
+  //     addVoucher(voucher)
+  //     setSelectedVoucher(voucher.slug)
+  //     setSheetOpen(false)
+  //     showToast(tToast('toast.applyVoucherSuccess'))
+  //   }
+
+  //   const validateVoucherParam: IValidateVoucherRequest = {
+  //     voucher: voucher.slug,
+  //     user: userInfo?.slug || '',
+  //     orderItems: cartItems?.orderItems.map(item => ({
+  //       quantity: item.quantity,
+  //       variant: item.variant.slug,
+  //       note: item.note,
+  //       promotion: item.promotion ?? null,
+  //       order: null, // hoặc bỏ nếu không cần
+  //     })) || []
+  //   }
+
+
+  //   const onSuccess = () => handleApply()
+  //   // const onError = () => handleRemove()
+
+  //   if (isSelected) {
+  //     handleRemove()
+  //   } else {
+  //     if (userInfo && voucher?.isVerificationIdentity) {
+  //       validateVoucher(validateVoucherParam, { onSuccess })
+  //     } else {
+  //       validatePublicVoucher(validateVoucherParam, { onSuccess })
+  //     }
+  //   }
+  // }
 
   const handleApplyVoucher = async () => {
     if (!selectedVoucher) return;
@@ -343,7 +414,7 @@ export default function VoucherListSheet() {
             quantity: item.quantity,
             variant: item.variant.slug,
             note: item.note,
-            promotion: item.promotion ?? null,
+            promotion: item.promotion ? item.promotion.slug : null,
             order: null, // hoặc bỏ nếu không cần
           })) || []
         }
@@ -376,7 +447,7 @@ export default function VoucherListSheet() {
             quantity: item.quantity,
             variant: item.variant.slug,
             note: item.note,
-            promotion: item.promotion ?? null,
+            promotion: item.promotion ? item.promotion.slug : null,
             order: null, // hoặc bỏ nếu không cần
           })) || []
         }
@@ -510,21 +581,34 @@ export default function VoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
-              </span>
-            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
-              </span>
-            ) : (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
-              </span>
-            )}
+            <span className="text-xs italic text-primary">
+              {(() => {
+                const { type, value, applicabilityRule: rule } = voucher
+
+                const discountValueText =
+                  type === VOUCHER_TYPE.PERCENT_ORDER
+                    ? t('voucher.percentDiscount', { value })
+                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
+                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
+
+                const ruleText =
+                  rule === APPLICABILITY_RULE.ALL_REQUIRED
+                    ? t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAllSamePrice'
+                        : 'voucher.requireAll'
+                    )
+                    : t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAtLeastOneSamePrice'
+                        : 'voucher.requireAtLeastOne'
+                    )
+
+                return `${discountValueText} ${ruleText}`
+              })()}
+            </span>
+
 
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
               {voucher.code}
@@ -662,7 +746,7 @@ export default function VoucherListSheet() {
               <PopoverContent
                 className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
               >
-                <div className="flex flex-col justify-between gap-4 text-xs sm:text-sm">
+                <div className="flex flex-col justify-between gap-4">
                   <div className="grid grid-cols-5">
                     <span className="col-span-2 text-muted-foreground/70">
                       {t('voucher.code')}
@@ -751,12 +835,12 @@ export default function VoucherListSheet() {
           <div className="flex items-center justify-between w-full gap-1 p-2 rounded-md cursor-pointer">
             <div className="flex items-center gap-1">
               <TicketPercent className="icon text-primary" />
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-primary">
                 {t('voucher.useVoucher')}
               </span>
             </div>
             <div>
-              <ChevronRight className="icon text-muted-foreground" />
+              <ChevronRight className="icon text-primary" />
             </div>
           </div>
         </Button>

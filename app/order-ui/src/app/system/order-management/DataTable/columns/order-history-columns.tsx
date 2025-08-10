@@ -94,9 +94,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
-      accessorKey: 'export',
+      accessorKey: 'exportInvoice',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('menu.export')} />
+        <DataTableColumnHeader column={column} title={t('order.exportInvoice')} />
       ),
       cell: ({ row }) => {
         const order = row.original
@@ -272,6 +272,22 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
 
+                {/* Export invoice */}
+                {(order.status !== OrderStatus.PENDING) && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      className="flex justify-start w-full gap-1 px-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportOrderInvoice(order);
+                      }}
+                    >
+                      <DownloadIcon />
+                      {t('order.exportInvoice')}
+                    </Button>
+                  </div>
+                )}
                 {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
@@ -298,8 +314,8 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   order?.status === OrderStatus.PENDING &&
                   (!order?.payment || order?.payment?.statusCode === paymentStatus.PENDING) && (
                     <NavLink
-                      to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}/update`}
-                      className="flex items-center justify-start w-full"
+                      to={`${ROUTE.STAFF_ORDER_MANAGEMENT}/${order.slug}/update`}
+                      className="flex justify-start items-center w-full"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button

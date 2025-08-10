@@ -2,15 +2,16 @@ import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 
 import { SkeletonMenuList } from '@/components/app/skeleton'
-import { IMenuItem, IOrderItem, IProduct, IProductVariant, ISpecificMenu } from '@/types'
+import { IAddNewOrderItemRequest, IMenuItem, IOrderItem, IProduct, IProductVariant, ISpecificMenu } from '@/types'
 import { publicFileURL } from '@/constants'
 import { Button, useSidebar } from '@/components/ui'
 import { formatCurrency, showToast } from '@/utils'
-import { useCatalogs, useIsMobile } from '@/hooks'
+import { useAddNewOrderItem, useCatalogs, useIsMobile } from '@/hooks'
 import { StaffPromotionTag } from '@/components/app/badge'
 import ProductImage from '@/assets/images/ProductImage.png'
 import SystemAddToCurrentOrderDrawer from '@/components/app/drawer/system-add-to-current-order-drawer'
 import { useOrderFlowStore } from '@/stores'
+import { useParams } from 'react-router-dom'
 
 interface IMenuProps {
   menu?: ISpecificMenu
@@ -22,8 +23,10 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { state } = useSidebar()
+  const { slug } = useParams()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
-  const { addDraftItem, updatingData } = useOrderFlowStore()
+  const { updatingData, addDraftItem } = useOrderFlowStore()
+  const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const menuItems = menu?.menuItems?.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
@@ -44,6 +47,21 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
     }
     return 0;
   });
+
+  const handleAddNewOrderItem = (item: IOrderItem) => {
+    const request: IAddNewOrderItemRequest = {
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      note: item.note ?? '',
+      promotion: item.promotion ? item.promotion.slug : '',
+      order: slug || '',
+    }
+    addNewOrderItem(request, {
+      onSuccess: () => {
+        addDraftItem(item)
+      }
+    })
+  }
 
   const handleAddToCurrentOrder = (product: IMenuItem) => {
     if (!product?.product?.variants || product?.product?.variants.length === 0) return;
@@ -67,7 +85,7 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
       allVariants: product.product.variants,
       variant: variant,
       originalPrice: product.product.variants[0]?.price,
-      promotion: product.promotion ? product.promotion.slug : null,
+      promotion: product.promotion ? product.promotion : null,
       promotionValue: product.promotion ? product.promotion.value : 0,
       description: product.product.description,
       isLimit: product.product.isLimit,
@@ -75,7 +93,7 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
     }
 
     // Thêm vào draft order
-    addDraftItem(orderItem)
+    handleAddNewOrderItem(orderItem)
 
     // Reset states
     showToast(tToast('toast.addSuccess'))
@@ -158,13 +176,13 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                     <span className="text-sm font-bold xl:text-[18px] truncate line-clamp-1">
                       {item.product.name}
                     </span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex gap-1 items-center">
                       <div className="flex flex-col w-full">
                         {item.product.variants.length > 0 ? (
-                          <div className="flex flex-col items-start justify-start w-full gap-1">
-                            <div className='flex flex-row items-center w-full gap-1'>
+                          <div className="flex flex-col gap-1 justify-start items-start w-full">
+                            <div className='flex flex-row gap-1 items-center w-full'>
                               {item?.promotion?.value > 0 ? (
-                                <div className='flex flex-col items-start justify-start w-full'>
+                                <div className='flex flex-col justify-start items-start w-full'>
                                   <span className="text-[0.5rem] xl:text-xs line-through text-muted-foreground/70">
                                     {(() => {
                                       const range = getPriceRange(item.product.variants)
@@ -216,9 +234,9 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                         <SystemAddToCurrentOrderDrawer product={item} />
                       ) : (
                         <Button
-                          className="flex items-center justify-center w-full gap-1 text-xs text-white rounded-full shadow-none xl:text-sm"
+                          className="flex gap-1 justify-center items-center w-full text-xs text-white rounded-full shadow-none xl:text-sm"
                           onClick={() => handleAddToCurrentOrder(item)}
-                          disabled={!updatingData}
+                          disabled={!updatingData || isPendingAddNewOrderItem}
                         >
                           {t('menu.addToCart')}
                         </Button>
@@ -226,7 +244,7 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
                     </div>
                   ) : (
                     <Button
-                      className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                      className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
                       disabled
                     >
                       {t('menu.outOfStock')}

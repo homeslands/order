@@ -66,7 +66,7 @@ export default function ClientAddToCurrentOrderDialog({
       allVariants: product.product.variants,
       variant: variant,
       originalPrice: selectedVariant.price,
-      promotion: product.promotion ? product.promotion.slug : null,
+      promotion: product.promotion ? product.promotion : null,
       promotionValue: product.promotion ? product.promotion.value : 0,
       description: product.product.description,
       isLimit: product.product.isLimit,

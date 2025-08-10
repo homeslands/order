@@ -144,6 +144,7 @@
     "orderLevelVoucher": "Giảm giá voucher (đơn hàng)",
     "promotionDiscount": "Giảm giá khuyến mãi",
     "voucherDiscount": "Giảm giá voucher",
+    "partialAppliedNote": "Voucher giảm tối đa theo giá trị đơn hàng",
     "discount": "Giảm giá",
     "grandTotal": "Thành tiền",
     "totalPayment": "Tổng tiền",
@@ -199,7 +200,8 @@
     "showInvoice": "Xem hóa đơn",
     "noOrders": "Không có đơn hàng nào!",
     "backToMenu": "Quay lại thực đơn",
-    "title": "Quản lý đơn hàng",
+    "deliveryManagement": "Quản lý giao hàng",
+    "orderManagement": "Quản lý đơn hàng",
     "totalOrders": "Tổng đơn hàng",
     "pendingOrders": "Danh sách chờ",
     "orderList": "Danh sách đơn hàng",
@@ -306,6 +308,7 @@
     "noQRCode": "Không có QR code",
     "latePaymentNote": "Lưu ý: Nếu bạn thanh toán sau thời hạn hiển thị, đơn hàng có thể không được ghi nhận dù giao dịch thành công.",
     "thankYouForOrdering": "Cảm ơn bạn đã đặt hàng tại TREND Coffee!",
-    "point": "Thanh toán bằng xu"
+    "point": "Thanh toán bằng xu",
+    "unpaid": "Chưa thanh toán"
   }
 }

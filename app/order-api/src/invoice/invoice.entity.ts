@@ -45,6 +45,10 @@ export class Invoice extends Base {
   voucherId?: string;
 
   @AutoMap()
+  @Column({ name: 'voucher_code_column', nullable: true })
+  voucherCode?: string;
+
+  @AutoMap()
   @Column({ name: 'status_column' })
   status: string;
 
@@ -84,4 +88,12 @@ export class Invoice extends Base {
   @AutoMap()
   @Column({ name: 'qrcode_column', type: 'text' })
   qrcode: string;
+
+  @AutoMap()
+  @Column({ name: 'branch_id_column', nullable: true })
+  branchId: string;
+
+  @AutoMap()
+  @Column({ name: 'date_column', nullable: true })
+  date?: Date;
 }

@@ -109,13 +109,13 @@ export class VoucherUtils {
         // user order
         if (voucher.isVerificationIdentity) {
           // check user already verify email or not
-          if (!user.isVerifiedEmail) {
+          if (!user.isVerifiedEmail && !user.isVerifiedPhonenumber) {
             this.logger.warn(
-              `User ${user.slug} must verify email to use voucher`,
+              `User ${user.slug} must verify email or phone number to use voucher`,
               context,
             );
             throw new VoucherException(
-              VoucherValidation.MUST_VERIFY_EMAIL_TO_USE_VOUCHER,
+              VoucherValidation.MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER,
             );
           }
 

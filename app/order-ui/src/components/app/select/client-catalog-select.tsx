@@ -3,19 +3,12 @@ import { useTranslation } from 'react-i18next'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { useCatalogs } from '@/hooks'
-import { useThemeStore } from '@/stores'
+import { useMenuFilterStore, useThemeStore } from '@/stores'
 
-interface SelectCatalogProps {
-  defaultValue?: string
-  onChange: (value: string) => void
-}
-
-export default function CatalogSelect({
-  defaultValue,
-  onChange,
-}: SelectCatalogProps) {
+export default function ClientCatalogSelect() {
   const { t } = useTranslation('menu')
   const { getTheme } = useThemeStore()
+  const { menuFilter, setMenuFilter } = useMenuFilterStore()
   const [allCatalogs, setAllCatalogs] = useState<
     { value: string; label: string }[]
   >([{ value: '', label: t('menu.all') }])
@@ -25,20 +18,23 @@ export default function CatalogSelect({
   } | null>({ value: '', label: t('menu.all') })
   const { data } = useCatalogs()
 
+  const capitalizeFirstLetter = (str: string) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : ''
+
   useEffect(() => {
     if (data?.result) {
       const newCatalogs = data.result.map((item) => ({
         value: item.slug || '',
-        label: item.name || '',
+        label: capitalizeFirstLetter(item.name || ''),
       }))
-      setAllCatalogs([{ value: '', label: t('menu.all') }, ...newCatalogs])
+      setAllCatalogs([{ value: '', label: capitalizeFirstLetter(t('menu.all')) }, ...newCatalogs])
     }
   }, [data, t])
 
   useEffect(() => {
-    if (defaultValue && allCatalogs.length > 0) {
+    if (menuFilter.catalog && allCatalogs.length > 0) {
       const defaultOption = allCatalogs.find(
-        (catalog) => catalog.value === defaultValue,
+        (catalog) => catalog.value === menuFilter.catalog,
       )
       if (defaultOption) {
         setSelectedCatalog(defaultOption)
@@ -46,14 +42,14 @@ export default function CatalogSelect({
     } else {
       setSelectedCatalog({ value: '', label: t('menu.all') })
     }
-  }, [defaultValue, allCatalogs, t])
+  }, [menuFilter.catalog, allCatalogs, t])
 
   const handleChange = (
     selectedOption: SingleValue<{ value: string; label: string }>,
   ) => {
     if (selectedOption) {
       setSelectedCatalog(selectedOption)
-      onChange(selectedOption.value)
+      setMenuFilter({ ...menuFilter, catalog: selectedOption.value })
     }
   }
 

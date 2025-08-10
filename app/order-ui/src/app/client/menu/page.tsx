@@ -1,73 +1,68 @@
-import { useState, useEffect } from 'react'
-import moment from 'moment'
+import { useEffect } from 'react'
+import moment from 'moment';
 import { CircleXIcon, MapPinIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from "react-helmet";
 
-import { useCatalogStore, usePriceRangeStore, useBranchStore } from '@/stores'
-import { useDebouncedInput, useSpecificMenu } from '@/hooks'
+import { useBranchStore, useMenuFilterStore } from '@/stores'
+import { useSpecificMenu } from '@/hooks'
 import { ClientCatalogSelect, HorizontalCatalogSelect } from '@/components/app/select'
 import { ClientMenus } from './components'
-import { ProductNameSearch } from './components/product-name-search'
-import { PriceRangeFilter } from './components/price-range-filter'
+import ProductNameSearch from './components/product-name-search'
+import PriceRangeFilter from './components/price-range-filter'
 import { formatCurrency } from '@/utils';
-import { PriceRange } from '@/constants';
-
-interface FilterState {
-  menu?: string
-  date: string
-  branch?: string
-  catalog?: string
-  productName?: string
-  minPrice?: number
-  maxPrice?: number
-}
+import { FILTER_VALUE } from '@/constants';
+import { IMenuFilter, ISpecificMenuRequest } from '@/types';
 
 export default function ClientMenuPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
-  const { minPrice, maxPrice, clearPriceRange, setPriceRange } = usePriceRangeStore()
+  const { menuFilter, setMenuFilter } = useMenuFilterStore()
   const { branch } = useBranchStore()
-  const { catalog } = useCatalogStore()
-  const { inputValue, setInputValue, debouncedInputValue } = useDebouncedInput() // debounce 500ms
 
-  const [filters, setFilters] = useState<FilterState>({
-    date: moment().format('YYYY-MM-DD'),
-    branch: branch?.slug,
-    catalog: catalog?.slug,
-    productName: '',
-    minPrice: minPrice,
-    maxPrice: maxPrice,
-  })
+  const mapMenuFilterToRequest = (filter: IMenuFilter): ISpecificMenuRequest => {
+    return {
+      date: filter.date,
+      branch: filter.branch,
+      catalog: filter.catalog,
+      productName: filter.productName,
+      minPrice: filter.minPrice,
+      maxPrice: filter.maxPrice,
+      slug: filter.menu,
+    }
+  }
 
-  const { data: specificMenu, isPending } = useSpecificMenu(filters)
+  const { data: specificMenu, isPending } = useSpecificMenu(mapMenuFilterToRequest(menuFilter))
 
   useEffect(() => {
-    setFilters((prev: FilterState) => ({
-      ...prev,
-      branch: branch?.slug,
-      catalog: catalog?.slug,
-      productName: debouncedInputValue,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
-    }))
-  }, [minPrice, maxPrice, branch?.slug, catalog?.slug, debouncedInputValue])
+    setMenuFilter(prev => {
+      const next = { ...prev }
+      let changed = false
 
-  const handleSelectCatalog = (catalog: string) => {
-    setFilters((prev: FilterState) => ({
-      ...prev,
-      catalog: catalog,
-    }))
-  }
+      // sync branch
+      if (branch?.slug && prev.branch !== branch.slug) {
+        next.branch = branch.slug
+        changed = true
+      }
+
+      // sync date
+      const today = moment().format('YYYY-MM-DD')
+      if (prev.date !== today) {
+        next.date = today
+        changed = true
+      }
+
+      return changed ? next : prev
+    })
+  }, [branch?.slug, setMenuFilter])
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation()
-    clearPriceRange()
-    setPriceRange(PriceRange.MIN_PRICE, PriceRange.MAX_PRICE)
+    setMenuFilter(prev => ({ ...prev, minPrice: FILTER_VALUE.MIN_PRICE, maxPrice: FILTER_VALUE.MAX_PRICE, branch: branch?.slug }))
   }
 
   return (
-    <div className="container py-10">
+    <div className="container py-4 sm:py-10">
       <Helmet>
         <meta charSet='utf-8' />
         <title>
@@ -75,33 +70,30 @@ export default function ClientMenuPage() {
         </title>
         <meta name='description' content={tHelmet('helmet.menu.title')} />
       </Helmet>
-      <div className="flex flex-col items-start gap-5 lg:flex-row">
+      <div className="flex flex-col gap-5 items-start lg:flex-row">
         {/* Left - sidebar */}
         <div className="w-full lg:sticky lg:top-24 lg:z-10 lg:w-1/4">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-end gap-1 text-xs text-primary">
-              <MapPinIcon className="w-5 h-5" />
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-1 justify-center py-2 text-xs text-primary">
+              <MapPinIcon className="w-4 h-4" />
               {branch ? `${branch.name} (${branch.address})` : t('menu.noData')}
             </div>
             {/* Product name search */}
-            <ProductNameSearch
-              inputValue={inputValue}
-              setInputValue={setInputValue}
-            />
+            <ProductNameSearch />
             {/* Catalog filter */}
             <div className='hidden sm:block'>
-              <ClientCatalogSelect onChange={handleSelectCatalog} />
+              <ClientCatalogSelect />
             </div>
             <div className='block sm:hidden'>
-              <HorizontalCatalogSelect onChange={handleSelectCatalog} />
+              <HorizontalCatalogSelect />
             </div>
 
             {/* Price filter */}
             <PriceRangeFilter />
-            {(minPrice > PriceRange.MIN_PRICE || maxPrice < PriceRange.MAX_PRICE) && (
-              <div className="flex justify-center gap-2 px-2 py-2 text-sm border rounded-xl border-primary bg-primary/5 text-primary">
+            {(menuFilter.minPrice > FILTER_VALUE.MIN_PRICE || menuFilter.maxPrice < FILTER_VALUE.MAX_PRICE) && (
+              <div className="flex gap-2 justify-center px-2 py-2 text-sm rounded-xl border border-primary bg-primary/5 text-primary">
                 <div>
-                  {formatCurrency(minPrice)} - {formatCurrency(maxPrice)}
+                  {formatCurrency(menuFilter.minPrice)} - {formatCurrency(menuFilter.maxPrice)}
                 </div>
                 <CircleXIcon
                   className="w-5 h-5 cursor-pointer hover:text-primary"
@@ -109,7 +101,6 @@ export default function ClientMenuPage() {
                 />
               </div>
             )}
-
           </div>
         </div>
 

@@ -9,6 +9,7 @@ export interface IGiftCard {
   points: number
   price: number
   isActive: boolean
+  version: number
 }
 
 export interface IGiftCardRequest {
@@ -45,6 +46,7 @@ export interface IGiftCardUpdateRequest {
   price?: number
   file?: File
   isActive?: boolean
+  version?: number
 }
 
 export interface IGetGiftCardsRequest {
@@ -88,6 +90,7 @@ export interface IGiftCardDetail {
   serial: string
   usedBy: IUserGiftCard
   code: string
+  usedBySlug: string | null
 }
 
 export interface IUseGiftCardResponse {

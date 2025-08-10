@@ -28,6 +28,10 @@ export class BranchRevenue extends Base {
   @AutoMap()
   voucherAmount: number;
 
+  @Column({ name: 'loss_amount_column', default: 0 })
+  @AutoMap()
+  lossAmount: number;
+
   @Column({ name: 'promotion_amount_column', default: 0 })
   @AutoMap()
   promotionAmount: number;
@@ -63,4 +67,12 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_order_internal_column', default: 0 })
   totalOrderInternal: number;
+
+  @AutoMap()
+  @Column({ name: 'total_order_point_column', default: 0 })
+  totalOrderPoint: number;
+
+  @AutoMap()
+  @Column({ name: 'total_amount_point_column', default: 0 })
+  totalAmountPoint: number;
 }

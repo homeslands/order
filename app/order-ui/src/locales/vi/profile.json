@@ -117,7 +117,10 @@
     "totalEarned": "Tổng thu",
     "totalSpent": "Tổng chi",
     "netDifference": "Chênh lệch",
+    "productOrders": "Sản phẩm",
+    "giftCards": "Thẻ quà tặng",
     "giftCard": {
+      "giftCardHistory": "Lịch sử thẻ quà tặng",
       "transactions": "Giao dịch thẻ quà tặng",
       "status": {
         "label": "Trạng thái",
@@ -152,7 +155,46 @@
       "error": "Đã có lỗi xảy ra",
       "clearFilters": "Xóa bộ lọc",
       "noMoreResults": "Đã hiển thị tất cả kết quả",
-      "showingResults": "Hiển thị {{current}} trong tổng số {{total}} kết quả"
+      "showingResults": "Hiển thị {{current}} trong tổng số {{total}} kết quả",
+      "collapse": "Thu gọn",
+      "viewDetails": "Xem chi tiết"
+    },
+    "cardOrder": {
+      "orders": "Đơn hàng thẻ quà tặng",
+      "giftCard": "Thẻ quà tặng",
+      "status": {
+        "label": "Trạng thái",
+        "all": "Tất cả trạng thái",
+        "pending": "Đang chờ",
+        "completed": "Hoàn thành",
+        "failed": "Thất bại",
+        "cancelled": "Đã hủy"
+      },
+      "quantity": "Số lượng",
+      "points": "Xu",
+      "total": "Tổng cộng",
+      "totalPayment": "Tổng thanh toán",
+      "orderDetails": "Chi tiết đơn hàng",
+      "recipient": "người nhận",
+      "noOrders": "Không tìm thấy đơn hàng thẻ quà tặng",
+      "noOrdersDescription": "Đơn hàng thẻ quà tặng của bạn sẽ hiển thị tại đây",
+      "loadError": "Không thể tải đơn hàng thẻ quà tặng. Vui lòng thử lại.",
+      "paymentInfo": "Thông tin thanh toán",
+      "paymentMethod": "Phương thức thanh toán",
+      "paymentStatus": "Trạng thái thanh toán",
+      "transactionId": "Mã giao dịch",
+      "paymentDate": "Ngày thanh toán",
+      "giftCardInfo": "Thông tin thẻ quà tặng",
+      "cardType": "Loại thẻ",
+      "cardPrice": "Giá thẻ",
+      "giftCardCodes": "Thẻ quà tặng",
+      "code": "Mã thẻ",
+      "serial": "Số serial",
+      "expires": "Hết hạn",
+      "used": "Đã sử dụng",
+      "recipients": "Người nhận",
+      "message": "Tin nhắn",
+      "noName": "_____"
     }
   }
 }
