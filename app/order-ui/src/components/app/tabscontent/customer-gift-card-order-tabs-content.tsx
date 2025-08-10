@@ -2,21 +2,11 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Package,
-  Clock,
   Filter,
   X,
   CheckCircle,
   XCircle,
   Loader,
-  ChevronDown,
-  ChevronUp,
-  User,
-  Phone,
-  MessageSquare,
-  CreditCard,
-  Calendar,
-  Receipt,
-  Gift,
   CoinsIcon,
 } from 'lucide-react'
 
@@ -32,27 +22,24 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import {
-  formatCurrency,
-  getGiftCardTypeLabel,
-  getGiftCardUsageStatusLabel,
-  getPaymentMethodLabel,
-  getPaymentStatusLabel,
-} from '@/utils'
+import { formatCurrency } from '@/utils'
 import { useGetCardOrdersInfinite } from '@/hooks'
-import { CardOrderStatus, GiftCardUsageStatus } from '@/constants'
+import { CardOrderStatus, publicFileURL } from '@/constants'
 import { ICardOrderResponse } from '@/types'
 import moment from 'moment'
 import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-card-skeleton'
 import SimpleDatePicker from '@/components/app/picker/simple-date-picker'
+import { Collapsible, CollapsibleContent } from '@radix-ui/react-collapsible'
+import { GiftCardOrderDetailsSheet } from './gift-card-order-details-sheet'
 
 export function CustomerGiftCardOrderTabsContent() {
   const { t } = useTranslation(['profile'])
   const isMobile = useIsMobile()
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
+  const [selectedCardOrder, setSelectedCardOrder] =
+    useState<ICardOrderResponse | null>(null)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const {
     cardOrders,
@@ -83,16 +70,9 @@ export function CustomerGiftCardOrderTabsContent() {
     setIsFilterOpen(false)
   }, [clearFilters])
 
-  const toggleCardExpansion = useCallback((cardSlug: string) => {
-    setExpandedCards((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(cardSlug)) {
-        newSet.delete(cardSlug)
-      } else {
-        newSet.add(cardSlug)
-      }
-      return newSet
-    })
+  const toggleCardExpansion = useCallback((cardOrder: ICardOrderResponse) => {
+    setSelectedCardOrder(cardOrder)
+    setIsSheetOpen(true)
   }, [])
 
   const getStatusBadge = (status: string) => {
@@ -165,337 +145,80 @@ export function CustomerGiftCardOrderTabsContent() {
 
   const CardOrderItem = ({ cardOrder }: { cardOrder: ICardOrderResponse }) => {
     const statusBadge = getStatusBadge(cardOrder.status)
-    const isExpanded = expandedCards.has(cardOrder.slug)
 
     return (
       <div
-        className={`mb-3 rounded-md border-l-4 px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${
-          cardOrder.status === CardOrderStatus.COMPLETED
-            ? 'border-l-green-500 bg-green-50 dark:bg-green-900/10'
-            : cardOrder.status === CardOrderStatus.PENDING
-              ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/10'
-              : cardOrder.status === CardOrderStatus.FAILED
-                ? 'border-l-red-500 bg-red-50 dark:bg-red-900/10'
-                : 'border-l-gray-500 bg-gray-50 dark:bg-gray-900/10'
-        }`}
+        key={cardOrder.slug}
+        className="mt-2 flex flex-col gap-4 rounded-lg border bg-white p-0 dark:bg-transparent"
       >
-        <div className="flex items-start justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-4">
-                <div
-                  className={`rounded-lg p-1 ${isMobile ? 'p-1' : 'p-2'} ${
-                    cardOrder.status === CardOrderStatus.COMPLETED
-                      ? 'bg-green-100 dark:bg-green-900/30'
-                      : cardOrder.status === CardOrderStatus.PENDING
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30'
-                        : cardOrder.status === CardOrderStatus.FAILED
-                          ? 'bg-red-100 dark:bg-red-900/30'
-                          : 'bg-gray-100 dark:bg-gray-900/30'
-                  }`}
-                >
-                  <Package
-                    className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} ${statusBadge.color}`}
-                  />
-                </div>
-                <Badge variant={statusBadge.variant} className="px-2 py-1">
-                  <div className="flex items-center gap-1">
-                    {statusBadge.icon}
-                    {statusBadge.label}
-                  </div>
-                </Badge>
+        {/* Header with timestamp and status */}
+        <div className="flex w-full items-center gap-4 border-b bg-primary/15 p-4 dark:bg-muted-foreground/10">
+          <span className="text-xs text-muted-foreground">
+            {moment(cardOrder.orderDate || cardOrder.createdAt).format(
+              'HH:mm:ss DD/MM/YYYY',
+            )}
+          </span>
+          <Badge variant={statusBadge.variant} className="px-2 py-1">
+            <div className="flex items-center gap-1">
+              {statusBadge.icon}
+              {statusBadge.label}
+            </div>
+          </Badge>
+        </div>
+
+        <div className="px-4 pb-4">
+          {/* Main card content */}
+          <div className="grid grid-cols-12 gap-2 py-4">
+            <div className="relative col-span-3 sm:col-span-2">
+              <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md">
+                <img
+                  src={`${publicFileURL}/${cardOrder.cardImage}`}
+                  alt={cardOrder.cardImage}
+                  className="h-full w-full rounded-md object-contain"
+                />
               </div>
-              <span
-                className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}
-              >
-                {t('profile.cardOrder.quantity')}: {cardOrder.quantity}
-              </span>
+              <div className="absolute -bottom-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white sm:-right-4 sm:h-10 sm:w-10 sm:text-sm lg:right-4 xl:-right-4">
+                x{cardOrder.quantity}
+              </div>
             </div>
 
-            <p
-              className={`mb-1 ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}
-            >
-              {cardOrder.cardTitle}
-            </p>
-
-            <div
-              className={`${isMobile ? 'flex flex-col justify-end space-y-1 text-xs' : 'flex items-center gap-4 text-sm'} w-max`}
-            >
-              <span className="text-primary">
-                {formatCurrency(cardOrder.cardPoint, '')}
-                <CoinsIcon className="inline-block h-4 w-4 text-primary" />
-              </span>
-
-              <span className="font-medium text-primary">
-                {t('profile.cardOrder.total')}:{' '}
-                {formatCurrency(cardOrder.totalAmount)}
-              </span>
-            </div>
-            <span
-              className={`${isMobile ? 'text-xs' : 'text-sm'} mt-2 flex items-center justify-between text-muted-foreground`}
-            >
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {moment(cardOrder.orderDate || cardOrder.createdAt).format(
-                  'HH:mm:ss DD/MM/YYYY',
-                )}
+            <div className="col-span-9 flex flex-col justify-between sm:col-span-10">
+              <div className="flex flex-col gap-1">
+                <span className="flex flex-col gap-1 truncate text-sm font-semibold sm:flex-row sm:text-base">
+                  {cardOrder.cardTitle}
+                </span>
               </div>
-              {/* Expand/Collapse Button */}
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleCardExpansion(cardOrder.slug)}
-                  className="h-8 px-2 text-xs"
-                >
-                  {isExpanded ? (
-                    <>
-                      <ChevronUp className="h-3 w-3" />
-                      {t('profile.common.collapse')}
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-3 w-3" />
-                      {t('profile.common.viewDetails')}
-                    </>
-                  )}
-                </Button>
-              </div>
-            </span>
 
-            {/* Collapsible Details */}
-            <Collapsible open={isExpanded}>
-              <CollapsibleContent className="mt-3">
-                <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {/* Payment Information */}
-                    <div className="space-y-3">
-                      <h4 className="flex items-center gap-2 text-sm font-medium">
-                        <CreditCard className="h-4 w-4 text-blue-500" />
-                        {t('profile.cardOrder.paymentInfo')}
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            {t('profile.cardOrder.paymentMethod')}:
-                          </span>
-                          <span className="text-right font-medium">
-                            {getPaymentMethodLabel(cardOrder.paymentMethod)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            {t('profile.cardOrder.paymentStatus')}:
-                          </span>
-                          <span className="font-medium">
-                            {getPaymentStatusLabel(cardOrder.paymentStatus)}
-                          </span>
-                        </div>
-                        {cardOrder.payment && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                {t('profile.cardOrder.transactionId')}:
-                              </span>
-                              <span className="text-xs font-medium">
-                                {cardOrder.payment.transactionId}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                {t('profile.cardOrder.paymentDate')}:
-                              </span>
-                              <span className="font-medium">
-                                <Calendar className="mr-1 inline h-3 w-3" />
-                                {moment(cardOrder.payment.createdAt).format(
-                                  'HH:mm:ss DD/MM/YYYY',
-                                )}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Gift Card Information */}
-                    <div className="space-y-3">
-                      <h4 className="flex items-center gap-2 text-sm font-medium">
-                        <Gift className="h-4 w-4 text-purple-500" />
-                        {t('profile.cardOrder.giftCardInfo')}
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            {t('profile.cardOrder.cardType')}:
-                          </span>
-                          <span className="font-medium">
-                            {getGiftCardTypeLabel(cardOrder.type)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            {t('profile.cardOrder.cardPrice')}:
-                          </span>
-                          <span className="font-medium">
-                            {formatCurrency(cardOrder.cardPrice)}
-                          </span>
-                        </div>
-                        {cardOrder.giftCards?.length > 0 && (
-                          <div>
-                            <span className="mb-1 block text-muted-foreground">
-                              {t('profile.cardOrder.giftCardCodes')}:
-                            </span>
-                            <div className="space-y-1">
-                              {cardOrder.giftCards.map((giftCard, index) => (
-                                <div
-                                  key={giftCard.slug || index}
-                                  className="rounded bg-gray-100 p-2 dark:bg-gray-700"
-                                >
-                                  <div className="mb-1 flex items-center gap-2">
-                                    <Receipt className="h-3 w-3 text-gray-500" />
-                                    <span className="text-xs font-medium">
-                                      {giftCard.cardName}
-                                    </span>
-                                  </div>
-                                  <div className="space-y-1 text-xs">
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        {t('profile.cardOrder.code')}:
-                                      </span>
-                                      <span className="font-mono">
-                                        {giftCard.code}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        {t('profile.cardOrder.serial')}:
-                                      </span>
-                                      <span className="font-mono">
-                                        {giftCard.serial}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        {t('profile.cardOrder.points')}:
-                                      </span>
-                                      <span className="font-medium">
-                                        {formatCurrency(
-                                          giftCard.cardPoints,
-                                          '',
-                                        )}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">
-                                        {t('profile.cardOrder.status.label')}:
-                                      </span>
-                                      <span
-                                        className={`font-medium ${
-                                          giftCard.status ===
-                                          GiftCardUsageStatus.AVAILABLE
-                                            ? 'text-green-600'
-                                            : giftCard.status ===
-                                                GiftCardUsageStatus.USED
-                                              ? 'text-red-600'
-                                              : 'text-gray-900'
-                                        }`}
-                                      >
-                                        {getGiftCardUsageStatusLabel(
-                                          giftCard.status,
-                                        )}
-                                      </span>
-                                    </div>
-                                    {giftCard.expiredAt && (
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          {t('profile.cardOrder.expires')}:
-                                        </span>
-                                        <span className="text-xs">
-                                          {moment(giftCard.expiredAt).format(
-                                            'HH:mm:ss DD/MM/YYYY',
-                                          )}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {giftCard.usedAt && (
-                                      <div className="flex justify-between">
-                                        <span className="text-muted-foreground">
-                                          {t('profile.cardOrder.used')}:
-                                        </span>
-                                        <span className="text-xs">
-                                          {moment(giftCard.usedAt).format(
-                                            'HH:mm:ss DD/MM/YYYY',
-                                          )}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Recipients Information */}
-                  {cardOrder.receipients &&
-                    cardOrder.receipients.length > 0 && (
-                      <div className="mt-4 border-t pt-4">
-                        <h4 className="mb-3 flex items-center gap-2 text-sm font-medium">
-                          <User className="h-4 w-4 text-green-500" />
-                          {t('profile.cardOrder.recipients')} (
-                          {cardOrder.receipients.length})
-                        </h4>
-                        <div className="space-y-3">
-                          {cardOrder.receipients.map((recipient, index) => (
-                            <div
-                              key={recipient.slug || index}
-                              className="rounded-lg border bg-gray-50 p-3 dark:bg-gray-700"
-                            >
-                              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2 text-xs">
-                                    <User className="h-3 w-3 text-gray-500" />
-                                    <span className="font-medium">
-                                      {recipient.name !== 'null null'
-                                        ? recipient.name
-                                        : t('profile.cardOrder.noName')}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Phone className="h-3 w-3" />
-                                    <span>{recipient.phone}</span>
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    {t('profile.cardOrder.quantity')}:{' '}
-                                    {recipient.quantity}
-                                  </div>
-                                </div>
-                                {recipient.message && (
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <MessageSquare className="h-3 w-3 text-gray-500" />
-                                      <span className="font-medium">
-                                        {t('profile.cardOrder.message')}:
-                                      </span>
-                                    </div>
-                                    <p className="rounded bg-white p-2 text-xs text-muted-foreground dark:bg-gray-600">
-                                      {recipient.message}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              <div className="flex w-full justify-end">
+                <div className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-sm text-primary sm:text-base">
+                    {formatCurrency(cardOrder.cardPoint, '')}{' '}
+                    <CoinsIcon className="h-4 w-4 text-primary" />
+                  </span>
                 </div>
-              </CollapsibleContent>
-            </Collapsible>
+              </div>
+            </div>
           </div>
+
+          {/* Total section */}
+          <div className="mt-4 flex w-full justify-end">
+            <div className="flex w-[20rem] flex-col justify-end gap-2">
+              <div className="flex flex-col border-t">
+                <div className="flex w-full justify-between">
+                  <h3 className="text-md font-semibold">
+                    {t('profile.cardOrder.totalPayment')}
+                  </h3>
+                  <p className="text-lg font-extrabold text-primary">
+                    {formatCurrency(cardOrder.totalAmount)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Button onClick={() => toggleCardExpansion(cardOrder)}>
+            {t('profile.common.viewDetails')}
+          </Button>
         </div>
       </div>
     )
@@ -697,6 +420,13 @@ export function CustomerGiftCardOrderTabsContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Sheet for Card Order Details */}
+      <GiftCardOrderDetailsSheet
+        isOpen={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        cardOrder={selectedCardOrder}
+      />
     </div>
   )
 }
