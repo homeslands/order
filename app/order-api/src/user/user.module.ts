@@ -9,11 +9,12 @@ import { UserScheduler } from './user.scheduler';
 import { Role } from 'src/role/role.entity';
 import { Branch } from 'src/branch/branch.entity';
 import { UserUtils } from './user.utils';
+import { SharedModule } from 'src/shared/shared.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Role, Branch]), MailModule],
+  imports: [TypeOrmModule.forFeature([User, Role, Branch]), MailModule, SharedModule],
   controllers: [UserController],
   providers: [UserService, UserProfile, UserScheduler, UserUtils],
   exports: [UserService, UserUtils],
 })
-export class UserModule {}
+export class UserModule { }
