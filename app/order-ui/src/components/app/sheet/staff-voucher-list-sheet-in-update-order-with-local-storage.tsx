@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -62,6 +62,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [appliedVoucher, setAppliedVoucher] = useState<string>('')
   const [removedVouchers, setRemovedVouchers] = useState<IVoucher[]>([])
+  const isRemovingVoucherRef = useRef(false)
 
   const voucher = updatingData?.updateDraft?.voucher || null
   const orderDraft = updatingData?.updateDraft
@@ -249,26 +250,53 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
 
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
-    if (orderDraft?.voucher && orderDraft?.orderItems) {
-      const currentVoucher = orderDraft.voucher
+    if (!orderDraft?.voucher || !orderDraft?.orderItems || isRemovingVoucherRef.current) {
+      isRemovingVoucherRef.current = false
+      return
+    }
 
-      // Only check for vouchers with ALL_REQUIRED rule
-      if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-        const cartProductSlugs = orderDraft.orderItems.map(item => item.variant.product.slug)
-        const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const { voucher, orderItems } = orderDraft
+    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const cartProductSlugs = orderItems.map(item => item.variant.product.slug)
 
-        // Check if there are any products in cart that are NOT in voucher products
-        const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
-          !voucherProductSlugs.includes(cartSlug)
-        )
+    // Tính tổng tiền sau promotion nhưng chưa áp voucher
+    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+      const original = item.originalPrice || 0
+      const promotionDiscount = item.promotionDiscount || 0
+      return acc + (original - promotionDiscount) * item.quantity
+    }, 0)
 
-        if (hasInvalidProducts) {
-          // Auto remove voucher
-          handleToggleVoucher(currentVoucher)
-        }
+    let shouldRemove = false
+
+    // Check applicability rule
+    switch (voucher.applicabilityRule) {
+      case APPLICABILITY_RULE.ALL_REQUIRED: {
+        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
+        if (hasInvalidProducts) shouldRemove = true
+        break
+      }
+      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
+        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+        if (!hasAtLeastOne) shouldRemove = true
+        break
+      }
+      default:
+        break
+    }
+
+    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
+    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
+        shouldRemove = true
       }
     }
-  }, [orderDraft?.orderItems, orderDraft?.voucher?.slug, orderDraft?.voucher, handleToggleVoucher]) // Trigger when orderItems change
+
+    // Remove voucher nếu cần
+    if (shouldRemove) {
+      isRemovingVoucherRef.current = true
+      handleToggleVoucher(voucher)
+    }
+  }, [orderDraft, handleToggleVoucher]) // Trigger when orderItems change
 
   // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -598,7 +626,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
+                {voucher.value}% {t('voucher.forSelectedProducts')}
               </span>
             ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
               <span className="text-xs italic text-primary">
@@ -607,7 +635,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
             ) : (
               <span className="text-xs italic text-primary">
                 {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
+                {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
               </span>
             )}
             <span className="flex gap-1 items-center text-sm text-muted-foreground">

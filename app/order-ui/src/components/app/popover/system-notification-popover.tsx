@@ -97,7 +97,7 @@ export default function SystemNotificationPopover() {
       clearSelectedItems()
       setOrderSlug(notification.slug)
       if (userInfo?.role.name === Role.STAFF) {
-        navigate(`${ROUTE.STAFF_ORDER_MANAGEMENT}?slug=${notification.metadata.order}`)
+        navigate(`${ROUTE.STAFF_DELIVERY_MANAGEMENT}?slug=${notification.metadata.order}`)
       } else if (userInfo?.role.name === Role.CHEF) {
         navigate(`${ROUTE.STAFF_CHEF_ORDER}?slug=${notification.metadata.order}`)
       }

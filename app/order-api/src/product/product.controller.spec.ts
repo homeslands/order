@@ -43,6 +43,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { Payment } from 'src/payment/payment.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -134,6 +135,10 @@ describe('ProductController', () => {
         {
           provide: getRepositoryToken(Product),
           useFactory: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

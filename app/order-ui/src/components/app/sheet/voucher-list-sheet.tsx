@@ -169,27 +169,54 @@ export default function VoucherListSheet() {
 
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
-    if (cartItems?.voucher && cartItems?.orderItems && !isRemovingVoucherRef.current) {
-      const currentVoucher = cartItems.voucher
-
-      // Only check for vouchers with ALL_REQUIRED rule
-      if (currentVoucher.applicabilityRule === APPLICABILITY_RULE.ALL_REQUIRED) {
-        const cartProductSlugs = cartItems.orderItems.map(item => item.productSlug || item.slug)
-        const voucherProductSlugs = currentVoucher.voucherProducts?.map(vp => vp.product.slug) || []
-        // Check if there are any products in cart that are NOT in voucher products
-        const hasInvalidProducts = cartProductSlugs.some(cartSlug =>
-          !voucherProductSlugs.includes(cartSlug)
-        )
-
-        if (hasInvalidProducts) {
-          isRemovingVoucherRef.current = true
-          handleToggleVoucher(currentVoucher)
-        }
-      }
-    } else {
+    if (!cartItems?.voucher || !cartItems?.orderItems || isRemovingVoucherRef.current) {
       isRemovingVoucherRef.current = false
+      return
     }
-  }, [cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher]) // Remove handleToggleVoucher from deps
+
+    const { voucher, orderItems } = cartItems
+    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
+    const cartProductSlugs = orderItems.map(item => item.productSlug || item.slug)
+
+    // Tổng tiền gốc (sau promotion nhưng chưa áp voucher)
+    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
+      const original = item.originalPrice
+      const promotionDiscount = item.promotionDiscount ?? 0
+      return acc + ((original ?? 0) - promotionDiscount) * item.quantity
+    }, 0)
+
+    let shouldRemove = false
+
+    switch (voucher.applicabilityRule) {
+      case APPLICABILITY_RULE.ALL_REQUIRED: {
+        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
+        if (hasInvalidProducts) shouldRemove = true
+        break
+      }
+      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
+        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+        if (!hasAtLeastOne) shouldRemove = true
+        break
+      }
+      default:
+        break
+    }
+
+    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
+    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
+      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
+        shouldRemove = true
+      }
+    }
+
+    // Remove voucher nếu cần
+    if (shouldRemove) {
+      isRemovingVoucherRef.current = true
+      handleToggleVoucher(voucher)
+    }
+
+  }, [cartItems, cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher])
+
 
   // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -554,21 +581,34 @@ export default function VoucherListSheet() {
             <span className="text-xs text-muted-foreground sm:text-sm">
               {voucher.title}
             </span>
-            {voucher.type === VOUCHER_TYPE.PERCENT_ORDER ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {voucher.value}% {t('voucher.orderValue')}
-              </span>
-            ) : voucher.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT ? (
-              <span className="text-xs italic text-primary">
-                {t('voucher.samePrice')} {formatCurrency(voucher.value)} {t('voucher.forSelectedProducts')}
-              </span>
-            ) : (
-              <span className="text-xs italic text-primary">
-                {t('voucher.discountValue')}
-                {formatCurrency(voucher.value)} {t('voucher.orderValue')}
-              </span>
-            )}
+            <span className="text-xs italic text-primary">
+              {(() => {
+                const { type, value, applicabilityRule: rule } = voucher
+
+                const discountValueText =
+                  type === VOUCHER_TYPE.PERCENT_ORDER
+                    ? t('voucher.percentDiscount', { value })
+                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
+                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
+
+                const ruleText =
+                  rule === APPLICABILITY_RULE.ALL_REQUIRED
+                    ? t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAllSamePrice'
+                        : 'voucher.requireAll'
+                    )
+                    : t(
+                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                        ? 'voucher.requireAtLeastOneSamePrice'
+                        : 'voucher.requireAtLeastOne'
+                    )
+
+                return `${discountValueText} ${ruleText}`
+              })()}
+            </span>
+
 
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
               {voucher.code}

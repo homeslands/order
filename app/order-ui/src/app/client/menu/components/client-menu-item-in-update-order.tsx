@@ -55,7 +55,8 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
           productSlug: itemResponse.variant.product.slug,
           originalPrice: itemResponse.variant.price,
           promotion: itemResponse.promotion ? itemResponse.promotion : null,
-          promotionValue: itemResponse.promotion ? itemResponse.promotionDiscount : 0,
+          promotionValue: itemResponse.promotion ? itemResponse.promotion.value : 0,
+          promotionDiscount: itemResponse.promotion ? itemResponse.promotion.type === 'per-product' ? (itemResponse.promotion.value * (itemResponse.variant.price ?? 0)) / 100 : 0 : 0,
           description: itemResponse.variant.product.description,
           isLimit: itemResponse.variant.product.isLimit,
           note: '',
@@ -194,7 +195,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
           )
         ) : (
           <Button
-            className="px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full"
+            className="px-3 py-1 w-full text-xs font-semibold text-white bg-red-500 rounded-full"
             disabled
           >
             {t('menu.outOfStock')}

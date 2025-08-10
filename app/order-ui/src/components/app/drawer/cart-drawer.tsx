@@ -4,6 +4,7 @@ import { ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  Badge,
   Button,
   Drawer,
   DrawerClose,
@@ -18,7 +19,7 @@ import {
 import { useOrderFlowStore } from '@/stores'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { publicFileURL, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, publicFileURL, VOUCHER_TYPE } from '@/constants'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
 import { cn } from '@/lib'
 import { IUserInfo, OrderTypeEnum } from '@/types'
@@ -28,6 +29,7 @@ import { StaffVoucherListSheet } from '../sheet'
 
 export default function CartDrawer({ className = '' }: { className?: string }) {
   const { t } = useTranslation(['menu'])
+  const { t: tVoucher } = useTranslation(['voucher'])
   const { t: tToast } = useTranslation(['toast'])
   const { t: tCommon } = useTranslation(['common'])
   const drawerCloseRef = useRef<HTMLButtonElement>(null)
@@ -216,6 +218,56 @@ export default function CartDrawer({ className = '' }: { className?: string }) {
               </div>
               <OrderNoteInput order={cartItems} />
               <StaffVoucherListSheet />
+              <div>
+                {cartItems?.voucher && (
+                  <div className="flex justify-start w-full">
+                    <div className="flex flex-col items-start">
+                      <div className="flex gap-2 items-center mt-2">
+                        <Badge variant='outline' className="text-[10px] px-1 border-primary text-primary">
+                          {(() => {
+                            const voucher = cartItems?.voucher
+                            if (!voucher) return null
+
+                            const { type, value, applicabilityRule: rule } = voucher
+
+                            // Mô tả phần giá trị khuyến mãi
+                            const discountValueText =
+                              type === VOUCHER_TYPE.PERCENT_ORDER
+                                ? tVoucher('voucher.percentDiscount', { value }) // "Giảm {value}%"
+                                : type === VOUCHER_TYPE.FIXED_VALUE
+                                  ? tVoucher('voucher.fixedDiscount', { value: formatCurrency(value) }) // "Giảm {value}₫"
+                                  : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? tVoucher('voucher.samePriceProduct', { value: formatCurrency(value) }) // "Đồng giá {value}₫"
+                                    : ''
+
+                            // Mô tả điều kiện áp dụng (rule)
+                            const ruleText =
+                              rule === APPLICABILITY_RULE.ALL_REQUIRED
+                                ? tVoucher(
+                                  type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                    ? 'voucher.requireAllSamePrice'
+                                    : type === VOUCHER_TYPE.PERCENT_ORDER
+                                      ? 'voucher.requireAllPercent'
+                                      : 'voucher.requireAllFixed'
+                                )
+                                : rule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED
+                                  ? tVoucher(
+                                    type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
+                                      ? 'voucher.requireAtLeastOneSamePrice'
+                                      : type === VOUCHER_TYPE.PERCENT_ORDER
+                                        ? 'voucher.requireAtLeastOnePercent'
+                                        : 'voucher.requireAtLeastOneFixed'
+                                  )
+                                  : ''
+
+                            return `${discountValueText} ${ruleText}`
+                          })()}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </ScrollArea>
           ) : (
             <p className="flex min-h-[12rem] items-center justify-center text-muted-foreground">

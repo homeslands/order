@@ -21,7 +21,7 @@ import {
 
 import { useOrders, usePagination } from '@/hooks'
 import { useUpdateOrderStore, useUserStore } from '@/stores'
-import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { IOrder, OrderStatus } from '@/types'
 import { OrderHistorySkeleton } from '@/components/app/skeleton'
@@ -86,10 +86,10 @@ export default function CustomerOrderTabsContent() {
           </SelectContent>
         </Select>
       </div>
-
-      {order?.result.items.length ? (
+      
+      {order?.items.length ? (
         <div className="flex flex-col gap-4">
-          {order.result.items.map((orderItem) => {
+          {order.items.map((orderItem) => {
             const orderItems = orderItem.orderItems || []
             const voucher = orderItem.voucher || null
             const displayItems = calculateOrderItemDisplay(orderItems, voucher)
@@ -115,7 +115,7 @@ export default function CustomerOrderTabsContent() {
                             alt={product.variant.product.name}
                             className="object-cover h-16 rounded-md sm:h-28 sm:w-36"
                           />
-                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full sm:text-sm -right-2 -bottom-2 sm:-right-4 lg:right-4 xl:-right-4 sm:w-10 sm:h-10 bg-primary">
+                          <div className="absolute flex items-center justify-center w-6 h-6 text-xs text-white rounded-full -right-2 -bottom-2 sm:text-sm sm:-right-4 lg:right-4 xl:-right-4 sm:w-10 sm:h-10 bg-primary">
                             x{product.quantity}
                           </div>
                         </div>
@@ -136,25 +136,35 @@ export default function CustomerOrderTabsContent() {
                                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
                                 voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
 
-                              const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                              // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
+                              const isAtLeastOneVoucher =
+                                voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
+                                voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
+
+                              const hasVoucherDiscount = (displayItem?.voucherDiscount ?? 0) > 0
+                              const hasPromotionDiscount = (displayItem?.promotionDiscount ?? 0) > 0
+                              // finalPrice là giá cuối cùng hiển thị trên UI
                               const displayPrice = isSamePriceVoucher
-                                ? finalPrice
-                                : hasPromotionDiscount
-                                  ? priceAfterPromotion
-                                  : original
+                                ? finalPrice // đồng giá
+                                : isAtLeastOneVoucher && hasVoucherDiscount
+                                  ? original - (displayItem?.voucherDiscount || 0)
+                                  : hasPromotionDiscount
+                                    ? priceAfterPromotion
+                                    : original
 
                               const shouldShowLineThrough =
-                                isSamePriceVoucher || hasPromotionDiscount
+                                (isSamePriceVoucher || hasPromotionDiscount || hasVoucherDiscount) &&
+                                (original > displayPrice)
 
                               return (
                                 <div className="flex items-center gap-1">
                                   {shouldShowLineThrough && (
-                                    <span className="text-xs line-through sm:text-sm text-muted-foreground">
+                                    <span className="text-xs line-through sm:text-sm text-muted-foreground/60">
                                       {formatCurrency(original)}
                                     </span>
                                   )}
-                                  <span className="text-sm sm:text-md">
+                                  <span className="text-sm font-bold sm:text-md text-primary">
                                     {formatCurrency(displayPrice)}
                                   </span>
                                 </div>
@@ -235,7 +245,7 @@ export default function CustomerOrderTabsContent() {
         </div>
       )}
 
-      {order && order?.result.totalPages > 0 && (
+      {order && order?.totalPages > 0 && (
         <div className="flex items-center justify-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
@@ -243,20 +253,20 @@ export default function CustomerOrderTabsContent() {
                 <PaginationPrevious
                   onClick={() => handlePageChange(pagination.pageIndex - 1)}
                   className={
-                    !order?.result.hasPrevious
+                    !order?.hasPrevious
                       ? 'pointer-events-none opacity-50'
                       : 'cursor-pointer'
                   }
                 />
               </PaginationItem>
               <PaginationItem>
-                <PaginationLink isActive>{order?.result.page}</PaginationLink>
+                <PaginationLink isActive>{order?.page}</PaginationLink>
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   onClick={() => handlePageChange(pagination.pageIndex + 1)}
                   className={
-                    !order?.result.hasNext
+                    !order?.hasNext
                       ? 'pointer-events-none opacity-50'
                       : 'cursor-pointer'
                   }

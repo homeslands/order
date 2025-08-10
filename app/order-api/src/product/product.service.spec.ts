@@ -51,6 +51,7 @@ import { ConfigService } from '@nestjs/config';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -176,6 +177,10 @@ describe('ProductService', () => {
         {
           provide: DataSource,
           useFactory: dataSourceMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

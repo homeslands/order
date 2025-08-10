@@ -14,7 +14,7 @@ export class BranchRevenueQueryResponseDto {
   branchId: string;
 
   @AutoMap()
-  date: Date;
+  date: string;
 
   @AutoMap()
   totalAmount: string;
@@ -57,6 +57,12 @@ export class BranchRevenueQueryResponseDto {
 
   @AutoMap()
   totalLossAmount: string;
+
+  @AutoMap()
+  totalOrderPoint: string;
+
+  @AutoMap()
+  totalAmountPoint: string;
 }
 
 export class BranchRevenueQueryResponseForHourDto {
@@ -64,7 +70,7 @@ export class BranchRevenueQueryResponseForHourDto {
   branchId: string;
 
   @AutoMap()
-  date: Date;
+  date: string;
 
   @AutoMap()
   totalAmount: string;
@@ -107,6 +113,12 @@ export class BranchRevenueQueryResponseForHourDto {
 
   @AutoMap()
   totalLossAmount: string;
+
+  @AutoMap()
+  totalOrderPoint: string;
+
+  @AutoMap()
+  totalAmountPoint: string;
 }
 
 export class GetBranchRevenueQueryDto {
@@ -215,6 +227,14 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   lossAmount: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalOrderPoint: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAmountPoint: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {
