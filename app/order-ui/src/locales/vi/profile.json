@@ -132,15 +132,17 @@
       "noGiftCards": "Không tìm thấy thẻ quà tặng",
       "noGiftCardsDescription": "Giao dịch thẻ quà tặng của bạn sẽ hiển thị tại đây",
       "loadError": "Không thể tải thẻ quà tặng. Vui lòng thử lại.",
-      "usedAt": "Đã sử dụng vào",
+      "usedAt": "Sử dụng lúc",
       "usedBy": "Được sử dụng bởi",
-      "expiredAt": "Hết hạn vào",
+      "expiredAt": "Hạn sử dụng",
+      "pointsReceived": "Xu nhận được",
       "serial": "Số seri",
       "code": "Mã thẻ quà tặng",
       "createdAt": "Tạo vào lúc",
       "owner": "Chủ sở hữu",
       "expiredMessage": "Thẻ quà tặng này đã hết hạn và không thể sử dụng.",
-      "usedMessage": "Thẻ quà tặng này đã được sử dụng."
+      "usedMessage": "Thẻ quà tặng này đã được sử dụng.",
+      "copyCode": "Sao chép mã"
     },
     "common": {
       "filter": "Lọc",

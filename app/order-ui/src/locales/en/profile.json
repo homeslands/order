@@ -135,12 +135,14 @@
       "usedAt": "Used at",
       "usedBy": "Used by",
       "expiredAt": "Expired at",
+      "pointsReceived": "Coins Received",
       "serial": "Serial Number",
       "code": "Gift Card Code",
       "createdAt": "Created at",
       "owner": "Owner",
       "expiredMessage": "This gift card has expired and cannot be used.",
-      "usedMessage": "This gift card has already been used."
+      "usedMessage": "This gift card has already been used.",
+      "copyCode": "Copy Code"
     },
     "common": {
       "filter": "Filter",

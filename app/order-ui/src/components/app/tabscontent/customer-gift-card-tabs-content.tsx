@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Gift, Clock, Filter, X, CoinsIcon } from 'lucide-react'
+import { Gift, Clock, Filter, X, CoinsIcon, Copy, Check } from 'lucide-react'
 
 import { useIsMobile } from '@/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import { Badge } from '@/components/ui/badge'
 import moment from 'moment'
 import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-card-skeleton'
 import { useGetUserGiftCardsInfinite } from '@/hooks/use-gift-card'
@@ -22,6 +21,7 @@ import { GiftCardDetailDialog } from '@/components/app/dialog'
 import type { IGiftCardDetail } from '@/types/gift-card.type'
 import { GiftCardUsageStatus } from '@/constants'
 import { SimpleDatePicker } from '../picker'
+import { GiftCardStatusBadge } from '@/components/app/badge'
 
 export function CustomerGiftCardTabsContent() {
   const { t } = useTranslation(['profile'])
@@ -85,53 +85,42 @@ export function CustomerGiftCardTabsContent() {
     }
   }, [hasNextPage, isFetchingNextPage, isLoading, handleLoadMore])
 
-  // Get status badge variant and label
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'available':
-        return {
-          variant: 'default' as const,
-          label: t('profile.giftCard.status.available'),
-        }
-      case 'used':
-        return {
-          variant: 'secondary' as const,
-          label: t('profile.giftCard.status.used'),
-        }
-      case 'expired':
-        return {
-          variant: 'destructive' as const,
-          label: t('profile.giftCard.status.expired'),
-        }
-      default:
-        return { variant: 'outline' as const, label: status }
-    }
-  }
-
   const GiftCardItem = ({ giftCard }: { giftCard: IGiftCardDetail }) => {
-    const statusBadge = getStatusBadge(
-      giftCard.status || GiftCardUsageStatus.AVAILABLE,
+    const [copiedCode, setCopiedCode] = useState<string | null>(null)
+
+    const handleCopyCode = useCallback(
+      async (e: React.MouseEvent, code: string) => {
+        e.stopPropagation()
+        await navigator.clipboard.writeText(code)
+        setCopiedCode(code)
+        setTimeout(() => setCopiedCode(null), 2000)
+      },
+      [],
     )
 
     return (
       <GiftCardDetailDialog giftCard={giftCard}>
         <div
-          className={`mb-3 cursor-pointer rounded-md border-l-4 border-l-blue-500 bg-blue-50 px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md dark:bg-blue-900/10`}
+          className={`mb-3 cursor-pointer rounded-md border-l-4 border-l-green-500 bg-green-50 px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md dark:bg-green-900/30`}
         >
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-4">
-                  <div
-                    className={`rounded-lg bg-blue-100 p-1 ${isMobile ? 'p-1' : 'p-2'} dark:bg-blue-900/30`}
-                  >
+                  <div className={`rounded-lg ${isMobile ? 'p-1' : 'p-2'} `}>
                     <Gift
-                      className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-blue-600 dark:text-blue-300`}
+                      className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-primary`}
                     />
                   </div>
-                  <Badge variant={statusBadge.variant} className="px-2 py-1">
-                    {statusBadge.label}
-                  </Badge>
+                  {!isMobile && (
+                    <p className={`text-smfont-medium`}>
+                      {giftCard.cardName || t('profile.giftCard.defaultTitle')}
+                    </p>
+                  )}
+                  <GiftCardStatusBadge
+                    status={giftCard.status || GiftCardUsageStatus.AVAILABLE}
+                    rounded="md"
+                  />
                 </div>
                 <span
                   className={`${isMobile ? 'text-xs' : 'text-sm'} flex items-center gap-1 text-muted-foreground`}
@@ -141,33 +130,25 @@ export function CustomerGiftCardTabsContent() {
                 </span>
               </div>
 
-              <p
-                className={`mb-1 ${isMobile ? 'text-xs' : 'text-sm'} font-medium`}
-              >
-                {giftCard.cardName || t('profile.giftCard.defaultTitle')}
-              </p>
+              {isMobile && (
+                <p className={`mb-1 pt-1 text-xs font-medium`}>
+                  {giftCard.cardName || t('profile.giftCard.defaultTitle')}
+                </p>
+              )}
 
-              <div
-                className={`flex items-center gap-4 ${isMobile ? 'text-xs' : 'text-sm'} w-max`}
-              >
-                {giftCard.cardPoints && (
-                  <span className="font-medium text-primary">
+              {giftCard.cardPoints && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  {t('profile.giftCard.pointsReceived')}:
+                  <span className="text-primary">
                     {giftCard.cardPoints}{' '}
                     <CoinsIcon className="inline h-4 w-4 text-primary" />
                   </span>
-                )}
-
-                <span className="text-muted-foreground">
-                  {t('profile.serial')}: {giftCard.serial}
-                </span>
-              </div>
+                </div>
+              )}
 
               {giftCard.usedAt &&
                 giftCard.status === GiftCardUsageStatus.USED && (
-                  <div
-                    className={`mt-2 flex items-center gap-1 ${isMobile ? 'text-[10px]' : 'text-xs'} text-muted-foreground`}
-                  >
-                    <Clock className="h-3 w-3" />
+                  <div className={`mt-2 gap-1 text-sm text-muted-foreground`}>
                     <span>
                       {t('profile.giftCard.usedAt')}:{' '}
                       {moment(giftCard.usedAt).format('HH:mm:ss DD/MM/YYYY')}
@@ -175,18 +156,39 @@ export function CustomerGiftCardTabsContent() {
                   </div>
                 )}
 
-              {giftCard.expiredAt &&
-                giftCard.status !== GiftCardUsageStatus.USED && (
-                  <div
-                    className={`mt-2 flex items-center gap-1 ${isMobile ? 'text-[10px]' : 'text-xs'} text-muted-foreground`}
-                  >
-                    <Clock className="h-3 w-3" />
-                    <span>
-                      {t('profile.giftCard.expiredAt')}:{' '}
-                      {moment(giftCard.expiredAt).format('HH:mm:ss DD/MM/YYYY')}
-                    </span>
+              {giftCard.expiredAt && (
+                <div className={`mt-2 gap-1 text-sm text-muted-foreground`}>
+                  <span>
+                    {t('profile.giftCard.expiredAt')}:{' '}
+                    {moment(giftCard.expiredAt).format('HH:mm:ss DD/MM/YYYY')}
+                  </span>
+                </div>
+              )}
+              {giftCard.code && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {t('profile.giftCard.copyCode')}:
+                  </span>
+                  <div className="flex items-center gap-2 rounded text-primary">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`h-6 w-6 p-0 transition-colors ${
+                        copiedCode === giftCard.code
+                          ? 'text-green-600 hover:text-green-700'
+                          : 'text-primary hover:text-primary/80'
+                      }`}
+                      onClick={(e) => handleCopyCode(e, giftCard.code)}
+                    >
+                      {copiedCode === giftCard.code ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </Button>
                   </div>
-                )}
+                </div>
+              )}
             </div>
           </div>
         </div>
