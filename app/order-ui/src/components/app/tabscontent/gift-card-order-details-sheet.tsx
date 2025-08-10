@@ -37,15 +37,15 @@ import {
 } from '@/components/ui'
 
 import { ICardOrderResponse } from '@/types'
-import { CardOrderStatus, GiftCardUsageStatus } from '@/constants'
+import { CardOrderStatus } from '@/constants'
 import {
   formatCurrency,
   getPaymentMethodLabel,
   getPaymentStatusLabel,
   getGiftCardTypeLabel,
-  getGiftCardUsageStatusLabel,
   getGiftCardOrderStatusLabel,
 } from '@/utils'
+import { GiftCardStatusBadge } from '../badge'
 
 interface GiftCardOrderDetailsSheetProps {
   isOpen: boolean
@@ -65,12 +65,7 @@ export function GiftCardOrderDetailsSheet({
   if (!cardOrder) return null
 
   const copyToClipboard = async (text: string, _label: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      // Toast notification can be added here if needed
-    } catch {
-      // Error handling can be added here if needed
-    }
+    await navigator.clipboard.writeText(text)
   }
 
   const toggleCodeVisibility = (codeId: string) => {
@@ -328,21 +323,10 @@ export function GiftCardOrderDetailsSheet({
                                       {giftCard.cardName}
                                     </span>
                                   </div>
-                                  <Badge
-                                    variant={
-                                      giftCard.status ===
-                                      GiftCardUsageStatus.AVAILABLE
-                                        ? 'default'
-                                        : giftCard.status ===
-                                            GiftCardUsageStatus.USED
-                                          ? 'destructive'
-                                          : 'secondary'
-                                    }
-                                  >
-                                    {getGiftCardUsageStatusLabel(
-                                      giftCard.status,
-                                    )}
-                                  </Badge>
+                                  <GiftCardStatusBadge
+                                    status={giftCard.status}
+                                    rounded="md"
+                                  />
                                 </div>
                               </CardHeader>
                               <CardContent className="space-y-3 pt-0">
