@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ChefOrderUtils } from 'src/chef-order/chef-order.utils';
-import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
+// import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
 import { InvoiceService } from 'src/invoice/invoice.service';
 import { MailService } from 'src/mail/mail.service';
 import { NotificationUtils } from 'src/notification/notification.utils';
@@ -92,7 +92,11 @@ export class JobService {
             Object.assign(job, { status: JobStatus.COMPLETED });
             await manager.save(job);
           },
-          () => {
+          async () => {
+            await this.invoiceService.create(order.slug);
+            await this.eventEmitter.emitAsync(InvoiceAction.INVOICE_CREATED, {
+              orderId: order.id,
+            });
             this.logger.log(
               `Update order status to PAID successfully`,
               context,
@@ -100,7 +104,7 @@ export class JobService {
           },
           (error) => {
             this.logger.error(
-              `Error creating table: ${error.message}`,
+              `Error updating order status: ${error.message}`,
               error.stack,
               context,
             );
@@ -137,15 +141,10 @@ export class JobService {
         }
 
         // send invoice email
-        const invoice = await this.invoiceService.exportInvoice({
-          order: order.slug,
-        } as ExportInvoiceDto);
-
-        await this.eventEmitter.emitAsync(InvoiceAction.INVOICE_CREATED, {
-          orderId: order.id,
-        });
-
-        await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
+        // const invoice = await this.invoiceService.exportInvoice({
+        //   order: order.slug,
+        // } as ExportInvoiceDto);
+        // this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
 
         this.logger.log(`Update order status from PENDING to PAID`, context);
       }
