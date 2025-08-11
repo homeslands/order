@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -85,14 +85,19 @@ export default function PriceRangeFilter() {
     const [min, max] = values
     setMinPriceInput(formatCurrencyWithSymbol(min, false))
     setMaxPriceInput(formatCurrencyWithSymbol(max, false))
+    setMenuFilter(prev => ({ ...prev, minPrice: min, maxPrice: max }))
   }
+
+  useEffect(() => {
+    setMinPriceInput(formatCurrencyWithSymbol(menuFilter.minPrice, false))
+    setMaxPriceInput(formatCurrencyWithSymbol(menuFilter.maxPrice, false))
+  }, [menuFilter.minPrice, menuFilter.maxPrice])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="flex gap-2 items-center">
           {t('menu.priceRangeFilter')}
-
         </Button>
       </PopoverTrigger>
       <PopoverContent className="mt-6 w-80">
