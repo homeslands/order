@@ -13,6 +13,7 @@
       "cardType": "Loại thẻ",
       "code": "Mã thẻ",
       "expires": "Hết hạn",
+      "giftCard": "Thẻ quà tặng",
       "giftCardCodes": "Thẻ quà tặng",
       "giftCardInfo": "Thông tin thẻ quà tặng",
       "loadError": "Không thể tải đơn hàng thẻ quà tặng. Vui lòng thử lại.",
@@ -20,6 +21,7 @@
       "noName": "_____",
       "noOrders": "Không tìm thấy đơn hàng thẻ quà tặng",
       "noOrdersDescription": "Đơn hàng thẻ quà tặng của bạn sẽ hiển thị tại đây",
+      "orderDetails": "Chi tiết đơn hàng",
       "orders": "Đơn hàng thẻ quà tặng",
       "paymentDate": "Ngày thanh toán",
       "paymentInfo": "Thông tin thanh toán",
@@ -27,6 +29,7 @@
       "paymentStatus": "Trạng thái thanh toán",
       "points": "Xu",
       "quantity": "Số lượng",
+      "recipient": "người nhận",
       "recipients": "Người nhận",
       "serial": "Số serial",
       "status": {
@@ -38,6 +41,7 @@
         "pending": "Đang chờ"
       },
       "total": "Tổng cộng",
+      "totalPayment": "Tổng thanh toán",
       "transactionId": "Mã giao dịch",
       "used": "Đã sử dụng"
     },
@@ -94,9 +98,10 @@
     "generalInfo": "Thông tin chung",
     "giftCard": {
       "code": "Mã thẻ quà tặng",
+      "copyCode": "Sao chép mã",
       "createdAt": "Tạo vào lúc",
       "defaultTitle": "Thẻ quà tặng",
-      "expiredAt": "Hết hạn vào",
+      "expiredAt": "Hạn sử dụng",
       "expiredMessage": "Thẻ quà tặng này đã hết hạn và không thể sử dụng.",
       "expiryDate": "Hết hạn",
       "giftCardHistory": "Lịch sử thẻ quà tặng",
@@ -105,6 +110,7 @@
       "noGiftCardsDescription": "Giao dịch thẻ quà tặng của bạn sẽ hiển thị tại đây",
       "owner": "Chủ sở hữu",
       "points": "điểm",
+      "pointsReceived": "Xu nhận được",
       "serial": "Số seri",
       "status": {
         "all": "Tất cả trạng thái",
@@ -114,7 +120,7 @@
         "used": "Đã sử dụng"
       },
       "transactions": "Giao dịch thẻ quà tặng",
-      "usedAt": "Đã sử dụng vào",
+      "usedAt": "Sử dụng lúc",
       "usedBy": "Được sử dụng bởi",
       "usedMessage": "Thẻ quà tặng này đã được sử dụng."
     },
@@ -122,6 +128,7 @@
     "giftCardDetails": "Chi tiết thẻ quà tặng",
     "giftCardName": "Tên thẻ",
     "giftCardTransaction": "Giao dịch thẻ quà tặng",
+    "giftCards": "Thẻ quà tặng",
     "history": "Lịch sử đơn hàng",
     "lastName": "Họ",
     "lastNameEmojiInvalid": "Họ không được chứa emoji",
@@ -134,7 +141,6 @@
     "netDifference": "Chênh lệch",
     "newPassword": "Mật khẩu mới",
     "noMoreTransactions": "Đã hiển thị tất cả giao dịch",
-    "noNotificationFound": "Không có thông báo!",
     "noTransactions": "Chưa có giao dịch",
     "notVerified": "Chưa xác minh",
     "notification": "Thông báo",
@@ -148,6 +154,7 @@
     "paymentForOrder": "Thanh toán đơn hàng",
     "phoneNumber": "Số điện thoại",
     "pleaseTryAgainLater": "Vui lòng thử lại sau",
+    "productOrders": "Sản phẩm",
     "profile": "Thông tin cá nhân",
     "redirectingIn5s": "Bạn sẽ được chuyển hướng đến trang cá nhân sau 5 giây",
     "resend": "Gửi lại",
