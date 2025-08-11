@@ -1,169 +1,169 @@
 {
   "helmet": {
-    "home": {
-      "title": "Home",
-      "description": "Your homepage is here",
-      "keywords": "home, restaurant home"
-    },
-    "menu": {
-      "title": "Menu",
-      "manageMenu": "Manage Menu",
-      "description": "Manage your menu here",
-      "keywords": "menu, menu management, restaurant menu"
-    },
-    "productDetail": {
-      "title": "Product Details",
-      "manageProductDetail": "Product Details",
-      "description": "Manage your product details here",
-      "keywords": "product details, food, product information"
-    },
-    "cart": {
-      "title": "Cart",
-      "manageCart": "Manage Cart",
-      "description": "Manage your cart here",
-      "keywords": "cart, cart management, shopping cart"
-    },
-    "customer": {
-      "title": "Customer Management",
-      "manageCustomer": "Manage Customers",
-      "description": "Manage your customers here",
-      "keywords": "customer management, users, customers"
-    },
-    "employee": {
-      "title": "Employee Management",
-      "manageEmployee": "Manage Employees",
-      "description": "Manage your employees here",
-      "keywords": "employee management, staff, HR management"
-    },
-    "role": {
-      "title": "Role Management",
-      "manageRole": "Manage Roles",
-      "description": "Manage your roles here",
-      "keywords": "roles, role management, user roles"
-    },
-    "menuManagement": {
-      "title": "Menu Management",
-      "manageMenuManagement": "Manage Menu",
-      "description": "Manage your menu here",
-      "keywords": "menu, menu management, restaurant menu"
-    },
-    "profile": {
-      "title": "Profile",
-      "manageProfile": "Manage Profile",
-      "description": "Manage your profile here"
-    },
-    "log": {
-      "title": "Log Management",
-      "manageLog": "Manage Logs",
-      "description": "Manage your logs here",
-      "keywords": "logs, history, transaction history"
-    },
     "bankConfig": {
-      "title": "Bank Management",
-      "manageBankConfig": "Manage Bank Settings",
       "description": "Manage your bank settings here",
-      "keywords": "bank, bank management, financial settings"
-    },
-    "updateOrder": {
-      "title": "Update Order",
-      "manageUpdateOrder": "Update Order",
-      "description": "Update your orders here",
-      "keywords": "update order, order management"
-    },
-    "payment": {
-      "title": "Payment",
-      "managePayment": "Payment Page",
-      "description": "Manage your payments here"
-    },
-    "config": {
-      "title": "System Configuration",
-      "manageConfig": "System Configuration",
-      "description": "Manage your system settings here",
-      "keywords": "settings, configuration, system settings"
-    },
-    "voucher": {
-      "title": "Voucher Management",
-      "manageVoucher": "Manage Vouchers",
-      "description": "Manage your vouchers here",
-      "keywords": "voucher, discount, voucher management"
-    },
-    "orderDetail": {
-      "title": "Order Details",
-      "manageOrderDetail": "Order Details",
-      "description": "Manage your order details here",
-      "keywords": "order details, order, order information"
-    },
-    "promotion": {
-      "title": "Promotion Management",
-      "managePromotion": "Manage Promotions",
-      "description": "Manage your promotions here",
-      "keywords": "promotion, discount, promotional management"
-    },
-    "chefArea": {
-      "title": "Chef Area",
-      "manageChefArea": "Manage Chef Area",
-      "description": "Manage your chef area here",
-      "keywords": "chef area, kitchen, chef management"
+      "keywords": "bank, bank management, financial settings",
+      "manageBankConfig": "Manage Bank Settings",
+      "title": "Bank Management"
     },
     "banner": {
-      "title": "Banner Management",
-      "manageBanner": "Manage Banners",
       "description": "Manage your banners here",
-      "keywords": "banner, banner management, advertising banner"
-    },
-    "orderManagement": {
-      "title": "Order Management",
-      "manageOrderManagement": "Order Management",
-      "description": "Manage your order history here",
-      "keywords": "order history, past orders, order records"
-    },
-    "table": {
-      "title": "Table Management",
-      "manageTable": "Manage Tables",
-      "description": "Manage your tables here",
-      "keywords": "table, table management, dining table"
-    },
-    "product": {
-      "title": "Product Management",
-      "manageProduct": "Manage Products",
-      "description": "Manage your products here",
-      "keywords": "product, product management, bakery items"
+      "keywords": "banner, banner management, advertising banner",
+      "manageBanner": "Manage Banners",
+      "title": "Banner Management"
     },
     "branch": {
-      "title": "Branch Management",
-      "manageBranch": "Manage Branches",
       "description": "Manage your branches here",
-      "keywords": "branch, branch management, restaurant branches"
+      "keywords": "branch, branch management, restaurant branches",
+      "manageBranch": "Manage Branches",
+      "title": "Branch Management"
     },
-    "staticPage": {
-      "title": "Static Page Management",
-      "manageStaticPage": "Manage Static Pages",
-      "description": "Manage your static pages here",
-      "keywords": "static page, page management, restaurant pages"
+    "cart": {
+      "description": "Manage your cart here",
+      "keywords": "cart, cart management, shopping cart",
+      "manageCart": "Manage Cart",
+      "title": "Cart"
+    },
+    "chefArea": {
+      "description": "Manage your chef area here",
+      "keywords": "chef area, kitchen, chef management",
+      "manageChefArea": "Manage Chef Area",
+      "title": "Chef Area"
+    },
+    "config": {
+      "description": "Manage your system settings here",
+      "keywords": "settings, configuration, system settings",
+      "manageConfig": "System Configuration",
+      "title": "System Configuration"
+    },
+    "customer": {
+      "description": "Manage your customers here",
+      "keywords": "customer management, users, customers",
+      "manageCustomer": "Manage Customers",
+      "title": "Customer Management"
     },
     "deliveryManagement": {
-      "title": "Delivery Management",
-      "manageDeliveryManagement": "Manage Orders",
       "description": "Manage your orders here",
-      "keywords": "order, order management, restaurant orders"
+      "keywords": "order, order management, restaurant orders",
+      "manageDeliveryManagement": "Manage Orders",
+      "title": "Delivery Management"
     },
-    "notification": {
-      "title": "Notification Management",
-      "manageNotification": "Manage Notifications",
-      "description": "Manage your notifications here",
-      "keywords": "notification, notification management, restaurant notifications"
+    "employee": {
+      "description": "Manage your employees here",
+      "keywords": "employee management, staff, HR management",
+      "manageEmployee": "Manage Employees",
+      "title": "Employee Management"
     },
     "giftCard": {
-      "title": "Gift Card Management",
-      "manageGiftCard": "Manage Gift Cards",
       "description": "Manage your gift cards here",
-      "keywords": "gift card, gift certificate, restaurant gift cards, gift voucher"
+      "keywords": "gift card, gift certificate, restaurant gift cards, gift voucher",
+      "manageGiftCard": "Manage Gift Cards",
+      "title": "Gift Card Management"
     },
     "giftCardFeatureFlag": {
-      "title": "Feature Lock Management",
-      "manageGiftCardFeatureFlag": "Manage Feature Flags",
       "description": "Manage your feature flags here",
-      "keywords": "feature flag, Feature Lock Management, gift card feature flag"
+      "keywords": "feature flag, Feature Lock Management, gift card feature flag",
+      "manageGiftCardFeatureFlag": "Manage Feature Flags",
+      "title": "Feature Lock Management"
+    },
+    "home": {
+      "description": "Your homepage is here",
+      "keywords": "home, restaurant home",
+      "title": "Home"
+    },
+    "log": {
+      "description": "Manage your logs here",
+      "keywords": "logs, history, transaction history",
+      "manageLog": "Manage Logs",
+      "title": "Log Management"
+    },
+    "menu": {
+      "description": "Manage your menu here",
+      "keywords": "menu, menu management, restaurant menu",
+      "manageMenu": "Manage Menu",
+      "title": "Menu"
+    },
+    "menuManagement": {
+      "description": "Manage your menu here",
+      "keywords": "menu, menu management, restaurant menu",
+      "manageMenuManagement": "Manage Menu",
+      "title": "Menu Management"
+    },
+    "notification": {
+      "description": "Manage your notifications here",
+      "keywords": "notification, notification management, restaurant notifications",
+      "manageNotification": "Manage Notifications",
+      "title": "Notification Management"
+    },
+    "orderDetail": {
+      "description": "Manage your order details here",
+      "keywords": "order details, order, order information",
+      "manageOrderDetail": "Order Details",
+      "title": "Order Details"
+    },
+    "orderManagement": {
+      "description": "Manage your order history here",
+      "keywords": "order history, past orders, order records",
+      "manageOrderManagement": "Order Management",
+      "title": "Order Management"
+    },
+    "payment": {
+      "description": "Manage your payments here",
+      "managePayment": "Payment Page",
+      "title": "Payment"
+    },
+    "product": {
+      "description": "Manage your products here",
+      "keywords": "product, product management, bakery items",
+      "manageProduct": "Manage Products",
+      "title": "Product Management"
+    },
+    "productDetail": {
+      "description": "Manage your product details here",
+      "keywords": "product details, food, product information",
+      "manageProductDetail": "Product Details",
+      "title": "Product Details"
+    },
+    "profile": {
+      "description": "Manage your profile here",
+      "manageProfile": "Manage Profile",
+      "title": "Profile"
+    },
+    "promotion": {
+      "description": "Manage your promotions here",
+      "keywords": "promotion, discount, promotional management",
+      "managePromotion": "Manage Promotions",
+      "title": "Promotion Management"
+    },
+    "role": {
+      "description": "Manage your roles here",
+      "keywords": "roles, role management, user roles",
+      "manageRole": "Manage Roles",
+      "title": "Role Management"
+    },
+    "staticPage": {
+      "description": "Manage your static pages here",
+      "keywords": "static page, page management, restaurant pages",
+      "manageStaticPage": "Manage Static Pages",
+      "title": "Static Page Management"
+    },
+    "table": {
+      "description": "Manage your tables here",
+      "keywords": "table, table management, dining table",
+      "manageTable": "Manage Tables",
+      "title": "Table Management"
+    },
+    "updateOrder": {
+      "description": "Update your orders here",
+      "keywords": "update order, order management",
+      "manageUpdateOrder": "Update Order",
+      "title": "Update Order"
+    },
+    "voucher": {
+      "description": "Manage your vouchers here",
+      "keywords": "voucher, discount, voucher management",
+      "manageVoucher": "Manage Vouchers",
+      "title": "Voucher Management"
     }
   }
 }

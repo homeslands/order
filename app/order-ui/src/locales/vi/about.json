@@ -1,8 +1,7 @@
 {
   "about": {
-    "title": "Giới thiệu",
     "content": "Đây là trang giới thiệu về chúng tôi",
-
-    "noContent": "Không có nội dung"
+    "noContent": "Không có nội dung",
+    "title": "Giới thiệu"
   }
 }

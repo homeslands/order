@@ -8,6 +8,7 @@ import { useBranchStore } from '@/stores'
 
 export default function TopProductsDetail() {
     const { t } = useTranslation('dashboard')
+    const { t: tProduct } = useTranslation('product')
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
     const { branch } = useBranchStore()
@@ -32,7 +33,7 @@ export default function TopProductsDetail() {
                     }
                 },
                 legend: {
-                    data: ['Số lượng bán']
+                    data: [tProduct('topProducts.quantitySold')]
                 },
                 yAxis: {
                     type: 'category',
@@ -45,11 +46,11 @@ export default function TopProductsDetail() {
                 },
                 xAxis: {
                     type: 'value',
-                    name: 'Số lượng'
+                    name: tProduct('topProducts.quantity')
                 },
                 series: [
                     {
-                        name: 'Số lượng bán',
+                        name: tProduct('topProducts.quantitySold'),
                         type: 'bar',
                         data: items.map(item => item.totalQuantity),
                         itemStyle: {
@@ -73,7 +74,7 @@ export default function TopProductsDetail() {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [topBranchProducts, branch])
+    }, [topBranchProducts, branch, tProduct])
 
     return (
         <Card className='shadow-none'>
