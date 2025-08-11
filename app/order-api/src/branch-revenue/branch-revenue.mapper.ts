@@ -55,9 +55,11 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom(
             (source) =>
               +source.totalOriginalOrderItemAmount -
-              +source.totalFinalOrderItemAmount,
+              +source.totalFinalOrderItemAmount -
+              +source.totalVoucherValueOrderItemAmount,
           ),
         ),
+        // include amount value in order
         forMember(
           (destination) => destination.voucherAmount,
           mapFrom(
@@ -65,8 +67,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
               +source.totalOriginalAmountOrder -
               +source.totalAmount -
               (+source.totalOriginalOrderItemAmount -
-                +source.totalFinalOrderItemAmount),
+                +source.totalFinalOrderItemAmount -
+                +source.totalVoucherValueOrderItemAmount),
           ),
+        ),
+        // loss amount value only
+        forMember(
+          (destination) => destination.lossAmount,
+          mapFrom((source) => +source.totalLossAmount),
         ),
         forMember(
           (destination) => destination.totalOrder,
@@ -83,6 +91,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalOrderInternal,
           mapFrom((source) => +source.totalOrderInternal),
+        ),
+        forMember(
+          (destination) => destination.totalOrderPoint,
+          mapFrom((source) => +source.totalOrderPoint),
+        ),
+        forMember(
+          (destination) => destination.totalAmountPoint,
+          mapFrom((source) => +source.totalAmountPoint),
         ),
         forMember(
           (destination) => destination.date,
@@ -141,6 +157,11 @@ export class BranchRevenueProfile extends AutomapperProfile {
                 +source.totalVoucherValueOrderItemAmount),
           ),
         ),
+        // loss amount value only
+        forMember(
+          (destination) => destination.lossAmount,
+          mapFrom((source) => +source.totalLossAmount),
+        ),
         forMember(
           (destination) => destination.totalOrder,
           mapFrom((source) => +source.totalOrder),
@@ -156,6 +177,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalOrderInternal,
           mapFrom((source) => +source.totalOrderInternal),
+        ),
+        forMember(
+          (destination) => destination.totalOrderPoint,
+          mapFrom((source) => +source.totalOrderPoint),
+        ),
+        forMember(
+          (destination) => destination.totalAmountPoint,
+          mapFrom((source) => +source.totalAmountPoint),
         ),
         forMember(
           (destination) => destination.date,

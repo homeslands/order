@@ -34,6 +34,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -166,6 +167,10 @@ describe('BranchRevenueService', () => {
             log: jest.fn(),
             error: jest.fn(),
           },
+        },
+        {
+          provide: getRepositoryToken(Invoice),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

@@ -25,9 +25,9 @@ import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import * as _ from 'lodash';
 import {
-  getCurrentBranchRevenueClause,
-  getSpecificRangeBranchRevenueByHourClause,
-  getSpecificRangeBranchRevenueClause,
+  getCurrentBranchRevenueFromInvoiceClause,
+  getSpecificRangeBranchRevenueByHourFromInvoiceClause,
+  getSpecificRangeBranchRevenueFromInvoiceClause,
 } from './branch-revenue.clause';
 import { plainToInstance } from 'class-transformer';
 import { BranchRevenueException } from './branch-revenue.exception';
@@ -78,8 +78,17 @@ export class BranchRevenueService {
   ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
     this.logger.log('query', JSON.stringify(query), context);
+
+    const branch = await this.branchRepository.findOne({
+      where: {
+        slug: branchSlug ?? IsNull(),
+      },
+    });
+    if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
     if (query.type === RevenueTypeQuery.HOUR) {
       this.logger.log('Get branch revenue by hour', context);
+
       if (!query.startDate || !query.endDate) {
         this.logger.error(
           BranchRevenueValidation.START_DATE_AND_END_DATE_MUST_BE_PROVIDED
@@ -91,12 +100,6 @@ export class BranchRevenueService {
           BranchRevenueValidation.START_DATE_AND_END_DATE_MUST_BE_PROVIDED,
         );
       }
-      const branch = await this.branchRepository.findOne({
-        where: {
-          slug: branchSlug ?? IsNull(),
-        },
-      });
-      if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
 
       const startDateQuery = moment(query.startDate).format(
         'YYYY-MM-DD HH:mm:ss',
@@ -107,9 +110,21 @@ export class BranchRevenueService {
       this.logger.log('endDateQuery', endDateQuery, context);
       const results: BranchRevenueQueryResponseForHourDto[] =
         await this.branchRevenueRepository.query(
-          getSpecificRangeBranchRevenueByHourClause,
-          [startDateQuery, endDateQuery, branch.id],
+          getSpecificRangeBranchRevenueByHourFromInvoiceClause,
+          [
+            startDateQuery,
+            endDateQuery,
+            branch.id,
+            startDateQuery,
+            endDateQuery,
+            branch.id,
+          ],
         );
+      // const results: BranchRevenueQueryResponseForHourDto[] =
+      //   await this.branchRevenueRepository.query(
+      //     getSpecificRangeBranchRevenueByHourClause,
+      //     [startDateQuery, endDateQuery, branch.id],
+      //   );
 
       const fullData = await this.fillMissingDataByHours(
         results,
@@ -126,17 +141,7 @@ export class BranchRevenueService {
       return fullDataDto;
     } else {
       const findOptionsWhere: FindOptionsWhere<BranchRevenue> = {};
-
-      if (branchSlug) {
-        const branch = await this.branchRepository.findOne({
-          where: {
-            slug: branchSlug,
-          },
-        });
-        if (!branch)
-          throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-        findOptionsWhere.branchId = branch.id;
-      }
+      findOptionsWhere.branchId = branch.id;
 
       let startDate: Date;
       let endDate: Date;
@@ -222,19 +227,51 @@ export class BranchRevenueService {
     // Lấy tất cả các giờ trong khoảng thời gian
     const hoursInRange = [];
     const current = start.clone();
-    while (current <= end) {
-      hoursInRange.push(current.format('YYYY-MM-DD HH:00:00'));
-      current.add(1, 'hour');
+
+    if (
+      start.format('YYYY-MM-DD HH:00:00') === end.format('YYYY-MM-DD HH:00:00')
+    ) {
+      hoursInRange.push([
+        start.format('YYYY-MM-DD HH:mm:ss.SSS'),
+        end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+      ]);
+    } else {
+      while (current < end) {
+        if (current.isSame(start)) {
+          hoursInRange.push([
+            start.format('YYYY-MM-DD HH:mm:ss.SSS'),
+            start.format('YYYY-MM-DD HH:59:59.999'),
+          ]);
+        } else if (current.isSame(end)) {
+          hoursInRange.push([
+            end.format('YYYY-MM-DD HH:00:00.000'),
+            end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+          ]);
+        } else {
+          hoursInRange.push([
+            current.format('YYYY-MM-DD HH:00:00.000'),
+            current.format('YYYY-MM-DD HH:59:59.999'),
+          ]);
+        }
+
+        current.add(1, 'hour');
+      }
+
+      hoursInRange.push([
+        end.format('YYYY-MM-DD HH:00:00.000'),
+        end.format('YYYY-MM-DD HH:mm:ss.SSS'),
+      ]);
     }
 
     const dataMap = new Map(data.map((item) => [item.date, item]));
 
     const fullData: BranchRevenue[] = [];
-    for (const hour of hoursInRange) {
+    for (const hourRange of hoursInRange) {
+      const hour = moment(_.first(hourRange)).format('YYYY-MM-DD HH:00:00');
       const dataItem: BranchRevenueQueryResponseForHourDto = dataMap.get(hour);
       if (dataItem) {
-        const startDate = moment(hour).startOf('hours').toDate();
-        const endDate = moment(hour).endOf('hours').toDate();
+        const startDate = moment(_.first(hourRange)).toDate();
+        const endDate = moment(_.last(hourRange)).toDate();
         const { minReferenceNumberOrder, maxReferenceNumberOrder } =
           await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
             dataItem.branchId,
@@ -268,7 +305,9 @@ export class BranchRevenueService {
           totalOrderBank: '0',
           totalOrderInternal: '0',
           totalVoucherValueOrderItemAmount: '0',
-          totalLossAmountOrder: '0',
+          totalLossAmount: '0',
+          totalOrderPoint: '0',
+          totalAmountPoint: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -331,6 +370,9 @@ export class BranchRevenueService {
             originalAmount: 0,
             voucherAmount: 0,
             promotionAmount: 0,
+            lossAmount: 0,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -344,6 +386,9 @@ export class BranchRevenueService {
         acc[index].totalAmountBank += item.totalAmountBank;
         acc[index].totalAmountCash += item.totalAmountCash;
         acc[index].totalAmountInternal += item.totalAmountInternal;
+        acc[index].lossAmount += item.lossAmount;
+        acc[index].totalOrderPoint += item.totalOrderPoint;
+        acc[index].totalAmountPoint += item.totalAmountPoint;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -378,6 +423,9 @@ export class BranchRevenueService {
             promotionAmount: 0,
             minReferenceNumberOrder: 0,
             maxReferenceNumberOrder: 0,
+            lossAmount: 0,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -391,6 +439,9 @@ export class BranchRevenueService {
         acc[index].totalAmountBank += item.totalAmountBank;
         acc[index].totalAmountCash += item.totalAmountCash;
         acc[index].totalAmountInternal += item.totalAmountInternal;
+        acc[index].lossAmount += item.lossAmount;
+        acc[index].totalOrderPoint += item.totalOrderPoint;
+        acc[index].totalAmountPoint += item.totalAmountPoint;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -420,7 +471,9 @@ export class BranchRevenueService {
       });
       // console.log({hasBranchRevenues});
       const results: BranchRevenueQueryResponseDto[] =
-        await this.branchRevenueRepository.query(getCurrentBranchRevenueClause);
+        await this.branchRevenueRepository.query(
+          getCurrentBranchRevenueFromInvoiceClause,
+        );
 
       const branchRevenueQueryResponseDtos = plainToInstance(
         BranchRevenueQueryResponseDto,
@@ -508,6 +561,21 @@ export class BranchRevenueService {
         );
 
         if (existedInNewData) {
+          const startDate = moment(existedInNewData.date)
+            .startOf('days')
+            .toDate();
+          const endDate = moment(existedInNewData.date).endOf('day').toDate();
+          const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+            await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+              existedInNewData.branchId,
+              startDate,
+              endDate,
+            );
+          Object.assign(existedInNewData, {
+            minReferenceNumberOrder,
+            maxReferenceNumberOrder,
+          });
+
           if (
             existedInNewData.totalAmount !== existedBranchRevenue.totalAmount ||
             existedInNewData.totalOrder !== existedBranchRevenue.totalOrder ||
@@ -532,7 +600,12 @@ export class BranchRevenueService {
             existedInNewData.totalAmountCash !==
               existedBranchRevenue.totalAmountCash ||
             existedInNewData.totalAmountInternal !==
-              existedBranchRevenue.totalAmountInternal
+              existedBranchRevenue.totalAmountInternal ||
+            existedInNewData.lossAmount !== existedBranchRevenue.lossAmount ||
+            existedInNewData.totalOrderPoint !==
+              existedBranchRevenue.totalOrderPoint ||
+            existedInNewData.totalAmountPoint !==
+              existedBranchRevenue.totalAmountPoint
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -579,8 +652,11 @@ export class BranchRevenueService {
             totalAmountInternal: 0,
             voucherAmount: 0,
             promotionAmount: 0,
+            lossAmount: 0,
             date,
             branchId: branch.id,
+            totalOrderPoint: 0,
+            totalAmountPoint: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -632,19 +708,20 @@ export class BranchRevenueService {
         .add(1, 'days')
         .format('YYYY-MM-DD');
 
+      // to get data in branch revenue table: date is defined at 07:00:00
       const startDate = new Date(query.startDate);
       startDate.setHours(7, 0, 0, 0);
       const endDate = new Date(query.endDate);
-      // note
-      endDate.setHours(23, 59, 59, 99);
+      endDate.setHours(7, 0, 0, 0);
+
       this.logger.log('refreshBranchRevenueForSpecificDay', context);
       this.logger.log('startQuery: ', startQuery, context);
       this.logger.log('endQuery: ', endQuery, context);
 
-      const params = [startQuery, endQuery];
+      const params = [startQuery, endQuery, startQuery, endQuery];
       const results: BranchRevenueQueryResponseDto[] =
         await this.branchRevenueRepository.query(
-          getSpecificRangeBranchRevenueClause,
+          getSpecificRangeBranchRevenueFromInvoiceClause,
           params,
         );
 
@@ -779,6 +856,9 @@ export class BranchRevenueService {
           promotionAmount: 0,
           date: dateFull,
           branchId,
+          lossAmount: 0,
+          totalOrderPoint: 0,
+          totalAmountPoint: 0,
         });
         results.push(revenue);
       }
@@ -841,7 +921,12 @@ export class BranchRevenueService {
           existedBranchRevenue.totalAmountCash !==
             newBranchRevenue.totalAmountCash ||
           existedBranchRevenue.totalAmountInternal !==
-            newBranchRevenue.totalAmountInternal
+            newBranchRevenue.totalAmountInternal ||
+          existedBranchRevenue.lossAmount !== newBranchRevenue.lossAmount ||
+          existedBranchRevenue.totalOrderPoint !==
+            newBranchRevenue.totalOrderPoint ||
+          existedBranchRevenue.totalAmountPoint !==
+            newBranchRevenue.totalAmountPoint
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -895,8 +980,15 @@ export class BranchRevenueService {
         this.logger.log('endDateQuery', endDateQuery);
         const results: BranchRevenueQueryResponseForHourDto[] =
           await this.branchRevenueRepository.query(
-            getSpecificRangeBranchRevenueByHourClause,
-            [startDateQuery, endDateQuery, branch.id],
+            getSpecificRangeBranchRevenueByHourFromInvoiceClause,
+            [
+              startDateQuery,
+              endDateQuery,
+              branch.id,
+              startDateQuery,
+              endDateQuery,
+              branch.id,
+            ],
           );
 
         branchRevenues = await this.fillMissingDataByHours(
@@ -956,6 +1048,8 @@ export class BranchRevenueService {
       let totalAmountBank = 0;
       let totalAmountCash = 0;
       let totalAmountInternal = 0;
+      let totalLossAmount = 0;
+      let totalAmountPoint = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1010,7 +1104,7 @@ export class BranchRevenueService {
           },
           {
             cellPosition: `G${currentRow}`,
-            value: '',
+            value: revenue.lossAmount,
             type: 'data',
             style: cellStyle,
           },
@@ -1022,18 +1116,24 @@ export class BranchRevenueService {
           },
           {
             cellPosition: `I${currentRow}`,
-            value: revenue.totalAmountCash,
+            value: revenue.totalAmountPoint,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `J${currentRow}`,
-            value: revenue.totalAmountBank,
+            value: revenue.totalAmountCash,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `K${currentRow}`,
+            value: revenue.totalAmountBank,
+            type: 'data',
+            style: cellStyle,
+          },
+          {
+            cellPosition: `L${currentRow}`,
             value: revenue.totalAmountInternal,
             type: 'data',
             style: cellStyle,
@@ -1048,6 +1148,8 @@ export class BranchRevenueService {
         totalAmountBank += revenue.totalAmountBank;
         totalAmountCash += revenue.totalAmountCash;
         totalAmountInternal += revenue.totalAmountInternal;
+        totalLossAmount += revenue.lossAmount;
+        totalAmountPoint += revenue.totalAmountPoint;
         currentRow++;
       });
 
@@ -1099,7 +1201,7 @@ export class BranchRevenueService {
         },
         {
           cellPosition: `G${currentRow}`,
-          value: '',
+          value: totalLossAmount,
           type: 'data',
           style: totalRowStyle,
         },
@@ -1111,18 +1213,24 @@ export class BranchRevenueService {
         },
         {
           cellPosition: `I${currentRow}`,
-          value: totalAmountCash,
+          value: totalAmountPoint,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `J${currentRow}`,
-          value: totalAmountBank,
+          value: totalAmountCash,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `K${currentRow}`,
+          value: totalAmountBank,
+          type: 'data',
+          style: totalRowStyle,
+        },
+        {
+          cellPosition: `L${currentRow}`,
           value: totalAmountInternal,
           type: 'data',
           style: totalRowStyle,
@@ -1173,8 +1281,15 @@ export class BranchRevenueService {
     this.logger.log('endDateQuery', endDateQuery);
     const results: BranchRevenueQueryResponseForHourDto[] =
       await this.branchRevenueRepository.query(
-        getSpecificRangeBranchRevenueByHourClause,
-        [startDateQuery, endDateQuery, branchData.id],
+        getSpecificRangeBranchRevenueByHourFromInvoiceClause,
+        [
+          startDateQuery,
+          endDateQuery,
+          branchData.id,
+          startDateQuery,
+          endDateQuery,
+          branchData.id,
+        ],
       );
     const branchRevenues = this.mapper.mapArray(
       results,
@@ -1193,6 +1308,9 @@ export class BranchRevenueService {
     let totalAmountBank = 0;
     let totalAmountCash = 0;
     let totalAmountInternal = 0;
+    let totalLossAmount = 0;
+    let totalAmountPoint = 0;
+    let totalOrderPoint = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1206,6 +1324,9 @@ export class BranchRevenueService {
       totalAmountBank += revenue.totalAmountBank;
       totalAmountCash += revenue.totalAmountCash;
       totalAmountInternal += revenue.totalAmountInternal;
+      totalLossAmount += revenue.lossAmount;
+      totalAmountPoint += revenue.totalAmountPoint;
+      totalOrderPoint += revenue.totalOrderPoint;
     });
 
     if (
@@ -1254,13 +1375,15 @@ export class BranchRevenueService {
       totalOrderBank: totalOrderBank,
       totalPromotion: totalPromotionAmount,
       totalVoucher: totalVoucherAmount,
-      totalCoin: 0,
       totalRevenue: totalAmount,
       totalOrderInternal,
       totalAmountInternal,
       createdAt: new Date(),
       qrcodeBranch,
       branchSlug: branch,
+      totalLossAmount,
+      totalOrderPoint: totalOrderPoint,
+      totalRevenuePoint: totalAmountPoint,
     };
 
     const data = await this.pdfService.generatePdf(

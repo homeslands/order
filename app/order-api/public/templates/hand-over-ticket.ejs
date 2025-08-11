@@ -86,8 +86,12 @@
             <span><%= formatCurrency(totalVoucher) %></span>
           </div>
           <div class="flex justify-between">
+            <span>Tổng tiền giảm giá đơn dưới 2.000đ :</span>
+            <span><%= formatCurrency(totalLossAmount) %></span>
+          </div>
+          <div class="flex justify-between">
             <span>Tổng xu:</span>
-            <span><%= formatCurrency(totalCoin) %></span>
+            <span><%= formatCurrency(totalRevenuePoint) %></span>
           </div>
           <div class="flex justify-between">
             <span>Doanh thu tiền mặt:</span>
@@ -144,6 +148,18 @@
           <div class="flex justify-between">
             <span>Tiền chuyển khoản:</span>
             <span><%= formatCurrency(totalRevenueBank) %></span>
+          </div>
+
+          <h4 class="text-center font-bold text-xxs">
+            Phương thức xu
+          </h4>
+          <div class="flex justify-between">
+            <span>Số lượng hóa đơn:</span>
+            <span><%= totalOrderPoint %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Xu:</span>
+            <span><%= formatCurrency(totalRevenuePoint) %></span>
           </div>
         </div>
       </div>
