@@ -7,7 +7,7 @@ import {
 } from './invoice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Invoice } from './invoice.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Order } from 'src/order/order.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -102,6 +102,269 @@ export class InvoiceService {
     );
   }
 
+  async updateVoucherValueForExistedInvoice() {
+    const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
+    const batchSize = 500;
+    let offset = 0;
+    let totalUpdated = 0;
+
+    this.logger.log(
+      'Start updating voucher value for existed invoice',
+      context,
+    );
+
+    while (true) {
+      const batch = await this.invoiceRepository.find({
+        where: { voucherId: Not(IsNull()) },
+        relations: ['order.voucher', 'invoiceItems'],
+        take: batchSize,
+        skip: offset,
+        order: { id: 'ASC' },
+      });
+
+      if (batch.length === 0) break;
+
+      const updatedBatch: Invoice[] = [];
+      for (const item of batch) {
+        if (item?.order?.voucher) {
+          const orderItemVoucherValue = item.invoiceItems?.reduce(
+            (total, current) => total + current.voucherValue,
+            0,
+          );
+
+          let voucherValue = item.loss + orderItemVoucherValue;
+
+          const subtotalOrderItem = item.invoiceItems?.reduce(
+            (total, current) => total + current.total,
+            0,
+          );
+
+          if (
+            item.order?.voucher?.applicabilityRule ===
+            VoucherApplicabilityRule.ALL_REQUIRED
+          ) {
+            if (item.order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+              voucherValue +=
+                (subtotalOrderItem * item.order.voucher.value) / 100;
+            }
+            if (item.order?.voucher?.type === VoucherType.FIXED_VALUE) {
+              if (subtotalOrderItem > item.order.voucher.value) {
+                voucherValue += item.order.voucher.value;
+              } else {
+                voucherValue += subtotalOrderItem;
+              }
+            }
+          }
+
+          item.voucherValue = voucherValue;
+          updatedBatch.push(item);
+        }
+      }
+
+      await this.transactionManagerService.execute<void>(
+        async (manager) => {
+          await manager.save(updatedBatch);
+        },
+        () => {
+          this.logger.log(
+            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error updating batch at offset ${offset}: ${error.message}`,
+            context,
+          );
+        },
+      );
+
+      totalUpdated += updatedBatch.length;
+      offset += batchSize;
+    }
+
+    // const updatedBatch: Invoice[] = [];
+
+    // const item = await this.invoiceRepository.findOne({
+    //   where: { slug: '40c7057336' },
+    //   relations: ['order.voucher', 'invoiceItems'],
+    // });
+
+    // if (item?.order?.voucher) {
+    //   const orderItemVoucherValue = item.invoiceItems?.reduce(
+    //     (total, current) => total + current.voucherValue,
+    //     0,
+    //   );
+
+    //   let voucherValue = item.loss + orderItemVoucherValue;
+
+    //   const subtotalOrderItem = item.invoiceItems?.reduce(
+    //     (total, current) => total + current.total,
+    //     0,
+    //   );
+
+    //   if (
+    //     item.order?.voucher?.applicabilityRule ===
+    //     VoucherApplicabilityRule.ALL_REQUIRED
+    //   ) {
+    //     if (item.order?.voucher?.type === VoucherType.PERCENT_ORDER) {
+    //       voucherValue += (subtotalOrderItem * item.order.voucher.value) / 100;
+    //     }
+    //     if (item.order?.voucher?.type === VoucherType.FIXED_VALUE) {
+    //       if (subtotalOrderItem > item.order.voucher.value) {
+    //         voucherValue += item.order.voucher.value;
+    //       } else {
+    //         voucherValue += subtotalOrderItem;
+    //       }
+    //     }
+    //   }
+
+    //   item.voucherValue = voucherValue;
+    //   updatedBatch.push(item);
+    // }
+
+    // await this.transactionManagerService.execute<void>(
+    //   async (manager) => {
+    //     await manager.save(updatedBatch);
+    //   },
+    //   () => {
+    //     this.logger.log(
+    //       `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
+    //       context,
+    //     );
+    //   },
+    //   (error) => {
+    //     this.logger.error(
+    //       `Error updating batch at offset ${offset}: ${error.message}`,
+    //       context,
+    //     );
+    //   },
+    // );
+    this.logger.log(
+      `Finished updating total ${totalUpdated} invoice items.`,
+      context,
+    );
+  }
+
+  async updateInvoiceStatusPaidWithOrderCompletedPayment() {
+    const context = `${InvoiceService.name}.${this.updateInvoiceStatusPaidWithOrderCompletedPayment.name}`;
+
+    const batchSize = 500;
+    let offset = 0;
+    let totalUpdated = 0;
+
+    this.logger.log(
+      'Start updating voucher value for existed invoice',
+      context,
+    );
+
+    while (true) {
+      const batch = await this.orderRepository.find({
+        where: {
+          referenceNumber: Not(IsNull()),
+          invoice: { referenceNumber: IsNull() },
+        },
+        relations: ['invoice'],
+        take: batchSize,
+        skip: offset,
+        order: { id: 'ASC' },
+      });
+
+      if (batch.length === 0) break;
+
+      const updatedBatch: Invoice[] = [];
+      for (const item of batch) {
+        if (item.invoice) {
+          // invoice have reference number is null
+          if (!item.invoice.referenceNumber) {
+            const invoice = await this.invoiceRepository.findOne({
+              where: { order: { id: item.id } },
+            });
+
+            if (invoice) {
+              invoice.status = OrderStatus.PAID;
+              invoice.referenceNumber = item.referenceNumber;
+            }
+            updatedBatch.push(invoice);
+          }
+        }
+      }
+
+      await this.transactionManagerService.execute<void>(
+        async (manager) => {
+          await manager.save(updatedBatch);
+        },
+        () => {
+          this.logger.log(
+            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error updating batch at offset ${offset}: ${error.message}`,
+            context,
+          );
+        },
+      );
+
+      totalUpdated += updatedBatch.length;
+      offset += batchSize;
+    }
+
+    this.logger.log(
+      `Finished updating total ${totalUpdated} invoice items.`,
+      context,
+    );
+  }
+
+  async createInvoiceForPaidOrderWithoutInvoice() {
+    const context = `${InvoiceService.name}.${this.createInvoiceForPaidOrderWithoutInvoice.name}`;
+
+    const batchSize = 500;
+    let offset = 0;
+    let totalUpdated = 0;
+
+    this.logger.log(
+      'Start updating voucher value for existed invoice',
+      context,
+    );
+
+    while (true) {
+      const batch = await this.orderRepository.find({
+        where: {
+          referenceNumber: Not(IsNull()),
+          invoice: IsNull(),
+        },
+        relations: ['invoice'],
+        take: batchSize,
+        skip: offset,
+        order: { id: 'ASC' },
+      });
+
+      if (batch.length === 0) break;
+
+      const updatedBatch: Invoice[] = [];
+
+      await Promise.allSettled(
+        batch.map(async (item) => {
+          if (!item.invoice) {
+            const invoice = await this.create(item.slug);
+            updatedBatch.push(invoice);
+          }
+        }),
+      );
+
+      totalUpdated += updatedBatch.length;
+      offset += batchSize;
+    }
+
+    this.logger.log(
+      `Finished updating total ${totalUpdated} invoice items.`,
+      context,
+    );
+  }
+
   async exportInvoice(requestData: ExportInvoiceDto): Promise<Buffer> {
     const context = `${InvoiceService.name}.${this.exportInvoice.name}`;
     const invoice = await this.create(requestData.order);
@@ -145,7 +408,7 @@ export class InvoiceService {
     return data;
   }
 
-  private async create(orderSlug: string) {
+  async create(orderSlug: string) {
     const context = `${InvoiceService.name}.${this.create.name}`;
     const order = await this.orderRepository.findOne({
       where: { slug: orderSlug },
@@ -165,6 +428,15 @@ export class InvoiceService {
     if (!order) {
       this.logger.warn(`Order ${orderSlug} not found`, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    if (
+      order.status !== OrderStatus.PAID &&
+      order.status !== OrderStatus.COMPLETED &&
+      order.status !== OrderStatus.SHIPPING
+    ) {
+      this.logger.warn(`Order ${orderSlug} is not paid`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PAID);
     }
 
     let orderItemPromotionValue = 0;
@@ -276,7 +548,8 @@ export class InvoiceService {
       amount: order.subtotal,
       loss: order.loss,
       paymentMethod: order.payment?.paymentMethod,
-      status: order.status,
+      // TODO: only paid order can have invoice
+      status: OrderStatus.PAID,
       tableName:
         order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
       customer: `${order.owner.firstName} ${order.owner.lastName}`,
