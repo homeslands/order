@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ReactSelect, { SingleValue } from 'react-select'
 
 import { useAllTableLocations } from '@/hooks'
+import { useTranslation } from 'react-i18next'
 
 interface SelectTableLocationProps {
   defaultValue?: string
@@ -20,6 +21,7 @@ export default function TableLocationSelect({
     label: string
   } | null>(null)
   const { data } = useAllTableLocations()
+  const { t } = useTranslation(['table'])
 
   useEffect(() => {
     if (data?.result) {
@@ -54,6 +56,8 @@ export default function TableLocationSelect({
 
   return (
     <ReactSelect
+      placeholder={t('table.selectLocation')}
+      noOptionsMessage={() => t('table.noOptions')}
       value={selectedTableLocation}
       onMenuScrollToBottom={() => {}}
       options={allTableLocations}

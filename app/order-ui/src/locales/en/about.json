@@ -1,6 +1,7 @@
 {
   "about": {
-    "title": "About",
-    "description": "This is a simple example of how to use react-i18next."
+    "content": "This is the about page",
+    "noContent": "No content",
+    "title": "About"
   }
 }
