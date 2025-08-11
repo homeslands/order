@@ -56,7 +56,7 @@ export default function DataTableFilterOptions({
           </SelectTrigger>
           <SelectContent side="top">
             <SelectGroup>
-              <SelectLabel className="text-xs">{t('dataTable.all')}</SelectLabel>
+              <SelectLabel className="text-xs">{t('common.action')}</SelectLabel>
               {filter.options.map((option) => (
                 <SelectItem key={String(option.value)} value={String(option.value)} className="text-xs">
                   {option.label}
