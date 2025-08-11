@@ -34,6 +34,7 @@ import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -267,5 +268,25 @@ export class OrderController {
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;
+  }
+
+  @Patch(':slug/re-print-failed-invoice-printer-jobs')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-print failed invoice printer jobs' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Re-print failed invoice printer jobs successfully',
+    type: PrinterJobResponseDto,
+    isArray: true,
+  })
+  async rePrintFailedInvoicePrinterJobs(@Param('slug') slug: string) {
+    const result =
+      await this.orderService.rePrintFailedInvoicePrinterJobs(slug);
+    return {
+      message: 'Re-print failed invoice printer jobs successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<PrinterJobResponseDto[]>;
   }
 }

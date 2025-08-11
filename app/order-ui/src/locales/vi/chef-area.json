@@ -68,7 +68,13 @@
     "location": "Vị trí",
     "note": "Ghi chú",
     "noNote": "Không có ghi chú",
+    "printerChefOrders": "Trạng thái in phiếu bếp",
+    "printerLabels": "Trạng thái in nhãn dán",
     "status": "Trạng thái",
+    "printed": "Đã in",
+    "printing": "Đang in",
+    "pendingPrint": "Chờ in",
+    "failed": "Lỗi",
     "all": "Tất cả",
     "reception": "Nhận đơn",
     "notAccepted": "Chưa tiếp nhận",
@@ -97,6 +103,10 @@
     "exportAutoChefOrderTicket": "In nhãn dán món tự động",
     "exportManualChefOrderTicket": "In nhãn dán món thủ công",
     "export": "In phiếu bếp",
-    "exportTicket": "In nhãn dán"
+    "exportTicket": "In nhãn dán",
+    "reprintFailedJobs": "Thao tác in lại",
+    "reprintFailedChefOrderJobs": "In lại phiếu bếp",
+    "reprintFailedLabelJobs": "In lại nhãn bếp"
+
   }
 }

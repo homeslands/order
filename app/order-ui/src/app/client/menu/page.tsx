@@ -98,19 +98,18 @@ export default function ClientMenuPage() {
 
             {/* Price filter */}
             <PriceRangeFilter />
-            {minPrice || maxPrice !== PriceRange.MAX_PRICE && (
+            {(minPrice > PriceRange.MIN_PRICE || maxPrice < PriceRange.MAX_PRICE) && (
               <div className="flex justify-center gap-2 px-2 py-2 text-sm border rounded-xl border-primary bg-primary/5 text-primary">
                 <div>
-                  {/* {t('menu.priceRange')}
-                  {': '} */}
                   {formatCurrency(minPrice)} - {formatCurrency(maxPrice)}
                 </div>
                 <CircleXIcon
                   className="w-5 h-5 cursor-pointer hover:text-primary"
-                  onClick={(e) => handleClear(e)}
+                  onClick={handleClear}
                 />
               </div>
             )}
+
           </div>
         </div>
 

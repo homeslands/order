@@ -27,6 +27,7 @@ import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strateg
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PrinterModule } from 'src/printer/printer.module';
 import { ChefOrderListener } from './chef-order.listener';
+import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ChefOrderListener } from './chef-order.listener';
       Branch,
       Payment,
       ACBConnectorConfig,
+      PrinterJob,
     ]),
     DbModule,
     ACBConnectorModule,

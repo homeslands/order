@@ -9,6 +9,7 @@
     "priceRangeDescription": "Select a price range to filter products",
     "fromPrice": "From price",
     "toPrice": "To price",
+    "reset": "Reset",
     "addToCart": "Add to cart",
     "buyNow": "Buy now",
     "viewDetails": "View details",
@@ -139,7 +140,8 @@
   },
   "order": {
     "orderListCaption": "List of orders",
-    "title": "Order Management",
+    "deliveryManagement": "Delivery Management",
+    "orderManagement": "Order Management",
     "slug": "Order ID",
     "orderId": "Order ID",
     "items": "items",

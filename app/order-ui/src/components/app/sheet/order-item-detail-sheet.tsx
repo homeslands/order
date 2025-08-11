@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import {
   CustomerInformation,
   OrderItemList,
-} from '@/app/system/order-management'
+} from '@/app/system/delivery-management'
 import {
   useExportOrderInvoice,
   useOrderBySlug,

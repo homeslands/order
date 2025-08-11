@@ -19,8 +19,8 @@ import {
   OrderPaymentPage,
   BankConfigPage,
   MenuDetailManagementPage,
+  DeliveryManagementPage,
   OrderManagementPage,
-  OrderHistoryPage,
   OrderDetailPage,
   EmployeeListPage,
   ForgotPasswordPage,
@@ -306,7 +306,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_ORDER_MANAGEMENT,
+        path: ROUTE.STAFF_DELIVERY_MANAGEMENT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />
@@ -317,7 +317,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                element={<SuspenseElement component={OrderManagementPage} />}
+                element={<SuspenseElement component={DeliveryManagementPage} />}
               />
             ),
           },
@@ -342,7 +342,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_ORDER_HISTORY,
+        path: ROUTE.STAFF_ORDER_MANAGEMENT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />
@@ -354,14 +354,14 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedElement
                 // allowedRoles={[Role.STAFF, Role.MANAGER]}
-                element={<SuspenseElement component={OrderHistoryPage} />}
+                element={<SuspenseElement component={OrderManagementPage} />}
               />
             ),
           },
         ],
       },
       {
-        path: `${ROUTE.STAFF_ORDER_HISTORY}/:slug/update`,
+        path: `${ROUTE.STAFF_ORDER_MANAGEMENT}/:slug/update`,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />
@@ -380,7 +380,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: `${ROUTE.STAFF_ORDER_HISTORY}/:slug`,
+        path: `${ROUTE.STAFF_ORDER_MANAGEMENT}/:slug`,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />

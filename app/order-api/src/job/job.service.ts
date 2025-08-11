@@ -23,6 +23,8 @@ import { CurrencyUtil } from 'src/shared/utils/currency.util';
 import { CreatePointTransactionDto } from 'src/gift-card-modules/point-transaction/dto/create-point-transaction.dto';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { InvoiceAction } from 'src/invoice/invoice.constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class JobService {
@@ -39,6 +41,7 @@ export class JobService {
     private readonly logger: Logger,
     private readonly sharedBalanceService: SharedBalanceService,
     private readonly sharedPointTransactionService: SharedPointTransactionService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async updateOrderStatusAfterPaymentPaid(job: Job) {
@@ -137,6 +140,11 @@ export class JobService {
         const invoice = await this.invoiceService.exportInvoice({
           order: order.slug,
         } as ExportInvoiceDto);
+
+        await this.eventEmitter.emitAsync(InvoiceAction.INVOICE_CREATED, {
+          orderId: order.id,
+        });
+
         await this.mailService.sendInvoiceWhenOrderPaid(order.owner, invoice);
 
         this.logger.log(`Update order status from PENDING to PAID`, context);

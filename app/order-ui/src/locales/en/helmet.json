@@ -111,9 +111,9 @@
       "description": "Manage your banners here",
       "keywords": "banner, banner management, advertising banner"
     },
-    "orderHistory": {
-      "title": "Order History",
-      "manageOrderHistory": "Order History",
+    "orderManagement": {
+      "title": "Order Management",
+      "manageOrderManagement": "Order Management",
       "description": "Manage your order history here",
       "keywords": "order history, past orders, order records"
     },
@@ -141,12 +141,12 @@
       "description": "Manage your static pages here",
       "keywords": "static page, page management, restaurant pages"
     },
-    "orderManagement": {
-      "title": "Order Management",
-      "manageOrderManagement": "Manage Orders",
+    "deliveryManagement": {
+      "title": "Delivery Management",
+      "manageDeliveryManagement": "Manage Orders",
       "description": "Manage your orders here",
       "keywords": "order, order management, restaurant orders"
-    },    
+    },
     "notification": {
       "title": "Notification Management",
       "manageNotification": "Manage Notifications",

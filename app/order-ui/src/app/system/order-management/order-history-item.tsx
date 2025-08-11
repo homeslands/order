@@ -68,7 +68,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
         <OrderStatusBadge order={order} />
       </div>
       <div className="flex justify-end col-span-1 gap-2">
-        <NavLink to={`${ROUTE.STAFF_ORDER_HISTORY}/${order.slug}`}>
+        <NavLink to={`${ROUTE.STAFF_ORDER_MANAGEMENT}/${order.slug}`}>
           <Button
             variant="outline"
             className="text-xs border-primary text-primary hover:bg-primary/10 hover:text-primary"

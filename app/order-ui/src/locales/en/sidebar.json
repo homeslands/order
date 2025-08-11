@@ -2,9 +2,9 @@
   "sidebar": {
     "home": "Home",
     "menu": "Menu",
-    "orderManagement": "Order Management",
+    "deliveryManagement": "Delivery Management",
     "chefOrderManagement": "Chef Order Management",
-    "orderHistory": "Order History",
+    "orderManagement": "Order Management",
     "myOrders": "My Orders",
     "tableManagement": "Table Management",
     "internalWallet": "Internal Wallet",

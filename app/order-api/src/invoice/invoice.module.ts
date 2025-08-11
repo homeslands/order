@@ -9,15 +9,23 @@ import { PdfModule } from 'src/pdf/pdf.module';
 import { QrCodeModule } from 'src/qr-code/qr-code.module';
 import { InvoiceScheduler } from './invoice.scheduler';
 import { DbModule } from 'src/db/db.module';
+import { InvoiceListener } from './invoice.listener';
+import { PrinterModule } from 'src/printer/printer.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Invoice, Order]),
     PdfModule,
     QrCodeModule,
     DbModule,
+    PrinterModule,
   ],
   controllers: [InvoiceController],
-  providers: [InvoiceService, InvoiceProfile, InvoiceScheduler],
+  providers: [
+    InvoiceService,
+    InvoiceProfile,
+    InvoiceScheduler,
+    InvoiceListener,
+  ],
   exports: [InvoiceService],
 })
 export class InvoiceModule {}

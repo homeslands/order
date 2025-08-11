@@ -7,10 +7,13 @@ import { useUserStore } from '@/stores'
 import { ITable } from '@/types'
 import SelectReservedTableDialog from '@/components/app/dialog/select-reserved-table-dialog'
 import { NonResizableTableItem } from '../../../app/system/table'
+import { useSearchParams } from 'react-router-dom'
+import { showToast } from '@/utils'
 
 export default function SystemTableSelect() {
     const { t } = useTranslation(['table'])
     const { getUserInfo } = useUserStore()
+    const [_, setSearchParams] = useSearchParams()
     const { data: tables } = useTables(getUserInfo()?.branch.slug)
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
@@ -20,9 +23,8 @@ export default function SystemTableSelect() {
     const [reservedTable, setReservedTable] = useState<ITable | null>(null)
 
     useEffect(() => {
-        const addedTable = cartItems?.table
-        if (addedTable) {
-            setSelectedTableId(addedTable)
+        if (cartItems?.table) {
+            setSelectedTableId(cartItems?.table)
         }
     }, [cartItems?.table])
 
@@ -37,13 +39,17 @@ export default function SystemTableSelect() {
             } else if (table.status === 'available') {
                 setSelectedTableId(table.slug)
                 setOrderingTable(table)
+                showToast('toast.chooseTableSuccess')
+                setSearchParams({ tab: 'menu' })
             }
         }
     }
 
     const confirmAddReservedTable = (table: ITable) => {
         setSelectedTableId(table.slug)
+        setSearchParams({ tab: 'menu' })
         setOrderingTable(table)
+        showToast('toast.chooseTableSuccess')
         setReservedTable(null) // Close the dialog
     }
 
