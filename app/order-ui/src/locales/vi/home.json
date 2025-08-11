@@ -1,25 +1,25 @@
 {
   "home": {
-    "title": "Trang chủ",
+    "aboutUsDescription": "Chúng tôi cung cấp các loại cà phê chất lượng cao với nguồn gốc rõ ràng. Hãy ghé thăm cửa hàng của chúng tôi!",
+    "bestSeller": "Sản phẩm bán chạy",
+    "contactUs": "Liên hệ với chúng tôi",
     "description": "Đây là trang chủ",
     "exploreMenu": "Khám phá thực đơn",
-    "viewMenu": "Xem thực đơn",
-    "menu": "Thực đơn",
-    "learnMore": "Tìm hiểu thêm",
-    "bestSeller": "Sản phẩm bán chạy",
-    "viewMore": "Xem thêm",
+    "fanpage": "Facebook",
     "homeDescription": "Không gian hiện đại, ấm cúng – nơi gắn kết những câu chuyện và tạo nên kỷ niệm khó quên.",
     "homeDescription2": "100% Arabica nguyên chất, rang mộc mỗi tuần",
     "homeDescription3": "Không gian yên tĩnh, cực chill cho làm việc",
-    "newProduct": "Sản phẩm mới",
-    "topPromotion": "Khuyến mãi hàng đầu",
     "learnAboutUs": "Tìm hiểu về chúng tôi",
-    "aboutUsDescription": "Chúng tôi cung cấp các loại cà phê chất lượng cao với nguồn gốc rõ ràng. Hãy ghé thăm cửa hàng của chúng tôi!",
-    "contactUs": "Liên hệ với chúng tôi",
-    "fanpage": "Facebook",
+    "learnMore": "Tìm hiểu thêm",
+    "menu": "Thực đơn",
+    "newProduct": "Sản phẩm mới",
+    "title": "Trang chủ",
+    "topPromotion": "Khuyến mãi hàng đầu",
     "videoSection": {
-      "title": "Khám phá câu chuyện TREND Coffee",
-      "description": "Tìm hiểu về hành trình và giá trị mà chúng tôi mang đến cho khách hàng"
-    }
+      "description": "Tìm hiểu về hành trình và giá trị mà chúng tôi mang đến cho khách hàng",
+      "title": "Khám phá câu chuyện TREND Coffee"
+    },
+    "viewMenu": "Xem thực đơn",
+    "viewMore": "Xem thêm"
   }
 }

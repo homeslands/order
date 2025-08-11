@@ -1,25 +1,25 @@
 {
   "home": {
-    "title": "Home",
+    "aboutUsDescription": "We provide high-quality coffee with clear origins. Visit our store!",
+    "bestSeller": "Best seller",
+    "contactUs": "Contact us",
     "description": "This is the home page",
     "exploreMenu": "Explore menu",
-    "viewMenu": "View menu",
-    "menu": "Menu",
-    "learnMore": "Learn more",
-    "bestSeller": "Best seller",
-    "viewMore": "View more",
+    "fanpage": "Facebook",
     "homeDescription": "A modern, cozy space – a place to connect stories and create unforgettable memories.",
     "homeDescription2": "100% Arabica pure, roasted weekly",
     "homeDescription3": "A quiet, chill space for work",
-    "newProduct": "New product",
-    "topPromotion": "Top promotion",
     "learnAboutUs": "Learn about us",
-    "aboutUsDescription": "We provide high-quality coffee with clear origins. Visit our store!",
-    "contactUs": "Contact us",
-    "fanpage": "Facebook",
+    "learnMore": "Learn more",
+    "menu": "Menu",
+    "newProduct": "New product",
+    "title": "Home",
+    "topPromotion": "Top promotion",
     "videoSection": {
-      "title": "Discover the story of TREND Coffee",
-      "description": "Learn about our journey and the value we bring to our customers"
-    }
+      "description": "Learn about our journey and the value we bring to our customers",
+      "title": "Discover the story of TREND Coffee"
+    },
+    "viewMenu": "View menu",
+    "viewMore": "View more"
   }
 }

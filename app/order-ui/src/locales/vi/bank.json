@@ -1,27 +1,25 @@
 {
   "bank": {
-    "title": "Quản lý ngân hàng",
-    "qrCodeTitle": "Quét mã QR",
-    "qrCodeTitleDescription": "Quét mã QR để thanh toán ngay",
-
+    "beneficiaryName": "Tên người nhận",
+    "beneficiaryNamePlaceholder": "Nhập tên người nhận",
     "create": "Tạo liên kết ngân hàng",
     "createBankConnectorDescription": "Điền đầy đủ thông tin để tạo liên kết ngân hàng mới",
-    "xProviderId": "ID nhà cung cấp",
-    "xProviderIdPlaceholder": "Nhập ID nhà cung cấp",
-    "xService": "Dịch vụ",
-    "xServicePlaceholder": "Nhập dịch vụ",
+    "delete": "Xóa liên kết ngân hàng",
+    "deleteContent": "Bạn có chắc muốn xóa liên kết ngân hàng ",
+    "qrCodeTitle": "Quét mã QR",
+    "qrCodeTitleDescription": "Quét mã QR để thanh toán ngay",
+    "title": "Quản lý ngân hàng",
+    "update": "Chỉnh sửa liên kết ngân hàng",
+    "updateBankConnectorDescription": "Chỉnh sửa thông tin để cập nhật liên kết ngân hàng",
+    "updateBankDescription": "Thay đổi thông tin để cập nhật liên kết ngân hàng",
+    "virtualAccountPrefix": "Đầu số tài khoản định danh",
     "xOwnerNumber": "Số tài khoản",
     "xOwnerNumberPlaceholder": "Nhập số tài khoản",
     "xOwnerType": "Loại tài khoản",
     "xOwnerTypePlaceholder": "Nhập loại tài khoản",
-    "beneficiaryName": "Tên người nhận",
-    "beneficiaryNamePlaceholder": "Nhập tên người nhận",
-    "virtualAccountPrefix": "Đầu số tài khoản định danh",
-
-    "update": "Chỉnh sửa liên kết ngân hàng",
-    "updateBankDescription": "Thay đổi thông tin để cập nhật liên kết ngân hàng",
-
-    "delete": "Xóa liên kết ngân hàng",
-    "deleteContent": "Bạn có chắc muốn xóa liên kết ngân hàng "
+    "xProviderId": "ID nhà cung cấp",
+    "xProviderIdPlaceholder": "Nhập ID nhà cung cấp",
+    "xService": "Dịch vụ",
+    "xServicePlaceholder": "Nhập dịch vụ"
   }
 }

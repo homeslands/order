@@ -1,25 +1,22 @@
 {
   "config": {
-    "title": "Cấu hình hệ thống",
-
-    "save": "Lưu",
     "addNewConfig": "Thêm cấu hình mới",
-    "savedConfigs": "Cấu hình đã lưu",
-    "noSavedConfig": "Không có cấu hình nào được lưu",
-
-    "update": "Cập nhật",
-    "updateSystemConfigDescription": "Cập nhật cấu hình hệ thống",
-    "key": "Từ khóa",
-    "enterKey": "Nhập từ khóa",
-    "value": "Giá trị",
-    "enterValue": "Nhập giá trị",
-    "description": "Mô tả",
-    "enterDescription": "Nhập mô tả",
-
     "delete": "Xóa",
-    "deleteSystemConfig": "Xóa cấu hình hệ thống",
     "deleteContent": "Bạn có chắc muốn xóa cấu hình với key ",
     "deleteContent2": " và giá trị ",
-    "deleteContent3": " không?"
+    "deleteContent3": " không?",
+    "deleteSystemConfig": "Xóa cấu hình hệ thống",
+    "description": "Mô tả",
+    "enterDescription": "Nhập mô tả",
+    "enterKey": "Nhập từ khóa",
+    "enterValue": "Nhập giá trị",
+    "key": "Từ khóa",
+    "noSavedConfig": "Không có cấu hình nào được lưu",
+    "save": "Lưu",
+    "savedConfigs": "Cấu hình đã lưu",
+    "title": "Cấu hình hệ thống",
+    "update": "Cập nhật",
+    "updateSystemConfigDescription": "Cập nhật cấu hình hệ thống",
+    "value": "Giá trị"
   }
 }
