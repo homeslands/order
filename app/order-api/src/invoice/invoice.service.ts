@@ -125,6 +125,26 @@ export class InvoiceService {
     return data;
   }
 
+  async exportBufferPng(requestData: ExportInvoiceDto): Promise<Buffer> {
+    const context = `${InvoiceService.name}.${this.exportInvoice.name}`;
+    const invoice = await this.create(requestData.order);
+
+    const logoPath = resolve('public/images/dark_logo.png');
+    const logoBuffer = readFileSync(logoPath);
+
+    // Convert the buffer to a Base64 string
+    const logoString = logoBuffer.toString('base64');
+
+    const data = await this.pdfService.generatePngFromTemplate('invoice', {
+      ...invoice,
+      logoString,
+    });
+
+    this.logger.log(`Invoice png ${invoice.slug} exported`, context);
+
+    return data;
+  }
+
   private async create(orderSlug: string) {
     const context = `${InvoiceService.name}.${this.create.name}`;
     const order = await this.orderRepository.findOne({
