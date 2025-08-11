@@ -5,6 +5,7 @@ import {
   CreditCard,
   DownloadIcon,
   SquarePen,
+  Loader2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -18,8 +19,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
-import { PaymentMethod, paymentStatus, ROUTE } from '@/constants'
-import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup } from '@/hooks'
+import { PaymentMethod, paymentStatus, PrinterJobType, ROUTE } from '@/constants'
+import { useExportOrderInvoice, useExportPayment, useGetAuthorityGroup, useReprintFailedInvoicePrinterJobs } from '@/hooks'
 import { formatCurrency, hasPermissionInBoth, loadDataToPrinter, showToast } from '@/utils'
 import OrderStatusBadge from '@/components/app/badge/order-status-badge'
 import { CreateChefOrderDialog, OutlineCancelOrderDialog } from '@/components/app/dialog'
@@ -47,6 +48,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
   const isDeletePermissionValid = hasPermissionInBoth("DELETE_ORDER", authorityGroupCodes, userPermissionCodes);
   const { mutate: exportPayment } = useExportPayment()
   const { mutate: exportOrderInvoice } = useExportOrderInvoice()
+  const { mutate: reprintOrderInvoice, isPending: isReprinting } = useReprintFailedInvoicePrinterJobs()
 
   const handleExportPayment = (slug: string) => {
     exportPayment(slug, {
@@ -65,6 +67,14 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         // Load data to print
         loadDataToPrinter(data)
       },
+    })
+  }
+
+  const handleReprintFailedOrderPrinterJobs = (order: IOrder) => {
+    reprintOrderInvoice(order.slug, {
+      onSuccess: () => {
+        showToast(tToast('toast.reprintFailedOrderPrinterJobsSuccess'))
+      }
     })
   }
 
@@ -194,10 +204,60 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
+      accessorKey: 'printerOrders',
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          key={column.id}
+          column={column}
+          title={t('order.printerOrders')}
+        />
+      ),
+      cell: ({ row }) => {
+        const printerInvoices = row.original.printerInvoices || []
+
+        const countByStatus: Record<PrinterJobType, number> = {
+          pending: 0,
+          printing: 0,
+          printed: 0,
+          failed: 0,
+        }
+
+        for (const job of printerInvoices) {
+          const status = job.status as PrinterJobType
+          countByStatus[status]++
+        }
+
+        const statusLabels: Record<PrinterJobType, string> = {
+          printed: t('order.printed'),   // ví dụ: 'Đã in'
+          printing: t('order.printing'), // ví dụ: 'Đang in'
+          pending: t('order.pendingPrint'),   // ví dụ: 'Chờ in'
+          failed: t('order.failed'),     // ví dụ: 'Lỗi'
+        }
+
+        const statusColors: Record<PrinterJobType, string> = {
+          printed: 'text-green-600',
+          printing: 'text-blue-600',
+          pending: 'text-gray-500',
+          failed: 'text-red-600',
+        }
+
+        return (
+          <div className="flex flex-col flex-wrap gap-x-3 text-xs font-medium xl:text-sm">
+            {(['printed', 'printing', 'pending', 'failed'] as PrinterJobType[]).map(status => (
+              <span key={status} className={statusColors[status]}>
+                {statusLabels[status]}: {countByStatus[status]}
+              </span>
+            ))}
+          </div>
+        )
+      }
+    },
+    {
       id: 'actions',
       header: tCommon('common.action'),
       cell: ({ row }) => {
         const order = row.original
+        const failedJobs = order.printerInvoices?.filter(job => job.status === PrinterJobType.FAILED) || []
         return (
           <div>
             <DropdownMenu>
@@ -212,22 +272,6 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
 
-                {/* Export invoice */}
-                {(order.status !== OrderStatus.PENDING) && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      className="flex gap-1 justify-start px-2 w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleExportOrderInvoice(order);
-                      }}
-                    >
-                      <DownloadIcon />
-                      {t('order.exportInvoice')}
-                    </Button>
-                  </div>
-                )}
                 {/* Update payment */}
                 {order?.slug &&
                   order?.status === OrderStatus.PENDING &&
@@ -304,6 +348,21 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                       <OutlineCancelOrderDialog order={order} />
                     </div>
                   )}
+                {order.status !== OrderStatus.PENDING && failedJobs.length > 0 ? (
+                  <Button
+                    disabled={isReprinting}
+                    variant="ghost"
+                    className="flex justify-start px-2 w-full text-xs xl:text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleReprintFailedOrderPrinterJobs(order)
+                    }}
+                  >
+                    {isReprinting && <Loader2 className="mr-2 animate-spin" />}
+                    <DownloadIcon />
+                    {t('order.reprintFailedOrderJobs')}
+                  </Button>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

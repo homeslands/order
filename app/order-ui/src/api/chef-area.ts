@@ -288,3 +288,26 @@ export async function pingPrinterForChefArea(
   )
   return response.data
 }
+
+export async function testExportTickets(
+  slug: string,
+  maxCount: number,
+  type: string
+): Promise<IApiResponse<{ success: boolean }>> {
+  const response = await http.post(`/chef-order/${slug}/test-export/tickets/${maxCount}/${type}`,)
+  return response.data
+}
+
+export async function reprintFailedChefOrderPrinterJobs(
+  slug: string,
+): Promise<IApiResponse<{ success: boolean }>> {
+  const response = await http.patch(`/chef-order/${slug}/re-print-failed-chef-order-printer-jobs`)
+  return response.data
+}
+
+export async function reprintFailedLabelPrinterJobs(
+  slug: string,
+): Promise<IApiResponse<{ success: boolean }>> {
+  const response = await http.patch(`/chef-order/${slug}/re-print-failed-label-printer-jobs`)
+  return response.data
+}
