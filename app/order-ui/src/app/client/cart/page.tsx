@@ -116,8 +116,8 @@ export default function ClientCartPage() {
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full">
           <div className="flex items-center gap-1 pb-4">
-            <CircleAlert size={14} className="text-destructive" />
-            <span className="text-xs italic text-destructive">
+            <CircleAlert size={14} className="text-destructive dark:text-red-500" />
+            <span className="text-xs italic text-destructive dark:text-red-500">
               {t('order.selectTableNote')}
             </span>
           </div>
@@ -429,7 +429,7 @@ export default function ClientCartPage() {
             </div>
           ) : (
             <div className="my-4">
-              <div className="flex flex-col gap-2 mb-2 border rounded-md">
+              <div className="flex flex-col gap-2 mb-2 border rounded-md dark:border-muted-foreground/60">
                 {currentCartItems?.orderItems.map((item) => (
                   <div
                     key={`${item.id}-${currentCartItems?.voucher?.slug || 'no-voucher'}`}
@@ -662,13 +662,13 @@ export default function ClientCartPage() {
             </div>
 
           ) : (
-            <div className='fixed left-0 right-0 z-50 bg-white bottom-16'>
-              <div className='grid items-center justify-between grid-cols-2 p-4'>
-                <div className="flex items-center col-span-1 gap-1 font-semibold">
-                  <span>{t('order.totalPayment')}</span>
-                  <span className="text-lg font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+            <div className='fixed left-0 right-0 z-50 bg-white bottom-16 dark:bg-background'>
+              <div className='grid items-center justify-between grid-cols-2 px-2 py-4'>
+                <div className="flex items-center justify-center col-span-1 gap-1 font-semibold">
+                  {/* <span>{t('order.totalPayment')}</span> */}
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
-                <div className="flex justify-end w-full col-span-1 p-2">
+                <div className="flex justify-end w-full col-span-1 p-0">
                   <CreateOrderDialog
                     disabled={
                       !currentCartItems ||
