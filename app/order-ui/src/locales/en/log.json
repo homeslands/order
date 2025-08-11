@@ -1,12 +1,12 @@
 {
   "log": {
-    "title": "Log Management",
+    "context": "Context",
+    "createdAt": "Created At",
     "level": "Level",
+    "message": "Message",
+    "pid": "PID",
     "slug": "Slug",
     "timestamp": "Timestamp",
-    "message": "Message",
-    "context": "Context",
-    "pid": "PID",
-    "createdAt": "Created At"
+    "title": "Log Management"
   }
 }

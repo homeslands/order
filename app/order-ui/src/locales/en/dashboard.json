@@ -1,5 +1,15 @@
 {
   "dashboard": {
-    "title": "Dashboard"
+    "chooseTool": "Choose tool",
+    "daily": "Daily",
+    "exportExcel": "Export Excel",
+    "exportPDF": "Export PDF",
+    "filter": "Filtering by",
+    "hourly": "Hourly",
+    "referenceNumberOrder": "Order sequence number",
+    "title": "Dashboard",
+    "titleDetail": "Overview of branches",
+    "tool": "Tool",
+    "topProducts": "Top products"
   }
 }
