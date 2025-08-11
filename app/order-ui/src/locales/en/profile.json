@@ -13,6 +13,7 @@
       "cardType": "Card Type",
       "code": "Code",
       "expires": "Expires",
+      "giftCard": "Gift Card",
       "giftCardCodes": "Gift Cards",
       "giftCardInfo": "Gift Card Information",
       "loadError": "Failed to load gift card orders. Please try again.",
@@ -20,6 +21,7 @@
       "noName": "_____",
       "noOrders": "No gift card orders found",
       "noOrdersDescription": "Your gift card orders will appear here",
+      "orderDetails": "Order Details",
       "orders": "Gift Card Orders",
       "paymentDate": "Payment Date",
       "paymentInfo": "Payment Information",
@@ -27,6 +29,7 @@
       "paymentStatus": "Payment Status",
       "points": "Coins",
       "quantity": "Quantity",
+      "recipient": "recipient",
       "recipients": "Recipients",
       "serial": "Serial",
       "status": {
@@ -38,6 +41,7 @@
         "pending": "Pending"
       },
       "total": "Total",
+      "totalPayment": "Total Payment",
       "transactionId": "Transaction ID",
       "used": "Used"
     },
@@ -94,6 +98,7 @@
     "generalInfo": "General Information",
     "giftCard": {
       "code": "Gift Card Code",
+      "copyCode": "Copy Code",
       "createdAt": "Created at",
       "defaultTitle": "Gift Card",
       "expiredAt": "Expired at",
@@ -105,6 +110,7 @@
       "noGiftCardsDescription": "Your gift card transactions will appear here",
       "owner": "Owner",
       "points": "points",
+      "pointsReceived": "Coins Received",
       "serial": "Serial Number",
       "status": {
         "all": "All Status",
@@ -122,6 +128,7 @@
     "giftCardDetails": "Gift Card Details",
     "giftCardName": "Card Name",
     "giftCardTransaction": "Gift Card Transaction",
+    "giftCards": "Gift Cards",
     "history": "Order history",
     "lastName": "Last Name",
     "lastNameEmojiInvalid": "Last name must not contain emojis",
@@ -134,7 +141,6 @@
     "netDifference": "Net Difference",
     "newPassword": "New Password",
     "noMoreTransactions": "No more transactions to show",
-    "noNotificationFound": "No notification found!",
     "noTransactions": "No transactions yet",
     "notVerified": "Not Verified",
     "notification": "Notification",
@@ -148,6 +154,7 @@
     "paymentForOrder": "Payment for Order",
     "phoneNumber": "Phone Number",
     "pleaseTryAgainLater": "Please try again later",
+    "productOrders": "Products",
     "profile": "Personal Information",
     "redirectingIn5s": "You will be redirected to your profile in 5 seconds",
     "resend": "Resend",
