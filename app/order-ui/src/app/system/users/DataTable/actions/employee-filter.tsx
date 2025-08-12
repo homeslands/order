@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { ColumnFiltersState } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
@@ -12,35 +11,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui'
+
+interface FilterConfig {
+  id: string
+  label: string
+  value?: string
+  options: { label: string; value: string | number | boolean }[]
+}
 import { IUserInfo } from '@/types'
 
 export default function DataTableFilterOptions({
   setFilterOption,
-  filterConfig,
+  filterConfig = [],
   onFilterChange,
-}: DataTableFilterOptionsProps<IUserInfo>) {
+}: Omit<DataTableFilterOptionsProps<IUserInfo>, 'filterConfig'> & { filterConfig?: FilterConfig[] }) {
   const { t } = useTranslation('common')
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({})
-
   const handleFilterChange = (filterId: string, value: string) => {
-    setFilterValues(prev => ({
-      ...prev,
-      [filterId]: value
-    }))
-
     if (onFilterChange) {
       onFilterChange(filterId, value)
     }
 
-    const filterConditions: ColumnFiltersState = Object.entries({
-      ...filterValues,
-      [filterId]: value
-    })
-      .filter(([_, value]) => value !== 'all')
-      .map(([id, value]) => ({
-        id,
-        value,
+    const filterConditions: ColumnFiltersState = filterConfig
+      .map(filter => ({
+        id: filter.id,
+        value: filter.id === filterId ? value : (filter.value || 'all')
       }))
+      .filter(({ value }) => value !== 'all')
 
     setFilterOption(filterConditions)
   }
@@ -52,7 +48,7 @@ export default function DataTableFilterOptions({
       {filterConfig.map((filter) => (
         <Select
           key={filter.id}
-          value={filterValues[filter.id] || 'all'}
+          value={filter.value || 'all'}
           onValueChange={(value) => handleFilterChange(filter.id, value)}
         >
           <SelectTrigger className="text-xs w-fit">
@@ -60,7 +56,7 @@ export default function DataTableFilterOptions({
           </SelectTrigger>
           <SelectContent side="top">
             <SelectGroup>
-              <SelectLabel className="text-xs">{t('dataTable.all')}</SelectLabel>
+              <SelectLabel className="text-xs">{t('common.action')}</SelectLabel>
               {filter.options.map((option) => (
                 <SelectItem key={String(option.value)} value={String(option.value)} className="text-xs">
                   {option.label}
