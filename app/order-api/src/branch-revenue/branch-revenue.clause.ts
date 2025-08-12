@@ -92,6 +92,7 @@ export const getCurrentBranchRevenueFromInvoiceClause = `
         iv.date_column >= CURRENT_DATE()
 		AND iv.date_column < CURRENT_DATE() + INTERVAL 1 DAY
         AND iv.deleted_at_column IS NULL
+        AND iv.status_column = 'paid'
     GROUP BY 
         iv.branch_id_column, DATE(iv.date_column)
     ORDER BY 
@@ -193,6 +194,7 @@ export const getYesterdayBranchRevenueFromInvoiceClause = `
         iv.date_column >= CURRENT_DATE() - INTERVAL 1 DAY
 		AND iv.date_column < CURRENT_DATE()
         AND iv.deleted_at_column IS NULL
+        AND iv.status_column = 'paid'
     GROUP BY 
         iv.branch_id_column, DATE(iv.date_column)
     ORDER BY 
@@ -285,6 +287,7 @@ export const getAllBranchRevenueFromInvoiceClause = `
         InvoiceItemSummary AS ivi ON iv.id_column = ivi.invoice_id
     WHERE 
         iv.deleted_at_column IS NULL
+        AND iv.status_column = 'paid'
     GROUP BY 
         iv.branch_id_column, DATE(iv.date_column)
     ORDER BY 
@@ -433,6 +436,7 @@ export const getSpecificRangeBranchRevenueFromInvoiceClause = `
         iv.date_column >= ?
 		AND iv.date_column < ?
         AND iv.deleted_at_column IS NULL
+        AND iv.status_column = 'paid'
     GROUP BY 
         iv.branch_id_column, DATE(iv.date_column)
     ORDER BY 
@@ -535,6 +539,7 @@ export const getSpecificRangeBranchRevenueByHourFromInvoiceClause = `
 		AND iv.date_column < ?
         AND iv.branch_id_column = ?
         AND iv.deleted_at_column IS NULL
+        AND iv.status_column = 'paid'
     GROUP BY 
         DATE_FORMAT(iv.date_column, '%Y-%m-%d %H:00:00')
     ORDER BY 
