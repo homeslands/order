@@ -14,6 +14,7 @@ import { NonPropQuantitySelector } from '@/components/app/button'
 import {
   OrderFlowStep,
   useOrderFlowStore,
+  useUserStore,
 } from '@/stores'
 import { IProductVariant, IOrderItem } from '@/types'
 import { formatCurrency, showToast, } from '@/utils'
@@ -45,20 +46,30 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<IProductVariant | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const navigate = useNavigate()
+  const { userInfo } = useUserStore()
 
   const productDetail = product?.result
 
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
-    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+    if (isHydrated) {
       // Chuyển về ORDERING phase nếu đang ở phase khác
-      setCurrentStep(OrderFlowStep.ORDERING)
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
 
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   useEffect(() => {
     if (productDetail?.product.variants.length && productDetail?.product.variants.length > 0) {
@@ -105,7 +116,14 @@ export default function ProductDetailPage() {
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
@@ -153,7 +171,14 @@ export default function ProductDetailPage() {
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 

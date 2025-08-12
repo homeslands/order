@@ -20,7 +20,7 @@ import {
 } from '@/components/ui'
 
 import { IOrderItem, IProductVariant, IMenuItem } from '@/types'
-import { useOrderFlowStore, OrderFlowStep } from '@/stores'
+import { useOrderFlowStore, OrderFlowStep, useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 
@@ -50,19 +50,28 @@ export default function AddToCartDialog({
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
+  const { userInfo } = useUserStore()
 
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
-    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+    if (isHydrated) {
       // Chuyển về ORDERING phase nếu đang ở phase khác
-      setCurrentStep(OrderFlowStep.ORDERING)
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
 
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   // 🎯 Handle Add to Cart - Workflow Chuẩn
   const handleAddToCart = () => {
@@ -79,7 +88,14 @@ export default function AddToCartDialog({
     if (currentStep !== OrderFlowStep.ORDERING) {
       setCurrentStep(OrderFlowStep.ORDERING)
 
+      // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
+        initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
         initializeOrdering()
       }
     }

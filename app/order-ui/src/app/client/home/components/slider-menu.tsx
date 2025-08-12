@@ -16,7 +16,7 @@ import { useIsMobile } from "@/hooks";
 import { ClientAddToCartDialog } from "@/components/app/dialog";
 import { ROUTE } from "@/constants";
 import { PromotionTag } from "@/components/app/badge";
-import { OrderFlowStep, useOrderFlowStore } from "@/stores";
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from "@/stores";
 
 interface ISliderMenuPromotionProps {
     menus: IMenuItem[] | undefined
@@ -37,6 +37,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         setCurrentStep
     } = useOrderFlowStore()
     const isMobile = useIsMobile()
+    const { userInfo } = useUserStore()
     const getPriceRange = (variants: IProduct['variants']) => {
         if (!variants || variants.length === 0) return null
 
@@ -83,6 +84,21 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         filteredMenus = menus ? menus.slice(0, 5) : []
     }
 
+    // // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+    // useEffect(() => {
+    //     if (isHydrated) {
+    //         // Chuyển về ORDERING phase nếu đang ở phase khác
+    //         if (currentStep !== OrderFlowStep.ORDERING) {
+    //             setCurrentStep(OrderFlowStep.ORDERING)
+    //         }
+
+    //         // Khởi tạo ordering data nếu chưa có
+    //         if (!orderingData) {
+    //             initializeOrdering()
+    //         }
+    //     }
+    // }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+
     // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
     useEffect(() => {
         if (isHydrated) {
@@ -94,9 +110,15 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             // Khởi tạo ordering data nếu chưa có
             if (!orderingData) {
                 initializeOrdering()
+                return
+            }
+
+            // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+            if (userInfo?.slug && !orderingData.owner?.trim()) {
+                initializeOrdering()
             }
         }
-    }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+    }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
     const handleAddToCart = (product: IMenuItem) => {
         if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
@@ -106,7 +128,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             setCurrentStep(OrderFlowStep.ORDERING)
         }
 
+        // Khởi tạo ordering data nếu chưa có
         if (!orderingData) {
+            initializeOrdering()
+            return
+        }
+
+        // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+        if (userInfo?.slug && !orderingData.owner?.trim()) {
             initializeOrdering()
         }
 

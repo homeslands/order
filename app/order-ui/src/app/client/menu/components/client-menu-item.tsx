@@ -12,7 +12,7 @@ import { formatCurrency, showToast } from '@/utils'
 import { ClientAddToCartDialog } from '@/components/app/dialog'
 import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
-import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 
 
 interface IClientMenuItemProps {
@@ -32,7 +32,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
-  // const { getUserInfo } = useUserStore();
+  const { userInfo } = useUserStore();
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
 
@@ -58,9 +58,15 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = (product: IMenuItem) => {
     if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
@@ -70,7 +76,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
