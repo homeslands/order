@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
 import { format, isToday, isSameDay, parse } from 'date-fns'
-import { vi } from 'date-fns/locale'
+import { vi, enUS } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -63,7 +63,10 @@ export default function DatePicker({
   disabledDates = [],
   disableFutureDate = false,
 }: DatePickerProps) {
-  const { t } = useTranslation(['common'])
+  const { t, i18n } = useTranslation(['common'])
+  const locale = React.useMemo(() => {
+    return i18n.language === 'en' ? enUS : vi
+  }, [i18n.language])
 
   const parsedDate = React.useMemo(() => {
     return date ? parseDateString(date) : undefined
@@ -128,7 +131,7 @@ export default function DatePicker({
             </SelectTrigger>
             <SelectContent>
               {Array.from({ length: 12 }, (_, i) => {
-                const monthName = format(new Date(0, i), 'MMMM', { locale: vi })
+                const monthName = format(new Date(0, i), 'MMMM', { locale })
                 return (
                   <SelectItem key={i} value={String(i)}>
                     {monthName.charAt(0).toUpperCase() + monthName.slice(1)}
@@ -177,7 +180,7 @@ export default function DatePicker({
             setYear(newMonth.getFullYear())
           }}
           initialFocus
-          locale={vi}
+          locale={locale}
           disabled={isDateDisabled}
           modifiers={{
             today: (d) => isToday(d),
