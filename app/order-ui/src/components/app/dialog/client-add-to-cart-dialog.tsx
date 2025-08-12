@@ -21,7 +21,7 @@ import {
 } from '@/components/ui'
 
 import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
-import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 import { NonPropQuantitySelector } from '../button'
@@ -55,7 +55,7 @@ export default function ClientAddToCartDialog({
   const handleQuantityChange = (quantity: number) => {
     setQuantity(quantity)
   }
-
+  const { userInfo } = useUserStore()
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
     if (isHydrated) {
@@ -67,9 +67,15 @@ export default function ClientAddToCartDialog({
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
@@ -82,7 +88,14 @@ export default function ClientAddToCartDialog({
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
@@ -116,6 +129,7 @@ export default function ClientAddToCartDialog({
       // eslint-disable-next-line no-console
       console.error('❌ Error adding item to cart:', error)
     }
+
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
@@ -136,7 +150,14 @@ export default function ClientAddToCartDialog({
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 

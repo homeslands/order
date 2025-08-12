@@ -11,7 +11,7 @@ import { formatCurrency, showToast } from '@/utils'
 import { useCatalogs, useIsMobile } from '@/hooks'
 import { SystemAddToCartDrawer } from '@/components/app/drawer'
 import { StaffPromotionTag } from '@/components/app/badge'
-import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 
 
 interface IMenuProps {
@@ -33,7 +33,7 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
-
+  const { userInfo } = useUserStore()
   const menuItems = menu?.menuItems?.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
     if (a.isLocked !== b.isLocked) {
@@ -56,16 +56,24 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
 
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
-    if (isHydrated && currentStep !== OrderFlowStep.ORDERING) {
+    if (isHydrated) {
       // Chuyển về ORDERING phase nếu đang ở phase khác
-      setCurrentStep(OrderFlowStep.ORDERING)
+      if (currentStep !== OrderFlowStep.ORDERING) {
+        setCurrentStep(OrderFlowStep.ORDERING)
+      }
 
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = (product: IMenuItem) => {
     if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
@@ -75,7 +83,14 @@ export default function SystemMenus({ menu, isLoading }: IMenuProps) {
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
