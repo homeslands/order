@@ -115,7 +115,7 @@ export default function CreateMultipleTablesSheet() {
               <Input
                 {...field}
                 value={field.value ?? ''}
-                placeholder={t('table.enterRangeStep')}
+                placeholder={t('table.enterStep')}
               />
             </FormControl>
             <FormMessage />

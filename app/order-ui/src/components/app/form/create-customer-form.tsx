@@ -85,10 +85,10 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.phoneNumber')}</FormLabel>
+            <FormLabel>{t('customer.phoneNumber')}</FormLabel>
             <FormControl>
               <Input
-                placeholder={t('login.enterPhoneNumber')}
+                placeholder={t('customer.enterPhoneNumber')}
                 {...field}
                 onChange={(e) => {
                   // Chỉ giữ lại các ký tự là số

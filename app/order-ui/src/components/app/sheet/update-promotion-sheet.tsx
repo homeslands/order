@@ -207,10 +207,10 @@ export default function UpdatePromotionSheet({
             </FormLabel>
             <FormControl>
               <Input
-                defaultValue={t('voucher.defaultPromotionType')}
+                defaultValue={t('promotion.defaultPromotionType')}
                 type="text"
                 {...field}
-                placeholder={t('voucher.selectPromotionType')}
+                placeholder={t('promotion.selectPromotionType')}
               />
             </FormControl>
             <FormMessage />
