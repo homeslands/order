@@ -21,7 +21,7 @@ import {
 } from '@/components/ui'
 
 import { IProductVariant, IMenuItem, IOrderItem } from '@/types'
-import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 import { publicFileURL, ROUTE } from '@/constants'
 import { formatCurrency, showToast } from '@/utils'
 
@@ -49,7 +49,7 @@ export default function ClientAddToCartDialog({
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
-
+  const { userInfo } = useUserStore()
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
     if (isHydrated) {
@@ -61,9 +61,15 @@ export default function ClientAddToCartDialog({
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = () => {
     if (!selectedVariant) return
@@ -76,7 +82,14 @@ export default function ClientAddToCartDialog({
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
@@ -111,36 +124,6 @@ export default function ClientAddToCartDialog({
       console.error('❌ Error adding item to cart:', error)
     }
 
-    // const cartItem: ICartItem = {
-    //   id: generateCartItemId(),
-    //   slug: product?.product?.slug,
-    //   owner: getUserInfo()?.slug,
-    //   type: OrderTypeEnum.AT_TABLE, // default value, can be modified based on requirements
-    //   // branch: getUserInfo()?.branch.slug, // get branch from user info
-    //   orderItems: [
-    //     {
-    //       id: generateCartItemId(),
-    //       slug: product?.product?.slug,
-    //       image: product?.product?.image,
-    //       name: product?.product?.name,
-    //       quantity: 1,
-    //       allVariants: product?.product?.variants,
-    //       variant: selectedVariant,
-    //       size: selectedVariant?.size?.name,
-    //       originalPrice: selectedVariant?.price,
-    //       // price: finalPrice, // Use the calculated final price
-    //       description: product?.product?.description,
-    //       isLimit: product?.product?.isLimit,
-    //       promotion: product?.promotion ? product?.promotion?.slug : '',
-    //       promotionDiscount: product?.promotion ? product?.promotion?.value * selectedVariant?.price / 100 : 0,
-    //       // catalog: product.catalog,
-    //       note: note,
-    //     },
-    //   ],
-    //   table: '', // will be set later via addTable
-    // }
-
-    // addCartItem(cartItem)
     // Reset states
     setNote('')
     setSelectedVariant(product.product.variants[0] || null)
@@ -161,7 +144,14 @@ export default function ClientAddToCartDialog({
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 

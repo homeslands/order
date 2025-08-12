@@ -12,7 +12,7 @@ import { formatCurrency, showToast } from '@/utils'
 import { ClientAddToCartDialog } from '@/components/app/dialog'
 import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
-import { OrderFlowStep, useOrderFlowStore } from '@/stores'
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 
 
 interface IClientMenuItemProps {
@@ -32,7 +32,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
     addOrderingItem,
     setCurrentStep
   } = useOrderFlowStore()
-  // const { getUserInfo } = useUserStore();
+  const { userInfo } = useUserStore();
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
 
@@ -58,9 +58,15 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       // Khởi tạo ordering data nếu chưa có
       if (!orderingData) {
         initializeOrdering()
+        return
+      }
+
+      // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+      if (userInfo?.slug && !orderingData.owner?.trim()) {
+        initializeOrdering()
       }
     }
-  }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+  }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
   const handleAddToCart = (product: IMenuItem) => {
     if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
@@ -70,7 +76,14 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       setCurrentStep(OrderFlowStep.ORDERING)
     }
 
+    // Khởi tạo ordering data nếu chưa có
     if (!orderingData) {
+      initializeOrdering()
+      return
+    }
+
+    // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+    if (userInfo?.slug && !orderingData.owner?.trim()) {
       initializeOrdering()
     }
 
@@ -93,34 +106,6 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       promotionValue: product?.promotion ? product?.promotion?.value : 0,
       note: '',
     }
-
-    // const cartItem = {
-    //   id: generateCartItemId(),
-    //   slug: product.slug,
-    //   owner: getUserInfo()?.slug || '',
-    //   type: OrderTypeEnum.AT_TABLE, // Default value
-    //   orderItems: [
-    //     {
-    //       id: generateCartItemId(),
-    //       slug: product.product.slug,
-    //       image: product.product.image,
-    //       name: product.product.name,
-    //       quantity: 1,
-    //       variant: product?.product?.variants[0],
-    //       allVariants: product?.product?.variants,
-    //       size: product?.product?.variants[0]?.size?.name,
-    //       originalPrice: product?.product?.variants[0]?.price,
-    //       // price: finalPrice,
-    //       description: product?.product?.description || '',
-    //       isLimit: product?.product?.isLimit || false,
-    //       promotion: product?.promotion ? product?.promotion?.slug : '',
-    //       promotionValue: product?.promotion ? product?.promotion?.value : 0,
-    //       promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
-    //       note: '',
-    //     },
-    //   ],
-    //   table: '', // Will be set later if needed
-    // };
 
     try {
       // ✅ Step 4: Add to ordering data
