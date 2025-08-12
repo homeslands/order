@@ -835,12 +835,12 @@ export default function VoucherListSheet() {
           <div className="flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer">
             <div className="flex gap-1 items-center">
               <TicketPercent className="icon text-primary" />
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-primary">
                 {t('voucher.useVoucher')}
               </span>
             </div>
             <div>
-              <ChevronRight className="icon text-muted-foreground" />
+              <ChevronRight className="icon text-primary" />
             </div>
           </div>
         </Button>
