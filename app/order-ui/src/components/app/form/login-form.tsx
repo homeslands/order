@@ -29,9 +29,10 @@ export const LoginForm: React.FC = () => {
     setRefreshToken,
     setExpireTime,
     setExpireTimeRefreshToken,
+    setLogout
   } = useAuthStore()
   const { clearCart } = useCartItemStore()
-  const { setUserInfo } = useUserStore()
+  const { setUserInfo, removeUserInfo } = useUserStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -49,28 +50,29 @@ export const LoginForm: React.FC = () => {
         try {
           clearCart()
 
-          // Set token ngay lập tức để user có thể navigate nhanh
+          // Set token trước để có thể fetch profile
           setToken(response.result.accessToken)
           setRefreshToken(response.result.refreshToken)
           setExpireTime(response.result.expireTime)
           setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
 
-          showToast(t('toast.loginSuccess'))
+          // Fetch profile ngay sau khi set token
+          const profile = await refetchProfile()
 
-          // Fetch profile song song (non-blocking cho navigation)
-          refetchProfile().then((profile) => {
-            if (profile.data) {
-              setUserInfo(profile.data.result)
-            }
-          }).catch(() => {
-            // Nếu profile fetch fail, giữ token nhưng redirect về profile page
-            // để user có thể thấy thông báo và retry
-          })
-
+          if (profile.data) {
+            // Set userInfo sau khi có data
+            setUserInfo(profile.data.result)
+            showToast(t('toast.loginSuccess'))
+          } else {
+            // Nếu không fetch được profile, rollback auth state
+            setLogout()
+            throw new Error('Failed to fetch user profile')
+          }
         } catch {
-          showToast(t('toast.loginFailed'))
-        } finally {
-          setIsLoggingIn(false)
+          // Đảm bảo clear hết state nếu có lỗi
+          setLogout()
+          removeUserInfo()
+          showToast(t('toast.loginError') || 'Đăng nhập thất bại')
         }
       },
       onError: () => {

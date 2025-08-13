@@ -64,12 +64,13 @@ export default function RevenueDetailChart({
             const orders = params[0].value
             const cash = formatCurrency(params[1].value)
             const bank = formatCurrency(params[2].value)
-            // const internal = formatCurrency(params[3].value)
+            const point = formatCurrency(params[3].value, '')
 
             return `${date}<br/>
               ${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}<br/>
               ${params[1].seriesName}: ${cash}<br/>
-              ${params[2].seriesName}: ${bank}`
+              ${params[2].seriesName}: ${bank}<br/>
+              ${params[3].seriesName}: ${point}`
           },
         },
         legend: {
