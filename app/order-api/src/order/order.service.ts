@@ -323,8 +323,11 @@ export class OrderService {
     }
 
     order.voucher = null;
-    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, null);
+    const { subtotal, originalSubtotal } =
+      await this.orderUtils.getOrderSubtotal(order, null);
+
     order.subtotal = subtotal;
+    order.originalSubtotal = originalSubtotal;
 
     // Validate new voucher
     if (requestData.voucher) {
