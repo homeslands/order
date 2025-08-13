@@ -111,3 +111,21 @@ export interface IPriceRangeStore {
   setPriceRange: (minPrice: number, maxPrice: number) => void
   clearPriceRange: () => void
 }
+
+export interface IMenuFilter {
+  date: string
+  menu?: string
+  branch?: string
+  catalog?: string
+  productName?: string
+  minPrice: number
+  maxPrice: number
+}
+
+export interface IMenuFilterStore {
+  menuFilter: IMenuFilter
+  setMenuFilter: (
+    menuFilter: IMenuFilter | ((prev: IMenuFilter) => IMenuFilter),
+  ) => void
+  clearMenuFilter: () => void
+}

@@ -9,48 +9,39 @@ import {
   PopoverTrigger,
 } from '@/components/ui'
 
-import { usePriceRangeStore } from '@/stores'
+import { useBranchStore, useMenuFilterStore } from '@/stores'
 import { DualRangeSlider } from './dual-range-slider'
 import { formatCurrency, formatCurrencyWithSymbol } from '@/utils'
-import { PriceRange } from '@/constants'
+import { FILTER_VALUE } from '@/constants'
 import { cn } from '@/lib'
 
-export const PriceRangeFilter = () => {
+export default function PriceRangeFilter() {
   const { t } = useTranslation(['menu'])
-  const {
-    setPriceRange,
-    minPrice: storedMinPrice,
-    maxPrice: storedMaxPrice,
-  } = usePriceRangeStore()
-  const [minPrice, setMinPrice] = useState<number>(storedMinPrice ?? PriceRange.MIN_PRICE)
-  const [maxPrice, setMaxPrice] = useState<number>(storedMaxPrice ?? PriceRange.MAX_PRICE)
-  const [minPriceInput, setMinPriceInput] = useState<string>(formatCurrencyWithSymbol(minPrice, false))
-  const [maxPriceInput, setMaxPriceInput] = useState<string>(formatCurrencyWithSymbol(maxPrice, false))
-
+  const { branch } = useBranchStore()
+  const { menuFilter, setMenuFilter } = useMenuFilterStore()
+  const [minPriceInput, setMinPriceInput] = useState<string>(formatCurrencyWithSymbol(menuFilter.minPrice, false))
+  const [maxPriceInput, setMaxPriceInput] = useState<string>(formatCurrencyWithSymbol(menuFilter.maxPrice, false))
   const [open, setOpen] = useState(false)
 
   const presets = [
-    { label: '< 40K', min: PriceRange.MIN_PRICE, max: 40000 },
+    { label: '< 40K', min: FILTER_VALUE.MIN_PRICE, max: 40000 },
     { label: '40K – 60K', min: 40000, max: 60000 },
     { label: '60K – 80K', min: 60000, max: 80000 },
-    { label: '> 80K', min: 80000, max: PriceRange.MAX_PRICE },
+    { label: '> 80K', min: 80000, max: FILTER_VALUE.MAX_PRICE },
   ]
 
   const isPresetActive = (min: number, max: number) => {
-    return minPrice === min && maxPrice === max
+    return menuFilter.minPrice === min && menuFilter.maxPrice === max
   }
-
-
 
   const handleMinPriceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\./g, '')
     const number = Number(raw)
 
     if (!isNaN(number)) {
-      setMinPrice(number)
-      setMinPriceInput(formatCurrencyWithSymbol(number, false)) // gán lại chuỗi đã format
+      setMinPriceInput(formatCurrencyWithSymbol(number, false))
     } else {
-      setMinPriceInput('') // nếu bị xóa hết
+      setMinPriceInput('')
     }
   }
 
@@ -59,94 +50,71 @@ export const PriceRangeFilter = () => {
     const number = Number(raw)
 
     if (!isNaN(number)) {
-      setMaxPrice(number)
-      setMaxPriceInput(formatCurrencyWithSymbol(number, false)) // gán lại chuỗi đã format
+      setMaxPriceInput(formatCurrencyWithSymbol(number, false))
     } else {
-      setMaxPriceInput('') // nếu bị xóa hết
+      setMaxPriceInput('')
     }
   }
 
 
   const handlePresetClick = (min: number, max: number) => {
-    setMinPrice(min)
-    setMaxPrice(max)
+    setMenuFilter(prev => ({ ...prev, minPrice: min, maxPrice: max, branch: branch?.slug }))
     setMinPriceInput(formatCurrencyWithSymbol(min, false))
     setMaxPriceInput(formatCurrencyWithSymbol(max, false))
   }
 
   const handleReset = () => {
-    setMinPrice(PriceRange.MIN_PRICE)
-    setMinPriceInput(formatCurrencyWithSymbol(PriceRange.MIN_PRICE, false))
-    setMaxPrice(PriceRange.MIN_PRICE)
-    setMaxPriceInput(formatCurrencyWithSymbol(PriceRange.MIN_PRICE, false))
-    // Reset store values
-    setPriceRange(PriceRange.MIN_PRICE, PriceRange.MAX_PRICE)
-    // setOpen(false)
+    setMenuFilter(prev => ({ ...prev, minPrice: FILTER_VALUE.MIN_PRICE, maxPrice: FILTER_VALUE.MAX_PRICE, branch: branch?.slug }))
+    setMinPriceInput(formatCurrencyWithSymbol(FILTER_VALUE.MIN_PRICE, false))
+    setMaxPriceInput(formatCurrencyWithSymbol(FILTER_VALUE.MAX_PRICE, false))
   }
 
-  useEffect(() => {
-    setMinPrice(storedMinPrice ?? PriceRange.MIN_PRICE)
-    setMaxPrice(storedMaxPrice ?? PriceRange.MAX_PRICE)
-
-    setMinPriceInput(formatCurrencyWithSymbol(storedMinPrice ?? PriceRange.MIN_PRICE, false))
-    setMaxPriceInput(formatCurrencyWithSymbol(storedMaxPrice ?? PriceRange.MAX_PRICE, false))
-
-  }, [storedMinPrice, storedMaxPrice])
-
   const handleApply = () => {
-    let min = Number(minPrice) || PriceRange.MIN_PRICE
-    let max = Number(maxPrice) || PriceRange.MAX_PRICE
+    const minValue = Number(minPriceInput.replace(/\./g, '')) || FILTER_VALUE.MIN_PRICE
+    const maxValue = Number(maxPriceInput.replace(/\./g, '')) || FILTER_VALUE.MAX_PRICE
 
     // Nếu người dùng nhập lệch, hoán đổi trước khi lưu vào store
-    if (min > max) {
-      [min, max] = [max, min]
-    }
+    const min = Math.min(minValue, maxValue)
+    const max = Math.max(minValue, maxValue)
 
-    setPriceRange(min, max)
+    setMenuFilter(prev => ({ ...prev, minPrice: min, maxPrice: max }))
     setOpen(false)
   }
 
-
   const handleSliderChange = (values: number[]) => {
     const [min, max] = values
-    // Allow crossing values - if min > max, swap them
-    if (min > max) {
-      setMinPrice(max)
-      setMaxPrice(min)
-      setMinPriceInput(formatCurrencyWithSymbol(max, false))
-      setMaxPriceInput(formatCurrencyWithSymbol(min, false))
-    } else {
-      setMinPrice(min)
-      setMaxPrice(max)
-      setMinPriceInput(formatCurrencyWithSymbol(min, false))
-      setMaxPriceInput(formatCurrencyWithSymbol(max, false))
-    }
+    setMinPriceInput(formatCurrencyWithSymbol(min, false))
+    setMaxPriceInput(formatCurrencyWithSymbol(max, false))
+    setMenuFilter(prev => ({ ...prev, minPrice: min, maxPrice: max }))
   }
+
+  useEffect(() => {
+    setMinPriceInput(formatCurrencyWithSymbol(menuFilter.minPrice, false))
+    setMaxPriceInput(formatCurrencyWithSymbol(menuFilter.maxPrice, false))
+  }, [menuFilter.minPrice, menuFilter.maxPrice])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button variant="outline" className="flex gap-2 items-center">
           {t('menu.priceRangeFilter')}
-
         </Button>
       </PopoverTrigger>
       <PopoverContent className="mt-6 w-80">
         <div className="space-y-6">
           <div className="space-y-4">
             <DualRangeSlider
-              min={PriceRange.MIN_PRICE}
-              max={PriceRange.MAX_PRICE}
-              step={PriceRange.STEP_SIZE}
-              value={[minPrice, maxPrice]}
+              min={FILTER_VALUE.MIN_PRICE}
+              max={FILTER_VALUE.MAX_PRICE}
+              step={1000}
+              value={[menuFilter.minPrice, menuFilter.maxPrice]}
               onValueChange={handleSliderChange}
               formatValue={(value) => formatCurrency(value)}
               hideMinMaxLabels={true}
-            // minStepsBetweenThumbs={0} // Allow thumbs to cross
             />
 
-            <div className="relative grid items-center grid-cols-5 gap-1">
-              <div className="relative w-full col-span-2">
+            <div className="grid relative grid-cols-5 gap-1 items-center">
+              <div className="relative col-span-2 w-full">
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -156,17 +124,17 @@ export const PriceRangeFilter = () => {
                   }}
                   onChange={handleMinPriceInputChange}
                   placeholder="0"
-                  className="w-full pr-6"
+                  className="pr-6 w-full"
                 />
 
 
-                <span className="absolute inset-y-0 flex items-center right-2 text-muted-foreground">
+                <span className="flex absolute inset-y-0 right-2 items-center text-muted-foreground">
                   đ
                 </span>
               </div>
 
-              <span className='flex justify-center col-span-1'>→</span>
-              <div className="relative w-full col-span-2">
+              <span className='flex col-span-1 justify-center'>→</span>
+              <div className="relative col-span-2 w-full">
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -176,10 +144,10 @@ export const PriceRangeFilter = () => {
                   }}
                   onChange={handleMaxPriceInputChange}
                   placeholder="0"
-                  className="w-full pr-6"
+                  className="pr-6 w-full"
                 />
 
-                <span className="absolute inset-y-0 flex items-center right-2 text-muted-foreground">
+                <span className="flex absolute inset-y-0 right-2 items-center text-muted-foreground">
                   đ
                 </span>
               </div>
@@ -199,11 +167,10 @@ export const PriceRangeFilter = () => {
               >
                 {preset.label}
               </Button>
-
             ))}
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={handleReset}>
               {t('menu.reset')}
             </Button>

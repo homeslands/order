@@ -94,34 +94,6 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
       note: '',
     }
 
-    // const cartItem = {
-    //   id: generateCartItemId(),
-    //   slug: product.slug,
-    //   owner: getUserInfo()?.slug || '',
-    //   type: OrderTypeEnum.AT_TABLE, // Default value
-    //   orderItems: [
-    //     {
-    //       id: generateCartItemId(),
-    //       slug: product.product.slug,
-    //       image: product.product.image,
-    //       name: product.product.name,
-    //       quantity: 1,
-    //       variant: product?.product?.variants[0],
-    //       allVariants: product?.product?.variants,
-    //       size: product?.product?.variants[0]?.size?.name,
-    //       originalPrice: product?.product?.variants[0]?.price,
-    //       // price: finalPrice,
-    //       description: product?.product?.description || '',
-    //       isLimit: product?.product?.isLimit || false,
-    //       promotion: product?.promotion ? product?.promotion?.slug : '',
-    //       promotionValue: product?.promotion ? product?.promotion?.value : 0,
-    //       promotionDiscount: product?.promotion ? product?.promotion?.value * product?.product?.variants[0]?.price / 100 : 0,
-    //       note: '',
-    //     },
-    //   ],
-    //   table: '', // Will be set later if needed
-    // };
-
     try {
       // ✅ Step 4: Add to ordering data
       addOrderingItem(orderItem)
@@ -139,7 +111,7 @@ export function ClientMenuItem({ item }: IClientMenuItemProps) {
   return (
     <div
       key={item.slug}
-      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md sm:shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[12rem] dark:bg-transparent"
+      className="flex flex-row sm:flex-col justify-between bg-white border rounded-xl backdrop-blur-md sm:shadow-xl transition-all duration-300 ease-in-out min-h-[8rem] sm:min-h-[12rem] dark:bg-transparent dark:border-muted-foreground/30 dark:shadow-none"
     >
       {/* Image */}
       <NavLink
