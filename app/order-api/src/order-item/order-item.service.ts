@@ -296,11 +296,12 @@ export class OrderItemService {
       }
     }
 
-    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
-      order,
-      order.voucher,
-    );
+    const { subtotal: subtotalOrder, originalSubtotal: originalSubtotalOrder } =
+      await this.orderUtils.getOrderSubtotal(order, order.voucher);
+
     order.subtotal = subtotalOrder;
+    order.originalSubtotal = originalSubtotalOrder;
+
     await this.transactionManagerService.execute(
       async (manager) => {
         if (voucher) await manager.save(voucher);
@@ -384,11 +385,10 @@ export class OrderItemService {
             });
             order.orderItems = updatedOrderItems;
 
-            const { subtotal } = await this.orderUtils.getOrderSubtotal(
-              order,
-              null,
-            );
+            const { subtotal, originalSubtotal } =
+              await this.orderUtils.getOrderSubtotal(order, null);
             order.subtotal = subtotal;
+            order.originalSubtotal = originalSubtotal;
           } else {
             // After, check voucher min value
             const isVoucherMinValueValid =
@@ -405,9 +405,12 @@ export class OrderItemService {
           }
         }
         // Update order
-        const { subtotal: subtotalOrder } =
-          await this.orderUtils.getOrderSubtotal(order, order.voucher);
+        const {
+          subtotal: subtotalOrder,
+          originalSubtotal: originalSubtotalOrder,
+        } = await this.orderUtils.getOrderSubtotal(order, order.voucher);
         order.subtotal = subtotalOrder;
+        order.originalSubtotal = originalSubtotalOrder;
 
         if (voucher) await manager.save(voucher);
 
@@ -474,11 +477,11 @@ export class OrderItemService {
         });
         order.orderItems = updatedOrderItems;
 
-        const { subtotal } = await this.orderUtils.getOrderSubtotal(
-          order,
-          null,
-        );
+        const { subtotal, originalSubtotal } =
+          await this.orderUtils.getOrderSubtotal(order, null);
+
         order.subtotal = subtotal;
+        order.originalSubtotal = originalSubtotal;
       }
     }
 
@@ -553,11 +556,10 @@ export class OrderItemService {
 
     // Update order
     order.orderItems.push(orderItem);
-    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
-      order,
-      order.voucher,
-    );
+    const { subtotal: subtotalOrder, originalSubtotal: originalSubtotalOrder } =
+      await this.orderUtils.getOrderSubtotal(order, order.voucher);
     order.subtotal = subtotalOrder;
+    order.originalSubtotal = originalSubtotalOrder;
 
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(

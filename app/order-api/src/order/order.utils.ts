@@ -103,10 +103,15 @@ export class OrderUtils {
   ): Promise<{
     subtotal: number;
     voucherValueItemsTotal: number;
+    originalSubtotal: number;
   }> {
     let discount = 0;
     const subtotal = order.orderItems?.reduce(
       (previous, current) => previous + current.subtotal,
+      0,
+    );
+    const originalSubtotal = order.orderItems?.reduce(
+      (previous, current) => previous + current.originalSubtotal,
       0,
     );
     const voucherValueItemsTotal = order.orderItems?.reduce(
@@ -135,6 +140,7 @@ export class OrderUtils {
     return {
       subtotal: subtotal - discount,
       voucherValueItemsTotal,
+      originalSubtotal,
     };
   }
 
