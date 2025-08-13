@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -8,79 +8,121 @@ import { ROUTE } from '@/constants'
 import { sidebarRoutes } from '@/router/routes'
 import { useAuthStore, useCartItemStore, useCurrentUrlStore, useUserStore } from '@/stores'
 import { Role } from '@/constants/role'
-import { showToast } from '@/utils'
+import { showToast, isAuthLoading, safeNavigate, isValidRedirectUrl } from '@/utils'
 import { IToken } from '@/types'
 
 interface ProtectedElementProps {
   element: ReactNode,
 }
 
+type PermissionCheckResult = boolean | 'loading'
+
 export default function ProtectedElement({
   element,
 }: ProtectedElementProps) {
-  // eslint-disable-next-line no-console
-  console.log('🚀 ProtectedElement component rendered');
-
   const { isAuthenticated, setLogout, token, isRefreshing } = useAuthStore()
   const { t } = useTranslation('auth')
-  const { setCurrentUrl } = useCurrentUrlStore()
+  const { setCurrentUrl, shouldUpdateUrl } = useCurrentUrlStore()
   const { clearCart } = useCartItemStore()
   const { removeUserInfo, userInfo } = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Wrap navigate để log
-  const loggedNavigate = useCallback((to: string | number) => {
-    if (typeof to === 'string') {
-      navigate(to);
-    } else {
-      navigate(to);
+  // Kiểm tra trạng thái loading của auth data - sử dụng helper function
+  const isAuthDataLoading = isAuthLoading()
+
+  // Helper: Extract permissions từ token với caching
+  const tokenPermissions = useMemo(() => {
+    if (!token) return []
+
+    try {
+      const decoded: IToken = jwtDecode(token)
+      if (!decoded.scope) return []
+
+      const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope
+      return scope.permissions || []
+    } catch {
+      return []
     }
-  }, [navigate]);
+  }, [token])
+
+  // Helper: Các route không cần kiểm tra permission đặc biệt
+  const publicStaffRoutes = useMemo(() => [
+    ROUTE.STAFF_PROFILE,
+    ROUTE.STAFF_ORDER_PAYMENT,
+    ROUTE.ORDER_SUCCESS
+  ], [])
+
+  // Helper: Kiểm tra route có phải public staff route không
+  const isPublicStaffRoute = useCallback((pathname: string) => {
+    return publicStaffRoutes.some(route => pathname.includes(route))
+  }, [publicStaffRoutes])
+
+  // Safe navigate với loop detection
+  const safeNavigateToRoute = useCallback((to: string) => {
+    return safeNavigate(navigate, to, location.pathname)
+  }, [navigate, location.pathname]);
 
   const handleLogout = useCallback(() => {
     setLogout()
     removeUserInfo()
     clearCart()
-    loggedNavigate(ROUTE.LOGIN)
-  }, [setLogout, removeUserInfo, loggedNavigate, clearCart])
+    safeNavigateToRoute(ROUTE.LOGIN)
+  }, [setLogout, removeUserInfo, safeNavigateToRoute, clearCart])
 
-  const hasPermissionForRoute = useCallback((pathname: string) => {
+  const hasPermissionForRoute = useCallback((pathname: string): PermissionCheckResult => {
+    // 1. Kiểm tra loading state trước
+    if (isAuthDataLoading) {
+      return 'loading';
+    }
 
+    // 2. Kiểm tra dữ liệu cơ bản
     if (!token || !userInfo?.role?.name) {
       return false;
     }
 
-    // Customer không được phép truy cập route /system
+    // 2.1. Safety check: Nếu pathname empty hoặc invalid
+    if (!pathname || pathname === '/') {
+      return true; // Allow root access
+    }
+
+    // 3. Xử lý Customer routes
     if (userInfo.role.name === Role.CUSTOMER) {
-      if (pathname.includes('/system')) {
-        return false;
-      }
+      // Customer không được phép truy cập route /system
+      return !pathname.includes('/system');
+    }
+
+    // 4. Xử lý Staff routes - Public routes (không cần permission)
+    if (isPublicStaffRoute(pathname)) {
       return true;
     }
 
-    if (pathname.includes(ROUTE.STAFF_PROFILE)
-      || pathname.includes(ROUTE.STAFF_ORDER_PAYMENT)
-      || pathname.includes(ROUTE.ORDER_SUCCESS)) {
-      return true;
-    }
-
-    // Kiểm tra permission từ token
-    const decoded: IToken = jwtDecode(token);
-
-    if (!decoded.scope) {
+    // 5. Kiểm tra permission cho các route khác
+    if (tokenPermissions.length === 0) {
+      // Nếu không có permissions trong token, chỉ cho phép public routes
       return false;
     }
 
-    const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
-    const permissions = scope.permissions || [];
-
-    // Tìm route tương ứng với pathname
+    // 6. Tìm route config tương ứng
     const route = sidebarRoutes.find(route => pathname.includes(route.path));
 
-    const hasPermission = route ? permissions.includes(route.permission) : false;
-    return hasPermission;
-  }, [token, userInfo])
+    if (!route) {
+      // Nếu không tìm thấy route config, có thể là route mới hoặc không được quản lý
+      // Default: allow access (có thể thay đổi thành false tùy policy)
+      return true;
+    }
+
+    // 7. Kiểm tra permission cụ thể
+    const hasRequiredPermission = tokenPermissions.includes(route.permission);
+
+    return hasRequiredPermission;
+  }, [
+    isAuthDataLoading,
+    token,
+    userInfo,
+    isPublicStaffRoute,
+    tokenPermissions
+  ])
 
   useEffect(() => {
     // Nếu đang refresh token thì chờ, không làm gì cả
@@ -88,8 +130,16 @@ export default function ProtectedElement({
       return;
     }
 
+    // Nếu đang loading auth data, chờ không làm gì
+    if (isAuthDataLoading) {
+      return;
+    }
+
     if (!isAuthenticated()) {
-      setCurrentUrl(location.pathname)
+      // Chỉ set currentUrl nếu nó là valid redirect URL và cần update
+      if (isValidRedirectUrl(location.pathname) && shouldUpdateUrl(location.pathname)) {
+        setCurrentUrl(location.pathname)
+      }
       handleLogout()
       showToast(t('toast.sessionExpired'))
       return;
@@ -98,17 +148,21 @@ export default function ProtectedElement({
     // Kiểm tra quyền truy cập route hiện tại
     const hasPermission = hasPermissionForRoute(location.pathname);
 
-    if (!hasPermission) {
-      loggedNavigate(ROUTE.FORBIDDEN);
+    // Chỉ redirect khi chắc chắn không có quyền (không phải loading)
+    if (hasPermission === false) {
+      safeNavigateToRoute(ROUTE.FORBIDDEN);
     }
+    // Nếu hasPermission === 'loading', không làm gì cả, đợi load xong
   }, [
     isAuthenticated,
     isRefreshing,
+    isAuthDataLoading,
     location.pathname,
     hasPermissionForRoute,
-    loggedNavigate,
+    safeNavigateToRoute,
     handleLogout,
     setCurrentUrl,
+    shouldUpdateUrl,
     t
   ])
 
@@ -117,6 +171,18 @@ export default function ProtectedElement({
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-primary"></div>
+      </div>
+    )
+  }
+
+  // Hiển thị loading khi đang load userInfo sau khi có token
+  if (isAuthDataLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="flex flex-col gap-4 items-center">
+          <div className="w-8 h-8 rounded-full border-b-2 animate-spin border-primary"></div>
+          <p className="text-sm text-muted-foreground">Đang tải thông tin người dùng...</p>
+        </div>
       </div>
     )
   }

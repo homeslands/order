@@ -28,9 +28,10 @@ export const LoginForm: React.FC = () => {
     setRefreshToken,
     setExpireTime,
     setExpireTimeRefreshToken,
+    setLogout
   } = useAuthStore()
   const { clearCart } = useCartItemStore()
-  const { setUserInfo } = useUserStore()
+  const { setUserInfo, removeUserInfo } = useUserStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -44,17 +45,33 @@ export const LoginForm: React.FC = () => {
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     login(data, {
       onSuccess: async (response) => {
-        clearCart()
-        setToken(response.result.accessToken)
-        setRefreshToken(response.result.refreshToken)
-        setExpireTime(response.result.expireTime)
-        setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+        try {
+          clearCart()
 
-        const profile = await refetchProfile()
-        if (profile.data) {
-          setUserInfo(profile.data.result)
+          // Set token trước để có thể fetch profile
+          setToken(response.result.accessToken)
+          setRefreshToken(response.result.refreshToken)
+          setExpireTime(response.result.expireTime)
+          setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+
+          // Fetch profile ngay sau khi set token
+          const profile = await refetchProfile()
+
+          if (profile.data) {
+            // Set userInfo sau khi có data
+            setUserInfo(profile.data.result)
+            showToast(t('toast.loginSuccess'))
+          } else {
+            // Nếu không fetch được profile, rollback auth state
+            setLogout()
+            throw new Error('Failed to fetch user profile')
+          }
+        } catch {
+          // Đảm bảo clear hết state nếu có lỗi
+          setLogout()
+          removeUserInfo()
+          showToast(t('toast.loginError') || 'Đăng nhập thất bại')
         }
-        showToast(t('toast.loginSuccess'))
       },
     })
   }
