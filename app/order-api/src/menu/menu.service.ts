@@ -109,6 +109,15 @@ export class MenuService {
       };
     }
 
+    if (query.catalog && query.productName) {
+      findOptionsWhere.menuItems = {
+        product: {
+          catalog: { slug: query.catalog },
+          name: Like(`%${query.productName}%`),
+        },
+      };
+    }
+
     if (_.isBoolean(query.promotion)) {
       findOptionsWhere.menuItems = {
         promotion: query.promotion ? Not(IsNull()) : IsNull(),
