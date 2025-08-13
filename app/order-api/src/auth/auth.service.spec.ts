@@ -503,7 +503,7 @@ describe('AuthService', () => {
       recipientCardOrders: [],
       senderCardOrders: [],
       verifyPhoneNumberTokens: [],
-      pointTransactions: []
+      pointTransactions: [],
     };
 
     const mockForgotToken: ForgotPasswordToken = {
@@ -596,7 +596,7 @@ describe('AuthService', () => {
       recipientCardOrders: [],
       senderCardOrders: [],
       verifyPhoneNumberTokens: [],
-      pointTransactions: []
+      pointTransactions: [],
     };
 
     it('Should throw `AuthException` if user is not found', async () => {

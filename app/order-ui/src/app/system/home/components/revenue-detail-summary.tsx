@@ -21,8 +21,8 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
     // get totalAmountBank
     const totalAmountBank = revenueData?.reduce((sum, item) => sum + (item.totalAmountBank || 0), 0) || 0;
 
-    // get totalAmountInternal
-    // const totalAmountInternal = revenueData?.reduce((sum, item) => sum + (item.totalAmountInternal || 0), 0) || 0;
+    // get totalAmountPoint
+    const totalAmountPoint = revenueData?.reduce((sum, item) => sum + (item.totalAmountPoint || 0), 0) || 0;
 
     // Tính tổng số đơn hàng
     const totalOrders = revenueData?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
@@ -90,17 +90,17 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
                     {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
                 </CardContent>
             </Card>
-            {/* <Card className="shadow-none">
+            <Card className="shadow-none">
                 <CardHeader className="flex flex-row items-center justify-between p-3 pb-2 space-y-0">
                     <CardTitle className="text-sm font-medium">
-                        {t('revenue.totalAmountInternal')}
+                        {t('revenue.totalAmountPoint')}
                     </CardTitle>
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className='p-3'>
-                    <div className="text-xl font-bold">{formatCurrency(totalAmountInternal)}</div>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountPoint, '')}</div>
                 </CardContent>
-            </Card> */}
+            </Card>
         </div>
     );
 }

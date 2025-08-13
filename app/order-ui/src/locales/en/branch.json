@@ -1,26 +1,23 @@
 {
   "branch": {
-    "title": "Branch",
-    "manageBranch": "Manage Branch",
-    "slug": "Branch Code",
-    "branchName": "Branch Name",
     "branchAddress": "Branch Address",
-    "branchPhone": "Phone Number",
-    "branchEmail": "Email",
     "branchDescription": "Description",
-
+    "branchEmail": "Email",
+    "branchName": "Branch Name",
+    "branchPhone": "Phone Number",
     "chooseBranch": "Choose Branch",
     "chooseBranchDescription": "Select a branch to view items",
-
-    "update": "Update Branch",
-    "updateBranchDescription": "Modify the information to update the branch",
     "create": "Create Branch",
     "createBranchDescription": "Fill in all the details to create a new branch",
-    "enterBranchName": "Enter branch name",
-    "enterBranchAddress": "Enter branch address",
-
     "delete": "Delete Branch",
+    "deleteBranchConfirmation": "Are you sure you want to delete this branch?",
     "deleteBranchWarning1": "You are about to delete the branch ",
-    "deleteBranchConfirmation": "Are you sure you want to delete this branch?"
+    "enterBranchAddress": "Enter branch address",
+    "enterBranchName": "Enter branch name",
+    "manageBranch": "Manage Branch",
+    "slug": "Branch Code",
+    "title": "Branch",
+    "update": "Update Branch",
+    "updateBranchDescription": "Modify the information to update the branch"
   }
 }

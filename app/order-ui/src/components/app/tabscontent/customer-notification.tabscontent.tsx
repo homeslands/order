@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export function CustomerNotificationTabsContent() {
+  const { t } = useTranslation(['profile'])
   // const { data } = useProfile()
 
   // const userProfile = data?.result
@@ -79,8 +82,8 @@ export function CustomerNotificationTabsContent() {
 
   return (
     <div className="w-full">
-      <span className='w-full text-sm text-center text-muted-foreground'>
-        Không có thông báo
+      <span className='w-full flex items-center justify-center px-5 pt-10 text-sm text-center text-muted-foreground'>
+        {t('profile.noNotificationFound')}
       </span>
       <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2">
         {/* {Object.keys(formFields).map((key) => (

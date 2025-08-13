@@ -1,9 +1,10 @@
 {
   "setting": {
-    "title": "Cài đặt",
-    "language": "Ngôn ngữ",
-    "theme": "Chủ đề",
     "dark": "Tối",
-    "light": "Sáng"
+    "language": "Ngôn ngữ",
+    "light": "Sáng",
+    "logout": "Đăng xuất",
+    "theme": "Chủ đề",
+    "title": "Cài đặt"
   }
 }

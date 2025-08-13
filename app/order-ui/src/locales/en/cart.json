@@ -1,0 +1,10 @@
+{
+  "cart": {
+    "description": "Manage your cart here",
+    "emptyCart": "Your cart is empty",
+    "goBackToMenu": "Go back to menu",
+    "keywords": "cart, manage cart, shopping cart",
+    "manageCart": "Manage cart",
+    "title": "Cart"
+  }
+}

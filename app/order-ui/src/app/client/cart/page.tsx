@@ -32,7 +32,6 @@ export default function ClientCartPage() {
   const isMobile = useIsMobile()
   const { removeVoucher, getCartItems, addOrderingProductVariant } = useOrderFlowStore()
 
-  // Không dùng state nữa, tính toán trực tiếp trong render để tránh stale state
   const currentCartItems = getCartItems()
 
   const displayItems = calculateCartItemDisplay(
@@ -117,8 +116,8 @@ export default function ClientCartPage() {
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full">
           <div className="flex gap-1 items-center pb-4">
-            <CircleAlert size={14} className="text-destructive" />
-            <span className="text-xs italic text-destructive">
+            <CircleAlert size={14} className="text-destructive dark:text-red-500" />
+            <span className="text-xs italic text-destructive dark:text-red-500">
               {t('order.selectTableNote')}
             </span>
           </div>
@@ -401,7 +400,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/40">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
@@ -430,7 +429,7 @@ export default function ClientCartPage() {
             </div>
           ) : (
             <div className="my-4">
-              <div className="flex flex-col gap-2 mb-2 rounded-md border">
+              <div className="flex flex-col gap-2 mb-2 rounded-md border dark:border-muted-foreground/60">
                 {currentCartItems?.orderItems.map((item) => (
                   <div
                     key={`${item.id}-${currentCartItems?.voucher?.slug || 'no-voucher'}`}
@@ -524,20 +523,20 @@ export default function ClientCartPage() {
                   <OrderNoteInput order={currentCartItems} />
                 </div>
                 {/* Chú thích bên dưới order note */}
-                <div className="p-3 rounded-md border bg-primary/10 border-primary">
-                  <div className="flex gap-2 items-start text-sm text-primary">
+                <div className="p-3 rounded-md border bg-muted-foreground/5 border-muted-foreground/40">
+                  <div className="flex gap-2 items-start text-sm">
                     <div className="flex-1">
-                      <p className="text-xs text-primary">
+                      <p className="text-xs">
                         <span className="font-extrabold">{t('order.voucher')}</span>
                       </p>
-                      <ul className="mt-1 space-y-1 text-xs text-primary">
+                      <ul className="mt-1 space-y-1 text-xs">
                         <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">*</span>
-                          <span>{t('order.promotionDiscount')}</span>
+                          <span className="font-bold">*</span>
+                          <span className="text-muted-foreground/80">{t('order.promotionDiscount')}</span>
                         </li>
                         <li className="flex gap-1 items-center">
-                          <span className="font-bold text-primary">**</span>
-                          <span>{t('order.itemLevelVoucher')}</span>
+                          <span className="font-bold">**</span>
+                          <span className="text-muted-foreground/80">{t('order.itemLevelVoucher')}</span>
                         </li>
                       </ul>
                     </div>
@@ -617,7 +616,7 @@ export default function ClientCartPage() {
 
                     {/* Giảm giá khuyến mãi (promotion) */}
                     {cartTotals.promotionDiscount > 0 && (
-                      <div className="flex justify-between italic text-yellow-600">
+                      <div className="flex justify-between italic text-muted-foreground/80">
                         <span>{t('order.promotionDiscount')}</span>
                         <span>-{formatCurrency(cartTotals.promotionDiscount)}</span>
                       </div>
@@ -663,13 +662,13 @@ export default function ClientCartPage() {
             </div>
 
           ) : (
-            <div className='fixed right-0 left-0 bottom-16 z-50 bg-white'>
-              <div className='grid grid-cols-2 justify-between items-center p-4'>
-                <div className="flex col-span-1 gap-1 items-center font-semibold">
-                  <span>{t('order.totalPayment')}</span>
-                  <span className="text-lg font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+            <div className='fixed right-0 left-0 bottom-16 z-50 bg-white dark:bg-background'>
+              <div className='grid grid-cols-2 justify-between items-center px-2 py-4'>
+                <div className="flex col-span-1 gap-1 justify-center items-center font-semibold">
+                  {/* <span>{t('order.totalPayment')}</span> */}
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
                 </div>
-                <div className="flex col-span-1 justify-end p-2 w-full">
+                <div className="flex col-span-1 justify-end p-0 w-full">
                   <CreateOrderDialog
                     disabled={
                       !currentCartItems ||

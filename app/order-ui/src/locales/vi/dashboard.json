@@ -1,15 +1,15 @@
 {
   "dashboard": {
-    "title": "Tổng quan",
-    "titleDetail": "Tổng quan các chi nhánh",
-    "filter": "Đang lọc theo",
-    "daily": "Theo ngày",
-    "hourly": "Theo giờ",
-    "tool": "Công cụ",
     "chooseTool": "Chọn công cụ",
+    "daily": "Theo ngày",
     "exportExcel": "Xuất doanh thu Excel",
     "exportPDF": "Xuất doanh thu PDF",
+    "filter": "Đang lọc theo",
+    "hourly": "Theo giờ",
     "referenceNumberOrder": "Số thứ tự hóa đơn",
+    "title": "Tổng quan",
+    "titleDetail": "Tổng quan các chi nhánh",
+    "tool": "Công cụ",
     "topProducts": "Sản phẩm bán chạy"
   }
 }

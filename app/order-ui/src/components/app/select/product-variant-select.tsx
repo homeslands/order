@@ -30,7 +30,7 @@ export default function ProductVariantSelect({ variant, defaultValue, onChange }
   }, [variant]);
   return (
     <Select onValueChange={onChange} defaultValue={defaultValue} value={variant[0].slug}>
-      <SelectTrigger className="text-xs w-fit min-w-24">
+      <SelectTrigger className="text-xs w-fit min-w-24 dark:border-muted-foreground/60">
         <SelectValue placeholder={t('product.selectProductVariant')} />
       </SelectTrigger>
       <SelectContent>

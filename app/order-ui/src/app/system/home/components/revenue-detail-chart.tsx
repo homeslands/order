@@ -64,16 +64,17 @@ export default function RevenueDetailChart({
             const orders = params[0].value
             const cash = formatCurrency(params[1].value)
             const bank = formatCurrency(params[2].value)
-            // const internal = formatCurrency(params[3].value)
+            const point = formatCurrency(params[3].value, '')
 
             return `${date}<br/>
               ${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}<br/>
               ${params[1].seriesName}: ${cash}<br/>
-              ${params[2].seriesName}: ${bank}`
+              ${params[2].seriesName}: ${bank}<br/>
+              ${params[3].seriesName}: ${point}`
           },
         },
         legend: {
-          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet')],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.point')],
         },
         xAxis: {
           type: 'category',
@@ -157,15 +158,15 @@ export default function RevenueDetailChart({
               borderRadius: [5, 5, 0, 0],
             },
           },
-          // {
-          //   name: t('revenue.internalWallet'),
-          //   type: 'bar',
-          //   data: sortedData.map((item) => item.totalAmountInternal),
-          //   itemStyle: {
-          //     color: '#32CD32',
-          //     borderRadius: [5, 5, 0, 0],
-          //   },
-          // },
+          {
+            name: t('revenue.point'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountPoint),
+            itemStyle: {
+              color: '#32CD32',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
         ],
       }
 

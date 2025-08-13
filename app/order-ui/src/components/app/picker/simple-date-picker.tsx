@@ -2,7 +2,7 @@ import * as React from 'react'
 import moment from 'moment'
 import { CalendarIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { vi } from 'date-fns/locale'
+import { vi, enUS } from 'date-fns/locale'
 import { format } from 'date-fns'
 
 import { cn } from '@/lib/utils'
@@ -47,7 +47,10 @@ export default function SimpleDatePicker({
     maxDate,
     allowEmpty = false,
 }: ISimpleDatePickerProps) {
-    const { t } = useTranslation('menu')
+    const { t, i18n } = useTranslation('menu')
+    const locale = React.useMemo(() => {
+        return i18n.language === 'en' ? enUS : vi
+    }, [i18n.language])
     const [month, setMonth] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
     const [year, setYear] = React.useState<number>(value ? new Date(value.split('/').reverse().join('-')).getFullYear() : new Date().getFullYear())
     const years = generateYears(1920, new Date().getFullYear()) // 100 years range
@@ -147,7 +150,7 @@ export default function SimpleDatePicker({
                         <SelectContent>
                             {Array.from({ length: 12 }, (_, i) => (
                                 <SelectItem key={i} value={String(i)}>
-                                    {format(new Date(0, i), 'MMMM', { locale: vi }).charAt(0).toUpperCase() + format(new Date(0, i), 'MMMM', { locale: vi }).slice(1)} {/* Tháng bằng tiếng Việt, chữ cái đầu tiên in hoa */}
+                                    {format(new Date(0, i), 'MMMM', { locale }).charAt(0).toUpperCase() + format(new Date(0, i), 'MMMM', { locale }).slice(1)} {/* Tháng bằng tiếng Việt, chữ cái đầu tiên in hoa */}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -171,6 +174,7 @@ export default function SimpleDatePicker({
                 </div>
                 <Calendar
                     mode="single"
+                    locale={locale}
                     selected={date}
                     onSelect={handleDateChange}
                     disabled={isDateDisabled}

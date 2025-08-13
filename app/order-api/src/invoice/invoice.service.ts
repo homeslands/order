@@ -7,7 +7,7 @@ import {
 } from './invoice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Invoice } from './invoice.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Order } from 'src/order/order.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
@@ -48,322 +48,6 @@ export class InvoiceService {
     private readonly qrCodeService: QrCodeService,
     private readonly transactionManagerService: TransactionManagerService,
   ) {}
-
-  async updateDiscountTypeForExistedInvoice() {
-    const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
-    const batchSize = 500;
-    let offset = 0;
-    let totalUpdated = 0;
-
-    while (true) {
-      const batch = await this.invoiceRepository.find({
-        where: { voucherType: null },
-        relations: ['order.voucher'],
-        take: batchSize,
-        skip: offset,
-        order: { id: 'ASC' },
-      });
-
-      if (batch.length === 0) break;
-
-      const updatedBatch: Invoice[] = [];
-      for (const item of batch) {
-        if (item?.order?.voucher) {
-          item.voucherType = item.order.voucher.type;
-          item.valueEachVoucher = item.order.voucher.value;
-          updatedBatch.push(item);
-        }
-      }
-
-      await this.transactionManagerService.execute<void>(
-        async (manager) => {
-          await manager.save(updatedBatch);
-        },
-        () => {
-          this.logger.log(
-            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
-            context,
-          );
-        },
-        (error) => {
-          this.logger.error(
-            `Error updating batch at offset ${offset}: ${error.message}`,
-            context,
-          );
-        },
-      );
-
-      totalUpdated += updatedBatch.length;
-      offset += batchSize;
-    }
-    this.logger.log(
-      `Finished updating total ${totalUpdated} invoice items.`,
-      context,
-    );
-  }
-
-  async updateVoucherValueForExistedInvoice() {
-    const context = `${InvoiceService.name}.${this.updateDiscountTypeForExistedInvoice.name}`;
-    const batchSize = 500;
-    let offset = 0;
-    let totalUpdated = 0;
-
-    this.logger.log(
-      'Start updating voucher value for existed invoice',
-      context,
-    );
-
-    while (true) {
-      const batch = await this.invoiceRepository.find({
-        where: { voucherId: Not(IsNull()) },
-        relations: ['order.voucher', 'invoiceItems'],
-        take: batchSize,
-        skip: offset,
-        order: { id: 'ASC' },
-      });
-
-      if (batch.length === 0) break;
-
-      const updatedBatch: Invoice[] = [];
-      for (const item of batch) {
-        if (item?.order?.voucher) {
-          const orderItemVoucherValue = item.invoiceItems?.reduce(
-            (total, current) => total + current.voucherValue,
-            0,
-          );
-
-          let voucherValue = item.loss + orderItemVoucherValue;
-
-          const subtotalOrderItem = item.invoiceItems?.reduce(
-            (total, current) => total + current.total,
-            0,
-          );
-
-          if (
-            item.order?.voucher?.applicabilityRule ===
-            VoucherApplicabilityRule.ALL_REQUIRED
-          ) {
-            if (item.order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-              voucherValue +=
-                (subtotalOrderItem * item.order.voucher.value) / 100;
-            }
-            if (item.order?.voucher?.type === VoucherType.FIXED_VALUE) {
-              if (subtotalOrderItem > item.order.voucher.value) {
-                voucherValue += item.order.voucher.value;
-              } else {
-                voucherValue += subtotalOrderItem;
-              }
-            }
-          }
-
-          item.voucherValue = voucherValue;
-          updatedBatch.push(item);
-        }
-      }
-
-      await this.transactionManagerService.execute<void>(
-        async (manager) => {
-          await manager.save(updatedBatch);
-        },
-        () => {
-          this.logger.log(
-            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
-            context,
-          );
-        },
-        (error) => {
-          this.logger.error(
-            `Error updating batch at offset ${offset}: ${error.message}`,
-            context,
-          );
-        },
-      );
-
-      totalUpdated += updatedBatch.length;
-      offset += batchSize;
-    }
-
-    // const updatedBatch: Invoice[] = [];
-
-    // const item = await this.invoiceRepository.findOne({
-    //   where: { slug: '40c7057336' },
-    //   relations: ['order.voucher', 'invoiceItems'],
-    // });
-
-    // if (item?.order?.voucher) {
-    //   const orderItemVoucherValue = item.invoiceItems?.reduce(
-    //     (total, current) => total + current.voucherValue,
-    //     0,
-    //   );
-
-    //   let voucherValue = item.loss + orderItemVoucherValue;
-
-    //   const subtotalOrderItem = item.invoiceItems?.reduce(
-    //     (total, current) => total + current.total,
-    //     0,
-    //   );
-
-    //   if (
-    //     item.order?.voucher?.applicabilityRule ===
-    //     VoucherApplicabilityRule.ALL_REQUIRED
-    //   ) {
-    //     if (item.order?.voucher?.type === VoucherType.PERCENT_ORDER) {
-    //       voucherValue += (subtotalOrderItem * item.order.voucher.value) / 100;
-    //     }
-    //     if (item.order?.voucher?.type === VoucherType.FIXED_VALUE) {
-    //       if (subtotalOrderItem > item.order.voucher.value) {
-    //         voucherValue += item.order.voucher.value;
-    //       } else {
-    //         voucherValue += subtotalOrderItem;
-    //       }
-    //     }
-    //   }
-
-    //   item.voucherValue = voucherValue;
-    //   updatedBatch.push(item);
-    // }
-
-    // await this.transactionManagerService.execute<void>(
-    //   async (manager) => {
-    //     await manager.save(updatedBatch);
-    //   },
-    //   () => {
-    //     this.logger.log(
-    //       `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
-    //       context,
-    //     );
-    //   },
-    //   (error) => {
-    //     this.logger.error(
-    //       `Error updating batch at offset ${offset}: ${error.message}`,
-    //       context,
-    //     );
-    //   },
-    // );
-    this.logger.log(
-      `Finished updating total ${totalUpdated} invoice items.`,
-      context,
-    );
-  }
-
-  async updateInvoiceStatusPaidWithOrderCompletedPayment() {
-    const context = `${InvoiceService.name}.${this.updateInvoiceStatusPaidWithOrderCompletedPayment.name}`;
-
-    const batchSize = 500;
-    let offset = 0;
-    let totalUpdated = 0;
-
-    this.logger.log(
-      'Start updating voucher value for existed invoice',
-      context,
-    );
-
-    while (true) {
-      const batch = await this.orderRepository.find({
-        where: {
-          referenceNumber: Not(IsNull()),
-          invoice: { referenceNumber: IsNull() },
-        },
-        relations: ['invoice'],
-        take: batchSize,
-        skip: offset,
-        order: { id: 'ASC' },
-      });
-
-      if (batch.length === 0) break;
-
-      const updatedBatch: Invoice[] = [];
-      for (const item of batch) {
-        if (item.invoice) {
-          // invoice have reference number is null
-          if (!item.invoice.referenceNumber) {
-            const invoice = await this.invoiceRepository.findOne({
-              where: { order: { id: item.id } },
-            });
-
-            if (invoice) {
-              invoice.status = OrderStatus.PAID;
-              invoice.referenceNumber = item.referenceNumber;
-            }
-            updatedBatch.push(invoice);
-          }
-        }
-      }
-
-      await this.transactionManagerService.execute<void>(
-        async (manager) => {
-          await manager.save(updatedBatch);
-        },
-        () => {
-          this.logger.log(
-            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
-            context,
-          );
-        },
-        (error) => {
-          this.logger.error(
-            `Error updating batch at offset ${offset}: ${error.message}`,
-            context,
-          );
-        },
-      );
-
-      totalUpdated += updatedBatch.length;
-      offset += batchSize;
-    }
-
-    this.logger.log(
-      `Finished updating total ${totalUpdated} invoice items.`,
-      context,
-    );
-  }
-
-  async createInvoiceForPaidOrderWithoutInvoice() {
-    const context = `${InvoiceService.name}.${this.createInvoiceForPaidOrderWithoutInvoice.name}`;
-
-    const batchSize = 500;
-    let offset = 0;
-    let totalUpdated = 0;
-
-    this.logger.log(
-      'Start updating voucher value for existed invoice',
-      context,
-    );
-
-    while (true) {
-      const batch = await this.orderRepository.find({
-        where: {
-          referenceNumber: Not(IsNull()),
-          invoice: IsNull(),
-        },
-        relations: ['invoice'],
-        take: batchSize,
-        skip: offset,
-        order: { id: 'ASC' },
-      });
-
-      if (batch.length === 0) break;
-
-      const updatedBatch: Invoice[] = [];
-
-      await Promise.allSettled(
-        batch.map(async (item) => {
-          if (!item.invoice) {
-            const invoice = await this.create(item.slug);
-            updatedBatch.push(invoice);
-          }
-        }),
-      );
-
-      totalUpdated += updatedBatch.length;
-      offset += batchSize;
-    }
-
-    this.logger.log(
-      `Finished updating total ${totalUpdated} invoice items.`,
-      context,
-    );
-  }
 
   async exportInvoice(requestData: ExportInvoiceDto): Promise<Buffer> {
     const context = `${InvoiceService.name}.${this.exportInvoice.name}`;
@@ -467,8 +151,17 @@ export class InvoiceService {
     }
 
     let usedPoints = 0;
+
+    // default from order
     if (order.payment?.paymentMethod === PaymentMethod.POINT) {
       usedPoints = order.subtotal;
+    }
+
+    // from invoice
+    if (order.invoice) {
+      if (order.invoice.paymentMethod === PaymentMethod.POINT) {
+        usedPoints = order.invoice.amount;
+      }
     }
 
     // with: at least one required type
@@ -477,12 +170,23 @@ export class InvoiceService {
       0,
     );
 
-    const originalSubtotalOrder = order.orderItems?.reduce(
+    let originalSubtotalOrder = 0;
+
+    // default from order
+    originalSubtotalOrder = order.orderItems?.reduce(
       (total, current) => total + current.originalSubtotal,
       0,
     );
 
-    // after calculate promotion
+    // from invoice
+    if (order.invoice) {
+      originalSubtotalOrder = order.invoice.invoiceItems?.reduce(
+        (total, current) => total + current.price * current.quantity,
+        0,
+      );
+    }
+
+    // after calculate promotion + voucher(calculate in order item)
     const subtotalOrderItem = order.orderItems?.reduce(
       (total, current) => total + current.subtotal,
       0,
@@ -515,10 +219,9 @@ export class InvoiceService {
       );
       Object.assign(order.invoice, {
         originalSubtotalOrder,
-        subtotalOrderItem,
         orderItemPromotionValue,
-        voucherCode: order.voucher?.code ?? 'N/A',
-        valueEachVoucher: order.voucher?.value ?? 0,
+        voucherCode: order.invoice?.voucherCode ?? 'N/A',
+        valueEachVoucher: order.invoice?.valueEachVoucher ?? 0,
         usedPoints,
       });
       return order.invoice;
@@ -563,6 +266,9 @@ export class InvoiceService {
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
       voucherRule: order.voucher?.applicabilityRule ?? null,
+      branchId: order.branch.id,
+      date: order.createdAt,
+      voucherCode: order.voucher?.code ?? null,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -583,7 +289,6 @@ export class InvoiceService {
 
     Object.assign(invoice, {
       originalSubtotalOrder,
-      subtotalOrderItem,
       orderItemPromotionValue,
       voucherCode: order.voucher?.code ?? 'N/A',
       usedPoints,

@@ -1,28 +1,28 @@
 {
   "notification": {
-    "title": "Quản lý thông báo",
-    "notificationList": "Thông báo",
     "createdAt": "Ngày tạo",
-    "message": "Nội dung",
-    "noNotification": "Không có thông báo mới",
-    "read": "Đã đọc",
-    "unread": "Chưa đọc",
-    "type": "Loại thông báo",
-    "order": "Đơn hàng mới",
-    "timeAgo": "{{time}}",
-    "new": "Mới",
     "loadMore": "Tải thêm",
     "loadingMore": "Đang tải thêm...",
-    "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm!",
+    "message": "Nội dung",
+    "new": "Mới",
+    "noNotification": "Không có thông báo mới",
+    "notificationList": "Thông báo",
+    "order": "Đơn hàng mới",
     "order-needs-delivered": "Đơn hàng cần giao hàng, vui lòng giao hàng sớm!",
+    "order-needs-processed": "Đơn hàng cần xử lý, vui lòng xử lý sớm!",
+    "read": "Đã đọc",
     "time": {
+      "daysAgo": "{{days}} ngày trước",
+      "hoursAgo": "{{hours}} giờ trước",
       "justNow": "Vừa nãy",
       "minutesAgo": "{{minutes}} phút trước",
-      "hoursAgo": "{{hours}} giờ trước",
-      "daysAgo": "{{days}} ngày trước",
-      "weeksAgo": "{{weeks}} tuần trước",
       "monthsAgo": "{{months}} tháng trước",
+      "weeksAgo": "{{weeks}} tuần trước",
       "yearsAgo": "{{years}} năm trước"
-    }
+    },
+    "timeAgo": "{{time}}",
+    "title": "Quản lý thông báo",
+    "type": "Loại thông báo",
+    "unread": "Chưa đọc"
   }
 }
