@@ -12,10 +12,15 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { DbModule } from 'src/db/db.module';
+import { BullModule } from '@nestjs/bullmq';
+import { QueueRegisterKey } from 'src/app/app.constants';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Menu, Branch, Promotion, ApplicablePromotion]),
+    BullModule.registerQueue({
+      name: QueueRegisterKey.DISTRIBUTE_LOCK_JOB,
+    }),
     DbModule,
   ],
   controllers: [MenuController],

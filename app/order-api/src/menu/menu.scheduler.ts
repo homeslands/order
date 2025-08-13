@@ -12,6 +12,10 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { GENERATE_MENU_JOB } from './menu.constants';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { DistributeLockJobKey, QueueRegisterKey } from 'src/app/app.constants';
+import Redlock from 'redlock';
 
 @Injectable()
 export class MenuScheduler {
@@ -24,6 +28,8 @@ export class MenuScheduler {
     private readonly branchRepository: Repository<Branch>,
     private readonly promotionUtils: PromotionUtils,
     private readonly transactionManagerService: TransactionManagerService,
+    @InjectQueue(QueueRegisterKey.DISTRIBUTE_LOCK_JOB)
+    private readonly distributeLockJobQueue: Queue,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM, { name: GENERATE_MENU_JOB })
@@ -31,102 +37,129 @@ export class MenuScheduler {
     const context = `${MenuScheduler.name}.${this.generateMenu.name}`;
     const today = new Date(moment().format('YYYY-MM-DD'));
     today.setHours(7, 0, 0, 0);
-    this.logger.log(`Generating menu for today = ${today}`, context);
 
-    const dayIndex = getDayIndex(today);
-    this.logger.log(`Today index: ${dayIndex}`, context);
+    this.logger.log(`Locking for creating menu for today = ${today}`, context);
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.GENERATE_MENU_EVERY_DAY_AT_1AM;
+    const ttl = 1000 * 60 * 2; // 2 minutes
+    const resource = [key];
+    let lock: any = null;
 
-    const branches = await this.branchRepository.find();
+    try {
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for generate menu every day at 1am`,
+        context,
+      );
 
-    // Get branches is not generated menu
-    const branchSettledResults = await Promise.allSettled(
-      branches.map(async (item) => {
-        const menu = await this.menuRepository.findOne({
-          where: { branch: { id: item.id }, isTemplate: false, date: today },
+      this.logger.log(`Generating menu for today = ${today}`, context);
+
+      const dayIndex = getDayIndex(today);
+      this.logger.log(`Today index: ${dayIndex}`, context);
+
+      const branches = await this.branchRepository.find();
+
+      // Get branches is not generated menu
+      const branchSettledResults = await Promise.allSettled(
+        branches.map(async (item) => {
+          const menu = await this.menuRepository.findOne({
+            where: { branch: { id: item.id }, isTemplate: false, date: today },
+          });
+          return !menu ? item : null;
+        }),
+      );
+
+      const filteredBranches = branchSettledResults
+        .filter((item) => item.status === 'fulfilled')
+        .map((item) => item.value)
+        .filter((item) => item);
+
+      this.logger.log(
+        `filtered branches count = ${filteredBranches.length}`,
+        context,
+      );
+
+      // Get all template menus base on list of branches
+      const templateMenus = await this.getTemplateMenus(
+        filteredBranches,
+        dayIndex,
+      );
+
+      const filteredMenus = templateMenus
+        .filter((menu) => menu)
+        .filter((menu) => {
+          // Filter the menu if the menu is for today.
+          const isSame = moment(menu.date).isSame(moment(today));
+          return !isSame;
         });
-        return !menu ? item : null;
-      }),
-    );
+      this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
 
-    const filteredBranches = branchSettledResults
-      .filter((item) => item.status === 'fulfilled')
-      .map((item) => item.value)
-      .filter((item) => item);
+      const newMenus = await Promise.all(
+        filteredMenus.map(async (menu) => {
+          const menuItems = await Promise.all(
+            menu.menuItems.map(async (item: MenuItem) => {
+              const promotion: Promotion =
+                await this.promotionUtils.getPromotionByProductAndBranch(
+                  today,
+                  menu.branch.id,
+                  item.product.id,
+                );
+              const newItem = new MenuItem();
+              newItem.promotion = promotion;
+              newItem.product = item.product;
+              newItem.isLocked = item.isLocked;
 
-    this.logger.log(
-      `filtered branches count = ${filteredBranches.length}`,
-      context,
-    );
+              // Assign stock if product is limited
+              if (item.product.isLimit) {
+                newItem.defaultStock = item.defaultStock;
+                newItem.currentStock = item.defaultStock;
+              }
 
-    // Get all template menus base on list of branches
-    const templateMenus = await this.getTemplateMenus(
-      filteredBranches,
-      dayIndex,
-    );
+              return newItem;
+            }),
+          );
 
-    const filteredMenus = templateMenus
-      .filter((menu) => menu)
-      .filter((menu) => {
-        // Filter the menu if the menu is for today.
-        const isSame = moment(menu.date).isSame(moment(today));
-        return !isSame;
-      });
-    this.logger.log(`Template menu count = ${filteredMenus.length}`, context);
+          // Make new menu
+          const newMenu = new Menu();
+          Object.assign(newMenu, {
+            date: today,
+            branch: menu.branch,
+            menuItems,
+          });
+          return newMenu;
+        }),
+      );
 
-    const newMenus = await Promise.all(
-      filteredMenus.map(async (menu) => {
-        const menuItems = await Promise.all(
-          menu.menuItems.map(async (item: MenuItem) => {
-            const promotion: Promotion =
-              await this.promotionUtils.getPromotionByProductAndBranch(
-                today,
-                menu.branch.id,
-                item.product.id,
-              );
-            const newItem = new MenuItem();
-            newItem.promotion = promotion;
-            newItem.product = item.product;
-            newItem.isLocked = item.isLocked;
-
-            // Assign stock if product is limited
-            if (item.product.isLimit) {
-              newItem.defaultStock = item.defaultStock;
-              newItem.currentStock = item.defaultStock;
-            }
-
-            return newItem;
-          }),
-        );
-
-        // Make new menu
-        const newMenu = new Menu();
-        Object.assign(newMenu, {
-          date: today,
-          branch: menu.branch,
-          menuItems,
-        });
-        return newMenu;
-      }),
-    );
-
-    await this.transactionManagerService.execute<Menu[]>(
-      async (manager) => {
-        return await manager.save(newMenus);
-      },
-      (results) => {
+      await this.transactionManagerService.execute<Menu[]>(
+        async (manager) => {
+          return await manager.save(newMenus);
+        },
+        (results) => {
+          this.logger.log(
+            `Menu generated [${results.map((item) => `${item.date} - ${item.branch?.name}`).join(', ')}]`,
+            context,
+          );
+        },
+        (error) => {
+          this.logger.error(
+            `Error when generating menu: ${error.message}`,
+            error.stack,
+            context,
+          );
+        },
+      );
+    } catch (error) {
+      if (lock) {
+        await lock.release();
         this.logger.log(
-          `Menu generated [${results.map((item) => `${item.date} - ${item.branch?.name}`).join(', ')}]`,
+          `Lock released for branch revenue refresh every day at 1am`,
           context,
         );
-      },
-      (error) => {
-        this.logger.error(
-          `Error when generating menu: ${error.message}`,
-          error.stack,
-          context,
-        );
-      },
-    );
+      }
+      this.logger.error(`Error when generating menu`, error.stack, context);
+      return;
+    }
   }
 
   /**
