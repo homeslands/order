@@ -739,6 +739,7 @@ describe('OrderService', () => {
       const orderItems = [orderItem];
       const mockOutput = {
         subtotal: 100,
+        originalSubtotal: 100,
         status: '',
         type: '',
         branch: new Branch(),
@@ -756,6 +757,7 @@ describe('OrderService', () => {
       jest.spyOn(orderUtils, 'getOrderSubtotal').mockResolvedValue({
         subtotal: mockOutput.subtotal,
         voucherValueItemsTotal: 0,
+        originalSubtotal: mockOutput.originalSubtotal,
       });
       jest
         .spyOn(orderScheduler, 'handleDeleteOrder')
