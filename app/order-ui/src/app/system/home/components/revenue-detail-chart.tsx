@@ -73,7 +73,7 @@ export default function RevenueDetailChart({
           },
         },
         legend: {
-          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet')],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.point')],
         },
         xAxis: {
           type: 'category',
@@ -157,15 +157,15 @@ export default function RevenueDetailChart({
               borderRadius: [5, 5, 0, 0],
             },
           },
-          // {
-          //   name: t('revenue.internalWallet'),
-          //   type: 'bar',
-          //   data: sortedData.map((item) => item.totalAmountInternal),
-          //   itemStyle: {
-          //     color: '#32CD32',
-          //     borderRadius: [5, 5, 0, 0],
-          //   },
-          // },
+          {
+            name: t('revenue.point'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountPoint),
+            itemStyle: {
+              color: '#32CD32',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
         ],
       }
 
