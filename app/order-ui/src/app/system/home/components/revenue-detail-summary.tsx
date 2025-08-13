@@ -98,7 +98,7 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent className='p-3'>
-                    <div className="text-xl font-bold">{formatCurrency(totalAmountPoint)}</div>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountPoint, '')}</div>
                 </CardContent>
             </Card>
         </div>
