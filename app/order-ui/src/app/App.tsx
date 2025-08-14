@@ -14,6 +14,7 @@ import '@/i18n'
 import { IApiErrorResponse, IApiResponse } from '@/types'
 import { showErrorToast } from '@/utils'
 import { ThemeProvider } from '@/components/app/theme-provider'
+import { useGlobalTokenValidator } from '@/hooks/useGlobalTokenValidator'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -44,6 +45,9 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  // Global token validator - runs once on app startup to clean expired tokens
+  useGlobalTokenValidator()
+
   return (
     <StrictMode>
       <ThemeProvider defaultTheme="light" storageKey="my-app-theme">
