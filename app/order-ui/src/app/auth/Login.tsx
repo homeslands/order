@@ -37,8 +37,10 @@ export default function Login() {
   const [isNavigating, setIsNavigating] = useState(false)
 
   // Kiểm tra xem có đủ dữ liệu để navigation không
+  // Enhanced: Thêm validation token expiration để tránh redirect với token hết hạn
   const isReadyToNavigate = useMemo(() => {
-    return token && userInfo && !isNavigating
+    const { isAuthenticated } = useAuthStore.getState()
+    return token && userInfo && !isNavigating && isAuthenticated()
   }, [token, userInfo, isNavigating])
 
   // Helper function để lấy permissions từ token
