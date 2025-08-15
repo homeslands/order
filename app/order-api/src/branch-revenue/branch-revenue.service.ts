@@ -224,30 +224,41 @@ export class BranchRevenueService {
     const start = moment(startTime);
     const end = moment(endTime);
 
-    // Lấy tất cả các giờ trong khoảng thời gian
+    // Get all hours in range
     const hoursInRange = [];
-    const current = start.clone();
 
     if (
       start.format('YYYY-MM-DD HH:00:00') === end.format('YYYY-MM-DD HH:00:00')
     ) {
+      // start and end are in one hour
       hoursInRange.push([
         start.format('YYYY-MM-DD HH:mm:ss.SSS'),
         end.format('YYYY-MM-DD HH:mm:ss.SSS'),
       ]);
     } else {
+      // start and end are not in one hour
+      const current = moment(start.clone().format('YYYY-MM-DD HH:00:00'));
       while (current < end) {
-        if (current.isSame(start)) {
+        if (
+          current.format('YYYY-MM-DD HH:00:00') ===
+          start.format('YYYY-MM-DD HH:00:00')
+        ) {
+          // first
           hoursInRange.push([
             start.format('YYYY-MM-DD HH:mm:ss.SSS'),
             start.format('YYYY-MM-DD HH:59:59.999'),
           ]);
-        } else if (current.isSame(end)) {
+        } else if (
+          // last
+          current.format('YYYY-MM-DD HH:00:00') ===
+          end.format('YYYY-MM-DD HH:00:00')
+        ) {
           hoursInRange.push([
             end.format('YYYY-MM-DD HH:00:00.000'),
             end.format('YYYY-MM-DD HH:mm:ss.SSS'),
           ]);
         } else {
+          // middle
           hoursInRange.push([
             current.format('YYYY-MM-DD HH:00:00.000'),
             current.format('YYYY-MM-DD HH:59:59.999'),
@@ -256,11 +267,6 @@ export class BranchRevenueService {
 
         current.add(1, 'hour');
       }
-
-      hoursInRange.push([
-        end.format('YYYY-MM-DD HH:00:00.000'),
-        end.format('YYYY-MM-DD HH:mm:ss.SSS'),
-      ]);
     }
 
     const dataMap = new Map(data.map((item) => [item.date, item]));
