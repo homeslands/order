@@ -362,6 +362,10 @@ export class OrderService {
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        if (order.payment) {
+          await this.paymentUtils.cancelPayment(order.payment.slug);
+        }
+
         if (voucher) {
           // Update remaining quantity of voucher
           voucher.remainingUsage -= 1;

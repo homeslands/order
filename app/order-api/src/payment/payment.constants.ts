@@ -15,3 +15,8 @@ export const PaymentAction = {
   PAYMENT_PAID: 'payment.paid',
   CARD_ORDER_PAYMENT_PAID: 'card-order-payment.paid',
 };
+
+export const ModeCancelQRBankTransfer = {
+  APPLY: 'apply',
+  NOT_APPLY: 'not-apply',
+};

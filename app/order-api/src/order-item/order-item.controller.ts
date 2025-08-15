@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -20,33 +19,12 @@ import {
   UpdateOrderItemRequestDto,
 } from './order-item.dto';
 import { AppResponseDto } from 'src/app/app.dto';
-import { HasRoles } from 'src/role/roles.decorator';
-import { RoleEnum } from 'src/role/role.enum';
 
 @ApiTags('Order Item')
 @Controller('order-items')
 @ApiBearerAuth()
 export class OrderItemController {
   constructor(private orderItemService: OrderItemService) {}
-
-  @HasRoles(RoleEnum.Admin, RoleEnum.SuperAdmin)
-  @Get('update-discount-type-for-existed-order-item')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update discount type for existed order item' })
-  @ApiResponseWithType({
-    status: HttpStatus.OK,
-    description: 'Update discount type for existed order item success',
-    type: String,
-  })
-  async updateDiscountTypeForExistedOrderItem() {
-    await this.orderItemService.updateDiscountTypeForExistedOrderItem();
-    return {
-      result: 'Update discount type for existed order item success',
-      message: 'Update discount type for existed order item success',
-      statusCode: HttpStatus.OK,
-      timestamp: new Date().toISOString(),
-    } as AppResponseDto<string>;
-  }
 
   @Post()
   @ApiOperation({ summary: 'Create new order item' })
