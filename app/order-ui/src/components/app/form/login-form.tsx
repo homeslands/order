@@ -18,12 +18,16 @@ import { loginSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import { useLogin, useProfile } from '@/hooks'
-import { useAuthStore, useCartItemStore, useUserStore } from '@/stores'
-import { showToast } from '@/utils'
+import { useAuthStore, useCartItemStore, useUserStore, useCurrentUrlStore } from '@/stores'
+import { showToast, calculateSmartNavigationUrl, safeNavigate } from '@/utils'
+import { useNavigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import { IToken } from '@/types'
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const navigate = useNavigate()
   const {
     setToken,
     setRefreshToken,
@@ -33,6 +37,7 @@ export const LoginForm: React.FC = () => {
   } = useAuthStore()
   const { clearCart } = useCartItemStore()
   const { setUserInfo, removeUserInfo } = useUserStore()
+  const { currentUrl, clearUrl } = useCurrentUrlStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -63,6 +68,39 @@ export const LoginForm: React.FC = () => {
             // Set userInfo sau khi có data
             setUserInfo(profile.data.result)
             showToast(t('toast.loginSuccess'))
+
+            // ✅ NAVIGATION LOGIC - Handle redirect after successful login
+            const userInfo = profile.data.result
+
+            // Get permissions from token để calculate navigation
+            let permissions: string[] = []
+            try {
+              const decoded: IToken = jwtDecode(response.result.accessToken)
+              if (decoded.scope) {
+                const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope
+                permissions = scope.permissions || []
+              }
+            } catch {
+              permissions = []
+            }
+
+            // Calculate navigation URL
+            const navigationUrl = calculateSmartNavigationUrl({
+              userInfo,
+              permissions,
+              currentUrl
+            })
+            // Navigate to appropriate page
+            const navigationSuccess = safeNavigate(
+              navigate,
+              navigationUrl,
+              window.location.pathname
+            )
+
+            // Clear saved URL if navigation successful
+            if (navigationSuccess) {
+              clearUrl()
+            }
           } else {
             // Nếu không fetch được profile, rollback auth state
             setLogout()
