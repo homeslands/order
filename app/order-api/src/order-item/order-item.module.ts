@@ -23,6 +23,11 @@ import { User } from 'src/user/user.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { ProductUtils } from 'src/product/product.utils';
 import { Product } from 'src/product/product.entity';
+import { PaymentUtils } from 'src/payment/payment.utils';
+import { Payment } from 'src/payment/payment.entity';
+import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
+import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
+import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 
 @Module({
   imports: [
@@ -36,11 +41,14 @@ import { Product } from 'src/product/product.entity';
       User,
       VoucherProduct,
       Product,
+      Payment,
+      ACBConnectorConfig,
     ]),
     DbModule,
     OrderModule,
     VariantModule,
     MenuItemModule,
+    ACBConnectorModule,
   ],
   controllers: [OrderItemController],
   providers: [
@@ -53,6 +61,8 @@ import { Product } from 'src/product/product.entity';
     VoucherUtils,
     UserUtils,
     ProductUtils,
+    PaymentUtils,
+    BankTransferStrategy,
   ],
   exports: [OrderItemService, OrderItemUtils],
 })
