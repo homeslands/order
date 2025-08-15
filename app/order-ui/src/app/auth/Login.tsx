@@ -38,10 +38,21 @@ export default function Login() {
 
   // Kiểm tra xem có đủ dữ liệu để navigation không
   // Enhanced: Thêm validation token expiration để tránh redirect với token hết hạn
+  // Fix: Sử dụng single source of truth để tránh race condition
   const isReadyToNavigate = useMemo(() => {
-    const { isAuthenticated } = useAuthStore.getState()
-    return token && userInfo && !isNavigating && isAuthenticated()
-  }, [token, userInfo, isNavigating])
+    // ✅ Sử dụng cùng 1 nguồn data để đảm bảo consistency
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    // ✅ Kiểm tra đầy đủ với double validation
+    return (
+      authStore.token &&
+      userStore.userInfo &&
+      !isNavigating &&
+      authStore.isAuthenticated() &&
+      authStore.isTokenValid() // Thêm validation kép để chắc chắn
+    )
+  }, [isNavigating]) // Keep minimal dependencies để tránh stale closure
 
   // Helper function để lấy permissions từ token
   const getUserPermissions = useMemo(() => {
@@ -71,6 +82,33 @@ export default function Login() {
     })
   }, [userInfo, token, currentUrl, getUserPermissions])
 
+  // ✅ Safety effect để handle expired tokens sau khi component mount
+  useEffect(() => {
+    // Check auth state consistency và cleanup nếu cần
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    if (authStore.token && !authStore.isAuthenticated()) {
+      // Token tồn tại nhưng không valid → cleanup
+      authStore.setLogout()
+      userStore.removeUserInfo()
+      setIsNavigating(false)
+    }
+  }, []) // Chỉ chạy 1 lần khi component mount
+
+  // ✅ Effect để detect existing auth state (auto-login when page loads)  
+  useEffect(() => {
+    // Chỉ auto-redirect nếu đã có sẵn token + userInfo khi component mount
+    // Không handle fresh login (LoginForm sẽ handle)
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    if (authStore.token && userStore.userInfo && !isNavigating && authStore.isAuthenticated()) {
+      // Existing valid session detected → isReadyToNavigate effect sẽ handle navigation
+    }
+  }, [isNavigating]) // ✅ Only depend on isNavigating to prevent loops
+
+  // ✅ Handle auto-redirect for existing sessions (không phải fresh login)
   useEffect(() => {
     if (isReadyToNavigate) {
       setIsNavigating(true)
@@ -85,13 +123,12 @@ export default function Login() {
       // Chỉ clear URL nếu navigation thành công
       if (navigationSuccess) {
         // Clear URL sau khi navigate thành công
-        // Dùng requestAnimationFrame thay vì setTimeout để đảm bảo navigation hoàn tất
         requestAnimationFrame(() => {
           clearUrl()
           setIsNavigating(false)
         })
       } else {
-        // Nếu navigation failed (loop detected), vẫn cần reset state
+        // Nếu navigation failed (loop detected), reset state
         setIsNavigating(false)
         clearUrl()
       }

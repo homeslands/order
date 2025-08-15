@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState, useEffect } from 'react'
 import { AxiosError, isAxiosError } from 'axios'
 import { RouterProvider } from 'react-router-dom'
 import {
@@ -15,6 +15,7 @@ import { IApiErrorResponse, IApiResponse } from '@/types'
 import { showErrorToast } from '@/utils'
 import { ThemeProvider } from '@/components/app/theme-provider'
 import { useGlobalTokenValidator } from '@/hooks/useGlobalTokenValidator'
+import { useAuthStore, useUserStore } from '@/stores'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -45,8 +46,40 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  // ✅ State để track auth initialization
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false)
+
   // Global token validator - runs once on app startup to clean expired tokens
   useGlobalTokenValidator()
+
+
+
+  // ✅ Đảm bảo auth cleanup hoàn thành trước khi render UI
+  useEffect(() => {
+    // Sync cleanup expired tokens để tránh race condition
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    if (authStore.token && !authStore.isAuthenticated()) {
+      authStore.setLogout()
+      userStore.removeUserInfo()
+    }
+
+    // Mark initialization as complete
+    setIsAuthInitialized(true)
+  }, [])
+
+  // ✅ Show loading during auth initialization to prevent race conditions
+  if (!isAuthInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col gap-4 items-center">
+          <div className="w-8 h-8 rounded-full border-b-2 border-blue-600 animate-spin"></div>
+          <p className="text-sm text-gray-600">Initializing...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <StrictMode>
