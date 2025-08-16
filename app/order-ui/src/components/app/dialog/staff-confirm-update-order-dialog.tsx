@@ -48,7 +48,6 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
   const voucher = updatingData?.updateDraft?.voucher || null
-  // console.log('orderDraft in confirm update order dialog', originalOrder?.orderItems, orderDraft?.orderItems)
 
   // Convert orderDraft to ICartItem format for comparison
   const order: ICartItem | null = orderDraft ? {
@@ -72,8 +71,6 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     approvalBy: orderDraft.approvalBy,
     paymentMethod: orderDraft.paymentMethod,
   } : null
-
-
 
   // Convert originalOrder to ICartItem format for comparison
   const originalOrderForComparison: ICartItem | null = originalOrder ? {
@@ -141,38 +138,25 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
         })
       }
 
-      // 2. Handle item changes
+      // 2. Handle item changes  
+      // NOTE: Không cần add new items ở đây vì đã được add qua API khi click add trong menu
       // const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
       // const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
       const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
 
-      // Add new items
-      // for (const change of addedItems) {
-      //   await new Promise((resolve, reject) => {
-      //     addNewOrderItem({
-      //       quantity: change.item.quantity,
-      //       variant: change.item.variant.slug,
-      //       note: change.item.note || '',
-      //       promotion: change.item.promotion ? change.item.promotion.slug : '',
-      //       order: originalOrder.slug
-      //     }, {
-      //       onSuccess: () => resolve(true),
-      //       onError: (error) => reject(error)
-      //     })
-      //   })
-      // }
+      // Xử lý món mới có note: từ type 'added' chuyển thành update note
+      const addedItemsWithNote = orderComparison.itemChanges
+        .filter(c => c.type === 'added' && c.note && c.note.trim() !== '')
+        .map(change => ({
+          // Tìm item trong updateDraft để lấy slug thật từ API response
+          ...change,
+          type: 'orderItemNoteChanged' as const,
+          slug: change.item.slug || change.item.id
+        }))
 
-      // Remove items
-      // for (const change of removedItems) {
-      //   if (!change.slug) continue
-      //   await new Promise((resolve, reject) => {
-      //     deleteOrderItem(change.slug!, {
-      //       onSuccess: () => resolve(true),
-      //       onError: (error) => reject(error)
-      //     })
-      //   })
-      // }
+      // Gộp với orderItemNoteChangedItems
+      const allNoteChangedItems = [...orderItemNoteChangedItems, ...addedItemsWithNote]
 
       // Update quantity of existing items
       for (const change of quantityChangedItems) {
@@ -198,8 +182,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
         })
       }
 
-      // Update note of existing items
-      for (const change of orderItemNoteChangedItems) {
+      // Update note của tất cả items (bao gồm cả món mới có note)
+      for (const change of allNoteChangedItems) {
         if (!change.slug) continue
 
         await new Promise((resolve, reject) => {

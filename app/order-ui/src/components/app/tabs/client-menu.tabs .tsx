@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { ClientMenuTabscontent } from '../tabscontent/client-menu.tabscontent'
 
-export function ClientMenuTabs() {
+interface ClientMenuTabsProps {
+  onSuccess?: () => void
+}
+
+export function ClientMenuTabs({ onSuccess }: ClientMenuTabsProps) {
   const { t } = useTranslation(['menu'])
   return (
     <Tabs defaultValue="menu">
@@ -17,7 +21,7 @@ export function ClientMenuTabs() {
         </TabsTrigger> */}
       </TabsList>
       <TabsContent value="menu" className="p-0">
-        <ClientMenuTabscontent />
+        <ClientMenuTabscontent onSuccess={onSuccess} />
       </TabsContent>
       {/* <TabsContent value="table" className="p-0">
         <ClientUpdateOrderTableSelect onSuccess={onSuccess} order={order} defaultValue={defaultValue} />
