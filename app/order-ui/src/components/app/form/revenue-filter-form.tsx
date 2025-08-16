@@ -12,10 +12,10 @@ import {
     Form,
     Button,
 } from '@/components/ui'
-import { exportRevenueSchema, TExportRevenueSchema } from '@/schemas'
+import { useExportRevenueSchema, TExportRevenueSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
-import { DateAndTimePicker, SimpleDatePicker } from '../picker'
+import { DatePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
 import { useBranchStore } from '@/stores'
 
@@ -23,42 +23,70 @@ interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
     onSubmit: (data: IRevenueQuery) => void
     onSuccess: () => void
+    savedValues?: Partial<IRevenueQuery> | null
 }
 
 export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
     onSubmit,
     type,
+    savedValues,
 }) => {
     const { t } = useTranslation(['revenue'])
     const { branch } = useBranchStore()
 
-    const form = useForm<TExportRevenueSchema>({
-        resolver: zodResolver(exportRevenueSchema),
-        defaultValues: {
+    const getDefaultValues = React.useCallback(() => {
+        // Nếu có savedValues, sử dụng chúng
+        if (savedValues) {
+            return {
+                branch: savedValues.branch || branch?.slug,
+                startDate: savedValues.startDate || (type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
+                endDate: savedValues.endDate || (type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
+                type: type || RevenueTypeQuery.DAILY,
+            }
+        }
+
+        // Ngược lại sử dụng giá trị mặc định
+        return {
             branch: branch?.slug,
             startDate: type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
             endDate: type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
             type: type || RevenueTypeQuery.DAILY,
-        },
+        }
+    }, [savedValues, branch?.slug, type])
+
+    const form = useForm<TExportRevenueSchema>({
+        resolver: zodResolver(useExportRevenueSchema()),
+        defaultValues: getDefaultValues(),
     })
 
     React.useEffect(() => {
-        form.reset({
-            branch: branch?.slug,
-            startDate: type === RevenueTypeQuery.HOURLY
-                ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
-                : moment().format('YYYY-MM-DD'),
-            endDate: type === RevenueTypeQuery.HOURLY
-                ? moment().format('YYYY-MM-DD HH:mm:ss')
-                : moment().format('YYYY-MM-DD'),
-            type: type || RevenueTypeQuery.DAILY,
-        })
-    }, [type, branch?.slug, form])
+        const defaultValues = getDefaultValues()
+
+        // Cập nhật form với giá trị mặc định hoặc savedValues
+        form.setValue('branch', defaultValues.branch || '')
+        form.setValue('type', defaultValues.type)
+
+        // Chỉ cập nhật dates nếu có savedValues hoặc form chưa có giá trị
+        const currentValues = form.getValues()
+        if (savedValues || !currentValues.startDate || !currentValues.endDate) {
+            form.setValue('startDate', defaultValues.startDate)
+            form.setValue('endDate', defaultValues.endDate)
+        }
+    }, [type, branch?.slug, savedValues, form, getDefaultValues])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
         // console.log(data)
         onSubmit(data)
+    }
+
+    const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
+        if (date) {
+            // Normalize date format to YYYY-MM-DD regardless of input format
+            const normalizedDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY']).format('YYYY-MM-DD')
+            form.setValue(fieldName, normalizedDate)
+            form.trigger(['startDate', 'endDate'])
+        }
     }
 
     const formFields = {
@@ -71,16 +99,16 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
                         <FormLabel className='font-bold'>{t('revenue.startDate')}</FormLabel>
                         <FormControl>
                             {type === RevenueTypeQuery.HOURLY ? (
-                                <DateAndTimePicker
+                                <DatePicker
                                     date={field.value}
-                                    onChange={field.onChange}
-                                    showTime={true}
-                                    startDate={form.getValues('startDate')}
+                                    onSelect={(date) => handleDateChange('startDate', date)}
+                                    validateDate={(date) => date <= new Date()}
+                                    disableFutureDate
                                 />
                             ) : (
                                 <SimpleDatePicker
                                     value={field.value}
-                                    onChange={(date) => field.onChange(date)}
+                                    onChange={(date) => handleDateChange('startDate', date)}
                                 />
                             )}
                         </FormControl>
@@ -99,16 +127,16 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
                         <FormControl>
 
                             {type === RevenueTypeQuery.HOURLY ? (
-                                <DateAndTimePicker
+                                <DatePicker
                                     date={field.value}
-                                    onChange={field.onChange}
-                                    showTime={true}
-                                    endDate={form.getValues('endDate')}
+                                    onSelect={(date) => handleDateChange('endDate', date)}
+                                    validateDate={(date) => date <= new Date()}
+                                    disableFutureDate
                                 />
                             ) : (
                                 <SimpleDatePicker
                                     value={field.value}
-                                    onChange={(date) => field.onChange(date)}
+                                    onChange={(date) => handleDateChange('endDate', date)}
                                 />
                             )}
                         </FormControl>
