@@ -73,8 +73,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
     paymentMethod: orderDraft.paymentMethod,
   } : null
 
-
-
   // Convert originalOrder to ICartItem format for comparison
   const originalOrderForComparison: ICartItem | null = originalOrder ? {
     id: originalOrder.slug,
@@ -141,11 +139,24 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
         })
       }
 
-      // 2. Handle item changes
-      // const addedItems = orderComparison.itemChanges.filter(c => c.type === 'added')
-      // const removedItems = orderComparison.itemChanges.filter(c => c.type === 'removed')
+      // 2. Handle item changes  
+      // NOTE: Không cần add new items ở đây vì đã được add qua API khi click add trong menu
       const quantityChangedItems = orderComparison.itemChanges.filter(c => c.type === 'quantity_changed')
       const orderItemNoteChangedItems = orderComparison.itemChanges.filter(c => c.type === 'orderItemNoteChanged')
+
+      // Xử lý món mới có note: từ type 'added' chuyển thành update note
+      const addedItemsWithNote = orderComparison.itemChanges
+        .filter(c => c.type === 'added' && c.note && c.note.trim() !== '')
+        .map(change => ({
+          // Tìm item trong updateDraft để lấy slug thật từ API response
+          ...change,
+          type: 'orderItemNoteChanged' as const,
+          slug: change.item.slug || change.item.id
+        }))
+
+      // Gộp với orderItemNoteChangedItems
+      const allNoteChangedItems = [...orderItemNoteChangedItems, ...addedItemsWithNote]
+
 
       // Update quantity of existing items
       for (const change of quantityChangedItems) {
@@ -171,8 +182,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
         })
       }
 
-      // Update note of existing items
-      for (const change of orderItemNoteChangedItems) {
+      // Update note của tất cả items (bao gồm cả món mới có note)
+      for (const change of allNoteChangedItems) {
         if (!change.slug) continue
 
         await new Promise((resolve, reject) => {

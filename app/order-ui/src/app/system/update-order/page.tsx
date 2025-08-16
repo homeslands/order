@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { useIsMobile, useOrderBySlug } from '@/hooks'
-import { OrderTypeEnum, OrderStatus } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import { OrderCountdown } from '@/components/app/countdown'
 import { useOrderFlowStore } from '@/stores'
@@ -22,9 +22,10 @@ export default function UpdateOrderPage() {
     const isMobile = useIsMobile()
     const { slug } = useParams()
     const { data: order, refetch: refetchOrder } = useOrderBySlug(slug)
-    const [isExpired, setIsExpired] = useState<boolean>(false)
     const [isPolling, setIsPolling] = useState<boolean>(false)
+    const [isExpired, setIsExpired] = useState<boolean>(false)
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false) // Track if data is loaded to store
+    const [shouldReinitialize, setShouldReinitialize] = useState<boolean>(false)
     const {
         updatingData,
         initializeUpdating,
@@ -32,7 +33,7 @@ export default function UpdateOrderPage() {
     } = useOrderFlowStore()
 
     useEffect(() => {
-        if (order?.result && order.result.orderItems && !isDataLoaded) {
+        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
             // Đảm bảo order data đầy đủ trước khi initialize
             const orderData = order.result
 
@@ -45,14 +46,15 @@ export default function UpdateOrderPage() {
             try {
                 initializeUpdating(orderData)
                 setIsDataLoaded(true) // Mark data as loaded
+                setShouldReinitialize(false) // Reset reinitialize flag
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error('❌ Update Order: Failed to initialize updating data:', error)
             }
         }
-    }, [order, isDataLoaded, initializeUpdating])
+    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
 
-    // Separate useEffect for polling control
+    // Separate useEffect for polling control (currently disabled)
     useEffect(() => {
         if (order?.result && isDataLoaded) {
             const orderData = order.result
@@ -129,7 +131,7 @@ export default function UpdateOrderPage() {
         }
     }, [isPolling, isExpired, refetchOrder])
 
-    // Stop polling when page expires
+    // Stop polling when page expires (currently disabled)
     useEffect(() => {
         if (isExpired) {
             setIsPolling(false)
@@ -139,18 +141,26 @@ export default function UpdateOrderPage() {
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
         if (value) {
-            setIsPolling(false)
-
             // ✅ Clear updating data khi đơn hết hạn
             clearUpdatingData()
             setIsDataLoaded(false)
         }
     }, [clearUpdatingData])
 
+    const handleRefetchAndReinitialize = useCallback(async () => {
+        try {
+            await refetchOrder()
+            setShouldReinitialize(true)
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
+        }
+    }, [refetchOrder])
+
     if (isExpired) {
         return (
             <div className="container py-20 lg:h-[60vh]">
-                <div className="flex flex-col items-center justify-center gap-5">
+                <div className="flex flex-col gap-5 justify-center items-center">
                     <ShoppingCartIcon className="w-32 h-32 text-primary" />
                     <p className="text-center text-[13px] sm:text-base">
                         {t('order.noOrders')}
@@ -196,10 +206,10 @@ export default function UpdateOrderPage() {
                             </div>
 
                             {/* Menu dưới mobile */}
-                            <div className="flex flex-col w-full gap-2 py-3">
+                            <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -208,7 +218,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
                             </div>
 
                             {/* Desktop layout - Content right */}
