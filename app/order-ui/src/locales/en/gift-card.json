@@ -5,7 +5,7 @@
         "clientPageTitle": "Gift Cards",
         "noGiftCardsAvailable": "No gift cards available at the moment",
         "buyNow": "Buy Now",
-        "addToCart": "Add to Cart",        
+        "addToCart": "Add to Cart",
         "coin": "Coin",
         "coinTransaction": "Coin Transaction",
         "coinBalance": "Coin Balance",
@@ -14,7 +14,6 @@
         "transactionCode": "Transaction Code",
         "viewDetails": "View Details",
         "notAvailable": "Gift Card Not Available",
-        
         "title": "Title",
         "description": "Description",
         "image": "Image",
@@ -123,11 +122,9 @@
         "backToGiftCards": "Back to Gift Card",
         "paymentCompleted": "Payment completed successfully",
         "paymentExpired": "Payment has expired",
-
         "loginRequired": "Login to view the list of gift cards.",
         "receiverName": "Receiver Name",
         "phoneNumberNotFound": "Phone number not found",
-
         "useGiftCard": "Use Gift Card",
         "enterGiftCardDetails": "Enter your gift card serial and code to redeem points",
         "giftCardSerial": "Gift Card Serial",
@@ -150,6 +147,9 @@
             "updateSuccess": "Update successful",
             "lockAll": "Lock All Features",
             "unlockAll": "Unlock All Features"
+        },
+        "cardOrder": {
+            "pageTitle": "Card order management"
         }
     },
     "schema": {

@@ -5,6 +5,7 @@
     "deliveryManagement": "Delivery Management",
     "chefOrderManagement": "Chef Order Management",
     "orderManagement": "Order Management",
+    "cardOrderManagement": "Card Order Management",
     "myOrders": "My Orders",
     "tableManagement": "Table Management",
     "internalWallet": "Internal Wallet",

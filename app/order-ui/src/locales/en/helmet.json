@@ -164,6 +164,9 @@
       "manageGiftCardFeatureFlag": "Manage Feature Flags",
       "description": "Manage your feature flags here",
       "keywords": "feature flag, Feature Lock Management, gift card feature flag"
+    },
+    "cardOrder": {
+      "title": "Card order management"
     }
   }
 }

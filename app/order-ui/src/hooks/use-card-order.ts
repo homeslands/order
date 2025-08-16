@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import { getCardOrders } from '@/api'
 import { CardOrderStatus } from '@/constants'
@@ -10,6 +10,13 @@ interface UseCardOrdersFilters {
   fromDate: string
   toDate: string
   customerSlug?: string
+}
+
+export const useQueryCardOrders = (req: ICardOrderGetRequest) => {
+  return useQuery({
+    queryKey: ['branches'],
+    queryFn: async () => getCardOrders(req),
+  })
 }
 
 export const useGetCardOrdersInfinite = ({ pageSize = 10 }) => {
