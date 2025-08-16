@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 import { useTranslation } from 'react-i18next'
+import { useTheme } from '@/components/app/theme-provider'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { usePagination, useTopBranchProducts } from '@/hooks'
@@ -9,6 +10,7 @@ import { useBranchStore } from '@/stores'
 export default function TopProductsDetail() {
     const { t } = useTranslation('dashboard')
     const { t: tProduct } = useTranslation('product')
+    const { theme } = useTheme() // thêm
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
     const { branch } = useBranchStore()
@@ -25,7 +27,12 @@ export default function TopProductsDetail() {
             const items = [...topBranchProducts.result.items]
                 .sort((a, b) => a.totalQuantity - b.totalQuantity) // Sort items by quantity in descending order
 
+            const textColor = theme === 'dark' ? '#fff' : '#000' // thêm
+            const axisLabelColor = theme === 'dark' ? '#ccc' : '#333' // thêm
+
             const option = {
+                backgroundColor: theme === 'dark' ? '#1f1f1f' : '#fff', // thêm
+                textStyle: { color: textColor }, // thêm
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -33,7 +40,8 @@ export default function TopProductsDetail() {
                     }
                 },
                 legend: {
-                    data: [tProduct('topProducts.quantitySold')]
+                    data: [tProduct('topProducts.quantitySold')],
+                    textStyle: { color: textColor } // thêm
                 },
                 yAxis: {
                     type: 'category',
@@ -41,12 +49,14 @@ export default function TopProductsDetail() {
                     axisLabel: {
                         interval: 0,
                         width: 100,
-                        overflow: 'truncate'
+                        overflow: 'truncate',
+                        color: axisLabelColor // thêm
                     }
                 },
                 xAxis: {
                     type: 'value',
-                    name: tProduct('topProducts.quantity')
+                    name: tProduct('topProducts.quantity'),
+                    axisLabel: { color: axisLabelColor } // thêm
                 },
                 series: [
                     {
@@ -74,7 +84,7 @@ export default function TopProductsDetail() {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [topBranchProducts, branch, tProduct])
+    }, [topBranchProducts, branch, tProduct, theme]) // thêm theme
 
     return (
         <Card className='shadow-none'>
@@ -89,4 +99,3 @@ export default function TopProductsDetail() {
         </Card>
     )
 }
-

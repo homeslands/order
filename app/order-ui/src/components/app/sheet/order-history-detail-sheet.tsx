@@ -176,7 +176,7 @@ export default function OrderHistoryDetailSheet({
                 {/* payment */}
                 <div className="flex flex-col w-full gap-2">
                   {/* Payment method, status */}
-                  <div className={`rounded-sm border ${orderDetail?.payment && orderDetail?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-100' : 'border-destructive bg-destructive/10'}`}>
+                  <div className={`rounded-sm border ${orderDetail?.payment && orderDetail?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-500/10' : 'border-destructive bg-destructive/10'}`}>
                     <div className="px-3 py-2">
                       <p className="flex flex-col items-start gap-1 pb-2">
                         <span className="col-span-1 text-sm font-bold">

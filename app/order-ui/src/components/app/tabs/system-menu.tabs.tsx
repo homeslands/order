@@ -74,7 +74,7 @@ export function SystemMenuTabs() {
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
       {/* TabsList luôn sticky */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-2 bg-white shadow-sm">
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-2 bg-white dark:bg-background shadow-sm">
         <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
           {cartItems?.type === OrderTypeEnum.AT_TABLE && (
             <TabsTrigger value="table" className="flex justify-center">
@@ -97,7 +97,7 @@ export function SystemMenuTabs() {
       {/* Tab Content: Menu */}
       <TabsContent value="menu" className="w-full p-0 pb-4 mt-0">
         {/* Sticky CatalogSelect chỉ trong tab này */}
-        <div className="sticky z-20 w-full py-2 overflow-x-auto bg-white top-14">
+        <div className="sticky z-20 w-full py-2 overflow-x-auto bg-white dark:bg-background top-14">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
 
