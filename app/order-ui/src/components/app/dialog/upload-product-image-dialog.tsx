@@ -63,7 +63,7 @@ export default function UploadProductImageDialog({ product }: ICreateProductDial
         </DialogHeader>
         <div className="space-y-4">
           <div
-            className="flex flex-col items-center justify-center w-full h-40 text-gray-400 transition-colors border rounded-md cursor-pointer hover:border-primary hover:bg-gray-50"
+            className="flex flex-col items-center justify-center w-full h-40 text-muted-foreground transition-colors border rounded-md cursor-pointer hover:border-primary hover:bg-foreground/10"
             onClick={triggerFileInput}
           >
             {previewImage ? (

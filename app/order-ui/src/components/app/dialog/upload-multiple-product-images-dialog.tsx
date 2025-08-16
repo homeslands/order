@@ -100,7 +100,7 @@ export default function UploadMultipleProductImagesDialog({ product }: IUploadMu
                 </DialogHeader>
                 <div className="space-y-4">
                     <div
-                        className="flex flex-wrap items-center justify-center w-full h-auto text-gray-400 transition-colors border rounded-md cursor-pointer hover:border-primary hover:bg-gray-50"
+                        className="flex flex-wrap items-center justify-center w-full h-auto text-muted-foreground transition-colors border rounded-md cursor-pointer hover:border-primary hover:bg-foreground/10"
                         onClick={triggerFileInput}
                     >
                         {previewImages.length > 0 ? (

@@ -39,7 +39,7 @@ export default function ChefAreaCard({ chefArea, isDeletePermissionValid, isUpda
                     <TooltipProvider delayDuration={100}>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button variant="ghost" className='text-muted-foreground' disabled={!isUpdatePermissionValid}>
+                                <Button variant="ghost" className='text-foreground' disabled={!isUpdatePermissionValid}>
                                     <UpdateChefAreaDialog chefArea={chefArea} />
                                 </Button>
                             </TooltipTrigger>

@@ -31,7 +31,7 @@ export default function UserInfoDialog({ user }: IUserInfoDialogProps) {
       <DialogTrigger asChild className="flex justify-start w-full">
         <Button
           variant="ghost"
-          className="h-10 gap-1 px-2 text-sm"
+          className=" gap-1 px-2 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <SquareMousePointer className="icon" />

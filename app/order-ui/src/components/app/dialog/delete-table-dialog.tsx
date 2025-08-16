@@ -64,8 +64,8 @@ export default function DeleteTableDialog({
     >
       <DialogTrigger asChild>
         <Button
-          variant="ghost"
-          className="flex gap-1 justify-start px-2 w-full text-sm"
+          variant="outline"
+          className="flex gap-1 justify-start px-2 w-full text-sm bg-destructive/15 text-destructive hover:bg-destructive/30 hover:text-destructive"
           onClick={() => setIsOpen(true)}
         >
           <Trash2 className="icon" />

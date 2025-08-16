@@ -136,7 +136,7 @@ export default function OrderItemList({
           </div>
         )}
 
-        <div className="h-[calc(100vh-25rem)]">
+        <div>
           <TabsContent value={OrderItemStatus.ORDER_ITEM_LIST} className="h-full">
             {orderDetailData?.orderItems?.length && orderDetailData?.orderItems?.length > 0 ? (
               orderDetailData.orderItems.map((item) => (
@@ -145,7 +145,7 @@ export default function OrderItemList({
                 </div>
               ))
             ) : (
-              <p className="flex justify-center items-center h-full text-muted-foreground">
+              <p className="flex justify-center h-40 items-center text-muted-foreground">
                 {tCommon('common.noData')}
               </p>
             )}
@@ -158,7 +158,7 @@ export default function OrderItemList({
                 </div>
               ))
             ) : (
-              <p className="flex justify-center items-center h-full text-muted-foreground">
+              <p className="flex justify-center h-40 items-center text-muted-foreground">
                 {tCommon('common.noData')}
               </p>
             )}
@@ -171,7 +171,7 @@ export default function OrderItemList({
                 </div>
               ))
             ) : (
-              <p className="flex justify-center items-center h-full text-muted-foreground">
+              <p className="flex justify-center h-40 items-center text-muted-foreground">
                 {tCommon('common.noData')}
               </p>
             )}
@@ -184,7 +184,7 @@ export default function OrderItemList({
                 </div>
               ))
             ) : (
-              <p className="flex justify-center items-center h-full text-muted-foreground">
+              <p className="flex justify-center h-40 items-center text-muted-foreground">
                 {tCommon('common.noData')}
               </p>
             )}
@@ -197,7 +197,7 @@ export default function OrderItemList({
                 </div>
               ))
             ) : (
-              <p className="flex justify-center items-center h-full text-muted-foreground">
+              <p className="flex justify-center h-40 items-center text-muted-foreground">
                 {tCommon('common.noData')}
               </p>
             )}

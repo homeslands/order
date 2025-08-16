@@ -161,7 +161,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           {/* Order Info */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-              <span className="flex gap-2 items-center text-gray-600">
+              <span className="flex gap-2 items-center text-muted-foreground">
                 <Receipt className="w-4 h-4" />
                 {t('order.orderType')}
               </span>
@@ -171,7 +171,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
             </div>
             {order?.tableName && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+                <span className="flex gap-2 items-center text-muted-foreground">
                   <MapPin className="w-4 h-4" />
                   {t('menu.tableName')}
                 </span>
@@ -180,7 +180,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
             )}
             {order?.ownerFullName && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+                <span className="flex gap-2 items-center text-muted-foreground">
                   <User className="w-4 h-4" />
                   {t('order.customer')}
                 </span>
@@ -189,7 +189,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
             )}
             {order?.ownerPhoneNumber && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+                <span className="flex gap-2 items-center text-muted-foreground">
                   <Phone className="w-4 h-4" />
                   {t('order.phoneNumber')}
                 </span>
@@ -198,7 +198,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
             )}
             {order?.description && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
-                <span className="flex gap-2 items-center text-gray-600">
+                <span className="flex gap-2 items-center text-muted-foreground">
                   <Notebook className="w-4 h-4" />
                   {t('order.note')}
                 </span>
