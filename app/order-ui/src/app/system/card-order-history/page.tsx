@@ -1,0 +1,77 @@
+import { useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
+import { Gift } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+
+import { usePagination, useQueryCardOrders } from '@/hooks'
+import { DataTable } from '@/components/ui'
+import { GiftCardAction } from './DataTable/actions'
+import { SortOperation } from '@/constants'
+import { SortContext } from '@/contexts'
+import { useCardOrderColumns } from './DataTable/columns/card-order-columns'
+
+export default function CardOrderHistoryPage() {
+  const { t } = useTranslation(['giftCard'])
+  const { t: tHelmet } = useTranslation('helmet')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
+  const [sortField, setSortField] = useState('createdAt,desc')
+
+  const page = Number(searchParams.get('page')) || 1
+  const size = Number(searchParams.get('size')) || 10
+
+  const { data, isLoading } = useQueryCardOrders({
+    page,
+    size,
+    sort: sortField,
+  })
+  const cardOrders = data?.result.items || []
+
+  // add page size to query params
+  useEffect(() => {
+    setSearchParams((prev) => {
+      prev.set('page', pagination.pageIndex.toString())
+      prev.set('size', pagination.pageSize.toString())
+      return prev
+    })
+  }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+
+  const handleSortChange = (operation: SortOperation) => {
+    // Sort field updated based on operation type
+    if (operation === SortOperation.CREATE) {
+      setSortField('createdAt,desc')
+    } else if (operation === SortOperation.UPDATE) {
+      setSortField('updatedAt,desc')
+    }
+  }
+
+  return (
+    <div className="grid h-full grid-cols-1 gap-2">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>{tHelmet('helmet.cardOrder.title')}</title>
+        <meta name="description" content={tHelmet('helmet.cardOrder.title')} />
+      </Helmet>
+      <span className="flex items-center justify-between gap-1 pt-1 text-lg text-gray-900 dark:text-white">
+        <div className="flex items-center gap-2">
+          <Gift className="text-gray-700 dark:text-gray-300" />
+          {t('cardOrder.pageTitle')}
+        </div>
+      </span>
+      <div className="mt-4">
+        <SortContext.Provider value={{ onSort: handleSortChange }}>
+          <DataTable
+            columns={useCardOrderColumns()}
+            data={cardOrders}
+            isLoading={isLoading}
+            pages={data?.result.totalPages || 0}
+            // actionOptions={GiftCardAction}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </SortContext.Provider>
+      </div>
+    </div>
+  )
+}
