@@ -27,6 +27,7 @@ export default function ClientUpdateOrderPage() {
     const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
     const [isExpired, setIsExpired] = useState<boolean>(false)
     const [isPolling, setIsPolling] = useState<boolean>(false)
+    const [shouldReinitialize, setShouldReinitialize] = useState<boolean>(false)
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false) // Track if data is loaded to store
     const {
         updatingData,
@@ -35,7 +36,7 @@ export default function ClientUpdateOrderPage() {
     } = useOrderFlowStore()
 
     useEffect(() => {
-        if (order?.result && order.result.orderItems && !isDataLoaded) {
+        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
             // Đảm bảo order data đầy đủ trước khi initialize
             const orderData = order.result
 
@@ -48,12 +49,13 @@ export default function ClientUpdateOrderPage() {
             try {
                 initializeUpdating(orderData)
                 setIsDataLoaded(true) // Mark data as loaded
+                setShouldReinitialize(false) // Reset reinitialize flag
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error('❌ Update Order: Failed to initialize updating data:', error)
             }
         }
-    }, [order, isDataLoaded, initializeUpdating])
+    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
 
     // Separate useEffect for polling control
     useEffect(() => {
@@ -150,6 +152,16 @@ export default function ClientUpdateOrderPage() {
         }
     }, [clearUpdatingData])
 
+    const handleRefetchAndReinitialize = useCallback(async () => {
+        try {
+            await refetchOrder()
+            setShouldReinitialize(true)
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
+        }
+    }, [refetchOrder])
+
     if (isPending) { return <UpdateOrderSkeleton /> }
 
     if (isExpired) {
@@ -213,7 +225,7 @@ export default function ClientUpdateOrderPage() {
 
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <ClientMenuTabs />
+                                    <ClientMenuTabs onSuccess={handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -233,7 +245,7 @@ export default function ClientUpdateOrderPage() {
 
                                 {/* Menu & Table select */}
                                 <ScrollArea className="h-[calc(100vh-9rem)]">
-                                    <ClientMenuTabs />
+                                    <ClientMenuTabs onSuccess={handleRefetchAndReinitialize} />
                                 </ScrollArea>
                             </div>
 

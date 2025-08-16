@@ -13,14 +13,15 @@ import { useOrderFlowStore } from '@/stores'
 
 interface IClientMenuItemInUpdateOrderProps {
   item: IMenuItem
+  onSuccess?: () => void
 }
 
-export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrderProps) {
+export function ClientMenuItemInUpdateOrder({ item, onSuccess }: IClientMenuItemInUpdateOrderProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { slug } = useParams()
-  const { updatingData, addDraftItem } = useOrderFlowStore()
+  const { updatingData } = useOrderFlowStore()
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const getPriceRange = (variants: IProduct['variants']) => {
@@ -41,27 +42,12 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
     const request: IAddNewOrderItemRequest = {
       quantity: item.quantity,
       variant: item.variant.slug,
-      note: item.note ?? '',
       promotion: item.promotion ? item.promotion.slug : '',
       order: slug || '',
     }
     addNewOrderItem(request, {
-      onSuccess: (response) => {
-        const itemResponse = response.result
-        const newItem = {
-          ...itemResponse,
-          name: itemResponse.variant.product.name,
-          size: itemResponse.variant.size.name,
-          productSlug: itemResponse.variant.product.slug,
-          originalPrice: itemResponse.variant.price,
-          promotion: itemResponse.promotion ? itemResponse.promotion : null,
-          promotionValue: itemResponse.promotion ? itemResponse.promotion.value : 0,
-          promotionDiscount: itemResponse.promotion ? itemResponse.promotion.type === 'per-product' ? (itemResponse.promotion.value * (itemResponse.variant.price ?? 0)) / 100 : 0 : 0,
-          description: itemResponse.variant.product.description,
-          isLimit: itemResponse.variant.product.isLimit,
-          note: '',
-        }
-        addDraftItem(newItem)
+      onSuccess: () => {
+        onSuccess?.()
       }
     })
   }
@@ -115,7 +101,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
                 className="object-cover w-full h-full rounded-xl p-1.5 sm:h-40"
               />
               {item?.product?.isLimit && !isMobile && (
-                <span className="absolute bottom-3 left-3 z-50 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
+                <span className="absolute bottom-3 left-3 z-10 px-3 py-1 text-xs text-white rounded-full bg-primary w-fit">
                   {t('menu.amount')} {item.currentStock}/{item.defaultStock}
                 </span>
               )}
@@ -180,7 +166,7 @@ export function ClientMenuItemInUpdateOrder({ item }: IClientMenuItemInUpdateOrd
       <div className="flex justify-end items-end p-2 sm:w-full">
         {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
           isMobile ? (
-            <Button disabled={!updatingData || isPendingAddNewOrderItem} onClick={() => handleAddToCart(item)} className="flex z-50 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
+            <Button disabled={!updatingData || isPendingAddNewOrderItem} onClick={() => handleAddToCart(item)} className="flex z-10 [&_svg]:size-5 flex-row items-center justify-center gap-1 text-white rounded-full w-8 h-8 shadow-none">
               <Plus className='icon' />
             </Button>
           ) : (

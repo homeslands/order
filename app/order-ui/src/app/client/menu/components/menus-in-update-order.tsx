@@ -18,7 +18,6 @@ export function MenusInUpdateOrder({ onAddNewOrderItemSuccess, menu, isLoading }
   const menuItems = menu?.menuItems
   const getPriceRange = (variants: IProduct['variants']) => {
     if (!variants || variants.length === 0) return null
-
     const prices = variants.map((v) => v.price)
     const minPrice = Math.min(...prices)
     const maxPrice = Math.max(...prices)
@@ -74,7 +73,7 @@ export function MenusInUpdateOrder({ onAddNewOrderItemSuccess, menu, isLoading }
           </div>
 
           {/* Content Section - More compact */}
-          <div className="flex flex-col justify-between flex-1 p-2">
+          <div className="flex flex-col flex-1 justify-between p-2">
             <div>
               <h3 className="text-lg font-bold line-clamp-1">
                 {item.product.name}
@@ -84,10 +83,10 @@ export function MenusInUpdateOrder({ onAddNewOrderItemSuccess, menu, isLoading }
               </p>
             </div>
 
-            <div className="flex items-center justify-between gap-1">
+            <div className="flex gap-1 justify-between items-center">
               <div className="flex flex-col">
                 {item.product.variants.length > 0 ? (
-                  <div className="flex flex-col items-start justify-start gap-1">
+                  <div className="flex flex-col gap-1 justify-start items-start">
                     <span className="text-lg font-bold text-primary">
                       {(() => {
                         const range = getPriceRange(item.product.variants)
@@ -110,12 +109,12 @@ export function MenusInUpdateOrder({ onAddNewOrderItemSuccess, menu, isLoading }
               </div>
             </div>
             {item.currentStock > 0 ? (
-              <div className="flex items-end justify-center w-full">
+              <div className="flex justify-center items-end w-full">
                 <UpdateOrderItemDialog onAddNewOrderItemSuccess={onAddNewOrderItemSuccess} product={item} />
               </div>
             ) : (
               <Button
-                className="flex items-center justify-center w-full py-2 text-sm font-semibold text-white bg-red-500 rounded-full"
+                className="flex justify-center items-center py-2 w-full text-sm font-semibold text-white bg-red-500 rounded-full"
                 disabled
               >
                 {t('menu.outOfStock')}

@@ -103,7 +103,6 @@ export default function ClientAddToCartDrawer({ product, onSuccess, isUpdateOrde
       variant: selectedVariant.slug,
       order: slug as string,
       promotion: product.promotion ? product.promotion?.slug : '',
-      note: note,
     }
     addNewMenuItem(orderItem, {
       onSuccess: () => {
