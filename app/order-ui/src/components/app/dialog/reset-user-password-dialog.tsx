@@ -67,7 +67,7 @@ export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
               {tCommon('common.deleteNote')}
             </DialogDescription>
 
-            <div className="py-4 text-sm text-gray-500">
+            <div className="py-4 text-sm text-muted-foreground">
               {t('users.resetPasswordContent')}{' '}
               <span className="font-bold">
                 {user?.firstName} {user?.lastName}
@@ -97,11 +97,11 @@ export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
                 {t('users.resetPassword')}
               </div>
             </DialogTitle>
-            <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+            <DialogDescription className="p-2 rounded-md bg-destructive/15 text-destructive hover:bg-destructive/30 hover:text-destructive">
               {tCommon('common.deleteNote')}
             </DialogDescription>
 
-            <div className="py-4 text-sm text-gray-500">
+            <div className="py-4 text-sm text-muted-foreground">
               {t('users.userEmailNotFound')}{' '}
               <span className="font-bold">
                 {user?.firstName} {user?.lastName}

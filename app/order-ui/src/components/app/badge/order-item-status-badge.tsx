@@ -16,11 +16,11 @@ export default function OrderItemStatusBadge({
   const getBadgeColor = (status: OrderItemStatus) => {
     switch (status) {
       case OrderItemStatus.PENDING:
-        return 'border-yellow-500 bg-yellow-50 border text-yellow-500 font-semibold'
+        return 'border-yellow-500 bg-yellow-500/20 border text-yellow-500'
       case OrderItemStatus.COMPLETED:
-        return 'border-green-500 bg-green-50 border text-green-500 font-semibold'
+        return 'border-green-500 bg-green-500/20 border text-green-500'
       case OrderItemStatus.RUNNING:
-        return 'border-blue-500 bg-blue-50 border text-blue-500 font-semibold'
+        return 'border-blue-500 bg-blue-500/20 border text-blue-500'
       case OrderItemStatus.FAILED:
         return 'border-destructive bg-destructive/20 border text-destructive'
     }

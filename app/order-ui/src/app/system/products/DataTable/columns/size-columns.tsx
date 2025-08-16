@@ -59,7 +59,7 @@ export const useSizeColumns = (): ColumnDef<ISize>[] => {
                 asChild
                 className="flex w-full justify-start"
               >
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="h-8 w-8 p-0 flex justify-center">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>

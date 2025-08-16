@@ -68,7 +68,7 @@ export default function OutlineCancelOrderDialog({
               {t('order.cancelOrder')}
             </div>
           </DialogTitle>
-          <DialogDescription className="p-2 bg-red-100 rounded-md text-destructive">
+          <DialogDescription className="p-2 bg-red-100 rounded-md dark:bg-transparent text-destructive">
             {tCommon('common.deleteNote')}
           </DialogDescription>
 

@@ -529,8 +529,8 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
             {t('voucher.createMultiple')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-muted-foreground/10">
+        <div className="flex flex-col h-full bg-background backdrop-blur-md">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-transparent">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
