@@ -696,6 +696,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
 
+        // console.log('updateDraft in initializeUpdating', updateDraft)
+
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,
           updateDraft,
