@@ -191,7 +191,8 @@
             "self": "Top up for myself",
             "receipientInfo": "Receipient information",
             "message": "Message",
-            "name": "Receipient name"
+            "name": "Receipient name",
+            "pageTitle": "Card order management"
         },
         "customer": {
             "title": "Customer",

@@ -170,6 +170,9 @@
       "keywords": "voucher, discount, voucher management",
       "manageVoucher": "Manage Vouchers",
       "title": "Voucher Management"
+    },
+    "cardOrder": {
+      "title": "Card order management"
     }
   }
 }
