@@ -12,10 +12,10 @@ import { useSpecificMenu } from '@/hooks'
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
-  // onSuccess: () => void
+  onSuccess: () => void
 }
 
-export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateOrderTabsProps) {
+export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [activeTab, setActiveTab] = useState('menu')
   const { userInfo } = useUserStore()
@@ -48,7 +48,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateO
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-2 bg-white shadow-sm">
+      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white shadow-sm">
         <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
           <TabsTrigger value="menu" className="flex justify-center">
             {t('menu.menu')}
@@ -60,14 +60,14 @@ export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateO
           )}
         </TabsList>
       </div>
-      <TabsContent value="menu" className="w-full p-0 pb-4 mt-0">
-        <div className="sticky z-20 py-2 bg-white shadow-sm top-14">
+      <TabsContent value="menu" className="p-0 pb-4 mt-0 w-full">
+        <div className="sticky top-14 z-20 py-2 bg-white shadow-sm">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
 
         {/* Scrollable nội dung menu */}
         <ScrollArea className="w-full h-full">
-          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} />
+          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} onSuccess={onSuccess} />
         </ScrollArea>
       </TabsContent>
       {type === OrderTypeEnum.AT_TABLE && (

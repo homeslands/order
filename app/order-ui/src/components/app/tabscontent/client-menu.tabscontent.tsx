@@ -6,7 +6,11 @@ import { useSpecificMenu } from '@/hooks'
 import { SkeletonMenuList } from '../skeleton'
 import { ClientMenuItemInUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
 
-export function ClientMenuTabscontent() {
+interface ClientMenuTabscontentProps {
+  onSuccess?: () => void
+}
+
+export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps) {
   const { branch } = useBranchStore()
   const { t } = useTranslation('menu')
   function getCurrentDate() {
@@ -56,7 +60,7 @@ export function ClientMenuTabscontent() {
     >
       <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
         {specificMenu?.result.menuItems.map((item) => (
-          <ClientMenuItemInUpdateOrder item={item} key={item.slug} />
+          <ClientMenuItemInUpdateOrder item={item} key={item.slug} onSuccess={onSuccess} />
         ))}
       </div>
     </div>

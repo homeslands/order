@@ -47,7 +47,7 @@ export default function UpdateOrderItemDialog({
     useState<IProductVariant | null>(product.product.variants[0] || null)
   const { mutate: addNewOrderItem } = useAddNewOrderItem()
   const queryClient = useQueryClient()
-  
+
   const handleAddToCart = () => {
     if (!selectedVariant) return
 
@@ -56,7 +56,6 @@ export default function UpdateOrderItemDialog({
       variant: selectedVariant.slug,
       promotion: product.promotion ? product?.promotion?.slug : '',
       quantity: 1,
-      note: note,
     }
 
     addNewOrderItem(newOrderItem, {
@@ -76,7 +75,7 @@ export default function UpdateOrderItemDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex flex-row items-center justify-center w-full gap-1 px-4 text-white transition-all duration-300 rounded-full shadow-none cursor-pointer hover:scale-105">
+          <Button className="flex flex-row gap-1 justify-center items-center px-4 w-full text-white rounded-full shadow-none transition-all duration-300 cursor-pointer hover:scale-105">
             <ShoppingCart size={12} />
             {t('menu.addToCart')}
           </Button>
@@ -165,7 +164,7 @@ export default function UpdateOrderItemDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-end w-full gap-3">
+        <DialogFooter className="flex flex-row gap-3 justify-end w-full">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>

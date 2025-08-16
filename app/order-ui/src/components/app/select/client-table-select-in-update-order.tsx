@@ -31,17 +31,18 @@ export default function ClientTableSelectInUpdateOrder({ tableOrder, orderType, 
 
     const [selectedTable, setSelectedTable] = useState<ITable | null>(null)
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>()
+    const [isUserAction, setIsUserAction] = useState(false)
+    const [isUpdatingFromProps, setIsUpdatingFromProps] = useState(false)
 
     useEffect(() => {
+        // Chỉ set selectedTableId từ props, KHÔNG set selectedTable 
+        // để tránh trigger dialog khi tableOrder thay đổi từ update order
         const addedTable = tableOrder?.slug
+        setIsUpdatingFromProps(true)
         setSelectedTableId(addedTable)
-    }, [tableOrder])
 
-    useEffect(() => {
-        if (tableOrder) {
-            setSelectedTable(tableOrder)
-            setSelectedTableId(tableOrder.slug)
-        }
+        // Reset flag sau một tick để tránh ảnh hưởng đến user actions
+        setTimeout(() => setIsUpdatingFromProps(false), 0)
     }, [tableOrder])
 
     if (orderType === OrderTypeEnum.TAKE_OUT) {
@@ -49,14 +50,21 @@ export default function ClientTableSelectInUpdateOrder({ tableOrder, orderType, 
     }
 
     const handleTableSelect = (tableId: string) => {
+        // Bỏ qua nếu đang update từ props để tránh trigger dialog không mong muốn
+        if (isUpdatingFromProps) return
+
         const table = tables?.result?.find((t) => t.slug === tableId)
         if (!table) return
+
+        setIsUserAction(true) // Mark as user action
+
         if (table.status === TableStatus.RESERVED) {
             setSelectedTable(table)
         } else {
             addTable(table.slug)
             setSelectedTableId(tableId)
             onTableSelect?.(table)
+            setIsUserAction(false) // Reset after handling
         }
     }
 
@@ -65,6 +73,7 @@ export default function ClientTableSelectInUpdateOrder({ tableOrder, orderType, 
         onTableSelect?.(table)
         setSelectedTableId(table.slug)
         setSelectedTable(null) // Đóng dialog
+        setIsUserAction(false) // Reset after handling
     }
 
     return (
@@ -85,12 +94,15 @@ export default function ClientTableSelectInUpdateOrder({ tableOrder, orderType, 
                 </SelectContent>
             </Select>
 
-            {/* Dialog hiển thị khi chọn bàn đã đặt */}
-            {selectedTable && selectedTable.slug !== tableOrder?.slug && (
+            {/* Dialog hiển thị khi chọn bàn đã đặt - chỉ khi là user action */}
+            {selectedTable && selectedTable.slug !== tableOrder?.slug && isUserAction && (
                 <SelectReservedTableDialog
                     table={selectedTable}
                     onConfirm={handleConfirmTable}
-                    onCancel={() => setSelectedTable(null)}
+                    onCancel={() => {
+                        setSelectedTable(null)
+                        setIsUserAction(false)
+                    }}
                 />
             )}
         </>

@@ -16,16 +16,17 @@ import { useParams } from 'react-router-dom'
 interface IMenuProps {
   menu?: ISpecificMenu
   isLoading?: boolean
+  onSuccess?: () => void
 }
 
-export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps) {
+export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }: IMenuProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { state } = useSidebar()
   const { slug } = useParams()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
-  const { updatingData, addDraftItem } = useOrderFlowStore()
+  const { updatingData } = useOrderFlowStore()
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const menuItems = menu?.menuItems?.sort((a, b) => {
@@ -52,13 +53,12 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
     const request: IAddNewOrderItemRequest = {
       quantity: item.quantity,
       variant: item.variant.slug,
-      note: item.note ?? '',
       promotion: item.promotion ? item.promotion.slug : '',
       order: slug || '',
     }
     addNewOrderItem(request, {
       onSuccess: () => {
-        addDraftItem(item)
+        onSuccess?.()
       }
     })
   }
