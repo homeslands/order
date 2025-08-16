@@ -45,7 +45,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         return (
           <div className="flex flex-col gap-1">
             <div className="font-bold">{name}</div>
-            <p className="overflow-hidden text-sm text-gray-500 break-words line-clamp-3 text-ellipsis">{description}</p>
+            <p className="overflow-hidden text-sm text-muted-foreground break-words line-clamp-3 text-ellipsis">{description}</p>
           </div>
         )
       },

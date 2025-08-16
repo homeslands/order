@@ -269,8 +269,8 @@ export default function UpdatePromotionSheet({
             {t('promotion.update')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+        <div className="flex flex-col h-full bg-background backdrop-blur-md">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-transparent p-4">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
@@ -280,7 +280,7 @@ export default function UpdatePromotionSheet({
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white border rounded-md">
+                  <div className="p-4 bg-white border rounded-md dark:bg-transparent">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.name}
                       {formFields.description}
@@ -288,13 +288,13 @@ export default function UpdatePromotionSheet({
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md dark:bg-transparent">
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Kiểu khuyến mãi và giá trị khuyến mãi */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md dark:bg-transparent">
                     {formFields.type}
                     {formFields.value}
                   </div>

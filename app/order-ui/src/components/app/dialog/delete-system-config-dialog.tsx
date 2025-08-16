@@ -49,16 +49,16 @@ export default function DeleteSystemConfigDialog({
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogTrigger className="flex justify-start w-full" asChild>
-        <DialogTrigger asChild>
+        {/* <DialogTrigger asChild>
           <Button
-            variant="ghost"
-            className="gap-1 text-sm"
+            variant="outline"
+            className="flex gap-1 justify-start px-2 w-full text-sm bg-destructive/15 text-destructive hover:bg-destructive/30 hover:text-destructive "
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />
             {t('config.delete')}
           </Button>
-        </DialogTrigger>
+        </DialogTrigger> */}
       </DialogTrigger>
 
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">

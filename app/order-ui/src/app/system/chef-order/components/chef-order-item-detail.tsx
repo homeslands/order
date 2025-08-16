@@ -55,7 +55,7 @@ export default function ChefOrderItemDetail({ chefOrderItem, chefOrderStatus, on
                       : 'bg-green-500'
                     }`}
                 />
-                <span className="text-sm font-semibold text-gray-700 sm:text-lg">
+                <span className="text-sm font-semibold text-muted-foreground sm:text-lg">
                   {orderItem.orderItem.variant.product.name} - Size {orderItem.orderItem.variant.size?.name.toUpperCase()}
                 </span>
               </div>
