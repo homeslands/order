@@ -42,18 +42,38 @@ export default function PaymentPage() {
   const {
     currentStep,
     paymentData,
+    isHydrated,
     initializePayment,
+    setCurrentStep,
     updatePaymentMethod,
     updateQrCode,
     setOrderFromAPI,
     clearPaymentData
   } = useOrderFlowStore()
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
-  const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
   const paymentMethod = paymentData?.paymentMethod
+  // console.log('paymentMethod', paymentMethod)
   const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
+
+  // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+  useEffect(() => {
+    if (isHydrated) {
+      // Chuyển về ORDERING phase nếu đang ở phase khác
+      if (currentStep !== OrderFlowStep.PAYMENT) {
+        setCurrentStep(OrderFlowStep.PAYMENT)
+      }
+
+      // Khởi tạo ordering data nếu chưa có
+      if (!paymentData) {
+        initializePayment(slug as string)
+        return
+      }
+    }
+  }, [isHydrated, currentStep, paymentData, setCurrentStep, initializePayment, slug])
+
+
 
   const orderItems = order?.result?.orderItems || []
   const voucher = order?.result?.voucher || null
@@ -65,40 +85,45 @@ export default function PaymentPage() {
   const qrCode = paymentData?.qrCode || orderData?.payment?.qrCode || ''
   const paymentSlug = orderData?.payment?.slug || ''
 
-  useEffect(() => {
-    if (slug && slug !== initializedSlugRef.current) {
-      // Clear previous state when slug changes
+  // Stable function references
+  const handleInitializePayment = useCallback(() => {
+    if (slug && currentStep !== OrderFlowStep.PAYMENT) {
       clearUpdateOrderStore()
       clearCartItemStore()
-
-      // ✅ Initialize payment phase with order slug
-      if (currentStep !== OrderFlowStep.PAYMENT) {
-        initializePayment(slug)
-      }
-
-      // Mark as initialized
-      initializedSlugRef.current = slug
-      qrCodeSetRef.current = false // Reset QR code tracking for new order
+      initializePayment(slug)
+      qrCodeSetRef.current = false
     }
-  }, [slug, currentStep, initializePayment, clearUpdateOrderStore, clearCartItemStore]) // ✅ Remove function dependencies
+  }, [slug, currentStep, clearUpdateOrderStore, clearCartItemStore, initializePayment])
 
-  // Sync order data with Order Flow Store when orderData changes
   useEffect(() => {
+    handleInitializePayment()
+  }, [handleInitializePayment])
+
+  // Stable sync function
+  const handleSyncOrderData = useCallback(() => {
     if (orderData && slug && paymentData?.orderSlug === slug) {
       // Only sync if order data is different to avoid unnecessary updates
       if (!paymentData.orderData || paymentData.orderData.slug !== orderData.slug) {
         setOrderFromAPI(orderData)
       }
     }
-  }, [orderData, slug, paymentData, setOrderFromAPI]) // ✅ Remove paymentData and setOrderFromAPI from dependencies
+  }, [orderData, slug, paymentData?.orderSlug, paymentData?.orderData, setOrderFromAPI])
 
-  // Separate effect for QR code to avoid infinite loop
   useEffect(() => {
+    handleSyncOrderData()
+  }, [handleSyncOrderData])
+
+  // Stable QR code update function
+  const handleUpdateQrCode = useCallback(() => {
     if (qrCode && qrCode.trim() !== '' && !qrCodeSetRef.current) {
       updateQrCode(qrCode)
       qrCodeSetRef.current = true
     }
-  }, [qrCode, updateQrCode]) // ✅ Remove updateQrCode from dependencies
+  }, [qrCode, updateQrCode])
+
+  useEffect(() => {
+    handleUpdateQrCode()
+  }, [handleUpdateQrCode])
 
   const handleGetOrderProvisionalBill = (slug: string) => {
     getOrderProvisionalBill(slug, {
@@ -156,43 +181,51 @@ export default function PaymentPage() {
     }
   }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
 
+  // Stable polling function
+  const handlePolling = useCallback(async () => {
+    const updatedOrder = await refetchOrder()
+    const orderStatus = updatedOrder.data?.result?.status
+    const updatedOrderData = updatedOrder.data?.result
+
+    // Sync order data with Order Flow Store
+    if (updatedOrderData) {
+      setOrderFromAPI(updatedOrderData)
+    }
+
+    // Only update QR code if it's not already set and becomes available during polling
+    if (updatedOrderData?.payment?.qrCode &&
+      updatedOrderData.payment.qrCode.trim() !== '' &&
+      !qrCodeSetRef.current) {
+      updateQrCode(updatedOrderData.payment.qrCode)
+      qrCodeSetRef.current = true
+    }
+
+    if (orderStatus === OrderStatus.PAID) {
+      clearCartItemStore()
+      clearUpdateOrderStore()
+      clearPaymentData()
+      setIsLoading(false)
+      navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+      return true // Signal to stop polling
+    } else {
+      // Turn off loading if order is updated but not yet paid (for orders without QR code)
+      if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
+        updatedOrderData.payment.amount === updatedOrderData.subtotal) {
+        setIsLoading(false)
+      }
+      return false // Continue polling
+    }
+  }, [refetchOrder, setOrderFromAPI, updateQrCode, clearCartItemStore, clearUpdateOrderStore, clearPaymentData, navigate, slug])
+
   //polling order status every 3 seconds
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
 
     if (isPolling) {
       pollingInterval = setInterval(async () => {
-        const updatedOrder = await refetchOrder()
-        const orderStatus = updatedOrder.data?.result?.status
-        const updatedOrderData = updatedOrder.data?.result
-
-        // Sync order data with Order Flow Store
-        if (updatedOrderData) {
-          setOrderFromAPI(updatedOrderData)
-        }
-
-        // Only update QR code if it's not already set and becomes available during polling
-        if (updatedOrderData?.payment?.qrCode &&
-          updatedOrderData.payment.qrCode.trim() !== '' &&
-          !qrCodeSetRef.current) {
-          updateQrCode(updatedOrderData.payment.qrCode)
-          qrCodeSetRef.current = true
-        }
-
-        if (orderStatus === OrderStatus.PAID) {
-          if (pollingInterval) clearInterval(pollingInterval)
-          clearCartItemStore()
-          clearUpdateOrderStore()
-          clearPaymentData()
-          // Always ensure loading is false before navigating
-          setIsLoading(false)
-          navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
-        } else {
-          // Turn off loading if order is updated but not yet paid (for orders without QR code)
-          if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
-            updatedOrderData.payment.amount === updatedOrderData.subtotal) {
-            setIsLoading(false)
-          }
+        const shouldStop = await handlePolling()
+        if (shouldStop && pollingInterval) {
+          clearInterval(pollingInterval)
         }
       }, 2000)
     }
@@ -200,7 +233,7 @@ export default function PaymentPage() {
     return () => {
       if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [isPolling, slug, refetchOrder, navigate, clearCartItemStore, clearUpdateOrderStore, updateQrCode, clearPaymentData, setOrderFromAPI]) // ✅ Reduce dependencies to prevent infinite loop
+  }, [isPolling, handlePolling])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     updatePaymentMethod(selectedPaymentMethod)

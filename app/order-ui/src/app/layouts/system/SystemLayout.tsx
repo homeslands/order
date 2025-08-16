@@ -33,7 +33,7 @@ export default function SystemLayout() {
           <ScrollArea className="flex-1">
             <main
               className={cn(
-                'min-h-full',
+                'min-h-full bg-',
                 isMobile ? 'px-2 pb-[env(safe-area-inset-bottom)]' : 'px-4',
               )}
             >
