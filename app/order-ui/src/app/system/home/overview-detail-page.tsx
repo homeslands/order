@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { CircleX, RefreshCcw, SquareMenu } from 'lucide-react'
+import { RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 
@@ -62,10 +62,6 @@ export default function OverviewDetailPage() {
     })
   }, [refreshRevenue, tToast, refetchRevenue])
 
-  // useEffect(() => {
-  //   handleRefreshRevenue()
-  // }, [startDate, endDate, branch, handleRefreshRevenue])
-
   const handleSelectDateRange = (data: IRevenueQuery) => {
     const newStartDate = data.startDate
       ? moment(data.startDate).format('YYYY-MM-DD HH:mm:ss')
@@ -79,7 +75,6 @@ export default function OverviewDetailPage() {
     setEndDate(newEndDate);
     setRevenueType(data.type || RevenueTypeQuery.DAILY);
   };
-
 
   return (
     <div className="min-h-screen">
@@ -115,18 +110,9 @@ export default function OverviewDetailPage() {
               <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
                 {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
-                <span className='cursor-pointer' onClick={() => {
-                  setStartDate(moment().format('YYYY-MM-DD HH:mm:ss'))
-                  setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
-                }}>
-                  <CircleX className='w-4 h-4' />
-                </span>
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
                 {revenueType === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
-                <span className='cursor-pointer' onClick={() => setRevenueType(RevenueTypeQuery.DAILY)}>
-                  <CircleX className='w-4 h-4' />
-                </span>
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
                 {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
