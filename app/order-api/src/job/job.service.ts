@@ -93,18 +93,14 @@ export class JobService {
             await manager.save(job);
           },
           async () => {
-            await this.invoiceService.create(order.slug);
-            await this.eventEmitter.emitAsync(InvoiceAction.INVOICE_CREATED, {
-              orderId: order.id,
-            });
             this.logger.log(
-              `Update order status to PAID successfully`,
+              `Update order ${order.slug} status to PAID successfully`,
               context,
             );
           },
           (error) => {
             this.logger.error(
-              `Error updating order status: ${error.message}`,
+              `Error updating order ${order.slug} status: ${error.message}`,
               error.stack,
               context,
             );
@@ -132,13 +128,29 @@ export class JobService {
           } as CreatePointTransactionDto);
         }
 
-        // Send notification to all chef role users in the same branch
-        await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
+        // create invoice
+        try {
+          await this.invoiceService.create(order.slug);
+        } catch (error) {
+          this.logger.error(
+            `Error when create invoice for order ${order.slug}: ${error.message}`,
+            error.stack,
+            context,
+          );
+        }
+
+        // call listener to print invoice
+        this.eventEmitter.emit(InvoiceAction.INVOICE_CREATED, {
+          orderId: order.id,
+        });
 
         // Sperate order to chef orders
         if (_.isEmpty(order.chefOrders)) {
           await this.chefOrderUtils.createChefOrder(job.data, false);
         }
+
+        // Send notification to all chef role users in the same branch
+        await this.notificationUtils.sendNotificationAfterOrderIsPaid(order);
 
         // send invoice email
         // const invoice = await this.invoiceService.exportInvoice({
