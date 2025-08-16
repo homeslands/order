@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
+import { useTheme } from '@/components/app/theme-provider'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { formatCurrency, formatShortCurrency } from '@/utils'
@@ -24,6 +25,7 @@ export default function RevenueDetailChart({
   revenueType,
 }: RevenueData) {
   const { t } = useTranslation('revenue')
+  const { theme } = useTheme() // "light" | "dark"
   const chartRef = useRef<HTMLDivElement>(null)
 
   const formatDate = useCallback(
@@ -56,6 +58,10 @@ export default function RevenueDetailChart({
         )
         : []
 
+      // Màu chữ tuỳ theo dark / light mode
+      const textColor = theme === 'dark' ? '#fff' : '#000'
+      const axisLabelColor = theme === 'dark' ? '#ccc' : '#333'
+
       const option = {
         tooltip: {
           trigger: 'axis' as const,
@@ -74,13 +80,17 @@ export default function RevenueDetailChart({
           },
         },
         legend: {
-          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.point')],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet'), t('revenue.point')],
+          textStyle: {
+            color: textColor,
+          },
         },
         xAxis: {
           type: 'category',
           data: sortedData.map((item) => formatDate(item.date)),
           axisLabel: {
             rotate: 45,
+            color: axisLabelColor,
           },
         },
         yAxis: [
@@ -90,11 +100,13 @@ export default function RevenueDetailChart({
             position: 'left',
             nameTextStyle: {
               padding: [0, -50, 0, 0], // Tăng padding bên trái
+              color: textColor,
             },
             axisLabel: {
               formatter: (value: number) => formatShortCurrency(value),
               margin: 4, // Tăng khoảng cách giữa nhãn và trục
               show: true,
+              color: axisLabelColor,
             },
             axisLine: {
               show: true,
@@ -112,12 +124,11 @@ export default function RevenueDetailChart({
             type: 'value',
             name: t('revenue.order'),
             position: 'right',
-            // nameTextStyle: {
-            //     padding: [0, 0, 0, 0], // Tăng padding bên phải
-            // },
+            nameTextStyle: { color: textColor },
             axisLabel: {
               show: true,
               margin: 4,
+              color: axisLabelColor,
             },
             axisLine: {
               show: true,
@@ -183,7 +194,7 @@ export default function RevenueDetailChart({
         window.removeEventListener('resize', handleResize)
       }
     }
-  }, [formatDate, revenueData, revenueType, t]) // Add revenueType to dependencies
+  }, [formatDate, revenueData, revenueType, t, theme]) // Add revenueType to dependencies
 
   return (
     <Card className="shadow-none">

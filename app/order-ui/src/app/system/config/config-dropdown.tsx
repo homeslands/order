@@ -28,7 +28,7 @@ export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystem
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost">
+                <Button variant="ghost" size="icon">
                     <MoreHorizontal />
                 </Button>
             </DropdownMenuTrigger>
@@ -50,6 +50,7 @@ export default function ConfigDropdown({ systemConfig }: { systemConfig: ISystem
                         </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                        className="px-2 w-full text-sm bg-destructive/15 text-destructive hover:!bg-destructive/30 hover:!text-destructive"
                         onSelect={(e) => {
                             e.preventDefault(); // Ngăn dropdown bị đóng
                             setIsDeleteDialogOpen(true); // Mở dialog
