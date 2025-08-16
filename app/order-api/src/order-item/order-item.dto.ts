@@ -58,11 +58,6 @@ export class UpdateOrderItemRequestDto {
   quantity: number;
 
   @AutoMap()
-  @ApiProperty({ description: 'The note of order item', example: 'Ghi chú' })
-  @IsOptional()
-  note?: string;
-
-  @AutoMap()
   @ApiProperty({
     description: 'The slug of variant',
     example: 'variant-slug-123',
