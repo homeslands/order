@@ -816,7 +816,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: ROUTE.STAFF_CARD_ORDER_HISTORY,
+        path: ROUTE.STAFF_CARD_ORDER_MANAGEMENT,
         element: (
           <Suspense fallback={<SkeletonCart />}>
             <SuspenseElement component={SystemLayout} />

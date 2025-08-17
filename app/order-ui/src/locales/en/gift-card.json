@@ -149,7 +149,25 @@
             "unlockAll": "Unlock All Features"
         },
         "cardOrder": {
-            "pageTitle": "Card order management"
+            "title": "Card order management",
+            "slug": "Order code",
+            "paymentMethod": "Method",
+            "status": "Status",
+            "totalAmount": "Total amount",
+            "cashierName": "Cashier",
+            "customerName": "Customer",
+            "createdAt": "Created at",
+            "updatePayment": "Update payment",
+            "cash": "Cash",
+            "bankTransfer": "Bank transfer",
+            "completed": "Completed",
+            "pending": "Pending",
+            "fail": "Failed",
+            "cancelled": "Cancelled",
+            "cancel": "Cancel order",
+            "goBack": "Go back",
+            "cancelSuccessful": "Cancel order successfully",
+            "all": "All"
         }
     },
     "schema": {
