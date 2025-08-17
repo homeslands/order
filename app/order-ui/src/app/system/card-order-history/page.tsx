@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 import { Gift } from 'lucide-react'
@@ -6,10 +6,18 @@ import { useSearchParams } from 'react-router-dom'
 
 import { usePagination, useQueryCardOrders } from '@/hooks'
 import { DataTable } from '@/components/ui'
-import { GiftCardAction } from './DataTable/actions'
-import { SortOperation } from '@/constants'
+import { CardOrderStatus, SortOperation } from '@/constants'
 import { SortContext } from '@/contexts'
 import { useCardOrderColumns } from './DataTable/columns/card-order-columns'
+import moment from 'moment'
+import CardOrderAction from './DataTable/actions/card-order-action'
+
+export interface IFilterProps {
+  startDate?: string;
+  endDate?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  status?: any;
+}
 
 export default function CardOrderHistoryPage() {
   const { t } = useTranslation(['giftCard'])
@@ -17,14 +25,23 @@ export default function CardOrderHistoryPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { pagination, handlePageChange, handlePageSizeChange } = usePagination()
   const [sortField, setSortField] = useState('createdAt,desc')
+  const [filter, setFilter] = useState<IFilterProps>(() => {
+    return {
+      startDate: moment().format("YYYY-MM-DD"),
+      endDate: moment().format("YYYY-MM-DD"),
+      status: 'all',
+    }
+  })
 
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
 
-  const { data, isLoading } = useQueryCardOrders({
+  const { data, isLoading, refetch } = useQueryCardOrders({
     page,
     size,
     sort: sortField,
+    ...filter,
+    status: filter.status === CardOrderStatus.ALL ? null : filter.status
   })
   const cardOrders = data?.result.items || []
 
@@ -46,6 +63,30 @@ export default function CardOrderHistoryPage() {
     }
   }
 
+  const handleRefresh = () => {
+    handlePageChange(1)
+    refetch()
+  }
+
+  const handleDateChange = useCallback((startDate: string, endDate: string) => {
+    setFilter({
+      ...filter,
+      startDate,
+      endDate
+    })
+  }, [filter.startDate, filter.endDate, setFilter])
+
+  const handleStatusChange = useCallback((v: string) => {
+    setFilter(prev => (prev.status === v ? prev : { ...prev, status: v }));
+  }, []);
+
+  const renderAction = useCallback(() => (
+    <CardOrderAction
+      status={filter.status}
+      onSelectChange={handleStatusChange}
+    />
+  ), [filter.status, handleStatusChange]);
+
   return (
     <div className="grid h-full grid-cols-1 gap-2">
       <Helmet>
@@ -56,7 +97,7 @@ export default function CardOrderHistoryPage() {
       <span className="flex items-center justify-between gap-1 pt-1 text-lg text-gray-900 dark:text-white">
         <div className="flex items-center gap-2">
           <Gift className="text-gray-700 dark:text-gray-300" />
-          {t('cardOrder.pageTitle')}
+          {t('giftCard.cardOrder.title')}
         </div>
       </span>
       <div className="mt-4">
@@ -66,9 +107,12 @@ export default function CardOrderHistoryPage() {
             data={cardOrders}
             isLoading={isLoading}
             pages={data?.result.totalPages || 0}
-            // actionOptions={GiftCardAction}
+            hiddenDatePicker={false}
+            actionOptions={renderAction}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            onRefresh={handleRefresh}
+            onDateChange={handleDateChange}
           />
         </SortContext.Provider>
       </div>

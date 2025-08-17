@@ -91,7 +91,7 @@ export default function CancelGiftCardOrderDialog({
             }}
             disabled={isLoading}
           >
-            {t('common.goBack', 'Go Back')}
+            {t('giftCard.cardOrder.goBack')}
           </Button>
           <Button
             variant="destructive"

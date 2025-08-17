@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { ICardOrderResponse } from '@/types'
 import { formatCurrency } from '@/utils'
 import moment from 'moment'
+import { PaymentMethod } from '@/constants'
+import CardOrderStatusBadge from '@/components/app/badge/card-order-status-badge'
+import CardOrderActionCell from './card-order-action-cell'
 
 export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
   const { t } = useTranslation(['giftCard', 'common'])
@@ -12,25 +15,19 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
   return [
     {
       id: 'actions',
-      header: tCommon('common.action'),
+      header: () => <div className="text-center text-nowrap">{tCommon('common.action')}</div>,
       cell: ({ row }) => {
-        const rowData = row.original
-        return (
-          <div className="flex w-20 items-center gap-2">
-            {/* <UpdateGiftCardSheet giftCard={giftCard} />
-            <DeleteGiftCardDialog giftCard={giftCard} /> */}
-          </div>
-        )
+        return <CardOrderActionCell rowData={row.original} />
       },
     },
     {
       accessorKey: 'slug',
-      header: () => <div className="w-10">{t('cardOrder.slug')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.slug')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
           <div
-            className="text-sm text-gray-700 dark:text-gray-300"
+            className="text-sm text-gray-700 dark:text-gray-300 text-center"
           >
             {rowData?.slug}
           </div>
@@ -39,54 +36,52 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'paymentMethod',
-      header: () => <div className="w-40">{t('cardOrder.paymentMethod')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.paymentMethod')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div
-            className="line-clamp-3 w-40"
-          >
-            <span className="text-sm text-gray-900 dark:text-white">
-              {rowData?.paymentMethod}
-            </span>
+          <div className="text-center text-sm text-gray-900 dark:text-white text-nowrap">
+            {rowData?.paymentMethod === PaymentMethod.CASH
+              ? t('giftCard.cardOrder.cash')
+              : t('giftCard.cardOrder.bankTransfer')}
           </div>
         )
       },
     },
     {
       accessorKey: 'status',
-      header: () => <div className="w-52">{t('cardOrder.status')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.status')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
           <div
-            className="line-clamp-4 w-52 text-sm text-gray-700 dark:text-gray-300"
+            className="text-center text-gray-700 dark:text-gray-300 text-nowrap"
           >
-            {rowData?.status}
+            <CardOrderStatusBadge status={rowData?.status} />
           </div>
         )
       },
     },
     {
       accessorKey: 'totalAmount',
-      header: () => <div className="w-28">{t('cardOrder.totalAmount')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.totalAmount')}</div>,
       cell: ({ row }) => {
         const rowData = row.original;
         const total = rowData?.totalAmount as number;
         return (
-          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            {formatCurrency(total, '')}
+          <div className="text-sm text-gray-700 dark:text-gray-300 text-right text-nowrap">
+            {formatCurrency(total)}
           </div>
         )
       },
     },
     {
       accessorKey: 'cashierName',
-      header: () => <div className="w-28">{t('cardOrder.cashierName')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.cashierName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <div className="w-40 text-sm text-gray-700 dark:text-gray-300 text-nowrap">
             {rowData?.cashierName}
           </div>
         )
@@ -94,11 +89,11 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'customerName',
-      header: () => <div className="w-28">{t('cardOrder.customerName')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.customerName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <div className="text-sm text-gray-700 dark:text-gray-300 text-nowrap">
             {rowData?.customerName}
           </div>
         )
@@ -106,12 +101,12 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'createdAt',
-      header: () => <div className="w-28">{t('cardOrder.createdAt')}</div>,
+      header: () => <div className="text-center">{t('giftCard.cardOrder.createdAt')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            {moment(rowData.createdAt).format('HH:mm DD/MM/YYYY')}
+          <div className="text-sm text-gray-700 dark:text-gray-300 text-nowrap">
+            {moment(rowData.createdAt).format('HH:mm:ss DD/MM/YYYY')}
           </div>
         )
       },
