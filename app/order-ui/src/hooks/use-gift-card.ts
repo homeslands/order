@@ -28,7 +28,7 @@ import {
   getGiftCardBySlug,
 } from '@/api'
 import { useEffect } from 'react'
-import { useGiftCardStore } from '@/stores'
+import { useGiftCardStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -49,14 +49,17 @@ export const useGetUserGiftCards = (params?: IGiftCardGetRequest) => {
 
 export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
   const today = moment()
+  const { userInfo } = useUserStore()
   const [filters, setFilters] = useState<{
     status: GiftCardUsageStatus
     fromDate: string
     toDate: string
+    customerSlug: string | undefined
   }>({
     status: GiftCardUsageStatus.ALL,
     fromDate: today.startOf('month').format('YYYY-MM-DD'),
     toDate: today.endOf('month').format('YYYY-MM-DD'),
+    customerSlug: userInfo?.slug,
   })
 
   const {
@@ -73,6 +76,7 @@ export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
       const params: IGiftCardGetRequest = {
         page: pageParam as number,
         size: pageSize,
+        customerSlug: filters.customerSlug,
       }
 
       // Add filters
@@ -116,6 +120,7 @@ export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
       status: GiftCardUsageStatus.ALL,
       fromDate: '',
       toDate: '',
+      customerSlug: userInfo?.slug,
     })
   }, [])
 
