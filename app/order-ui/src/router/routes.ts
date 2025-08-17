@@ -24,7 +24,6 @@ import {
 import type { ISidebarRoute } from '@/types'
 import { ROUTE } from '@/constants'
 import { Permission } from '@/constants/sidebar-permission'
-import { CardStackIcon } from '@radix-ui/react-icons'
 
 export const sidebarRoutes: ISidebarRoute[] = [
   {

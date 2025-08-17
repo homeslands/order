@@ -223,7 +223,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div
-        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 whitespace-nowrap sm:max-w-full`}
+        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center py-2 pt-2 whitespace-nowrap sm:max-w-full`}
       >
         <div className="flex gap-2 items-center">
           {/* Input search */}
@@ -274,7 +274,7 @@ export function DataTable<TData, TValue>({
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />
               <span className='text-muted-foreground'>
-                {t('dataTable.refresh')}
+                {t('common.refresh')}
               </span>
             </Button>
           )}

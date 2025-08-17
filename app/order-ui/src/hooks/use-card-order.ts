@@ -14,8 +14,9 @@ interface UseCardOrdersFilters {
 
 export const useQueryCardOrders = (req: ICardOrderGetRequest) => {
   return useQuery({
-    queryKey: ['branches'],
-    queryFn: async () => getCardOrders(req),
+    queryKey: ['cardOrders', JSON.stringify(req)],
+    queryFn: () => getCardOrders(req),
+    enabled: !!req
   })
 }
 
