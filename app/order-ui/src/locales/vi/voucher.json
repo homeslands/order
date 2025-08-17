@@ -117,6 +117,7 @@
     "voucherGroupTitle": "Quản lý nhóm voucher",
     "voucherMaxUsage": "Số lượng sử dụng tối đa",
     "voucherTitle": "Quản lý voucher",
-    "vouchers": "voucher. Bạn có chắc chắn muốn tạo voucher này không?"
+    "vouchers": "voucher. Bạn có chắc chắn muốn tạo voucher này không?",
+    "searchByCode": "Nhập mã giảm giá"
   }
 }

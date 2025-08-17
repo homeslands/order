@@ -61,6 +61,7 @@ export default function CustomerPage() {
         pages={data?.result.totalPages || 0}
         onInputChange={handleSearchChange}
         hiddenInput={false}
+        searchPlaceholder={t('customer.searchByPhoneNumber')}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         actionOptions={CustomerAction}
