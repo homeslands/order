@@ -8,6 +8,7 @@ export const QUERYKEY = {
   giftCards: ['giftCards'],
   cardOrder: ['cardOrder'],
   vouchers: ['vouchers'],
+  specificVoucher: ['specificVoucher'],
   voucherGroups: ['voucherGroups'],
   vouchersForOrder: ['vouchersForOrder'],
   promotions: ['promotions'],
