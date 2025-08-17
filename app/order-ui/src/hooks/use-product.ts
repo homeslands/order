@@ -18,6 +18,7 @@ import {
   uploadMultipleProductImages,
   uploadProductImage,
 } from '@/api'
+import { QUERYKEY } from '@/constants'
 import {
   ICreateProductRequest,
   ICreateProductVariantRequest,
@@ -41,7 +42,7 @@ export const useProducts = (params?: IProductRequest, enabled?: boolean) => {
 
 export const useProductBySlug = (slug: string) => {
   return useQuery({
-    queryKey: ['product', slug],
+    queryKey: [QUERYKEY.specificProduct, slug],
     queryFn: () => getProductBySlug(slug),
     placeholderData: keepPreviousData,
   })
