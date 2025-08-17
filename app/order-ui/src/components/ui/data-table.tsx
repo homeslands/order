@@ -100,6 +100,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   pages: number
   hiddenInput?: boolean
+  searchPlaceholder?: string
   hiddenDatePicker?: boolean
   onRefresh?: () => void
   onPageChange: (pageIndex: number) => void
@@ -128,6 +129,7 @@ export function DataTable<TData, TValue>({
   data,
   pages,
   hiddenInput = true,
+  searchPlaceholder,
   hiddenDatePicker = true,
   onRefresh,
   onPageChange,
@@ -231,7 +233,7 @@ export function DataTable<TData, TValue>({
             <div className="relative w-48">
               <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
               <Input
-                placeholder={t('dataTable.search')}
+                placeholder={searchPlaceholder || t('dataTable.search')}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 className="pl-8 text-sm border placeholder:hidden sm:w-full sm:pr-2 placeholder:sm:inline md:w-full"

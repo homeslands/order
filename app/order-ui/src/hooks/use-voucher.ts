@@ -92,10 +92,11 @@ export const usePublicVouchersForOrder = (
   })
 }
 export const useSpecificVoucher = (data: IGetSpecificVoucherRequest) => {
+  const enabled = Boolean(data?.code || data?.slug)
   return useQuery({
-    queryKey: [QUERYKEY.vouchers, data],
+    queryKey: [QUERYKEY.specificVoucher, data],
     queryFn: () => getSpecificVoucher(data),
-    enabled: !!data.code || !!data.slug,
+    enabled, // chỉ gọi khi có code hoặc slug
   })
 }
 

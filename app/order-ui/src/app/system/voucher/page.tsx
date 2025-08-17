@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +9,6 @@ import { useVoucherGroupColumns } from './DataTable/columns'
 import { usePagination, useVoucherGroups } from '@/hooks'
 import { VoucherGroupAction } from './DataTable/actions'
 import { ROUTE } from '@/constants'
-import { useEffect } from 'react'
 
 export default function VoucherGroupPage() {
     const navigate = useNavigate()
@@ -56,7 +56,7 @@ export default function VoucherGroupPage() {
                     data={data?.result.items || []}
                     isLoading={isLoading}
                     pages={data?.result.totalPages || 1}
-                    hiddenInput={false}
+                    hiddenInput={true}
                     onRowClick={(row) => handleVoucherGroupClick(row.slug)}
                     actionOptions={VoucherGroupAction}
                     onPageChange={handlePageChange}
