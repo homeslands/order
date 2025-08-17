@@ -35,6 +35,7 @@ export interface IGiftCardGetRequest {
   sort?: string
   fromDate?: string
   toDate?: string
+  customerSlug?: string
 }
 
 export interface IGiftCardUpdateRequest {
@@ -88,6 +89,7 @@ export interface IGiftCardDetail {
   serial: string
   usedBy: IUserGiftCard
   code: string
+  usedBySlug: string
 }
 
 export interface IUseGiftCardResponse {
