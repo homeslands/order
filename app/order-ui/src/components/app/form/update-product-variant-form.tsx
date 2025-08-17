@@ -22,6 +22,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { IUpdateProductVariantRequest, IProductVariant } from '@/types'
 import { useUpdateProductVariant } from '@/hooks'
 import { showToast } from '@/utils'
+import { QUERYKEY } from '@/constants'
+import { useParams } from 'react-router-dom'
 
 interface IFormUpdateProductVariantProps {
   productVariant: IProductVariant
@@ -33,6 +35,7 @@ export const UpdateProductVariantForm: React.FC<
 > = ({ productVariant, onSubmit }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['product'])
+  const { slug } = useParams()
   const { mutate: createProductVariant } = useUpdateProductVariant()
   const form = useForm<TUpdateProductVariantSchema>({
     resolver: zodResolver(updateProductVariantSchema),
@@ -46,7 +49,7 @@ export const UpdateProductVariantForm: React.FC<
     createProductVariant(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['product', productVariant.slug],
+          queryKey: [QUERYKEY.specificProduct, slug],
         })
         onSubmit(false)
         form.reset()

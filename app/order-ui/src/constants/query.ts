@@ -5,6 +5,7 @@ export const QUERYKEY = {
   chefAreaPrinters: ['chefAreaPrinters'],
   productVariants: ['productVariants'],
   products: ['products'],
+  specificProduct: ['specificProduct'],
   giftCards: ['giftCards'],
   cardOrder: ['cardOrder'],
   vouchers: ['vouchers'],
