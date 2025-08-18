@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 import {
@@ -7,16 +6,13 @@ import {
   Gift,
   MessageSquare,
   Phone,
-  Receipt,
-  User,
   Package,
   Clock,
   CheckCircle2,
   AlertCircle,
   XCircle,
   Copy,
-  Eye,
-  EyeOff,
+  User,
 } from 'lucide-react'
 
 import { useIsMobile } from '@/hooks'
@@ -37,7 +33,7 @@ import {
 } from '@/components/ui'
 
 import { ICardOrderResponse } from '@/types'
-import { CardOrderStatus } from '@/constants'
+import { CardOrderStatus, ROUTE } from '@/constants'
 import {
   formatCurrency,
   getPaymentMethodLabel,
@@ -45,7 +41,7 @@ import {
   getGiftCardTypeLabel,
   getGiftCardOrderStatusLabel,
 } from '@/utils'
-import { GiftCardStatusBadge } from '../badge'
+import { NavLink } from 'react-router-dom'
 
 interface GiftCardOrderDetailsSheetProps {
   isOpen: boolean
@@ -60,24 +56,11 @@ export function GiftCardOrderDetailsSheet({
 }: GiftCardOrderDetailsSheetProps) {
   const { t } = useTranslation(['profile'])
   const isMobile = useIsMobile()
-  const [visibleCodes, setVisibleCodes] = React.useState<Set<string>>(new Set())
 
   if (!cardOrder) return null
 
   const copyToClipboard = async (text: string, _label: string) => {
     await navigator.clipboard.writeText(text)
-  }
-
-  const toggleCodeVisibility = (codeId: string) => {
-    setVisibleCodes((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(codeId)) {
-        newSet.delete(codeId)
-      } else {
-        newSet.add(codeId)
-      }
-      return newSet
-    })
   }
 
   const getStatusIcon = (status: string) => {
@@ -110,16 +93,6 @@ export function GiftCardOrderDetailsSheet({
       default:
         return 'outline'
     }
-  }
-
-  const formatCode = (code: string, visible: boolean) => {
-    if (visible) return code
-    if (code.length <= 4) return '****'
-    return (
-      code.substring(0, 2) +
-      '*'.repeat(code.length - 4) +
-      code.substring(code.length - 2)
-    )
   }
 
   return (
@@ -291,176 +264,11 @@ export function GiftCardOrderDetailsSheet({
                     </p>
                   </div>
                 </div>
-
-                {cardOrder.giftCards && cardOrder.giftCards.length > 0 && (
-                  <>
-                    <Separator />
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-muted-foreground">
-                          {t('profile.cardOrder.giftCardCodes')}
-                        </span>
-                        <Badge variant="secondary">
-                          {cardOrder.giftCards.length}{' '}
-                          {t('profile.cardOrder.giftCard')}
-                        </Badge>
-                      </div>
-                      <div className="grid gap-4">
-                        {cardOrder.giftCards.map((giftCard, index) => {
-                          const codeId = giftCard.slug || `card-${index}`
-                          const isVisible = visibleCodes.has(codeId)
-
-                          return (
-                            <Card
-                              key={codeId}
-                              className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 dark:border-primary/40 dark:from-primary/5 dark:to-primary/10"
-                            >
-                              <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Receipt className="h-4 w-4 text-primary" />
-                                    <span className="font-semibold">
-                                      {giftCard.cardName}
-                                    </span>
-                                  </div>
-                                  <GiftCardStatusBadge
-                                    status={giftCard.status}
-                                    rounded="md"
-                                  />
-                                </div>
-                              </CardHeader>
-                              <CardContent className="space-y-3 pt-0">
-                                <div
-                                  className={`grid grid-cols-1 gap-3 ${isMobile ? '' : 'sm:grid-cols-2'}`}
-                                >
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-xs font-medium text-muted-foreground">
-                                        {t('profile.cardOrder.code')}
-                                      </span>
-                                      <div className="flex items-center gap-1">
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-6 w-6 p-0"
-                                          onClick={() =>
-                                            toggleCodeVisibility(codeId)
-                                          }
-                                        >
-                                          {isVisible ? (
-                                            <EyeOff className="h-3 w-3" />
-                                          ) : (
-                                            <Eye className="h-3 w-3" />
-                                          )}
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-6 w-6 p-0"
-                                          onClick={() =>
-                                            copyToClipboard(
-                                              giftCard.code,
-                                              'code',
-                                            )
-                                          }
-                                        >
-                                          <Copy className="h-3 w-3" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                    <p
-                                      className={`break-all font-mono ${isMobile ? 'text-xs' : 'text-sm'} font-bold`}
-                                    >
-                                      {formatCode(giftCard.code, isVisible)}
-                                    </p>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-xs font-medium text-muted-foreground">
-                                        {t('profile.cardOrder.serial')}
-                                      </span>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 w-6 p-0"
-                                        onClick={() =>
-                                          copyToClipboard(
-                                            giftCard.serial,
-                                            'Serial',
-                                          )
-                                        }
-                                      >
-                                        <Copy className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                    <p
-                                      className={`break-all font-mono ${isMobile ? 'text-xs' : 'text-sm'}`}
-                                    >
-                                      {giftCard.serial}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                <div
-                                  className={`flex ${isMobile ? 'flex-col gap-1' : 'items-center justify-between'}`}
-                                >
-                                  <span className="text-sm font-medium text-muted-foreground">
-                                    {t('profile.cardOrder.points')}
-                                  </span>
-                                  <span
-                                    className={`${isMobile ? 'text-base' : 'text-lg'} font-bold text-primary`}
-                                  >
-                                    {formatCurrency(giftCard.cardPoints, '')}
-                                  </span>
-                                </div>
-
-                                {(giftCard.expiredAt || giftCard.usedAt) && (
-                                  <>
-                                    <Separator />
-                                    <div
-                                      className={`grid grid-cols-1 gap-2 ${isMobile ? '' : 'sm:grid-cols-2'}`}
-                                    >
-                                      {giftCard.expiredAt && (
-                                        <div
-                                          className={`flex ${isMobile ? 'flex-col gap-0' : 'items-center justify-between'}`}
-                                        >
-                                          <span className="text-xs text-muted-foreground">
-                                            {t('profile.cardOrder.expires')}
-                                          </span>
-                                          <span className="text-xs">
-                                            {moment(giftCard.expiredAt).format(
-                                              'DD/MM/YYYY',
-                                            )}
-                                          </span>
-                                        </div>
-                                      )}
-                                      {giftCard.usedAt && (
-                                        <div
-                                          className={`flex ${isMobile ? 'flex-col gap-0' : 'items-center justify-between'}`}
-                                        >
-                                          <span className="text-xs text-muted-foreground">
-                                            {t('profile.cardOrder.used')}
-                                          </span>
-                                          <span className="text-xs">
-                                            {moment(giftCard.usedAt).format(
-                                              isMobile
-                                                ? 'HH:mm DD/MM/YY'
-                                                : 'HH:mm DD/MM/YYYY',
-                                            )}
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </>
-                                )}
-                              </CardContent>
-                            </Card>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </>
-                )}
+                <div className="flex justify-end">
+                  <NavLink to={`${ROUTE.CLIENT_PROFILE}?tab=gift-card`}>
+                    <Button> {t('profile.common.viewDetails')}</Button>
+                  </NavLink>
+                </div>
               </CardContent>
             </Card>
 
