@@ -41,3 +41,20 @@ export interface IBranchRevenueQuery {
   endDate?: string
   type?: RevenueTypeQuery
 }
+
+export interface IOverviewFilter {
+  branch: string
+  startDate: string
+  endDate: string
+  type: RevenueTypeQuery
+}
+
+export interface IOverviewFilterStore {
+  overviewFilter: IOverviewFilter
+  setOverviewFilter: (
+    overviewFilter:
+      | IOverviewFilter
+      | ((prev: IOverviewFilter) => IOverviewFilter),
+  ) => void
+  clearOverviewFilter: () => void
+}
