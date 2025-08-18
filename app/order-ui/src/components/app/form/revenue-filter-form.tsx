@@ -15,7 +15,7 @@ import {
 import { useExportRevenueSchema, TExportRevenueSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
-import { DatePicker, SimpleDatePicker } from '../picker'
+import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
 import { useBranchStore } from '@/stores'
 
@@ -82,8 +82,15 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
 
     const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
         if (date) {
-            // Normalize date format to YYYY-MM-DD regardless of input format
-            const normalizedDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY']).format('YYYY-MM-DD')
+            // For hourly type, keep the full datetime format, otherwise just date
+            let normalizedDate: string
+            if (type === RevenueTypeQuery.HOURLY) {
+                // Keep the datetime format YYYY-MM-DD HH:mm:ss for hourly reports
+                normalizedDate = moment(date, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD', 'DD/MM/YYYY HH:mm', 'DD/MM/YYYY']).format('YYYY-MM-DD HH:mm:ss')
+            } else {
+                // For daily/other types, just use date format
+                normalizedDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY']).format('YYYY-MM-DD')
+            }
             form.setValue(fieldName, normalizedDate)
             form.trigger(['startDate', 'endDate'])
         }
@@ -99,11 +106,12 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
                         <FormLabel className='font-bold'>{t('revenue.startDate')}</FormLabel>
                         <FormControl>
                             {type === RevenueTypeQuery.HOURLY ? (
-                                <DatePicker
+                                <DateAndTimePicker
                                     date={field.value}
                                     onSelect={(date) => handleDateChange('startDate', date)}
                                     validateDate={(date) => date <= new Date()}
                                     disableFutureDate
+                                    showTime={true}
                                 />
                             ) : (
                                 <SimpleDatePicker
@@ -127,11 +135,12 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
                         <FormControl>
 
                             {type === RevenueTypeQuery.HOURLY ? (
-                                <DatePicker
+                                <DateAndTimePicker
                                     date={field.value}
                                     onSelect={(date) => handleDateChange('endDate', date)}
                                     validateDate={(date) => date <= new Date()}
                                     disableFutureDate
+                                    showTime={true}
                                 />
                             ) : (
                                 <SimpleDatePicker
