@@ -121,14 +121,12 @@ export class GiftCardService {
     }
 
     if (req.customerSlug) {
-      // Apply OR for customerSlug matching either usedBySlug or cardOrder.customerSlug
       return [
-        { ...baseConditions, usedBySlug: req.customerSlug },
+        // { ...baseConditions, usedBySlug: req.customerSlug },
         { ...baseConditions, cardOrder: { customerSlug: req.customerSlug } },
       ];
     }
 
-    // No OR needed if no customerSlug filter
     return baseConditions;
   }
 
