@@ -31,31 +31,31 @@ export function CustomerProfileTabs() {
       <TabsList className="scrollbar-hide mb-6 flex h-full w-full !justify-start gap-3 overflow-x-auto border-b lg:mb-0">
         <TabsTrigger
           value="info"
-          className="flex justify-center whitespace-nowrap"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3"
         >
           {t('profile.generalInfo')}
         </TabsTrigger>
         <TabsTrigger
           value="notification"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.notification')}
         </TabsTrigger>
         <TabsTrigger
           value="history"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.history')}
         </TabsTrigger>
         <TabsTrigger
           value="coin"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.coin')}
         </TabsTrigger>
         <TabsTrigger
           value="gift-card"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.giftCard.defaultTitle')}
         </TabsTrigger>
