@@ -232,6 +232,7 @@
     "promotionAppliedCannotDelete": "Cannot delete - promotion already applied",
     "qrCodeRestored": "Payment QR code has been restored",
     "refreshRevenueSuccess": "New revenue data retrieved successfully",
+    "refreshProductAnalysisSuccess": "New product analysis data retrieved successfully",
     "refreshSuccess": "Refresh data successfully",
     "registerSuccess": "Account registration successful",
     "removeAppliedPromotionSuccess": "Promotion removed successfully",
