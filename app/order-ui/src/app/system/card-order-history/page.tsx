@@ -11,6 +11,8 @@ import { SortContext } from '@/contexts'
 import { useCardOrderColumns } from './DataTable/columns/card-order-columns'
 import moment from 'moment'
 import CardOrderAction from './DataTable/actions/card-order-action'
+import CardOrderDetailSheet from '@/components/app/sheet/card-order-detail-sheet'
+import { ICardOrderResponse } from '@/types'
 
 export interface IFilterProps {
   startDate?: string;
@@ -32,6 +34,7 @@ export default function CardOrderHistoryPage() {
       status: 'all',
     }
   })
+  const [selectedRow, setSelectedRow] = useState<ICardOrderResponse | null>(null);
 
   const page = Number(searchParams.get('page')) || 1
   const size = Number(searchParams.get('size')) || 10
@@ -113,9 +116,15 @@ export default function CardOrderHistoryPage() {
             onPageSizeChange={handlePageSizeChange}
             onRefresh={handleRefresh}
             onDateChange={handleDateChange}
+            onRowClick={(row) => {
+              setSelectedRow(row)
+            }}
+
           />
         </SortContext.Provider>
       </div>
+
+      <CardOrderDetailSheet data={selectedRow} isOpen={selectedRow ? true : false} onClose={() => setSelectedRow(null)} />
     </div>
   )
 }
