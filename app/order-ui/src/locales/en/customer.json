@@ -30,6 +30,8 @@
     "updateRole": "Update role",
     "updateRoleDescription": "Update employee role",
     "viewDetail": "View details",
-    "searchByPhoneNumber": "Enter phone number"
+    "searchByPhoneNumber": "Enter phone number",
+    "points": "Coins",
+    "coinTransactionHistory": "Coin transaction history"
   }
 }

@@ -30,6 +30,8 @@
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho khách hàng",
     "viewDetail": "Xem chi tiết",
-    "searchByPhoneNumber": "Nhập số điện thoại"
+    "searchByPhoneNumber": "Nhập số điện thoại",
+    "points": "Số dư xu",
+    "coinTransactionHistory": "Lịch sử giao dịch xu"
   }
 }

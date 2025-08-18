@@ -24,6 +24,11 @@ export interface IUserInfo {
   }
   isVerifiedEmail: boolean
   isVerifiedPhonenumber: boolean
+  balance: {
+    points: number
+    createdAt: string
+    slug: string
+  }
 }
 
 export interface ICreateUserRequest {

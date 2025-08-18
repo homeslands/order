@@ -39,7 +39,13 @@ import { TransactionGiftCardDetailDialog } from '@/components/app/dialog'
 import SimpleDatePicker from '@/components/app/picker/simple-date-picker'
 import { useState } from 'react'
 
-export function CustomerCoinTabsContent() {
+interface ICustomerCoinTabsContentProps {
+  userSlug?: string
+}
+
+export function CustomerCoinTabsContent({
+  userSlug,
+}: ICustomerCoinTabsContentProps) {
   const { t } = useTranslation(['profile'])
   const isMobile = useIsMobile()
   const { userInfo } = useUserStore()
@@ -67,7 +73,7 @@ export function CustomerCoinTabsContent() {
     isExportingAll,
     exportingTransactionSlug,
   } = usePointTransactions({
-    userSlug: userInfo?.slug,
+    userSlug: userSlug ?? userInfo?.slug,
     pageSize: 10,
   })
 
@@ -325,7 +331,7 @@ export function CustomerCoinTabsContent() {
 
   return (
     <div>
-      <Card className="overflow-hidden border-none shadow-md">
+      <Card className="overflow-hidden border-none shadow-md dark:bg-transparent">
         <CardHeader
           className={`${isMobile ? 'px-3 py-2' : 'px-6 py-4'} bg-gray-50 dark:bg-gray-800/50`}
         >
