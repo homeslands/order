@@ -1,6 +1,9 @@
-export enum FooterSection { 
-    CONTENT_RESPONSIBLE = 'Nguyễn Thị Mai Phương',
+export enum FooterSection {
+    BUSINESS_NAME = 'HỘ KINH DOANH TREND COFFEE',
+    TAX_CODE = '8391342564-001',
+    ISSUED_ON = '02/04/2025',
     ORDER_INSTRUCTIONS = 'ORDER_INSTRUCTIONS',
     PAYMENT_INSTRUCTIONS = 'PAYMENT_INSTRUCTIONS',
     CONTACT = 'CONTACT',
+    START_YEAR = 2025,
 }
