@@ -182,6 +182,9 @@ export class OrderResponseDto extends BaseResponseDto {
   subtotal: number;
 
   @AutoMap()
+  originalSubtotal: number;
+
+  @AutoMap()
   loss: number;
 
   @AutoMap()

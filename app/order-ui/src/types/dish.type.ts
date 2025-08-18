@@ -177,7 +177,7 @@ export interface IOrder extends IBase {
   }
   referenceNumber: number
   chefOrders: IChefOrders[]
-  printerInvoices: IOrderPrinterInvoices[]  
+  printerInvoices: IOrderPrinterInvoices[]
   type: string
   table: ITable
   payment: IPayment
@@ -325,7 +325,6 @@ export interface ICreateOrderRequest {
 export interface IAddNewOrderItemRequest {
   quantity: number
   variant: string
-  note: string
   promotion: string
   order: string
 }

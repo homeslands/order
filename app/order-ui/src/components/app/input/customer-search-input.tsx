@@ -114,7 +114,7 @@ export default function CustomerSearchInput() {
                 <div
                     ref={userListRef}
                     onScroll={handleScroll}
-                    className="overflow-y-auto absolute z-50 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-transparent"
+                    className="overflow-y-auto absolute z-50 mt-11 w-full max-h-96 bg-white rounded-md border shadow-lg dark:bg-background"
                 >
                     {users.map((user, index) => (
                         <div

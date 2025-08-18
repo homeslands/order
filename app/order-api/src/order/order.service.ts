@@ -323,8 +323,11 @@ export class OrderService {
     }
 
     order.voucher = null;
-    const { subtotal } = await this.orderUtils.getOrderSubtotal(order, null);
+    const { subtotal, originalSubtotal } =
+      await this.orderUtils.getOrderSubtotal(order, null);
+
     order.subtotal = subtotal;
+    order.originalSubtotal = originalSubtotal;
 
     // Validate new voucher
     if (requestData.voucher) {
@@ -358,6 +361,10 @@ export class OrderService {
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        if (order.payment) {
+          await this.paymentUtils.cancelPayment(order.payment.slug);
+        }
+
         if (voucher) {
           // Update remaining quantity of voucher
           voucher.remainingUsage -= 1;

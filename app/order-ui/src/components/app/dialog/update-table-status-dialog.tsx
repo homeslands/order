@@ -80,7 +80,7 @@ export default function UpdateTableStatusDialog({
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
-          <div className="py-4 text-sm text-gray-500">
+          <div className="py-4 text-sm text-muted-foreground">
             {t('table.confirmUpdateStatus')}
             <br />
             {`${t('table.currentInfo')}: ${table.name} - ${table.status === TableStatus.AVAILABLE ? t('table.available') : t('table.reserved')

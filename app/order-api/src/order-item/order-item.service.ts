@@ -28,9 +28,9 @@ import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
-import { DiscountType } from 'src/order/order.constants';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @Injectable()
 export class OrderItemService {
@@ -46,61 +46,10 @@ export class OrderItemService {
     private readonly menuUtils: MenuUtils,
     private readonly orderScheduler: OrderScheduler,
     private readonly voucherUtils: VoucherUtils,
+    private readonly paymentUtils: PaymentUtils,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
-
-  async updateDiscountTypeForExistedOrderItem() {
-    const context = `${OrderItemService.name}.${this.updateDiscountTypeForExistedOrderItem.name}`;
-    const batchSize = 500;
-    let offset = 0;
-    let totalUpdated = 0;
-
-    while (true) {
-      const batch = await this.orderItemRepository.find({
-        where: { discountType: DiscountType.NONE },
-        relations: ['promotion'],
-        take: batchSize,
-        skip: offset,
-        order: { id: 'ASC' },
-      });
-
-      if (batch.length === 0) break;
-
-      const updatedBatch: OrderItem[] = [];
-      for (const item of batch) {
-        if (item.promotion) {
-          item.discountType = DiscountType.PROMOTION;
-          updatedBatch.push(item);
-        }
-      }
-
-      await this.transactionManagerService.execute<void>(
-        async (manager) => {
-          await manager.save(updatedBatch);
-        },
-        () => {
-          this.logger.log(
-            `Processed batch from offset ${offset}, updated ${updatedBatch.length} items.`,
-            context,
-          );
-        },
-        (error) => {
-          this.logger.error(
-            `Error updating batch at offset ${offset}: ${error.message}`,
-            context,
-          );
-        },
-      );
-
-      totalUpdated += updatedBatch.length;
-      offset += batchSize;
-    }
-    this.logger.log(
-      `Finished updating total ${totalUpdated} invoice items.`,
-      context,
-    );
-  }
 
   /**
    * Handles order item note update
@@ -178,6 +127,7 @@ export class OrderItemService {
 
     let orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
+      relations: ['order.payment'],
     });
 
     if (!orderItem.order) {
@@ -240,11 +190,14 @@ export class OrderItemService {
       true, // isAddVoucher
     );
 
-    if (requestData.note) orderItem.note = requestData.note;
-
     const updatedOrderItem =
       await this.transactionManagerService.execute<OrderItem>(
         async (manager) => {
+          // Remove payment
+          if (orderItem.order.payment) {
+            await this.paymentUtils.cancelPayment(orderItem.order.payment.slug);
+          }
+
           // Update order item
           const updatedOrderItem = await manager.save(orderItem);
 
@@ -296,11 +249,12 @@ export class OrderItemService {
       }
     }
 
-    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
-      order,
-      order.voucher,
-    );
+    const { subtotal: subtotalOrder, originalSubtotal: originalSubtotalOrder } =
+      await this.orderUtils.getOrderSubtotal(order, order.voucher);
+
     order.subtotal = subtotalOrder;
+    order.originalSubtotal = originalSubtotalOrder;
+
     await this.transactionManagerService.execute(
       async (manager) => {
         if (voucher) await manager.save(voucher);
@@ -341,6 +295,11 @@ export class OrderItemService {
 
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        // Remove payment
+        if (order.payment) {
+          await this.paymentUtils.cancelPayment(order.payment.slug);
+        }
+
         // Update menu items
         const menuItem = await this.menuItemUtils.getCurrentMenuItem(
           orderItem,
@@ -384,11 +343,10 @@ export class OrderItemService {
             });
             order.orderItems = updatedOrderItems;
 
-            const { subtotal } = await this.orderUtils.getOrderSubtotal(
-              order,
-              null,
-            );
+            const { subtotal, originalSubtotal } =
+              await this.orderUtils.getOrderSubtotal(order, null);
             order.subtotal = subtotal;
+            order.originalSubtotal = originalSubtotal;
           } else {
             // After, check voucher min value
             const isVoucherMinValueValid =
@@ -405,9 +363,12 @@ export class OrderItemService {
           }
         }
         // Update order
-        const { subtotal: subtotalOrder } =
-          await this.orderUtils.getOrderSubtotal(order, order.voucher);
+        const {
+          subtotal: subtotalOrder,
+          originalSubtotal: originalSubtotalOrder,
+        } = await this.orderUtils.getOrderSubtotal(order, order.voucher);
         order.subtotal = subtotalOrder;
+        order.originalSubtotal = originalSubtotalOrder;
 
         if (voucher) await manager.save(voucher);
 
@@ -474,11 +435,11 @@ export class OrderItemService {
         });
         order.orderItems = updatedOrderItems;
 
-        const { subtotal } = await this.orderUtils.getOrderSubtotal(
-          order,
-          null,
-        );
+        const { subtotal, originalSubtotal } =
+          await this.orderUtils.getOrderSubtotal(order, null);
+
         order.subtotal = subtotal;
+        order.originalSubtotal = originalSubtotal;
       }
     }
 
@@ -553,15 +514,19 @@ export class OrderItemService {
 
     // Update order
     order.orderItems.push(orderItem);
-    const { subtotal: subtotalOrder } = await this.orderUtils.getOrderSubtotal(
-      order,
-      order.voucher,
-    );
+    const { subtotal: subtotalOrder, originalSubtotal: originalSubtotalOrder } =
+      await this.orderUtils.getOrderSubtotal(order, order.voucher);
     order.subtotal = subtotalOrder;
+    order.originalSubtotal = originalSubtotalOrder;
 
     const createdOrderItem =
       await this.transactionManagerService.execute<OrderItem>(
         async (manager) => {
+          // Remove payment
+          if (order.payment) {
+            await this.paymentUtils.cancelPayment(order.payment.slug);
+          }
+
           // Create order item
           const created = await manager.save(orderItem);
 

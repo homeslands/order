@@ -16,7 +16,7 @@ import { useIsMobile } from "@/hooks";
 import { ClientAddToCartDialog } from "@/components/app/dialog";
 import { ROUTE } from "@/constants";
 import { PromotionTag } from "@/components/app/badge";
-import { OrderFlowStep, useOrderFlowStore } from "@/stores";
+import { OrderFlowStep, useOrderFlowStore, useUserStore } from "@/stores";
 
 interface ISliderMenuPromotionProps {
     menus: IMenuItem[] | undefined
@@ -37,6 +37,7 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         setCurrentStep
     } = useOrderFlowStore()
     const isMobile = useIsMobile()
+    const { userInfo } = useUserStore()
     const getPriceRange = (variants: IProduct['variants']) => {
         if (!variants || variants.length === 0) return null
 
@@ -83,6 +84,21 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
         filteredMenus = menus ? menus.slice(0, 5) : []
     }
 
+    // // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
+    // useEffect(() => {
+    //     if (isHydrated) {
+    //         // Chuyển về ORDERING phase nếu đang ở phase khác
+    //         if (currentStep !== OrderFlowStep.ORDERING) {
+    //             setCurrentStep(OrderFlowStep.ORDERING)
+    //         }
+
+    //         // Khởi tạo ordering data nếu chưa có
+    //         if (!orderingData) {
+    //             initializeOrdering()
+    //         }
+    //     }
+    // }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+
     // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
     useEffect(() => {
         if (isHydrated) {
@@ -94,9 +110,15 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             // Khởi tạo ordering data nếu chưa có
             if (!orderingData) {
                 initializeOrdering()
+                return
+            }
+
+            // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+            if (userInfo?.slug && !orderingData.owner?.trim()) {
+                initializeOrdering()
             }
         }
-    }, [isHydrated, currentStep, orderingData, setCurrentStep, initializeOrdering])
+    }, [isHydrated, currentStep, orderingData, userInfo?.slug, setCurrentStep, initializeOrdering])
 
     const handleAddToCart = (product: IMenuItem) => {
         if (!product?.product?.variants || product?.product?.variants.length === 0 || !isHydrated) return;
@@ -106,7 +128,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             setCurrentStep(OrderFlowStep.ORDERING)
         }
 
+        // Khởi tạo ordering data nếu chưa có
         if (!orderingData) {
+            initializeOrdering()
+            return
+        }
+
+        // Chỉ re-initialize nếu user đã đăng nhập nhưng orderingData không có owner
+        if (userInfo?.slug && !orderingData.owner?.trim()) {
             initializeOrdering()
         }
 
@@ -148,13 +177,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             initialSlide={0}
             modules={[Autoplay, Pagination]}
             className="overflow-y-visible w-full h-full mySwiper"
+            pagination={{ clickable: true }}
         >
             {!isFetching ? filteredMenus?.map((item, index) => {
                 const imageProduct = item?.product?.image ? publicFileURL + "/" + item.product.image : Com
                 return (
                     <SwiperSlide key={index} className="py-2 w-full h-[13.5rem] sm:h-[19rem]">
                         {!isMobile ? (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`} className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                                     <>
                                         <img src={imageProduct} alt="product" className="object-cover p-1.5 w-full h-36 rounded-xl" />
@@ -249,11 +279,11 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                 )}
                             </div>
                         ) : (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-lg border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
 
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
                                     <>
-                                        <img src={imageProduct} alt="product" className="object-cover w-full p-1.5 h-28 rounded-xl" />
+                                        <img src={imageProduct} alt="product" className="object-cover w-full p-1.5 h-28 rounded-lg" />
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}

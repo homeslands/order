@@ -18,10 +18,16 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
     const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
     const [open, setOpen] = useState(false);
 
+    // State để lưu trữ filter values
+    const [savedFilterValues, setSavedFilterValues] = useState<Partial<IRevenueQuery> | null>(null);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const handleExportRevenue = (data: IRevenueQuery) => {
+        // Lưu filter values trước khi apply
+        setSavedFilterValues(data);
+        setRevenueType(data.type as RevenueTypeQuery);
         onApply(data)
         setOpen(false)
     };
@@ -40,7 +46,12 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                         <span className="font-bold leading-none text-md">{t("revenue.exportRevenue")}</span>
                     </div>
                     <RevenueTypeSelect defaultValue={revenueType} onChange={(value) => setRevenueType(value as RevenueTypeQuery)} />
-                    <RevenueFilterForm onSubmit={handleExportRevenue} type={revenueType} onSuccess={() => setOpen(false)} />
+                    <RevenueFilterForm
+                        onSubmit={handleExportRevenue}
+                        type={revenueType}
+                        onSuccess={() => setOpen(false)}
+                        savedValues={savedFilterValues}
+                    />
                 </div>
             </PopoverContent>
         </Popover>

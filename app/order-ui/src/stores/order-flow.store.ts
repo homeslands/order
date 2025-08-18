@@ -14,7 +14,7 @@ import {
   IOrderDetail,
   IOrderPayment,
 } from '@/types'
-import { PaymentMethod, Role } from '@/constants'
+import { PaymentMethod } from '@/constants'
 import { useUserStore } from './user.store'
 
 // Order Flow Steps
@@ -224,19 +224,13 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           id: generateOrderId(),
           slug: generateOrderId(),
           orderItems: [],
-          owner:
-            useUserStore.getState().getUserInfo()?.role?.name === Role.CUSTOMER
-              ? useUserStore.getState().getUserInfo()?.slug || ''
-              : '',
+          owner: useUserStore.getState().getUserInfo()?.slug || '',
           ownerFullName:
             `${useUserStore.getState().getUserInfo()?.firstName || ''} ${useUserStore.getState().getUserInfo()?.lastName || ''}`.trim() ||
             '',
           ownerPhoneNumber:
             useUserStore.getState().getUserInfo()?.phonenumber || '',
-          ownerRole:
-            useUserStore.getState().getUserInfo()?.role?.name === Role.CUSTOMER
-              ? useUserStore.getState().getUserInfo()?.role?.name || ''
-              : '',
+          ownerRole: useUserStore.getState().getUserInfo()?.role?.name || '',
           type: OrderTypeEnum.AT_TABLE,
           table: '',
           tableName: '',
@@ -244,7 +238,6 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           description: '',
           approvalBy: '',
         }
-
         set({
           currentStep: OrderFlowStep.ORDERING,
           orderingData: newOrderingData,
@@ -702,6 +695,8 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           description: updatedOriginalOrder.description || '',
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
+
+        // console.log('updateDraft in initializeUpdating', updateDraft)
 
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,
