@@ -37,6 +37,7 @@
     "totalRevenue": "Doanh thu",
     "totalRevenueToday": "Doanh thu hôm nay",
     "type": "Loại doanh thu",
-    "voucherAmount": "Tiền voucher"
+    "voucherAmount": "Tiền voucher",
+    "endDateMustBeGreaterThanOrEqualToStartDate": "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu"
   }
 }
