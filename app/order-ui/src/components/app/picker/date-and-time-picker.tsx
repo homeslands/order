@@ -1,8 +1,8 @@
 import * as React from 'react'
-import moment from 'moment'
 import { CalendarIcon } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { format, isToday, isSameDay, parse } from 'date-fns'
 import { vi, enUS } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/utils'
 import {
@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui'
-import { format } from 'date-fns'
 
 // Utility to generate an array of years
 const generateYears = (start: number, end: number) => {
@@ -28,168 +27,138 @@ const generateYears = (start: number, end: number) => {
   return years
 }
 
+// Helper: parse date from string safely
+const parseDateString = (dateString: string): Date | null => {
+  if (!dateString) return null
+
+  // Try parsing different formats
+  const formats = ['dd/MM/yyyy HH:mm:ss', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'yyyy-MM-dd HH:mm:ss', 'yyyy-MM-dd']
+
+  for (const format of formats) {
+    const parsedDate = parse(dateString.trim(), format, new Date())
+    if (!isNaN(parsedDate.getTime())) return parsedDate
+  }
+
+  // Fallback to ISO string
+  const parsedISO = new Date(dateString)
+  return isNaN(parsedISO.getTime()) ? null : parsedISO
+}
+
+// Helper: format date to display string
+const formatDateString = (date: Date, showTime: boolean): string => {
+  return showTime ? format(date, 'dd/MM/yyyy HH:mm') : format(date, 'dd/MM/yyyy')
+}
+
+// Helper: format date to value string
+const formatValueString = (date: Date, showTime: boolean): string => {
+  return showTime ? format(date, 'yyyy-MM-dd HH:mm:ss') : format(date, 'yyyy-MM-dd')
+}
+
 interface DatePickerProps {
   date: string | null
-  onChange: (date: string | null) => void
+  onSelect: (date: string | null) => void
   validateDate?: (date: Date) => boolean
   disabled?: boolean
   today?: boolean
   disabledDates?: Date[]
   showTime?: boolean
-  startDate?: string | null
-  endDate?: string | null
-  isStartDate?: boolean
+  disableFutureDate?: boolean
 }
 
 export default function DateAndTimePicker({
   date,
-  onChange,
+  onSelect,
   validateDate,
   disabled,
   today,
   disabledDates = [],
   showTime = false,
+  disableFutureDate = false,
 }: DatePickerProps) {
   const { t, i18n } = useTranslation(['common'])
   const locale = React.useMemo(() => {
     return i18n.language === 'en' ? enUS : vi
   }, [i18n.language])
-  const [month, setMonth] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getMonth() : new Date().getMonth())
-  const [year, setYear] = React.useState<number>(date ? new Date(date.split('/').reverse().join('-')).getFullYear() : new Date().getFullYear())
-  const years = generateYears(1920, new Date().getFullYear()) // 100 years range
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(() => {
-    if (date) {
-      const momentDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm'])
-      return momentDate.isValid() ? momentDate.toDate() : new Date()
-    }
-    const now = new Date()
-    now.setHours(0, 0, 0, 0)
-    return now
-  })
+
+  const parsedDate = React.useMemo(() => {
+    return date ? parseDateString(date) : undefined
+  }, [date])
+
+  const [month, setMonth] = React.useState<number>(parsedDate?.getMonth() ?? new Date().getMonth())
+  const [year, setYear] = React.useState<number>(parsedDate?.getFullYear() ?? new Date().getFullYear())
+  const years = generateYears(1920, new Date().getFullYear())
+
   const [hour, setHour] = React.useState<number>(() => {
-    if (date) {
-      const momentDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm'])
-      return momentDate.isValid() ? momentDate.hours() : 0
-    }
-    return 0
+    return parsedDate?.getHours() ?? 0
   })
   const [minute, setMinute] = React.useState<number>(() => {
-    if (date) {
-      const momentDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm'])
-      return momentDate.isValid() ? momentDate.minutes() : 0
-    }
-    return 0
+    return parsedDate?.getMinutes() ?? 0
   })
 
-  // Update internal date when value prop changes
+  // Update hour and minute when parsed date changes
   React.useEffect(() => {
-    if (date) {
-      const momentDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm'])
-      if (momentDate.isValid()) {
-        setSelectedDate(momentDate.toDate())
-        setHour(momentDate.hours())
-        setMinute(momentDate.minutes())
-      }
-    } else {
-      // Set default value when date is null
-      const now = new Date()
-      now.setHours(0, 0, 0, 0)
-      setSelectedDate(now)
-      setHour(0)
-      setMinute(0)
-      onChange(moment(now).format('YYYY-MM-DD 00:00:00'))
+    if (parsedDate) {
+      setHour(parsedDate.getHours())
+      setMinute(parsedDate.getMinutes())
     }
-  }, [date, onChange])
+  }, [parsedDate])
 
-  const handleDateChange = (newDate?: Date) => {
-    if (newDate) {
-      setSelectedDate(newDate)
-      const momentDate = moment(newDate)
+  const handleSelectDate = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return onSelect(null)
 
+    const valid = !isNaN(selectedDate.getTime()) &&
+      (!validateDate || validateDate(selectedDate))
+
+    if (valid) {
+      const newDate = new Date(selectedDate)
       if (showTime) {
-        momentDate.hours(hour)
-        momentDate.minutes(minute)
+        newDate.setHours(hour, minute, 0, 0)
       } else {
-        momentDate.startOf('day') // <-- Sửa tại đây: nếu không chọn giờ, set về 00:00:00
+        newDate.setHours(0, 0, 0, 0)
       }
-
-      momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
+      onSelect(formatValueString(newDate, showTime))
+    } else {
+      onSelect(null)
     }
   }
 
   const handleTimeChange = (newHour: number) => {
     setHour(newHour)
 
-    if (!showTime) return
+    if (!showTime || !parsedDate) return
 
-    if (selectedDate) {
-      const momentDate = moment(selectedDate)
-      momentDate.hours(newHour)
-      momentDate.minutes(minute)
-      momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
-    }
+    const newDate = new Date(parsedDate)
+    newDate.setHours(newHour, minute, 0, 0)
+    onSelect(formatValueString(newDate, showTime))
   }
 
   const handleMinuteChange = (newMinute: number) => {
     setMinute(newMinute)
 
-    if (!showTime) return
+    if (!showTime || !parsedDate) return
 
-    if (selectedDate) {
-      const momentDate = moment(selectedDate)
-      momentDate.hours(hour)
-      momentDate.minutes(newMinute)
-      momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
-    }
+    const newDate = new Date(parsedDate)
+    newDate.setHours(hour, newMinute, 0, 0)
+    onSelect(formatValueString(newDate, showTime))
   }
 
   const handleTodayClick = () => {
     const today = new Date()
-    if (validateDate && validateDate(today)) {
-      const momentDate = moment(today)
-      momentDate.hours(hour)
-      momentDate.minutes(0)
-      momentDate.seconds(0)
-      onChange(momentDate.format('YYYY-MM-DD HH:mm:ss'))
+    if (!validateDate || validateDate(today)) {
+      if (showTime) {
+        today.setHours(hour, minute, 0, 0)
+      } else {
+        today.setHours(0, 0, 0, 0)
+      }
+      onSelect(formatValueString(today, showTime))
     }
   }
 
   const isDateDisabled = (date: Date) => {
-    return disabledDates.some(disabledDate => moment(disabledDate).isSame(date, 'day'))
+    const isInDisabledList = disabledDates.some(d => isSameDay(date, d))
+    const isFuture = disableFutureDate && date > new Date()
+    return isInDisabledList || isFuture
   }
-
-  const formatDisplayDate = (date?: Date) => {
-    if (!date) return ''
-    const momentDate = moment(date)
-    momentDate.hours(hour)
-    momentDate.minutes(minute)
-    momentDate.seconds(0)
-    return momentDate.format('DD/MM/YYYY HH:mm')
-  }
-
-  // validate if end date is greater than or equal to start date
-  // const validateEndDate = (endDate: Date) => {
-  //   if (startDate) {
-  //     const startMoment = moment(startDate, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD/MM/YYYY HH:mm'])
-  //     const endMoment = moment(endDate)
-
-  //     if (showTime) {
-  //       endMoment.hours(hour)
-  //       endMoment.minutes(minute)
-  //     } else {
-  //       startMoment.endOf('day')
-  //       endMoment.startOf('day')
-  //     }
-
-  //     if (endMoment.isBefore(startMoment)) {
-  //       return false
-  //     }
-  //   }
-  //   return true
-  // }
 
   // Generate hours and minutes arrays
   const hours = Array.from({ length: 24 }, (_, i) => i)
@@ -208,11 +177,11 @@ export default function DateAndTimePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 w-4 h-4" />
-          {date ? formatDisplayDate(selectedDate) : <span>dd/mm/yyyy</span>}
+          {parsedDate ? formatDateString(parsedDate, showTime) : <span>{showTime ? 'dd/mm/yyyy hh:mm' : t('common.selectDate')}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-4 w-[36rem] max-h-[24rem] overflow-auto" align="start">
-        <div className="flex gap-4">
+      <PopoverContent className={cn("p-4", showTime ? "w-[36rem] max-h-[24rem] overflow-auto" : "w-auto")} align="start">
+        <div className={cn(showTime && "flex gap-4")}>
           <div className="flex-1">
             {/* Month and Year Selection */}
             <div className="flex justify-between items-center mb-4 space-x-2">
@@ -260,11 +229,25 @@ export default function DateAndTimePicker({
 
             <Calendar
               mode="single"
-              locale={locale}
-              selected={selectedDate}
-              onSelect={handleDateChange}
-              disabled={isDateDisabled}
+              selected={parsedDate || undefined}
+              onSelect={handleSelectDate}
+              month={new Date(year, month)}
+              onMonthChange={(newMonth) => {
+                setMonth(newMonth.getMonth())
+                setYear(newMonth.getFullYear())
+              }}
               initialFocus
+              locale={locale}
+              disabled={isDateDisabled}
+              modifiers={{
+                today: (d) => isToday(d),
+              }}
+              modifiersStyles={{
+                today: {
+                  fontWeight: 'bold',
+                  color: 'var(--primary)',
+                },
+              }}
             />
           </div>
 
