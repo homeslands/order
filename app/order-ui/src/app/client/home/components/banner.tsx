@@ -39,7 +39,7 @@ export default function SwiperBanner({
       slidesPerView={1}
       spaceBetween={0}
       modules={[Autoplay, Pagination, Navigation, EffectFade]}
-      className="w-full sm:h-[80vh]"
+      className={`relative ${isMobile ? 'aspect-video' : 'h-[60vh]'} w-full`}
       allowTouchMove={true}
     >
       {bannerData?.map((banner, index) => {
@@ -51,7 +51,7 @@ export default function SwiperBanner({
 
         return (
           <SwiperSlide key={index} className="flex items-center justify-center bg-black">
-            <div className="relative w-full h-[60vh] sm:h-full flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
               {/* Ảnh nền mờ + scale */}
               <img
                 src={bgImage}
@@ -67,7 +67,7 @@ export default function SwiperBanner({
               <img
                 src={bgImage}
                 alt="main banner"
-                className={`relative z-10 h-full ${isMobile ? 'object-cover w-full' : 'object-contain'}`}
+                className="relative z-10 object-contain max-h-full max-w-full"
               // onLoad={() => setIsImageLoaded(true)}
               />
             </div>
