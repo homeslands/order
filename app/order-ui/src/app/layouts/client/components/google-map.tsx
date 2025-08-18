@@ -12,7 +12,7 @@ export default function GoogleMap() {
   return (
     <APIProvider apiKey={googleMapAPIKey}>
       <Map
-        className="h-full w-full rounded-md border-2 border-white"
+        className="w-full h-full rounded-md border-2 border-white"
         defaultCenter={mapCenter}
         defaultZoom={17}
         gestureHandling={'greedy'}
