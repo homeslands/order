@@ -27,7 +27,7 @@ export function CustomerProfileTabs() {
 
   return (
     <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="scrollbar-hide mb-6 flex h-full w-full gap-3 overflow-x-auto border-b lg:mb-0">
+      <TabsList className="scrollbar-hide mb-6 flex h-full w-full !justify-start gap-3 overflow-x-auto border-b lg:mb-0">
         <TabsTrigger
           value="info"
           className="flex justify-center whitespace-nowrap"
