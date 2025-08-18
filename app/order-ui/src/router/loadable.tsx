@@ -430,3 +430,9 @@ export const FeatureLockManagementPage = React.lazy(() =>
     default: module.FeatureLockManagementPage,
   })),
 )
+
+export const CardOrderHistoryPage = React.lazy(() =>
+  import('@/app/system/card-order-history').then((module) => ({
+    default: module.CardOrderHistoryPage,
+  })),
+)

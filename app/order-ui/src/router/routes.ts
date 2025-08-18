@@ -18,6 +18,7 @@ import {
   UserCog,
   Users,
   LockOpen,
+  CoinsIcon,
 } from 'lucide-react'
 
 import type { ISidebarRoute } from '@/types'
@@ -49,6 +50,13 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_CHEF_ORDER,
     icon: CookingPot,
     permission: Permission.CHEF_ORDER_MANAGEMENT,
+    notificationCount: 0,
+  },
+  {
+    title: 'sidebar.cardOrderManagement',
+    path: ROUTE.STAFF_CARD_ORDER_MANAGEMENT,
+    icon: CoinsIcon,
+    permission: Permission.ORDER_MANAGEMENT,
     notificationCount: 0,
   },
   {
