@@ -48,7 +48,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white shadow-sm">
+      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white dark:bg-background shadow-sm">
         <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
           <TabsTrigger value="menu" className="flex justify-center">
             {t('menu.menu')}
@@ -61,7 +61,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
         </TabsList>
       </div>
       <TabsContent value="menu" className="p-0 pb-4 mt-0 w-full">
-        <div className="sticky top-14 z-20 py-2 bg-white shadow-sm">
+        <div className="sticky top-14 z-20 py-2 bg-white dark:bg-background shadow-sm">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
 
