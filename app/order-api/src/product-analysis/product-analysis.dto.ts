@@ -1,9 +1,10 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 import { BranchResponseDto } from 'src/branch/branch.dto';
 import { ProductResponseDto } from 'src/product/product.dto';
+import { ProductAnalysisTypeQuery } from './product-analysis.constants';
 
 export class ProductAnalysisQueryDto {
   @AutoMap()
@@ -14,6 +15,16 @@ export class ProductAnalysisQueryDto {
   @Type(() => Date)
   orderDate: Date;
 
+  @AutoMap()
+  @Type(() => String)
+  productId: string;
+
+  @AutoMap()
+  @Type(() => Number)
+  totalProducts: number;
+}
+
+export class ProductAnalysisQueryByBranchAndHourDto {
   @AutoMap()
   @Type(() => String)
   productId: string;
@@ -59,6 +70,32 @@ export class GetProductAnalysisQueryDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'Start date',
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'End date',
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  endDate?: Date;
+
+  @AutoMap()
+  @ApiProperty({ required: false, example: 'day' })
+  @IsOptional()
+  @IsEnum(ProductAnalysisTypeQuery, {
+    message: 'Invalid type of branch revenue query',
+  })
+  type: string = 'day';
 }
 
 export class ProductAnalysisResponseDto {
