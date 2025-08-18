@@ -6,6 +6,7 @@ export const publicFileURL = import.meta.env.VITE_PUBLIC_FILE_URL
 export const googleMapAPIKey = import.meta.env.VITE_GOOGLE_MAP_API_KEY
 export const fanpageUrl = import.meta.env.VITE_TREND_FANPAGE_URL
 export const phone = import.meta.env.VITE_TREND_PHONE
+export const registrationPhone = import.meta.env.VITE_REGISTRATION_PHONE
 export const mail = import.meta.env.VITE_TREND_EMAIL
 export const youtubeVideoId = import.meta.env.VITE_TREND_YOUTUBE_VIDEO_ID
 export const orderExpirationTimeInSeconds = Number(
