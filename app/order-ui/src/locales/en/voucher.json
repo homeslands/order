@@ -117,6 +117,7 @@
     "voucherGroupTitle": "Voucher Group Management",
     "voucherMaxUsage": "Maximum Usage Limit",
     "voucherTitle": "Voucher Management",
-    "vouchers": "voucher. Are you sure you want to create this voucher?"
+    "vouchers": "voucher. Are you sure you want to create this voucher?",
+    "searchByCode": "Enter discount code"
   }
 }

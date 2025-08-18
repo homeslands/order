@@ -89,9 +89,10 @@ export function CustomerGiftCardTabsContent() {
     const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
     const handleCopyCode = useCallback(
-      async (e: React.MouseEvent, code: string) => {
+      async (e: React.MouseEvent, code: string, serial: string) => {
         e.stopPropagation()
-        await navigator.clipboard.writeText(code)
+        const formatted = `serial: ${serial}\ncode: ${code}`
+        await navigator.clipboard.writeText(formatted)
         setCopiedCode(code)
         setTimeout(() => setCopiedCode(null), 2000)
       },
@@ -178,7 +179,9 @@ export function CustomerGiftCardTabsContent() {
                           ? 'text-green-600 hover:text-green-700'
                           : 'text-primary hover:text-primary/80'
                       }`}
-                      onClick={(e) => handleCopyCode(e, giftCard.code)}
+                      onClick={(e) =>
+                        handleCopyCode(e, giftCard.code, giftCard.serial)
+                      }
                     >
                       {copiedCode === giftCard.code ? (
                         <Check className="h-3 w-3" />

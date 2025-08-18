@@ -36,6 +36,7 @@ export interface IGiftCardGetRequest {
   sort?: string
   fromDate?: string
   toDate?: string
+  customerSlug?: string
 }
 
 export interface IGiftCardUpdateRequest {

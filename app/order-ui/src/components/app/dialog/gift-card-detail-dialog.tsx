@@ -10,8 +10,6 @@ import {
 import { Separator } from '@/components/ui/separator'
 import {
   Gift,
-  Clock,
-  Calendar,
   Star,
   Sparkles,
   CoinsIcon,
@@ -25,12 +23,10 @@ import {
   QrCode,
   Copy,
   Check,
-  CalendarX,
 } from 'lucide-react'
 import { IGiftCardDetail } from '@/types/gift-card.type'
 import { GiftCardUsageStatus, publicFileURL } from '@/constants'
 import { formatCurrency } from '@/utils'
-import moment from 'moment'
 import { useIsMobile } from '@/hooks'
 import { GiftCardStatusBadge } from '../badge'
 
@@ -289,65 +285,9 @@ export default function GiftCardDetailDialog({
                     </div>
                   </div>
                 )}
-
-                {/* Created Date */}
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                    <Calendar
-                      size={18}
-                      className="text-green-600 dark:text-green-400"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('profile.giftCard.createdAt')}
-                    </p>
-                    <p className="text-sm font-medium">
-                      {moment(giftCard.createdAt).format('HH:mm DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Used Date (if used) */}
-                {giftCard.usedAt && (
-                  <div className="flex items-center space-x-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900/30">
-                      <Clock
-                        size={18}
-                        className="text-gray-600 dark:text-gray-400"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {t('profile.giftCard.usedAt')}
-                      </p>
-                      <p className="text-sm font-medium">
-                        {moment(giftCard.usedAt).format('HH:mm DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {/* Expired Date */}
-                <div className="flex items-center space-x-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
-                    <CalendarX
-                      size={18}
-                      className="text-red-600 dark:text-red-400"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('profile.giftCard.expiredAt')}
-                    </p>
-                    <p className="text-sm font-medium">
-                      {moment(giftCard.expiredAt).format('HH:mm DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </div>
-
                 {/* Used By User (if used) */}
                 {giftCard.status === GiftCardUsageStatus.USED &&
-                  giftCard.usedBy && (
+                  giftCard.cardOrder.customerSlug !== giftCard.usedBySlug && (
                     <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-900/20">
                       <div className="flex items-start space-x-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">

@@ -24,6 +24,7 @@ import { ICreateProductVariantRequest } from '@/types'
 import { useCreateProductVariant } from '@/hooks'
 import { showToast } from '@/utils'
 import { SizeSelect } from '@/components/app/select'
+import { QUERYKEY } from '@/constants'
 
 interface IFormCreateProductVariantProps {
   onSubmit: (isOpen: boolean) => void
@@ -49,7 +50,7 @@ export const CreateProductVariantForm: React.FC<
     createProductVariant(data, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['product', slug],
+          queryKey: [QUERYKEY.specificProduct, slug],
         })
         onSubmit(false)
         form.reset()

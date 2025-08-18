@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { SquareMenu } from 'lucide-react'
 
 import { DataTable } from '@/components/ui'
-import { usePagination, useVouchers } from '@/hooks'
+import { usePagination, useSpecificVoucher, useVouchers } from '@/hooks'
 import { VoucherAction } from '../DataTable/actions'
 import { useVoucherColumns } from '../DataTable/columns'
 import { IVoucher } from '@/types'
@@ -16,8 +16,9 @@ export default function VoucherPage() {
     const { slug } = useParams()
     const [isOpen, setIsOpen] = useState(false)
     const [selectedVouchers, setSelectedVouchers] = useState<IVoucher[]>([])
+    const [voucherCode, setVoucherCode] = useState<string>('')
     const { handlePageChange, handlePageSizeChange, pagination } = usePagination()
-    const { data, isLoading, refetch } = useVouchers({
+    const { data: voucherListData, isLoading: isLoadingList, refetch: refetchList } = useVouchers({
         order: 'DESC',
         voucherGroup: slug,
         page: pagination.pageIndex,
@@ -25,17 +26,35 @@ export default function VoucherPage() {
         hasPaging: true
     })
 
+    const { data: specificVoucher, isLoading: isLoadingSpecificVoucher } = useSpecificVoucher({
+        code: voucherCode,
+    })
+
+    const data = voucherCode
+        ? specificVoucher ? [specificVoucher.result] : []
+        : voucherListData?.result.items || []
+
+    const isLoading = voucherCode ? isLoadingSpecificVoucher : isLoadingList
+
     const handleSelectionChange = useCallback((selectedSlugs: IVoucher[]) => {
         setSelectedVouchers(selectedSlugs)
     }, [])
 
     const handleCreateVoucherSuccess = () => {
         setSelectedVouchers([])
-        refetch()
+        refetchList()
     }
 
     const handleUpdateVoucherSuccess = () => {
-        refetch()
+        refetchList()
+    }
+
+    const handleSearchChange = (value: string) => {
+        if (value === '') {
+            setVoucherCode('')
+            return
+        }
+        setVoucherCode(value)
     }
 
     return (
@@ -54,10 +73,12 @@ export default function VoucherPage() {
             <div className="grid grid-cols-1 gap-2 mt-4 h-full">
                 <DataTable
                     columns={useVoucherColumns(handleUpdateVoucherSuccess, handleSelectionChange, selectedVouchers)}
-                    data={data?.result.items || []}
+                    data={data}
                     isLoading={isLoading}
-                    pages={data?.result.totalPages || 1}
-                    hiddenInput={true}
+                    pages={voucherListData?.result.totalPages || 1}
+                    hiddenInput={false}
+                    searchPlaceholder={t('voucher.searchByCode')}
+                    onInputChange={handleSearchChange}
                     actionOptions={() => <VoucherAction onSuccess={handleCreateVoucherSuccess} selectedVouchers={selectedVouchers} onOpenChange={setIsOpen} isConfirmExportVoucherDialogOpen={isOpen} />}
                     onPageChange={handlePageChange}
                     onPageSizeChange={handlePageSizeChange}
