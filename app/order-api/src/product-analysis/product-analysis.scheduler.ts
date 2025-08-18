@@ -16,12 +16,8 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { ProductAnalysisQueryDto } from './product-analysis.dto';
 import { Branch } from 'src/branch/branch.entity';
-import { BranchException } from 'src/branch/branch.exception';
-import { BranchValidation } from 'src/branch/branch.validation';
 import { Product } from 'src/product/product.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { ProductException } from 'src/product/product.exception';
-import ProductValidation from 'src/product/product.validation';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import moment from 'moment';
@@ -80,9 +76,11 @@ export class ProductAnalysisScheduler {
             id: _.first(groupedItem).productId,
           },
         });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        // if (!product)
+        //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
         // let totalSaleQuantity = product.saleQuantityHistory;
+        if (!product) return [];
+
         let totalSaleQuantity = 0;
 
         const productAnalysesByProductPromise = groupedItem.map(
@@ -90,8 +88,10 @@ export class ProductAnalysisScheduler {
             const branch = await this.branchRepository.findOne({
               where: { id: item.branchId },
             });
-            if (!branch)
-              throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            // if (!branch)
+            //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+            if (!branch) return null;
 
             const pa = this.mapper.map(
               item,
@@ -104,9 +104,9 @@ export class ProductAnalysisScheduler {
             return pa;
           },
         );
-        const productAnalysesByProduct = await Promise.all(
-          productAnalysesByProductPromise,
-        );
+        const productAnalysesByProduct = (
+          await Promise.all(productAnalysesByProductPromise)
+        ).filter(Boolean); // remove null
         product.saleQuantityHistory = totalSaleQuantity;
         updateProducts.push(product);
 
@@ -191,8 +191,10 @@ export class ProductAnalysisScheduler {
               id: _.first(groupedItem).productId,
             },
           });
-          if (!product)
-            throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          // if (!product)
+          //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          if (!product) return [];
+
           let newTotalSaleQuantity = product.saleQuantityHistory;
           const oldTotalSaleQuantity = product.saleQuantityHistory;
 
@@ -210,8 +212,10 @@ export class ProductAnalysisScheduler {
               const branch = await this.branchRepository.findOne({
                 where: { id: item.branchId },
               });
-              if (!branch)
-                throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+              // if (!branch)
+              //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+              if (!branch) return null;
 
               const existedProductAnalysis = hasProductAnalysesByProduct.find(
                 (hasItem) =>
@@ -246,9 +250,10 @@ export class ProductAnalysisScheduler {
               }
             },
           );
-          const productAnalysesByProduct = await Promise.all(
-            productAnalysesByProductPromise,
-          );
+          const productAnalysesByProduct = (
+            await Promise.all(productAnalysesByProductPromise)
+          ).filter(Boolean); // remove null
+
           if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
             product.saleQuantityHistory = newTotalSaleQuantity;
             updateProducts.push(product);
@@ -267,6 +272,7 @@ export class ProductAnalysisScheduler {
         const productAnalyses = await Promise.all(productAnalysesPromise);
         const productAnalysesArr: ProductAnalysis[] =
           _.flatten(productAnalyses);
+
         await queryRunner.manager.save(productAnalysesArr);
         await queryRunner.manager.save(updateProducts);
         await queryRunner.commitTransaction();

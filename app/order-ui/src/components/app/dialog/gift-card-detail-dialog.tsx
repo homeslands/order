@@ -15,14 +15,11 @@ import {
   CoinsIcon,
   User,
   Hash,
-  CheckCircle,
-  AlertCircle,
-  Mail,
   Phone,
-  MapPin,
   QrCode,
   Copy,
   Check,
+  Activity,
 } from 'lucide-react'
 import { IGiftCardDetail } from '@/types/gift-card.type'
 import { GiftCardUsageStatus, publicFileURL } from '@/constants'
@@ -49,48 +46,6 @@ export default function GiftCardDetailDialog({
     await navigator.clipboard.writeText(text)
     setCopiedField(fieldName)
   }
-
-  // Get status info
-  const getStatusInfo = (status: string) => {
-    switch (status) {
-      case GiftCardUsageStatus.AVAILABLE:
-        return {
-          icon: <CheckCircle size={20} className="text-green-600" />,
-          color: 'text-green-600',
-          bgColor: 'bg-green-50 dark:bg-green-900/20',
-          borderColor: 'border-green-200 dark:border-green-800',
-          label: t('profile.giftCard.status.available'),
-        }
-      case GiftCardUsageStatus.USED:
-        return {
-          icon: <CheckCircle size={20} className="text-green-600" />,
-          color: 'text-green-600',
-          bgColor: 'bg-green-50 dark:bg-green-900/20',
-          borderColor: 'border-green-200 dark:border-green-800',
-          label: t('profile.giftCard.status.used'),
-        }
-      case GiftCardUsageStatus.EXPIRED:
-        return {
-          icon: <AlertCircle size={20} className="text-red-600" />,
-          color: 'text-red-600',
-          bgColor: 'bg-red-50 dark:bg-red-900/20',
-          borderColor: 'border-red-200 dark:border-red-800',
-          label: t('profile.giftCard.status.expired'),
-        }
-      default:
-        return {
-          icon: <Gift size={20} className="text-blue-600" />,
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-          borderColor: 'border-blue-200 dark:border-blue-800',
-          label: status,
-        }
-    }
-  }
-
-  const statusInfo = getStatusInfo(
-    giftCard.status || GiftCardUsageStatus.AVAILABLE,
-  )
   const isAvailable = giftCard.status === GiftCardUsageStatus.AVAILABLE
 
   // Sparkle animation component
@@ -149,37 +104,10 @@ export default function GiftCardDetailDialog({
         {isAvailable && <SparkleEffect />}
 
         <div className="relative z-10">
-          <DialogHeader className="space-y-4 text-center">
-            <div className="flex justify-center">
-              <div
-                className={`rounded-full p-4 ${
-                  isAvailable
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg'
-                    : statusInfo.bgColor +
-                      ' ' +
-                      statusInfo.borderColor +
-                      ' border'
-                }`}
-              >
-                {isAvailable ? (
-                  <Gift size={24} className="text-white" />
-                ) : (
-                  statusInfo.icon
-                )}
-              </div>
-            </div>
-
+          <DialogHeader className="flex items-center justify-center space-y-4">
             <DialogTitle className="text-xl font-bold">
               {giftCard.cardName || t('profile.giftCard.defaultTitle')}
             </DialogTitle>
-
-            {/* Status Badge */}
-            <div className="flex justify-center">
-              <GiftCardStatusBadge
-                status={giftCard.status || GiftCardUsageStatus.AVAILABLE}
-                rounded="md"
-              />
-            </div>
           </DialogHeader>
 
           <div className="mt-6 space-y-4">
@@ -285,6 +213,25 @@ export default function GiftCardDetailDialog({
                     </div>
                   </div>
                 )}
+                {/*Status */}
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                    <Activity size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.giftCard.status.label')}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <GiftCardStatusBadge
+                        status={
+                          giftCard.status || GiftCardUsageStatus.AVAILABLE
+                        }
+                        rounded="md"
+                      />
+                    </div>
+                  </div>
+                </div>
                 {/* Used By User (if used) */}
                 {giftCard.status === GiftCardUsageStatus.USED &&
                   giftCard.cardOrder.customerSlug !== giftCard.usedBySlug && (
@@ -305,22 +252,10 @@ export default function GiftCardDetailDialog({
                               {giftCard.usedBy.firstName}{' '}
                               {giftCard.usedBy.lastName}
                             </p>
-                            {giftCard.usedBy.email && (
-                              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                <Mail size={12} className="text-blue-500" />
-                                <span>{giftCard.usedBy.email}</span>
-                              </div>
-                            )}
                             {giftCard.usedBy.phonenumber && (
                               <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                 <Phone size={12} className="text-green-500" />
                                 <span>{giftCard.usedBy.phonenumber}</span>
-                              </div>
-                            )}
-                            {giftCard.usedBy.address && (
-                              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                <MapPin size={12} className="text-red-500" />
-                                <span>{giftCard.usedBy.address}</span>
                               </div>
                             )}
                           </div>
@@ -329,29 +264,6 @@ export default function GiftCardDetailDialog({
                     </div>
                   )}
               </div>
-
-              {/* Additional Info */}
-              {giftCard.status === GiftCardUsageStatus.EXPIRED && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle size={16} className="text-red-600" />
-                    <p className="text-sm text-red-600 dark:text-red-400">
-                      {t('profile.giftCard.expiredMessage')}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {giftCard.status === GiftCardUsageStatus.USED && (
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-900/20">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle size={16} className="text-gray-600" />
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {t('profile.giftCard.usedMessage')}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

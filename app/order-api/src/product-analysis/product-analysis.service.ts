@@ -71,6 +71,12 @@ export class ProductAnalysisService {
     if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
 
     if (query.type === ProductAnalysisTypeQuery.HOUR) {
+      if (!query.startDate || !query.endDate) {
+        throw new ProductAnalysisException(
+          ProductAnalysisValidation.START_DATE_AND_END_DATE_REQUIRED,
+        );
+      }
+
       const startDateQuery = moment(query.startDate).format(
         'YYYY-MM-DD HH:mm:ss',
       );
@@ -365,8 +371,10 @@ export class ProductAnalysisService {
             id: _.first(groupedItem).productId,
           },
         });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        // if (!product)
+        //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        if (!product) return [];
+
         let newTotalSaleQuantity = product.saleQuantityHistory;
         const oldTotalSaleQuantity = product.saleQuantityHistory;
 
@@ -384,8 +392,9 @@ export class ProductAnalysisService {
             const branch = await this.branchRepository.findOne({
               where: { id: item.branchId },
             });
-            if (!branch)
-              throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            // if (!branch)
+            //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            if (!branch) return null;
 
             const existedProductAnalysis = hasProductAnalysesByProduct.find(
               (hasItem) =>
@@ -419,9 +428,10 @@ export class ProductAnalysisService {
           },
         );
 
-        const productAnalysesByProduct = await Promise.all(
-          productAnalysesByProductPromise,
-        );
+        const productAnalysesByProduct = (
+          await Promise.all(productAnalysesByProductPromise)
+        ).filter(Boolean); // remove null
+
         if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
           product.saleQuantityHistory = newTotalSaleQuantity;
           updateProducts.push(product);

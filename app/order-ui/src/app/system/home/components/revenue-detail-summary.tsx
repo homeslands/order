@@ -3,14 +3,18 @@ import { CoffeeIcon, CreditCard, Coins, ChartColumn, CircleDollarSign } from 'lu
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { formatCurrency } from '@/utils';
-import { IBranchRevenue } from '@/types';
+import { IBranchRevenue, IBranchTopProduct } from '@/types';
 
 interface RevenueData {
     revenueData: IBranchRevenue[] | undefined
+    topProduct: IBranchTopProduct[] | undefined
 }
 
-export default function RevenueDetailSummary({ revenueData }: RevenueData) {
+export default function RevenueDetailSummary({ revenueData, topProduct }: RevenueData) {
     const { t } = useTranslation(['revenue'])
+
+    // get total product
+    const totalProduct = topProduct?.reduce((sum, item) => sum + (item.totalQuantity || 0), 0) || 0;
 
     // get totalAmount
     const totalAmount = revenueData?.reduce((sum, item) => sum + (item.totalAmount || 0), 0) || 0;
@@ -31,7 +35,7 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
     // const totalOrderItem = revenueData?.reduce((sum, item) => sum + (item.totalOrderItem || 0), 0) || 0;
 
     return (
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
             <Card className="text-white shadow-none bg-primary">
                 <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">
@@ -53,6 +57,18 @@ export default function RevenueDetailSummary({ revenueData }: RevenueData) {
                 </CardHeader>
                 <CardContent className='p-3'>
                     <div className="text-xl font-bold">{totalOrders}</div>
+                    {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
+                </CardContent>
+            </Card>
+            <Card className="bg-white shadow-none dark:bg-transparent">
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalOrderItem')}
+                    </CardTitle>
+                    <CoffeeIcon className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{totalProduct}</div>
                     {/* <p className="text-xs text-muted-foreground">+15% from last month</p> */}
                 </CardContent>
             </Card>

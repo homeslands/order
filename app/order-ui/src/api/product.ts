@@ -15,6 +15,7 @@ import {
   ITopProduct,
   IBranchTopProduct,
   IProductRequest,
+  IRefreshProductAnalysisRequest,
 } from '@/types'
 import { useDownloadStore } from '@/stores'
 import { useAuthStore } from '@/stores'
@@ -154,6 +155,16 @@ export async function getTopBranchProducts(
   })
   return response.data
 }
+
+export async function refreshProductAnalysis(
+  params: IRefreshProductAnalysisRequest,
+): Promise<IApiResponse<IProduct>> {
+  const response = await http.post<IApiResponse<IProduct>>(
+    `/product-analysis/refresh?startDate=${params.startDate}&endDate=${params.endDate}`,
+  )
+  return response.data
+}
+
 export async function exportAllProductsFile(): Promise<void> {
   const { setProgress, setIsDownloading, reset } = useDownloadStore.getState()
   const { token } = useAuthStore.getState()
