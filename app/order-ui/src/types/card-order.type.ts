@@ -31,6 +31,8 @@ export interface IRecipient {
   recipientSlug: string
   quantity: number
   message?: string
+  name?: string;
+  phone?: string;
 }
 export interface ICardOrderResponse {
   slug: string

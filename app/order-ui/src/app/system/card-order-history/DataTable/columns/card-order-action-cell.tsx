@@ -33,12 +33,14 @@ export default function CardOrderActionCell({ rowData }: { rowData: ICardOrderRe
                     <div
                         data-tooltip-id="update-payment"
                         data-tooltip-content={t('giftCard.cardOrder.updatePayment')}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <CreditCardIcon className="cursor-pointer text-blue-500 transition-colors hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300" />
                         <Tooltip id="update-payment" variant="light" />
                     </div>
 
                     <div
+                        onClick={(e) => e.stopPropagation()}
                         data-tooltip-id="cancel-order"
                         data-tooltip-content={t('giftCard.cardOrder.cancel')}
                     >
