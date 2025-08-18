@@ -82,7 +82,8 @@ export class ProductAnalysisScheduler {
         });
         if (!product)
           throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-        let totalSaleQuantity = product.saleQuantityHistory;
+        // let totalSaleQuantity = product.saleQuantityHistory;
+        let totalSaleQuantity = 0;
 
         const productAnalysesByProductPromise = groupedItem.map(
           async (item) => {
@@ -139,9 +140,10 @@ export class ProductAnalysisScheduler {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
-  // @Timeout(1000)
   async refreshProductAnalysis() {
     const context = `${ProductAnalysisScheduler.name}.${this.refreshProductAnalysis.name}`;
+
+    this.logger.log(`Start refreshing product analysis at 1am`, context);
 
     try {
       const yesterdayDate = new Date();
@@ -269,20 +271,20 @@ export class ProductAnalysisScheduler {
         await queryRunner.manager.save(updateProducts);
         await queryRunner.commitTransaction();
         this.logger.log(
-          `Refresh product analysis ${productAnalysesArr.length}`,
+          `Refresh product analysis ${productAnalysesArr.length} at 1am`,
           context,
         );
       } catch (error) {
         await queryRunner.rollbackTransaction();
         throw new BadRequestException(
-          `Error when refresh product analysis: ${error.message}`,
+          `Error when refresh product analysis at 1am: ${error.message}`,
         );
       } finally {
         await queryRunner.release();
       }
     } catch (error) {
       this.logger.error(
-        `Error when handle data to refresh product analysis: ${error.message}`,
+        `Error when handle data to refresh product analysis at 1am: ${error.message}`,
         error.stack,
         context,
       );
