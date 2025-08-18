@@ -12,7 +12,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
-import { ResetPasswordDialog, UpdateCustomerDialog, UserInfoDialog } from '@/components/app/dialog'
+import {
+  ResetPasswordDialog,
+  UpdateCustomerDialog,
+  UserInfoDialog,
+} from '@/components/app/dialog'
+import { formatCurrency } from '@/utils'
+import { GiftCardTransactionSheet } from '@/components/app/sheet'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['customer', 'common'])
@@ -77,6 +83,20 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       },
     },
     {
+      accessorKey: 'points',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('customer.points')} />
+      ),
+      cell: ({ row }) => {
+        const user = row.original
+        return (
+          <div className="text-sm">
+            {formatCurrency(user?.balance?.points || 0, ' ')}
+          </div>
+        )
+      },
+    },
+    {
       id: 'actions',
       header: tCommon('common.action'),
       cell: ({ row }) => {
@@ -95,6 +115,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
                 <UserInfoDialog user={user} />
+                <GiftCardTransactionSheet user={user} />
                 <ResetPasswordDialog user={user} />
                 <UpdateCustomerDialog customer={user} />
               </DropdownMenuContent>
