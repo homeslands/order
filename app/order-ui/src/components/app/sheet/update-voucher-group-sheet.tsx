@@ -119,8 +119,8 @@ export default function UpdateVoucherGroupSheet({
             {t('voucher.updateVoucherGroup')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+        <div className="flex flex-col h-full bg-background backdrop-blur-md">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-transparent p-4">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
@@ -130,7 +130,7 @@ export default function UpdateVoucherGroupSheet({
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white rounded-md border">
+                  <div className="p-4 rounded-md border">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}

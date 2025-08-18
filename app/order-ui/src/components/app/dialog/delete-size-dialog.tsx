@@ -44,8 +44,8 @@ export default function DeleteSizeDialog({ size }: { size: ISize }) {
       <DialogTrigger className="flex justify-start w-full" asChild>
         <DialogTrigger asChild>
           <Button
-            variant="ghost"
-            className="gap-1 px-2 text-sm"
+            variant="outline"
+            className="gap-1 px-2 text-sm bg-destructive/15 text-destructive hover:bg-destructive/30 hover:text-destructive"
             onClick={() => setIsOpen(true)}
           >
             <Trash2 className="icon" />

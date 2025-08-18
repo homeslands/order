@@ -226,10 +226,10 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                       />
                       )}
                     <div className='flex flex-col gap-1'>
-                      <span className="text-sm font-medium text-gray-700 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
+                      <span className="text-sm font-medium text-secondary-foreground max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
                         {orderItem.variant.product.name}
                       </span>
-                      <span className="text-sm text-gray-400">
+                      <span className="text-sm text-muted-foreground">
                         Size {orderItem.variant.size?.name.toUpperCase()}
                       </span>
                     </div>
@@ -237,7 +237,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                   <div className="flex justify-center items-center">
                     {orderItem.promotion && orderItem.promotion.value > 0 ? (
                       <div className="flex gap-2 items-center">
-                        <span className="text-sm text-gray-400 line-through">
+                        <span className="text-sm text-muted-foreground line-through">
                           {formatCurrency(originalPrice)}
                         </span>
                         <span className="text-sm font-semibold text-primary">
@@ -245,7 +245,7 @@ export default function OrderItemDetail({ order }: OrderItemDetailProps) {
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm font-semibold text-gray-700">
+                      <span className="text-sm font-semibold text-secondary-foreground">
                         {formatCurrency(originalPrice)}
                       </span>
                     )}
