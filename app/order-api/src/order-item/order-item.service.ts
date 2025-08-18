@@ -127,7 +127,7 @@ export class OrderItemService {
 
     let orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
-      relations: ['order.payment'],
+      relations: ['order.payment', 'order.voucher.voucherProducts.product'],
     });
 
     if (!orderItem.order) {
