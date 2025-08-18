@@ -177,13 +177,14 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
             initialSlide={0}
             modules={[Autoplay, Pagination]}
             className="overflow-y-visible w-full h-full mySwiper"
+            pagination={{ clickable: true }}
         >
             {!isFetching ? filteredMenus?.map((item, index) => {
                 const imageProduct = item?.product?.image ? publicFileURL + "/" + item.product.image : Com
                 return (
                     <SwiperSlide key={index} className="py-2 w-full h-[13.5rem] sm:h-[19rem]">
                         {!isMobile ? (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-xl border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`} className="relative flex-shrink-0 justify-center items-center px-2 py-4 w-24 h-full sm:p-0 sm:w-full sm:h-40">
                                     <>
                                         <img src={imageProduct} alt="product" className="object-cover p-1.5 w-full h-36 rounded-xl" />
@@ -278,11 +279,11 @@ export default function SliderMenu({ menus, isFetching, type }: ISliderMenuPromo
                                 )}
                             </div>
                         ) : (
-                            <div className="flex h-full w-full flex-col justify-between rounded-xl border shadow-xl bg-white dark:bg-transparent backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
+                            <div className="flex h-full w-full flex-col justify-between rounded-lg border border-foreground/20 shadow-xl bg-white dark:bg-card backdrop-blur-md transition-all duration-300 hover:scale-[1.03] ease-in-out">
 
                                 <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
                                     <>
-                                        <img src={imageProduct} alt="product" className="object-cover w-full p-1.5 h-28 rounded-xl" />
+                                        <img src={imageProduct} alt="product" className="object-cover w-full p-1.5 h-28 rounded-lg" />
                                         {item.promotion && item.promotion.value > 0 && (
                                             <PromotionTag promotion={item.promotion} />
                                         )}
