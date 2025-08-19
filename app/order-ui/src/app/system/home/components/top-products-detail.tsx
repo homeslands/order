@@ -5,7 +5,7 @@ import { useTheme } from '@/components/app/theme-provider'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
 import { usePagination, useTopBranchProducts } from '@/hooks'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useOverviewFilterStore } from '@/stores'
 
 export default function TopProductsDetail() {
     const { t } = useTranslation('dashboard')
@@ -14,11 +14,15 @@ export default function TopProductsDetail() {
     const chartRef = useRef<HTMLDivElement>(null)
     const { pagination } = usePagination()
     const { branch } = useBranchStore()
+    const { overviewFilter } = useOverviewFilterStore()
     const { data: topBranchProducts } = useTopBranchProducts({
         branch: branch?.slug || '',
         page: pagination.pageIndex,
         size: pagination.pageSize,
-        hasPaging: true
+        hasPaging: true,
+        startDate: overviewFilter.startDate,
+        endDate: overviewFilter.endDate,
+        type: overviewFilter.type
     })
 
     useEffect(() => {
@@ -94,7 +98,7 @@ export default function TopProductsDetail() {
                 </CardTitle>
             </CardHeader>
             <CardContent className='p-0'>
-                <div ref={chartRef} className='w-full h-[26rem]' />
+                <div ref={chartRef} className='w-full h-[48rem]' />
             </CardContent>
         </Card>
     )
