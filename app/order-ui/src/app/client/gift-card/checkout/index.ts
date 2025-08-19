@@ -1,1 +1,1 @@
-export { default as GiftCardCheckoutPage } from './page'
+export { default as ClientGiftCardCheckoutPage } from './page'

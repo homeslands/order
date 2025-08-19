@@ -70,7 +70,7 @@ export default function UpdateGiftCardSheet({
   const form = useForm<TUpdateGiftCardSchema>({
     resolver: zodResolver(updateGiftCardSchema(t)),
     defaultValues: defaultFormValues,
-    mode: 'onChange'
+    mode: 'onChange',
   })
 
   const handleSubmit = (data: TUpdateGiftCardSchema) => {
@@ -308,7 +308,11 @@ export default function UpdateGiftCardSheet({
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="gift-card-form" disabled={isPending || !form.formState.isValid}>
+            <Button
+              type="submit"
+              form="gift-card-form"
+              disabled={isPending || !form.formState.isValid}
+            >
               {t('giftCard.update')}
             </Button>
           </SheetFooter>

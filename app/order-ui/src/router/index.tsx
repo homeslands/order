@@ -59,6 +59,7 @@ import {
   ClientOrderSuccessPage,
   VoucherGroupPage,
   GiftCardPage,
+  GiftCardMenuPage,
   ClientGiftCardPage,
   ClientGiftCardCheckoutPage,
   OrderInstructionsPage,
@@ -835,6 +836,25 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: ROUTE.STAFF_GIFT_CARD_MENU,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={GiftCardMenuPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
         path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
         element: (
           <Suspense fallback={<SkeletonCart />}>
@@ -866,9 +886,7 @@ export const router = createBrowserRouter([
             index: true,
             element: (
               <ProtectedElement
-                element={
-                  <SuspenseElement component={CardOrderHistoryPage} />
-                }
+                element={<SuspenseElement component={CardOrderHistoryPage} />}
               />
             ),
           },
