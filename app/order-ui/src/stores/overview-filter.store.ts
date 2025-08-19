@@ -32,9 +32,9 @@ export const useOverviewFilterStore = create<IOverviewFilterStore>()(
         set({
           overviewFilter: {
             branch: '',
-            startDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().format('YYYY-MM-DD'),
-            type: RevenueTypeQuery.DAILY,
+            startDate: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+            endDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+            type: RevenueTypeQuery.HOURLY,
           },
         })
       },

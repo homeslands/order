@@ -407,11 +407,14 @@ export class ProductAnalysisService {
 
             if (existedProductAnalysis) {
               if (existedProductAnalysis.totalQuantity !== item.totalProducts) {
+                // update sale quantity in product
+                newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
+                newTotalSaleQuantity += item.totalProducts; // add new total quantity
+
+                // update product analysis
                 Object.assign(existedProductAnalysis, {
                   totalQuantity: item.totalProducts,
                 });
-                newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
-                newTotalSaleQuantity += item.totalProducts; // add new total quantity
                 return existedProductAnalysis;
               }
             } else {
@@ -428,9 +431,9 @@ export class ProductAnalysisService {
           },
         );
 
-        const productAnalysesByProduct = (
-          await Promise.all(productAnalysesByProductPromise)
-        ).filter(Boolean); // remove null
+        const productAnalysesByProduct = await Promise.all(
+          productAnalysesByProductPromise,
+        );
 
         if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
           product.saleQuantityHistory = newTotalSaleQuantity;

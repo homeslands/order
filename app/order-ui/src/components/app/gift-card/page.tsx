@@ -66,15 +66,6 @@ export default function GiftCardPage(props: IGiftCardPageProps) {
     },
   }
 
-  // Handle card selection
-  const handleSelectCard = (card: IGiftCard) => {
-    if (selectedCard?.slug === card.slug) {
-      setSelectedCard(null)
-    } else {
-      setSelectedCard(card)
-    }
-  }
-
   // Check if user is authenticated
   if (!isAuthenticated()) {
     return (
@@ -127,14 +118,7 @@ export default function GiftCardPage(props: IGiftCardPageProps) {
         className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
         {giftCards.map((card, index) => (
-          <GiftCardItem
-            key={card.slug}
-            card={card}
-            index={index}
-            isSelected={selectedCard?.slug === card.slug}
-            onSelect={handleSelectCard}
-            onClose={() => setSelectedCard(null)}
-          />
+          <GiftCardItem key={card.slug} card={card} index={index} />
         ))}
       </motion.div>
       {/* Empty State */}
