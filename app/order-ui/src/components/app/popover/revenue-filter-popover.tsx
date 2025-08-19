@@ -12,22 +12,18 @@ import { RevenueTypeSelect } from "../select";
 import { RevenueFilterForm } from "../form";
 import { RevenueTypeQuery } from "@/constants";
 import { IRevenueQuery } from "@/types";
+import { useOverviewFilterStore } from "@/stores";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
+    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
     const [open, setOpen] = useState(false);
-
-    // State để lưu trữ filter values
-    const [savedFilterValues, setSavedFilterValues] = useState<Partial<IRevenueQuery> | null>(null);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const handleExportRevenue = (data: IRevenueQuery) => {
-        // Lưu filter values trước khi apply
-        setSavedFilterValues(data);
-        setRevenueType(data.type as RevenueTypeQuery);
+        setOverviewFilter({ ...overviewFilter, type: data.type as RevenueTypeQuery });
         onApply(data)
         setOpen(false)
     };
@@ -45,12 +41,11 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                     <div className="space-y-2">
                         <span className="font-bold leading-none text-md">{t("revenue.exportRevenue")}</span>
                     </div>
-                    <RevenueTypeSelect defaultValue={revenueType} onChange={(value) => setRevenueType(value as RevenueTypeQuery)} />
+                    <RevenueTypeSelect defaultValue={overviewFilter.type} onChange={(value) => setOverviewFilter({ ...overviewFilter, type: value as RevenueTypeQuery })} />
                     <RevenueFilterForm
                         onSubmit={handleExportRevenue}
-                        type={revenueType}
+                        type={overviewFilter.type}
                         onSuccess={() => setOpen(false)}
-                        savedValues={savedFilterValues}
                     />
                 </div>
             </PopoverContent>
