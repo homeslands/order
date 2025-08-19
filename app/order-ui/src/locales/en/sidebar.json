@@ -87,6 +87,7 @@
     "tableManagement": "Table Management",
     "userManagement": "Employee Management",
     "voucher": "Voucher",
-    "voucherGroup": "Voucher Group"
+    "voucherGroup": "Voucher Group",
+    "cardOrderManagement": "Card Order Management"
   }
 }
