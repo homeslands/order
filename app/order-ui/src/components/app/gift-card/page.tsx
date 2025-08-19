@@ -13,7 +13,6 @@ import {
   AdminGiftCardSheet,
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
-import { IGiftCard } from '@/types'
 import { useAuthStore, useUserStore } from '@/stores'
 import { Role } from '@/constants'
 
@@ -29,7 +28,6 @@ export default function GiftCardPage(props: IGiftCardPageProps) {
   const { helmet } = props
   const { title, description } = helmet
   const [sortOption, setSortOption] = useState<string>('price,asc')
-  const [selectedCard, setSelectedCard] = useState<IGiftCard | null>(null)
   const { isAuthenticated } = useAuthStore()
   const { userInfo } = useUserStore()
   const role = userInfo?.role?.name
@@ -39,7 +37,6 @@ export default function GiftCardPage(props: IGiftCardPageProps) {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    setSelectedCard(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
