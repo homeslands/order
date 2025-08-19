@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui'
 import ReceiverForm from './receiver-form'
 import { type TGiftCardCheckoutSchema, type TReceiverSchema } from '@/schemas'
+import { useUserStore } from '@/stores/user.store'
+import { Role } from '@/constants'
 
 interface ReceiversSectionProps {
   control: Control<TGiftCardCheckoutSchema>
@@ -28,6 +30,8 @@ export default function ReceiversSection({
   const { t } = useTranslation(['giftCard'])
 
   // Watch receivers to get current values
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role.name
   const receivers = form.watch('receivers') || []
   const [selectedRecipients, setSelectedRecipients] = useState<
     Record<number, boolean>
@@ -144,7 +148,9 @@ export default function ReceiversSection({
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
-            {t('giftCard.addReceiver')}
+            {role === Role.CUSTOMER
+              ? t('giftCard.addReceiver')
+              : t('giftCard.customer.addCustomer')}
           </Button>
         </>
       )}

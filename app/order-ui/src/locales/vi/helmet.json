@@ -60,6 +60,12 @@
       "manageGiftCard": "Quản lý thẻ quà tặng",
       "title": "Quản lý thẻ quà tặng"
     },
+    "giftCardMenu": {
+      "description": "Mua thẻ quà tặng của bạn tại đây",
+      "keywords":  "menu thẻ quà tặng, danh mục thẻ quà tặng, menu thẻ quà tặng quán ăn",
+      "manageGiftCardMenu": "Mua thẻ quà tặng",
+      "title": "Mua thẻ quà tặng"
+    },
     "giftCardFeatureFlag": {
       "description": "Quản lý khóa chức năng của bạn tại đây",
       "keywords": "khóa thẻ quà tặng, Quản lý khóa chức năng, khóa thẻ quà tặng quán ăn",

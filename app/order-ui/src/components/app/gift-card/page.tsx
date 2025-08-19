@@ -9,18 +9,30 @@ import {
   GiftCardItem,
   GiftCardPagination,
   GiftCardHeader,
-  GiftCardSheet,
+  ClientGiftCardSheet,
+  AdminGiftCardSheet,
 } from './components'
 import { SkeletonMenuList } from '@/components/app/skeleton'
 import { IGiftCard } from '@/types'
-import { useAuthStore } from '@/stores'
+import { useAuthStore, useUserStore } from '@/stores'
+import { Role } from '@/constants'
 
-export default function GiftCardPage() {
+interface IGiftCardPageProps {
+  helmet: {
+    title: string
+    description: string
+  }
+}
+
+export default function GiftCardPage(props: IGiftCardPageProps) {
   const { t } = useTranslation(['giftCard', 'common'])
-  const { t: tHelmet } = useTranslation('helmet')
+  const { helmet } = props
+  const { title, description } = helmet
   const [sortOption, setSortOption] = useState<string>('price,asc')
   const [selectedCard, setSelectedCard] = useState<IGiftCard | null>(null)
   const { isAuthenticated } = useAuthStore()
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(8)
@@ -69,11 +81,8 @@ export default function GiftCardPage() {
       <div className="container mx-auto py-10">
         <Helmet>
           <meta charSet="utf-8" />
-          <title>{tHelmet('helmet.giftCard.title')}</title>
-          <meta
-            name="description"
-            content={tHelmet('helmet.giftCard.description')}
-          />
+          <title>{helmet.title}</title>
+          <meta name="description" content={helmet.description} />
         </Helmet>
         <motion.div
           initial="hidden"
@@ -106,11 +115,8 @@ export default function GiftCardPage() {
     <div className="container mx-auto py-10">
       <Helmet>
         <meta charSet="utf-8" />
-        <title>{tHelmet('helmet.giftCard.title')}</title>
-        <meta
-          name="description"
-          content={tHelmet('helmet.giftCard.description')}
-        />{' '}
+        <title>{title}</title>
+        <meta name="description" content={description} />
       </Helmet>
       <GiftCardHeader sortOption={sortOption} onSortChange={setSortOption} />
       {/* Gift Cards Grid */}{' '}
@@ -161,7 +167,11 @@ export default function GiftCardPage() {
           />
         </motion.div>
       )}
-      <GiftCardSheet />
+      {role === Role.CUSTOMER ? (
+        <ClientGiftCardSheet />
+      ) : (
+        <AdminGiftCardSheet />
+      )}
     </div>
   )
 }
