@@ -29,11 +29,12 @@ import { TUpdateGiftCardSchema, updateGiftCardSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { GiftCardStatusSelect } from '@/components/app/select'
 import { useUpdateGiftCard } from '@/hooks'
-import { showToast } from '@/utils'
+import { showErrorToast, showToast } from '@/utils'
 import { useSortContext } from '@/contexts'
 import { Tooltip } from 'react-tooltip'
 import { ImageUploader } from '../upload'
 import { NumberFormatValues, NumericFormat } from 'react-number-format'
+import { AxiosError } from 'axios'
 
 interface IUpdateGiftCardSheetProps {
   giftCard: IGiftCard
@@ -80,6 +81,7 @@ export default function UpdateGiftCardSheet({
     formDataObj.append('points', data.points.toString())
     formDataObj.append('price', data.price.toString())
     formDataObj.append('isActive', data.isActive.toString())
+    formDataObj.append('version', giftCard.version.toString())
 
     // Append file only if it exists
     if (data.file) {
@@ -99,6 +101,12 @@ export default function UpdateGiftCardSheet({
           showToast(tToast('toast.updateGiftCardSuccess'))
           if (onSort) {
             onSort(SortOperation.UPDATE)
+          }
+        },
+        onError: (error) => {
+          if ((error as AxiosError)?.response?.status === 409) {
+            queryClient.invalidateQueries({ queryKey: [QUERYKEY.giftCards] })
+            showErrorToast(1006)
           }
         },
       },

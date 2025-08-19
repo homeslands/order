@@ -68,7 +68,8 @@ export const useGiftCardStore = create<IGiftCardStore>()(
             giftCardItem.slug !== serverItem.slug ||
             giftCardItem.price !== serverItem.price ||
             giftCardItem.title !== serverItem.title ||
-            giftCardItem.isActive !== serverItem.isActive
+            giftCardItem.isActive !== serverItem.isActive ||
+            giftCardItem.version !== serverItem.version
           ) {
             // Preserve local quantity if possible
             const quantity =
