@@ -19,7 +19,7 @@ export default function TopProductsDetail() {
         branch: branch?.slug || '',
         page: pagination.pageIndex,
         size: pagination.pageSize,
-        hasPaging: true,
+        hasPaging: false,
         startDate: overviewFilter.startDate,
         endDate: overviewFilter.endDate,
         type: overviewFilter.type

@@ -17,30 +17,29 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
 import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useOverviewFilterStore } from '@/stores'
 
 interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
     onSubmit: (data: IRevenueQuery) => void
     onSuccess: () => void
-    savedValues?: Partial<IRevenueQuery> | null
 }
 
 export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
     onSubmit,
     type,
-    savedValues,
 }) => {
     const { t } = useTranslation(['revenue'])
     const { branch } = useBranchStore()
+    const { overviewFilter } = useOverviewFilterStore()
 
     const getDefaultValues = React.useCallback(() => {
         // Nếu có savedValues, sử dụng chúng
-        if (savedValues) {
+        if (overviewFilter) {
             return {
-                branch: savedValues.branch || branch?.slug,
-                startDate: savedValues.startDate || (type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
-                endDate: savedValues.endDate || (type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
+                branch: overviewFilter.branch || branch?.slug,
+                startDate: overviewFilter.startDate || (type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
+                endDate: overviewFilter.endDate || (type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
                 type: type || RevenueTypeQuery.DAILY,
             }
         }
@@ -52,7 +51,7 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
             endDate: type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
             type: type || RevenueTypeQuery.DAILY,
         }
-    }, [savedValues, branch?.slug, type])
+    }, [overviewFilter, branch?.slug, type])
 
     const form = useForm<TExportRevenueSchema>({
         resolver: zodResolver(useExportRevenueSchema()),
@@ -68,11 +67,11 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
 
         // Chỉ cập nhật dates nếu có savedValues hoặc form chưa có giá trị
         const currentValues = form.getValues()
-        if (savedValues || !currentValues.startDate || !currentValues.endDate) {
+        if (overviewFilter || !currentValues.startDate || !currentValues.endDate) {
             form.setValue('startDate', defaultValues.startDate)
             form.setValue('endDate', defaultValues.endDate)
         }
-    }, [type, branch?.slug, savedValues, form, getDefaultValues])
+    }, [type, branch?.slug, overviewFilter, form, getDefaultValues])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
