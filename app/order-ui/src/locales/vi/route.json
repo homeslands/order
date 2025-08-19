@@ -37,6 +37,8 @@
     "table": "Quản lý bàn",
     "update": "Cập nhật",
     "voucher": "Mã giảm giá",
-    "voucher-group": "Nhóm mã giảm giá"
+    "voucher-group": "Nhóm mã giảm giá",
+    "card": "Thẻ quà tặng",
+    "catalog": "Danh mục thẻ quà tặng"
   }
 }

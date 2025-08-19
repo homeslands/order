@@ -2,6 +2,7 @@
     "giftCard": {
         "giftCard": "Gift Card",
         "pageTitle": "Gift Card Management",
+        "menuPageTitle": "Purchase Gift Card",
         "clientPageTitle": "Gift Cards",
         "noGiftCardsAvailable": "No gift cards available at the moment",
         "buyNow": "Buy Now",

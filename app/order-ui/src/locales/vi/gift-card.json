@@ -2,6 +2,7 @@
     "giftCard": {
         "giftCard": "Thẻ quà tặng",
         "pageTitle": "Quản lý thẻ quà tặng",
+        "menuPageTitle": "Mua thẻ quà tặng",
         "clientPageTitle": "Thẻ quà tặng",
         "noGiftCardsAvailable": "Hiện tại không có thẻ quà tặng nào",
         "buyNow": "Mua ngay",
@@ -193,6 +194,7 @@
             "name": "Tên người nhận"
         },
         "customer": {
+        "customer":{
             "title": "Khách hàng",
             "customerPhone": "Số điện thoại khách hàng",
             "customerName": "Tên khách hàng",

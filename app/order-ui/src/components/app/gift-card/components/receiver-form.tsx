@@ -14,6 +14,8 @@ import {
 import RecipientSearchInput from './recipient-search-input'
 import { type TGiftCardCheckoutSchema } from '@/schemas'
 import { type IUserInfo } from '@/types'
+import { useUserStore } from '@/stores'
+import { Role } from '@/constants'
 
 interface ReceiverFormProps {
   index: number
@@ -31,6 +33,8 @@ export default function ReceiverForm({
   onRecipientSelectionChange,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role.name
   const { setValue, watch } = useFormContext<TGiftCardCheckoutSchema>()
 
   // Watch userInfo for this receiver
@@ -54,12 +58,30 @@ export default function ReceiverForm({
       setValue(`receivers.${index}.userInfo`, undefined)
     }
   }
+  const getReceiverTexts = () => {
+    if (role === Role.CUSTOMER) {
+      return {
+        title: t('giftCard.receiver'),
+        phone: t('giftCard.receiverPhone'),
+        enterPhone: t('giftCard.enterReceiverPhone'),
+        name: t('giftCard.receiverName'),
+      }
+    }
+
+    return {
+      title: t('giftCard.customer.title'),
+      phone: t('giftCard.customer.customerPhone'),
+      enterPhone: t('giftCard.customer.enterPhone'),
+      name: t('giftCard.customer.customerName'),
+    }
+  }
+  const labels = getReceiverTexts()
 
   return (
     <div className="rounded-lg border bg-card p-4 text-card-foreground">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          {t('giftCard.receiver')} {index + 1}
+          {labels.title} {index + 1}
         </h3>
         {canRemove && (
           <Button
@@ -78,7 +100,7 @@ export default function ReceiverForm({
         render={({ field }) => (
           <FormItem className="mt-2">
             <FormLabel>
-              {t('giftCard.receiverPhone')}
+              {labels.phone}
               <span className="text-destructive dark:text-red-400">*</span>
             </FormLabel>
             <FormControl>
@@ -86,7 +108,7 @@ export default function ReceiverForm({
                 value={field.value}
                 onChange={field.onChange}
                 onUserSelect={handleUserSelect}
-                placeholder={t('giftCard.enterReceiverPhone')}
+                placeholder={labels.enterPhone}
                 onSelectionChange={(hasSelectedUser) =>
                   onRecipientSelectionChange?.(index, hasSelectedUser)
                 }
@@ -103,15 +125,11 @@ export default function ReceiverForm({
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              {t('giftCard.receiverName')}
+              {labels.name}
               <span className="text-destructive dark:text-red-400">*</span>
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                placeholder={t('giftCard.receiverName')}
-                disabled
-              />
+              <Input {...field} placeholder={labels.name} disabled />
             </FormControl>
             <FormMessage />
           </FormItem>

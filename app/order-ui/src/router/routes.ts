@@ -18,6 +18,7 @@ import {
   UserCog,
   Users,
   LockOpen,
+  TicketCheck,
 } from 'lucide-react'
 
 import type { ISidebarRoute } from '@/types'
@@ -146,6 +147,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.giftCardManagement',
     path: ROUTE.STAFF_GIFT_CARD,
     icon: Gift,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
+    title: 'sidebar.giftCardMenu',
+    path: ROUTE.STAFF_GIFT_CARD_MENU,
+    icon: TicketCheck,
     permission: Permission.BANNER_MANAGEMENT,
   },
   {

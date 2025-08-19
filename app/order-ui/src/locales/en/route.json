@@ -37,6 +37,8 @@
     "table": "Table Management",
     "update": "Update",
     "voucher": "Voucher",
-    "voucher-group": "Voucher Group"
+    "voucher-group": "Voucher Group",
+    "card": "Gift Card",
+    "catalog": "Gift Card Catalog"
   }
 }

@@ -403,6 +403,13 @@ export const GiftCardPage = React.lazy(() =>
   })),
 )
 
+//Gift card menu page
+export const GiftCardMenuPage = React.lazy(() =>
+  import('@/app/system/gift-card/catalog').then((module) => ({
+    default: module.GiftCardCatalogPage,
+  })),
+)
+
 //Client Gift card page
 export const ClientGiftCardPage = React.lazy(() =>
   import('@/app/client/gift-card').then((module) => ({
