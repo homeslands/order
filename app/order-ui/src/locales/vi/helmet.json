@@ -107,6 +107,9 @@
       "manageOrderManagement": "Quản lý đơn hàng",
       "title": "Quản lý đơn hàng"
     },
+    "cardOrder": {
+      "title": "Quản lý đơn hàng quà tặng"
+    },
     "payment": {
       "description": "Quản lý thanh toán của bạn tại đây",
       "managePayment": "Trang thanh toán",
