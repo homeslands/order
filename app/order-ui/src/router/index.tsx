@@ -66,6 +66,7 @@ import {
   ClientGiftCardCheckoutWithSlugPage,
   GiftCardSuccessPage,
   FeatureLockManagementPage,
+  CardOrderHistoryPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -815,6 +816,25 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: ROUTE.STAFF_CARD_ORDER_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={CardOrderHistoryPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
         path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
         element: (
           <Suspense fallback={<SkeletonCart />}>
@@ -828,6 +848,26 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 element={
                   <SuspenseElement component={FeatureLockManagementPage} />
+                }
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_CARD_ORDER_MANAGEMENT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={
+                  <SuspenseElement component={CardOrderHistoryPage} />
                 }
               />
             ),
