@@ -20,16 +20,7 @@ export default function OverviewDetailPage() {
   const { t: tToast } = useTranslation('toast')
   const { pagination } = usePagination()
   const { branch } = useBranchStore()
-  const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
-  // const [revenueType, setRevenueType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
-
-  // const [startDate, setStartDate] = useState<string>(
-  //   moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
-  // )
-
-  // const [endDate, setEndDate] = useState<string>(
-  //   moment().format('YYYY-MM-DD HH:mm:ss')
-  // )
+  const { overviewFilter, setOverviewFilter, clearOverviewFilter } = useOverviewFilterStore()
   const { mutate: refreshRevenue } = useLatestRevenue()
   const { mutate: refreshProductAnalysis } = useRefreshProductAnalysis()
 
@@ -75,6 +66,7 @@ export default function OverviewDetailPage() {
     refreshRevenue(undefined, {
       onSuccess: () => {
         showToast(tToast('toast.refreshRevenueSuccess'))
+        clearOverviewFilter()
         refetchRevenue()
       }
     })
@@ -83,7 +75,7 @@ export default function OverviewDetailPage() {
         showToast(tToast('toast.refreshProductAnalysisSuccess'))
       }
     })
-  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, overviewFilter])
+  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, overviewFilter, clearOverviewFilter])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     const newStartDate = data.startDate
