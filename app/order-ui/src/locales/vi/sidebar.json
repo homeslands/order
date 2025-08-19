@@ -86,6 +86,7 @@
     "tableManagement": "Quản lý bàn",
     "userManagement": "Quản lý nhân viên",
     "voucher": "Mã giảm giá",
-    "voucherGroup": "Nhóm mã giảm giá"
+    "voucherGroup": "Nhóm mã giảm giá",
+    "cardOrderManagement": "Quản lý đơn hàng quà tặng"
   }
 }
