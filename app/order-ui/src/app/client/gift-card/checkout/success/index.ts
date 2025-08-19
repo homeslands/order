@@ -1,1 +1,1 @@
-export { default as GiftCardSuccessPage } from './success-page'
+export { default as ClientGiftCardSuccessPage } from './success-page'

@@ -23,7 +23,7 @@ import {
   OrderSummary,
   DraggableGiftCardButton,
 } from './'
-import { showErrorToast, showToast } from '@/utils'
+import { showToast, showErrorToast } from '@/utils'
 import { useGiftCardStore, useUserStore } from '@/stores'
 import { GiftCardFlagGroup, GiftCardType } from '@/constants'
 import {
