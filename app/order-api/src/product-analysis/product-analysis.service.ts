@@ -119,7 +119,20 @@ export class ProductAnalysisService {
           }),
         );
 
-      return await this.getPaginatedResults(productAnalysisResponseDto, query);
+      const total = productAnalysisResponseDto.length;
+
+      let resultsDto: ProductAnalysisResponseDto[] = [];
+
+      if (query.hasPaging) {
+        resultsDto = productAnalysisResponseDto.slice(
+          (query.page - 1) * query.size,
+          query.page * query.size,
+        );
+      } else {
+        resultsDto = productAnalysisResponseDto;
+      }
+
+      return await this.getPaginatedResults(resultsDto, query, total);
     } else {
       let startDateQuery = null;
       let endDateQuery = null;
@@ -161,6 +174,8 @@ export class ProductAnalysisService {
         .groupBy('pa.product')
         .addGroupBy('pa.branch')
         .orderBy('totalProducts', 'DESC');
+
+      const total = await queryBuilder.getCount();
 
       if (query.hasPaging)
         queryBuilder.take(query.size).skip((query.page - 1) * query.size);
@@ -205,7 +220,7 @@ export class ProductAnalysisService {
         }),
       );
 
-      return await this.getPaginatedResults(productAnalyses, query);
+      return await this.getPaginatedResults(productAnalyses, query, total);
     }
   }
 
@@ -217,6 +232,8 @@ export class ProductAnalysisService {
       .addSelect('SUM(pa.totalQuantity)', 'totalProducts')
       .groupBy('pa.product')
       .orderBy('totalProducts', 'DESC');
+
+    const total = await queryBuilder.getCount();
 
     if (query.hasPaging)
       queryBuilder.take(query.size).skip((query.page - 1) * query.size);
@@ -249,14 +266,15 @@ export class ProductAnalysisService {
       }),
     );
 
-    return await this.getPaginatedResults(productAnalyses, query);
+    return await this.getPaginatedResults(productAnalyses, query, total);
   }
 
   private async getPaginatedResults(
     productAnalysesDto: ProductAnalysisResponseDto[],
     query: GetProductAnalysisQueryDto,
+    total: number,
   ) {
-    const total = productAnalysesDto.length;
+    // const total = productAnalysesDto.length;
     const page = query.hasPaging ? query.page : 1;
     const pageSize = query.hasPaging ? query.size : total;
 
