@@ -19,6 +19,7 @@ import { IProductVariant } from '@/types'
 
 import { useDeleteProductVariant } from '@/hooks'
 import { showToast } from '@/utils'
+import { QUERYKEY } from '@/constants'
 
 export default function DeleteProductVariantDialog({
   productVariant,
@@ -37,7 +38,7 @@ export default function DeleteProductVariantDialog({
     deleteProductVariant(productVariantSlug, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ['product', slug],
+          queryKey: [QUERYKEY.specificProduct, slug],
         })
         setIsOpen(false)
         showToast(tToast('toast.deleteProductVariantSuccess'))
@@ -63,12 +64,12 @@ export default function DeleteProductVariantDialog({
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b border-destructive text-destructive">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2 items-center">
               <TriangleAlert className="w-6 h-6" />
               {t('productVariant.delete')}
             </div>
           </DialogTitle>
-          <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
+          <DialogDescription className={`p-2 bg-red-100 rounded-md dark:bg-transparent text-destructive`}>
             {tCommon('common.deleteNote')}
           </DialogDescription>
 
@@ -79,7 +80,7 @@ export default function DeleteProductVariantDialog({
             {t('productVariant.deleteProductVariantConfirmation')}
           </div>
         </DialogHeader>
-        <DialogFooter className="flex flex-row justify-center gap-2">
+        <DialogFooter className="flex flex-row gap-2 justify-center">
           <Button variant="outline" onClick={() => setIsOpen(false)}>
             {tCommon('common.cancel')}
           </Button>
