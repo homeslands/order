@@ -13,6 +13,7 @@ import { IApiResponse, IRefreshTokenResponse } from '@/types'
 import { baseURL, ROUTE } from '@/constants'
 import { useLoadingStore } from '@/stores'
 import { showErrorToast } from './toast'
+import { isValidRedirectUrl } from './current-url-manager'
 
 NProgress.configure({ showSpinner: false, trickleSpeed: 200 })
 
@@ -82,7 +83,7 @@ axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore.getState()
     // const {clearCart} = useCartItemStore()
-    const { setCurrentUrl } = useCurrentUrlStore.getState()
+    const { setCurrentUrl, shouldUpdateUrl } = useCurrentUrlStore.getState()
     const {
       token,
       expireTime,
@@ -92,6 +93,7 @@ axiosInstance.interceptors.request.use(
       setLogout,
       setRefreshToken,
       setExpireTimeRefreshToken,
+      setIsRefreshing,
       isAuthenticated,
     } = authStore
 
@@ -105,6 +107,7 @@ axiosInstance.interceptors.request.use(
 
     if (expireTime && isTokenExpired(expireTime) && !isRefreshing) {
       isRefreshing = true
+      setIsRefreshing(true) // Đồng bộ với store
       try {
         const response: AxiosResponse<IApiResponse<IRefreshTokenResponse>> =
           await axios.post(`${baseURL}/auth/refresh`, {
@@ -123,13 +126,20 @@ axiosInstance.interceptors.request.use(
         // clearCart()
         setLogout()
         showErrorToast(1017)
+        // Chỉ lưu currentUrl nếu nó là valid redirect URL và cần update
         const currentUrl = window.location.pathname
-        if (currentUrl !== ROUTE.LOGIN) {
+        if (
+          currentUrl !== ROUTE.LOGIN &&
+          isValidRedirectUrl(currentUrl) &&
+          shouldUpdateUrl(currentUrl)
+        ) {
           setCurrentUrl(currentUrl)
         }
-        window.location.href = ROUTE.LOGIN
+        // Không dùng window.location.href mà để React Router handle
+        // window.location.href = ROUTE.LOGIN
       } finally {
         isRefreshing = false
+        setIsRefreshing(false) // Đồng bộ với store
       }
     } else if (isRefreshing) {
       return new Promise((resolve, reject) => {

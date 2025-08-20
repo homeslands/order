@@ -3,6 +3,14 @@ import { IBranch } from './branch.type'
 import { ICatalog } from './catalog.type'
 import { IUserInfo } from './user.type'
 
+export enum AuthState {
+  AUTHENTICATED = 'authenticated',
+  LOADING = 'loading',
+  EXPIRED = 'expired',
+  UNAUTHENTICATED = 'unauthenticated',
+  REFRESHING = 'refreshing',
+}
+
 export interface IAuthStore {
   slug?: string
   token?: string
@@ -10,12 +18,17 @@ export interface IAuthStore {
   expireTime?: string
   expireTimeRefreshToken?: string
   authorities?: string[]
+  isRefreshing?: boolean
   isAuthenticated: () => boolean
+  getAuthState: () => AuthState
+  isTokenValid: () => boolean
+  needsUserInfo: () => boolean
   setSlug: (slug: string) => void
   setToken: (token: string) => void
   setRefreshToken: (refreshToken: string) => void
   setExpireTime: (expireTime: string) => void
   setExpireTimeRefreshToken: (expireTimeRefreshToken: string) => void
+  setIsRefreshing: (isRefreshing: boolean) => void
   setLogout: () => void
 }
 

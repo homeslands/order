@@ -10,6 +10,7 @@ export const ROUTE = {
   CLIENT_ORDER_SUCCESS: '/client/order-success',
   CLIENT_GIFT_CARD_SUCCESS: '/client/gift-card/confirmation',
   VERIFY_EMAIL: '/verify-email', // Make sure this matches exactly with your URL path
+  FORBIDDEN: '/403',
 
   // System Routes
   OVERVIEW: '/system/overview',
