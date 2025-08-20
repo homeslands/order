@@ -42,7 +42,7 @@ export class JobService {
     private readonly sharedBalanceService: SharedBalanceService,
     private readonly sharedPointTransactionService: SharedPointTransactionService,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async updateOrderStatusAfterPaymentPaid(job: Job) {
     const context = `${JobService.name}.${this.updateOrderStatusAfterPaymentPaid.name}`;
@@ -110,14 +110,16 @@ export class JobService {
 
         // Handle calc balance when use point payment method
         if (order.payment?.paymentMethod === PaymentMethod.POINT) {
-          // TODO: Calc balance
+          // Calc balance
           await this.sharedBalanceService.calcBalance({
             userSlug: order.owner?.slug,
             points: order.payment.amount,
             type: 'out',
           });
 
-          // TODO: Create point transaction
+          const currentBalance = await this.sharedBalanceService.findOneByField({ userSlug: order.owner?.slug, slug: null })
+
+          // Create point transaction
           await this.sharedPointTransactionService.create({
             type: PointTransactionTypeEnum.OUT,
             desc: `Su dung ${CurrencyUtil.formatCurrency(order.subtotal)} xu thanh toan don hang`,
@@ -125,6 +127,7 @@ export class JobService {
             objectSlug: order.slug,
             points: order.payment?.amount,
             userSlug: order.owner?.slug,
+            balance: currentBalance.points
           } as CreatePointTransactionDto);
         }
 
