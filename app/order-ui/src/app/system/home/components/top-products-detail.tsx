@@ -4,31 +4,20 @@ import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/components/app/theme-provider'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui"
-import { usePagination, useTopBranchProducts } from '@/hooks'
-import { useBranchStore, useOverviewFilterStore } from '@/stores'
+import { useBranchStore } from '@/stores'
+import { IBranchTopProduct } from '@/types'
 
-export default function TopProductsDetail() {
+export default function TopProductsDetail({ topProducts }: { topProducts: IBranchTopProduct[] | undefined }) {
     const { t } = useTranslation('dashboard')
     const { t: tProduct } = useTranslation('product')
-    const { theme } = useTheme() // thêm
+    const { theme } = useTheme()
     const chartRef = useRef<HTMLDivElement>(null)
-    const { pagination } = usePagination()
     const { branch } = useBranchStore()
-    const { overviewFilter } = useOverviewFilterStore()
-    const { data: topBranchProducts } = useTopBranchProducts({
-        branch: branch?.slug || '',
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        hasPaging: false,
-        startDate: overviewFilter.startDate,
-        endDate: overviewFilter.endDate,
-        type: overviewFilter.type
-    })
 
     useEffect(() => {
-        if (chartRef.current && topBranchProducts?.result?.items) {
+        if (chartRef.current && topProducts) {
             const chart = echarts.init(chartRef.current)
-            const items = [...topBranchProducts.result.items]
+            const items = [...topProducts]
                 .sort((a, b) => a.totalQuantity - b.totalQuantity) // Sort items by quantity in descending order
 
             const textColor = theme === 'dark' ? '#fff' : '#000' // thêm
@@ -88,7 +77,7 @@ export default function TopProductsDetail() {
                 window.removeEventListener('resize', handleResize)
             }
         }
-    }, [topBranchProducts, branch, tProduct, theme]) // thêm theme
+    }, [topProducts, branch, tProduct, theme])
 
     return (
         <Card className='shadow-none'>
