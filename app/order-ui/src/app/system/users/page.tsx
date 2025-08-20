@@ -98,6 +98,7 @@ export default function EmployeeListPage() {
         isLoading={isLoading}
         pages={data?.result.totalPages || 0}
         hiddenInput={false}
+        searchPlaceholder={t('employee.searchByPhoneNumber')}
         onInputChange={handleSearchChange}
         filterOptions={EmployeeFilterOptions}
         filterConfig={filterConfig}
