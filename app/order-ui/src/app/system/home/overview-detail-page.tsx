@@ -7,7 +7,7 @@ import { RevenueDetailChart, TopProductsDetail, RevenueDetailSummary, RevenueTab
 import { BranchSelect } from '@/components/app/select'
 import { RevenueFilterPopover } from '@/components/app/popover'
 import { Badge, Button } from '@/components/ui'
-import { useBranchRevenue, useLatestRevenue, usePagination, useRefreshProductAnalysis, useTopBranchProducts } from '@/hooks'
+import { useBranchRevenue, useLatestRevenue, useRefreshProductAnalysis, useTopBranchProducts } from '@/hooks'
 import { showToast } from '@/utils'
 import { useBranchStore, useOverviewFilterStore } from '@/stores'
 import { RevenueTypeQuery } from '@/constants'
@@ -18,7 +18,6 @@ export default function OverviewDetailPage() {
   const { t } = useTranslation(['dashboard'])
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
-  const { pagination } = usePagination()
   const { branch } = useBranchStore()
   const { overviewFilter, setOverviewFilter, clearOverviewFilter } = useOverviewFilterStore()
   const { mutate: refreshRevenue } = useLatestRevenue()
@@ -33,9 +32,7 @@ export default function OverviewDetailPage() {
 
   const { data: topBranchProducts } = useTopBranchProducts({
     branch: branch?.slug || '',
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
-    hasPaging: true,
+    hasPaging: false,
     startDate: overviewFilter.startDate,
     endDate: overviewFilter.endDate,
     type: overviewFilter.type
@@ -142,7 +139,7 @@ export default function OverviewDetailPage() {
         </div>
         <div className="grid grid-cols-1 gap-2">
           <RevenueDetailChart revenueType={overviewFilter.type} revenueData={adjustedRevenueData} />
-          <TopProductsDetail />
+          <TopProductsDetail topProducts={topProducts} />
         </div>
         <RevenueTable revenueData={adjustedRevenueData} isLoading={isLoading} />
       </main>

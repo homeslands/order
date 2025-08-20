@@ -14,6 +14,7 @@ interface GiftCardTypeSelectProps {
   onChange: (value: GiftCardType) => void
   className?: string
   featureFlags: IGiftCardFlagFeature[]
+  isDisabled?: boolean
 }
 
 export default function GiftCardTypeSelect({
@@ -21,6 +22,7 @@ export default function GiftCardTypeSelect({
   onChange,
   className,
   featureFlags,
+  isDisabled = false,
 }: GiftCardTypeSelectProps) {
   const isAllLocked = featureFlags.every((flag) => flag.isLocked)
   const availableFlags = featureFlags.filter(
@@ -30,7 +32,7 @@ export default function GiftCardTypeSelect({
   return (
     <>
       {featureFlags && (
-        <Select value={value} onValueChange={onChange}>
+        <Select value={value} onValueChange={onChange} disabled={isDisabled}>
           <SelectTrigger className={className}>
             <SelectValue>{getGiftCardTypeLabel(value)}</SelectValue>
           </SelectTrigger>

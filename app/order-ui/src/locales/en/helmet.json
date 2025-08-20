@@ -60,6 +60,12 @@
       "manageGiftCard": "Manage Gift Cards",
       "title": "Gift Card Management"
     },
+    "giftCardMenu": {
+      "description": "Manage your gift card menu here",
+      "keywords": "gift card menu, gift card catalog, restaurant gift card menu",
+      "manageGiftCardMenu": "Manage Gift Card Menu",
+      "title": "Gift Card Menu Management"
+    },
     "giftCardFeatureFlag": {
       "description": "Manage your feature flags here",
       "keywords": "feature flag, Feature Lock Management, gift card feature flag",
