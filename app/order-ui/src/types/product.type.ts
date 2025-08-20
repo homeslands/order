@@ -120,8 +120,8 @@ export interface ITopBranchProductQuery {
   startDate?: string
   endDate?: string
   type?: RevenueTypeQuery
-  page: number
-  size: number
+  page?: number
+  size?: number
   hasPaging?: boolean
 }
 
