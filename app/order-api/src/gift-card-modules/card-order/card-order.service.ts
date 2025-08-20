@@ -425,9 +425,16 @@ export class CardOrderService {
             totalAmount += databaseEntity.cardPoint;
           }
 
+          // Update recipient balance ONCE after all cards
+          await this.balanceService.calcBalance({
+            userSlug: recipientSlug,
+            points: totalAmount,
+            type: PointTransactionTypeEnum.IN,
+          });
+
           const currentBalance = await this.balanceService.findOneByField({ userSlug: recipientSlug, slug: null })
 
-          // 3. Create transaction record
+          // Create transaction record
           await this.ptService.create({
             type: PointTransactionTypeEnum.IN,
             desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
@@ -437,13 +444,6 @@ export class CardOrderService {
             userSlug: recipientSlug,
             balance: currentBalance.points
           } as CreatePointTransactionDto);
-
-          // 4. Update recipient balance ONCE after all cards
-          await this.balanceService.calcBalance({
-            userSlug: recipientSlug,
-            points: totalAmount,
-            type: PointTransactionTypeEnum.IN,
-          });
         }
         break;
       case CardOrderType.SELF:
@@ -465,9 +465,15 @@ export class CardOrderService {
           totalAmount += databaseEntity.cardPoint;
         }
 
+        //  Update recipient balance ONCE after all cards
+        await this.balanceService.calcBalance({
+          userSlug: databaseEntity.customerSlug,
+          points: totalAmount,
+          type: PointTransactionTypeEnum.IN,
+        });
+
         const currentBalance = await this.balanceService.findOneByField({ userSlug: databaseEntity.customerSlug, slug: null })
 
-        // 3. Create transaction record
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
           desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
@@ -478,12 +484,6 @@ export class CardOrderService {
           balance: currentBalance.points
         } as CreatePointTransactionDto);
 
-        // 4. Update recipient balance ONCE after all cards
-        await this.balanceService.calcBalance({
-          userSlug: databaseEntity.customerSlug,
-          points: totalAmount,
-          type: PointTransactionTypeEnum.IN,
-        });
         break;
       case CardOrderType.BUY:
         // Just create gift cards
