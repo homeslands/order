@@ -16,16 +16,16 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { ProductAnalysisQueryDto } from './product-analysis.dto';
 import { Branch } from 'src/branch/branch.entity';
-import { BranchException } from 'src/branch/branch.exception';
-import { BranchValidation } from 'src/branch/branch.validation';
 import { Product } from 'src/product/product.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { ProductException } from 'src/product/product.exception';
-import ProductValidation from 'src/product/product.validation';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import moment from 'moment';
 import { ProductAnalysisUtils } from './product-analysis.utils';
+import { DistributeLockJobKey, QueueRegisterKey } from 'src/app/app.constants';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import Redlock from 'redlock';
 
 @Injectable()
 export class ProductAnalysisScheduler {
@@ -42,6 +42,8 @@ export class ProductAnalysisScheduler {
     private readonly mapper: Mapper,
     private readonly dataSource: DataSource,
     private readonly productAnalysisUtils: ProductAnalysisUtils,
+    @InjectQueue(QueueRegisterKey.DISTRIBUTE_LOCK_JOB)
+    private readonly distributeLockJobQueue: Queue,
   ) {}
 
   @Timeout(5000)
@@ -80,17 +82,22 @@ export class ProductAnalysisScheduler {
             id: _.first(groupedItem).productId,
           },
         });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-        let totalSaleQuantity = product.saleQuantityHistory;
+        // if (!product)
+        //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        // let totalSaleQuantity = product.saleQuantityHistory;
+        if (!product) return [];
+
+        let totalSaleQuantity = 0;
 
         const productAnalysesByProductPromise = groupedItem.map(
           async (item) => {
             const branch = await this.branchRepository.findOne({
               where: { id: item.branchId },
             });
-            if (!branch)
-              throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            // if (!branch)
+            //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+            if (!branch) return null;
 
             const pa = this.mapper.map(
               item,
@@ -103,9 +110,9 @@ export class ProductAnalysisScheduler {
             return pa;
           },
         );
-        const productAnalysesByProduct = await Promise.all(
-          productAnalysesByProductPromise,
-        );
+        const productAnalysesByProduct = (
+          await Promise.all(productAnalysesByProductPromise)
+        ).filter(Boolean); // remove null
         product.saleQuantityHistory = totalSaleQuantity;
         updateProducts.push(product);
 
@@ -139,29 +146,43 @@ export class ProductAnalysisScheduler {
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
-  // @Timeout(1000)
   async refreshProductAnalysis() {
     const context = `${ProductAnalysisScheduler.name}.${this.refreshProductAnalysis.name}`;
 
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.PRODUCT_ANALYSIS_REFRESH_EVERY_DAY_AT_1AM;
+    const ttl = 1000 * 60 * 2; // 2 minutes
+    const resource = [key];
+    let lock: any = null;
+
+    this.logger.log(`Start refreshing product analysis at 1am`, context);
+
     try {
-      const yesterdayDate = new Date();
-      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-      yesterdayDate.setHours(7, 0, 0, 0);
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for product analysis refresh every day at 1am`,
+        context,
+      );
 
-      const hasProductAnalysis = await this.productAnalysisRepository.find({
-        where: {
-          orderDate: yesterdayDate,
-        },
-      });
+      // const yesterdayDate = new Date();
+      // yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      // yesterdayDate.setHours(7, 0, 0, 0);
 
-      if (!_.isEmpty(hasProductAnalysis)) {
-        this.logger.error(
-          `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`,
-          null,
-          context,
-        );
-        return;
-      }
+      // const hasProductAnalysis = await this.productAnalysisRepository.find({
+      //   where: {
+      //     orderDate: yesterdayDate,
+      //   },
+      // });
+
+      // if (!_.isEmpty(hasProductAnalysis)) {
+      //   this.logger.error(
+      //     `Product analysis ${moment(yesterdayDate).format('YYYY-MM-DD')} existed`,
+      //     null,
+      //     context,
+      //   );
+      //   return;
+      // }
 
       const results: any[] = await this.productAnalysisRepository.query(
         getYesterdayProductAnalysisClause,
@@ -189,8 +210,10 @@ export class ProductAnalysisScheduler {
               id: _.first(groupedItem).productId,
             },
           });
-          if (!product)
-            throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          // if (!product)
+          //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          if (!product) return [];
+
           let newTotalSaleQuantity = product.saleQuantityHistory;
           const oldTotalSaleQuantity = product.saleQuantityHistory;
 
@@ -208,8 +231,10 @@ export class ProductAnalysisScheduler {
               const branch = await this.branchRepository.findOne({
                 where: { id: item.branchId },
               });
-              if (!branch)
-                throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+              // if (!branch)
+              //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+              if (!branch) return null;
 
               const existedProductAnalysis = hasProductAnalysesByProduct.find(
                 (hasItem) =>
@@ -224,11 +249,15 @@ export class ProductAnalysisScheduler {
                 if (
                   existedProductAnalysis.totalQuantity !== item.totalProducts
                 ) {
+                  // update sale quantity in product
+                  newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
+                  newTotalSaleQuantity += item.totalProducts; // add new total quantity
+
+                  // update product analysis
                   Object.assign(existedProductAnalysis, {
                     totalQuantity: item.totalProducts,
                   });
-                  newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
-                  newTotalSaleQuantity += item.totalProducts; // add new total quantity
+
                   return existedProductAnalysis;
                 }
               } else {
@@ -247,6 +276,7 @@ export class ProductAnalysisScheduler {
           const productAnalysesByProduct = await Promise.all(
             productAnalysesByProductPromise,
           );
+
           if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
             product.saleQuantityHistory = newTotalSaleQuantity;
             updateProducts.push(product);
@@ -263,26 +293,34 @@ export class ProductAnalysisScheduler {
 
       try {
         const productAnalyses = await Promise.all(productAnalysesPromise);
-        const productAnalysesArr: ProductAnalysis[] =
-          _.flatten(productAnalyses);
+        let productAnalysesArr: ProductAnalysis[] = _.flatten(productAnalyses);
+        productAnalysesArr = productAnalysesArr.filter(Boolean);
+
         await queryRunner.manager.save(productAnalysesArr);
         await queryRunner.manager.save(updateProducts);
         await queryRunner.commitTransaction();
         this.logger.log(
-          `Refresh product analysis ${productAnalysesArr.length}`,
+          `Refresh product analysis ${productAnalysesArr.length} at 1am`,
           context,
         );
       } catch (error) {
         await queryRunner.rollbackTransaction();
         throw new BadRequestException(
-          `Error when refresh product analysis: ${error.message}`,
+          `Error when refresh product analysis at 1am: ${error.message}`,
         );
       } finally {
         await queryRunner.release();
       }
     } catch (error) {
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for product analysis refresh every day at 1am`,
+          context,
+        );
+      }
       this.logger.error(
-        `Error when handle data to refresh product analysis: ${error.message}`,
+        `Error when handle data to refresh product analysis at 1am: ${error.message}`,
         error.stack,
         context,
       );
