@@ -69,9 +69,16 @@ export class GiftCardService {
     // 2. Auto-redeem
     const gc = await this.redeem(req);
 
+    // Update recipient balance ONCE after all cards
+    await this.balanceService.calcBalance({
+      userSlug: gc.usedBySlug,
+      points: gc.cardPoints,
+      type: PointTransactionTypeEnum.IN,
+    });
+
     const currentBalance = await this.balanceService.findOneByField({ userSlug: req.userSlug, slug: null })
 
-    // 3. Create transaction record
+    // Create transaction record
     await this.ptService.create({
       type: PointTransactionTypeEnum.IN,
       desc: `Sử dụng thẻ quà tặng ${gc.cardPoints.toLocaleString()} xu`,
@@ -82,12 +89,6 @@ export class GiftCardService {
       balance: currentBalance.points
     } as CreatePointTransactionDto);
 
-    // 4. Update recipient balance ONCE after all cards
-    await this.balanceService.calcBalance({
-      userSlug: gc.usedBySlug,
-      points: gc.cardPoints,
-      type: PointTransactionTypeEnum.IN,
-    });
 
     return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
   }
