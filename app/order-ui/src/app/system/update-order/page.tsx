@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { useIsMobile, useOrderBySlug } from '@/hooks'
-import { OrderStatus, OrderTypeEnum } from '@/types'
+import { ITable, OrderStatus, OrderTypeEnum } from '@/types'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import { OrderCountdown } from '@/components/app/countdown'
 import { useOrderFlowStore } from '@/stores'
@@ -30,6 +30,7 @@ export default function UpdateOrderPage() {
         updatingData,
         initializeUpdating,
         clearUpdatingData,
+        setDraftTable
     } = useOrderFlowStore()
 
     useEffect(() => {
@@ -41,17 +42,33 @@ export default function UpdateOrderPage() {
             if (!orderData.slug || !orderData.orderItems || orderData.orderItems.length === 0) {
                 return
             }
-
-            // ✅ Force initialize updating phase với original order (không check currentStep)
+            // 
+            if(shouldReinitialize)
+            {
+                // ✅ Update order data with current draft table and name if available
+                const exampleTable: ITable = {
+                    ...orderData.table,
+                    slug: updatingData?.updateDraft.table || orderData.table.slug,
+                    name: updatingData?.updateDraft.tableName || orderData.table.name,
+                  }
+                initializeUpdating(orderData)
+                setDraftTable(exampleTable) // Set updated table in store
+                setShouldReinitialize(false)
+            }else
+            {
+           // ✅ Force initialize updating phase với original order (không check currentStep)
             try {
                 initializeUpdating(orderData)
                 setIsDataLoaded(true) // Mark data as loaded
-                setShouldReinitialize(false) // Reset reinitialize flag
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error('❌ Update Order: Failed to initialize updating data:', error)
+            } 
             }
+
+
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
 
     // Separate useEffect for polling control (currently disabled)
