@@ -14,11 +14,13 @@ import { RevenueTypeQuery } from '@/constants'
 
 interface SelectRevenueTypeProps {
   defaultValue?: string
+  value?: string
   onChange: (value: string) => void
 }
 
 export default function RevenueTypeSelect({
   defaultValue,
+  value,
   onChange,
 }: SelectRevenueTypeProps) {
   const { t } = useTranslation(['revenue'])
@@ -55,7 +57,7 @@ export default function RevenueTypeSelect({
           label: value,
         })
       }}
-      defaultValue={defaultValue}
+      value={value || defaultValue}
     >
       <SelectTrigger className="w-full">
         <SelectValue placeholder={t('revenue.type')} />

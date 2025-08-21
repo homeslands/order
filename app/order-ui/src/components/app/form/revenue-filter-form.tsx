@@ -73,7 +73,7 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
             branch: data.branch || '',
             startDate: data.startDate || moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
             endDate: data.endDate || moment().format('YYYY-MM-DD HH:mm:ss'),
-            type: data.type as RevenueTypeQuery || RevenueTypeQuery.DAILY
+            type: data.type || RevenueTypeQuery.DAILY
         })
         onSubmit(data)
     }
