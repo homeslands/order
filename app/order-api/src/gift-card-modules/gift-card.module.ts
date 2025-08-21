@@ -68,7 +68,8 @@ const providers = [
   BankTransferStrategy,
   ACBConnectorClient,
   CashStrategy,
-  PaymentUtils
+  PaymentUtils,
+  CashStrategy
 ];
 
 const mappers = [
