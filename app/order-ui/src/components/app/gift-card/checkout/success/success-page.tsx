@@ -4,12 +4,14 @@ import { useEffect } from 'react'
 
 import { OrderSuccess } from '@/assets/images'
 import { Button } from '@/components/ui'
-import { ROUTE } from '@/constants'
+import { Role, ROUTE } from '@/constants'
+import { useUserStore } from '@/stores'
 
 export default function GiftCardSuccessPage() {
   const { t } = useTranslation(['giftCard', 'common'])
   const navigate = useNavigate()
-
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
     const timer = setTimeout(() => {}, 300)
@@ -18,7 +20,11 @@ export default function GiftCardSuccessPage() {
   }, [])
 
   const handleBackToGiftCard = () => {
-    navigate(ROUTE.CLIENT_GIFT_CARD)
+    if (role === Role.CUSTOMER) {
+      navigate(ROUTE.CLIENT_GIFT_CARD)
+    } else {
+      navigate(ROUTE.STAFF_GIFT_CARD_MENU)
+    }
   }
 
   return (

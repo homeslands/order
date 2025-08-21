@@ -273,8 +273,8 @@ export const useCancelCardOrder = () => {
 
 export const useInitiateCardOrderPayment = () => {
   return useMutation({
-    mutationFn: async (slug: string) => {
-      return initiateCardOrderPayment(slug)
+    mutationFn: async (payload: { slug: string; paymentMethod: string }) => {
+      return initiateCardOrderPayment(payload.slug, payload.paymentMethod)
     },
   })
 }
