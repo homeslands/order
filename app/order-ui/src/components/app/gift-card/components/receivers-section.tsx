@@ -129,27 +129,32 @@ export default function ReceiversSection({
               onRecipientSelectionChange={handleRecipientSelectionChange}
             />
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-2"
-            onClick={() => {
-              append({
-                recipientSlug: '',
-                quantity: 1,
-                message: '',
-                name: '',
-                userInfo: undefined,
-              })
-              const newIndex = receivers.length
-              setSelectedRecipients((prev) => ({ ...prev, [newIndex]: false }))
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {role === Role.CUSTOMER
-              ? t('giftCard.addReceiver')
-              : t('giftCard.customer.addCustomer')}
-          </Button>
+          {role === Role.CUSTOMER && (
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2"
+              onClick={() => {
+                append({
+                  recipientSlug: '',
+                  quantity: 1,
+                  message: '',
+                  name: '',
+                  userInfo: undefined,
+                })
+                const newIndex = receivers.length
+                setSelectedRecipients((prev) => ({
+                  ...prev,
+                  [newIndex]: false,
+                }))
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {role === Role.CUSTOMER
+                ? t('giftCard.addReceiver')
+                : t('giftCard.customer.addCustomer')}
+            </Button>
+          )}
         </>
       )}
     </div>
