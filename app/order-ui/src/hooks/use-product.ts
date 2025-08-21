@@ -12,15 +12,18 @@ import {
   getTopBranchProducts,
   getTopProducts,
   importProducts,
+  refreshProductAnalysis,
   updateProduct,
   updateProductVariant,
   uploadMultipleProductImages,
   uploadProductImage,
 } from '@/api'
+import { QUERYKEY } from '@/constants'
 import {
   ICreateProductRequest,
   ICreateProductVariantRequest,
   IProductRequest,
+  IRefreshProductAnalysisRequest,
   ITopBranchProductQuery,
   ITopProductQuery,
   IUpdateProductRequest,
@@ -39,7 +42,7 @@ export const useProducts = (params?: IProductRequest, enabled?: boolean) => {
 
 export const useProductBySlug = (slug: string) => {
   return useQuery({
-    queryKey: ['product', slug],
+    queryKey: [QUERYKEY.specificProduct, slug],
     queryFn: () => getProductBySlug(slug),
     placeholderData: keepPreviousData,
   })
@@ -142,6 +145,14 @@ export const useTopBranchProducts = (q: ITopBranchProductQuery) => {
     queryKey: ['topBranchProducts', JSON.stringify(q)],
     queryFn: () => getTopBranchProducts(q),
     placeholderData: keepPreviousData,
+  })
+}
+
+export const useRefreshProductAnalysis = () => {
+  return useMutation({
+    mutationFn: async (data: IRefreshProductAnalysisRequest) => {
+      return refreshProductAnalysis(data)
+    },
   })
 }
 

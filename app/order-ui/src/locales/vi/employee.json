@@ -35,6 +35,7 @@
     "updateDescription": "Cập nhật thông tin nhân viên",
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho nhân viên",
-    "viewDetail": "Xem chi tiết"
+    "viewDetail": "Xem chi tiết",
+    "searchByPhoneNumber": "Nhập số điện thoại"
   }
 }

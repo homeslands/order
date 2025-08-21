@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import _ from 'lodash'
@@ -14,10 +14,10 @@ import {
 import { LoginBackground } from '@/assets/images'
 import { LoginForm } from '@/components/app/form'
 import { useAuthStore, useCurrentUrlStore, useUserStore } from '@/stores'
-import { Role, ROUTE } from '@/constants'
-import { sidebarRoutes } from '@/router/routes'
+import { ROUTE } from '@/constants'
 import { jwtDecode } from 'jwt-decode'
 import { IToken } from '@/types'
+import { calculateSmartNavigationUrl, safeNavigate } from '@/utils'
 import { useTheme } from '@/components/app/theme-provider'
 
 export default function Login() {
@@ -30,60 +30,137 @@ export default function Login() {
       setTheme('light')
     }
   }, [theme, setTheme])
-  const { isAuthenticated, token } = useAuthStore()
+  const { token } = useAuthStore()
   const { userInfo } = useUserStore()
   const { currentUrl, clearUrl } = useCurrentUrlStore()
   const navigate = useNavigate()
+  const [isNavigating, setIsNavigating] = useState(false)
 
-  useEffect(() => {
-    if (isAuthenticated() && !_.isEmpty(userInfo) && token) {
-      let urlNavigate = ROUTE.HOME;
-      const decoded: IToken = jwtDecode(token);
-      if (!decoded.scope) return;
+  // Kiểm tra xem có đủ dữ liệu để navigation không
+  // Enhanced: Thêm validation token expiration để tránh redirect với token hết hạn
+  // Fix: Sử dụng single source of truth để tránh race condition
+  const isReadyToNavigate = useMemo(() => {
+    // ✅ Sử dụng cùng 1 nguồn data để đảm bảo consistency
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
 
-      const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope;
-      const permissions = scope.permissions || [];
+    // ✅ Kiểm tra đầy đủ với double validation
+    return (
+      authStore.token &&
+      userStore.userInfo &&
+      !isNavigating &&
+      authStore.isAuthenticated() &&
+      authStore.isTokenValid() // Thêm validation kép để chắc chắn
+    )
+  }, [isNavigating]) // Keep minimal dependencies để tránh stale closure
 
-      if (currentUrl) {
-        // Kiểm tra quyền truy cập currentUrl
-        if (userInfo.role.name === Role.CUSTOMER) {
-          // Customer không được phép truy cập route /system
-          urlNavigate = !currentUrl.includes('/system') ? currentUrl : ROUTE.HOME;
-        } else {
-          const route = sidebarRoutes.find(route => currentUrl.includes(route.path));
-          if (route && permissions.includes(route.permission)) {
-            urlNavigate = currentUrl;
-          } else {
-            // Tìm route đầu tiên mà user có quyền truy cập trong sidebarRoutes
-            const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
-            urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
-          }
-        }
-      } else {
-        // Nếu không có currentUrl, tìm route đầu tiên mà user có quyền truy cập
-        if (userInfo?.role && userInfo?.role?.name === Role.CUSTOMER) {
-          urlNavigate = ROUTE.HOME;
-        } else {
-          const firstAllowedRoute = sidebarRoutes.find(route => permissions.includes(route.permission));
-          urlNavigate = firstAllowedRoute ? firstAllowedRoute.path : ROUTE.HOME;
-        }
-      }
+  // Helper function để lấy permissions từ token
+  const getUserPermissions = useMemo(() => {
+    if (!token) return []
 
-      navigate(urlNavigate, { replace: true });
-      setTimeout(() => {
-        clearUrl();
-      }, 1000);
+    try {
+      const decoded: IToken = jwtDecode(token)
+      if (!decoded.scope) return []
+
+      const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope
+      return scope.permissions || []
+    } catch {
+      return []
     }
-  }, [isAuthenticated, navigate, userInfo, currentUrl, clearUrl, token])
+  }, [token])
+
+  // Helper function để tính toán URL navigation với smart logic
+  const navigationUrl = useMemo(() => {
+    if (!userInfo || !token) return ROUTE.HOME
+
+    const permissions = getUserPermissions
+
+    return calculateSmartNavigationUrl({
+      userInfo,
+      permissions,
+      currentUrl
+    })
+  }, [userInfo, token, currentUrl, getUserPermissions])
+
+  // ✅ Safety effect để handle expired tokens sau khi component mount
+  useEffect(() => {
+    // Check auth state consistency và cleanup nếu cần
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    if (authStore.token && !authStore.isAuthenticated()) {
+      // Token tồn tại nhưng không valid → cleanup
+      authStore.setLogout()
+      userStore.removeUserInfo()
+      setIsNavigating(false)
+    }
+  }, []) // Chỉ chạy 1 lần khi component mount
+
+  // ✅ Effect để detect existing auth state (auto-login when page loads)  
+  useEffect(() => {
+    // Chỉ auto-redirect nếu đã có sẵn token + userInfo khi component mount
+    // Không handle fresh login (LoginForm sẽ handle)
+    const authStore = useAuthStore.getState()
+    const userStore = useUserStore.getState()
+
+    if (authStore.token && userStore.userInfo && !isNavigating && authStore.isAuthenticated()) {
+      // Existing valid session detected → isReadyToNavigate effect sẽ handle navigation
+    }
+  }, [isNavigating]) // ✅ Only depend on isNavigating to prevent loops
+
+  // ✅ Handle auto-redirect for existing sessions (không phải fresh login)
+  useEffect(() => {
+    if (isReadyToNavigate) {
+      setIsNavigating(true)
+
+      // Sử dụng safe navigation với loop detection
+      const navigationSuccess = safeNavigate(
+        navigate,
+        navigationUrl,
+        window.location.pathname
+      )
+
+      // Chỉ clear URL nếu navigation thành công
+      if (navigationSuccess) {
+        // Clear URL sau khi navigate thành công
+        requestAnimationFrame(() => {
+          clearUrl()
+          setIsNavigating(false)
+        })
+      } else {
+        // Nếu navigation failed (loop detected), reset state
+        setIsNavigating(false)
+        clearUrl()
+      }
+    }
+  }, [isReadyToNavigate, navigationUrl, navigate, clearUrl])
+
+  // Hiển thị loading khi đang navigate để tránh nháy
+  if (isNavigating) {
+    return (
+      <div className="flex relative justify-center items-center min-h-screen">
+        <img
+          src={LoginBackground}
+          className="object-cover absolute top-0 left-0 w-full h-full sm:object-fill"
+        />
+        <div className="flex relative z-10 justify-center items-center w-full h-full">
+          <div className="flex flex-col gap-4 items-center">
+            <div className="w-8 h-8 rounded-full border-b-2 border-white animate-spin"></div>
+            <p className="text-sm text-white">Đang chuyển hướng...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen">
+    <div className="flex relative justify-center items-center min-h-screen">
       <img
         src={LoginBackground}
-        className="absolute top-0 left-0 object-cover w-full h-full sm:object-fill"
+        className="object-cover absolute top-0 left-0 w-full h-full sm:object-fill"
       />
 
-      <div className="relative z-10 flex items-center justify-center w-full h-full">
+      <div className="flex relative z-10 justify-center items-center w-full h-full">
         <Card className="min-w-[22rem] border border-muted-foreground bg-white bg-opacity-10 shadow-xl backdrop-blur-xl sm:min-w-[24rem]">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-white">
@@ -96,7 +173,7 @@ export default function Login() {
           <CardContent>
             <LoginForm />
           </CardContent>
-          <CardFooter className="flex items-center justify-between text-xs text-white sm:text-sm">
+          <CardFooter className="flex justify-between items-center text-xs text-white sm:text-sm">
             <div className="flex gap-1">
               <span>{t('login.noAccount')}</span>
               <NavLink to={ROUTE.REGISTER} className="text-primary">

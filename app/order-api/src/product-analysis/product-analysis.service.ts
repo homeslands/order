@@ -7,6 +7,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import {
   GetProductAnalysisQueryDto,
+  ProductAnalysisQueryByBranchAndHourDto,
   ProductAnalysisQueryDto,
   ProductAnalysisResponseDto,
   RefreshSpecificRangeProductAnalysisQueryDto,
@@ -24,11 +25,15 @@ import { BranchResponseDto } from 'src/branch/branch.dto';
 import moment from 'moment';
 import { ProductAnalysisValidation } from './product-analysis.validation';
 import { ProductAnalysisException } from './product-analysis.exception';
-import { getSpecificProductAnalysisClause } from './product-analysis.clause';
+import {
+  getSpecificProductAnalysisByHourAndBranchClause,
+  getSpecificProductAnalysisClause,
+} from './product-analysis.clause';
 import * as _ from 'lodash';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { ProductAnalysisUtils } from './product-analysis.utils';
 import { plainToInstance } from 'class-transformer';
+import { ProductAnalysisTypeQuery } from './product-analysis.constants';
 
 @Injectable()
 export class ProductAnalysisService {
@@ -55,6 +60,9 @@ export class ProductAnalysisService {
     branchSlug: string,
     query: GetProductAnalysisQueryDto,
   ) {
+    const context = `${ProductAnalysisService.name}.${this.getTopSellProductsByBranch.name}`;
+    this.logger.log(`Get top sell products by branch ${branchSlug}`, context);
+
     const branch = await this.branchRepository.findOne({
       where: {
         slug: branchSlug,
@@ -62,59 +70,158 @@ export class ProductAnalysisService {
     });
     if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
 
-    const queryBuilder = this.productAnalysisRepository
-      .createQueryBuilder('pa')
-      .select('pa.product', 'productId')
-      .addSelect('pa.branch', 'branchId')
-      .addSelect('SUM(pa.totalQuantity)', 'totalProducts')
-      .where('pa.branch = :branchId', { branchId: branch.id })
-      .groupBy('pa.product')
-      .addGroupBy('pa.branch')
-      .orderBy('totalProducts', 'DESC');
+    if (query.type === ProductAnalysisTypeQuery.HOUR) {
+      if (!query.startDate || !query.endDate) {
+        throw new ProductAnalysisException(
+          ProductAnalysisValidation.START_DATE_AND_END_DATE_REQUIRED,
+        );
+      }
 
-    if (query.hasPaging)
-      queryBuilder.take(query.size).skip((query.page - 1) * query.size);
+      const startDateQuery = moment(query.startDate).format(
+        'YYYY-MM-DD HH:mm:ss',
+      );
+      const endDateQuery = moment(query.endDate).format('YYYY-MM-DD HH:mm:ss');
 
-    const results: ProductAnalysisQueryDto[] = await queryBuilder.getRawMany();
+      const results: any[] = await this.productAnalysisRepository.query(
+        getSpecificProductAnalysisByHourAndBranchClause,
+        [startDateQuery, endDateQuery, branch.id],
+      );
 
-    const productAnalyses: ProductAnalysisResponseDto[] = await Promise.all(
-      results.map(async (item) => {
-        const product = await this.productRepository.findOne({
-          where: {
-            id: item.productId,
-          },
-          relations: ['catalog', 'variants.size'],
-        });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
-        const productAnalysis = this.mapper.map(
-          item,
-          ProductAnalysisQueryDto,
-          ProductAnalysis,
+      const productAnalysisQueryDto = plainToInstance(
+        ProductAnalysisQueryByBranchAndHourDto,
+        results,
+      );
+
+      const productAnalysisResponseDto: ProductAnalysisResponseDto[] =
+        await Promise.all(
+          productAnalysisQueryDto.map(async (productAnalysisQueryDtoItem) => {
+            const productAnalysis = this.mapper.map(
+              productAnalysisQueryDtoItem,
+              ProductAnalysisQueryByBranchAndHourDto,
+              ProductAnalysis,
+            );
+
+            const product = await this.productRepository.findOne({
+              where: {
+                id: productAnalysisQueryDtoItem.productId,
+              },
+              relations: ['catalog', 'variants.size'],
+            });
+
+            productAnalysis.product = product;
+            productAnalysis.branch = branch;
+
+            return this.mapper.map(
+              productAnalysis,
+              ProductAnalysis,
+              ProductAnalysisResponseDto,
+            );
+          }),
         );
 
-        const branch = await this.branchRepository.findOne({
-          where: { id: item.branchId },
-        });
-        if (!branch)
-          throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
-        productAnalysis.product = product;
-        productAnalysis.branch = branch;
+      const total = productAnalysisResponseDto.length;
 
-        const productAnalysisDto = this.mapper.map(
-          productAnalysis,
-          ProductAnalysis,
-          ProductAnalysisResponseDto,
+      let resultsDto: ProductAnalysisResponseDto[] = [];
+
+      if (query.hasPaging) {
+        resultsDto = productAnalysisResponseDto.slice(
+          (query.page - 1) * query.size,
+          query.page * query.size,
         );
+      } else {
+        resultsDto = productAnalysisResponseDto;
+      }
 
-        const branchesDto = await this.getBranchesListByProduct(product);
-        productAnalysisDto.branches = branchesDto;
+      return await this.getPaginatedResults(resultsDto, query, total);
+    } else {
+      let startDateQuery = null;
+      let endDateQuery = null;
 
-        return productAnalysisDto;
-      }),
-    );
+      if (query.type === ProductAnalysisTypeQuery.DAY) {
+        startDateQuery = moment(query.startDate).startOf('day').toDate();
+        endDateQuery = moment(query.endDate).endOf('day').toDate();
+      } else if (query.type === ProductAnalysisTypeQuery.MONTH) {
+        startDateQuery = moment(query.startDate).startOf('month').toDate();
+        endDateQuery = moment(query.endDate).endOf('month').toDate();
+      } else if (query.type === ProductAnalysisTypeQuery.YEAR) {
+        startDateQuery = moment(query.startDate).startOf('year').toDate();
+        endDateQuery = moment(query.endDate).endOf('year').toDate();
+      }
 
-    return await this.getPaginatedResults(productAnalyses, query);
+      const queryBuilder = this.productAnalysisRepository
+        .createQueryBuilder('pa')
+        .select('pa.product', 'productId')
+        .addSelect('pa.branch', 'branchId')
+        .addSelect('SUM(pa.totalQuantity)', 'totalProducts')
+        .where('pa.branch = :branchId', { branchId: branch.id });
+
+      if (query.startDate && query.endDate) {
+        queryBuilder.andWhere('pa.orderDate BETWEEN :startDate AND :endDate', {
+          startDate: startDateQuery,
+          endDate: endDateQuery,
+        });
+      } else if (query.startDate) {
+        queryBuilder.andWhere('pa.orderDate >= :startDate', {
+          startDate: startDateQuery,
+        });
+      } else if (query.endDate) {
+        queryBuilder.andWhere('pa.orderDate <= :endDate', {
+          endDate: endDateQuery,
+        });
+      }
+
+      queryBuilder
+        .groupBy('pa.product')
+        .addGroupBy('pa.branch')
+        .orderBy('totalProducts', 'DESC');
+
+      const total = await queryBuilder.getCount();
+
+      if (query.hasPaging)
+        queryBuilder.take(query.size).skip((query.page - 1) * query.size);
+
+      const results: ProductAnalysisQueryDto[] =
+        await queryBuilder.getRawMany();
+
+      const productAnalyses: ProductAnalysisResponseDto[] = await Promise.all(
+        results.map(async (item) => {
+          const product = await this.productRepository.findOne({
+            where: {
+              id: item.productId,
+            },
+            relations: ['catalog', 'variants.size'],
+          });
+          if (!product)
+            throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+          const productAnalysis = this.mapper.map(
+            item,
+            ProductAnalysisQueryDto,
+            ProductAnalysis,
+          );
+
+          const branch = await this.branchRepository.findOne({
+            where: { id: item.branchId },
+          });
+          if (!branch)
+            throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+          productAnalysis.product = product;
+          productAnalysis.branch = branch;
+
+          const productAnalysisDto = this.mapper.map(
+            productAnalysis,
+            ProductAnalysis,
+            ProductAnalysisResponseDto,
+          );
+
+          const branchesDto = await this.getBranchesListByProduct(product);
+          productAnalysisDto.branches = branchesDto;
+
+          return productAnalysisDto;
+        }),
+      );
+
+      return await this.getPaginatedResults(productAnalyses, query, total);
+    }
   }
 
   async getTopSellProducts(query: GetProductAnalysisQueryDto) {
@@ -126,6 +233,8 @@ export class ProductAnalysisService {
       .groupBy('pa.product')
       .orderBy('totalProducts', 'DESC');
 
+    const total = await queryBuilder.getCount();
+
     if (query.hasPaging)
       queryBuilder.take(query.size).skip((query.page - 1) * query.size);
 
@@ -157,14 +266,15 @@ export class ProductAnalysisService {
       }),
     );
 
-    return await this.getPaginatedResults(productAnalyses, query);
+    return await this.getPaginatedResults(productAnalyses, query, total);
   }
 
   private async getPaginatedResults(
     productAnalysesDto: ProductAnalysisResponseDto[],
     query: GetProductAnalysisQueryDto,
+    total: number,
   ) {
-    const total = productAnalysesDto.length;
+    // const total = productAnalysesDto.length;
     const page = query.hasPaging ? query.page : 1;
     const pageSize = query.hasPaging ? query.size : total;
 
@@ -279,8 +389,10 @@ export class ProductAnalysisService {
             id: _.first(groupedItem).productId,
           },
         });
-        if (!product)
-          throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        // if (!product)
+        //   throw new ProductException(ProductValidation.PRODUCT_NOT_FOUND);
+        if (!product) return [];
+
         let newTotalSaleQuantity = product.saleQuantityHistory;
         const oldTotalSaleQuantity = product.saleQuantityHistory;
 
@@ -298,8 +410,9 @@ export class ProductAnalysisService {
             const branch = await this.branchRepository.findOne({
               where: { id: item.branchId },
             });
-            if (!branch)
-              throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            // if (!branch)
+            //   throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+            if (!branch) return null;
 
             const existedProductAnalysis = hasProductAnalysesByProduct.find(
               (hasItem) =>
@@ -312,11 +425,14 @@ export class ProductAnalysisService {
 
             if (existedProductAnalysis) {
               if (existedProductAnalysis.totalQuantity !== item.totalProducts) {
+                // update sale quantity in product
+                newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
+                newTotalSaleQuantity += item.totalProducts; // add new total quantity
+
+                // update product analysis
                 Object.assign(existedProductAnalysis, {
                   totalQuantity: item.totalProducts,
                 });
-                newTotalSaleQuantity -= existedProductAnalysis.totalQuantity; // subtract old total quantity
-                newTotalSaleQuantity += item.totalProducts; // add new total quantity
                 return existedProductAnalysis;
               }
             } else {
@@ -336,6 +452,7 @@ export class ProductAnalysisService {
         const productAnalysesByProduct = await Promise.all(
           productAnalysesByProductPromise,
         );
+
         if (newTotalSaleQuantity !== oldTotalSaleQuantity) {
           product.saleQuantityHistory = newTotalSaleQuantity;
           updateProducts.push(product);

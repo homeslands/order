@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
@@ -17,82 +17,84 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
 import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useOverviewFilterStore } from '@/stores'
 
 interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
     onSubmit: (data: IRevenueQuery) => void
     onSuccess: () => void
-    savedValues?: Partial<IRevenueQuery> | null
 }
 
 export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
     onSubmit,
     type,
-    savedValues,
 }) => {
     const { t } = useTranslation(['revenue'])
     const { branch } = useBranchStore()
+    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
+
+    const [localStartDate, setLocalStartDate] = useState<string>('')
+    const [localEndDate, setLocalEndDate] = useState<string>('')
+    const [localType, setLocalType] = useState<RevenueTypeQuery>(type)
 
     const getDefaultValues = React.useCallback(() => {
-        // Nếu có savedValues, sử dụng chúng
-        if (savedValues) {
-            return {
-                branch: savedValues.branch || branch?.slug,
-                startDate: savedValues.startDate || (type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
-                endDate: savedValues.endDate || (type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')),
-                type: type || RevenueTypeQuery.DAILY,
-            }
-        }
+        const defaultStartDate = type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
+        const defaultEndDate = type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
 
-        // Ngược lại sử dụng giá trị mặc định
         return {
-            branch: branch?.slug,
-            startDate: type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
-            endDate: type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD'),
-            type: type || RevenueTypeQuery.DAILY,
+            branch: overviewFilter?.branch || branch?.slug || '',
+            startDate: localStartDate || overviewFilter?.startDate || defaultStartDate,
+            endDate: localEndDate || overviewFilter?.endDate || defaultEndDate,
+            type: localType || type || RevenueTypeQuery.DAILY,
         }
-    }, [savedValues, branch?.slug, type])
+    }, [overviewFilter, branch?.slug, type, localStartDate, localEndDate, localType])
 
     const form = useForm<TExportRevenueSchema>({
         resolver: zodResolver(useExportRevenueSchema()),
         defaultValues: getDefaultValues(),
     })
 
-    React.useEffect(() => {
+    useEffect(() => {
         const defaultValues = getDefaultValues()
 
-        // Cập nhật form với giá trị mặc định hoặc savedValues
-        form.setValue('branch', defaultValues.branch || '')
+        form.setValue('branch', defaultValues.branch)
         form.setValue('type', defaultValues.type)
+        form.setValue('startDate', defaultValues.startDate)
+        form.setValue('endDate', defaultValues.endDate)
 
-        // Chỉ cập nhật dates nếu có savedValues hoặc form chưa có giá trị
-        const currentValues = form.getValues()
-        if (savedValues || !currentValues.startDate || !currentValues.endDate) {
-            form.setValue('startDate', defaultValues.startDate)
-            form.setValue('endDate', defaultValues.endDate)
-        }
-    }, [type, branch?.slug, savedValues, form, getDefaultValues])
+        setLocalType(defaultValues.type)
+        if (!localStartDate) setLocalStartDate(defaultValues.startDate)
+        if (!localEndDate) setLocalEndDate(defaultValues.endDate)
+    }, [type, branch?.slug, overviewFilter, form, getDefaultValues, localStartDate, localEndDate])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
-        // console.log(data)
+        setOverviewFilter({
+            branch: data.branch || '',
+            startDate: data.startDate || moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+            endDate: data.endDate || moment().format('YYYY-MM-DD HH:mm:ss'),
+            type: data.type as RevenueTypeQuery || RevenueTypeQuery.DAILY
+        })
         onSubmit(data)
     }
 
     const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
         if (date) {
-            // For hourly type, keep the full datetime format, otherwise just date
             let normalizedDate: string
             if (type === RevenueTypeQuery.HOURLY) {
-                // Keep the datetime format YYYY-MM-DD HH:mm:ss for hourly reports
                 normalizedDate = moment(date, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD', 'DD/MM/YYYY HH:mm', 'DD/MM/YYYY']).format('YYYY-MM-DD HH:mm:ss')
             } else {
-                // For daily/other types, just use date format
                 normalizedDate = moment(date, ['YYYY-MM-DD', 'DD/MM/YYYY']).format('YYYY-MM-DD')
             }
+
             form.setValue(fieldName, normalizedDate)
             form.trigger(['startDate', 'endDate'])
+
+            if (fieldName === 'startDate') {
+                setLocalStartDate(normalizedDate)
+            } else {
+                setLocalEndDate(normalizedDate)
+            }
         }
     }
 

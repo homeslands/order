@@ -30,10 +30,10 @@ export default function UpdateProductVariantDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className="flex items-center justify-start">
+      <DialogTrigger asChild className="flex justify-start items-center">
         <Button
           variant="ghost"
-          className="h-10 gap-1 px-2 text-sm"
+          className="gap-1 px-2 h-10 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <PlusCircledIcon className="icon" />
@@ -42,9 +42,9 @@ export default function UpdateProductVariantDialog({
       </DialogTrigger>
       <DialogContent className="max-w-[20rem] rounded-md px-6 sm:max-w-[36rem]">
         <DialogHeader>
-          <DialogTitle>{t('productVariant.create')}</DialogTitle>
+          <DialogTitle>{t('productVariant.update')}</DialogTitle>
           <DialogDescription>
-            {t('productVariant.updateVariantDescription')}
+            {t('productVariant.updateProductVariantDescription')}
           </DialogDescription>
         </DialogHeader>
         <UpdateProductVariantForm

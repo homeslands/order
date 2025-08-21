@@ -1,4 +1,5 @@
 // import { IBase } from './base.type'
+import { RevenueTypeQuery } from '@/constants'
 import { IBranch } from './branch.type'
 import { ICatalog } from './catalog.type'
 
@@ -116,7 +117,15 @@ export interface ITopProductQuery {
 
 export interface ITopBranchProductQuery {
   branch?: string //Slug of the branch
-  page: number
-  size: number
+  startDate?: string
+  endDate?: string
+  type?: RevenueTypeQuery
+  page?: number
+  size?: number
   hasPaging?: boolean
+}
+
+export interface IRefreshProductAnalysisRequest {
+  startDate: string
+  endDate: string
 }

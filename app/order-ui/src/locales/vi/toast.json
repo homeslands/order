@@ -232,6 +232,7 @@
     "promotionAppliedCannotDelete": "Không thể xóa khuyến mãi đã áp dụng",
     "qrCodeRestored": "QR code thanh toán đã được khôi phục",
     "refreshRevenueSuccess": "Lấy dữ liệu doanh thu mới thành công",
+    "refreshProductAnalysisSuccess": "Lấy dữ liệu phân tích sản phẩm mới thành công",
     "refreshSuccess": "Làm mới dữ liệu thành công",
     "registerSuccess": "Đăng ký tài khoản thành công",
     "removeAppliedPromotionSuccess": "Hủy khuyến mãi thành công",

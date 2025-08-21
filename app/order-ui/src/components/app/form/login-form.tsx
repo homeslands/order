@@ -18,19 +18,25 @@ import { loginSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ButtonLoading } from '@/components/app/loading'
 import { useLogin, useProfile } from '@/hooks'
-import { useAuthStore, useCartItemStore, useUserStore } from '@/stores'
-import { showToast } from '@/utils'
+import { useAuthStore, useCartItemStore, useUserStore, useCurrentUrlStore } from '@/stores'
+import { showToast, calculateSmartNavigationUrl, safeNavigate } from '@/utils'
+import { useNavigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import { IToken } from '@/types'
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation(['auth'])
+  const navigate = useNavigate()
   const {
     setToken,
     setRefreshToken,
     setExpireTime,
     setExpireTimeRefreshToken,
+    setLogout
   } = useAuthStore()
   const { clearCart } = useCartItemStore()
-  const { setUserInfo } = useUserStore()
+  const { setUserInfo, removeUserInfo } = useUserStore()
+  const { currentUrl, clearUrl } = useCurrentUrlStore()
   const { mutate: login, isPending } = useLogin()
   const { refetch: refetchProfile } = useProfile()
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -44,17 +50,66 @@ export const LoginForm: React.FC = () => {
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     login(data, {
       onSuccess: async (response) => {
-        clearCart()
-        setToken(response.result.accessToken)
-        setRefreshToken(response.result.refreshToken)
-        setExpireTime(response.result.expireTime)
-        setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+        try {
+          clearCart()
 
-        const profile = await refetchProfile()
-        if (profile.data) {
-          setUserInfo(profile.data.result)
+          // Set token trước để có thể fetch profile
+          setToken(response.result.accessToken)
+          setRefreshToken(response.result.refreshToken)
+          setExpireTime(response.result.expireTime)
+          setExpireTimeRefreshToken(response.result.expireTimeRefreshToken)
+
+          // Fetch profile ngay sau khi set token
+          const profile = await refetchProfile()
+
+          if (profile.data) {
+            // Set userInfo sau khi có data
+            setUserInfo(profile.data.result)
+            showToast(t('toast.loginSuccess'))
+
+            // ✅ NAVIGATION LOGIC - Handle redirect after successful login
+            const userInfo = profile.data.result
+
+            // Get permissions from token để calculate navigation
+            let permissions: string[] = []
+            try {
+              const decoded: IToken = jwtDecode(response.result.accessToken)
+              if (decoded.scope) {
+                const scope = typeof decoded.scope === "string" ? JSON.parse(decoded.scope) : decoded.scope
+                permissions = scope.permissions || []
+              }
+            } catch {
+              permissions = []
+            }
+
+            // Calculate navigation URL
+            const navigationUrl = calculateSmartNavigationUrl({
+              userInfo,
+              permissions,
+              currentUrl
+            })
+            // Navigate to appropriate page
+            const navigationSuccess = safeNavigate(
+              navigate,
+              navigationUrl,
+              window.location.pathname
+            )
+
+            // Clear saved URL if navigation successful
+            if (navigationSuccess) {
+              clearUrl()
+            }
+          } else {
+            // Nếu không fetch được profile, rollback auth state
+            setLogout()
+            throw new Error('Failed to fetch user profile')
+          }
+        } catch {
+          // Đảm bảo clear hết state nếu có lỗi
+          setLogout()
+          removeUserInfo()
+          showToast(t('toast.loginError') || 'Đăng nhập thất bại')
         }
-        showToast(t('toast.loginSuccess'))
       },
     })
   }
