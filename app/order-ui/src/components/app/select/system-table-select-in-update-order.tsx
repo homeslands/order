@@ -12,7 +12,8 @@ export default function SystemTableSelectInUpdateOrder({ order }: { order: IOrde
     const { getUserInfo } = useUserStore()
     // const { addTable } = useOrderTypeStore()
     const { data: tables } = useTables(getUserInfo()?.branch.slug)
-    const { setDraftTable } = useOrderFlowStore()
+    const { setDraftTable, getOrderItems } = useOrderFlowStore()
+    const updatingOrder = getOrderItems()?.updateDraft
     const [selectedTableId, setSelectedTableId] = useState<string | undefined>(
         undefined,
     )
@@ -21,10 +22,10 @@ export default function SystemTableSelectInUpdateOrder({ order }: { order: IOrde
 
     // default selected table
     useEffect(() => {
-        if (order.type === OrderTypeEnum.AT_TABLE) {
-            setSelectedTableId(order.table?.slug)
+        if (updatingOrder?.type === OrderTypeEnum.AT_TABLE && updatingOrder?.table) {
+            setSelectedTableId(updatingOrder?.table)
         }
-    }, [order])
+    }, [order, updatingOrder])
 
     const handleTableClick = (table: ITable) => {
         if (selectedTableId === table.slug) {
