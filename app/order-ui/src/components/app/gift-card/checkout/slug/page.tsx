@@ -8,7 +8,7 @@ import {
 } from '@/hooks/use-gift-card'
 import { useGiftCardPolling } from '@/hooks/use-gift-card-polling'
 import ErrorPage from '@/app/error-page'
-import { ROUTE } from '@/constants'
+import { Role, ROUTE, PaymentMethod } from '@/constants'
 import { GiftCardCountdown } from '@/components/app/countdown/GiftCardCountdown'
 import {
   IGiftCardCartItem,
@@ -17,7 +17,7 @@ import {
   IUserInfo,
 } from '@/types'
 import CancelCardOrderDialog from '@/components/app/dialog/cancel-gift-card-order-dialog'
-import { useGiftCardStore } from '@/stores'
+import { useGiftCardStore, useUserStore } from '@/stores'
 import { showToast, showErrorToast } from '@/utils'
 import {
   CustomerInfo,
@@ -28,9 +28,18 @@ import {
   PaymentQRCodeSection,
   LoadingState,
   ExpiredState,
+  CashierInfo,
 } from '../components'
+import { Button } from '@/components/ui/button'
+
+type RouteType = {
+  giftCard: string
+  success: string
+}
 
 export default function GiftCardCheckoutWithSlugPage() {
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
   // Extract slug parameter from URL
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
@@ -39,6 +48,9 @@ export default function GiftCardCheckoutWithSlugPage() {
   // State management
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [shouldStartPolling, setShouldStartPolling] = useState<boolean>(false)
+  const [paymentMethod, setPaymentMethod] = useState<string>(
+    PaymentMethod.BANK_TRANSFER,
+  )
 
   // Fetch initial gift card order data
   const { data: orderResponse, isLoading, error } = useGetCardOrder(slug || '')
@@ -47,6 +59,21 @@ export default function GiftCardCheckoutWithSlugPage() {
 
   // Get gift card store functions
   const { setGiftCardItem } = useGiftCardStore()
+
+  const getRoute = (): RouteType => {
+    if (role === Role.CUSTOMER) {
+      return {
+        giftCard: ROUTE.CLIENT_GIFT_CARD,
+        success: ROUTE.CLIENT_GIFT_CARD_SUCCESS,
+      }
+    }
+    return {
+      giftCard: ROUTE.STAFF_GIFT_CARD_MENU,
+      success: ROUTE.SYSTEM_GIFT_CARD_SUCCESS,
+    }
+  }
+
+  const routes: RouteType = getRoute()
   // Setup polling for payment status updates
   const {
     data: pollingOrderResponse,
@@ -60,7 +87,7 @@ export default function GiftCardCheckoutWithSlugPage() {
     pollingInterval: 30000, // Poll every 30 seconds
     onPaymentSuccess: () => {
       // Navigate to gift card success page when payment is completed
-      navigate(`${ROUTE.CLIENT_GIFT_CARD_SUCCESS}/${slug}`)
+      navigate(`${routes.success}/${slug}`)
     },
     onExpired: () => {
       setIsExpired(true)
@@ -70,7 +97,7 @@ export default function GiftCardCheckoutWithSlugPage() {
       showToast(t('giftCard.orderCancelledSuccessfully'))
       // Restore gift card to local storage
       restoreGiftCardToLocal() // Navigate back to gift card page
-      navigate(ROUTE.CLIENT_GIFT_CARD)
+      navigate(routes.giftCard)
     },
   })
 
@@ -133,7 +160,7 @@ export default function GiftCardCheckoutWithSlugPage() {
         // Restore gift card to local storage
         restoreGiftCardToLocal()
         // Navigate back to gift card page
-        navigate(ROUTE.CLIENT_GIFT_CARD)
+        navigate(routes.giftCard)
       },
       onError: (_error) => {
         showErrorToast(1001)
@@ -146,22 +173,29 @@ export default function GiftCardCheckoutWithSlugPage() {
     stopPolling,
     restoreGiftCardToLocal,
     navigate,
+    routes.giftCard,
   ])
   // Handle payment initiation
   const handleInitiatePayment = useCallback(() => {
     if (!currentOrderData?.slug) return
 
-    initiatePayment(currentOrderData.slug, {
-      onSuccess: (_data) => {
-        showToast(
-          t('giftCard.paymentInitiated', 'Payment initiated successfully'),
-        )
+    initiatePayment(
+      {
+        slug: currentOrderData.slug,
+        paymentMethod,
       },
-      onError: (_error) => {
-        showErrorToast(1001)
+      {
+        onSuccess: (_data) => {
+          showToast(
+            t('giftCard.paymentInitiated', 'Payment initiated successfully'),
+          )
+        },
+        onError: (_error) => {
+          showErrorToast(1001)
+        },
       },
-    })
-  }, [currentOrderData?.slug, initiatePayment, t])
+    )
+  }, [currentOrderData?.slug, initiatePayment, paymentMethod, t])
 
   // Handle countdown expiration
   const handleExpired = useCallback(
@@ -210,9 +244,7 @@ export default function GiftCardCheckoutWithSlugPage() {
 
   // Show expired state
   if (isExpired) {
-    return (
-      <ExpiredState onNavigateBack={() => navigate(ROUTE.CLIENT_GIFT_CARD)} />
-    )
+    return <ExpiredState onNavigateBack={() => navigate(routes.giftCard)} />
   }
   // Extract order data from response
   const orderData = currentOrderData
@@ -234,18 +266,26 @@ export default function GiftCardCheckoutWithSlugPage() {
 
         {/* Two-column grid layout for customer and order information */}
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Customer Information Section */}
-          <CustomerInfo orderData={orderData} />
+          {/* Customer Information Section - Full width */}
+          <div className="space-y-1">
+            <CustomerInfo orderData={orderData} role={role} />
+            {/* Cashier Information Section - Half width */}
+            {role !== Role.CUSTOMER && <CashierInfo orderData={orderData} />}
+          </div>
 
           {/* Order Information Section */}
-          <OrderInfo orderData={orderData} />
+          <OrderInfo orderData={orderData} role={role} />
         </div>
 
         {/* Gift Card Details Table */}
         <GiftCardDetailsTable orderData={orderData} />
 
         {/* Payment Method Section */}
-        <PaymentMethodSection />
+        <PaymentMethodSection
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
+          role={role}
+        />
 
         {/* QR Code and Payment Summary Section */}
         <div className="flex justify-between gap-6">
@@ -257,15 +297,24 @@ export default function GiftCardCheckoutWithSlugPage() {
               disabled={cancelCardOrderMutation.isPending || isExpired}
             />
           )}
-
-          <PaymentQRCodeSection
-            orderData={orderData}
-            isSuccessInitiatePayment={isSuccessInitiatePayment}
-            initiatePaymentData={initiatePaymentData}
-            isPendingInitiatePayment={isPendingInitiatePayment}
-            isExpired={isExpired}
-            onInitiatePayment={handleInitiatePayment}
-          />
+          {paymentMethod === PaymentMethod.BANK_TRANSFER ? (
+            <PaymentQRCodeSection
+              orderData={orderData}
+              isSuccessInitiatePayment={isSuccessInitiatePayment}
+              initiatePaymentData={initiatePaymentData}
+              isPendingInitiatePayment={isPendingInitiatePayment}
+              isExpired={isExpired}
+              onInitiatePayment={handleInitiatePayment}
+            />
+          ) : (
+            <Button
+              onClick={handleInitiatePayment}
+              disabled={isPendingInitiatePayment || isExpired}
+              className="mb-4 w-full md:w-auto"
+            >
+              {t('giftCard.initiatePayment')}
+            </Button>
+          )}
         </div>
       </div>
     </div>

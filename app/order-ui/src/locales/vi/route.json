@@ -40,6 +40,8 @@
     "voucher": "Mã giảm giá",
     "voucher-group": "Nhóm mã giảm giá",
     "card": "Thẻ quà tặng",
-    "catalog": "Danh mục thẻ quà tặng"
+    "catalog": "Danh mục thẻ quà tặng",
+    "checkout": "Thanh toán",
+    "confirmation": "Xác nhận"
   }
 }

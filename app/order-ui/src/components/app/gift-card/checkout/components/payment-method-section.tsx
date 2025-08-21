@@ -1,26 +1,68 @@
+import { RadioGroup, RadioGroupItem, Label } from '@/components/ui'
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
+import { PaymentMethod, Role } from '@/constants'
+import { Coins, CreditCard } from 'lucide-react'
 
-export default function PaymentMethodSection() {
-  const { t } = useTranslation(['giftCard'])
+interface PaymentMethodSectionProps {
+  role?: string
+  paymentMethod?: string
+  onPaymentMethodChange?: (method: string) => void
+}
+
+export default function PaymentMethodSection({
+  role,
+  paymentMethod: initialPaymentMethod,
+  onPaymentMethodChange,
+}: PaymentMethodSectionProps) {
+  const { t } = useTranslation('menu')
+  const [paymentMethod, setPaymentMethod] = useState(
+    initialPaymentMethod || PaymentMethod.BANK_TRANSFER,
+  )
+
+  const handlePaymentMethodSubmit = (value: PaymentMethod) => {
+    setPaymentMethod(value)
+    if (onPaymentMethodChange) {
+      onPaymentMethodChange(value)
+    }
+  }
+
   return (
     <div className="mb-4 rounded border bg-gray-100 dark:border-gray-600 dark:bg-gray-800">
-      <div className="border-b border-gray-300 px-3 py-2 font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
-        {t('giftCard.paymentMethod')}
+      <div className="bg-muted p-4">
+        <Label className="text-md">{t('paymentMethod.title')}</Label>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          ({t('paymentMethod.cashMethodNote')})
+        </div>
       </div>
-      <div className="p-3 text-sm">
-        {/* Payment instruction note */}
-        <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
-          {t(
-            'giftCard.cashPaymentNote',
-            'Note: For cash payment method, please go to the counter to make payment',
+      <RadioGroup
+        defaultValue={paymentMethod || PaymentMethod.BANK_TRANSFER}
+        className="min-w-full gap-6"
+        onValueChange={handlePaymentMethodSubmit}
+      >
+        <div className="p-3 text-sm">
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value={PaymentMethod.BANK_TRANSFER} id="r2" />
+            <div className="flex items-center gap-1 pl-2 text-muted-foreground">
+              <Label htmlFor="r2" className="flex items-center gap-1">
+                <CreditCard size={20} />
+                {t('paymentMethod.bankTransfer')}
+              </Label>
+            </div>
+          </div>
+          {role && role !== Role.CUSTOMER && (
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value={PaymentMethod.CASH} id="r3" />
+              <div className="flex items-center gap-1 pl-2 text-muted-foreground">
+                <Label htmlFor="r3" className="flex items-center gap-1">
+                  <Coins size={20} />
+                  {t('paymentMethod.cash')}
+                </Label>
+              </div>
+            </div>
           )}
         </div>
-        {/* Payment method indicator with orange dot */}
-        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-          <span className="mr-2 inline-block h-3 w-3 rounded-full bg-orange-400"></span>
-          <span>{t('giftCard.bankTransferPayment')}</span>
-        </div>
-      </div>
+      </RadioGroup>
     </div>
   )
 }

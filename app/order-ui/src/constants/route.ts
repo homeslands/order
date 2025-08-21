@@ -9,6 +9,7 @@ export const ROUTE = {
   ORDER_SUCCESS: '/order-success',
   CLIENT_ORDER_SUCCESS: '/client/order-success',
   CLIENT_GIFT_CARD_SUCCESS: '/client/gift-card/confirmation',
+  SYSTEM_GIFT_CARD_SUCCESS: '/system/card/catalog/confirmation',
   VERIFY_EMAIL: '/verify-email', // Make sure this matches exactly with your URL path
   FORBIDDEN: '/403',
 
@@ -46,6 +47,8 @@ export const ROUTE = {
   STAFF_GIFT_CARD: '/system/gift-card',
   STAFF_GIFT_CARD_MENU: '/system/card/catalog',
   STAFF_GIFT_CARD_FEATURE_FLAG: '/system/feature-lock-management',
+  STAFF_GIFT_CARD_CHECKOUT: '/system/card/catalog/checkout',
+  STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG: '/system/card/catalog/checkout/:slug',
 
   //Client Routes
   CLIENT_HOME: '/',

@@ -198,7 +198,11 @@
             "addCustomer": "Add Customer",
             "enterPhone": "Enter customer phone number"
         },
-        "cashierName": "Cashier Name"
+        "cashierInfo":{
+            "title": "Cashier Information",
+            "cashierName": "Cashier name",
+            "cashierPhone": "Phone number"
+        }
     },
     "schema": {
         "title": {
