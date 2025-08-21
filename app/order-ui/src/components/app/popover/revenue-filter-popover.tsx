@@ -18,13 +18,14 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
     const { t } = useTranslation(["revenue"]);
     const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
     const [open, setOpen] = useState(false);
+    const [localType, setLocalType] = useState<RevenueTypeQuery>(overviewFilter.type);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const handleExportRevenue = (data: IRevenueQuery) => {
-        setOverviewFilter({ ...overviewFilter, type: data.type as RevenueTypeQuery });
-        onApply(data)
+        setOverviewFilter({ ...overviewFilter, type: localType });
+        onApply({ ...data, type: localType })
         setOpen(false)
     };
 
@@ -41,10 +42,10 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                     <div className="space-y-2">
                         <span className="font-bold leading-none text-md">{t("revenue.exportRevenue")}</span>
                     </div>
-                    <RevenueTypeSelect defaultValue={overviewFilter.type} onChange={(value) => setOverviewFilter({ ...overviewFilter, type: value as RevenueTypeQuery })} />
+                    <RevenueTypeSelect value={localType} onChange={(value) => setLocalType(value as RevenueTypeQuery)} />
                     <RevenueFilterForm
                         onSubmit={handleExportRevenue}
-                        type={overviewFilter.type}
+                        type={localType}
                         onSuccess={() => setOpen(false)}
                     />
                 </div>
