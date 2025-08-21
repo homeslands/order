@@ -102,9 +102,11 @@ export async function cancelCardOrder(slug: string): Promise<void> {
 
 export async function initiateCardOrderPayment(
   slug: string,
+  paymentMethod: string,
 ): Promise<IApiResponse<ICardOrderResponse>> {
   const response = await http.post(`/card-order/payment/initiate`, {
     cardorderSlug: slug,
+    paymentMethod,
   })
   return response.data
 }

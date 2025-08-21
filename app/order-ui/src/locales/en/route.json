@@ -40,6 +40,8 @@
     "voucher": "Voucher",
     "voucher-group": "Voucher Group",
     "card": "Gift Card",
-    "catalog": "Gift Card Catalog"
+    "catalog": "Gift Card Catalog",
+    "checkout": "Checkout",
+    "confirmation": "Confirmation"
   }
 }

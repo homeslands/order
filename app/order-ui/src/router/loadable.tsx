@@ -403,10 +403,31 @@ export const GiftCardPage = React.lazy(() =>
   })),
 )
 
-//Gift card menu page
+//System gift card menu page
 export const GiftCardMenuPage = React.lazy(() =>
   import('@/app/system/gift-card/catalog').then((module) => ({
     default: module.GiftCardCatalogPage,
+  })),
+)
+
+//System gift card checkout
+export const GiftCardCheckoutPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout').then((module) => ({
+    default: module.SystemGiftCardCheckoutPage,
+  })),
+)
+
+// System gift card checkout with slug page
+export const SystemGiftCardCheckoutWithSlugPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout/[slug]').then((module) => ({
+    default: module.SystemGiftCardCheckoutPageBySlug,
+  })),
+)
+
+// System gift card success page
+export const SystemGiftCardSuccessPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout/success').then((module) => ({
+    default: module.SystemGiftCardSuccessPage,
   })),
 )
 

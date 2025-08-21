@@ -198,7 +198,11 @@
             "addCustomer": "Thêm khách hàng",
             "enterPhone": "Nhập số điện thoại khách hàng"
         },
-        "cashierName": "Tên thu ngân"
+        "cashierInfo":{
+            "title": "Thông tin thu ngân",
+            "cashierName": "Tên thu ngân",
+            "cashierPhone": "Số điện thoại"
+        }
     },
     "schema": {
         "title": {
