@@ -36,10 +36,10 @@ export default function SystemHorizontalCatalogSelect({
         setSelected(defaultValue || '')
     }, [defaultValue])
 
-    const handleClick = (value: string) => {
-        setSelected(value)
-        onChange(value)
-    }
+    useEffect(() => {
+        onChange(selected)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selected])
 
     // const extendedCatalogs = Array(5).fill(catalogs).flat(); // Lặp lại catalogs 5 lần
 
@@ -49,7 +49,7 @@ export default function SystemHorizontalCatalogSelect({
                 {catalogs.map((catalog, index) => (
                     <button
                         key={`${catalog.value}-${index}`}
-                        onClick={() => handleClick(catalog.value)}
+                        onClick={() => setSelected(catalog.value)}
                         className={clsx(
                             'flex-shrink-0 px-4 py-1 rounded-full border text-sm whitespace-nowrap transition-all duration-200',
                             selected === catalog.value
