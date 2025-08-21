@@ -68,6 +68,7 @@ import {
   GiftCardSuccessPage,
   FeatureLockManagementPage,
   CardOrderHistoryPage,
+  SystemGiftCardCheckoutWithSlugPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -76,6 +77,7 @@ import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
 import ForbiddenPage from '@/app/forbidden-page'
+import { SystemGiftCardSuccessPage } from '@/app/system/gift-card/checkout/success'
 
 export const router = createBrowserRouter([
   {
@@ -305,6 +307,20 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={GiftCardSuccessPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.SYSTEM_GIFT_CARD_SUCCESS}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={SystemGiftCardSuccessPage} />,
           },
         ],
       },
@@ -1169,6 +1185,22 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={ClientGiftCardCheckoutPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <SuspenseElement component={SystemGiftCardCheckoutWithSlugPage} />
+            ),
           },
         ],
       },

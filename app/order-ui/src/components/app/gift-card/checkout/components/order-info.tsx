@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 import { ICardOrderResponse } from '@/types'
-import { GiftCardType } from '@/constants'
+import { GiftCardType, Role } from '@/constants'
 import { getGiftCardOrderStatusLabel } from '@/utils'
 
 interface OrderInfoProps {
   orderData: ICardOrderResponse
+  role?: string
 }
 
-export default function OrderInfo({ orderData }: OrderInfoProps) {
+export default function OrderInfo({ orderData, role }: OrderInfoProps) {
   const { t } = useTranslation(['giftCard', 'menu'])
 
   return (
@@ -50,6 +51,15 @@ export default function OrderInfo({ orderData }: OrderInfoProps) {
               .format('HH:mm:ss DD/MM/YYYY')}
           </span>
         </div>
+        {/* Order date with formatted timestamp */}
+        {role && role !== Role.CUSTOMER && (
+          <div className="flex justify-between">
+            <span>{t('giftCard.orderDate')}</span>
+            <span>
+              {moment(orderData.orderDate).format('HH:mm:ss DD/MM/YYYY')}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )

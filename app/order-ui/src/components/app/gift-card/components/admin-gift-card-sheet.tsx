@@ -22,12 +22,12 @@ import {
   ReceiversSection,
   OrderSummary,
   DraggableGiftCardButton,
-  CashierInfo,
+  CashierSession,
   CustomerSearchInput,
 } from '.'
 import { showToast, showErrorToast } from '@/utils'
 import { useGiftCardStore, useUserStore } from '@/stores'
-import { GiftCardFlagGroup, GiftCardType } from '@/constants'
+import { GiftCardFlagGroup, GiftCardType, ROUTE } from '@/constants'
 import {
   createGiftCardCheckoutSchema,
   type TGiftCardCheckoutSchema,
@@ -245,7 +245,7 @@ export default function AdminGiftCardSheet() {
 
           // Navigate to checkout page with order slug
           const orderSlug = response.result.slug
-          navigate(`/gift-card/checkout/${orderSlug}`)
+          navigate(`${ROUTE.STAFF_GIFT_CARD_CHECKOUT}/${orderSlug}`)
         },
         onError: () => {
           showErrorToast(1006)
@@ -310,7 +310,7 @@ export default function AdminGiftCardSheet() {
                           onClear={handleClearGiftCard}
                           giftCardType={watchedGiftType}
                         />
-                        <CashierInfo />
+                        <CashierSession />
                         {/*Customer Info Field */}
                         <FormItem>
                           <FormLabel>
@@ -367,7 +367,7 @@ export default function AdminGiftCardSheet() {
                     )}
                   </div>
                   {/* Input Forms for Gift */}
-                  {watchedGiftType === GiftCardType.GIFT && (
+                  {watchedGiftType === GiftCardType.GIFT && hasCustomerInfo && (
                     <ReceiversSection
                       control={form.control}
                       fields={fields}

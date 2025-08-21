@@ -1,15 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
 import { ICardOrderResponse } from '@/types'
+import { Role } from '@/constants/role'
 
 interface CustomerInfoProps {
   orderData: ICardOrderResponse
+  role?: string
 }
 
-export default function CustomerInfo({ orderData }: CustomerInfoProps) {
+export default function CustomerInfo({ orderData, role }: CustomerInfoProps) {
   const { t } = useTranslation(['giftCard'])
   return (
-    <div className="rounded border bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+    <div
+      className={`${role === Role.CUSTOMER ? 'h-full' : ''} rounded border bg-gray-50 dark:border-gray-700 dark:bg-gray-800`}
+    >
       <div className="bg-gray-300 px-3 py-2 font-semibold text-gray-900 dark:bg-gray-700 dark:text-white">
         {t('giftCard.customerInfo')}
       </div>
@@ -29,12 +33,14 @@ export default function CustomerInfo({ orderData }: CustomerInfoProps) {
           <span>{orderData.customerPhone}</span>
         </div>
         {/* Order date with formatted timestamp */}
-        <div className="flex justify-between">
-          <span>{t('giftCard.orderDate')}</span>
-          <span>
-            {moment(orderData.orderDate).format('HH:mm:ss DD/MM/YYYY')}
-          </span>
-        </div>
+        {role && role === Role.CUSTOMER && (
+          <div className="flex justify-between">
+            <span>{t('giftCard.orderDate')}</span>
+            <span>
+              {moment(orderData.orderDate).format('HH:mm:ss DD/MM/YYYY')}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )

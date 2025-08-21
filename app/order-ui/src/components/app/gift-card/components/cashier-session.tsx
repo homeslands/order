@@ -11,12 +11,12 @@ export default function CashierInfo() {
   return (
     <FormItem>
       <FormLabel>
-        {t('giftCard.cashierName')}
+        {t('giftCard.cashierInfo.cashierName')}
         <span className="text-destructive dark:text-red-400">*</span>
       </FormLabel>
       <FormControl>
         <Input
-          placeholder={t('giftCard.cashierName')}
+          placeholder={t('giftCard.cashierInfo.cashierName')}
           disabled
           value={cashier}
         />
