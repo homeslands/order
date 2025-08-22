@@ -23,8 +23,6 @@ import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.d
 import { CardException } from '../card/card.exception';
 import { CardValidation } from '../card/card.validation';
 import { GiftCardService } from '../gift-card/gift-card.service';
-import { PointTransactionService } from '../point-transaction/point-transaction.service';
-import { BalanceService } from '../balance/balance.service';
 import {
   PointTransactionObjectTypeEnum,
   PointTransactionTypeEnum,
@@ -37,6 +35,8 @@ import { FeatureFlag } from '../feature-flag/entities/feature-flag.entity';
 import { FeatureFlagException } from '../feature-flag/feature-flag.exception';
 import { FeatureFlagValidation } from '../feature-flag/feature-flag.validation';
 import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
+import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
+import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 
 @Injectable()
 export class CardOrderService {
@@ -56,8 +56,8 @@ export class CardOrderService {
     private readonly transactionService: TransactionManagerService,
     private readonly bankTransferStrategy: BankTransferStrategy,
     private readonly gcService: GiftCardService,
-    private readonly ptService: PointTransactionService,
-    private readonly balanceService: BalanceService,
+    private readonly balanceService: SharedBalanceService,
+    private readonly ptService: SharedPointTransactionService,
   ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
@@ -387,7 +387,16 @@ export class CardOrderService {
             totalAmount += databaseEntity.cardPoint;
           }
 
-          // 3. Create transaction record
+          // Update recipient balance ONCE after all cards
+          await this.balanceService.calcBalance({
+            userSlug: recipientSlug,
+            points: totalAmount,
+            type: PointTransactionTypeEnum.IN,
+          });
+
+          const currentBalance = await this.balanceService.findOneByField({ userSlug: recipientSlug, slug: null })
+
+          // Create transaction record
           await this.ptService.create({
             type: PointTransactionTypeEnum.IN,
             desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
@@ -395,14 +404,8 @@ export class CardOrderService {
             objectSlug: databaseEntity.slug,
             points: totalAmount,
             userSlug: recipientSlug,
+            balance: currentBalance.points
           } as CreatePointTransactionDto);
-
-          // 4. Update recipient balance ONCE after all cards
-          await this.balanceService.calcBalance({
-            userSlug: recipientSlug,
-            points: totalAmount,
-            type: PointTransactionTypeEnum.IN,
-          });
         }
         break;
       case CardOrderType.SELF:
@@ -424,7 +427,15 @@ export class CardOrderService {
           totalAmount += databaseEntity.cardPoint;
         }
 
-        // 3. Create transaction record
+        //  Update recipient balance ONCE after all cards
+        await this.balanceService.calcBalance({
+          userSlug: databaseEntity.customerSlug,
+          points: totalAmount,
+          type: PointTransactionTypeEnum.IN,
+        });
+
+        const currentBalance = await this.balanceService.findOneByField({ userSlug: databaseEntity.customerSlug, slug: null })
+
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
           desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
@@ -432,14 +443,9 @@ export class CardOrderService {
           objectSlug: databaseEntity.slug,
           points: totalAmount,
           userSlug: databaseEntity.customerSlug,
+          balance: currentBalance.points
         } as CreatePointTransactionDto);
 
-        // 4. Update recipient balance ONCE after all cards
-        await this.balanceService.calcBalance({
-          userSlug: databaseEntity.customerSlug,
-          points: totalAmount,
-          type: PointTransactionTypeEnum.IN,
-        });
         break;
       case CardOrderType.BUY:
         // Just create gift cards
