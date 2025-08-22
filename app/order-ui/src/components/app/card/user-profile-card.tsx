@@ -148,7 +148,7 @@ export default function UserProfileCard() {
     <div>
       <Card className="bg-transparent border-none shadow-none">
         <CardContent className="flex flex-col gap-6 p-0">
-          <div className="flex flex-row justify-between p-4 bg-white rounded-md border">
+          <div className="flex flex-row justify-between p-4  rounded-md border">
             <div className='flex items-center'>
               <ProfilePicture
                 height={80}

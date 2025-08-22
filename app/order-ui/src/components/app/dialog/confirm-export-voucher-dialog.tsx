@@ -91,7 +91,7 @@ export default function ConfirmExportVoucherDialog({
         <Button
           disabled={disabled}
           variant="outline"
-          className="flex items-center w-full text-sm sm:w-[8rem]"
+          className="flex items-center w-full text-sm"
           onClick={() => onOpenChange(true)}
         >
           <Download className="w-4 h-4" />
