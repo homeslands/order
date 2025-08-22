@@ -198,7 +198,7 @@ export default function GiftCardCheckoutWithSlugPage() {
         },
       },
     )
-  }, [currentOrderData?.slug, initiatePayment, paymentMethod, t])
+  }, [currentOrderData?.slug, initiatePayment, navigate, paymentMethod, routes.success, t])
 
   // Handle countdown expiration
   const handleExpired = useCallback(

@@ -193,7 +193,6 @@
             "message": "Lời nhắn",
             "name": "Tên người nhận"
         },
-        "customer": {
         "customer":{
             "title": "Khách hàng",
             "customerPhone": "Số điện thoại khách hàng",
