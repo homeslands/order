@@ -1,4 +1,4 @@
-import { QUERYKEY } from '@/constants'
+import { QUERYKEY, Role } from '@/constants'
 import {
   IGiftCardCreateRequest,
   IGiftCardUpdateRequest,
@@ -26,6 +26,7 @@ import {
   getFeatureFlagsByGroup,
   bulkToggleFeatureFlags,
   getGiftCardBySlug,
+  initiateCardOrderPaymentAdmin,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore, useUserStore } from '@/stores'
@@ -272,9 +273,13 @@ export const useCancelCardOrder = () => {
 }
 
 export const useInitiateCardOrderPayment = () => {
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
   return useMutation({
     mutationFn: async (payload: { slug: string; paymentMethod: string }) => {
-      return initiateCardOrderPayment(payload.slug, payload.paymentMethod)
+      return role !== Role.CUSTOMER
+        ? initiateCardOrderPaymentAdmin(payload.slug, payload.paymentMethod)
+        : initiateCardOrderPayment(payload.slug, payload.paymentMethod)
     },
   })
 }

@@ -189,6 +189,9 @@ export default function GiftCardCheckoutWithSlugPage() {
           showToast(
             t('giftCard.paymentInitiated', 'Payment initiated successfully'),
           )
+          if (paymentMethod == PaymentMethod.CASH) {
+            navigate(`${routes.success}/${currentOrderData.slug}`)
+          }
         },
         onError: (_error) => {
           showErrorToast(1001)
