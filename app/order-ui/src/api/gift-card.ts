@@ -111,6 +111,17 @@ export async function initiateCardOrderPayment(
   return response.data
 }
 
+export async function initiateCardOrderPaymentAdmin(
+  slug: string,
+  paymentMethod: string,
+): Promise<IApiResponse<ICardOrderResponse>> {
+  const response = await http.post(`/card-order/payment/initiate/admin`, {
+    cardorderSlug: slug,
+    paymentMethod,
+  })
+  return response.data
+}
+
 export async function getGiftCardBySlug(
   slug: string,
 ): Promise<IApiResponse<IGiftCardDetail>> {
