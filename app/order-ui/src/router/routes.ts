@@ -39,6 +39,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.STAFF_MENU,
   },
   {
+    title: 'sidebar.giftCardMenu',
+    path: ROUTE.STAFF_GIFT_CARD_MENU,
+    icon: TicketCheck,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.deliveryManagement',
     path: ROUTE.STAFF_DELIVERY_MANAGEMENT,
     icon: ShoppingCart,
@@ -147,12 +153,6 @@ export const sidebarRoutes: ISidebarRoute[] = [
     title: 'sidebar.giftCardManagement',
     path: ROUTE.STAFF_GIFT_CARD,
     icon: Gift,
-    permission: Permission.BANNER_MANAGEMENT,
-  },
-  {
-    title: 'sidebar.giftCardMenu',
-    path: ROUTE.STAFF_GIFT_CARD_MENU,
-    icon: TicketCheck,
     permission: Permission.BANNER_MANAGEMENT,
   },
   {
