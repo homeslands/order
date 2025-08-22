@@ -200,7 +200,7 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
             ))}
           </div>
           <div className="flex gap-4 justify-end">
-            <Button className="text-orange-500 bg-white border border-orange-500 hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
+            <Button className="text-orange-500 bg-white border dark:bg-background border-orange-500 hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
               {t('product.btnCreateAndContinue')}
             </Button>
             <Button type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, true))}>
