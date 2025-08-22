@@ -162,7 +162,7 @@ export default function UserProfileCard() {
               />
               <div className="flex flex-col justify-center ml-4">
                 <span className="font-bold text-md">
-                  {userProfile?.lastName} {userProfile?.firstName} aaaaaa
+                  {userProfile?.lastName} {userProfile?.firstName}
                 </span>
                 <div className="flex items-center text-description"></div>
               </div>
