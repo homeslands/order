@@ -126,7 +126,6 @@ export default function GiftCardCheckoutWithSlugPage() {
             slug: recipient.recipientSlug,
           } as IUserInfo,
         }))
-
       // Restore gift card item for cart display
       const giftCardItem: IGiftCardCartItem = {
         slug: currentOrderData.cardSlug,
@@ -139,6 +138,11 @@ export default function GiftCardCheckoutWithSlugPage() {
         id: currentOrderData.cardId,
         receipients: receipients,
         type: currentOrderData.type,
+        customerInfo: {
+          slug: currentOrderData.customerSlug,
+          lastName: currentOrderData.customerName,
+          phonenumber: currentOrderData.customerPhone,
+        },
       }
       setGiftCardItem(giftCardItem)
     }

@@ -38,6 +38,7 @@ import {
   useSyncGiftCard,
 } from '@/hooks/use-gift-card'
 import { useIsMobile } from '@/hooks'
+import { IUserInfoBasic } from '@/types'
 
 export default function AdminGiftCardSheet() {
   const { t } = useTranslation(['giftCard'])
@@ -45,8 +46,9 @@ export default function AdminGiftCardSheet() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [hasSelectedRecipients, setHasSelectedRecipients] = useState(false)
-  const [customerSlug, setCustomerSlug] = useState<string>('')
+  const [customerInfo, setCustomerInfo] = useState<IUserInfoBasic>()
   const [hasCustomerInfo, setHasCustomerInfo] = useState(false)
+  const [isRestoringCustomerInfo, setIsRestoringCustomerInfo] = useState(false)
   const isMobile = useIsMobile()
   const {
     giftCardItem,
@@ -190,6 +192,14 @@ export default function AdminGiftCardSheet() {
     [featureFlags],
   )
 
+  useEffect(() => {
+    if (giftCardItem?.customerInfo) {
+      setCustomerInfo(giftCardItem.customerInfo)
+      setHasCustomerInfo(true)
+      setIsRestoringCustomerInfo(true)
+    }
+  }, [giftCardItem?.customerInfo])
+
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(
     (_data) => {
@@ -227,7 +237,7 @@ export default function AdminGiftCardSheet() {
     // Create card order request
     createCardOrder(
       {
-        customerSlug: customerSlug,
+        customerSlug: customerInfo!.slug,
         cashierSlug: userInfo!.slug,
         cardOrderType: data.giftType,
         cardSlug: giftCardItem!.slug,
@@ -321,8 +331,11 @@ export default function AdminGiftCardSheet() {
                           </FormLabel>
                           <FormControl>
                             <CustomerSearchInput
-                              setCustomerSlug={setCustomerSlug}
+                              setCustomerInfo={setCustomerInfo}
                               onCustomerSelectionChange={setHasCustomerInfo}
+                              customerInfo={customerInfo}
+                              hasCustomerInfo={isRestoringCustomerInfo}
+                              setHasCustomerInfo={setIsRestoringCustomerInfo}
                             />
                           </FormControl>
                         </FormItem>
