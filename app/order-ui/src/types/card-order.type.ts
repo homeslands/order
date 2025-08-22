@@ -1,4 +1,10 @@
 import { IGiftCardDetail } from './gift-card.type'
+import { IUserInfo } from './user.type'
+
+export type IUserInfoBasic = Pick<
+  IUserInfo,
+  'slug' | 'lastName' | 'phonenumber'
+>
 
 export interface ICardOrderRequest {
   customerSlug: string
@@ -84,6 +90,7 @@ export interface IGiftCardCartItem {
   isActive?: boolean
   type?: string
   version?: number
+  customerInfo?: IUserInfoBasic
 }
 
 export interface IReceiverGiftCardCart {
