@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useFormContext } from 'react-hook-form'
+import { useEffect } from 'react'
 import {
   Input,
   FormField,
@@ -9,26 +10,50 @@ import {
   FormMessage,
 } from '@/components/ui'
 import RecipientSearchInput from './recipient-search-input'
-import { type IUserInfo } from '@/types'
+import { IUserInfoBasic, type IUserInfo } from '@/types'
 import { useUserStore } from '@/stores'
 import { Role } from '@/constants'
 
 interface CustomerSearchInputProps {
-  setCustomerSlug: (slug: string) => void
+  setCustomerInfo: (info: IUserInfoBasic) => void
   onCustomerSelectionChange: (hasSelectedRecipients: boolean) => void
+  customerInfo?: IUserInfoBasic
+  hasCustomerInfo?: boolean
+  setHasCustomerInfo?: (hasCustomerInfo: boolean) => void
 }
 
 export default function CustomerSearchInput({
-  setCustomerSlug,
+  setCustomerInfo,
   onCustomerSelectionChange,
+  customerInfo,
+  hasCustomerInfo = false,
+  setHasCustomerInfo,
 }: CustomerSearchInputProps) {
   const { t } = useTranslation(['giftCard'])
   const { userInfo } = useUserStore()
+
   const role = userInfo?.role.name
   const { setValue, watch } = useFormContext()
 
   // Watch userInfo for this receiver
-  const receiverUserInfo = watch(`customer.userInfo`)
+  const customerUserInfo = watch(`customer.userInfo`)
+
+  // Auto-fill customer info when props change (only on restore)
+  useEffect(() => {
+    if (hasCustomerInfo && customerInfo && !customerUserInfo) {
+      setValue(`customer.userInfo`, customerInfo)
+      setValue(`customer.slug`, customerInfo.slug || '')
+      setValue(`customer.name`, customerInfo.lastName || t('giftCard.noName'))
+      setHasCustomerInfo?.(false)
+    }
+  }, [
+    hasCustomerInfo,
+    customerInfo,
+    customerUserInfo,
+    setValue,
+    t,
+    setHasCustomerInfo,
+  ])
 
   // Auto-fill name logic when user is selected from search
   const handleUserSelect = (user: IUserInfo | null) => {
@@ -44,7 +69,7 @@ export default function CustomerSearchInput({
       // Save the complete userInfo for future reference
       setValue(`customer.userInfo`, user)
 
-      setCustomerSlug(user.slug)
+      setCustomerInfo(user)
     } else {
       setValue(`customer.name`, '')
       setValue(`customer.userInfo`, undefined)
@@ -75,7 +100,7 @@ export default function CustomerSearchInput({
         <h3 className="text-sm font-semibold">{labels.title}</h3>
       </div>
       <FormField
-        name={`customer.recipientSlug`}
+        name={`customer.slug`}
         render={({ field }) => (
           <FormItem className="mt-2">
             <FormLabel>
@@ -89,7 +114,7 @@ export default function CustomerSearchInput({
                 onUserSelect={handleUserSelect}
                 placeholder={labels.enterPhone}
                 onSelectionChange={onCustomerSelectionChange}
-                userInfo={receiverUserInfo}
+                userInfo={customerUserInfo}
               />
             </FormControl>
             <FormMessage />
