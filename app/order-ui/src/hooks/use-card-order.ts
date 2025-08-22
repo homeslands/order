@@ -4,6 +4,7 @@ import moment from 'moment'
 import { getCardOrders } from '@/api'
 import { CardOrderStatus } from '@/constants'
 import { ICardOrderGetRequest } from '@/types/card-order.type'
+import { useUserStore } from '@/stores'
 
 interface UseCardOrdersFilters {
   status: CardOrderStatus
@@ -14,10 +15,13 @@ interface UseCardOrdersFilters {
 
 export const useGetCardOrdersInfinite = ({ pageSize = 10 }) => {
   const today = moment()
+  const { userInfo } = useUserStore()
+
   const [filters, setFilters] = useState<UseCardOrdersFilters>({
     status: CardOrderStatus.ALL,
     fromDate: today.startOf('month').format('YYYY-MM-DD'),
     toDate: today.endOf('month').format('YYYY-MM-DD'),
+    customerSlug: userInfo!.slug,
   })
 
   const {

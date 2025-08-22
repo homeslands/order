@@ -122,7 +122,7 @@ export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
       toDate: '',
       customerSlug: userInfo?.slug,
     })
-  }, [])
+  }, [userInfo?.slug])
 
   // Check if filters are active
   const hasActiveFilters = useMemo(() => {
