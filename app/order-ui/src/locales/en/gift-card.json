@@ -118,6 +118,7 @@
         "statusPending": "Pending",
         "statusCompleted": "Completed",
         "statusFailed": "Failed",
+        "statusCancelled": "Cancelled",
         "statusPaid": "Paid",
         "purchaseSuccess": "Gift Card Purchase Successful!",
         "backToGiftCards": "Back to Gift Card",
@@ -135,6 +136,7 @@
         "giftCardCode": "Gift Card Code",
         "giverName": "Giver Name",
         "giftCardLock": "Feature locked, please try again later",
+        "continuePayment": "Continue payment",
         "giftCardFeatureFlag": {
             "pageTitle": "Feature Lock Management",
             "featureControls": "Gift Card Feature Flag",
@@ -198,7 +200,7 @@
             "addCustomer": "Add Customer",
             "enterPhone": "Enter customer phone number"
         },
-        "cashierInfo":{
+        "cashierInfo": {
             "title": "Cashier Information",
             "cashierName": "Cashier name",
             "cashierPhone": "Phone number"
