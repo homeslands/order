@@ -85,13 +85,24 @@ export function GiftCardOrderDetailsSheet({
       case CardOrderStatus.COMPLETED:
         return 'default'
       case CardOrderStatus.PENDING:
-        return 'secondary'
+        return 'default'
       case CardOrderStatus.FAILED:
         return 'destructive'
       case CardOrderStatus.CANCELLED:
-        return 'outline'
+        return 'destructive'
       default:
         return 'outline'
+    }
+  }
+
+  const getStatusBadgeClass = (
+    status: string,
+  ) => {
+    switch (status) {
+      case CardOrderStatus.COMPLETED:
+        return 'bg-green-500 hover:bg-green-500 text-white'
+      default:
+        return '';
     }
   }
 
@@ -123,7 +134,7 @@ export function GiftCardOrderDetailsSheet({
             <div className="mt-4 flex items-center justify-between">
               <Badge
                 variant={getStatusBadgeVariant(cardOrder.status)}
-                className="px-3 py-1"
+                className={`px-3 py-1 ${getStatusBadgeClass(cardOrder?.status)}`}
               >
                 {getGiftCardOrderStatusLabel(cardOrder.status)}
               </Badge>

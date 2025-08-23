@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, TriangleAlert } from 'lucide-react'
+import { X, TriangleAlert, XCircleIcon } from 'lucide-react'
 
 import {
   Button,
@@ -14,15 +14,22 @@ import {
 } from '@/components/ui'
 
 interface CancelCardOrderDialogProps {
-  onConfirm: () => void
   isLoading?: boolean
   disabled?: boolean
+  hideLabel?: boolean
+  hideIcon?: boolean
+  className?: string
+  onConfirm: () => void
+
 }
 
 export default function CancelGiftCardOrderDialog({
-  onConfirm,
   isLoading = false,
   disabled = false,
+  hideLabel = false,
+  hideIcon = false,
+  className = "",
+  onConfirm
 }: CancelCardOrderDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { t } = useTranslation(['giftCard', 'common'])
@@ -35,14 +42,20 @@ export default function CancelGiftCardOrderDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          disabled={disabled}
-          className="group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white"
-        >
-          <X className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-          {t('giftCard.cancelOrder', 'Cancel Order')}
-        </Button>
+        {!hideLabel ?
+
+          <Button
+            variant="outline"
+            disabled={disabled}
+            className={`group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white ${className}`}
+          >
+            {!hideIcon &&
+              <X className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+            }
+            {t('giftCard.cancelOrder', 'Cancel Order')}
+          </Button> :
+          <XCircleIcon className="text-sm text-red-500" />
+        }
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[36rem]">
         <DialogHeader>
