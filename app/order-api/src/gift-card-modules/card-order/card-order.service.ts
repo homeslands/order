@@ -462,6 +462,7 @@ export class CardOrderService {
       order: sortOpts,
       take: size,
       skip: (page - 1) * size,
+      withDeleted: true
     });
 
     // Calculate total pages
