@@ -191,14 +191,14 @@
             "message": "Lời nhắn",
             "name": "Tên người nhận"
         },
-        "customer":{
+        "customer": {
             "title": "Khách hàng",
             "customerPhone": "Số điện thoại khách hàng",
             "customerName": "Tên khách hàng",
             "addCustomer": "Thêm khách hàng",
             "enterPhone": "Nhập số điện thoại khách hàng"
         },
-        "cashierInfo":{
+        "cashierInfo": {
             "title": "Thông tin thu ngân",
             "cashierName": "Tên thu ngân",
             "cashierPhone": "Số điện thoại"
