@@ -1,6 +1,6 @@
 import i18next from 'i18next'
-import { OrderStatus } from '@/types'
 import {
+  CardOrderStatus,
   GiftCardType,
   GiftCardUsageStatus,
   PaymentMethod,
@@ -11,12 +11,14 @@ export const getGiftCardOrderStatusLabel = (status: string): string => {
   const statusLower = status?.toLowerCase() || ''
 
   switch (statusLower) {
-    case OrderStatus.PENDING:
+    case CardOrderStatus.PENDING:
       return i18next.t('giftCard.statusPending', { ns: 'giftCard' })
-    case OrderStatus.COMPLETED:
+    case CardOrderStatus.COMPLETED:
       return i18next.t('giftCard.statusCompleted', { ns: 'giftCard' })
-    case OrderStatus.FAILED:
+    case CardOrderStatus.FAILED:
       return i18next.t('giftCard.statusFailed', { ns: 'giftCard' })
+    case CardOrderStatus.CANCELLED:
+      return i18next.t('giftCard.statusCancelled', { ns: 'giftCard' })
     default:
       return status
   }

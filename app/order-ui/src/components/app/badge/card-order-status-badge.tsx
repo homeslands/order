@@ -28,8 +28,9 @@ export default function CardOrderStatusBadge({ status }: ICardOrderStatusBadgePr
       case CardOrderStatus.COMPLETED:
         return t('giftCard.cardOrder.completed')
       case CardOrderStatus.FAILED:
+        return t('giftCard.cardOrder.fail')
       case CardOrderStatus.CANCELLED:
-        return t('giftCard.cardOrder.failed')
+        return t('giftCard.cardOrder.cancelled')
       default:
         return ''
     }

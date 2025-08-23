@@ -10,7 +10,7 @@ import {
   CoinsIcon,
 } from 'lucide-react'
 
-import { useIsMobile } from '@/hooks'
+import { useCancelCardOrder, useIsMobile } from '@/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, showToast } from '@/utils'
 import { useGetCardOrdersInfinite } from '@/hooks'
 import { CardOrderStatus, publicFileURL } from '@/constants'
 import { ICardOrderResponse } from '@/types'
@@ -31,10 +31,17 @@ import { TransactionCardSkeleton } from '@/components/app/skeleton/transaction-c
 import SimpleDatePicker from '@/components/app/picker/simple-date-picker'
 import { Collapsible, CollapsibleContent } from '@radix-ui/react-collapsible'
 import { GiftCardOrderDetailsSheet } from './gift-card-order-details-sheet'
+import { useNavigate } from 'react-router-dom'
+import { CancelGiftCardOrderDialog } from '../dialog'
+import { useQueryClient } from '@tanstack/react-query'
 
 export function CustomerGiftCardOrderTabsContent() {
   const { t } = useTranslation(['profile'])
+  const { t: tGC } = useTranslation(['giftCard'])
   const isMobile = useIsMobile()
+  const navigate = useNavigate();
+  const { mutate } = useCancelCardOrder();
+  const queryClient = useQueryClient();
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
   const [selectedCardOrder, setSelectedCardOrder] =
@@ -79,14 +86,14 @@ export function CustomerGiftCardOrderTabsContent() {
     switch (status) {
       case CardOrderStatus.COMPLETED:
         return {
-          variant: 'default' as const,
           label: t('profile.cardOrder.status.completed'),
           icon: <CheckCircle size={14} />,
           color: 'text-green-600',
+          className: 'bg-green-500 hover:bg-green-500'
         }
       case CardOrderStatus.PENDING:
         return {
-          variant: 'secondary' as const,
+          variant: 'default' as const,
           label: t('profile.cardOrder.status.pending'),
           icon: <Loader size={14} />,
           color: 'text-yellow-600',
@@ -100,10 +107,10 @@ export function CustomerGiftCardOrderTabsContent() {
         }
       case CardOrderStatus.CANCELLED:
         return {
-          variant: 'outline' as const,
+          variant: 'destructive' as const,
           label: t('profile.cardOrder.status.cancelled'),
           icon: <XCircle size={14} />,
-          color: 'text-gray-600',
+          color: 'text-red-600',
         }
       default:
         return {
@@ -113,6 +120,19 @@ export function CustomerGiftCardOrderTabsContent() {
           color: 'text-gray-600',
         }
     }
+  }
+
+  const handleCancelCardOrder = (co: ICardOrderResponse) => {
+    mutate(co?.slug, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['cardOrdersInfinite'] });
+        showToast(
+          tGC(
+            'giftCard.cardOrder.cancelSuccessful',
+          ),
+        )
+      },
+    });
   }
 
   useEffect(() => {
@@ -143,6 +163,13 @@ export function CustomerGiftCardOrderTabsContent() {
     }
   }, [hasNextPage, isFetchingNextPage, isLoading, handleLoadMore])
 
+  const handleContinuePayment = (cardOrder: ICardOrderResponse) => {
+    if (cardOrder?.slug) {
+      const to = `/gift-card/checkout/${cardOrder.slug}`
+      navigate(to)
+    }
+  }
+
   const CardOrderItem = ({ cardOrder }: { cardOrder: ICardOrderResponse }) => {
     const statusBadge = getStatusBadge(cardOrder.status)
 
@@ -158,7 +185,7 @@ export function CustomerGiftCardOrderTabsContent() {
               'HH:mm:ss DD/MM/YYYY',
             )}
           </span>
-          <Badge variant={statusBadge.variant} className="px-2 py-1">
+          <Badge variant={statusBadge.variant} className={`px-2 py-1 ${statusBadge?.className}`}>
             <div className="flex items-center gap-1">
               {statusBadge.icon}
               {statusBadge.label}
@@ -216,9 +243,24 @@ export function CustomerGiftCardOrderTabsContent() {
             </div>
           </div>
 
-          <Button onClick={() => toggleCardExpansion(cardOrder)}>
-            {t('profile.common.viewDetails')}
-          </Button>
+          <div className='flex items-center justify-between mt-4'>
+            <Button onClick={() => toggleCardExpansion(cardOrder)}>
+              {t('profile.common.viewDetails')}
+            </Button>
+            {cardOrder?.status === CardOrderStatus.PENDING
+              &&
+              <div className='flex items-center gap-2'>
+                <CancelGiftCardOrderDialog
+                  onConfirm={() => handleCancelCardOrder(cardOrder)}
+                  hideIcon={true}
+                  className='bg-red-500 text-white'
+                />
+                <Button className='bg-green-500 text-white hover:bg-green-500' onClick={() => handleContinuePayment(cardOrder)}>
+                  {tGC('giftCard.continuePayment')}
+                </Button>
+              </div>
+            }
+          </div>
         </div>
       </div>
     )
