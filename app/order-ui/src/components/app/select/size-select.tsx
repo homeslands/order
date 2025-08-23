@@ -1,7 +1,53 @@
 import { useEffect, useState } from 'react'
-import ReactSelect, { SingleValue } from 'react-select'
+import ReactSelect, { ClassNamesConfig, SingleValue } from 'react-select'
+import { cn } from '@/lib/utils';
 
 import { useSize } from '@/hooks'
+
+const customClass : ClassNamesConfig<{ value: string; label: string }, false> = {
+  control: (state) => {
+    return cn(
+      '!bg-background !border-input',
+      state.isFocused && '!ring-ring !ring-1 !ring-offset-0',
+    )
+  },
+  placeholder: () => {
+    return cn(
+      '!text-muted-foreground',
+    )
+  },
+  dropdownIndicator: () => {
+    return cn(
+      '!text-muted-foreground opacity-50',
+    )
+  },
+  indicatorSeparator: () => {
+    return cn(
+      '!bg-transparent',
+    )
+  },
+  input: () => {
+    return cn(
+      '!text-foreground',
+    )
+  },
+  singleValue: () => {
+    return cn(
+      '!text-foreground',
+    )
+  },
+  menu: () => {
+    return cn(
+      '!bg-card !rounded-md ',
+    )
+  },
+  option: (state) => {
+    return cn(
+      state.isSelected && '!bg-primary/10 !text-primary',
+      state.isFocused && '!bg-primary/10',
+    )
+  },
+}
 
 interface SelectSizeProps {
   defaultValue?: string
@@ -61,6 +107,7 @@ export default function SizeSelect({
 
   return (
     <ReactSelect
+      classNames={customClass}
       value={selectedSize}
       onMenuScrollToBottom={() => { }}
       options={allSizes}
