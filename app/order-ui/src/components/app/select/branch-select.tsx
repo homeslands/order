@@ -21,11 +21,11 @@ interface SelectBranchProps {
 
 export default function BranchSelect({ defaultValue, onChange }: SelectBranchProps) {
   const { t } = useTranslation('branch')
+  const { setBranch, branch } = useBranchStore();
   const [allBranches, setAllBranches] = useState<{ value: string; label: string }[]>([]);
-  const [selectedValue, setSelectedValue] = useState<string | undefined>();
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(defaultValue || branch?.slug);
 
   const { data } = useBranch();
-  const { setBranch, branch } = useBranchStore();
 
   // Set selected branch with priority: store branch > defaultValue > first item
   useEffect(() => {
