@@ -191,6 +191,7 @@ export class CardOrderService {
       paymentMethod: payment.paymentMethod,
       paymentId: payment.id,
       paymentSlug: payment.slug,
+      paymentStatus: payment.statusCode
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
