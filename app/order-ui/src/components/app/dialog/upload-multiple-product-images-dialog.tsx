@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Upload } from "lucide-react";
-import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { Loader2, Upload, X } from "lucide-react";
 
 import {
     Button,
@@ -18,6 +17,7 @@ import { IProduct } from "@/types";
 import { showToast } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { QUERYKEY } from "@/constants";
 
 interface IUploadMultipleProductImagesDialogProps {
     product: IProduct;
@@ -35,7 +35,7 @@ export default function UploadMultipleProductImagesDialog({ product }: IUploadMu
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { mutate: uploadMultipleProductImages } = useUploadMultipleProductImages();
+    const { mutate: uploadMultipleProductImages, isPending } = useUploadMultipleProductImages();
 
     const triggerFileInput = () => {
         fileInputRef.current?.click();
@@ -75,7 +75,7 @@ export default function UploadMultipleProductImagesDialog({ product }: IUploadMu
                 onSuccess: () => {
                     showToast(tToast("toast.uploadImageSuccess"));
                     queryClient.invalidateQueries({
-                        queryKey: ['product', slug]
+                        queryKey: [QUERYKEY.specificProduct, slug],
                     })
                     setIsOpen(false);
                     setSelectedFiles([]);
@@ -99,42 +99,72 @@ export default function UploadMultipleProductImagesDialog({ product }: IUploadMu
                     <DialogDescription>{t("product.uploadImageDescription")}</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                    <div
-                        className="flex flex-wrap items-center justify-center w-full h-auto text-muted-foreground transition-colors border rounded-md cursor-pointer hover:border-primary hover:bg-foreground/10"
-                        onClick={triggerFileInput}
-                    >
-                        {previewImages.length > 0 ? (
-                            previewImages.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={image}
-                                    alt={`Preview ${index + 1}`}
-                                    className="object-cover w-24 h-24 m-2 rounded-lg"
-                                />
-                            ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center w-full h-40">
-                                <PlusCircledIcon className="w-12 h-12 mb-2" />
-                                <span>{t("product.addImage")}</span>
-                            </div>
-                        )}
-                    </div>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        name="file"
-                        multiple
-                        onChange={(e) => handleFilesChange(e.target.files)}
-                        className="hidden"
-                    />
-                    <div className="flex justify-end space-x-2">
-                        <Button variant="secondary" onClick={() => setIsOpen(false)}>
-                            {tCommon("common.cancel")}
-                        </Button>
-                        <Button onClick={handleConfirmUpload} disabled={selectedFiles.length === 0}>
-                            {t("product.upload")}
-                        </Button>
+                    <div className="space-y-4">
+                        {/* Upload Zone */}
+                        <div
+                            className="flex flex-col justify-center items-center p-4 w-full h-32 rounded-md border-2 border-dashed cursor-pointer hover:border-primary hover:bg-foreground/5"
+                            onClick={triggerFileInput}
+                        >
+                            <Upload className="mb-2 w-10 h-10 text-primary" />
+                            <p className="text-sm font-medium">{t("product.clickToUploadImage")}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                {`${t("product.maxFileSize")} ${MAX_FILE_SIZE_MB}MB ${t("product.multipleImagesAllowed")}`}
+                            </p>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => handleFilesChange(e.target.files)}
+                                className="hidden"
+                            />
+                        </div>
+
+                        {/* Preview Zone */}
+                        <div className="min-h-[6rem] max-h-60 overflow-y-auto border rounded-md p-2">
+                            {previewImages.length > 0 ? (
+                                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                                    {previewImages.map((image, index) => (
+                                        <div key={index} className="relative group">
+                                            <img
+                                                src={image}
+                                                alt={`Preview ${index + 1}`}
+                                                className="object-cover w-24 h-24 rounded-lg border"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                className="absolute -top-1 right-2 w-8 h-8 text-white rounded-full opacity-0 bg-destructive group-hover:opacity-100 hover:bg-destructive/80 hover:text-white"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+                                                    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+                                                }}
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-center text-muted-foreground">
+                                    {t("product.noImagesYet")}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex justify-end space-x-2">
+                            <Button variant="secondary" onClick={() => setIsOpen(false)}>
+                                {tCommon("common.cancel")}
+                            </Button>
+                            <Button onClick={handleConfirmUpload} disabled={selectedFiles.length === 0 || isPending}>
+                                {isPending ? <span className="flex gap-2 items-center">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    {t("product.upload")}
+                                </span> : t("product.upload")}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </DialogContent>
