@@ -23,6 +23,7 @@
     "productManagement": "Quản lý món",
     "title": "Khu vực bếp",
     "update": "Chỉnh sửa",
+    "confirmUpdate": "Xác nhận chỉnh sửa",
     "updateDescription": "Chỉnh sửa khu vực bếp"
   },
   "chefOrder": {
