@@ -24,7 +24,7 @@ import {
 } from '@/components/ui'
 import { ConfirmUpdateVoucherDialog } from '@/components/app/dialog'
 import { IUpdateVoucherRequest, IVoucher } from '@/types'
-import { SimpleDatePicker } from '../picker'
+import { DateAndTimePicker } from '../picker'
 import { TUpdateVoucherSchema, updateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
@@ -103,28 +103,52 @@ export default function UpdateVoucherSheet({
     }
   }, [specificVoucherData, form, slug])
 
-  const isDateBeforeToday = (date: Date) => {
+  const disableStartDate = (date: Date) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     return date < today
   }
 
-  const isDateBeforeStartDate = (date: Date) => {
+  const disableEndDate = (date: Date) => {
     const startDate = form.getValues('startDate')
     if (!startDate) return false
-    const startDateObj = new Date(startDate)
-    return date <= startDateObj
+
+    const selectedStartDate = new Date(startDate)
+
+    // Nếu là ngày khác thì chỉ so sánh ngày
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+    const startDateOnly = new Date(selectedStartDate)
+    startDateOnly.setHours(0, 0, 0, 0)
+
+    // Disable nếu ngày endDate < ngày startDate
+    return dateOnly < startDateOnly
   }
 
-  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
+  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
+    form.setValue(fieldName, date || '')
+
+    // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
     if (fieldName === 'startDate') {
-      // Nếu thay đổi ngày bắt đầu, cập nhật ngày kết thúc nếu nó trước ngày bắt đầu mới
       const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
-        form.setValue('endDate', date)
+      if (currentEndDate && new Date(currentEndDate) < new Date(date || '')) {
+        form.setValue('endDate', date || '')
       }
     }
-    form.setValue(fieldName, date)
+
+    // Nếu thay đổi endDate, kiểm tra với startDate
+    if (fieldName === 'endDate' && date) {
+      const currentStartDate = form.getValues('startDate')
+      if (currentStartDate) {
+        const startDateTime = new Date(currentStartDate)
+        const endDateTime = new Date(date)
+
+        // Nếu endDate < startDate (cả ngày và giờ), set endDate = startDate
+        if (endDateTime < startDateTime) {
+          form.setValue('endDate', currentStartDate)
+        }
+      }
+    }
   }
 
   const handleSubmit = (data: IUpdateVoucherRequest) => {
@@ -155,7 +179,7 @@ export default function UpdateVoucherSheet({
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.title')}
             </FormLabel>
@@ -173,7 +197,7 @@ export default function UpdateVoucherSheet({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.description')}
             </FormLabel>
@@ -194,15 +218,16 @@ export default function UpdateVoucherSheet({
         name="startDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.startDate')}
             </FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('startDate', date)}
-                disabledDates={isDateBeforeToday}
+              <DateAndTimePicker
+                date={field.value}
+                onSelect={(date) => handleDateChange('startDate', date)}
+                disabledDates={disableStartDate}
+                showTime={true}
               />
             </FormControl>
             <FormMessage />
@@ -216,15 +241,16 @@ export default function UpdateVoucherSheet({
         name="endDate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.endDate')}
             </FormLabel>
             <FormControl>
-              <SimpleDatePicker
-                {...field}
-                onChange={(date) => handleDateChange('endDate', date)}
-                disabledDates={isDateBeforeStartDate}
+              <DateAndTimePicker
+                date={field.value}
+                onSelect={(date) => handleDateChange('endDate', date)}
+                disabledDates={disableEndDate}
+                showTime={true}
               />
             </FormControl>
             <FormMessage />
@@ -238,7 +264,7 @@ export default function UpdateVoucherSheet({
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -263,7 +289,7 @@ export default function UpdateVoucherSheet({
         name="applicabilityRule"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -288,7 +314,7 @@ export default function UpdateVoucherSheet({
         name="code"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.code')}
             </FormLabel>
@@ -313,7 +339,7 @@ export default function UpdateVoucherSheet({
         defaultValue={voucher.value}
         render={({ field }) => (
           <FormItem className='flex flex-col justify-between'>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">*</span>
               {t('voucher.value')}
             </FormLabel>
@@ -341,7 +367,7 @@ export default function UpdateVoucherSheet({
                     placeholder={t('voucher.enterVoucherValue')}
                   />
 
-                  <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     %
                   </span>
                 </div>
@@ -365,7 +391,7 @@ export default function UpdateVoucherSheet({
                     min={1}
                     placeholder={t('voucher.enterVoucherValue')}
                   />
-                  <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                     ₫
                   </span>
                 </div>
@@ -382,10 +408,7 @@ export default function UpdateVoucherSheet({
         name="remainingUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
-              <span className="text-destructive">
-                *
-              </span>
+            <FormLabel className='flex gap-1 items-center'>
               {t('voucher.remainingUsage')}</FormLabel>
             <FormControl>
               <Input
@@ -407,7 +430,7 @@ export default function UpdateVoucherSheet({
         name="maxUsage"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.voucherMaxUsage')}
             </FormLabel>
@@ -435,7 +458,7 @@ export default function UpdateVoucherSheet({
         name="numberOfUsagePerUser"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className='flex items-center gap-1'>
+            <FormLabel className='flex gap-1 items-center'>
               <span className="text-destructive">
                 *
               </span>
@@ -453,7 +476,7 @@ export default function UpdateVoucherSheet({
                   className='text-sm'
                   value={field.value?.toString() ?? ''} // convert number -> string
                 />
-                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   {t('voucher.usage')}
                 </span>
               </div>
@@ -469,7 +492,7 @@ export default function UpdateVoucherSheet({
         name="minOrderValue"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
+            <FormLabel className="flex gap-1 items-center">
               <span className="text-destructive">*</span>
               {t('voucher.minOrderValue')}
             </FormLabel>
@@ -486,7 +509,7 @@ export default function UpdateVoucherSheet({
                   className='text-sm'
                   value={field.value?.toString() ?? ''} // convert number -> string
                 />
-                <span className="absolute transform -translate-y-1/2 right-2 top-1/2 text-muted-foreground">
+                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   ₫
                 </span>
               </div>
@@ -511,7 +534,7 @@ export default function UpdateVoucherSheet({
 
           return (
             <FormItem>
-              <FormLabel className="flex items-center gap-1">
+              <FormLabel className="flex gap-1 items-center">
                 {t('voucher.isActive')}
               </FormLabel>
               <FormControl>
@@ -536,8 +559,7 @@ export default function UpdateVoucherSheet({
         name="isVerificationIdentity"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center gap-1">
-              <span className="text-destructive">*</span>
+            <FormLabel className="flex gap-1 items-center">
               {t('voucher.isVerificationIdentity')}
             </FormLabel>
             <FormControl>
@@ -560,8 +582,7 @@ export default function UpdateVoucherSheet({
         name="isPrivate"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-start gap-1 leading-6">
-              <span className="mt-1 text-destructive">*</span>
+            <FormLabel className="flex gap-1 items-start leading-6">
               {t('voucher.isPrivate')}
             </FormLabel>
             <FormControl>
@@ -588,7 +609,7 @@ export default function UpdateVoucherSheet({
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="flex justify-start w-full gap-1 px-2">
+        <Button variant="ghost" className="flex gap-1 justify-start px-2 w-full">
           <PenLine className="icon" />
           {t('voucher.update')}
         </Button>
@@ -610,7 +631,7 @@ export default function UpdateVoucherSheet({
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 border rounded-md">
+                  <div className="p-4 rounded-md border">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
@@ -618,46 +639,46 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 rounded-md border">
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className="grid grid-cols-2 gap-2 p-4 border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 rounded-md border">
                     {formFields.applicabilityRule}
                     {formFields.type}
                   </div>
 
                   {/* Nhóm: Code */}
-                  <div className="grid grid-cols-2 gap-2 p-4  border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 rounded-md border">
                     {formFields.code}
                     {formFields.value}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className="grid grid-cols-1 gap-2 p-4  border rounded-md">
+                  <div className="grid grid-cols-1 gap-2 p-4 rounded-md border">
                     {formFields.minOrderValue}
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-2 gap-2 p-4  rounded-md border dark:bg-transparent`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4 rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.remainingUsage}
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 p-4  border rounded-md">
+                  <div className="grid grid-cols-1 gap-2 p-4 rounded-md border">
                     {formFields.numberOfUsagePerUser}
                   </div>
 
                   {/* Nhóm: Kích hoạt voucher */}
-                  <div className="flex flex-col gap-4 p-4  border rounded-md dark:bg-transparent">
+                  <div className="flex flex-col gap-4 p-4 rounded-md border dark:bg-transparent">
                     {formFields.isActive}
                     {formFields.isPrivate}
                   </div>
 
                   {/* Nhóm: Kiểm tra định danh */}
-                  <div className="grid grid-cols-1 p-4  border rounded-md">
+                  <div className="grid grid-cols-1 p-4 rounded-md border">
                     {formFields.isVerificationIdentity}
                   </div>
                 </form>
