@@ -1,5 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DataSource,
