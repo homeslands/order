@@ -8,8 +8,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useCatalogs } from "@/hooks";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { ICatalog } from "@/types";
 
 interface SelectCatalogProps {
   defaultValue?: string;
@@ -19,9 +20,10 @@ interface SelectCatalogProps {
 
 export default function CatalogSelect({ value, defaultValue, onChange }: SelectCatalogProps) {
   const [allCatalogs, setAllCatalogs] = useState<{ value: string; label: string }[]>([])
-  const { data } = useCatalogs()
+  const queryClient = useQueryClient();
   const { t } = useTranslation(['product'])
   useEffect(() => {
+    const data = queryClient.getQueryData<{ result: ICatalog[] }>(['catalogs'])
     if (data?.result) {
       const newCatalogs = data.result.map((item) => ({
         value: item.slug || '',
@@ -29,7 +31,8 @@ export default function CatalogSelect({ value, defaultValue, onChange }: SelectC
       }));
       setAllCatalogs(newCatalogs)
     }
-  }, [data]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Select onValueChange={onChange} defaultValue={defaultValue} value={value}>
       <SelectTrigger className="w-full">

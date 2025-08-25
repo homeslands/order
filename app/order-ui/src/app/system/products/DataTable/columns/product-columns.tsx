@@ -108,7 +108,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
 
     {
       id: 'actions',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={tCommon('common.action')} />,
+      header: tCommon('common.action'),
       cell: ({ row }) => {
         const product = row.original
         return (
