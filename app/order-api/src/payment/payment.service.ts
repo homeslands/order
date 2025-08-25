@@ -50,6 +50,8 @@ import {
 import { OrderUtils } from 'src/order/order.utils';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { Voucher } from 'src/voucher/voucher.entity';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 @Injectable()
 export class PaymentService {
@@ -233,15 +235,13 @@ export class PaymentService {
       );
     }
 
-    let removedVoucher = null;
-
     if (order.voucher) {
       const isVoucherTimeValid = await this.voucherUtils.isVoucherTimeValid(
         order.voucher,
       );
       if (!isVoucherTimeValid) {
         // remove voucher from order
-        removedVoucher = order.voucher;
+        const removedVoucher = order.voucher;
         if (
           removedVoucher?.applicabilityRule ===
           VoucherApplicabilityRule.ALL_REQUIRED
@@ -280,6 +280,17 @@ export class PaymentService {
 
         order.subtotal = subtotal;
         order.originalSubtotal = originalSubtotal;
+
+        removedVoucher.remainingUsage += 1;
+        await this.voucherRepository.save(removedVoucher);
+        this.logger.log(
+          `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
+          context,
+        );
+
+        await this.orderRepository.save(order);
+
+        throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
       }
     }
 
@@ -352,15 +363,6 @@ export class PaymentService {
     // Update order
     order.payment = payment;
 
-    if (removedVoucher) {
-      removedVoucher.remainingUsage += 1;
-      await this.voucherRepository.save(removedVoucher);
-      this.logger.log(
-        `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
-        context,
-      );
-    }
-
     await this.orderRepository.save(order);
 
     if (
@@ -396,15 +398,13 @@ export class PaymentService {
       );
     }
 
-    let removedVoucher = null;
-
     if (order.voucher) {
       const isVoucherTimeValid = await this.voucherUtils.isVoucherTimeValid(
         order.voucher,
       );
       if (!isVoucherTimeValid) {
         // remove voucher from order
-        removedVoucher = order.voucher;
+        const removedVoucher = order.voucher;
         if (
           removedVoucher?.applicabilityRule ===
           VoucherApplicabilityRule.ALL_REQUIRED
@@ -443,6 +443,17 @@ export class PaymentService {
 
         order.subtotal = subtotal;
         order.originalSubtotal = originalSubtotal;
+
+        removedVoucher.remainingUsage += 1;
+        await this.voucherRepository.save(removedVoucher);
+        this.logger.log(
+          `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
+          context,
+        );
+
+        await this.orderRepository.save(order);
+
+        throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
       }
     }
 
@@ -496,15 +507,6 @@ export class PaymentService {
 
     // Update order
     order.payment = payment;
-
-    if (removedVoucher) {
-      removedVoucher.remainingUsage += 1;
-      await this.voucherRepository.save(removedVoucher);
-      this.logger.log(
-        `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
-        context,
-      );
-    }
 
     await this.orderRepository.save(order);
 
