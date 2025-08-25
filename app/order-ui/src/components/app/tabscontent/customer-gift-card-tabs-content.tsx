@@ -22,6 +22,7 @@ import type { IGiftCardDetail } from '@/types/gift-card.type'
 import { GiftCardUsageStatus } from '@/constants'
 import { SimpleDatePicker } from '../picker'
 import { GiftCardStatusBadge } from '@/components/app/badge'
+import { formatCurrency } from '@/utils'
 
 export function CustomerGiftCardTabsContent() {
   const { t } = useTranslation(['profile'])
@@ -141,7 +142,7 @@ export function CustomerGiftCardTabsContent() {
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   {t('profile.giftCard.pointsReceived')}:
                   <span className="text-primary">
-                    {giftCard.cardPoints}{' '}
+                    {formatCurrency(giftCard.cardPoints, "")}{' '}
                     <CoinsIcon className="inline h-4 w-4 text-primary" />
                   </span>
                 </div>
@@ -174,11 +175,10 @@ export function CustomerGiftCardTabsContent() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`h-6 w-6 p-0 transition-colors ${
-                        copiedCode === giftCard.code
-                          ? 'text-green-600 hover:text-green-700'
-                          : 'text-primary hover:text-primary/80'
-                      }`}
+                      className={`h-6 w-6 p-0 transition-colors ${copiedCode === giftCard.code
+                        ? 'text-green-600 hover:text-green-700'
+                        : 'text-primary hover:text-primary/80'
+                        }`}
                       onClick={(e) =>
                         handleCopyCode(e, giftCard.code, giftCard.serial)
                       }
