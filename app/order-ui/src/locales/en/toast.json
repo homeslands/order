@@ -224,6 +224,7 @@
     "productLimitRequired": "Product limit is required",
     "productNameExist": "Product name already exists",
     "productNameRequired": "Product name is required",
+    "productNotAppliedToVoucher": "Product not applied to voucher",
     "productNotBelongToAnyChefArea": "Product does not belong to any chef area",
     "productNotBelongToAnyChefAreaOfThisBranch": "Product does not belong to any chef area of this branch",
     "productNotFound": "Product not found",

@@ -118,6 +118,9 @@
     "voucherMaxUsage": "Maximum Usage Limit",
     "voucherTitle": "Voucher Management",
     "vouchers": "voucher. Are you sure you want to create this voucher?",
-    "searchByCode": "Enter discount code"
+    "searchByCode": "Enter discount code",
+    "expiresInHoursMinutes": "Expires in {{hours}} hours {{minutes}} minutes",
+    "expiresInDaysHoursMinutes": "Expires in {{days}} days {{hours}} hours {{minutes}} minutes",
+    "invalidVoucher": "Invalid voucher"
   }
 }
