@@ -176,7 +176,8 @@ export function CustomerGiftCardOrderTabsContent() {
     return (
       <div
         key={cardOrder.slug}
-        className="mt-2 flex flex-col gap-4 rounded-lg border bg-white p-0 dark:bg-transparent"
+        onClick={() => toggleCardExpansion(cardOrder)}
+        className="mt-2 flex flex-col gap-4 rounded-lg border bg-white p-0 dark:bg-transparent cursor-pointer hover:bg-green-50 transition-all"
       >
         {/* Header with timestamp and status */}
         <div className="flex w-full items-center gap-4 border-b bg-primary/15 p-4 dark:bg-muted-foreground/10">
@@ -244,14 +245,14 @@ export function CustomerGiftCardOrderTabsContent() {
           </div>
 
           <div className='flex items-center justify-between mt-4'>
-            <Button onClick={() => toggleCardExpansion(cardOrder)}>
-              {t('profile.common.viewDetails')}
-            </Button>
             {cardOrder?.status === CardOrderStatus.PENDING
               &&
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-2 flex-wrap'>
                 <CancelGiftCardOrderDialog
-                  onConfirm={() => handleCancelCardOrder(cardOrder)}
+                  onClick={(e) => e.stopPropagation()}
+                  onConfirm={() => {
+                    handleCancelCardOrder(cardOrder)
+                  }}
                   hideIcon={true}
                   className='bg-red-500 text-white'
                 />

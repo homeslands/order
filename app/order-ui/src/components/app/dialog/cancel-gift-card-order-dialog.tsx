@@ -19,7 +19,8 @@ interface CancelCardOrderDialogProps {
   hideLabel?: boolean
   hideIcon?: boolean
   className?: string
-  onConfirm: () => void
+  onConfirm: () => void,
+  onClick?: (e: MouseEvent) => void
 
 }
 
@@ -39,12 +40,15 @@ export default function CancelGiftCardOrderDialog({
     setIsOpen(false)
   }
 
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {!hideLabel ?
 
           <Button
+            onClick={stop}
             variant="outline"
             disabled={disabled}
             className={`group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white ${className}`}
@@ -81,14 +85,20 @@ export default function CancelGiftCardOrderDialog({
         <DialogFooter className="flex flex-row justify-end gap-2">
           <Button
             variant="outline"
-            onClick={() => setIsOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsOpen(false)
+            }}
             disabled={isLoading}
           >
             {t('giftCard.cardOrder.goBack')}
           </Button>
           <Button
             variant="destructive"
-            onClick={handleConfirm}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleConfirm()
+            }}
             disabled={isLoading}
           >
             {isLoading
