@@ -22,7 +22,7 @@ import { OrderItemResponseDto } from 'src/order-item/order-item.dto';
 import { OrderItem } from 'src/order-item/order-item.entity';
 import { Table } from 'src/table/table.entity';
 import { VoucherResponseDto } from 'src/voucher/voucher.dto';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { RoleResponseDto } from 'src/role/role.dto';

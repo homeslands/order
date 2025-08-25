@@ -10,7 +10,7 @@ import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { DataSource } from 'typeorm';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { Order } from 'src/order/order.entity';

@@ -8,7 +8,7 @@ import {
   mapWith,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import {
   BulkCreateVoucherDto,
   CreateVoucherDto,

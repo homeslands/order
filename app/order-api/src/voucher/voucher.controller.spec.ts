@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { VoucherController } from './voucher.controller';
 import { VoucherService } from './voucher.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
