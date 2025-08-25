@@ -12,7 +12,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { OrderStatus } from './order.constants';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { Table } from 'src/table/table.entity';
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';

@@ -2,7 +2,7 @@ import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { createMap, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { PaymentResponseDto } from './payment.dto';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { OrderPaymentResponseDto } from 'src/order/order.dto';
 
 @Injectable()

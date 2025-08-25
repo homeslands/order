@@ -37,7 +37,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ConfigService } from '@nestjs/config';
 import { SystemConfigService } from 'src/system-config/system-config.service';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';

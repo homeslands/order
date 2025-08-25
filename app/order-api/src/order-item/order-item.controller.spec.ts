@@ -25,7 +25,7 @@ import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promoti
 import { OrderScheduler } from 'src/order/order.scheduler';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Branch } from 'src/branch/branch.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Voucher } from 'src/voucher/voucher.entity';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { UserUtils } from 'src/user/user.utils';

@@ -5,7 +5,7 @@ import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { InternalStrategy } from './strategy/internal.strategy';

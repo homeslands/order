@@ -3,7 +3,7 @@ import { Base } from 'src/app/base.entity';
 import { Card } from 'src/gift-card-modules/card/entities/card.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { PaymentStatus } from 'src/payment/payment.constants';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { User } from 'src/user/user.entity';
 import {
   Column,
