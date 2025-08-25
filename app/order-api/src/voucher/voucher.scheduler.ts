@@ -3,10 +3,19 @@ import { VoucherUtils } from './voucher.utils';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Voucher } from './voucher.entity';
-import { Repository } from 'typeorm';
+import {
+  LessThan,
+  LessThanOrEqual,
+  MoreThan,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import moment from 'moment';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import _ from 'lodash';
+import moment from 'moment';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
 
 @Injectable()
 export class VoucherScheduler {
@@ -17,31 +26,47 @@ export class VoucherScheduler {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
     private readonly transactionManagerService: TransactionManagerService,
+    private readonly systemConfigService: SystemConfigService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  async getGracePeriodVoucher() {
+    const gracePeriodVoucher = await this.systemConfigService.get(
+      SystemConfigKey.GRACE_PERIOD_VOUCHER,
+      false,
+    );
+    if (!gracePeriodVoucher) return 30 * 60 * 1000; // 30 minutes
+    return Number(gracePeriodVoucher);
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleActiveVouchers() {
     const context = `${VoucherScheduler.name}.${this.handleActiveVouchers.name}`;
-    this.logger.log(`Running active vouchers scheduler`, context);
 
-    const vouchers = await this.voucherRepository.find({});
-    const today = new Date(moment().format('YYYY-MM-DD'));
-    today.setHours(7, 0, 0, 0);
+    const gracePeriodVoucher = await this.getGracePeriodVoucher();
+    const gracePeriodVoucherByMinutes = gracePeriodVoucher / 60000;
+
+    const start = new Date();
+    const startCopy = new Date(start);
+    const end = moment(startCopy)
+      .subtract(gracePeriodVoucherByMinutes, 'minutes')
+      .toDate();
+
+    const vouchers = await this.voucherRepository.find({
+      where: {
+        isActive: false,
+        remainingUsage: MoreThan(0),
+        endDate: MoreThanOrEqual(end),
+        startDate: LessThanOrEqual(start),
+      },
+    });
+
+    if (_.isEmpty(vouchers)) return;
 
     // Filter vouchers which will be active
-    const filterActiveVouchers = vouchers
-      .filter((voucher) => {
-        return (
-          moment(voucher.endDate).isSameOrAfter(today) &&
-          moment(voucher.startDate).isSameOrBefore(today) &&
-          !voucher.isActive &&
-          voucher.remainingUsage > 0
-        );
-      })
-      .map((voucher) => {
-        voucher.isActive = true;
-        return voucher;
-      });
+    const filterActiveVouchers = vouchers.map((voucher) => {
+      voucher.isActive = true;
+      return voucher;
+    });
 
     this.logger.log(`Active vouchers: ${filterActiveVouchers.length}`, context);
 
@@ -63,29 +88,45 @@ export class VoucherScheduler {
     );
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleInactiveVouchers() {
     const context = `${VoucherScheduler.name}.${this.handleInactiveVouchers.name}`;
-    this.logger.log(`Running inactive vouchers scheduler`, context);
 
-    const vouchers = await this.voucherRepository.find({});
-    const today = new Date(moment().format('YYYY-MM-DD'));
-    today.setHours(7, 0, 0, 0);
+    const gracePeriodVoucher = await this.getGracePeriodVoucher();
+    const gracePeriodVoucherByMinutes = gracePeriodVoucher / 60000;
+
+    const start = new Date();
+    const startCopy = new Date(start);
+    const end = moment(startCopy)
+      .subtract(gracePeriodVoucherByMinutes, 'minutes')
+      .toDate();
+
+    const vouchers = await this.voucherRepository.find({
+      where: [
+        {
+          isActive: true,
+          remainingUsage: LessThanOrEqual(0),
+        },
+        {
+          // more soon
+          isActive: true,
+          startDate: MoreThan(start),
+        },
+        {
+          // expired
+          isActive: true,
+          endDate: LessThan(end),
+        },
+      ],
+    });
+
+    if (_.isEmpty(vouchers)) return;
 
     // Filter vouchers which will be inactive
-    const filterActiveVouchers = vouchers
-      .filter((voucher) => {
-        return (
-          moment(voucher.startDate).isAfter(today) ||
-          moment(voucher.endDate).isBefore(today) ||
-          voucher.remainingUsage <= 0
-        );
-      })
-      .filter((voucher) => voucher.isActive)
-      .map((voucher) => {
-        voucher.isActive = false;
-        return voucher;
-      });
+    const filterActiveVouchers = vouchers.map((voucher) => {
+      voucher.isActive = false;
+      return voucher;
+    });
 
     this.logger.log(
       `Inactive vouchers: ${filterActiveVouchers.length}`,

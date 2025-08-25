@@ -17,6 +17,7 @@ import {
 import { baseMapper } from 'src/app/base.mapper';
 import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import moment from 'moment';
 
 @Injectable()
 export class VoucherProfile extends AutomapperProfile {
@@ -67,16 +68,18 @@ export class VoucherProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.startDate,
           mapFrom((source) => {
-            const date = source.startDate;
-            date.setHours(7, 0, 0, 0);
+            const date = moment(source.startDate).startOf('minutes').toDate();
             return date;
           }),
         ),
         forMember(
           (destination) => destination.endDate,
           mapFrom((source) => {
-            const date = source.endDate;
-            date.setHours(7, 0, 0, 0);
+            const date = new Date(
+              moment(source.endDate)
+                .endOf('minutes')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            );
             return date;
           }),
         ),
@@ -88,16 +91,18 @@ export class VoucherProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.startDate,
           mapFrom((source) => {
-            const date = source.startDate;
-            date.setHours(7, 0, 0, 0);
+            const date = moment(source.startDate).startOf('minutes').toDate();
             return date;
           }),
         ),
         forMember(
           (destination) => destination.endDate,
           mapFrom((source) => {
-            const date = source.endDate;
-            date.setHours(7, 0, 0, 0);
+            const date = new Date(
+              moment(source.endDate)
+                .endOf('minutes')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            );
             return date;
           }),
         ),

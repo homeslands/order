@@ -238,12 +238,15 @@ export class OrderItemService {
 
     const voucher: Voucher = order.voucher;
     if (voucher) {
-      const isVoucherValid =
+      const isMinOrderValueVoucherValid =
         await this.voucherUtils.validateMinOrderValueForUpdateOrderItem(
           voucher,
           order,
         );
-      if (!isVoucherValid) {
+
+      const isVoucherTimeValid =
+        await this.voucherUtils.isVoucherTimeValid(voucher);
+      if (!isMinOrderValueVoucherValid || !isVoucherTimeValid) {
         voucher.remainingUsage += 1;
         order.voucher = null;
       }
@@ -328,7 +331,10 @@ export class OrderItemService {
               order.orderItems.map((item) => item.variant.slug),
             );
 
-          if (!isVoucherProductValid) {
+          const isVoucherTimeValid =
+            await this.voucherUtils.isVoucherTimeValid(voucher);
+
+          if (!isVoucherProductValid || !isVoucherTimeValid) {
             // Remove voucher from order
             order.voucher.remainingUsage += 1;
             order.voucher = null;
@@ -413,13 +419,17 @@ export class OrderItemService {
     let updatedVoucher: Voucher = null;
 
     if (order.voucher) {
-      const isVoucherValid =
+      const isVoucherProductValid =
         await this.voucherUtils.validateVoucherProductForCreateOrderItem(
           order.voucher,
           requestData.variant,
         );
 
-      if (!isVoucherValid) {
+      const isVoucherTimeValid = await this.voucherUtils.isVoucherTimeValid(
+        order.voucher,
+      );
+
+      if (!isVoucherProductValid || !isVoucherTimeValid) {
         // Remove voucher from order
         order.voucher.remainingUsage += 1;
         updatedVoucher = order.voucher;
