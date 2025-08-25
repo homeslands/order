@@ -36,7 +36,7 @@ export default function ProductManagementPage() {
     <div className="flex flex-row gap-2 h-full">
       {/* Menu Section - Scrollable */}
       <ScrollArea className="flex-1">
-        <div className={`pl-4 transition-all duration-300 ease-in-out`}>
+        <div className={`transition-all duration-300 ease-in-out`}>
           <div className="flex sticky top-0 z-10 flex-col gap-2 items-center pr-4 pb-4">
             <div className="flex flex-col flex-1 mt-1 w-full">
               <div className="flex flex-row justify-between items-center">
@@ -52,7 +52,7 @@ export default function ProductManagementPage() {
                       <img
                         src={selectedImage ? `${publicFileURL}/${selectedImage}` : ProductImage}
                         alt={productDetail.name}
-                        className="object-cover w-full h-[20rem] transition-opacity duration-300 ease-in-out rounded-xl"
+                        className="object-cover w-full h-[20rem] transition-opacity duration-300 ease-in-out rounded-xl border"
                       />
                     )}
                     <div className='flex justify-center items-center'>
