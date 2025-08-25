@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Payment } from '../payment.entity';
+import { Payment } from '../entity/payment.entity';
 import { IPaymentStrategy } from './payment.strategy';
 
 @Injectable()

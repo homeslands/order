@@ -3,7 +3,13 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, FindOptionsWhere, IsNull, MoreThan, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  IsNull,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
@@ -40,7 +46,7 @@ import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 import { AppPaginatedResponseDto } from 'src/app/app.dto';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { CashStrategy } from 'src/payment/strategy/cash.strategy';
 import { PaymentException } from 'src/payment/payment.exception';
 import { PaymentValidation } from 'src/payment/payment.validation';
@@ -68,7 +74,7 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) { }
+  ) {}
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -191,7 +197,7 @@ export class CardOrderService {
       paymentMethod: payment.paymentMethod,
       paymentId: payment.id,
       paymentSlug: payment.slug,
-      paymentStatus: payment.statusCode
+      paymentStatus: payment.statusCode,
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
@@ -228,7 +234,7 @@ export class CardOrderService {
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug },
-      relations: ['payment']
+      relations: ['payment'],
     });
 
     if (!cardOrder) {
@@ -460,7 +466,8 @@ export class CardOrderService {
 
     const { page, size, sort } = payload;
 
-    const whereOpts: FindOptionsWhere<CardOrder> = this.buildFindOptionsWhere(payload);
+    const whereOpts: FindOptionsWhere<CardOrder> =
+      this.buildFindOptionsWhere(payload);
 
     const sortOpts = createSortOptions<CardOrder>(sort);
 
@@ -470,7 +477,7 @@ export class CardOrderService {
       order: sortOpts,
       take: size,
       skip: (page - 1) * size,
-      withDeleted: true
+      withDeleted: true,
     });
 
     // Calculate total pages
@@ -555,7 +562,10 @@ export class CardOrderService {
             type: PointTransactionTypeEnum.IN,
           });
 
-          const currentBalance = await this.balanceService.findOneByField({ userSlug: recipientSlug, slug: null })
+          const currentBalance = await this.balanceService.findOneByField({
+            userSlug: recipientSlug,
+            slug: null,
+          });
 
           // Create transaction record
           await this.ptService.create({
@@ -565,7 +575,7 @@ export class CardOrderService {
             objectSlug: databaseEntity.slug,
             points: totalAmount,
             userSlug: recipientSlug,
-            balance: currentBalance.points
+            balance: currentBalance.points,
           } as CreatePointTransactionDto);
         }
         break;
@@ -595,7 +605,10 @@ export class CardOrderService {
           type: PointTransactionTypeEnum.IN,
         });
 
-        const currentBalance = await this.balanceService.findOneByField({ userSlug: databaseEntity.customerSlug, slug: null })
+        const currentBalance = await this.balanceService.findOneByField({
+          userSlug: databaseEntity.customerSlug,
+          slug: null,
+        });
 
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
@@ -604,7 +617,7 @@ export class CardOrderService {
           objectSlug: databaseEntity.slug,
           points: totalAmount,
           userSlug: databaseEntity.customerSlug,
-          balance: currentBalance.points
+          balance: currentBalance.points,
         } as CreatePointTransactionDto);
 
         break;

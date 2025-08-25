@@ -25,7 +25,7 @@ import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { ProductUtils } from 'src/product/product.utils';
 import { Product } from 'src/product/product.entity';
 import { PaymentUtils } from 'src/payment/payment.utils';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { HttpService } from '@nestjs/axios';

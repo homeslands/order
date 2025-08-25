@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { IsNull, Repository } from 'typeorm';
 import { CashStrategy } from './strategy/cash.strategy';
 import { BankTransferStrategy } from './strategy/bank-transfer.strategy';

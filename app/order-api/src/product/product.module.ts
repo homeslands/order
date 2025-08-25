@@ -27,7 +27,7 @@ import { DbModule } from 'src/db/db.module';
 import { User } from 'src/user/user.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { PaymentUtils } from 'src/payment/payment.utils';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
