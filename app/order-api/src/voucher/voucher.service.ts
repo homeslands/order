@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  AddVoucherPaymentMethodRequestDto,
   BulkCreateVoucherDto,
   CreateVoucherDto,
   ExportPdfVoucherDto,
@@ -7,8 +8,10 @@ import {
   GetAllVoucherForUserDto,
   GetAllVoucherForUserPublicDto,
   GetVoucherDto,
+  RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
   ValidateVoucherPublicDto,
+  VoucherPaymentMethodResponseDto,
   VoucherResponseDto,
 } from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
@@ -42,6 +45,8 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { PDFDocument } from 'pdf-lib';
 import { ProductUtils } from 'src/product/product.utils';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
+import { PaymentMethod } from 'src/payment/payment.constants';
 
 @Injectable()
 export class VoucherService {
@@ -59,6 +64,8 @@ export class VoucherService {
     private readonly pdfService: PdfService,
     private readonly qrCodeService: QrCodeService,
     private readonly productUtils: ProductUtils,
+    @InjectRepository(VoucherPaymentMethod)
+    private readonly voucherPaymentMethodRepository: Repository<VoucherPaymentMethod>,
   ) {}
 
   async validateVoucher(validateVoucherDto: ValidateVoucherDto) {
@@ -110,6 +117,7 @@ export class VoucherService {
       where: { slug: createVoucherDto.voucherGroup },
     });
     const productSlugs = createVoucherDto.products;
+    const paymentMethods = createVoucherDto.paymentMethods;
     const voucher = this.mapper.map(
       createVoucherDto,
       CreateVoucherDto,
@@ -160,6 +168,27 @@ export class VoucherService {
       }),
     );
 
+    const voucherPaymentMethods: VoucherPaymentMethod[] = paymentMethods.map(
+      (method) => {
+        const voucherPaymentMethod = new VoucherPaymentMethod();
+        switch (method) {
+          case PaymentMethod.BANK_TRANSFER:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.BANK_TRANSFER;
+            break;
+          case PaymentMethod.CASH:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.CASH;
+            break;
+          case PaymentMethod.POINT:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.POINT;
+            break;
+        }
+
+        return voucherPaymentMethod;
+      },
+    );
+
+    voucher.voucherPaymentMethods = voucherPaymentMethods;
+
     const createdVoucher = await this.transactionService.execute<Voucher>(
       async (manager) => {
         const createdVoucher = await manager.save(voucher);
@@ -207,6 +236,8 @@ export class VoucherService {
     const numberOfVoucher = bulkCreateVoucherDto.numberOfVoucher;
 
     const productSlugs = bulkCreateVoucherDto.products;
+    const paymentMethods = bulkCreateVoucherDto.paymentMethods;
+
     const voucherTemplate = this.mapper.map(
       bulkCreateVoucherDto,
       BulkCreateVoucherDto,
@@ -250,6 +281,27 @@ export class VoucherService {
         );
       }
     }
+
+    const voucherPaymentMethods: VoucherPaymentMethod[] = paymentMethods.map(
+      (method) => {
+        const voucherPaymentMethod = new VoucherPaymentMethod();
+        switch (method) {
+          case PaymentMethod.BANK_TRANSFER:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.BANK_TRANSFER;
+            break;
+          case PaymentMethod.CASH:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.CASH;
+            break;
+          case PaymentMethod.POINT:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.POINT;
+            break;
+        }
+
+        return voucherPaymentMethod;
+      },
+    );
+
+    voucherTemplate.voucherPaymentMethods = voucherPaymentMethods;
 
     const vouchers = [];
     for (let i = 0; i < numberOfVoucher; i++) {
@@ -329,7 +381,10 @@ export class VoucherService {
         order: {
           createdAt: 'DESC',
         },
-        relations: ['voucherProducts.product.variants'],
+        relations: [
+          'voucherProducts.product.variants',
+          'voucherPaymentMethods',
+        ],
       };
       if (options.hasPaging) {
         Object.assign(findManyOptions, {
@@ -393,7 +448,10 @@ export class VoucherService {
         order: {
           createdAt: 'DESC',
         },
-        relations: ['voucherProducts.product.variants'],
+        relations: [
+          'voucherProducts.product.variants',
+          'voucherPaymentMethods',
+        ],
       };
       if (options.hasPaging) {
         Object.assign(findManyOptions, {
@@ -511,7 +569,7 @@ export class VoucherService {
 
     const voucher = await this.voucherUtils.getVoucher({
       where: findOptionsWhere,
-      relations: ['voucherProducts.product.variants'],
+      relations: ['voucherProducts.product.variants', 'voucherPaymentMethods'],
     });
     return this.mapper.map(voucher, Voucher, VoucherResponseDto);
   }
@@ -519,7 +577,9 @@ export class VoucherService {
   async update(slug: string, updateVoucherDto: UpdateVoucherDto) {
     const context = `${VoucherService.name}.${this.update.name}`;
 
-    const voucher = await this.voucherUtils.getVoucher({ where: { slug } });
+    const voucher = await this.voucherUtils.getVoucher({
+      where: { slug },
+    });
     const voucherGroup = await this.voucherGroupUtils.getVoucherGroup({
       where: { slug: updateVoucherDto.voucherGroup },
     });
@@ -660,5 +720,108 @@ export class VoucherService {
 
     const finalPdf = await mergedPdf.save();
     return Buffer.from(finalPdf);
+  }
+
+  async addVoucherPaymentMethod(
+    slug: string,
+    requestData: AddVoucherPaymentMethodRequestDto,
+  ): Promise<VoucherPaymentMethodResponseDto> {
+    const context = `${VoucherService.name}.${this.addVoucherPaymentMethod.name}`;
+    const voucher = await this.voucherUtils.getVoucher({
+      where: { slug },
+      relations: ['voucherPaymentMethods'],
+    });
+
+    const existingPaymentMethod = voucher.voucherPaymentMethods.find(
+      (voucherPaymentMethod) =>
+        voucherPaymentMethod.paymentMethod === requestData.paymentMethod,
+    );
+
+    if (existingPaymentMethod) {
+      this.logger.warn('Voucher payment method already exists', null, context);
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS,
+      );
+    }
+
+    const voucherPaymentMethod = new VoucherPaymentMethod();
+    voucherPaymentMethod.paymentMethod = requestData.paymentMethod;
+    voucherPaymentMethod.voucher = voucher;
+
+    const createdVoucherPaymentMethod =
+      await this.transactionService.execute<VoucherPaymentMethod>(
+        async (manager) => await manager.save(voucherPaymentMethod),
+        (result) =>
+          this.logger.log(
+            `Voucher payment method created successfully: ${result}`,
+            context,
+          ),
+        (error) => {
+          this.logger.error(
+            `Failed to create voucher payment method: ${error.message}`,
+            error.stack,
+            context,
+          );
+          throw new VoucherException(
+            VoucherValidation.CREATE_VOUCHER_PAYMENT_METHOD_FAILED,
+            error.message,
+          );
+        },
+      );
+    return this.mapper.map(
+      createdVoucherPaymentMethod,
+      VoucherPaymentMethod,
+      VoucherPaymentMethodResponseDto,
+    );
+  }
+
+  async removeVoucherPaymentMethod(
+    slug: string,
+    requestData: RemoveVoucherPaymentMethodRequestDto,
+  ): Promise<VoucherPaymentMethodResponseDto> {
+    const context = `${VoucherService.name}.${this.removeVoucherPaymentMethod.name}`;
+
+    const voucher = await this.voucherUtils.getVoucher({
+      where: { slug },
+      relations: ['voucherPaymentMethods'],
+    });
+
+    const voucherPaymentMethod = voucher.voucherPaymentMethods.find(
+      (voucherPaymentMethod) =>
+        voucherPaymentMethod.paymentMethod === requestData.paymentMethod,
+    );
+
+    if (!voucherPaymentMethod) {
+      this.logger.warn('Voucher payment method not found', null, context);
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_PAYMENT_METHOD_NOT_FOUND,
+      );
+    }
+
+    const deletedVoucherPaymentMethod =
+      await this.transactionService.execute<VoucherPaymentMethod>(
+        async (manager) => await manager.softRemove(voucherPaymentMethod),
+        (result) =>
+          this.logger.log(
+            `Voucher payment method deleted successfully: ${result}`,
+            context,
+          ),
+        (error) => {
+          this.logger.error(
+            `Failed to delete voucher payment method: ${error.message}`,
+            error.stack,
+            context,
+          );
+          throw new VoucherException(
+            VoucherValidation.DELETE_VOUCHER_PAYMENT_METHOD_FAILED,
+            error.message,
+          );
+        },
+      );
+    return this.mapper.map(
+      deletedVoucherPaymentMethod,
+      VoucherPaymentMethod,
+      VoucherPaymentMethodResponseDto,
+    );
   }
 }
