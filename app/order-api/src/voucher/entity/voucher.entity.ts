@@ -5,6 +5,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { VoucherType, VoucherValueType } from '../voucher.constant';
 import { VoucherGroup } from 'src/voucher-group/voucher-group.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { VoucherPaymentMethod } from './voucher-payment-method.entity';
 
 @Entity('voucher_tbl')
 export class Voucher extends Base {
@@ -88,4 +89,13 @@ export class Voucher extends Base {
 
   @OneToMany(() => VoucherProduct, (voucherProduct) => voucherProduct.voucher)
   voucherProducts: VoucherProduct[];
+
+  @OneToMany(
+    () => VoucherPaymentMethod,
+    (voucherPaymentMethod) => voucherPaymentMethod.voucher,
+    {
+      cascade: ['insert', 'update', 'remove'],
+    },
+  )
+  voucherPaymentMethods: VoucherPaymentMethod[];
 }

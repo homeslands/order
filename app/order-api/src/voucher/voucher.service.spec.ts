@@ -48,6 +48,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -140,6 +141,10 @@ describe('VoucherService', () => {
         {
           provide: getRepositoryToken(Invoice),
           useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherPaymentMethod),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

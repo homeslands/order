@@ -42,6 +42,14 @@ export const MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER =
   'MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER';
 export const VOUCHER_IS_NOT_STARTED = 'VOUCHER_IS_NOT_STARTED';
 export const VOUCHER_IS_EXPIRED = 'VOUCHER_IS_EXPIRED';
+export const VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS =
+  'VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS';
+export const CREATE_VOUCHER_PAYMENT_METHOD_FAILED =
+  'CREATE_VOUCHER_PAYMENT_METHOD_FAILED';
+export const VOUCHER_PAYMENT_METHOD_NOT_FOUND =
+  'VOUCHER_PAYMENT_METHOD_NOT_FOUND';
+export const DELETE_VOUCHER_PAYMENT_METHOD_FAILED =
+  'DELETE_VOUCHER_PAYMENT_METHOD_FAILED';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -71,7 +79,11 @@ export type TVoucherErrorCodeKey =
   | typeof MUST_VERIFY_EMAIL_TO_USE_VOUCHER
   | typeof MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER
   | typeof VOUCHER_IS_NOT_STARTED
-  | typeof VOUCHER_IS_EXPIRED;
+  | typeof VOUCHER_IS_EXPIRED
+  | typeof VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS
+  | typeof CREATE_VOUCHER_PAYMENT_METHOD_FAILED
+  | typeof VOUCHER_PAYMENT_METHOD_NOT_FOUND
+  | typeof DELETE_VOUCHER_PAYMENT_METHOD_FAILED;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -146,6 +158,22 @@ export const VoucherValidation: TVoucherErrorCode = {
   MUST_VERIFY_EMAIL_OR_PHONE_NUMBER_TO_USE_VOUCHER: createErrorCode(
     143428,
     'User must verify email or phone number to use voucher',
+  ),
+  VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS: createErrorCode(
+    143429,
+    'Voucher payment method already exists',
+  ),
+  CREATE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
+    143430,
+    'Failed to create voucher payment method',
+  ),
+  VOUCHER_PAYMENT_METHOD_NOT_FOUND: createErrorCode(
+    143431,
+    'Voucher payment method not found',
+  ),
+  DELETE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
+    143432,
+    'Failed to delete voucher payment method',
   ),
 };
 
