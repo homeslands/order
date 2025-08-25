@@ -27,7 +27,7 @@ import { CardOrderSubscriber } from './card-order/card-order.subscriber';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { HttpModule } from '@nestjs/axios';
 import { CardOrderListener } from './card-order/card-order.listener';
 import { JobModule } from 'src/job/job.module';

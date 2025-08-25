@@ -42,7 +42,7 @@ import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { ProductUtils } from './product.utils';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfigService } from 'src/system-config/system-config.service';

@@ -4,7 +4,7 @@ import { PaymentService } from './payment.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CashStrategy } from './strategy/cash.strategy';
