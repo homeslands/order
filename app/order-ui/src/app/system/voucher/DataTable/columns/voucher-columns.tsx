@@ -137,7 +137,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
       ),
       cell: ({ row }) => {
         const voucher = row.original
-        return <div className="text-xs min-w-[13rem] sm:text-sm">{moment(voucher?.startDate).format('DD/MM/YYYY')} - {moment(voucher?.endDate).format('DD/MM/YYYY')}</div>
+        return <div className="text-xs min-w-[13rem] sm:text-sm">{moment(voucher?.startDate).format('HH:mm DD/MM/YYYY')} - {moment(voucher?.endDate).format('HH:mm DD/MM/YYYY')}</div>
       },
     },
     {

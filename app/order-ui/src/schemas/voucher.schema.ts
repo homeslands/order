@@ -12,59 +12,99 @@ export const updateVoucherGroupSchema = z.object({
   description: z.optional(z.string()),
 })
 
-export const createVoucherSchema = z.object({
-  voucherGroup: z.string(),
-  title: z.string().min(1),
-  applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
-  description: z.optional(z.string()),
-  type: z.enum([
-    VOUCHER_TYPE.FIXED_VALUE,
-    VOUCHER_TYPE.PERCENT_ORDER,
-    VOUCHER_TYPE.SAME_PRICE_PRODUCT,
-  ]),
-  code: z.string().min(1),
-  value: z
-    .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
-    .refine((val) => val > 0, {
-      message: 'Giá trị phải lớn hơn 0',
-    }),
-  maxUsage: z.number().int().positive(),
-  minOrderValue: z.number().int().nonnegative(),
-  isActive: z.boolean(),
-  isPrivate: z.boolean(),
-  startDate: z.string(),
-  endDate: z.string(),
-  isVerificationIdentity: z.boolean(),
-  numberOfUsagePerUser: z.number().int().positive(),
-  products: z.array(z.string()),
-})
+export const createVoucherSchema = z
+  .object({
+    voucherGroup: z.string(),
+    title: z.string().min(1),
+    applicabilityRule: z.enum([
+      APPLICABILITY_RULE.ALL_REQUIRED,
+      APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED,
+    ]),
+    description: z.optional(z.string()),
+    type: z.enum([
+      VOUCHER_TYPE.FIXED_VALUE,
+      VOUCHER_TYPE.PERCENT_ORDER,
+      VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+    ]),
+    code: z.string().min(1),
+    value: z
+      .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+      .refine((val) => val > 0, {
+        message: 'Giá trị phải lớn hơn 0',
+      }),
+    maxUsage: z.number().int().positive(),
+    minOrderValue: z.number().int().nonnegative(),
+    isActive: z.boolean(),
+    isPrivate: z.boolean(),
+    startDate: z.string(),
+    endDate: z.string(),
+    isVerificationIdentity: z.boolean(),
+    numberOfUsagePerUser: z.number().int().positive(),
+    products: z.array(z.string()),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
+  .superRefine((data, ctx) => {
+    // Validate percentage value
+    if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      if (data.value < 1 || data.value > 100) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['value'],
+          message: 'Giá trị phần trăm phải từ 1 đến 100',
+        })
+      }
+    }
+  })
 
-export const createMultipleVoucherSchema = z.object({
-  voucherGroup: z.string(),
-  numberOfVoucher: z.number().int().positive(),
-  title: z.string().min(1),
-  applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
-  description: z.optional(z.string()),
-  type: z.enum([
-    VOUCHER_TYPE.FIXED_VALUE,
-    VOUCHER_TYPE.PERCENT_ORDER,
-    VOUCHER_TYPE.SAME_PRICE_PRODUCT,
-  ]),
-  startDate: z.string(),
-  endDate: z.string(),
-  value: z
-    .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
-    .refine((val) => val > 0, {
-      message: 'Giá trị phải lớn hơn 0',
-    }),
-  minOrderValue: z.number().int().nonnegative(),
-  maxUsage: z.number().int().positive(),
-  isActive: z.boolean(),
-  isPrivate: z.boolean(),
-  isVerificationIdentity: z.boolean(),
-  numberOfUsagePerUser: z.number().int().positive(),
-  products: z.array(z.string()),
-})
+export const createMultipleVoucherSchema = z
+  .object({
+    voucherGroup: z.string(),
+    numberOfVoucher: z.number().int().positive(),
+    title: z.string().min(1),
+    applicabilityRule: z.enum([
+      APPLICABILITY_RULE.ALL_REQUIRED,
+      APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED,
+    ]),
+    description: z.optional(z.string()),
+    type: z.enum([
+      VOUCHER_TYPE.FIXED_VALUE,
+      VOUCHER_TYPE.PERCENT_ORDER,
+      VOUCHER_TYPE.SAME_PRICE_PRODUCT,
+    ]),
+    startDate: z.string(),
+    endDate: z.string(),
+    value: z
+      .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
+      .refine((val) => val > 0, {
+        message: 'Giá trị phải lớn hơn 0',
+      }),
+    minOrderValue: z.number().int().nonnegative(),
+    maxUsage: z.number().int().positive(),
+    isActive: z.boolean(),
+    isPrivate: z.boolean(),
+    isVerificationIdentity: z.boolean(),
+    numberOfUsagePerUser: z.number().int().positive(),
+    products: z.array(z.string()),
+  })
+  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+    message: 'Ngày kết thúc phải sau ngày bắt đầu',
+    path: ['endDate'],
+  })
+  .superRefine((data, ctx) => {
+    // Validate percentage value
+    if (data.type === VOUCHER_TYPE.PERCENT_ORDER) {
+      if (data.value < 1 || data.value > 100) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['value'],
+          message: 'Giá trị phần trăm phải từ 1 đến 100',
+        })
+      }
+    }
+  })
 
 export const updateVoucherSchema = z
   .object({
@@ -72,7 +112,10 @@ export const updateVoucherSchema = z
     slug: z.string(),
     createdAt: z.string(),
     title: z.string().min(1),
-    applicabilityRule: z.enum([APPLICABILITY_RULE.ALL_REQUIRED, APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED]),
+    applicabilityRule: z.enum([
+      APPLICABILITY_RULE.ALL_REQUIRED,
+      APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED,
+    ]),
     description: z.optional(z.string()),
     type: z.enum([
       VOUCHER_TYPE.FIXED_VALUE,
