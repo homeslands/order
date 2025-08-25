@@ -66,11 +66,11 @@ describe('VoucherController', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Payment),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: 'AXIOS_INSTANCE_TOKEN',

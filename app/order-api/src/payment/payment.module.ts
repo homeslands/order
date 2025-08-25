@@ -17,14 +17,35 @@ import { PaymentUtils } from './payment.utils';
 import { DbModule } from 'src/db/db.module';
 import { PointStrategy } from './strategy/point.strategy';
 import { SharedModule } from 'src/shared/shared.module';
+import { VoucherModule } from 'src/voucher/voucher.module';
+import { OrderUtils } from 'src/order/order.utils';
+import { OrderItemUtils } from 'src/order-item/order-item.utils';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { OrderItem } from 'src/order-item/order-item.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { Menu } from 'src/menu/menu.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payment, Order, ACBConnectorConfig, User]),
+    TypeOrmModule.forFeature([
+      Payment,
+      Order,
+      ACBConnectorConfig,
+      User,
+      Invoice,
+      OrderItem,
+      MenuItem,
+      Menu,
+      Voucher,
+    ]),
     ACBConnectorModule,
     PdfModule,
     DbModule,
     SharedModule,
+    VoucherModule,
   ],
   controllers: [PaymentController],
   providers: [
@@ -36,6 +57,10 @@ import { SharedModule } from 'src/shared/shared.module';
     PointStrategy,
     UserUtils,
     PaymentUtils,
+    OrderUtils,
+    OrderItemUtils,
+    MenuItemUtils,
+    MenuUtils,
   ],
   exports: [PaymentService, PaymentUtils],
 })
