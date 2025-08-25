@@ -38,6 +38,14 @@ export const AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER =
   'AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER';
 export const VOUCHER_IS_NOT_STARTED = 'VOUCHER_IS_NOT_STARTED';
 export const VOUCHER_IS_EXPIRED = 'VOUCHER_IS_EXPIRED';
+export const VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS =
+  'VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS';
+export const CREATE_VOUCHER_PAYMENT_METHOD_FAILED =
+  'CREATE_VOUCHER_PAYMENT_METHOD_FAILED';
+export const VOUCHER_PAYMENT_METHOD_NOT_FOUND =
+  'VOUCHER_PAYMENT_METHOD_NOT_FOUND';
+export const DELETE_VOUCHER_PAYMENT_METHOD_FAILED =
+  'DELETE_VOUCHER_PAYMENT_METHOD_FAILED';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -64,7 +72,11 @@ export type TVoucherErrorCodeKey =
   | typeof ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER
   | typeof AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER
   | typeof VOUCHER_IS_NOT_STARTED
-  | typeof VOUCHER_IS_EXPIRED;
+  | typeof VOUCHER_IS_EXPIRED
+  | typeof VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS
+  | typeof CREATE_VOUCHER_PAYMENT_METHOD_FAILED
+  | typeof VOUCHER_PAYMENT_METHOD_NOT_FOUND
+  | typeof DELETE_VOUCHER_PAYMENT_METHOD_FAILED;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -132,6 +144,22 @@ export const VoucherValidation: TVoucherErrorCode = {
   ),
   VOUCHER_IS_EXPIRED: createErrorCode(143426, 'Voucher is expired'),
   VOUCHER_IS_NOT_STARTED: createErrorCode(143427, 'Voucher is not started'),
+  VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS: createErrorCode(
+    143428,
+    'Voucher payment method already exists',
+  ),
+  CREATE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
+    143429,
+    'Failed to create voucher payment method',
+  ),
+  VOUCHER_PAYMENT_METHOD_NOT_FOUND: createErrorCode(
+    143430,
+    'Voucher payment method not found',
+  ),
+  DELETE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
+    143431,
+    'Failed to delete voucher payment method',
+  ),
 };
 
 // Custom validator decorator for date range validation
