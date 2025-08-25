@@ -82,11 +82,11 @@ describe('VoucherService', () => {
         },
         {
           provide: getRepositoryToken(SystemConfig),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Payment),
-          useValue: repositoryMockFactory,
+          useFactory: repositoryMockFactory,
         },
         {
           provide: 'AXIOS_INSTANCE_TOKEN',
@@ -389,6 +389,7 @@ describe('VoucherService', () => {
       const mockInput = {
         user: '',
         voucher: '',
+        orderItems: [],
       } as ValidateVoucherDto;
 
       jest
@@ -408,6 +409,7 @@ describe('VoucherService', () => {
       const mockInput = {
         user: '',
         voucher: '',
+        orderItems: [],
       } as ValidateVoucherDto;
 
       const mockVoucherRepo = {
@@ -437,6 +439,7 @@ describe('VoucherService', () => {
       const mockInput = {
         user: '',
         voucher: '',
+        orderItems: [],
       } as ValidateVoucherDto;
 
       const mockVoucherRepo = {
@@ -463,7 +466,11 @@ describe('VoucherService', () => {
 
     it('should throw voucher exception when voucher is already used', async () => {
       // Mock
-      const mockInput = { user: '', voucher: '' } as ValidateVoucherDto;
+      const mockInput = {
+        user: '',
+        voucher: '',
+        orderItems: [],
+      } as ValidateVoucherDto;
       const mockVoucherRepo = {
         code: 'TEST',
         endDate: new Date(),
