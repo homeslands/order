@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CalendarIcon } from 'lucide-react'
-import { format, isToday, isSameDay, parse } from 'date-fns'
+import { format, isToday, parse } from 'date-fns'
 import { vi, enUS } from 'date-fns/locale'
 import { useTranslation } from 'react-i18next'
 
@@ -60,7 +60,7 @@ interface DatePickerProps {
   validateDate?: (date: Date) => boolean
   disabled?: boolean
   today?: boolean
-  disabledDates?: Date[]
+  disabledDates?: (date: Date) => boolean
   showTime?: boolean
   disableFutureDate?: boolean
 }
@@ -71,7 +71,7 @@ export default function DateAndTimePicker({
   validateDate,
   disabled,
   today,
-  disabledDates = [],
+  disabledDates,
   showTime = false,
   disableFutureDate = false,
 }: DatePickerProps) {
@@ -155,7 +155,7 @@ export default function DateAndTimePicker({
   }
 
   const isDateDisabled = (date: Date) => {
-    const isInDisabledList = disabledDates.some(d => isSameDay(date, d))
+    const isInDisabledList = disabledDates && disabledDates(date)
     const isFuture = disableFutureDate && date > new Date()
     return isInDisabledList || isFuture
   }
@@ -180,7 +180,7 @@ export default function DateAndTimePicker({
           {parsedDate ? formatDateString(parsedDate, showTime) : <span>{showTime ? 'dd/mm/yyyy hh:mm' : t('common.selectDate')}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={cn("p-4", showTime ? "w-[36rem] max-h-[24rem] overflow-auto" : "w-auto")} align="start">
+      <PopoverContent className={cn("p-4", showTime ? "overflow-auto w-[36rem] max-h-[24rem]" : "w-auto")} align="start">
         <div className={cn(showTime && "flex gap-4")}>
           <div className="flex-1">
             {/* Month and Year Selection */}
