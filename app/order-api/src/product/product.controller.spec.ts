@@ -42,7 +42,7 @@ import { HttpService } from '@nestjs/axios';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('ProductController', () => {

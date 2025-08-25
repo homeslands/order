@@ -43,7 +43,7 @@ import { ChefOrderItem } from 'src/chef-order-item/chef-order-item.entity';
 import { ChefOrderItemUtils } from 'src/chef-order-item/chef-order-item.utils';
 import { NotificationModule } from 'src/notification/notification.module';
 import { Mutex } from 'async-mutex';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { JobModule } from 'src/job/job.module';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';

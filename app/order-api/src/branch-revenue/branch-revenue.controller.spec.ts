@@ -24,7 +24,7 @@ import { OrderUtils } from 'src/order/order.utils';
 import { Mutex } from 'async-mutex';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';

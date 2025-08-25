@@ -63,7 +63,7 @@ import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { ApplicablePromotion } from 'src/applicable-promotion/applicable-promotion.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Mutex } from 'async-mutex';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { ProductUtils } from 'src/product/product.utils';

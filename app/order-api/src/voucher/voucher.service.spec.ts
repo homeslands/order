@@ -29,7 +29,7 @@ import { VoucherValidation } from './voucher.validation';
 import { Branch } from 'src/branch/branch.entity';
 import { User } from 'src/user/user.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { UserUtils } from 'src/user/user.utils';
