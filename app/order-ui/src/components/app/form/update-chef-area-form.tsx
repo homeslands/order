@@ -21,6 +21,7 @@ import { useUpdateChefArea } from '@/hooks'
 import { showToast } from '@/utils'
 import { QUERYKEY } from '@/constants'
 import { BranchSelect } from '../select'
+import { Loader2 } from 'lucide-react'
 
 interface IFormUpdateChefAreaProps {
   chefArea: IChefArea
@@ -30,7 +31,7 @@ interface IFormUpdateChefAreaProps {
 export const UpdateChefAreaForm: React.FC<IFormUpdateChefAreaProps> = ({ chefArea, onSubmit }) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['chefArea'])
-  const { mutate: updateChefArea } = useUpdateChefArea()
+  const { mutate: updateChefArea, isPending } = useUpdateChefArea()
   const form = useForm<TUpdateChefAreaSchema>({
     resolver: zodResolver(updateChefAreaSchema),
     defaultValues: {
@@ -116,8 +117,11 @@ export const UpdateChefAreaForm: React.FC<IFormUpdateChefAreaProps> = ({ chefAre
             ))}
           </div>
           <div className="flex justify-end">
-            <Button className="flex justify-end" type="submit">
-              {t('chefArea.update')}
+            <Button className="flex justify-end" type="submit" disabled={isPending}>
+              {isPending ? <span className="flex gap-2 items-center">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {t('chefArea.confirmUpdate')}
+              </span> : t('chefArea.confirmUpdate')}
             </Button>
           </div>
         </form>

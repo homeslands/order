@@ -23,6 +23,7 @@
     "productManagement": "Product management",
     "title": "Chef area",
     "update": "Update",
+    "confirmUpdate": "Confirm update",
     "updateDescription": "Update chef area"
   },
   "chefOrder": {

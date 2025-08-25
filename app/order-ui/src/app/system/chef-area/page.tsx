@@ -21,7 +21,7 @@ export default function ChefAreaPage() {
 
     const isViewPermissionValid = hasPermissionInBoth("VIEW_KITCHEN_AREA", authorityGroupCodes, userPermissionCodes);
     const isDeletePermissionValid = hasPermissionInBoth("DELETE_KITCHEN_AREA", authorityGroupCodes, userPermissionCodes);
-    const isUpdatePermissionValid = hasPermissionInBoth("UPDATE_KITCHEN_AREA", authorityGroupCodes, userPermissionCodes);
+    const isUpdatePermissionValid = hasPermissionInBoth("EDIT_KITCHEN_AREA", authorityGroupCodes, userPermissionCodes);
 
     const { data: areaData } = useGetChefAreas(branch?.slug || '')
     const { data: branchData } = useBranch();

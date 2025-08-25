@@ -590,7 +590,7 @@ export default function UpdateVoucherSheet({
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col h-full bg-transparent backdrop-blur-md">
-          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 bg-muted-foreground/10 p-4">
+          <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
@@ -600,7 +600,7 @@ export default function UpdateVoucherSheet({
                   className="space-y-4"
                 >
                   {/* Nhóm: Tên và Mô tả */}
-                  <div className="p-4 bg-white border rounded-md">
+                  <div className="p-4 border rounded-md">
                     <div className="grid grid-cols-1 gap-2">
                       {formFields.title}
                       {formFields.description}
@@ -608,46 +608,46 @@ export default function UpdateVoucherSheet({
                   </div>
 
                   {/* Nhóm: Ngày bắt đầu và Kết thúc */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 border rounded-md">
                     {formFields.startDate}
                     {formFields.endDate}
                   </div>
 
                   {/* Nhóm: Mã giảm giá & Số lượng */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4 border rounded-md">
                     {formFields.applicabilityRule}
                     {formFields.type}
                   </div>
 
                   {/* Nhóm: Code */}
-                  <div className="grid grid-cols-2 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-2 gap-2 p-4  border rounded-md">
                     {formFields.code}
                     {formFields.value}
                   </div>
 
                   {/* Nhóm: Giá trị đơn hàng tối thiểu */}
-                  <div className="grid grid-cols-1 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-1 gap-2 p-4  border rounded-md">
                     {formFields.minOrderValue}
                   </div>
 
                   {/* Nhóm: Số lượng sử dụng */}
-                  <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                  <div className={`grid grid-cols-2 gap-2 p-4  rounded-md border dark:bg-transparent`}>
                     {formFields.maxUsage}
                     {formFields.remainingUsage}
                   </div>
 
-                  <div className="grid grid-cols-1 gap-2 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-1 gap-2 p-4  border rounded-md">
                     {formFields.numberOfUsagePerUser}
                   </div>
 
                   {/* Nhóm: Kích hoạt voucher */}
-                  <div className="flex flex-col gap-4 p-4 bg-white border rounded-md dark:bg-transparent">
+                  <div className="flex flex-col gap-4 p-4  border rounded-md dark:bg-transparent">
                     {formFields.isActive}
                     {formFields.isPrivate}
                   </div>
 
                   {/* Nhóm: Kiểm tra định danh */}
-                  <div className="grid grid-cols-1 p-4 bg-white border rounded-md">
+                  <div className="grid grid-cols-1 p-4  border rounded-md">
                     {formFields.isVerificationIdentity}
                   </div>
                 </form>
