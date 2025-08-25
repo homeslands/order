@@ -117,7 +117,7 @@ export class SystemConfigService implements OnModuleInit {
     );
   }
 
-  async get(key: string): Promise<string> {
+  async get(key: string, isLog: boolean = true): Promise<string> {
     const context = `${SystemConfigService.name}.${this.get.name}`;
     const systemConfig = await this.systemConfigRepository.findOne({
       where: {
@@ -125,7 +125,7 @@ export class SystemConfigService implements OnModuleInit {
       },
     });
     if (!systemConfig) {
-      this.logger.warn(`Value of ${key} is not found`, context);
+      if (isLog) this.logger.warn(`Value of ${key} is not found`, context);
       return '';
     }
     return systemConfig.value;

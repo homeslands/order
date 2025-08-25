@@ -29,6 +29,7 @@ export const ERROR_WHEN_CANCEL_ORDER = 'ERROR_WHEN_CANCEL_ORDER';
 export const VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER =
   'VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER';
 export const ORDER_IS_NOT_PAID = 'ORDER_IS_NOT_PAID';
+export const ERROR_WHEN_UPDATE_ORDER = 'ERROR_WHEN_UPDATE_ORDER';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -55,7 +56,8 @@ export type TOrderErrorCodeKey =
   | typeof ORDER_IS_NOT_PENDING
   | typeof ERROR_WHEN_CANCEL_ORDER
   | typeof VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER
-  | typeof ORDER_IS_NOT_PAID;
+  | typeof ORDER_IS_NOT_PAID
+  | typeof ERROR_WHEN_UPDATE_ORDER;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -104,4 +106,5 @@ export const OrderValidation: TOrderErrorCode = {
     'Voucher is the same previous voucher',
   ),
   ORDER_IS_NOT_PAID: createErrorCode(1010024, 'Order is not paid'),
+  ERROR_WHEN_UPDATE_ORDER: createErrorCode(1010025, 'Error when update order'),
 };

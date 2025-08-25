@@ -349,7 +349,9 @@ export class OrderService {
         );
       }
 
-      await this.voucherUtils.validateVoucher(voucher);
+      // await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherTime(voucher);
+      this.voucherUtils.validateVoucherRemainingUsage(voucher);
       await this.voucherUtils.validateVoucherUsage(voucher, order.owner.slug);
       await this.voucherUtils.validateMinOrderValue(voucher, order);
 
@@ -483,7 +485,9 @@ export class OrderService {
     }
 
     if (voucher) {
-      await this.voucherUtils.validateVoucher(voucher);
+      // await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherTime(voucher);
+      this.voucherUtils.validateVoucherRemainingUsage(voucher);
       await this.voucherUtils.validateVoucherUsage(voucher, requestData.owner);
       await this.voucherUtils.validateVoucherProduct(
         voucher,
