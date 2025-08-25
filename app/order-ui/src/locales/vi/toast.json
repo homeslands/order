@@ -224,6 +224,7 @@
     "productLimitRequired": "Giới hạn sản phẩm là bắt buộc",
     "productNameExist": "Tên sản phẩm đã tồn tại",
     "productNameRequired": "Tên sản phẩm là bắt buộc",
+    "productNotAppliedToVoucher": "Sản phẩm không áp dụng được voucher này",
     "productNotBelongToAnyChefArea": "Sản phẩm không thuộc khu vực bếp nào",
     "productNotBelongToAnyChefAreaOfThisBranch": "Sản phẩm không thuộc khu vực bếp nào của chi nhánh này",
     "productNotFound": "Không tìm thấy sản phẩm",
