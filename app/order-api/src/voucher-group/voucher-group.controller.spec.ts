@@ -15,7 +15,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { VoucherGroup } from './voucher-group.entity';
 import { User } from 'src/user/user.entity';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Order } from 'src/order/order.entity';

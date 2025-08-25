@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VoucherService } from './voucher.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import {
   MockType,
   repositoryMockFactory,

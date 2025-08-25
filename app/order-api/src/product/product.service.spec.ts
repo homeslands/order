@@ -31,7 +31,7 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { BranchUtils } from 'src/branch/branch.utils';
 import { Branch } from 'src/branch/branch.entity';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { User } from 'src/user/user.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { Order } from 'src/order/order.entity';

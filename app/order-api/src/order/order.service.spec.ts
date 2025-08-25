@@ -58,7 +58,7 @@ import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { UserException } from 'src/user/user.exception';
 import { UserValidation } from 'src/user/user.validation';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { PromotionUtils } from 'src/promotion/promotion.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
