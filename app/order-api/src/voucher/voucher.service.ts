@@ -13,7 +13,7 @@ import {
 } from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import {
   FindManyOptions,
   FindOptionsWhere,

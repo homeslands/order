@@ -8,7 +8,7 @@ import {
   Not,
   Repository,
 } from 'typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { VoucherException } from './voucher.exception';
 import { VoucherValidation } from './voucher.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';

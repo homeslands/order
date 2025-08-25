@@ -22,7 +22,7 @@ import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Order } from 'src/order/order.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';

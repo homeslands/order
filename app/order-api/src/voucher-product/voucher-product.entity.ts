@@ -1,6 +1,6 @@
 import { Base } from 'src/app/base.entity';
 import { Product } from 'src/product/product.entity';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('voucher_product_tbl')
