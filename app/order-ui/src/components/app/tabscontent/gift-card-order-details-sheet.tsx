@@ -33,7 +33,7 @@ import {
 } from '@/components/ui'
 
 import { ICardOrderResponse } from '@/types'
-import { CardOrderStatus, ROUTE } from '@/constants'
+import { CardOrderStatus, GiftCardType, ROUTE } from '@/constants'
 import {
   formatCurrency,
   getPaymentMethodLabel,
@@ -275,11 +275,15 @@ export function GiftCardOrderDetailsSheet({
                     </p>
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  <NavLink to={`${ROUTE.CLIENT_PROFILE}?tab=gift-card`}>
-                    <Button> {t('profile.common.viewDetails')}</Button>
-                  </NavLink>
-                </div>
+                {
+                  cardOrder?.type === GiftCardType.BUY && cardOrder.status === CardOrderStatus.COMPLETED &&
+                  <div className="flex justify-end">
+                    <NavLink to={`${ROUTE.CLIENT_PROFILE}?tab=gift-card`}>
+                      <Button> {t('profile.common.viewDetails')}</Button>
+                    </NavLink>
+                  </div>
+                }
+
               </CardContent>
             </Card>
 

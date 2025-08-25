@@ -38,7 +38,7 @@
         "completed": "Hoàn thành",
         "failed": "Thất bại",
         "label": "Trạng thái",
-        "pending": "Đang chờ"
+        "pending": "Chờ thanh toán"
       },
       "total": "Tổng cộng",
       "totalPayment": "Tổng thanh toán",

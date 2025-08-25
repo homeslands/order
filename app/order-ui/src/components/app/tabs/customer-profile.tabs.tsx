@@ -7,7 +7,6 @@ import {
   CustomerInfoTabsContent,
   CustomerCoinTabsContent,
   CustomerGiftCardTabsContent,
-  CustomerGiftCardOrderTabsContent,
 } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
@@ -59,12 +58,6 @@ export function CustomerProfileTabs() {
         >
           {t('profile.giftCard.defaultTitle')}
           </TabsTrigger>
-        <TabsTrigger
-          value="gift-card-history"
-          className="flex-1 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
-        >
-          {t('profile.giftCard.giftCardHistory')}
-        </TabsTrigger>
       </TabsList>
       <TabsContent value="info" className="w-full p-0 dark:text-gray-200">
         <CustomerInfoTabsContent />
@@ -80,12 +73,6 @@ export function CustomerProfileTabs() {
       </TabsContent>
       <TabsContent value="gift-card" className="w-full p-0 dark:text-gray-200">
         <CustomerGiftCardTabsContent />
-      </TabsContent>
-      <TabsContent
-        value="gift-card-history"
-        className="w-full p-0 dark:text-gray-200"
-      >
-        <CustomerGiftCardOrderTabsContent />
       </TabsContent>
     </Tabs>
   )
