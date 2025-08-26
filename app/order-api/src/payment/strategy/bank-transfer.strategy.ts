@@ -47,7 +47,7 @@ export class BankTransferStrategy implements IPaymentStrategy {
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async processCardOrder(cardOrder: CardOrder): Promise<Payment> {
     const context = `${BankTransferStrategy.name}.${this.processCardOrder.name}`;
@@ -89,7 +89,9 @@ export class BankTransferStrategy implements IPaymentStrategy {
     // Convert date to with format: yyyy-MM-ddTHH:mm:ss.SSSZ
     // example: 2024-11-09T11:03:33.033+0700
     const requestDateTime = formatMoment();
-    const orderId = cardOrder.id.split('-')[0];
+    const orderId = cardOrder.slug
+      .concat(getRandomString().slice(0, 3))
+      .toUpperCase();
 
     const requestData = {
       requestDateTime: requestDateTime,
@@ -131,6 +133,7 @@ export class BankTransferStrategy implements IPaymentStrategy {
       userId: cardOrder.customerId,
       statusCode: PaymentStatus.PENDING,
       statusMessage: PaymentStatus.PENDING,
+      orderIdBankTransfer: orderId,
     } as Partial<Payment>);
 
     return await this.paymentRepository.save(payment);
