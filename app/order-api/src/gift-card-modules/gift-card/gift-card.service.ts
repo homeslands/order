@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GiftCard } from './entities/gift-card.entity';
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, MoreThan, Repository } from 'typeorm';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -31,6 +31,9 @@ import { AuthException } from 'src/auth/auth.exception';
 import { AuthValidation } from 'src/auth/auth.validation';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { FindAllGiftCardDto } from './dto/find-all-gift-card.dto';
+import { createSortOptions } from 'src/shared/utils/obj.util';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
 
 @Injectable()
 export class GiftCardService {
@@ -78,7 +81,7 @@ export class GiftCardService {
     // Create transaction record
     await this.ptService.create({
       type: PointTransactionTypeEnum.IN,
-      desc: `Nap the qua tang ${gc.cardPoints.toLocaleString()} xu`,
+      desc: `Sử dụng thẻ quà tặng ${gc.cardPoints.toLocaleString()} xu`,
       objectType: PointTransactionObjectTypeEnum.GIFT_CARD,
       objectSlug: gc.slug,
       points: gc.cardPoints,
@@ -103,34 +106,69 @@ export class GiftCardService {
     return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
   }
 
-  async findAll() {
-    const gcs = await this.gcRepository.find({
-      order: {
-        createdAt: 'DESC',
-      },
-    });
-    return this.mapper.mapArray(gcs, GiftCard, GiftCardResponseDto);
+  buildFindOptionsWhere(req: FindAllGiftCardDto): FindOptionsWhere<GiftCard>[] | FindOptionsWhere<GiftCard> {
+    const baseConditions: Partial<FindOptionsWhere<GiftCard>> = {};
+
+    if (req.status) {
+      baseConditions.status = req.status;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      baseConditions.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      baseConditions.createdAt = Between(req.fromDate, req.toDate);
+    }
+
+    if (req.customerSlug) {
+      return [
+        // { ...baseConditions, usedBySlug: req.customerSlug },
+        { ...baseConditions, cardOrder: { customerSlug: req.customerSlug } },
+      ];
+    }
+
+    return baseConditions;
   }
 
-  // async create(payload: CreateGiftCardDto) {
-  //   const card = await this.cardRepository.findOne({
-  //     where: {
-  //       slug: payload.cardSlug
-  //     }
-  //   })
-  //   if (!card) throw new CardException(CardValidation.CARD_NOT_FOUND);
+  async findAll(req: FindAllGiftCardDto) {
+    const context = `${GiftCardService.name}.${this.findAll.name}`;
+    this.logger.log(`Find all gift card req: ${JSON.stringify(req)}`, context);
 
-  //   const co = await this.coRepository.findOne({
-  //     where: {
-  //       slug: payload.cardOrderSlug
-  //     }
-  //   })
-  //   if (!co) throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+    const findOptionsWhere = this.buildFindOptionsWhere(req);
 
-  //   const gc = this.buildGiftCard(co, card);
+    const sortOpts = createSortOptions<GiftCard>(req.sort);
 
-  //   return this.mapper.map(gc, GiftCard, GiftCardResponseDto);
-  // }
+    const [gcs, total] = await this.gcRepository.findAndCount({
+      where: findOptionsWhere,
+      order: sortOpts,
+      take: req.size,
+      skip: (req.page - 1) * req.size,
+      relations: ['usedBy', 'cardOrder'],
+    });
+
+    const gcsResponse = this.mapper.mapArray(
+      gcs,
+      GiftCard,
+      GiftCardResponseDto,
+    );
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / req.size);
+    // Determine hasNext and hasPrevious
+    const hasNext = req.page < totalPages;
+    const hasPrevious = req.page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: gcsResponse,
+      total,
+      page: req.page,
+      pageSize: req.size,
+      totalPages,
+    } as AppPaginatedResponseDto<GiftCardResponseDto>;
+  }
 
   async redeem(payload: UseGiftCardDto) {
     const context = `${GiftCardService.name}.${this.redeem.name}`;

@@ -28,7 +28,6 @@ import {
   PointTransactionTypeEnum,
 } from '../point-transaction/entities/point-transaction.enum';
 import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
-import { UseGiftCardDto } from '../gift-card/dto/use-gift-card.dto';
 import _ from 'lodash';
 import { PaymentStatus } from 'src/payment/payment.constants';
 import { FeatureFlag } from '../feature-flag/entities/feature-flag.entity';
@@ -141,7 +140,7 @@ export class CardOrderService {
     const featureFlag = await this.featureRepository.findOne({
       where: {
         name: createCardOrderDto.cardOrderType,
-        groupName: FeatureGroupConstant.GIFT_CARD
+        groupName: FeatureGroupConstant.GIFT_CARD,
       },
     });
 
@@ -205,43 +204,46 @@ export class CardOrderService {
       );
     }
 
-    const receipients: Recipient[] = await Promise.all(
-      createCardOrderDto.receipients.map(async (createReceipientDto) => {
-        const receipient = await this.userRepository.findOne({
-          where: {
-            slug: createReceipientDto.recipientSlug,
-          },
-        });
+    let receipients: Recipient[] = [];
+    if (createCardOrderDto.cardOrderType === CardOrderType.GIFT) {
+      receipients = await Promise.all(
+        createCardOrderDto.receipients.map(async (createReceipientDto) => {
+          const receipient = await this.userRepository.findOne({
+            where: {
+              slug: createReceipientDto.recipientSlug,
+            },
+          });
 
-        if (!receipient) {
-          throw new CardOrderException(
-            CardOrderValidation.CARD_ORDER_RECIPIENT_NOT_FOUND,
+          if (!receipient) {
+            throw new CardOrderException(
+              CardOrderValidation.CARD_ORDER_RECIPIENT_NOT_FOUND,
+            );
+          }
+
+          const receipientItem = this.mapper.map(
+            createReceipientDto,
+            CreateRecipientDto,
+            Recipient,
           );
-        }
 
-        const receipientItem = this.mapper.map(
-          createReceipientDto,
-          CreateRecipientDto,
-          Recipient,
-        );
+          Object.assign(receipientItem, {
+            name: `${receipient.firstName} ${receipient.lastName}`,
+            phone: receipient.phonenumber,
+            recipientId: receipient.id,
+            recipientSlug: receipient.slug,
+            recipient: receipient,
 
-        Object.assign(receipientItem, {
-          name: `${receipient.firstName} ${receipient.lastName}`,
-          phone: receipient.phonenumber,
-          recipientId: receipient.id,
-          recipientSlug: receipient.slug,
-          recipient: receipient,
+            senderId: customer.id,
+            senderSlug: customer.slug,
+            senderName: `${customer.firstName} ${customer.lastName}`,
+            senderPhone: customer.phonenumber,
+            sender: customer,
+          } as Partial<Recipient>);
 
-          senderId: customer.id,
-          senderSlug: customer.slug,
-          senderName: `${customer.firstName} ${customer.lastName}`,
-          senderPhone: customer.phonenumber,
-          sender: customer,
-        } as Partial<Recipient>);
-
-        return receipientItem;
-      }),
-    );
+          return receipientItem;
+        }),
+      );
+    }
 
     const cardOrder = this.mapper.map(
       createCardOrderDto,
@@ -277,13 +279,14 @@ export class CardOrderService {
       async (manager) => {
         const createdCardOrder = await manager.save(cardOrder as CardOrder);
 
-        receipients.forEach((item: Recipient) => {
-          item.cardOrder = createdCardOrder;
-          item.cardOrderSlug = createdCardOrder.slug;
-          item.cardOrderId = createdCardOrder.id;
-        });
-
-        await manager.save(receipients);
+        if (createdCardOrder.type === CardOrderType.GIFT) {
+          receipients.forEach((item: Recipient) => {
+            item.cardOrder = createdCardOrder;
+            item.cardOrderSlug = createdCardOrder.slug;
+            item.cardOrderId = createdCardOrder.id;
+          });
+          await manager.save(receipients);
+        }
         return createdCardOrder;
       },
       (result) => {
@@ -372,17 +375,17 @@ export class CardOrderService {
           let totalAmount = 0;
           for (let i = 0; i < quantity; i++) {
             // 1. Gen
-            const gc = await this.gcService.gen({
-              cardOrderSlug: databaseEntity.slug,
-              cardSlug: databaseEntity.cardSlug,
-            });
+            // const gc = await this.gcService.gen({
+            //   cardOrderSlug: databaseEntity.slug,
+            //   cardSlug: databaseEntity.cardSlug,
+            // });
 
             // 2. Auto-redeem
-            await this.gcService.redeem({
-              code: gc.code,
-              serial: gc.serial,
-              userSlug: recipientSlug,
-            } as UseGiftCardDto);
+            // await this.gcService.redeem({
+            //   code: gc.code,
+            //   serial: gc.serial,
+            //   userSlug: recipientSlug,
+            // } as UseGiftCardDto);
 
             totalAmount += databaseEntity.cardPoint;
           }
@@ -399,7 +402,7 @@ export class CardOrderService {
           // Create transaction record
           await this.ptService.create({
             type: PointTransactionTypeEnum.IN,
-            desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
+            desc: `Nạp ${totalAmount.toLocaleString()} xu từ người gửi ${databaseEntity.customerName}(${databaseEntity.customerPhone})`,
             objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
             objectSlug: databaseEntity.slug,
             points: totalAmount,
@@ -412,17 +415,17 @@ export class CardOrderService {
         let totalAmount = 0;
         for (let i = 0; i < databaseEntity.quantity; i++) {
           // 1. Gen
-          const gc = await this.gcService.gen({
-            cardOrderSlug: databaseEntity.slug,
-            cardSlug: databaseEntity.cardSlug,
-          });
+          // const gc = await this.gcService.gen({
+          //   cardOrderSlug: databaseEntity.slug,
+          //   cardSlug: databaseEntity.cardSlug,
+          // });
 
           // 2. Auto-redeem
-          await this.gcService.redeem({
-            code: gc.code,
-            serial: gc.serial,
-            userSlug: databaseEntity.customerSlug,
-          } as UseGiftCardDto);
+          // await this.gcService.redeem({
+          //   code: gc.code,
+          //   serial: gc.serial,
+          //   userSlug: databaseEntity.customerSlug,
+          // } as UseGiftCardDto);
 
           totalAmount += databaseEntity.cardPoint;
         }
@@ -438,7 +441,7 @@ export class CardOrderService {
 
         await this.ptService.create({
           type: PointTransactionTypeEnum.IN,
-          desc: `Nap the qua tang ${totalAmount.toLocaleString()} xu`,
+          desc: `Nạp cho bản thân ${totalAmount.toLocaleString()} xu`,
           objectType: PointTransactionObjectTypeEnum.CARD_ORDER,
           objectSlug: databaseEntity.slug,
           points: totalAmount,
