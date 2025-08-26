@@ -26,7 +26,7 @@ import { OrderItem } from 'src/order-item/order-item.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 
 @Module({
   imports: [

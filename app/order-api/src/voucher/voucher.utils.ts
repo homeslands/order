@@ -575,4 +575,30 @@ export class VoucherUtils {
     this.logger.log('Validate voucher for update order item success', context);
     return true;
   }
+
+  async validateVoucherPaymentMethod(
+    voucher: Voucher,
+    paymentMethod: string,
+  ): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateVoucherPaymentMethod.name}`;
+
+    if (!voucher) return true;
+
+    const voucherPaymentMethod = voucher.voucherPaymentMethods.find(
+      (voucherPaymentMethod) =>
+        voucherPaymentMethod.paymentMethod === paymentMethod,
+    );
+
+    if (!voucherPaymentMethod) {
+      this.logger.warn(
+        `Voucher payment method ${paymentMethod} not found`,
+        context,
+      );
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_PAYMENT_METHOD_NOT_FOUND,
+      );
+    }
+
+    return true;
+  }
 }

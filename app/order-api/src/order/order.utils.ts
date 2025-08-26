@@ -52,6 +52,7 @@ export class OrderUtils {
         'invoice.invoiceItems',
         'table',
         'voucher.voucherProducts.product',
+        'voucher.voucherPaymentMethods',
         'branch',
         'chefOrders.chefOrderItems',
       ],
