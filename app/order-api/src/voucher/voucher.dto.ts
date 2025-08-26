@@ -327,6 +327,18 @@ export class UpdateVoucherDto extends CreateVoucherDto {
 }
 
 export class GetAllVoucherForUserDto extends BaseQueryDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The payment methods to be created voucher payment method',
+    required: false,
+    example: 'payment-method',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod, {
+    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
+  })
+  paymentMethod?: string;
+
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
@@ -378,6 +390,18 @@ export class GetAllVoucherForUserDto extends BaseQueryDto {
   hasPaging?: boolean;
 }
 export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
+  @AutoMap()
+  @ApiProperty({
+    description: 'The payment methods to be created voucher payment method',
+    required: false,
+    example: 'payment-method',
+  })
+  @IsOptional()
+  @IsEnum(PaymentMethod, {
+    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
+  })
+  paymentMethod?: string;
+
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
@@ -633,6 +657,19 @@ export class AddVoucherPaymentMethodRequestDto {
 }
 
 export class RemoveVoucherPaymentMethodRequestDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty({ message: 'INVALID_PAYMENT_METHOD' })
+  @IsEnum(PaymentMethod, { message: 'INVALID_PAYMENT_METHOD' })
+  paymentMethod: string;
+}
+
+export class ValidateVoucherPaymentMethodDto {
+  @ApiProperty()
+  @AutoMap()
+  @IsOptional()
+  slug: string;
+
   @ApiProperty()
   @AutoMap()
   @IsNotEmpty({ message: 'INVALID_PAYMENT_METHOD' })
