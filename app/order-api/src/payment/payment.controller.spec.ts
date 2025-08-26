@@ -30,7 +30,7 @@ import { SharedBalanceService } from 'src/shared/services/shared-balance.service
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { OrderUtils } from 'src/order/order.utils';
 import { ProductUtils } from 'src/product/product.utils';
