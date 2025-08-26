@@ -116,7 +116,7 @@
         "paymentInitiated": "Khởi tạo thanh toán thành công",
         "checkingPaymentStatus": "Đang kiểm tra trạng thái thanh toán...",
         "statusPending": "Chờ thanh toán",
-        "statusCompleted": "Hoàn tất",
+        "statusCompleted": "Hoàn thành",
         "statusFailed": "Thất bại",
         "statusCancelled": "Đã huỷ",
         "statusPaid": "Đã thanh toán",
