@@ -44,6 +44,7 @@ import { Payment } from 'src/payment/payment.entity';
 import { CashStrategy } from 'src/payment/strategy/cash.strategy';
 import { PaymentException } from 'src/payment/payment.exception';
 import { PaymentValidation } from 'src/payment/payment.validation';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @Injectable()
 export class CardOrderService {
@@ -66,6 +67,7 @@ export class CardOrderService {
     private readonly balanceService: SharedBalanceService,
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
+    private readonly paymentUtils: PaymentUtils,
   ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
@@ -226,6 +228,7 @@ export class CardOrderService {
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug },
+      relations: ['payment']
     });
 
     if (!cardOrder) {
@@ -236,10 +239,14 @@ export class CardOrderService {
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
     }
 
+    await this.paymentUtils.cancelPayment(cardOrder.payment?.slug);
+
     Object.assign(cardOrder, {
       status: CardOrderStatus.CANCELLED,
+      paymentStatus: PaymentStatus.CANCELLED,
       deletedAt: new Date(),
-    });
+    } as CardOrder);
+
     await this.cardOrderRepository.save(cardOrder);
   }
 
