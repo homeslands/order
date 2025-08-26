@@ -20,7 +20,7 @@ export class PaymentUtils {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly bankTransferStrategy: BankTransferStrategy,
     private readonly systemConfigService: SystemConfigService,
-  ) {}
+  ) { }
 
   async getModeCancelQRBankTransfer(): Promise<string> {
     const context = `${PaymentUtils.name}.${this.getModeCancelQRBankTransfer.name}`;
@@ -63,7 +63,15 @@ export class PaymentUtils {
         this.logger.log(`Mode cancel QR bank transfer is not apply`, context);
       }
     }
-    await this.paymentRepository.softRemove(payment);
+    // await this.paymentRepository.softRemove(payment);
+
+    Object.assign(payment, {
+      statusCode: PaymentStatus.CANCELLED,
+      statusMessage: 'Thanh toan da bi huy',
+      deletedAt: new Date(),
+    } as Payment);
+    await this.paymentRepository.save(payment);
+
     this.logger.log(`Payment ${slug} has been removed`, context);
   }
 }

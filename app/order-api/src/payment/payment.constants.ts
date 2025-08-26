@@ -9,7 +9,7 @@ export const PaymentStatus = {
   PENDING: 'pending',
   COMPLETED: 'completed',
   FAILED: 'failed',
-  CANCELLED: 'cancelled',
+  CANCELLED: 'cancelled'
 };
 
 export const PaymentAction = {
