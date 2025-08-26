@@ -28,6 +28,19 @@ import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { PointStrategy } from './strategy/point.strategy';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { Invoice } from 'src/invoice/invoice.entity';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { OrderUtils } from 'src/order/order.utils';
+import { ProductUtils } from 'src/product/product.utils';
+import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
+import { Product } from 'src/product/product.entity';
+import { MenuItem } from 'src/menu-item/menu-item.entity';
+import { MenuUtils } from 'src/menu/menu.utils';
+import { Menu } from 'src/menu/menu.entity';
+import { OrderItem } from 'src/order-item/order-item.entity';
+import { OrderItemUtils } from 'src/order-item/order-item.utils';
 describe('PaymentController', () => {
   let controller: PaymentController;
 
@@ -107,6 +120,40 @@ describe('PaymentController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        VoucherUtils,
+        {
+          provide: getRepositoryToken(Voucher),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherProduct),
+          useValue: repositoryMockFactory,
+        },
+        OrderUtils,
+        ProductUtils,
+        {
+          provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
+        },
+        MenuItemUtils,
+        {
+          provide: getRepositoryToken(Product),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(MenuItem),
+          useValue: repositoryMockFactory,
+        },
+        MenuUtils,
+        {
+          provide: getRepositoryToken(Menu),
+          useValue: repositoryMockFactory,
+        },
+        OrderItemUtils,
+        {
+          provide: getRepositoryToken(OrderItem),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
