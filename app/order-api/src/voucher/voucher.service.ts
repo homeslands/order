@@ -10,6 +10,7 @@ import {
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
+  ValidateVoucherPaymentMethodDto,
   ValidateVoucherPublicDto,
   VoucherPaymentMethodResponseDto,
   VoucherResponseDto,
@@ -375,6 +376,11 @@ export class VoucherService {
     if (!_.isNil(options.isVerificationIdentity))
       findOptionsWhere.isVerificationIdentity = options.isVerificationIdentity;
 
+    if (!_.isNil(options.paymentMethod))
+      findOptionsWhere.voucherPaymentMethods = {
+        paymentMethod: options.paymentMethod,
+      };
+
     try {
       const findManyOptions: FindManyOptions<Voucher> = {
         where: findOptionsWhere,
@@ -441,6 +447,11 @@ export class VoucherService {
 
     if (!_.isNil(options.isActive))
       findOptionsWhere.isActive = options.isActive;
+
+    if (!_.isNil(options.paymentMethod))
+      findOptionsWhere.voucherPaymentMethods = {
+        paymentMethod: options.paymentMethod,
+      };
 
     try {
       const findManyOptions: FindManyOptions<Voucher> = {
@@ -822,6 +833,28 @@ export class VoucherService {
       deletedVoucherPaymentMethod,
       VoucherPaymentMethod,
       VoucherPaymentMethodResponseDto,
+    );
+  }
+
+  async validateVoucherPaymentMethod(
+    requestData: ValidateVoucherPaymentMethodDto,
+  ): Promise<boolean> {
+    const context = `${VoucherService.name}.${this.validateVoucherPaymentMethod.name}`;
+    this.logger.log(
+      `Validate voucher payment method: ${JSON.stringify(requestData)}`,
+      context,
+    );
+    // order has no voucher
+    if (!requestData.slug) return true;
+
+    const voucher = await this.voucherUtils.getVoucher({
+      where: { slug: requestData.slug },
+      relations: ['voucherPaymentMethods'],
+    });
+
+    return this.voucherUtils.validateVoucherPaymentMethod(
+      voucher,
+      requestData.paymentMethod,
     );
   }
 }

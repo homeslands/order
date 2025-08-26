@@ -24,6 +24,7 @@ import {
   GetVoucherDto,
   RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
+  ValidateVoucherPaymentMethodDto,
   ValidateVoucherPublicDto,
   VoucherPaymentMethodResponseDto,
   VoucherResponseDto,
@@ -289,6 +290,28 @@ export class VoucherController {
     await this.voucherService.validateVoucherPublic(validateVoucherPublicDto);
     return {
       message: 'Voucher has been validated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
+
+  @Post('validate/payment-method')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validate voucher payment method' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher has been validated successfully',
+    type: VoucherResponseDto,
+  })
+  async validateVoucherPaymentMethod(
+    @Body(new ValidationPipe({ transform: true }))
+    validateVoucherPaymentMethodDto: ValidateVoucherPaymentMethodDto,
+  ) {
+    await this.voucherService.validateVoucherPaymentMethod(
+      validateVoucherPaymentMethodDto,
+    );
+    return {
+      message: 'Voucher payment method has been validated successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
     } as AppResponseDto<void>;
