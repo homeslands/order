@@ -3,12 +3,16 @@ import {
   IGiftCardCreateRequest,
   IGiftCardUpdateRequest,
   IGetGiftCardsRequest,
+  IGiftCardGetRequest,
   ICardOrderRequest,
   IGiftCardCartItem,
 } from '@/types'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { GiftCardUsageStatus } from '@/constants'
+import { useState, useCallback, useMemo } from 'react'
+import { useMutation, useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import {
   getGiftCards,
+  getUserGiftCards,
   createGiftCard,
   updateGiftCard,
   deleteGiftCard,
@@ -24,15 +28,134 @@ import {
   getGiftCardBySlug,
 } from '@/api'
 import { useEffect } from 'react'
-import { useGiftCardStore } from '@/stores'
+import { useGiftCardStore, useUserStore } from '@/stores'
 import { showToast } from '@/utils'
 import { useTranslation } from 'react-i18next'
+import moment from 'moment'
 
 export const useGetGiftCards = (params: IGetGiftCardsRequest) => {
   return useQuery({
     queryKey: [QUERYKEY.giftCards, params],
     queryFn: () => getGiftCards(params),
   })
+}
+
+export const useGetUserGiftCards = (params?: IGiftCardGetRequest) => {
+  return useQuery({
+    queryKey: [QUERYKEY.userGiftCards, params],
+    queryFn: () => getUserGiftCards(params || {}),
+  })
+}
+
+export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
+  const today = moment()
+  const { userInfo } = useUserStore()
+  const [filters, setFilters] = useState<{
+    status: GiftCardUsageStatus
+    fromDate: string
+    toDate: string
+    customerSlug: string | undefined
+  }>({
+    status: GiftCardUsageStatus.ALL,
+    fromDate: today.startOf('month').format('YYYY-MM-DD'),
+    toDate: today.endOf('month').format('YYYY-MM-DD'),
+    customerSlug: userInfo?.slug,
+  })
+
+  const {
+    data: giftCardsData,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    isError,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ['userGiftCardsInfinite', filters],
+    queryFn: async ({ pageParam }) => {
+      const params: IGiftCardGetRequest = {
+        page: pageParam as number,
+        size: pageSize,
+        customerSlug: filters.customerSlug,
+      }
+
+      // Add filters
+      if (filters.fromDate) params.fromDate = filters.fromDate
+      if (filters.toDate) params.toDate = filters.toDate
+      if (filters.status !== GiftCardUsageStatus.ALL)
+        params.status = filters.status
+
+      return getUserGiftCards(params)
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.result.hasNext ? lastPage.result.page + 1 : undefined,
+  })
+
+  // Flatten paginated gift cards
+  const giftCards = useMemo(() => {
+    return giftCardsData?.pages.flatMap((page) => page.result.items) || []
+  }, [giftCardsData])
+
+  // Get total count from first page
+  const totalCount = giftCardsData?.pages[0]?.result.total || 0
+
+  // Update filters
+  const updateFilters = useCallback(
+    (
+      newFilters: Partial<{
+        status: GiftCardUsageStatus
+        fromDate: string
+        toDate: string
+      }>,
+    ) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }))
+    },
+    [],
+  )
+
+  // Clear filters
+  const clearFilters = useCallback(() => {
+    setFilters({
+      status: GiftCardUsageStatus.ALL,
+      fromDate: '',
+      toDate: '',
+      customerSlug: userInfo?.slug,
+    })
+  }, [])
+
+  // Check if filters are active
+  const hasActiveFilters = useMemo(() => {
+    return (
+      !!filters.fromDate ||
+      !!filters.toDate ||
+      filters.status !== GiftCardUsageStatus.ALL
+    )
+  }, [filters])
+
+  return {
+    // Data
+    giftCards,
+    totalCount,
+
+    // Loading states
+    isLoading,
+    isFetchingNextPage,
+    isError,
+
+    // Pagination
+    hasNextPage,
+    fetchNextPage,
+
+    // Filters
+    filters,
+    updateFilters,
+    clearFilters,
+    hasActiveFilters,
+
+    // Actions
+    refetch,
+  }
 }
 
 export const useCreateGiftCard = () => {

@@ -36,6 +36,7 @@ import { useIsMobile } from '@/hooks'
 import { useGetCardOrder, useGetGiftCardBySlug } from '@/hooks/use-gift-card'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip } from 'react-tooltip'
+import { useUserStore } from '@/stores'
 
 interface TransactionGiftCardDetailDialogProps {
   transaction: IPointTransaction
@@ -51,6 +52,7 @@ export default function TransactionGiftCardDetailDialog({
 
   const [isOpen, setIsOpen] = useState(false)
   const isMobile = useIsMobile()
+  const { userInfo } = useUserStore()
 
   const isAdd = transaction.type === PointTransactionType.IN
   const isGiftCard =
@@ -386,7 +388,13 @@ export default function TransactionGiftCardDetailDialog({
                               {tGiftCard('giftCard.quantity')}
                             </span>
                             <span className="font-medium text-gray-900 dark:text-gray-100">
-                              {giftCardOrderDetails.quantity}
+                              {giftCardOrderDetails.type === GiftCardType.GIFT
+                                ? giftCardOrderDetails.receipients.find(
+                                    (receipient) =>
+                                      receipient.recipientSlug ===
+                                      userInfo?.slug,
+                                  )?.quantity
+                                : giftCardOrderDetails.quantity}
                             </span>
                           </div>
                         </div>

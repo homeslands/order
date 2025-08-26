@@ -1,4 +1,4 @@
-import { GiftCardStatus, GiftCardType } from '@/constants'
+import { GiftCardStatus, GiftCardType, GiftCardUsageStatus } from '@/constants'
 import { ICardOrderResponse } from './card-order.type'
 
 export interface IGiftCard {
@@ -26,6 +26,16 @@ export interface IGiftCardCreateRequest {
   amount?: number
   file?: File
   isActive?: boolean
+}
+
+export interface IGiftCardGetRequest {
+  status?: GiftCardUsageStatus
+  page?: number
+  size?: number
+  sort?: string
+  fromDate?: string
+  toDate?: string
+  customerSlug?: string
 }
 
 export interface IGiftCardUpdateRequest {
@@ -74,8 +84,12 @@ export interface IGiftCardDetail {
   usedAt: string | null
   cardOrder: ICardOrderResponse
   createdAt: string
+  expiredAt: string
   slug: string
   serial: string
+  usedBy: IUserGiftCard
+  code: string
+  usedBySlug: string
 }
 
 export interface IUseGiftCardResponse {
@@ -109,4 +123,17 @@ export interface IGiftCardFlagFeature {
   name: GiftCardType
   isLocked: boolean
   order: number
+}
+
+export interface IUserGiftCard {
+  createdAt: string
+  slug: string
+  phonenumber: string
+  firstName: string
+  lastName: string
+  dob: string
+  email: string
+  address: string
+  isVerifiedEmail: boolean
+  isVerifiedPhonenumber: boolean
 }
