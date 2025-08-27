@@ -12,19 +12,17 @@ import { RevenueTypeSelect } from "../select";
 import { RevenueFilterForm } from "../form";
 import { RevenueTypeQuery } from "@/constants";
 import { IRevenueQuery } from "@/types";
-import { useOverviewFilterStore } from "@/stores";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
+    // const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
     const [open, setOpen] = useState(false);
-    const [localType, setLocalType] = useState<RevenueTypeQuery>(overviewFilter.type);
+    const [localType, setLocalType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const handleExportRevenue = (data: IRevenueQuery) => {
-        setOverviewFilter({ ...overviewFilter, type: localType });
         onApply({ ...data, type: localType })
         setOpen(false)
     };

@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
 import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
-import { useBranchStore, useOverviewFilterStore } from '@/stores'
+import { useBranchStore } from '@/stores'
 
 interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
@@ -31,7 +31,7 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
 }) => {
     const { t } = useTranslation(['revenue'])
     const { branch } = useBranchStore()
-    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
+    // const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
 
     const [localStartDate, setLocalStartDate] = useState<string>('')
     const [localEndDate, setLocalEndDate] = useState<string>('')
@@ -42,12 +42,12 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
         const defaultEndDate = type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
 
         return {
-            branch: overviewFilter?.branch || branch?.slug || '',
-            startDate: localStartDate || overviewFilter?.startDate || defaultStartDate,
-            endDate: localEndDate || overviewFilter?.endDate || defaultEndDate,
+            branch: branch?.slug || '',
+            startDate: localStartDate || defaultStartDate,
+            endDate: localEndDate || defaultEndDate,
             type: localType || type || RevenueTypeQuery.DAILY,
         }
-    }, [overviewFilter, branch?.slug, type, localStartDate, localEndDate, localType])
+    }, [branch?.slug, type, localStartDate, localEndDate, localType])
 
     const form = useForm<TExportRevenueSchema>({
         resolver: zodResolver(useExportRevenueSchema()),
@@ -65,16 +65,10 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
         setLocalType(defaultValues.type)
         if (!localStartDate) setLocalStartDate(defaultValues.startDate)
         if (!localEndDate) setLocalEndDate(defaultValues.endDate)
-    }, [type, branch?.slug, overviewFilter, form, getDefaultValues, localStartDate, localEndDate])
+    }, [type, branch?.slug, form, getDefaultValues, localStartDate, localEndDate])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
-        setOverviewFilter({
-            branch: data.branch || '',
-            startDate: data.startDate || moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-            endDate: data.endDate || moment().format('YYYY-MM-DD HH:mm:ss'),
-            type: data.type || RevenueTypeQuery.DAILY
-        })
         onSubmit(data)
     }
 
