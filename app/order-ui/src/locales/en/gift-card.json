@@ -99,7 +99,7 @@
         "paymentExpireDate": "Payment Expire Date",
         "noName": "______",
         "paymentStatus": "Payment Status",
-        "cancelOrder": "Cancel Order",
+        "cancelOrder": "Cancel",
         "cancelOrderTitle": "Cancel Gift Card Order",
         "cancelOrderDescription": "Are you sure you want to cancel this gift card order? This action cannot be undone.",
         "cancelOrderConfirm": "Yes, Cancel Order",
@@ -136,7 +136,7 @@
         "enterGiftCard": "Enter gift card information to redeem points",
         "giftCardCode": "Gift Card Code",
         "giftCardLock": "Feature locked, please try again later",
-        "continuePayment": "Continue payment",
+        "continuePayment": "Continue",
         "giftCardFeatureFlag": {
             "pageTitle": "Feature Lock Management",
             "featureControls": "Gift Card Feature Flag",

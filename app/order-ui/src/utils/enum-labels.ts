@@ -31,7 +31,7 @@ export const getPaymentStatusLabel = (status: string): string => {
     case paymentStatus.COMPLETED:
       return i18next.t('paymentMethod.paid', { ns: 'menu' })
     case paymentStatus.CANCELLED:
-      return i18next.t('paymentMethod.failed', { ns: 'menu' })
+      return i18next.t('paymentMethod.cancelled', { ns: 'menu' })
     default:
       return status
   }
