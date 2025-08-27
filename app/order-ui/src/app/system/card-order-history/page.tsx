@@ -43,8 +43,9 @@ export default function CardOrderHistoryPage() {
     page,
     size,
     sort: sortField,
-    ...filter,
-    status: filter.status === CardOrderStatus.ALL ? null : filter.status
+    status: filter.status === CardOrderStatus.ALL ? null : filter.status,
+    fromDate: filter?.startDate,
+    toDate: filter?.endDate
   })
   const cardOrders = data?.result.items || []
 

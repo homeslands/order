@@ -12,12 +12,12 @@ export default function CardOrderStatusBadge({ status }: ICardOrderStatusBadgePr
   const getBadgeColor = (status: string) => {
     switch (status) {
       case CardOrderStatus.PENDING:
-        return 'bg-yellow-500 text-white'
+        return 'text-orange-400'
       case CardOrderStatus.COMPLETED:
-        return 'bg-green-500 text-white'
+        return 'text-green-600'
       case CardOrderStatus.FAILED:
       case CardOrderStatus.CANCELLED:
-        return 'bg-red-500 text-white'
+        return 'bright-red'
     }
   }
 
@@ -38,10 +38,9 @@ export default function CardOrderStatusBadge({ status }: ICardOrderStatusBadgePr
 
   return (
     <span
-      className={`w-fit min-w-32 px-3 py-2 text-center text-xs ${getBadgeColor(
+      className={`min-w-32 font-bold ${getBadgeColor(
         status
-      )} rounded-full`}
-    >
+      )}`}>
       {getBadgeText(status)}
     </span>
   )

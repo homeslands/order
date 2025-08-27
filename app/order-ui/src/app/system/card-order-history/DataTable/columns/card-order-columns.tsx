@@ -15,19 +15,19 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
   return [
     {
       id: 'actions',
-      header: () => <div className="text-center text-nowrap">{tCommon('common.action')}</div>,
+      header: () => <div className="font-semibold text-black text-center text-nowrap">{tCommon('common.action')}</div>,
       cell: ({ row }) => {
         return <CardOrderActionCell rowData={row.original} />
       },
     },
     {
       accessorKey: 'slug',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.slug')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.slug')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
           <div
-            className="text-sm text-gray-700 dark:text-gray-300 text-center"
+            className="text-sm text-gray-700 dark:text-gray-300 text-left w-28"
           >
             {rowData?.slug}
           </div>
@@ -36,11 +36,11 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'paymentMethod',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.paymentMethod')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.paymentMethod')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="text-center text-sm text-gray-900 dark:text-white text-nowrap">
+          <div className="text-left text-sm text-gray-900 dark:text-white w-44">
             {rowData?.paymentMethod === PaymentMethod.CASH
               ? t('giftCard.cardOrder.cash')
               : t('giftCard.cardOrder.bankTransfer')}
@@ -50,12 +50,12 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'status',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.status')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.status')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
           <div
-            className="text-center text-gray-700 dark:text-gray-300 text-nowrap"
+            className="text-left text-gray-700 dark:text-gray-300 w-28"
           >
             <CardOrderStatusBadge status={rowData?.status} />
           </div>
@@ -64,12 +64,12 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'totalAmount',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.totalAmount')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.totalAmount')}</div>,
       cell: ({ row }) => {
         const rowData = row.original;
         const total = rowData?.totalAmount as number;
         return (
-          <div className="text-sm text-gray-700 dark:text-gray-300 text-right text-nowrap">
+          <div className="text-sm text-gray-700 dark:text-gray-300 text-right w-32">
             {formatCurrency(total)}
           </div>
         )
@@ -77,11 +77,11 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'cashierName',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.cashierName')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.cashierName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="w-40 text-sm text-gray-700 dark:text-gray-300 text-nowrap">
+          <div className="w-44 text-sm text-gray-700 dark:text-gray-300 text-left">
             {rowData?.cashierName}
           </div>
         )
@@ -89,11 +89,11 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'customerName',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.customerName')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.customerName')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="text-sm text-gray-700 dark:text-gray-300 text-nowrap">
+          <div className="text-sm text-gray-700 dark:text-gray-300 text-left w-44">
             {rowData?.customerName}
           </div>
         )
@@ -101,11 +101,11 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     {
       accessorKey: 'createdAt',
-      header: () => <div className="text-center">{t('giftCard.cardOrder.createdAt')}</div>,
+      header: () => <div className="font-semibold text-black text-center">{t('giftCard.cardOrder.createdAt')}</div>,
       cell: ({ row }) => {
         const rowData = row.original
         return (
-          <div className="text-sm text-gray-700 dark:text-gray-300 text-nowrap">
+          <div className="text-sm text-gray-700 dark:text-gray-300 w-44">
             {moment(rowData.createdAt).format('HH:mm:ss DD/MM/YYYY')}
           </div>
         )
@@ -113,7 +113,7 @@ export const useCardOrderColumns = (): ColumnDef<ICardOrderResponse>[] => {
     },
     // {
     //   accessorKey: 'isActive',
-    //   header: () => <div className="w-32">{t('giftCard.status')}</div>,
+    //   header: () => <div className="font-semibold text-black w-32">{t('giftCard.status')}</div>,
     //   cell: ({ row }) => {
     //     const isActive = row.getValue('isActive') as boolean
     //     const status = isActive
