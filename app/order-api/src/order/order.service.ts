@@ -44,7 +44,7 @@ import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { VariantUtils } from 'src/variant/variant.utils';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { Promotion } from 'src/promotion/promotion.entity';
 import { PromotionUtils } from 'src/promotion/promotion.utils';

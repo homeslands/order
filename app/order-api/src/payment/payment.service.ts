@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { IsNull, Repository } from 'typeorm';
 import { CashStrategy } from './strategy/cash.strategy';
 import { BankTransferStrategy } from './strategy/bank-transfer.strategy';
@@ -49,7 +49,7 @@ import {
 } from 'src/voucher/voucher.constant';
 import { OrderUtils } from 'src/order/order.utils';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { VoucherException } from 'src/voucher/voucher.exception';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
 
@@ -294,6 +294,12 @@ export class PaymentService {
       }
     }
 
+    // validate voucher payment method
+    await this.voucherUtils.validateVoucherPaymentMethod(
+      order.voucher, // if voucher is null, return true
+      createPaymentDto.paymentMethod,
+    );
+
     let payment: Payment;
 
     if (user.role?.name === RoleEnum.Customer) {
@@ -456,6 +462,12 @@ export class PaymentService {
         throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
       }
     }
+
+    // validate voucher payment method
+    await this.voucherUtils.validateVoucherPaymentMethod(
+      order.voucher, // if voucher is null, return true
+      createPaymentDto.paymentMethod,
+    );
 
     // if (order.payment) {
     //   this.logger.warn(
