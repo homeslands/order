@@ -59,6 +59,7 @@ import {
   ClientOrderSuccessPage,
   VoucherGroupPage,
   GiftCardPage,
+  GiftCardMenuPage,
   ClientGiftCardPage,
   ClientGiftCardCheckoutPage,
   OrderInstructionsPage,
@@ -66,6 +67,7 @@ import {
   ClientGiftCardCheckoutWithSlugPage,
   GiftCardSuccessPage,
   FeatureLockManagementPage,
+  SystemGiftCardCheckoutWithSlugPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -74,6 +76,7 @@ import { DocsLayout } from '@/app/layouts/system'
 import ErrorPage from '@/app/error-page'
 import NotFoundPage from '@/app/not-found-page'
 import ForbiddenPage from '@/app/forbidden-page'
+import { SystemGiftCardSuccessPage } from '@/app/system/gift-card/checkout/success'
 
 export const router = createBrowserRouter([
   {
@@ -303,6 +306,20 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={GiftCardSuccessPage} />,
+          },
+        ],
+      },
+      {
+        path: `${ROUTE.SYSTEM_GIFT_CARD_SUCCESS}/:slug`,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <SuspenseElement component={SystemGiftCardSuccessPage} />,
           },
         ],
       },
@@ -815,6 +832,25 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: ROUTE.STAFF_GIFT_CARD_MENU,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
+                element={<SuspenseElement component={GiftCardMenuPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
         path: ROUTE.STAFF_GIFT_CARD_FEATURE_FLAG,
         element: (
           <Suspense fallback={<SkeletonCart />}>
@@ -1111,6 +1147,22 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <SuspenseElement component={ClientGiftCardCheckoutPage} />,
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <SuspenseElement component={SystemGiftCardCheckoutWithSlugPage} />
+            ),
           },
         ],
       },

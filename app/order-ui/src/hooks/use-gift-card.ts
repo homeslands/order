@@ -1,4 +1,4 @@
-import { QUERYKEY } from '@/constants'
+import { QUERYKEY, Role } from '@/constants'
 import {
   IGiftCardCreateRequest,
   IGiftCardUpdateRequest,
@@ -26,6 +26,7 @@ import {
   getFeatureFlagsByGroup,
   bulkToggleFeatureFlags,
   getGiftCardBySlug,
+  initiateCardOrderPaymentAdmin,
 } from '@/api'
 import { useEffect } from 'react'
 import { useGiftCardStore, useUserStore } from '@/stores'
@@ -122,7 +123,7 @@ export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
       toDate: '',
       customerSlug: userInfo?.slug,
     })
-  }, [])
+  }, [userInfo?.slug])
 
   // Check if filters are active
   const hasActiveFilters = useMemo(() => {
@@ -176,6 +177,9 @@ export const useUpdateGiftCard = () => {
       slug: string
     }) => {
       return updateGiftCard(data, slug)
+    },
+    meta: {
+      ignoreGlobalError: true,
     },
   })
 }
@@ -237,6 +241,7 @@ export const useSyncGiftCard = (
         price: query.data.result.price || 0,
         quantity: giftCardItem?.quantity || 1,
         isActive: query.data.result.isActive,
+        version: query.data.result.version,
       }
 
       // Synchronize local storage with server data
@@ -268,9 +273,13 @@ export const useCancelCardOrder = () => {
 }
 
 export const useInitiateCardOrderPayment = () => {
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
   return useMutation({
-    mutationFn: async (slug: string) => {
-      return initiateCardOrderPayment(slug)
+    mutationFn: async (payload: { slug: string; paymentMethod: string }) => {
+      return role !== Role.CUSTOMER
+        ? initiateCardOrderPaymentAdmin(payload.slug, payload.paymentMethod)
+        : initiateCardOrderPayment(payload.slug, payload.paymentMethod)
     },
   })
 }

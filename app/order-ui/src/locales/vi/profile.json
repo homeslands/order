@@ -38,7 +38,7 @@
         "completed": "Hoàn thành",
         "failed": "Thất bại",
         "label": "Trạng thái",
-        "pending": "Đang chờ"
+        "pending": "Chờ thanh toán"
       },
       "total": "Tổng cộng",
       "totalPayment": "Tổng thanh toán",
@@ -62,8 +62,8 @@
       "fromDate": "Từ ngày",
       "noMoreResults": "Đã hiển thị tất cả kết quả",
       "showingResults": "Hiển thị {{current}} trong tổng số {{total}} kết quả",
-      "toDate": "Đến ngày",
-      "viewDetails": "Xem chi tiết"
+      "viewDetails": "Xem chi tiết",
+      "toDate": "Đến ngày"
     },
     "completed": "Đã giao",
     "confirmPassword": "Xác nhận mật khẩu mới",

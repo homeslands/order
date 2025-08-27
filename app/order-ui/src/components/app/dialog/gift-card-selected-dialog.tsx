@@ -59,6 +59,7 @@ export function GiftCardSelectedDialog({
       type:
         featureFlagsResponse?.result?.find((flag) => !flag.isLocked)?.name ??
         GiftCardType.NONE,
+      version: selectedCard.version,
     }
 
     setGiftCardItem(cartItem)

@@ -57,7 +57,7 @@ export function CustomerProfileTabs() {
           className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.giftCard.defaultTitle')}
-        </TabsTrigger>
+          </TabsTrigger>
       </TabsList>
       <TabsContent value="info" className="w-full p-0 dark:text-gray-200">
         <CustomerInfoTabsContent />
