@@ -295,6 +295,7 @@
     "paid": "Paid",
     "paymentNote": "Please verify payment information before proceeding with the transaction",
     "pending": "Pending",
+    "cancelled": "Cancelled",
     "phoneNumber": "Phone number",
     "point": "Coin payment",
     "scanToPay": "Scan to pay",
