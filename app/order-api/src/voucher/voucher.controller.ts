@@ -36,6 +36,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('voucher')
 @ApiTags('Voucher')
@@ -304,6 +305,30 @@ export class VoucherController {
     type: VoucherResponseDto,
   })
   async validateVoucherPaymentMethod(
+    @Body(new ValidationPipe({ transform: true }))
+    validateVoucherPaymentMethodDto: ValidateVoucherPaymentMethodDto,
+  ) {
+    await this.voucherService.validateVoucherPaymentMethod(
+      validateVoucherPaymentMethodDto,
+    );
+    return {
+      message: 'Voucher payment method has been validated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
+
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Post('validate/payment-method/public')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validate voucher payment method public' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher payment method has been validated successfully',
+    type: VoucherResponseDto,
+  })
+  async validateVoucherPaymentMethodPublic(
     @Body(new ValidationPipe({ transform: true }))
     validateVoucherPaymentMethodDto: ValidateVoucherPaymentMethodDto,
   ) {
