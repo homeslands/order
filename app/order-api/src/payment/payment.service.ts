@@ -42,6 +42,16 @@ import { CurrentUserDto } from 'src/user/user.dto';
 import { PaymentUtils } from './payment.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { PointStrategy } from './strategy/point.strategy';
+import { VoucherUtils } from 'src/voucher/voucher.utils';
+import {
+  VoucherApplicabilityRule,
+  VoucherType,
+} from 'src/voucher/voucher.constant';
+import { OrderUtils } from 'src/order/order.utils';
+import { OrderItemUtils } from 'src/order-item/order-item.utils';
+import { Voucher } from 'src/voucher/voucher.entity';
+import { VoucherException } from 'src/voucher/voucher.exception';
+import { VoucherValidation } from 'src/voucher/voucher.validation';
 
 @Injectable()
 export class PaymentService {
@@ -61,7 +71,12 @@ export class PaymentService {
     private readonly userUtils: UserUtils,
     private readonly paymentUtils: PaymentUtils,
     private readonly transactionService: TransactionManagerService,
-  ) { }
+    private readonly voucherUtils: VoucherUtils,
+    private readonly orderUtils: OrderUtils,
+    private readonly orderItemUtils: OrderItemUtils,
+    @InjectRepository(Voucher)
+    private readonly voucherRepository: Repository<Voucher>,
+  ) {}
 
   async getAll() {
     const payments = await this.paymentRepository.find({
@@ -178,9 +193,8 @@ export class PaymentService {
       relations: ['role'],
     });
     // get order
-    const order = await this.orderRepository.findOne({
+    const order = await this.orderUtils.getOrder({
       where: { slug: createPaymentDto.orderSlug },
-      relations: ['owner', 'payment'],
     });
 
     // if order subtotal is less than 2000,
@@ -188,14 +202,15 @@ export class PaymentService {
     // set subtotal === 0
     // set payment method === CASH
 
-    this.logger.log(
-      `Initiate payment for order: ${JSON.stringify(order)}`,
-      context,
-    );
     if (!order) {
       this.logger.error('Order not found', null, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
+
+    this.logger.log(
+      `Initiate payment for order: ${JSON.stringify(order)}`,
+      context,
+    );
 
     if (order.payment) {
       if (
@@ -218,6 +233,65 @@ export class PaymentService {
         OrderValidation.ORDER_STATUS_INVALID,
         'Order is not pending',
       );
+    }
+
+    if (order.voucher) {
+      const isVoucherTimeValid = await this.voucherUtils.isVoucherTimeValid(
+        order.voucher,
+      );
+      if (!isVoucherTimeValid) {
+        // remove voucher from order
+        const removedVoucher = order.voucher;
+        if (
+          removedVoucher?.applicabilityRule ===
+          VoucherApplicabilityRule.ALL_REQUIRED
+        ) {
+          if (removedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+            const updatedOrderItems = order.orderItems.map((orderItem) => {
+              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+                null,
+                orderItem,
+                false, // is add voucher
+              );
+              return updatedOrderItem;
+            });
+            order.orderItems = updatedOrderItems;
+          }
+        }
+
+        if (
+          removedVoucher?.applicabilityRule ===
+          VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+        ) {
+          const updatedOrderItems = order.orderItems.map((orderItem) => {
+            const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+              null,
+              orderItem,
+              false, // is add voucher
+            );
+            return updatedOrderItem;
+          });
+          order.orderItems = updatedOrderItems;
+        }
+
+        order.voucher = null;
+        const { subtotal, originalSubtotal } =
+          await this.orderUtils.getOrderSubtotal(order, null);
+
+        order.subtotal = subtotal;
+        order.originalSubtotal = originalSubtotal;
+
+        removedVoucher.remainingUsage += 1;
+        await this.voucherRepository.save(removedVoucher);
+        this.logger.log(
+          `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
+          context,
+        );
+
+        await this.orderRepository.save(order);
+
+        throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
+      }
     }
 
     let payment: Payment;
@@ -288,6 +362,7 @@ export class PaymentService {
 
     // Update order
     order.payment = payment;
+
     await this.orderRepository.save(order);
 
     if (
@@ -305,14 +380,9 @@ export class PaymentService {
   ): Promise<PaymentResponseDto> {
     const context = `${PaymentService.name}.${this.initiatePublic.name}`;
     // get order
-    const order = await this.orderRepository.findOne({
+    const order = await this.orderUtils.getOrder({
       where: { slug: createPaymentDto.orderSlug },
-      relations: ['owner', 'payment'],
     });
-    if (!order) {
-      this.logger.error('Order not found', null, context);
-      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
-    }
     if (order.owner?.phonenumber !== 'default-customer') {
       this.logger.error('Initiate public payment denied', null, context);
       throw new PaymentException(
@@ -326,6 +396,65 @@ export class PaymentService {
         OrderValidation.ORDER_STATUS_INVALID,
         'Order is not pending',
       );
+    }
+
+    if (order.voucher) {
+      const isVoucherTimeValid = await this.voucherUtils.isVoucherTimeValid(
+        order.voucher,
+      );
+      if (!isVoucherTimeValid) {
+        // remove voucher from order
+        const removedVoucher = order.voucher;
+        if (
+          removedVoucher?.applicabilityRule ===
+          VoucherApplicabilityRule.ALL_REQUIRED
+        ) {
+          if (removedVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+            const updatedOrderItems = order.orderItems.map((orderItem) => {
+              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+                null,
+                orderItem,
+                false, // is add voucher
+              );
+              return updatedOrderItem;
+            });
+            order.orderItems = updatedOrderItems;
+          }
+        }
+
+        if (
+          removedVoucher?.applicabilityRule ===
+          VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+        ) {
+          const updatedOrderItems = order.orderItems.map((orderItem) => {
+            const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+              null,
+              orderItem,
+              false, // is add voucher
+            );
+            return updatedOrderItem;
+          });
+          order.orderItems = updatedOrderItems;
+        }
+
+        order.voucher = null;
+        const { subtotal, originalSubtotal } =
+          await this.orderUtils.getOrderSubtotal(order, null);
+
+        order.subtotal = subtotal;
+        order.originalSubtotal = originalSubtotal;
+
+        removedVoucher.remainingUsage += 1;
+        await this.voucherRepository.save(removedVoucher);
+        this.logger.log(
+          `Voucher ${removedVoucher.code} has been removed from order ${order.slug}`,
+          context,
+        );
+
+        await this.orderRepository.save(order);
+
+        throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
+      }
     }
 
     // if (order.payment) {
@@ -378,6 +507,7 @@ export class PaymentService {
 
     // Update order
     order.payment = payment;
+
     await this.orderRepository.save(order);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
@@ -449,7 +579,7 @@ export class PaymentService {
       responseStatus: {
         responseCode:
           transaction?.transactionStatus ===
-            ACBConnectorTransactionStatus.COMPLETED
+          ACBConnectorTransactionStatus.COMPLETED
             ? ACBConnectorStatus.SUCCESS
             : ACBConnectorStatus.BAD_REQUEST,
         responseMessage: transaction?.transactionStatus,

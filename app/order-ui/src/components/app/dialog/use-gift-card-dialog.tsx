@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { useUseGiftCard } from '@/hooks/use-gift-card'
 import { useUserStore } from '@/stores'
 import { useIsMobile } from '@/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function UseGiftCardDialog() {
   const { t } = useTranslation(['giftCard'])
@@ -22,6 +23,7 @@ export default function UseGiftCardDialog() {
   const [isOpen, setIsOpen] = useState(false)
   const [serial, setSerial] = useState('')
   const [code, setCode] = useState('')
+  const queryClient = useQueryClient();
 
   const { userInfo } = useUserStore()
   const isMobile = useIsMobile()
@@ -38,7 +40,7 @@ export default function UseGiftCardDialog() {
       return
     }
 
-    await useGiftCardMutation.mutate(
+    useGiftCardMutation.mutate(
       {
         serial: serial.trim(),
         code: code.trim(),
@@ -49,6 +51,8 @@ export default function UseGiftCardDialog() {
           setSerial('')
           setCode('')
           setIsOpen(false)
+          queryClient.invalidateQueries({ queryKey: ['userGiftCardsInfinite'] });
+          queryClient.invalidateQueries({ queryKey: ['userBalance'] });
         },
       },
     )

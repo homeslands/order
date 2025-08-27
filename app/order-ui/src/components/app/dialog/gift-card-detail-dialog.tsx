@@ -1,0 +1,273 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
+import {
+  Gift,
+  Star,
+  Sparkles,
+  CoinsIcon,
+  User,
+  Hash,
+  Phone,
+  QrCode,
+  Copy,
+  Check,
+  Activity,
+} from 'lucide-react'
+import { IGiftCardDetail } from '@/types/gift-card.type'
+import { GiftCardUsageStatus, publicFileURL } from '@/constants'
+import { formatCurrency } from '@/utils'
+import { useIsMobile } from '@/hooks'
+import { GiftCardStatusBadge } from '../badge'
+
+interface GiftCardDetailDialogProps {
+  giftCard: IGiftCardDetail
+  children: React.ReactNode
+}
+
+export default function GiftCardDetailDialog({
+  giftCard,
+  children,
+}: GiftCardDetailDialogProps) {
+  const { t } = useTranslation(['profile'])
+  const [isOpen, setIsOpen] = useState(false)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const isMobile = useIsMobile()
+
+  // Copy to clipboard function
+  const copyToClipboard = async (text: string, fieldName: string) => {
+    await navigator.clipboard.writeText(text)
+    setCopiedField(fieldName)
+  }
+  const isAvailable = giftCard.status === GiftCardUsageStatus.AVAILABLE
+
+  // Sparkle animation component
+  const SparkleEffect = () => (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className={`absolute animate-pulse ${
+            i % 2 === 0 ? 'animate-bounce' : 'animate-ping'
+          }`}
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 2}s`,
+            animationDuration: `${2 + Math.random() * 2}s`,
+          }}
+        >
+          <Sparkles
+            size={12 + Math.random() * 8}
+            className="text-yellow-400 opacity-70"
+          />
+        </div>
+      ))}
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={`star-${i}`}
+          className="animate-twinkle absolute"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 3}s`,
+            animationDuration: `${1.5 + Math.random() * 1.5}s`,
+          }}
+        >
+          <Star
+            size={8 + Math.random() * 6}
+            className="fill-current text-purple-400 opacity-60"
+          />
+        </div>
+      ))}
+    </div>
+  )
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        className={`${isMobile ? 'max-w-[90%] rounded-md' : 'max-w-md'} ${
+          isAvailable
+            ? 'bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-purple-950 dark:via-gray-900 dark:to-pink-950'
+            : 'bg-white dark:bg-gray-900'
+        }`}
+      >
+        {/* Sparkle effect for available gift cards */}
+        {isAvailable && <SparkleEffect />}
+
+        <div className="relative z-10">
+          <DialogHeader className="flex items-center justify-center space-y-4">
+            <DialogTitle className="text-xl font-bold">
+              {giftCard.cardName || t('profile.giftCard.defaultTitle')}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="mt-6 space-y-4">
+            <div className="custom-scrollbar max-h-[60vh] space-y-6 overflow-y-auto">
+              {/* Card Image */}
+              {giftCard.cardOrder.cardImage ? (
+                <img
+                  src={`${publicFileURL}/${giftCard.cardOrder.cardImage}`}
+                  alt={giftCard.cardName}
+                  className={`${isMobile ? 'h-max w-full rounded-md bg-gray-300 object-contain' : 'h-full w-full object-cover'}`}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40">
+                  <Gift
+                    className={`text-primary ${isMobile ? 'h-8 w-8' : 'h-16 w-16'}`}
+                  />
+                </div>
+              )}
+              {/* Gift Card Value */}
+              {giftCard.cardPoints && (
+                <div className="rounded-lg bg-gradient-to-r from-orange-50 to-yellow-50 p-4 dark:from-orange-950/30 dark:to-yellow-950/30">
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-2xl font-bold text-orange-600">
+                      {formatCurrency(giftCard.cardPoints, '')}
+                    </span>
+                    <CoinsIcon className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+              )}
+
+              <Separator />
+
+              {/* Gift Card Details */}
+              <div className="space-y-3">
+                {/* Serial Number */}
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <Hash
+                      size={18}
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.giftCard.serial')}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="rounded bg-gray-100 px-2 py-1 font-mono text-sm font-medium dark:bg-gray-800">
+                        {giftCard.serial}
+                      </p>
+                      <button
+                        onClick={() =>
+                          copyToClipboard(giftCard.serial, 'serial')
+                        }
+                        className="flex h-6 w-6 items-center justify-center rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                        title={t('profile.common.copy')}
+                      >
+                        {copiedField === 'serial' ? (
+                          <Check size={14} className="text-green-500" />
+                        ) : (
+                          <Copy
+                            size={14}
+                            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gift Card Code */}
+                {giftCard.code && (
+                  <div className="flex items-center space-x-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                      <QrCode
+                        size={18}
+                        className="text-purple-600 dark:text-purple-400"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {t('profile.giftCard.code')}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="rounded bg-gray-100 px-2 py-1 font-mono text-sm font-medium dark:bg-gray-800">
+                          {giftCard.code}
+                        </p>
+                        <button
+                          onClick={() => copyToClipboard(giftCard.code, 'code')}
+                          className="flex h-6 w-6 items-center justify-center rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                          title={t('profile.common.copy')}
+                        >
+                          {copiedField === 'code' ? (
+                            <Check size={14} className="text-green-500" />
+                          ) : (
+                            <Copy
+                              size={14}
+                              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/*Status */}
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                    <Activity size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('profile.giftCard.status.label')}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <GiftCardStatusBadge
+                        status={
+                          giftCard.status || GiftCardUsageStatus.AVAILABLE
+                        }
+                        rounded="md"
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* Used By User (if used) */}
+                {giftCard.status === GiftCardUsageStatus.USED &&
+                  giftCard.cardOrder.customerSlug !== giftCard.usedBySlug && (
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-900/20">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
+                          <User
+                            size={18}
+                            className="text-orange-600 dark:text-orange-400"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                            {t('profile.giftCard.usedBy')}
+                          </p>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {giftCard.usedBy.firstName}{' '}
+                              {giftCard.usedBy.lastName}
+                            </p>
+                            {giftCard.usedBy.phonenumber && (
+                              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                                <Phone size={12} className="text-green-500" />
+                                <span>{giftCard.usedBy.phonenumber}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}

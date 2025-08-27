@@ -48,6 +48,7 @@
     "enterVoucherType": "Chọn loại voucher",
     "enterVoucherValue": "Nhập giá trị voucher",
     "expired": "Voucher đã hết hạn",
+    "voucherExpired": "Voucher đã hết hạn",
     "exportVoucher": "Xuất voucher",
     "exportVouchers": "Xuất voucher",
     "fixedDiscount": "Giảm {{value}}",
@@ -118,6 +119,9 @@
     "voucherMaxUsage": "Số lượng sử dụng tối đa",
     "voucherTitle": "Quản lý voucher",
     "vouchers": "voucher. Bạn có chắc chắn muốn tạo voucher này không?",
-    "searchByCode": "Nhập mã giảm giá"
+    "searchByCode": "Nhập mã giảm giá",
+    "expiresInHoursMinutes": "Còn {{hours}} giờ {{minutes}} phút",
+    "expiresInDaysHoursMinutes": "Còn {{days}} ngày {{hours}} giờ {{minutes}} phút",
+    "invalidVoucher": "Voucher không khả dụng"
   }
 }

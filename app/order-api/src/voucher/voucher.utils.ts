@@ -20,6 +20,9 @@ import _ from 'lodash';
 import { ProductUtils } from 'src/product/product.utils';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { VoucherApplicabilityRule, VoucherType } from './voucher.constant';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
+import moment from 'moment';
 
 @Injectable()
 export class VoucherUtils {
@@ -33,7 +36,16 @@ export class VoucherUtils {
     private readonly orderUtils: OrderUtils,
     private readonly userUtils: UserUtils,
     private readonly productUtils: ProductUtils,
+    private readonly systemConfigService: SystemConfigService,
   ) {}
+
+  async getGracePeriodVoucher() {
+    const gracePeriodVoucher = await this.systemConfigService.get(
+      SystemConfigKey.GRACE_PERIOD_VOUCHER,
+    );
+    if (!gracePeriodVoucher) return 30 * 60 * 1000; // 30 minutes
+    return Number(gracePeriodVoucher);
+  }
 
   async getVoucher(options: FindOneOptions<Voucher>): Promise<Voucher> {
     const context = `${VoucherUtils.name}.${this.getVoucher.name}`;
@@ -70,11 +82,83 @@ export class VoucherUtils {
   // validate number of voucher
   async validateVoucher(voucher: Voucher): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateVoucher.name}`;
-    if (!voucher.isActive) {
-      this.logger.warn(`Voucher ${voucher.slug} is not active`, context);
-      throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_ACTIVE);
+    // if (!voucher.isActive) {
+    //   this.logger.warn(`Voucher ${voucher.slug} is not active`, context);
+    //   throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_ACTIVE);
+    // }
+
+    // don't use isActive - isActive for get voucher and display when get specific
+    // Because: have grace period
+    const gracePeriodVoucher = await this.getGracePeriodVoucher();
+    const gracePeriodVoucherByMinutes = gracePeriodVoucher / 60000;
+    const today = new Date();
+    if (voucher.startDate > today) {
+      this.logger.warn(`Voucher ${voucher.slug} is not started`, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_STARTED);
+    }
+    // add grace period
+    if (
+      moment(voucher.endDate)
+        .add(gracePeriodVoucherByMinutes, 'minutes')
+        .toDate() < today
+    ) {
+      this.logger.warn(`Voucher ${voucher.slug} is expired`, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
     }
 
+    if (voucher.remainingUsage === 0) {
+      this.logger.warn(
+        `Voucher ${voucher.slug} has no remaining usage`,
+        context,
+      );
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_HAS_NO_REMAINING_USAGE,
+      );
+    }
+
+    return true;
+  }
+
+  async validateVoucherTime(voucher: Voucher): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateVoucherTime.name}`;
+    const gracePeriodVoucher = await this.getGracePeriodVoucher();
+    const gracePeriodVoucherByMinutes = gracePeriodVoucher / 60000;
+    const today = new Date();
+    if (voucher.startDate > today) {
+      this.logger.warn(`Voucher ${voucher.slug} is not started`, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_IS_NOT_STARTED);
+    }
+    // add grace period
+    if (
+      moment(voucher.endDate)
+        .add(gracePeriodVoucherByMinutes, 'minutes')
+        .toDate() < today
+    ) {
+      this.logger.warn(`Voucher ${voucher.slug} is expired`, context);
+      throw new VoucherException(VoucherValidation.VOUCHER_IS_EXPIRED);
+    }
+
+    return true;
+  }
+
+  async isVoucherTimeValid(voucher: Voucher): Promise<boolean> {
+    const gracePeriodVoucher = await this.getGracePeriodVoucher();
+    const gracePeriodVoucherByMinutes = gracePeriodVoucher / 60000;
+    const today = new Date();
+    if (voucher.startDate > today) return false;
+    // add grace period
+    if (
+      moment(voucher.endDate)
+        .add(gracePeriodVoucherByMinutes, 'minutes')
+        .toDate() < today
+    )
+      return false;
+
+    return true;
+  }
+
+  validateVoucherRemainingUsage(voucher: Voucher): boolean {
+    const context = `${VoucherUtils.name}.${this.validateVoucherRemainingUsage.name}`;
     if (voucher.remainingUsage === 0) {
       this.logger.warn(
         `Voucher ${voucher.slug} has no remaining usage`,

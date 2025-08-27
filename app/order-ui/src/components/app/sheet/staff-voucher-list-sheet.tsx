@@ -3,7 +3,6 @@ import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
   ChevronRight,
-  CircleHelp,
   Copy,
   Ticket,
   TicketPercent,
@@ -28,8 +27,8 @@ import {
   PopoverTrigger,
   PopoverContent,
   Progress,
+  Badge,
 } from '@/components/ui'
-import VoucherNotValid from '@/assets/images/chua-thoa-dieu-kien.svg'
 import {
   useIsMobile,
   usePagination,
@@ -377,117 +376,161 @@ export default function StaffVoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
-    const baseCardClass = `grid h-44 grid-cols-8 gap-2 p-2 rounded-md sm:h-48 relative
+
+    const expiryText = (endDate: string) => {
+      const now = moment()
+      const end = moment.utc(endDate).local() // Convert UTC to local timezone
+      const diff = moment.duration(end.diff(now))
+
+      if (diff.asSeconds() <= 0) {
+        // Hết hạn thì fix cứng 0h 0m
+        return t('voucher.expiresInHoursMinutes', { hours: 0, minutes: 0 })
+      }
+
+      if (diff.asHours() < 24) {
+        // Dưới 24h: hiển thị "X giờ Y phút"
+        const hours = Math.floor(diff.asHours())
+        const minutes = Math.floor(diff.asMinutes()) % 60
+        return t('voucher.expiresInHoursMinutes', { hours, minutes })
+      }
+
+      // Từ 24h trở lên: hiển thị "X ngày Y giờ Z phút"
+      const days = Math.floor(diff.asDays())
+      const hours = Math.floor(diff.asHours()) % 24
+      const minutes = Math.floor(diff.asMinutes()) % 60
+      return t('voucher.expiresInDaysHoursMinutes', { days, hours, minutes })
+    }
+    const isValid = isVoucherValid(voucher)
+    const baseCardClass = `grid h-40 grid-cols-8 gap-2 p-2 rounded-md sm:h-36 relative
     ${isVoucherSelected(voucher.slug)
         ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
       }
     border border-muted-foreground/50
-    ${voucher.remainingUsage === 0 && !isVoucherSelected(voucher.slug) ? 'opacity-50' : ''}
+    ${voucher.remainingUsage === 0 ? 'opacity-50' : ''}
+    ${!isValid ? 'opacity-60' : ''}
   `
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
-        {/* {isBest && (
-          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
-            {t('voucher.bestChoice')}
-          </div>
-        )} */}
+        {/* Overlay mờ cho voucher không hợp lệ */}
+        {!isValid && (
+          <div className="absolute inset-0 z-10 rounded-md pointer-events-none bg-muted-foreground/10" />
+        )}
         <div
-          className={`col-span-2 flex w-full items-center justify-center rounded-md ${isVoucherSelected(voucher.slug) ? `bg-${getTheme() === 'light' ? 'white' : 'black'}` : 'bg-muted-foreground/10'}`}
+          className={`flex col-span-2 justify-center items-center w-full rounded-md bg-primary`}
         >
-          <Ticket size={56} className="text-primary" />
+          <Ticket size={56} className="text-white" />
         </div>
-        <div className="flex flex-col col-span-4 justify-between w-full">
+        <div className="flex flex-col col-span-6 justify-between w-full">
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground sm:text-sm">
+            <span className="text-sm font-bold text-muted-foreground">
               {voucher.title}
             </span>
-            <span className="text-xs italic text-primary">
-              {(() => {
-                const { type, value, applicabilityRule: rule } = voucher
-                const discountValueText =
-                  type === VOUCHER_TYPE.PERCENT_ORDER
-                    ? t('voucher.percentDiscount', { value })
-                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
-                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
-
-                const ruleText =
-                  rule === APPLICABILITY_RULE.ALL_REQUIRED
-                    ? t(
-                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                        ? 'voucher.requireAllSamePrice'
-                        : 'voucher.requireAll'
-                    )
-                    : t(
-                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                        ? 'voucher.requireAtLeastOneSamePrice'
-                        : 'voucher.requireAtLeastOne'
-                    )
-
-                return `${discountValueText} ${ruleText}`
-              })()}
+            <span className="text-xs text-muted-foreground/80">
+              {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
-            <span className="flex gap-1 items-center text-sm text-muted-foreground">
-              {voucher.code}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-6 h-6"
-                      onClick={() => handleCopyCode(voucher?.code)}
-                    >
-                      <Copy className="w-4 h-4 text-primary" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('voucher.copyCode')}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </span>
-            <span className="text-xs text-destructive">
+            <span className="text-xs italic text-destructive">
               {getVoucherErrorMessage(voucher)}
             </span>
-            <span className="hidden text-muted-foreground/60 sm:text-xs">
-              {t('voucher.applyForOrderValueFrom')} {formatCurrency(voucher.minOrderValue)}
-            </span>
           </div>
-          <div className="flex flex-col gap-1 mt-1">
-            <div className="flex justify-between items-center">
+          <div className="flex gap-2 justify-between items-center">
+            <div className="flex flex-col gap-1 w-full">
               <span className="text-xs text-muted-foreground">
                 {voucher.remainingUsage === 0
-                  ? t('voucher.outOfStock')
-                  : `${t('voucher.remainingUsage')}: ${voucher.remainingUsage}/${voucher.maxUsage}`}
+                  ? <span className="text-xs italic text-destructive">
+                    {t('voucher.outOfStock')}
+                  </span>
+                  : `${t('voucher.remainingUsage')}: ${Math.round(usagePercentage)}%`}
               </span>
+              {voucher.remainingUsage > 0 && (
+                <Progress value={usagePercentage} className="h-1" />
+              )}
             </div>
-            {voucher.remainingUsage > 0 && (
-              <Progress value={usagePercentage} className="h-1" />
-            )}
           </div>
-          <span className="text-xs text-muted-foreground">
-            {t('voucher.endDate')}:{' '}
-            {moment(voucher.endDate).format('DD/MM/YYYY')}
-          </span>
-        </div>
-        <div className="flex flex-col col-span-2 justify-between items-end">
-          {!isMobile ? (
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="p-2 h-8 text-muted-foreground"
+          <div className="flex gap-2 items-center w-full">
+            <Badge variant="outline" className="text-xs font-normal truncate text-primary border-primary w-fit">
+              {expiryText(voucher.endDate)}
+            </Badge>
+            {!isMobile ? (
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs font-thin text-muted-foreground/80">
+                      {t('voucher.condition')}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
                   >
-                    <CircleHelp />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  className={`w-[18rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
+                    <div className="flex flex-col gap-4 justify-between">
+                      <div className="grid grid-cols-5">
+                        <span className="col-span-2 text-muted-foreground/70">
+                          {t('voucher.code')}
+                        </span>
+                        <span className="flex col-span-3 gap-1 items-center">
+                          {voucher.code}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-4 h-4"
+                            onClick={() => handleCopyCode(voucher?.code)}
+                          >
+                            <Copy className="w-4 h-4 text-primary" />
+                          </Button>
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-5">
+                        <span className="col-span-2 text-muted-foreground/70">
+                          {t('voucher.endDate')}
+                        </span>
+                        <span className="col-span-3">
+                          {moment(voucher.endDate).format('HH:mm DD/MM/YYYY')}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-muted-foreground/70">
+                          {t('voucher.condition')}
+                        </span>
+                        <ul className="col-span-3 pl-4 list-disc">
+                          <li>
+                            {t('voucher.minOrderValue')}:{' '}
+                            {formatCurrency(voucher.minOrderValue)}
+                          </li>
+                          {voucher.isVerificationIdentity && (
+                            <li>
+                              {t('voucher.needVerifyIdentity')}
+                            </li>
+                          )}
+                          {voucher.numberOfUsagePerUser && (
+                            <li>
+                              {t('voucher.numberOfUsagePerUser')}:{' '}
+                              {voucher.numberOfUsagePerUser}
+                            </li>
+                          )}
+                          {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
+                            <li>
+                              {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="text-xs font-thin text-muted-foreground/80">
+                    {t('voucher.condition')}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent
+                  className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
                 >
-                  <div className="flex flex-col gap-4 justify-between">
+                  <div className="flex flex-col gap-4 justify-between text-xs sm:text-sm">
                     <div className="grid grid-cols-5">
                       <span className="col-span-2 text-muted-foreground/70">
                         {t('voucher.code')}
@@ -509,7 +552,7 @@ export default function StaffVoucherListSheet() {
                         {t('voucher.endDate')}
                       </span>
                       <span className="col-span-3">
-                        {moment(voucher.endDate).format('DD/MM/YYYY')}
+                        {moment(voucher.endDate).format('HH:mm DD/MM/YYYY')}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -522,8 +565,14 @@ export default function StaffVoucherListSheet() {
                           {formatCurrency(voucher.minOrderValue)}
                         </li>
                         {voucher.isVerificationIdentity && (
-                          <li className="text-destructive">
-                            {t('voucher.isVerificationIdentity')}
+                          <li>
+                            {t('voucher.needVerifyIdentity')}
+                          </li>
+                        )}
+                        {voucher.numberOfUsagePerUser && (
+                          <li>
+                            {t('voucher.numberOfUsagePerUser')}:{' '}
+                            {voucher.numberOfUsagePerUser}
                           </li>
                         )}
                         {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
@@ -534,92 +583,11 @@ export default function StaffVoucherListSheet() {
                       </ul>
                     </div>
                   </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="p-2 h-8 text-muted-foreground"
-                >
-                  <CircleHelp />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className={`mr-2 w-[20rem] p-4 bg-${getTheme() === 'light' ? 'white' : 'black'} rounded-md text-muted-foreground shadow-md`}
-              >
-                <div className="flex flex-col justify-between gap-4 text-[10px] sm:text-sm">
-                  <div className="grid grid-cols-5">
-                    <span className="col-span-2 text-muted-foreground/70">
-                      {t('voucher.code')}
-                    </span>
-                    <span className="flex col-span-3 gap-1 items-center">
-                      {voucher.code}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-4 h-4"
-                        onClick={() => handleCopyCode(voucher?.code)}
-                      >
-                        <Copy className="w-4 h-4 text-primary" />
-                      </Button>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-5">
-                    <span className="col-span-2 text-muted-foreground/70">
-                      {t('voucher.endDate')}
-                    </span>
-                    <span className="col-span-3">
-                      {moment(voucher.endDate).format('DD/MM/YYYY')}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-muted-foreground/70">
-                      {t('voucher.condition')}
-                    </span>
-                    <ul className="col-span-3 pl-4 list-disc text-destructive">
-                      <li>
-                        {t('voucher.minOrderValue')}:{' '}
-                        {formatCurrency(voucher.minOrderValue)}
-                      </li>
-                      {voucher.isVerificationIdentity && (
-                        <li className="text-destructive">
-                          {t('voucher.isVerificationIdentity')}
-                        </li>
-                      )}
-                      {voucher.voucherProducts && voucher.voucherProducts.length > 0 && (
-                        <li>
-                          {t('voucher.products')}: {voucher.voucherProducts.map(vp => vp.product.name).join(', ')}
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
-          {isVoucherValid(voucher) ? (
-            <Button
-              onClick={() => handleToggleVoucher(voucher)}
-              variant={
-                isVoucherSelected(voucher.slug) ? 'destructive' : 'default'
-              }
-            >
-              {isVoucherSelected(voucher.slug)
-                ? t('voucher.remove')
-                : t('voucher.use')}
-            </Button>
-          ) : (
-            <div className="flex flex-col gap-1 items-end">
-              <img
-                src={VoucherNotValid}
-                alt="chua-thoa-dieu-kien"
-                className="w-full"
-              />
-            </div>
-          )}
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
+
         </div>
       </div>
     )
@@ -710,9 +678,58 @@ export default function StaffVoucherListSheet() {
               </div>
               <div className="grid grid-cols-1 gap-4 pb-4">
                 {localVoucherList && localVoucherList.length > 0 ? (
-                  localVoucherList?.map((voucher) =>
-                    renderVoucherCard(voucher),
-                  )
+                  (() => {
+                    // Sắp xếp voucher: hợp lệ trước, không hợp lệ sau
+                    const validVouchers = localVoucherList.filter(voucher => isVoucherValid(voucher))
+                    const invalidVouchers = localVoucherList.filter(voucher => !isVoucherValid(voucher))
+
+                    return (
+                      <>
+                        {/* Voucher hợp lệ */}
+                        {validVouchers.length > 0 ? (
+                          validVouchers.map((voucher) =>
+                            <div key={voucher.slug} className="relative">
+                              {renderVoucherCard(voucher)}
+                              {/* Button cho staff voucher - luôn hiển thị */}
+                              <div className="absolute right-2 bottom-2">
+                                <Button
+                                  onClick={() => handleToggleVoucher(voucher)}
+                                  variant={
+                                    isVoucherSelected(voucher.slug) ? 'destructive' : 'default'
+                                  }
+                                  size="sm"
+                                >
+                                  {isVoucherSelected(voucher.slug)
+                                    ? t('voucher.remove')
+                                    : t('voucher.use')}
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        ) : (
+                          <div className="py-4 text-center text-muted-foreground">
+                            {t('voucher.noVoucher')}
+                          </div>
+                        )}
+
+                        {/* Voucher không khả dụng */}
+                        {invalidVouchers.length > 0 && (
+                          <>
+                            <div className="flex items-center py-2 mt-4">
+                              <Label className="text-sm text-muted-foreground/70">
+                                {t('voucher.invalidVoucher')}
+                              </Label>
+                            </div>
+                            {invalidVouchers.map((voucher) =>
+                              <div key={voucher.slug}>
+                                {renderVoucherCard(voucher)}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )
+                  })()
                 ) : (
                   <div>{t('voucher.noVoucher')}</div>
                 )}

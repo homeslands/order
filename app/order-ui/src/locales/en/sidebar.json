@@ -8,7 +8,9 @@
     "menu": "Menu",
     "notification": "Notification",
     "order": "Order",
-    "profile": "Profile"
+    "profile": "Profile",
+    "useGiftCard": "Use Gift Card",
+    "listGiftCard": "Gift Card List"
   },
   "footer": {
     "aboutMe": "About Us",

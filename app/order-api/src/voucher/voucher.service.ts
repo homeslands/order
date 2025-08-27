@@ -67,7 +67,9 @@ export class VoucherService {
       relations: ['voucherProducts.product'],
     });
 
-    await this.voucherUtils.validateVoucher(voucher);
+    // await this.voucherUtils.validateVoucher(voucher);
+    await this.voucherUtils.validateVoucherTime(voucher);
+    this.voucherUtils.validateVoucherRemainingUsage(voucher);
     await this.voucherUtils.validateVoucherUsage(
       voucher,
       validateVoucherDto.user,
@@ -86,7 +88,9 @@ export class VoucherService {
       relations: ['voucherProducts.product'],
     });
 
-    await this.voucherUtils.validateVoucher(voucher);
+    // await this.voucherUtils.validateVoucher(voucher);
+    await this.voucherUtils.validateVoucherTime(voucher);
+    this.voucherUtils.validateVoucherRemainingUsage(voucher);
     await this.voucherUtils.validateVoucherUsage(voucher);
     await this.voucherUtils.validateVoucherProduct(
       voucher,
@@ -308,7 +312,7 @@ export class VoucherService {
 
     if (!_.isNil(options.date)) {
       const dateQuery = options.date;
-      dateQuery.setHours(7, 0, 0, 0);
+      // dateQuery.setHours(7, 0, 0, 0);
       findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
       findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }
@@ -375,7 +379,7 @@ export class VoucherService {
 
     if (!_.isNil(options.date)) {
       const dateQuery = options.date;
-      dateQuery.setHours(7, 0, 0, 0);
+      // dateQuery.setHours(7, 0, 0, 0);
       findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
       findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }
@@ -443,7 +447,7 @@ export class VoucherService {
 
     if (!_.isNil(options.date)) {
       const dateQuery = options.date;
-      dateQuery.setHours(7, 0, 0, 0);
+      // dateQuery.setHours(7, 0, 0, 0);
       findOptionsWhere.startDate = LessThanOrEqual(dateQuery);
       findOptionsWhere.endDate = MoreThanOrEqual(dateQuery);
     }

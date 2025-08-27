@@ -29,6 +29,7 @@ export interface ICardOrderResponse {
   customerId: string
   customerName: string
   customerPhone: string
+  customerSlug: string
   cashierId: string
   cashierName: string
   cashierPhone: string

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { format } from 'date-fns'
 
 import {
   Sheet,
@@ -23,11 +24,11 @@ import {
 } from '@/components/ui'
 import { ConfirmCreateMultipleVoucherDialog } from '@/components/app/dialog'
 import { ICreateMultipleVoucherRequest } from '@/types'
-import { SimpleDatePicker } from '../picker'
+import { DateAndTimePicker } from '../picker'
 import { createMultipleVoucherSchema, TCreateMultipleVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherTypeSelect } from '../select'
-import { VOUCHER_TYPE } from '@/constants'
+import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
+import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import { useCatalogs, useProducts } from '@/hooks'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
@@ -36,7 +37,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
   const { t } = useTranslation(['voucher'])
   const { t: tCommon } = useTranslation(['common'])
   const { slug } = useParams()
-  const [isOpenDialog, setIsOpenDialog] = useState(isOpen)
+  const [isOpenMultipleVoucherDialog, setIsOpenMultipleVoucherDialog] = useState(isOpen)
   const [catalog, setCatalog] = useState<string | null>(null)
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [formData, setFormData] = useState<ICreateMultipleVoucherRequest | null>(null)
@@ -44,6 +45,11 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
     pageIndex: 1,
     pageSize: 10
   })
+
+  // Helper function to format date consistently
+  const formatDateForForm = (date: Date): string => {
+    return format(date, 'yyyy-MM-dd HH:mm:ss')
+  }
 
   const { data: catalogs } = useCatalogs()
 
@@ -65,10 +71,11 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
       voucherGroup: slug as string,
       numberOfVoucher: 2,
       title: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: VOUCHER_TYPE.PERCENT_ORDER,
-      startDate: new Date().toISOString(),
-      endDate: new Date().toISOString(),
+      startDate: formatDateForForm(new Date()),
+      endDate: formatDateForForm(new Date()),
       value: 0,
       isActive: false,
       isPrivate: false,
@@ -130,35 +137,58 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
     if (!startDate) return false
 
     const selectedStartDate = new Date(startDate)
-    selectedStartDate.setHours(0, 0, 0, 0)
-    return date < selectedStartDate
+
+    // Nếu là ngày khác thì chỉ so sánh ngày
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+    const startDateOnly = new Date(selectedStartDate)
+    startDateOnly.setHours(0, 0, 0, 0)
+
+    // Disable nếu ngày endDate < ngày startDate
+    return dateOnly < startDateOnly
   }
 
-  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string) => {
-    form.setValue(fieldName, date)
+  const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
+    form.setValue(fieldName, date || '')
 
     // Nếu thay đổi startDate, kiểm tra và cập nhật endDate nếu cần
     if (fieldName === 'startDate') {
       const currentEndDate = form.getValues('endDate')
-      if (currentEndDate && new Date(currentEndDate) < new Date(date)) {
-        form.setValue('endDate', date)
+      if (currentEndDate && new Date(currentEndDate) < new Date(date || '')) {
+        form.setValue('endDate', date || '')
+      }
+    }
+
+    // Nếu thay đổi endDate, kiểm tra với startDate
+    if (fieldName === 'endDate' && date) {
+      const currentStartDate = form.getValues('startDate')
+      if (currentStartDate) {
+        const startDateTime = new Date(currentStartDate)
+        const endDateTime = new Date(date)
+
+        // Nếu endDate < startDate (cả ngày và giờ), set endDate = startDate
+        if (endDateTime < startDateTime) {
+          form.setValue('endDate', currentStartDate)
+        }
       }
     }
   }
 
   const handleSubmit = (data: ICreateMultipleVoucherRequest) => {
     setFormData(data)
-    setIsOpenDialog(true)
+    setIsOpenMultipleVoucherDialog(true)
   }
 
   const resetForm = () => {
     form.reset({
       voucherGroup: slug as string,
+      numberOfVoucher: 2,
       title: '',
+      applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: VOUCHER_TYPE.PERCENT_ORDER,
-      startDate: new Date().toISOString(),
-      endDate: new Date().toISOString(),
+      startDate: formatDateForForm(new Date()),
+      endDate: formatDateForForm(new Date()),
       value: 0,
       isActive: false,
       isPrivate: false,
@@ -168,6 +198,7 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
       isVerificationIdentity: true,
       products: []
     })
+    setSelectedProducts([]) // Reset danh sách sản phẩm đã chọn
   }
 
   const formFields = {
@@ -224,7 +255,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 min={0}
                 placeholder={t('voucher.enterNumberOfVoucher')}
               />
@@ -246,7 +282,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
               </span>
               {t('voucher.startDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('startDate', date)} disabledDates={disableStartDate} />
+              <DateAndTimePicker
+                date={field.value}
+                onSelect={(date) => handleDateChange('startDate', date)}
+                disabledDates={disableStartDate}
+                showTime={true}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -265,7 +306,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
               </span>
               {t('voucher.endDate')}</FormLabel>
             <FormControl>
-              <SimpleDatePicker {...field} onChange={(date) => handleDateChange('endDate', date)} disabledDates={disableEndDate} />
+              <DateAndTimePicker
+                date={field.value}
+                onSelect={(date) => handleDateChange('endDate', date)}
+                disabledDates={disableEndDate}
+                showTime={true}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -289,6 +335,30 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
                 onChange={(value) => {
                   field.onChange(value);
                   form.setValue('value', 0); // Reset value when type changes
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    applicabilityRule: (
+      <FormField
+        control={form.control}
+        name="applicabilityRule"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.applicabilityRule')}</FormLabel>
+            <FormControl>
+              <VoucherApplicabilityRuleSelect
+                {...field}
+                onChange={(value) => {
+                  field.onChange(value);
                 }}
               />
             </FormControl>
@@ -339,14 +409,10 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '') {
-                        field.onChange('');
-                      } else {
-                        field.onChange(Number(value));
-                      }
+                      field.onChange(value === '' ? '' : Number(value));
                     }}
                     className='text-sm'
-                    value={field.value === 0 ? '' : field.value}
+                    value={field.value?.toString() ?? ''} // convert number -> string
                     placeholder={t('voucher.enterVoucherValue')}
                   />
                   <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
@@ -397,7 +463,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
               <Input
                 type="number"
                 {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value === '' ? '' : Number(value));
+                }}
+                className='text-sm'
+                value={field.value?.toString() ?? ''} // convert number -> string
                 min={0}
                 placeholder={t('voucher.enterVoucherMaxUsage')}
               />
@@ -421,10 +492,15 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterNumberOfUsagePerUser')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   {t('voucher.usage')}
@@ -450,10 +526,15 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
             <FormControl>
               <div className='relative'>
                 <Input
+                  placeholder={t('voucher.enterMinOrderValue')}
                   type="number"
                   {...field}
-                  placeholder={t('voucher.enterMinOrderValue')}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                  }}
+                  className='text-sm'
+                  value={field.value?.toString() ?? ''} // convert number -> string
                 />
                 <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground">
                   ₫
@@ -529,12 +610,12 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
             {t('voucher.createMultiple')}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col h-full bg-background backdrop-blur-md">
+        <div className="flex flex-col h-full backdrop-blur-md bg-background">
           <ScrollArea className="max-h-[calc(100vh-8rem)] flex-1 gap-4 p-4 bg-transparent">
             {/* Voucher name and description */}
             <div className="flex flex-col flex-1">
               <Form {...form}>
-                <form id="voucher-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <form id="multiple-voucher-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                   {/* Nhóm: Tên và Mô tả */}
                   <div className={`p-4 bg-white rounded-md border dark:bg-transparent`}>
                     <div className="grid grid-cols-1 gap-2">
@@ -549,9 +630,14 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
                     {formFields.endDate}
                   </div>
 
-                  {/* Nhóm: Mã giảm giá & Số lượng */}
+                  {/* Nhóm: Quy tắc áp dụng & Loại voucher */}
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    {formFields.applicabilityRule}
                     {formFields.type}
+                  </div>
+
+                  {/* Nhóm: Số lượng voucher */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.numberOfVoucher}
                   </div>
 
@@ -602,14 +688,14 @@ export default function CreateMultipleVoucherSheet({ onSuccess, isOpen, openChan
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button type="submit" form="voucher-form">
+            <Button type="submit" form="multiple-voucher-form">
               {t('voucher.create')}
             </Button>
-            {isOpenDialog && (
+            {isOpenMultipleVoucherDialog && (
               <ConfirmCreateMultipleVoucherDialog
                 voucher={formData}
-                isOpen={isOpenDialog}
-                onOpenChange={setIsOpenDialog}
+                isOpen={isOpenMultipleVoucherDialog}
+                onOpenChange={setIsOpenMultipleVoucherDialog}
                 onCloseSheet={() => openChange(false)}
                 onSuccess={handleCreateVoucherSuccess}
               />

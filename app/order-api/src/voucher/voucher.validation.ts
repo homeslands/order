@@ -36,6 +36,8 @@ export const ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER =
   'ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER';
 export const AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER =
   'AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER';
+export const VOUCHER_IS_NOT_STARTED = 'VOUCHER_IS_NOT_STARTED';
+export const VOUCHER_IS_EXPIRED = 'VOUCHER_IS_EXPIRED';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -60,7 +62,9 @@ export type TVoucherErrorCodeKey =
   | typeof PRODUCT_NOT_APPLIED_TO_VOUCHER
   | typeof INVALID_VOUCHER_APPLICABILITY_RULE
   | typeof ALL_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER
-  | typeof AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER;
+  | typeof AT_LEAST_ONE_PRODUCT_MUST_BE_APPLIED_TO_VOUCHER
+  | typeof VOUCHER_IS_NOT_STARTED
+  | typeof VOUCHER_IS_EXPIRED;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -126,6 +130,8 @@ export const VoucherValidation: TVoucherErrorCode = {
     143425,
     'At least one product must be applied to voucher',
   ),
+  VOUCHER_IS_EXPIRED: createErrorCode(143426, 'Voucher is expired'),
+  VOUCHER_IS_NOT_STARTED: createErrorCode(143427, 'Voucher is not started'),
 };
 
 // Custom validator decorator for date range validation

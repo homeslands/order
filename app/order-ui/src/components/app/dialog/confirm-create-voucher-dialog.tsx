@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui'
 
 import { ICreateVoucherRequest } from '@/types'
@@ -31,7 +30,6 @@ export default function ConfirmCreateVoucherDialog({
   onOpenChange,
   onCloseSheet, // Add this
   voucher,
-  disabled,
   onSuccess
 }: IConfirmCreateVoucherDialogProps) {
   const queryClient = useQueryClient()
@@ -59,16 +57,6 @@ export default function ConfirmCreateVoucherDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={disabled}
-          className="flex items-center w-full text-sm rounded-full sm:w-[10rem]"
-          onClick={() => onOpenChange(true)}
-        >
-          {t('voucher.create')}
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="max-w-[22rem] rounded-md px-6 sm:max-w-[32rem]">
         <DialogHeader>
           <DialogTitle className="pb-4 border-b">
