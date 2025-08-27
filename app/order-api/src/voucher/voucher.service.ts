@@ -534,6 +534,7 @@ export class VoucherService {
           createdAt: 'DESC',
           code: 'ASC',
         },
+        relations: ['voucherPaymentMethods'],
       };
       if (options.hasPaging) {
         Object.assign(findManyOptions, {
