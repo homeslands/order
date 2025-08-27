@@ -148,23 +148,23 @@ export const VoucherValidation: TVoucherErrorCode = {
   VOUCHER_IS_EXPIRED: createErrorCode(143426, 'Voucher is expired'),
   VOUCHER_IS_NOT_STARTED: createErrorCode(143427, 'Voucher is not started'),
   VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS: createErrorCode(
-    143428,
+    143429,
     'Voucher payment method already exists',
   ),
   CREATE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
-    143429,
+    143430,
     'Failed to create voucher payment method',
   ),
   VOUCHER_PAYMENT_METHOD_NOT_FOUND: createErrorCode(
-    143430,
+    143431,
     'Voucher payment method not found',
   ),
   DELETE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
-    143431,
+    143432,
     'Failed to delete voucher payment method',
   ),
   VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD: createErrorCode(
-    143432,
+    143433,
     'Voucher must have at least one payment method',
   ),
 };
