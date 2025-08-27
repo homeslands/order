@@ -57,6 +57,7 @@ import { cn } from '@/lib/utils'
 import { useDebouncedInput } from '@/hooks'
 import { SimpleDatePicker } from '../app/picker'
 import { PeriodOfTimeSelect } from '../app/select'
+import { timeChange } from './utils/data-table.utils'
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
@@ -200,22 +201,9 @@ export function DataTable<TData, TValue>({
   })
 
   const handlePeriodOfTimeChange = useCallback((periodOfTime: string) => {
-    if (periodOfTime === 'today') {
-      setStartDate(moment(today).format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'yesterday') {
-      setStartDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
-      setEndDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inWeek') {
-      setStartDate(moment(today).subtract(1, 'week').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inMonth') {
-      setStartDate(moment(today).subtract(1, 'month').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inYear') {
-      setStartDate(moment(today).subtract(1, 'year').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    }
+   const result = timeChange(periodOfTime, today);
+   setStartDate(result.startDate);
+   setEndDate(result.endDate);
   }, [today])
 
   const handleRefresh = () => {
