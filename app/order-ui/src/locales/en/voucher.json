@@ -48,6 +48,7 @@
     "enterVoucherType": "Select voucher type",
     "enterVoucherValue": "Enter voucher value",
     "expired": "Voucher has expired",
+    "voucherExpired": "Voucher has expired",
     "exportVoucher": "Export voucher",
     "exportVouchers": "Export Vouchers",
     "fixedDiscount": "Discount {{value}}",

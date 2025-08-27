@@ -48,6 +48,7 @@
     "enterVoucherType": "Chọn loại voucher",
     "enterVoucherValue": "Nhập giá trị voucher",
     "expired": "Voucher đã hết hạn",
+    "voucherExpired": "Voucher đã hết hạn",
     "exportVoucher": "Xuất voucher",
     "exportVouchers": "Xuất voucher",
     "fixedDiscount": "Giảm {{value}}",
