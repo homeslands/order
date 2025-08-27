@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -9,7 +9,7 @@ import { RevenueFilterPopover } from '@/components/app/popover'
 import { Badge, Button } from '@/components/ui'
 import { useBranchRevenue, useLatestRevenue, useRefreshProductAnalysis, useTopBranchProducts } from '@/hooks'
 import { showToast } from '@/utils'
-import { useBranchStore, useOverviewFilterStore } from '@/stores'
+import { useBranchStore } from '@/stores'
 import { RevenueTypeQuery } from '@/constants'
 import { IRefreshProductAnalysisRequest, IRevenueQuery } from '@/types'
 import { RevenueToolDropdown } from '@/components/app/dropdown'
@@ -19,23 +19,26 @@ export default function OverviewDetailPage() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const { branch } = useBranchStore()
-  const { overviewFilter, setOverviewFilter, clearOverviewFilter } = useOverviewFilterStore()
+  // const { overviewFilter, setOverviewFilter, clearOverviewFilter } = useOverviewFilterStore()
+  const [startDate, setStartDate] = useState<string>(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'))
+  const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD HH:mm:ss'))
+  const [type, setType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY)
   const { mutate: refreshRevenue } = useLatestRevenue()
   const { mutate: refreshProductAnalysis } = useRefreshProductAnalysis()
 
   const { data, isLoading, refetch: refetchRevenue } = useBranchRevenue({
     branch: branch?.slug || '',
-    startDate: overviewFilter.startDate,
-    endDate: overviewFilter.endDate,
-    type: overviewFilter.type,
+    startDate: startDate,
+    endDate: endDate,
+    type: type,
   })
 
   const { data: topBranchProducts } = useTopBranchProducts({
     branch: branch?.slug || '',
     hasPaging: false,
-    startDate: overviewFilter.startDate,
-    endDate: overviewFilter.endDate,
-    type: overviewFilter.type
+    startDate: startDate,
+    endDate: endDate,
+    type: type
   })
 
   const revenueData = data?.result
@@ -44,7 +47,7 @@ export default function OverviewDetailPage() {
   // adjust date in revenueData to be in format YYYY-MM-DD, based on revenueType
   const adjustedRevenueData = revenueData?.map(item => ({
     ...item,
-    date: overviewFilter.type === RevenueTypeQuery.DAILY ? moment(item.date).format('YYYY-MM-DD') : moment(item.date).format('YYYY-MM-DD HH:mm')
+    date: type === RevenueTypeQuery.DAILY ? moment(item.date).format('YYYY-MM-DD') : moment(item.date).format('YYYY-MM-DD HH:mm')
   }))
 
   const referenceNumbers = adjustedRevenueData?.flatMap(item => [
@@ -57,13 +60,12 @@ export default function OverviewDetailPage() {
 
   const handleRefreshRevenue = useCallback(() => {
     const refreshProductAnalysisParams: IRefreshProductAnalysisRequest = {
-      startDate: moment(overviewFilter.startDate).format('YYYY-MM-DD'),
-      endDate: moment(overviewFilter.endDate).format('YYYY-MM-DD'),
+      startDate: moment(startDate).format('YYYY-MM-DD'),
+      endDate: moment(endDate).format('YYYY-MM-DD'),
     }
     refreshRevenue(undefined, {
       onSuccess: () => {
         showToast(tToast('toast.refreshRevenueSuccess'))
-        clearOverviewFilter()
         refetchRevenue()
       }
     })
@@ -72,7 +74,7 @@ export default function OverviewDetailPage() {
         showToast(tToast('toast.refreshProductAnalysisSuccess'))
       }
     })
-  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, overviewFilter, clearOverviewFilter])
+  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, startDate, endDate])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     const newStartDate = data.startDate
@@ -82,12 +84,9 @@ export default function OverviewDetailPage() {
     const newEndDate = data.endDate
       ? moment(data.endDate).format('YYYY-MM-DD HH:mm:ss')
       : '';
-    setOverviewFilter({
-      ...overviewFilter,
-      startDate: newStartDate,
-      endDate: newEndDate,
-      type: data.type || RevenueTypeQuery.DAILY,
-    })
+    setStartDate(newStartDate)
+    setEndDate(newEndDate)
+    setType(data.type || RevenueTypeQuery.DAILY)
   };
 
   return (
@@ -102,7 +101,7 @@ export default function OverviewDetailPage() {
           </div>
           <div className='flex overflow-x-auto col-span-4 gap-2 justify-end items-center px-2 whitespace-nowrap sm:max-w-full'>
             <div className="flex-shrink-0">
-              <RevenueToolDropdown branch={branch?.slug || ''} startDate={overviewFilter.startDate} endDate={overviewFilter.endDate} revenueType={overviewFilter.type} />
+              <RevenueToolDropdown branch={branch?.slug || ''} startDate={startDate} endDate={endDate} revenueType={type} />
             </div>
             <Button
               variant="outline"
@@ -119,14 +118,14 @@ export default function OverviewDetailPage() {
           </div>
         </div>
         <div className='flex overflow-x-auto gap-2 items-center px-2 max-w-sm whitespace-nowrap sm:max-w-full'>
-          {overviewFilter.startDate && overviewFilter.endDate && overviewFilter.type && (
+          {startDate && endDate && type && (
             <div className='flex gap-2 items-center'>
               <span className='text-sm text-muted-foreground'>{t('dashboard.filter')}</span>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                {overviewFilter.startDate === overviewFilter.endDate ? moment(overviewFilter.startDate).format('HH:mm DD/MM/YYYY') : `${moment(overviewFilter.startDate).format('HH:mm DD/MM/YYYY')} - ${moment(overviewFilter.endDate).format('HH:mm DD/MM/YYYY')}`}
+                {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                {overviewFilter.type === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
+                {type === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
                 {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
@@ -138,7 +137,7 @@ export default function OverviewDetailPage() {
           <RevenueDetailSummary revenueData={adjustedRevenueData} topProduct={topProducts} />
         </div>
         <div className="grid grid-cols-1 gap-2">
-          <RevenueDetailChart revenueType={overviewFilter.type} revenueData={adjustedRevenueData} />
+          <RevenueDetailChart revenueType={type} revenueData={adjustedRevenueData} />
           <TopProductsDetail topProducts={topProducts} />
         </div>
         <RevenueTable revenueData={adjustedRevenueData} isLoading={isLoading} />
