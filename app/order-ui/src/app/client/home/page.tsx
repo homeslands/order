@@ -1,4 +1,4 @@
-import React from 'react'
+import { useMemo } from 'react'
 import moment from 'moment'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -13,55 +13,45 @@ import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './
 import { useBranchStore } from '@/stores'
 import { IMenuItem } from '@/types'
 
+// Animation Variants
+const fadeInVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: 'easeOut' },
+  },
+}
+
 export default function HomePage() {
   const { t } = useTranslation('home')
   const { t: tHelmet } = useTranslation('helmet')
   const isMobile = useIsMobile()
-  const { data: banner } = useBanners({ isActive: true })
-  const bannerData = banner?.result || []
-
-  const shuffle = (arr: IMenuItem[]): IMenuItem[] => arr.sort(() => Math.random() - 0.5);
-
-  // Animation Variants
-  const fadeInVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: 'easeOut' },
-    },
-  }
   const { branch } = useBranchStore()
-  const { data: specificMenu, isFetching: fechMenupromotion } = useSpecificMenu(
+  const { data: banner } = useBanners({ isActive: true })
+  const { data: specificMenu, isFetching: isFetchingSpecificMenu } = useSpecificMenu(
     {
       date: moment().format('YYYY-MM-DD'),
       branch: branch ? branch?.slug : '',
     },
   )
-  const customMenu = (specificMenu?.result?.menuItems || []).filter((item) => {
+
+  //get banner data
+  const bannerData = useMemo(() => banner?.result || [], [banner])
+  //get menu items available
+  const menuItemsAvailable = useMemo(() => (specificMenu?.result?.menuItems || []).filter((item) => {
     const isAvailable = item.product.isLimit ? item.currentStock > 0 : true
     return !item.isLocked && isAvailable
-  })
-
-  const sortedMenuItems = customMenu.sort(
-    (a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory,
-  )
-
-  // get some menu items
-  const menuItems = customMenu.slice(0, 4)
-  // Lấy top  sản phẩm có doanh số cao nhất
-  const top15BestSellers = sortedMenuItems.slice(0, 10)
-
-  // Lọc ra các sản phẩm có `isTopSell` chưa có trong `topBestSellers`
-  const topSellProducts = sortedMenuItems.filter(
-    (item) => item.product.isTopSell && !top15BestSellers.includes(item),
-  )
-
-  // Gộp danh sách lại
-  const bestSellerProducts = [...top15BestSellers, ...topSellProducts]
-
-  // Lọc sản phẩm mới và có khuyến mãi
-  const { newsProducts, promotionProducts } = customMenu.reduce(
+  }), [specificMenu])
+  // get explore menu items
+  const exploreMenuItems = useMemo(() => menuItemsAvailable.slice(0, 5), [menuItemsAvailable])
+  // get best seller Items
+  const bestSellerItems = useMemo(() => menuItemsAvailable.filter((item) => item.product.isTopSell)
+  .sort((a,b)=> b.product.saleQuantityHistory - a.product.saleQuantityHistory)
+  .slice(0,5)
+  , [menuItemsAvailable])
+  // get news items & promotion items
+  const { newsProducts, promotionProducts } = useMemo(() => menuItemsAvailable.reduce(
     (
       acc: { newsProducts: IMenuItem[]; promotionProducts: IMenuItem[] },
       item: IMenuItem,
@@ -70,14 +60,11 @@ export default function HomePage() {
       if (item.promotion) acc.promotionProducts.push(item)
       return acc
     },
-    { newsProducts: [], promotionProducts: [] },
-  )
-
-  // Xáo trộn mảng sản phẩm mới
-  const shuffledNewsProducts = shuffle(newsProducts);
+    { newsProducts: [], promotionProducts: [] })
+  , [menuItemsAvailable]) 
 
   return (
-    <React.Fragment>
+    <>
       {/* <AdPopup /> */}
       <Helmet>
         <meta charSet="utf-8" />
@@ -92,7 +79,7 @@ export default function HomePage() {
         {/* <StoreCarousel /> */}
 
         {/* Section Menu Highlight */}
-        {menuItems.length > 0 && (
+        {exploreMenuItems.length > 0 && (
           <div className="container">
             <motion.div
               className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
@@ -111,7 +98,7 @@ export default function HomePage() {
               </div>
               <SliderMenu
                 type="highlight"
-                menus={menuItems}
+                menus={exploreMenuItems}
                 isFetching={false}
               />
             </motion.div>
@@ -139,14 +126,14 @@ export default function HomePage() {
               <SliderMenu
                 type="promotion"
                 menus={promotionProducts}
-                isFetching={fechMenupromotion}
+                isFetching={isFetchingSpecificMenu}
               />
             </motion.div>
           </div>
         )}
 
         {/* Section Top sell */}
-        {bestSellerProducts.length > 0 && (
+        {bestSellerItems.length > 0 && (
           <div className="container">
             <motion.div
               className={`flex w-full flex-col items-start gap-4 ${isMobile ? 'h-[18rem]' : 'h-[24rem]'}`}
@@ -162,8 +149,8 @@ export default function HomePage() {
                 </NavLink>
               </div>
               <SliderMenu
-                menus={bestSellerProducts}
-                isFetching={fechMenupromotion}
+                menus={bestSellerItems}
+                isFetching={isFetchingSpecificMenu}
                 type="best-sell"
               />
             </motion.div>
@@ -187,7 +174,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={shuffledNewsProducts} isFetching={fechMenupromotion} type="new" />
+              <SliderMenu menus={newsProducts} isFetching={isFetchingSpecificMenu} type="new" />
             </motion.div>
           </div>
         )}
@@ -221,12 +208,12 @@ export default function HomePage() {
                 <div
                   key={pos}
                   className={`
-        absolute w-12 h-12 border-2 border-primary
-        ${pos === 'tl' && 'top-0 left-0 rounded-tl-3xl border-r-0 border-b-0'}
-        ${pos === 'tr' && 'top-0 right-0 rounded-tr-3xl border-l-0 border-b-0'}
-        ${pos === 'bl' && 'bottom-0 left-0 rounded-bl-3xl border-r-0 border-t-0'}
-        ${pos === 'br' && 'bottom-0 right-0 rounded-br-3xl border-l-0 border-t-0'}
-      `}
+                    absolute w-12 h-12 border-2 border-primary
+                    ${pos === 'tl' && 'top-0 left-0 rounded-tl-3xl border-r-0 border-b-0'}
+                    ${pos === 'tr' && 'top-0 right-0 rounded-tr-3xl border-l-0 border-b-0'}
+                    ${pos === 'bl' && 'bottom-0 left-0 rounded-bl-3xl border-r-0 border-t-0'}
+                    ${pos === 'br' && 'bottom-0 right-0 rounded-br-3xl border-l-0 border-t-0'}
+                  `}
                   style={{ zIndex: 10 }}
                 />
               ))}
@@ -261,6 +248,6 @@ export default function HomePage() {
           </div>
         </motion.div> */}
       </div>
-    </React.Fragment>
+    </>
   )
 }
