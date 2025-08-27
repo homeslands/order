@@ -809,6 +809,17 @@ export class VoucherService {
       );
     }
 
+    if (voucher.voucherPaymentMethods.length === 1) {
+      this.logger.warn(
+        'Voucher must have at least one payment method',
+        null,
+        context,
+      );
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD,
+      );
+    }
+
     const deletedVoucherPaymentMethod =
       await this.transactionService.execute<VoucherPaymentMethod>(
         async (manager) => await manager.softRemove(voucherPaymentMethod),
