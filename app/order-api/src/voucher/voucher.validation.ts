@@ -179,7 +179,7 @@ export const VoucherValidation: TVoucherErrorCode = {
     'Failed to delete voucher payment method',
   ),
   VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD: createErrorCode(
-    143432,
+    143433,
     'Voucher must have at least one payment method',
   ),
 };
