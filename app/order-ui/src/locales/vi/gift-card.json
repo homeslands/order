@@ -98,7 +98,7 @@
         "paymentExpireDate": "Ngày hết hạn thanh toán",
         "noName": "______",
         "paymentStatus": "Trạng thái thanh toán",
-        "cancelOrder": "Hủy đơn hàng",
+        "cancelOrder": "Hủy",
         "cancelOrderTitle": "Hủy đơn hàng thẻ quà tặng",
         "cancelOrderDescription": "Bạn có chắc chắn muốn hủy đơn hàng thẻ quà tặng này không? Hành động này không thể hoàn tác.",
         "cancelOrderConfirm": "Có, hủy đơn hàng",
@@ -136,7 +136,7 @@
         "giftCardCode": "Mã thẻ quà tặng",
         "giverName": "Tên người tặng",
         "giftCardLock": "Tính năng bị khóa, vui lòng thử lại sau",
-        "continuePayment": "Tiếp tục thanh toán",
+        "continuePayment": "Tiếp tục",
         "giftCardFeatureFlag": {
             "pageTitle": "Quản lý khóa chức năng",
             "featureControls": "Tính năng khóa thẻ quà tặng",
