@@ -114,6 +114,7 @@ const errorCodes: { [key: number]: string } = {
   143421: 'toast.productNotAppliedToVoucher',
   143422: 'toast.voucherProductNotApplicable',
   143424: 'toast.allProductMustBeAppliedToVoucher',
+  143426: 'toast.voucherExpired',
   143428: 'toast.mustVerifyIdentityToUseVoucher',
   // Error data duplicate product and branch in product chef area
   154501: 'toast.duplicateProductAndBranch',
