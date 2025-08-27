@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import {
+  AddVoucherPaymentMethodRequestDto,
   BulkCreateVoucherDto,
   CreateVoucherDto,
   ExportPdfVoucherDto,
@@ -21,8 +22,11 @@ import {
   GetAllVoucherForUserDto,
   GetAllVoucherForUserPublicDto,
   GetVoucherDto,
+  RemoveVoucherPaymentMethodRequestDto,
   ValidateVoucherDto,
+  ValidateVoucherPaymentMethodDto,
   ValidateVoucherPublicDto,
+  VoucherPaymentMethodResponseDto,
   VoucherResponseDto,
 } from './voucher.dto';
 import { UpdateVoucherDto } from './voucher.dto';
@@ -232,6 +236,14 @@ export class VoucherController {
   }
 
   @Delete(':slug')
+  @HasRoles(RoleEnum.SuperAdmin, RoleEnum.Admin, RoleEnum.Manager)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete voucher' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher has been deleted successfully',
+    type: VoucherResponseDto,
+  })
   async remove(@Param('slug') slug: string) {
     const result = await this.voucherService.remove(slug);
     return {
@@ -283,6 +295,28 @@ export class VoucherController {
     } as AppResponseDto<void>;
   }
 
+  @Post('validate/payment-method')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validate voucher payment method' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher has been validated successfully',
+    type: VoucherResponseDto,
+  })
+  async validateVoucherPaymentMethod(
+    @Body(new ValidationPipe({ transform: true }))
+    validateVoucherPaymentMethodDto: ValidateVoucherPaymentMethodDto,
+  ) {
+    await this.voucherService.validateVoucherPaymentMethod(
+      validateVoucherPaymentMethodDto,
+    );
+    return {
+      message: 'Voucher payment method has been validated successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+    } as AppResponseDto<void>;
+  }
+
   @Post('export-pdf')
   @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @ApiOperation({ summary: 'Export chef order item ticket' })
@@ -297,5 +331,57 @@ export class VoucherController {
       length: result.length,
       disposition: `attachment; filename="Chef-order-${new Date().toISOString()}.pdf"`,
     });
+  }
+
+  @Post(':slug/payment-method')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Add voucher payment method' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher payment method has been added successfully',
+    type: VoucherPaymentMethodResponseDto,
+  })
+  async addVoucherPaymentMethod(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    addVoucherPaymentMethodDto: AddVoucherPaymentMethodRequestDto,
+  ) {
+    const result = await this.voucherService.addVoucherPaymentMethod(
+      slug,
+      addVoucherPaymentMethodDto,
+    );
+    return {
+      message: 'Voucher payment method has been added successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<VoucherPaymentMethodResponseDto>;
+  }
+
+  @Delete(':slug/payment-method')
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove voucher payment method' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Voucher payment method has been removed successfully',
+    type: VoucherPaymentMethodResponseDto,
+  })
+  async removeVoucherPaymentMethod(
+    @Param('slug') slug: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    removeVoucherPaymentMethodDto: RemoveVoucherPaymentMethodRequestDto,
+  ) {
+    const result = await this.voucherService.removeVoucherPaymentMethod(
+      slug,
+      removeVoucherPaymentMethodDto,
+    );
+    return {
+      message: 'Voucher payment method has been removed successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<VoucherPaymentMethodResponseDto>;
   }
 }

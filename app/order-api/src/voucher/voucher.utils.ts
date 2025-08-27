@@ -8,7 +8,7 @@ import {
   Not,
   Repository,
 } from 'typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { VoucherException } from './voucher.exception';
 import { VoucherValidation } from './voucher.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -573,6 +573,32 @@ export class VoucherUtils {
     const { subtotal } = await this.orderUtils.getOrderSubtotal(order);
     if (voucher.minOrderValue > subtotal) return false;
     this.logger.log('Validate voucher for update order item success', context);
+    return true;
+  }
+
+  async validateVoucherPaymentMethod(
+    voucher: Voucher,
+    paymentMethod: string,
+  ): Promise<boolean> {
+    const context = `${VoucherUtils.name}.${this.validateVoucherPaymentMethod.name}`;
+
+    if (!voucher) return true;
+
+    const voucherPaymentMethod = voucher.voucherPaymentMethods.find(
+      (voucherPaymentMethod) =>
+        voucherPaymentMethod.paymentMethod === paymentMethod,
+    );
+
+    if (!voucherPaymentMethod) {
+      this.logger.warn(
+        `Voucher payment method ${paymentMethod} not found`,
+        context,
+      );
+      throw new VoucherException(
+        VoucherValidation.VOUCHER_PAYMENT_METHOD_NOT_FOUND,
+      );
+    }
+
     return true;
   }
 }

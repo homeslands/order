@@ -7,7 +7,7 @@ import {
   DeleteVoucherProductRequestDto,
 } from './voucher-product.dto';
 import { Product } from 'src/product/product.entity';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import _ from 'lodash';
 import { ProductException } from 'src/product/product.exception';
 import ProductValidation from 'src/product/product.validation';

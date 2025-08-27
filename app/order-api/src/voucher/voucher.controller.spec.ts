@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { VoucherController } from './voucher.controller';
 import { VoucherService } from './voucher.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
@@ -34,8 +34,9 @@ import { ConfigService } from '@nestjs/config';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -124,6 +125,10 @@ describe('VoucherController', () => {
         {
           provide: getRepositoryToken(Invoice),
           useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherPaymentMethod),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
