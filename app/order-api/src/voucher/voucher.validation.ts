@@ -50,6 +50,8 @@ export const VOUCHER_PAYMENT_METHOD_NOT_FOUND =
   'VOUCHER_PAYMENT_METHOD_NOT_FOUND';
 export const DELETE_VOUCHER_PAYMENT_METHOD_FAILED =
   'DELETE_VOUCHER_PAYMENT_METHOD_FAILED';
+export const VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD =
+  'VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD';
 export type TVoucherErrorCodeKey =
   | typeof VOUCHER_NOT_FOUND
   | typeof FIND_ALL_VOUCHER_FAILED
@@ -83,7 +85,8 @@ export type TVoucherErrorCodeKey =
   | typeof VOUCHER_PAYMENT_METHOD_ALREADY_EXISTS
   | typeof CREATE_VOUCHER_PAYMENT_METHOD_FAILED
   | typeof VOUCHER_PAYMENT_METHOD_NOT_FOUND
-  | typeof DELETE_VOUCHER_PAYMENT_METHOD_FAILED;
+  | typeof DELETE_VOUCHER_PAYMENT_METHOD_FAILED
+  | typeof VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD;
 
 export type TVoucherErrorCode = Record<TVoucherErrorCodeKey, TErrorCodeValue>;
 
@@ -174,6 +177,10 @@ export const VoucherValidation: TVoucherErrorCode = {
   DELETE_VOUCHER_PAYMENT_METHOD_FAILED: createErrorCode(
     143432,
     'Failed to delete voucher payment method',
+  ),
+  VOUCHER_MUST_HAVE_AT_LEAST_ONE_PAYMENT_METHOD: createErrorCode(
+    143432,
+    'Voucher must have at least one payment method',
   ),
 };
 
