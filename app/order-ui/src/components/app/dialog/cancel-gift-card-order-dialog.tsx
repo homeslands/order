@@ -51,12 +51,12 @@ export default function CancelGiftCardOrderDialog({
             onClick={stop}
             variant="outline"
             disabled={disabled}
-            className={`group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white ${className}`}
+            className={`group border-destructive/50 text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:text-destructive-foreground hover:shadow-md dark:border-red-500/50 dark:text-white dark:hover:border-red-500 dark:hover:bg-red-500 dark:hover:text-white ${className}`}
           >
             {!hideIcon &&
               <X className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
             }
-            {t('giftCard.cancelOrder', 'Cancel Order')}
+            {t('giftCard.cancelOrder')}
           </Button> :
           <XCircleIcon className="text-sm text-red-500" />
         }
