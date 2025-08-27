@@ -18,6 +18,8 @@ import {
   UserCog,
   Users,
   LockOpen,
+  TicketCheck,
+  CoinsIcon,
 } from 'lucide-react'
 
 import type { ISidebarRoute } from '@/types'
@@ -38,6 +40,12 @@ export const sidebarRoutes: ISidebarRoute[] = [
     permission: Permission.STAFF_MENU,
   },
   {
+    title: 'sidebar.giftCardMenu',
+    path: ROUTE.STAFF_GIFT_CARD_MENU,
+    icon: TicketCheck,
+    permission: Permission.BANNER_MANAGEMENT,
+  },
+  {
     title: 'sidebar.deliveryManagement',
     path: ROUTE.STAFF_DELIVERY_MANAGEMENT,
     icon: ShoppingCart,
@@ -49,6 +57,13 @@ export const sidebarRoutes: ISidebarRoute[] = [
     path: ROUTE.STAFF_CHEF_ORDER,
     icon: CookingPot,
     permission: Permission.CHEF_ORDER_MANAGEMENT,
+    notificationCount: 0,
+  },
+  {
+    title: 'sidebar.cardOrderManagement',
+    path: ROUTE.STAFF_CARD_ORDER_MANAGEMENT,
+    icon: CoinsIcon,
+    permission: Permission.ORDER_MANAGEMENT,
     notificationCount: 0,
   },
   {

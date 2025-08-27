@@ -72,6 +72,7 @@
     "docs": "Documents",
     "giftCardFeatureFlag": "Feature Flag Management",
     "giftCardManagement": "Gift Card Management",
+    "giftCardMenu": "Purchase Gift Card",
     "home": "Home",
     "internalWallet": "Internal Wallet",
     "logManagement": "Log Management",
@@ -88,6 +89,7 @@
     "tableManagement": "Table Management",
     "userManagement": "Employee Management",
     "voucher": "Voucher",
-    "voucherGroup": "Voucher Group"
+    "voucherGroup": "Voucher Group",
+    "cardOrderManagement": "Card Order Management"
   }
 }

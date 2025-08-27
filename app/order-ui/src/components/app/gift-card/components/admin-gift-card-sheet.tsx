@@ -22,10 +22,12 @@ import {
   ReceiversSection,
   OrderSummary,
   DraggableGiftCardButton,
-} from './'
-import { showErrorToast, showToast } from '@/utils'
+  CashierSession,
+  CustomerSearchInput,
+} from '.'
+import { showToast, showErrorToast } from '@/utils'
 import { useGiftCardStore, useUserStore } from '@/stores'
-import { GiftCardFlagGroup, GiftCardType } from '@/constants'
+import { GiftCardFlagGroup, GiftCardType, ROUTE } from '@/constants'
 import {
   createGiftCardCheckoutSchema,
   type TGiftCardCheckoutSchema,
@@ -36,13 +38,17 @@ import {
   useSyncGiftCard,
 } from '@/hooks/use-gift-card'
 import { useIsMobile } from '@/hooks'
+import { IUserInfoBasic } from '@/types'
 
-export default function GiftCardSheet() {
+export default function AdminGiftCardSheet() {
   const { t } = useTranslation(['giftCard'])
   const navigate = useNavigate()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [hasSelectedRecipients, setHasSelectedRecipients] = useState(false)
+  const [customerInfo, setCustomerInfo] = useState<IUserInfoBasic>()
+  const [hasCustomerInfo, setHasCustomerInfo] = useState(false)
+  const [isRestoringCustomerInfo, setIsRestoringCustomerInfo] = useState(false)
   const isMobile = useIsMobile()
   const {
     giftCardItem,
@@ -186,6 +192,14 @@ export default function GiftCardSheet() {
     [featureFlags],
   )
 
+  useEffect(() => {
+    if (giftCardItem?.customerInfo) {
+      setCustomerInfo(giftCardItem.customerInfo)
+      setHasCustomerInfo(true)
+      setIsRestoringCustomerInfo(true)
+    }
+  }, [giftCardItem?.customerInfo])
+
   // Function to show confirmation dialog
   const handleShowConfirmDialog = form.handleSubmit(
     (_data) => {
@@ -223,12 +237,14 @@ export default function GiftCardSheet() {
     // Create card order request
     createCardOrder(
       {
-        customerSlug: userInfo!.slug,
+        customerSlug: customerInfo!.slug,
+        cashierSlug: userInfo!.slug,
         cardOrderType: data.giftType,
         cardSlug: giftCardItem!.slug,
         quantity: giftCardItem!.quantity,
         totalAmount: totalAmount,
         receipients: recipients,
+        cardVersion: giftCardItem!.version ?? 0,
       },
       {
         onSuccess: (response) => {
@@ -239,7 +255,7 @@ export default function GiftCardSheet() {
 
           // Navigate to checkout page with order slug
           const orderSlug = response.result.slug
-          navigate(`/gift-card/checkout/${orderSlug}`)
+          navigate(`${ROUTE.STAFF_GIFT_CARD_CHECKOUT}/${orderSlug}`)
         },
         onError: () => {
           showErrorToast(1006)
@@ -294,7 +310,7 @@ export default function GiftCardSheet() {
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto bg-background px-6 pb-16">
                   {/* Gift Card Items */}
-                  <div className="flex flex-col gap-4">
+                  <div className="mb-4 flex flex-col gap-4">
                     {giftCardItem ? (
                       <>
                         <SingleGiftCardDisplay
@@ -304,31 +320,52 @@ export default function GiftCardSheet() {
                           onClear={handleClearGiftCard}
                           giftCardType={watchedGiftType}
                         />
+                        <CashierSession />
+                        {/*Customer Info Field */}
+                        <FormItem>
+                          <FormLabel>
+                            {t('giftCard.customer.title')}
+                            <span className="text-destructive dark:text-red-400">
+                              *
+                            </span>
+                          </FormLabel>
+                          <FormControl>
+                            <CustomerSearchInput
+                              setCustomerInfo={setCustomerInfo}
+                              onCustomerSelectionChange={setHasCustomerInfo}
+                              customerInfo={customerInfo}
+                              hasCustomerInfo={isRestoringCustomerInfo}
+                              setHasCustomerInfo={setIsRestoringCustomerInfo}
+                            />
+                          </FormControl>
+                        </FormItem>
 
-                        <FormField
-                          control={form.control}
-                          name="giftType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                {t('giftCard.chooseUsageType')}
-                                <span className="text-destructive dark:text-red-400">
-                                  *
-                                </span>
-                              </FormLabel>
-                              <FormControl>
-                                <GiftCardTypeSelect
-                                  value={field.value as GiftCardType}
-                                  onChange={(value) =>
-                                    field.onChange(value as string)
-                                  }
-                                  featureFlags={featureFlags}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        {hasCustomerInfo && (
+                          <FormField
+                            control={form.control}
+                            name="giftType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {t('giftCard.chooseUsageType')}
+                                  <span className="text-destructive dark:text-red-400">
+                                    *
+                                  </span>
+                                </FormLabel>
+                                <FormControl>
+                                  <GiftCardTypeSelect
+                                    value={field.value as GiftCardType}
+                                    onChange={(value) =>
+                                      field.onChange(value as string)
+                                    }
+                                    featureFlags={featureFlags}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center py-20">
@@ -343,7 +380,7 @@ export default function GiftCardSheet() {
                     )}
                   </div>
                   {/* Input Forms for Gift */}
-                  {watchedGiftType === GiftCardType.GIFT && (
+                  {watchedGiftType === GiftCardType.GIFT && hasCustomerInfo && (
                     <ReceiversSection
                       control={form.control}
                       fields={fields}
@@ -374,7 +411,8 @@ export default function GiftCardSheet() {
                       !giftCardItem.isActive ||
                       (watchedGiftType === GiftCardType.GIFT &&
                         !hasSelectedRecipients) ||
-                      isAllLocked
+                      isAllLocked ||
+                      !hasCustomerInfo
                     }
                   />
                 )}

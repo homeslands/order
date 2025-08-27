@@ -75,7 +75,7 @@ export const ClientOrderSuccessPage = React.lazy(() =>
 
 export const GiftCardSuccessPage = React.lazy(() =>
   import('@/app/client/gift-card/checkout/success').then((module) => ({
-    default: module.GiftCardSuccessPage,
+    default: module.ClientGiftCardSuccessPage,
   })),
 )
 
@@ -403,6 +403,34 @@ export const GiftCardPage = React.lazy(() =>
   })),
 )
 
+//System gift card menu page
+export const GiftCardMenuPage = React.lazy(() =>
+  import('@/app/system/gift-card/catalog').then((module) => ({
+    default: module.GiftCardCatalogPage,
+  })),
+)
+
+//System gift card checkout
+export const GiftCardCheckoutPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout').then((module) => ({
+    default: module.SystemGiftCardCheckoutPage,
+  })),
+)
+
+// System gift card checkout with slug page
+export const SystemGiftCardCheckoutWithSlugPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout/[slug]').then((module) => ({
+    default: module.SystemGiftCardCheckoutPageBySlug,
+  })),
+)
+
+// System gift card success page
+export const SystemGiftCardSuccessPage = React.lazy(() =>
+  import('@/app/system/gift-card/checkout/success').then((module) => ({
+    default: module.SystemGiftCardSuccessPage,
+  })),
+)
+
 //Client Gift card page
 export const ClientGiftCardPage = React.lazy(() =>
   import('@/app/client/gift-card').then((module) => ({
@@ -413,14 +441,14 @@ export const ClientGiftCardPage = React.lazy(() =>
 //Client Gift card checkout page
 export const ClientGiftCardCheckoutPage = React.lazy(() =>
   import('@/app/client/gift-card/checkout').then((module) => ({
-    default: module.GiftCardCheckoutPage,
+    default: module.ClientGiftCardCheckoutPage,
   })),
 )
 
 //Client Gift card checkout with slug page
 export const ClientGiftCardCheckoutWithSlugPage = React.lazy(() =>
   import('@/app/client/gift-card/checkout/[slug]').then((module) => ({
-    default: module.GiftCardCheckoutPageBySlug,
+    default: module.ClientGiftCardCheckoutPageBySlug,
   })),
 )
 
@@ -428,5 +456,11 @@ export const ClientGiftCardCheckoutWithSlugPage = React.lazy(() =>
 export const FeatureLockManagementPage = React.lazy(() =>
   import('@/app/system/feature-lock-management').then((module) => ({
     default: module.FeatureLockManagementPage,
+  })),
+)
+
+export const CardOrderHistoryPage = React.lazy(() =>
+  import('@/app/system/card-order-history').then((module) => ({
+    default: module.CardOrderHistoryPage,
   })),
 )

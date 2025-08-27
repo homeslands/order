@@ -3,7 +3,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateCardOrderDto } from './dto/create-card-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, IsNull, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, IsNull, MoreThan, Repository } from 'typeorm';
 import { CardOrder } from './entities/card-order.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Card } from '../card/entities/card.entity';
@@ -19,7 +19,10 @@ import { CardOrderStatus, CardOrderType } from './card-order.enum';
 import { createSortOptions } from 'src/shared/utils/obj.util';
 import { OrderException } from 'src/order/order.exception';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
-import { InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
+import {
+  InitiateCardOrderPaymentAdminDto,
+  InitiateCardOrderPaymentDto,
+} from './dto/initiate-card-order-payment.dto';
 import { CardException } from '../card/card.exception';
 import { CardValidation } from '../card/card.validation';
 import { GiftCardService } from '../gift-card/gift-card.service';
@@ -29,13 +32,19 @@ import {
 } from '../point-transaction/entities/point-transaction.enum';
 import { CreatePointTransactionDto } from '../point-transaction/dto/create-point-transaction.dto';
 import _ from 'lodash';
-import { PaymentStatus } from 'src/payment/payment.constants';
+import { PaymentMethod, PaymentStatus } from 'src/payment/payment.constants';
 import { FeatureFlag } from '../feature-flag/entities/feature-flag.entity';
 import { FeatureFlagException } from '../feature-flag/feature-flag.exception';
 import { FeatureFlagValidation } from '../feature-flag/feature-flag.validation';
 import { FeatureGroupConstant } from '../feature-flag/feature-group.constant';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { AppPaginatedResponseDto } from 'src/app/app.dto';
+import { Payment } from 'src/payment/payment.entity';
+import { CashStrategy } from 'src/payment/strategy/cash.strategy';
+import { PaymentException } from 'src/payment/payment.exception';
+import { PaymentValidation } from 'src/payment/payment.validation';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @Injectable()
 export class CardOrderService {
@@ -57,6 +66,8 @@ export class CardOrderService {
     private readonly gcService: GiftCardService,
     private readonly balanceService: SharedBalanceService,
     private readonly ptService: SharedPointTransactionService,
+    private readonly cashStrategy: CashStrategy,
+    private readonly paymentUtils: PaymentUtils,
   ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
@@ -107,12 +118,117 @@ export class CardOrderService {
     return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
   }
 
+  async initiatePaymentAdmin(payload: InitiateCardOrderPaymentAdminDto) {
+    const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
+    this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
+
+    const cardOrder = await this.cardOrderRepository.findOne({
+      where: { slug: payload.cardorderSlug ?? IsNull() },
+      relations: ['payment', 'customer'],
+    });
+    if (!cardOrder)
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+
+    if (cardOrder.status !== CardOrderStatus.PENDING)
+      throw new OrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+
+    if (_.isEmpty(payload.paymentMethod)) {
+      this.logger.error('Invalid payment method', null, context);
+      throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+    }
+
+    // Handle payment method req is not changed
+    if (
+      cardOrder?.payment &&
+      payload.paymentMethod === cardOrder?.payment?.paymentMethod
+    )
+      return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
+
+    // Handle cancel payment before using other payment method
+    const prevPayment = cardOrder.payment;
+    if (prevPayment) {
+      if (prevPayment?.paymentMethod === PaymentMethod.BANK_TRANSFER) {
+        // Cancel QR Code
+      }
+      Object.assign(prevPayment, {
+        statusCode: PaymentStatus.CANCELLED,
+      } as Partial<Payment>);
+
+      await this.transactionService.execute<Payment>(
+        async (manager) => {
+          return await manager.save(prevPayment);
+        },
+        (result) => {
+          this.logger.log(`Payment ${result.slug} is cancelled`, context);
+        },
+        (err) => {
+          this.logger.log(
+            `Error when cancel payment: ${err.message}`,
+            err.stack,
+            context,
+          );
+        },
+      );
+    }
+
+    // Assign new payment
+    let payment: Payment = null;
+    switch (payload.paymentMethod) {
+      case PaymentMethod.BANK_TRANSFER:
+        payment = await this.bankTransferStrategy.processCardOrder(cardOrder);
+        break;
+      case PaymentMethod.CASH:
+        payment = await this.cashStrategy.processCardOrder(cardOrder);
+        break;
+      default:
+        this.logger.error('Invalid payment method', null, context);
+        throw new PaymentException(PaymentValidation.PAYMENT_METHOD_INVALID);
+    }
+
+    // Update card order
+    Object.assign(cardOrder, {
+      payment,
+      paymentMethod: payment.paymentMethod,
+      paymentId: payment.id,
+      paymentSlug: payment.slug,
+      paymentStatus: payment.statusCode
+    } as Partial<CardOrder>);
+
+    if (payment.paymentMethod === PaymentMethod.CASH) {
+      cardOrder.status = payment.statusCode;
+    }
+
+    await this.cardOrderRepository.save(cardOrder);
+    this.transactionService.execute<CardOrder>(
+      async (manager) => {
+        return await manager.save(cardOrder);
+      },
+      (result) => {
+        this.logger.log(`Card order payment: ${result.slug} updated`, context);
+      },
+      (err) => {
+        this.logger.log(
+          `Error when updating card order: ${err.message}`,
+          err.stack,
+          context,
+        );
+      },
+    );
+
+    if (payment.paymentMethod === PaymentMethod.CASH) {
+      await this._generateAndRedeem(cardOrder);
+    }
+
+    return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
+  }
+
   async cancel(slug: string): Promise<void> {
     const context = `${CardOrderService.name}.${this.cancel.name}`;
     this.logger.log(`Cancelling card order: ${slug}`, context);
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug },
+      relations: ['payment']
     });
 
     if (!cardOrder) {
@@ -123,10 +239,14 @@ export class CardOrderService {
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
     }
 
+    await this.paymentUtils.cancelPayment(cardOrder.payment?.slug);
+
     Object.assign(cardOrder, {
       status: CardOrderStatus.CANCELLED,
+      paymentStatus: PaymentStatus.CANCELLED,
       deletedAt: new Date(),
-    });
+    } as CardOrder);
+
     await this.cardOrderRepository.save(cardOrder);
   }
 
@@ -307,29 +427,62 @@ export class CardOrderService {
     return this.mapper.map(createdCardOrder, CardOrder, CardOrderResponseDto);
   }
 
+  buildFindOptionsWhere(req: FindAllCardOrderDto) {
+    const findOptionsWhere: FindOptionsWhere<CardOrder> = {};
+
+    if (req.customerSlug) {
+      findOptionsWhere.customerSlug = req.customerSlug;
+    }
+
+    if (req.status) {
+      findOptionsWhere.status = req.status;
+    }
+
+    if (req.fromDate && !req.toDate) {
+      findOptionsWhere.createdAt = MoreThan(req.fromDate);
+    }
+
+    if (req.fromDate && req.toDate) {
+      findOptionsWhere.createdAt = Between(req.fromDate, req.toDate);
+    }
+
+    return findOptionsWhere;
+  }
+
   async findAll(payload: FindAllCardOrderDto) {
     const context = `${CardOrderService.name}.${this.findAll.name}`;
     this.logger.log(`Find all card order: ${JSON.stringify(payload)}`, context);
 
     const { page, size, sort } = payload;
 
-    const whereOpts: FindOptionsWhere<CardOrder> = {};
-    if (payload.customerSlug) {
-      whereOpts.customer = {
-        slug: payload.customerSlug,
-      };
-    }
+    const whereOpts: FindOptionsWhere<CardOrder> = this.buildFindOptionsWhere(payload);
+
     const sortOpts = createSortOptions<CardOrder>(sort);
 
-    const cardOrders = await this.cardOrderRepository.find({
+    const [cardOrders, total] = await this.cardOrderRepository.findAndCount({
       relations: ['receipients', 'giftCards'],
       where: whereOpts,
       order: sortOpts,
       take: size,
       skip: (page - 1) * size,
+      withDeleted: true
     });
 
-    return this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto);
+    // Calculate total pages
+    const totalPages = Math.ceil(total / size);
+    // Determine hasNext and hasPrevious
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
+
+    return {
+      hasNext: hasNext,
+      hasPrevios: hasPrevious,
+      items: this.mapper.mapArray(cardOrders, CardOrder, CardOrderResponseDto),
+      total,
+      page: page,
+      pageSize: size,
+      totalPages,
+    } as AppPaginatedResponseDto<CardOrderResponseDto>;
   }
 
   async findOne(slug: string) {

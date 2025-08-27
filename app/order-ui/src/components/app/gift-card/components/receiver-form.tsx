@@ -14,6 +14,8 @@ import {
 import RecipientSearchInput from './recipient-search-input'
 import { type TGiftCardCheckoutSchema } from '@/schemas'
 import { type IUserInfo } from '@/types'
+import { useUserStore } from '@/stores'
+import { Role } from '@/constants'
 
 interface ReceiverFormProps {
   index: number
@@ -31,6 +33,8 @@ export default function ReceiverForm({
   onRecipientSelectionChange,
 }: ReceiverFormProps) {
   const { t } = useTranslation(['giftCard'])
+  const { userInfo } = useUserStore()
+  const role = userInfo?.role?.name
   const { setValue, watch } = useFormContext<TGiftCardCheckoutSchema>()
 
   // Watch userInfo for this receiver
@@ -59,9 +63,9 @@ export default function ReceiverForm({
     <div className="rounded-lg border bg-card p-4 text-card-foreground">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          {t('giftCard.receiver')} {index + 1}
+          {t('giftCard.receiver')} {role === Role.CUSTOMER ? index + 1 : ''}
         </h3>
-        {canRemove && (
+        {role === Role.CUSTOMER && canRemove && (
           <Button
             variant="ghost"
             size="icon"
