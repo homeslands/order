@@ -551,7 +551,8 @@ export default function VoucherListSheet() {
       const diff = moment.duration(end.diff(now))
 
       if (diff.asSeconds() <= 0) {
-        return t('voucher.expired')
+        // Hết hạn thì fix cứng 0h 0m
+        return t('voucher.expiresInHoursMinutes', { hours: 0, minutes: 0 })
       }
 
       if (diff.asHours() < 24) {
@@ -559,13 +560,13 @@ export default function VoucherListSheet() {
         const hours = Math.floor(diff.asHours())
         const minutes = Math.floor(diff.asMinutes()) % 60
         return t('voucher.expiresInHoursMinutes', { hours, minutes })
-      } else {
-        // Từ 24h trở lên: hiển thị "X ngày Y giờ Z phút"
-        const days = Math.floor(diff.asDays())
-        const hours = Math.floor(diff.asHours()) % 24
-        const minutes = Math.floor(diff.asMinutes()) % 60
-        return t('voucher.expiresInDaysHoursMinutes', { days, hours, minutes })
       }
+
+      // Từ 24h trở lên: hiển thị "X ngày Y giờ Z phút"
+      const days = Math.floor(diff.asDays())
+      const hours = Math.floor(diff.asHours()) % 24
+      const minutes = Math.floor(diff.asMinutes()) % 60
+      return t('voucher.expiresInDaysHoursMinutes', { days, hours, minutes })
     }
 
     const isValid = isVoucherValid(voucher)
