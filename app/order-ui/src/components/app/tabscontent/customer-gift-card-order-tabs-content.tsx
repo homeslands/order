@@ -244,24 +244,22 @@ export function CustomerGiftCardOrderTabsContent() {
             </div>
           </div>
 
-          <div className='flex items-center justify-between mt-4'>
-            {cardOrder?.status === CardOrderStatus.PENDING
-              &&
-              <div className='flex items-center gap-2 flex-wrap'>
-                <CancelGiftCardOrderDialog
-                  onClick={(e) => e.stopPropagation()}
-                  onConfirm={() => {
-                    handleCancelCardOrder(cardOrder)
-                  }}
-                  hideIcon={true}
-                  className='bg-red-500 text-white'
-                />
-                <Button className='bg-green-500 text-white hover:bg-green-500' onClick={() => handleContinuePayment(cardOrder)}>
-                  {tGC('giftCard.continuePayment')}
-                </Button>
-              </div>
-            }
-          </div>
+          {cardOrder?.status === CardOrderStatus.PENDING
+            &&
+            <div className='flex items-center gap-2 flex-wrap justify-end'>
+              <CancelGiftCardOrderDialog
+                onClick={(e) => e.stopPropagation()}
+                onConfirm={() => {
+                  handleCancelCardOrder(cardOrder)
+                }}
+                hideIcon={true}
+                className='bg-red-500 text-white'
+              />
+              <Button className='bg-green-500 text-white hover:bg-green-500' onClick={() => handleContinuePayment(cardOrder)}>
+                {tGC('giftCard.continuePayment')}
+              </Button>
+            </div>
+          }
         </div>
       </div>
     )

@@ -80,7 +80,6 @@
         "giftCardExistsDescription": "Bạn đã có một thẻ quà tặng trong giỏ hàng. Bạn có muốn thay thế bằng thẻ quà tặng này không?",
         "replaceGiftCard": "Thay thế",
         "giftCardExistsMessage": "Thẻ quà tặng hiện tại sẽ được thay thế bằng:",
-        "phoneNumberNotFound": "Không tìm thấy số điện thoại",
         "customerInfo": "Thông tin khách hàng",
         "customerName": "Tên khách hàng",
         "orderInfo": "Thông tin đơn hàng",
@@ -99,7 +98,7 @@
         "paymentExpireDate": "Ngày hết hạn thanh toán",
         "noName": "______",
         "paymentStatus": "Trạng thái thanh toán",
-        "cancelOrder": "Hủy đơn hàng",
+        "cancelOrder": "Hủy",
         "cancelOrderTitle": "Hủy đơn hàng thẻ quà tặng",
         "cancelOrderDescription": "Bạn có chắc chắn muốn hủy đơn hàng thẻ quà tặng này không? Hành động này không thể hoàn tác.",
         "cancelOrderConfirm": "Có, hủy đơn hàng",
@@ -128,6 +127,7 @@
         "loginRequired": "Đăng nhập để xem danh sách thẻ quà tặng.",
         "receiverName": "Tên người nhận",
         "giverName": "Tên người tặng",
+        "phoneNumberNotFound": "Không tìm thấy số điện thoại",
         "useGiftCard": "Sử dụng thẻ quà tặng",
         "enterGiftCardDetails": "Nhập số serial và mã thẻ quà tặng để quy đổi điểm",
         "giftCardSerial": "Số serial thẻ quà tặng",
@@ -136,7 +136,7 @@
         "enterGiftCard": "Nhập thông tin thẻ quà tặng để quy đổi điểm",
         "giftCardCode": "Mã thẻ quà tặng",
         "giftCardLock": "Tính năng bị khóa, vui lòng thử lại sau",
-        "continuePayment": "Tiếp tục thanh toán",
+        "continuePayment": "Tiếp tục",
         "giftCardFeatureFlag": {
             "pageTitle": "Quản lý khóa chức năng",
             "featureControls": "Tính năng khóa thẻ quà tặng",
@@ -193,7 +193,7 @@
             "message": "Lời nhắn",
             "name": "Tên người nhận"
         },
-        "customer":{
+        "customer": {
             "title": "Khách hàng",
             "customerPhone": "Số điện thoại khách hàng",
             "customerName": "Tên khách hàng",

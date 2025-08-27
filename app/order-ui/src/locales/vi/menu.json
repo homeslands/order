@@ -295,6 +295,7 @@
     "paid": "Đã thanh toán",
     "paymentNote": "Quý khách vui lòng kiển tra thông tin thanh toán toán trước khi thực hiện giao dịch",
     "pending": "Chờ thanh toán",
+    "cancelled": "Đã huỷ",
     "phoneNumber": "Số điện thoại",
     "point": "Thanh toán bằng xu",
     "scanToPay": "Quét để thanh toán",

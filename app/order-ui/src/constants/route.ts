@@ -25,6 +25,7 @@ export const ROUTE = {
   STAFF_DELIVERY_MANAGEMENT: '/system/delivery-management',
   STAFF_CHEF_ORDER: '/system/chef-order',
   STAFF_ORDER_MANAGEMENT: '/system/order-management',
+  STAFF_CARD_ORDER_MANAGEMENT: '/system/card-order-management',
   // STAFF_UPDATE_ORDER: '/system/update-order',
   STAFF_ORDER_PREPARATION: '/order-preparation',
   STAFF_TABLE_MANAGEMENT: '/system/table',

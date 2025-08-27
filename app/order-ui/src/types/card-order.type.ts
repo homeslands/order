@@ -1,4 +1,3 @@
-import { CardOrderStatus } from '@/constants'
 import { IGiftCardDetail } from './gift-card.type'
 import { IUserInfo } from './user.type'
 
@@ -24,7 +23,7 @@ export interface ICardOrderGetRequest {
   sort?: string
   fromDate?: string
   toDate?: string
-  status?: CardOrderStatus
+  status?: string
   customerSlug?: string
 }
 
@@ -32,6 +31,8 @@ export interface IRecipient {
   recipientSlug: string
   quantity: number
   message?: string
+  name?: string;
+  phone?: string;
 }
 export interface ICardOrderResponse {
   slug: string

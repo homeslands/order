@@ -57,6 +57,7 @@ import { cn } from '@/lib/utils'
 import { useDebouncedInput } from '@/hooks'
 import { SimpleDatePicker } from '../app/picker'
 import { PeriodOfTimeSelect } from '../app/select'
+import { timeChange } from './utils/data-table.utils'
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>
@@ -200,22 +201,9 @@ export function DataTable<TData, TValue>({
   })
 
   const handlePeriodOfTimeChange = useCallback((periodOfTime: string) => {
-    if (periodOfTime === 'today') {
-      setStartDate(moment(today).format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'yesterday') {
-      setStartDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
-      setEndDate(moment(today).subtract(1, 'day').format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inWeek') {
-      setStartDate(moment(today).subtract(1, 'week').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inMonth') {
-      setStartDate(moment(today).subtract(1, 'month').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    } else if (periodOfTime === 'inYear') {
-      setStartDate(moment(today).subtract(1, 'year').format('YYYY-MM-DD'))
-      setEndDate(moment(today).format('YYYY-MM-DD'))
-    }
+   const result = timeChange(periodOfTime, today);
+   setStartDate(result.startDate);
+   setEndDate(result.endDate);
   }, [today])
 
   const handleRefresh = () => {
@@ -225,7 +213,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div
-        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center px-2 pt-2 whitespace-nowrap sm:max-w-full`}
+        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center py-2 pt-2 whitespace-nowrap sm:max-w-full`}
       >
         <div className="flex gap-2 items-center">
           {/* Input search */}
@@ -276,7 +264,7 @@ export function DataTable<TData, TValue>({
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />
               <span className='text-muted-foreground'>
-                {t('dataTable.refresh')}
+                {t('common.refresh')}
               </span>
             </Button>
           )}

@@ -44,6 +44,8 @@ import { FeatureFlagProfile } from './feature-flag/feature-flag.mapper';
 import { FeatureFlag } from './feature-flag/entities/feature-flag.entity';
 import { FeatureGroup } from './feature-flag/entities/feature-group.entity';
 import { SharedModule } from 'src/shared/shared.module';
+import { CashStrategy } from 'src/payment/strategy/cash.strategy';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 const controllers = [
   CardController,
@@ -65,6 +67,9 @@ const providers = [
   FeatureFlagService,
   BankTransferStrategy,
   ACBConnectorClient,
+  CashStrategy,
+  PaymentUtils,
+  CashStrategy
 ];
 
 const mappers = [
@@ -130,4 +135,4 @@ const schedulers = [GiftCardScheduler];
   ],
   exports: [...exportServices, ...exportMappers],
 })
-export class GiftCardModule {}
+export class GiftCardModule { }
