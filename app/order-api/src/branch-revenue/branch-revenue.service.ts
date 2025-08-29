@@ -77,6 +77,7 @@ export class BranchRevenueService {
     query: GetBranchRevenueQueryDto,
   ): Promise<AggregateBranchRevenueResponseDto[]> {
     const context = `${BranchRevenue.name}.${this.findAll.name}`;
+    this.logger.log('Get all branch revenue', context);
     this.logger.log('query', JSON.stringify(query), context);
 
     const branch = await this.branchRepository.findOne({
