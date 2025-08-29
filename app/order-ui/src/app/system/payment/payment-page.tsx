@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
 import Lottie from "lottie-react";
@@ -8,9 +8,8 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
-import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOrderBySlug } from '@/hooks'
+import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOrderBySlug, useValidateVoucherPaymentMethod } from '@/hooks'
 import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from '@/constants'
-import { PaymentMethodSelect } from '@/app/system/payment'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
@@ -19,6 +18,9 @@ import { OrderCountdown } from '@/components/app/countdown'
 import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
+import { RemoveVoucherWhenPayingDialog } from '@/components/app/dialog';
+import { VoucherListSheetInPayment } from '@/components/app/sheet';
+import { StaffPaymentMethodSelect } from '@/components/app/select';
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -31,6 +33,7 @@ export default function PaymentPage() {
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
+  const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
   const { mutate: exportPayment, isPending: isPendingExportPayment } =
     useExportPayment()
   const { clearCart: clearCartItemStore } = useCartItemStore()
@@ -39,6 +42,8 @@ export default function PaymentPage() {
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isRemoveVoucherOption, setIsRemoveVoucherOption] = useState<boolean>(false)
+  const [previousPaymentMethod, setPreviousPaymentMethod] = useState<PaymentMethod | undefined>()
   const {
     currentStep,
     paymentData,
@@ -50,16 +55,24 @@ export default function PaymentPage() {
     setOrderFromAPI,
     clearPaymentData
   } = useOrderFlowStore()
+
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
+  const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
   const paymentMethod = paymentData?.paymentMethod
   // console.log('paymentMethod', paymentMethod)
   const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
 
+  const voucherPaymentMethods = useMemo(() =>
+    orderData?.voucher?.voucherPaymentMethods || [],
+    [orderData?.voucher?.voucherPaymentMethods]
+  )
+
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
     if (isHydrated) {
+      const paymentMethod = voucherPaymentMethods.find(method => method.paymentMethod === PaymentMethod.BANK_TRANSFER)
       // Chuyển về ORDERING phase nếu đang ở phase khác
       if (currentStep !== OrderFlowStep.PAYMENT) {
         setCurrentStep(OrderFlowStep.PAYMENT)
@@ -67,13 +80,11 @@ export default function PaymentPage() {
 
       // Khởi tạo ordering data nếu chưa có
       if (!paymentData) {
-        initializePayment(slug as string)
+        initializePayment(slug as string, paymentMethod?.paymentMethod as PaymentMethod)
         return
       }
     }
-  }, [isHydrated, currentStep, paymentData, setCurrentStep, initializePayment, slug])
-
-
+  }, [isHydrated, currentStep, paymentData, setCurrentStep, initializePayment, slug, voucherPaymentMethods])
 
   const orderItems = order?.result?.orderItems || []
   const voucher = order?.result?.voucher || null
@@ -86,18 +97,18 @@ export default function PaymentPage() {
   const paymentSlug = orderData?.payment?.slug || ''
 
   // Stable function references
-  const handleInitializePayment = useCallback(() => {
-    if (slug && currentStep !== OrderFlowStep.PAYMENT) {
-      clearUpdateOrderStore()
-      clearCartItemStore()
-      initializePayment(slug)
-      qrCodeSetRef.current = false
-    }
-  }, [slug, currentStep, clearUpdateOrderStore, clearCartItemStore, initializePayment])
+  // const handleInitializePayment = useCallback(() => {
+  //   if (slug && currentStep !== OrderFlowStep.PAYMENT) {
+  //     clearUpdateOrderStore()
+  //     clearCartItemStore()
+  //     initializePayment(slug, paymentMethod?.paymentMethod as PaymentMethod)
+  //     qrCodeSetRef.current = false
+  //   }
+  // }, [slug, currentStep, clearUpdateOrderStore, clearCartItemStore, initializePayment])
 
-  useEffect(() => {
-    handleInitializePayment()
-  }, [handleInitializePayment])
+  // useEffect(() => {
+  //   handleInitializePayment()
+  // }, [handleInitializePayment])
 
   // Stable sync function
   const handleSyncOrderData = useCallback(() => {
@@ -236,8 +247,22 @@ export default function PaymentPage() {
   }, [isPolling, handlePolling])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
-    updatePaymentMethod(selectedPaymentMethod)
-    // Polling logic is handled in useEffect above based on paymentMethod and payment status
+    setPreviousPaymentMethod(paymentMethod)
+    validateVoucherPaymentMethod(
+      { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+      {
+        onSuccess: () => {
+          // console.log('selectedPaymentMethod', selectedPaymentMethod)
+          updatePaymentMethod(selectedPaymentMethod)
+          setIsLoading(false)
+        },
+        onError: () => {
+          updatePaymentMethod(selectedPaymentMethod)
+          setIsRemoveVoucherOption(true)
+          setIsLoading(false)
+        },
+      }
+    )
   }
 
   const handleConfirmPayment = () => {
@@ -525,8 +550,36 @@ export default function PaymentPage() {
                 </div>
               </div>
             </div>
+
+            {isRemoveVoucherOption && (
+              <RemoveVoucherWhenPayingDialog
+                selectedPaymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+                isOpen={isRemoveVoucherOption}
+                onOpenChange={setIsRemoveVoucherOption}
+                order={order?.result}
+                previousPaymentMethod={previousPaymentMethod}
+                onCancel={() => {
+                  // Reset previous payment method sau khi cancel
+                  setPreviousPaymentMethod(undefined)
+                }}
+                onSuccess={(updatedOrder) => {
+                  // Reset lại refs để init lại payment store với dữ liệu mới không có voucher
+                  initializedSlugRef.current = ''
+                  qrCodeSetRef.current = false
+                  // Init lại payment trước, sau đó set order data
+                  // initializePayment(slug || '', paymentMethod)
+                  // Sync updated order data với Order Flow Store AFTER init
+                  setOrderFromAPI(updatedOrder)
+                  // Optional: Refetch để đảm bảo data consistency (có thể bỏ nếu không cần)
+                  refetchOrder()
+                }}
+              />
+            )}
+
+            <VoucherListSheetInPayment paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER} onSuccess={refetchOrder} />
             {/* Payment method */}
-            <PaymentMethodSelect
+            <StaffPaymentMethodSelect
+              order={order?.result}
               qrCode={hasValidPaymentAndQr ? qrCode : ''}
               total={order.result ? order.result.subtotal : 0}
               paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}

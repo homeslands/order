@@ -1,4 +1,4 @@
-import { APPLICABILITY_RULE } from '@/constants'
+import { APPLICABILITY_RULE, VOUCHER_PAYMENT_METHOD } from '@/constants'
 import { IBase } from './base.type'
 import { IProduct } from './product.type'
 
@@ -36,6 +36,11 @@ export interface IVoucher extends IBase {
   endDate: string
   isVerificationIdentity?: boolean
   voucherProducts: IVoucherProduct[] //Product slug
+  voucherPaymentMethods: {
+    paymentMethod: (typeof VOUCHER_PAYMENT_METHOD)[keyof typeof VOUCHER_PAYMENT_METHOD]
+    createdAt: string
+    slug: string
+  }[]
 }
 
 export interface IVoucherProduct {
@@ -49,6 +54,7 @@ export interface IGetAllVoucherRequest {
   voucherGroup?: string
   minOrderValue?: number
   isVerificationIdentity?: boolean
+  paymentMethod?: string
   date?: string
   isActive?: boolean
   isPrivate?: boolean
@@ -127,6 +133,11 @@ export interface IValidateVoucherRequest {
   }[]
 }
 
+export interface IValidateVoucherPaymentMethodRequest {
+  slug: string
+  paymentMethod: string
+}
+
 export interface IOrderItemsParam {
   quantity?: number
   variant?: string
@@ -147,4 +158,22 @@ export interface IApplyVoucherRequest {
 export interface IRemoveAppliedVoucherRequest {
   products: string[] //Product slug
   vouchers: string[] //Voucher slug
+}
+
+export interface IUpdateVoucherPaymentMethodRequest {
+  voucher: string //Voucher slug
+  paymentMethods: string[]
+}
+
+export interface IUpdateVoucherPaymentMethodParamToRequest {
+  voucher: string //Voucher slug
+  paymentMethod: string
+}
+
+export interface IVoucherPaymentMethodDiff {
+  voucher: string //Voucher slug
+  originalPaymentMethods: string[]
+  newPaymentMethods: string[]
+  toAdd: string[]
+  toRemove: string[]
 }
