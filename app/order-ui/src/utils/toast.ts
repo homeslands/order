@@ -116,8 +116,11 @@ const errorCodes: { [key: number]: string } = {
   143424: 'toast.allProductMustBeAppliedToVoucher',
   143426: 'toast.voucherExpired',
   143428: 'toast.mustVerifyIdentityToUseVoucher',
+  143429: 'toast.voucherPaymentMethodAlreadyExists',
+  143431: 'toast.voucherPaymentMethodValidationError',
   // Error data duplicate product and branch in product chef area
   154501: 'toast.duplicateProductAndBranch',
+  158116: 'toast.voucherPaymentMethodInvalid',
 
   // client error
   1000: 'toast.voucherNotFound',

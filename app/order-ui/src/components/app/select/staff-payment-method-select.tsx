@@ -6,6 +6,7 @@ import { Label } from '@/components/ui'
 import { formatCurrency } from '@/utils'
 import { PaymentMethod } from '@/constants'
 import { IOrder } from '@/types'
+
 interface PaymentMethodSelectProps {
   order?: IOrder
   paymentMethod: PaymentMethod
@@ -14,7 +15,7 @@ interface PaymentMethodSelectProps {
   onSubmit?: (paymentMethod: PaymentMethod) => void
 }
 
-export default function ClientPaymentMethodSelect({
+export default function StaffPaymentMethodSelect({
   order,
   paymentMethod,
   qrCode,

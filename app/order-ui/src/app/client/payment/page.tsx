@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import moment from 'moment'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,7 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
-import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
+import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug, useValidatePublicVoucherPaymentMethod, useValidateVoucherPaymentMethod } from '@/hooks'
 import { PaymentMethod, Role, ROUTE, paymentStatus, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
@@ -20,6 +20,8 @@ import { OrderCountdown } from '@/components/app/countdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
+import { RemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
+import { VoucherListSheetInPayment } from '@/components/app/sheet'
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -31,6 +33,8 @@ export function ClientPaymentPage() {
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
+  const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
+  const { mutate: validatePublicVoucherPaymentMethod } = useValidatePublicVoucherPaymentMethod()
   const {
     currentStep,
     paymentData,
@@ -51,6 +55,8 @@ export function ClientPaymentPage() {
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isRemoveVoucherOption, setIsRemoveVoucherOption] = useState<boolean>(false)
+  const [previousPaymentMethod, setPreviousPaymentMethod] = useState<PaymentMethod | undefined>()
 
   const orderItems = order?.result?.orderItems || []
   const voucher = order?.result?.voucher || null
@@ -67,18 +73,27 @@ export function ClientPaymentPage() {
     orderData.payment.amount === orderData.subtotal &&
     qrCode && qrCode.trim() !== ''
 
+  const voucherPaymentMethods = useMemo(() =>
+    orderData?.voucher?.voucherPaymentMethods || [],
+    [orderData?.voucher?.voucherPaymentMethods]
+  )
+
   useEffect(() => {
     if (slug && slug !== initializedSlugRef.current) {
+      const paymentMethod = voucherPaymentMethods.find(method => method.paymentMethod === PaymentMethod.BANK_TRANSFER)
       // ✅ Initialize payment phase with order slug
       if (currentStep !== OrderFlowStep.PAYMENT) {
-        initializePayment(slug)
+        initializePayment(
+          slug,
+          paymentMethod?.paymentMethod as PaymentMethod
+        )
       }
 
       // Mark as initialized
       initializedSlugRef.current = slug
       qrCodeSetRef.current = false // Reset QR code tracking for new order
     }
-  }, [slug, currentStep, initializePayment]) // ✅ Remove function dependencies
+  }, [slug, currentStep, initializePayment, voucherPaymentMethods])
 
   // Sync order data with Order Flow Store when orderData changes
   useEffect(() => {
@@ -88,7 +103,7 @@ export function ClientPaymentPage() {
         setOrderFromAPI(orderData)
       }
     }
-  }, [orderData, slug, paymentData, setOrderFromAPI]) // ✅ Remove paymentData and setOrderFromAPI from dependencies
+  }, [orderData, slug, paymentData, setOrderFromAPI])
 
   // Separate effect for QR code to avoid infinite loop
   useEffect(() => {
@@ -96,7 +111,7 @@ export function ClientPaymentPage() {
       updateQrCode(qrCode)
       qrCodeSetRef.current = true
     }
-  }, [qrCode, updateQrCode]) // ✅ Remove updateQrCode from dependencies
+  }, [qrCode, updateQrCode])
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -179,8 +194,37 @@ export function ClientPaymentPage() {
   }, [isPolling, refetchOrder, navigate, slug, updateQrCode, qrCodeSetRef, clearPaymentData, setIsLoading, orderData, paymentData, setOrderFromAPI])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
-    updatePaymentMethod(selectedPaymentMethod)
-    // Polling logic is handled in useEffect above based on paymentMethod and payment status
+    // Lưu payment method hiện tại trước khi thay đổi
+    setPreviousPaymentMethod(paymentMethod)
+
+    if (!userInfo) {
+      validatePublicVoucherPaymentMethod(
+        { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+        {
+          onSuccess: () => {
+            // console.log('selectedPaymentMethod', selectedPaymentMethod)
+            updatePaymentMethod(selectedPaymentMethod)
+            setIsLoading(false)
+          },
+        }
+      )
+    } else {
+      validateVoucherPaymentMethod(
+        { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+        {
+          onSuccess: () => {
+            // console.log('selectedPaymentMethod', selectedPaymentMethod)
+            updatePaymentMethod(selectedPaymentMethod)
+            setIsLoading(false)
+          },
+          onError: () => {
+            updatePaymentMethod(selectedPaymentMethod)
+            setIsRemoveVoucherOption(true)
+            setIsLoading(false)
+          },
+        }
+      )
+    }
   }
 
   const handleConfirmPayment = () => {
@@ -356,6 +400,34 @@ export function ClientPaymentPage() {
         {t('menu.payment')}
         <span className="text-muted-foreground">#{slug}</span>
       </span>
+
+      {isRemoveVoucherOption && (
+        <RemoveVoucherWhenPayingDialog
+          voucher={voucher}
+          selectedPaymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+          previousPaymentMethod={previousPaymentMethod}
+          isOpen={isRemoveVoucherOption}
+          onOpenChange={setIsRemoveVoucherOption}
+          order={order?.result}
+          onCancel={() => {
+            // Reset previous payment method sau khi cancel
+            setPreviousPaymentMethod(undefined)
+          }}
+          onSuccess={(updatedOrder) => {
+            // Reset lại refs để init lại payment store với dữ liệu mới không có voucher
+            initializedSlugRef.current = ''
+            qrCodeSetRef.current = false
+            // Reset previous payment method sau khi success
+            setPreviousPaymentMethod(undefined)
+            // Init lại payment trước, sau đó set order data
+            // initializePayment(slug || '', paymentMethod)
+            // Sync updated order data với Order Flow Store AFTER init
+            setOrderFromAPI(updatedOrder)
+            // Optional: Refetch để đảm bảo data consistency (có thể bỏ nếu không cần)
+            refetchOrder()
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-3 mt-5">
         <div className="flex flex-col gap-5 lg:flex-row">
@@ -553,8 +625,10 @@ export function ClientPaymentPage() {
             </div>
           </div>
         </div>
+        <VoucherListSheetInPayment paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER} onSuccess={refetchOrder} />
         {/* Payment method */}
         <ClientPaymentMethodSelect
+          order={order?.result}
           paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
           qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}

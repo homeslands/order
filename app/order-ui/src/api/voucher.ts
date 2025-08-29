@@ -10,7 +10,9 @@ import {
   IPaginationResponse,
   IRemoveAppliedVoucherRequest,
   IUpdateVoucherGroupRequest,
+  IUpdateVoucherPaymentMethodParamToRequest,
   IUpdateVoucherRequest,
+  IValidateVoucherPaymentMethodRequest,
   IValidateVoucherRequest,
   IVoucher,
   IVoucherGroup,
@@ -159,6 +161,26 @@ export async function validatePublicVoucher(
   return response.data
 }
 
+export async function validateVoucherPaymentMethod(
+  data: IValidateVoucherPaymentMethodRequest,
+): Promise<IApiResponse<IVoucher>> {
+  const response = await http.post<IApiResponse<IVoucher>>(
+    '/voucher/validate/payment-method',
+    data,
+  )
+  return response.data
+}
+
+export async function validatePublicVoucherPaymentMethod(
+  data: IValidateVoucherPaymentMethodRequest,
+): Promise<IApiResponse<IVoucher>> {
+  const response = await http.post<IApiResponse<IVoucher>>(
+    '/voucher/validate/payment-method/public',
+    data,
+  )
+  return response.data
+}
+
 export async function applyVoucher(
   data: IApplyVoucherRequest,
 ): Promise<IApiResponse<null>> {
@@ -172,5 +194,31 @@ export async function removeAppliedVoucher(
   const response = await http.delete<IApiResponse<null>>(`/voucher-product`, {
     data,
   })
+  return response.data
+}
+
+export async function updateVoucherPaymentMethod(
+  data: IUpdateVoucherPaymentMethodParamToRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.post<IApiResponse<null>>(
+    `/voucher/${data.voucher}/payment-method`,
+    {
+      paymentMethod: data.paymentMethod,
+    },
+  )
+  return response.data
+}
+
+export async function deleteVoucherPaymentMethod(
+  data: IUpdateVoucherPaymentMethodParamToRequest,
+): Promise<IApiResponse<null>> {
+  const response = await http.delete<IApiResponse<null>>(
+    `/voucher/${data.voucher}/payment-method`,
+    {
+      data: {
+        paymentMethod: data.paymentMethod,
+      },
+    },
+  )
   return response.data
 }
