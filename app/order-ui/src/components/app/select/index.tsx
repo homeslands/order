@@ -31,3 +31,5 @@ export { default as ClientTableSelectInUpdateOrder } from './client-table-select
 export { default as GiftCardStatusSelect } from './gift-card-status-select'
 export { default as GiftCardTypeSelect } from './gift-card-type-select'
 export { default as VoucherApplicabilityRuleSelect } from './voucher-applicability-rule-type-select'
+export { default as VoucherPaymentMethodSelect } from './voucher-payment-method-select'
+export { default as StaffPaymentMethodSelect } from './staff-payment-method-select'

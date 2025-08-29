@@ -1,4 +1,8 @@
-import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
+import {
+  APPLICABILITY_RULE,
+  VOUCHER_PAYMENT_METHOD,
+  VOUCHER_TYPE,
+} from '@/constants'
 import { z } from 'zod'
 
 export const createVoucherGroupSchema = z.object({
@@ -26,6 +30,15 @@ export const createVoucherSchema = z
       VOUCHER_TYPE.PERCENT_ORDER,
       VOUCHER_TYPE.SAME_PRICE_PRODUCT,
     ]),
+    paymentMethods: z
+      .array(
+        z.enum([
+          VOUCHER_PAYMENT_METHOD.CASH,
+          VOUCHER_PAYMENT_METHOD.POINT,
+          VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+        ]),
+      )
+      .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
     code: z.string().min(1),
     value: z
       .union([z.string().regex(/^\d+$/).transform(Number), z.number()])
@@ -74,6 +87,15 @@ export const createMultipleVoucherSchema = z
       VOUCHER_TYPE.PERCENT_ORDER,
       VOUCHER_TYPE.SAME_PRICE_PRODUCT,
     ]),
+    paymentMethods: z
+      .array(
+        z.enum([
+          VOUCHER_PAYMENT_METHOD.CASH,
+          VOUCHER_PAYMENT_METHOD.POINT,
+          VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+        ]),
+      )
+      .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
     startDate: z.string(),
     endDate: z.string(),
     value: z
@@ -122,6 +144,15 @@ export const updateVoucherSchema = z
       VOUCHER_TYPE.PERCENT_ORDER,
       VOUCHER_TYPE.SAME_PRICE_PRODUCT,
     ]),
+    paymentMethods: z
+      .array(
+        z.enum([
+          VOUCHER_PAYMENT_METHOD.CASH,
+          VOUCHER_PAYMENT_METHOD.POINT,
+          VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+        ]),
+      )
+      .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
     code: z.string().min(1),
     value: z
       .union([z.string().regex(/^\d+$/).transform(Number), z.number()])

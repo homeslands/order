@@ -27,8 +27,8 @@ import { ICreateVoucherRequest } from '@/types'
 import { DateAndTimePicker } from '../picker'
 import { createVoucherSchema, TCreateVoucherSchema } from '@/schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { VoucherApplicabilityRuleSelect, VoucherTypeSelect } from '../select'
-import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
+import { VoucherApplicabilityRuleSelect, VoucherPaymentMethodSelect, VoucherTypeSelect } from '../select'
+import { APPLICABILITY_RULE, VOUCHER_PAYMENT_METHOD, VOUCHER_TYPE } from '@/constants'
 import { useProductColumns } from '@/app/system/voucher/DataTable/columns'
 import { useCatalogs, useProducts } from '@/hooks'
 import { ProductFilterOptions } from '@/app/system/products/DataTable/actions'
@@ -74,6 +74,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       description: '',
       type: VOUCHER_TYPE.PERCENT_ORDER,
+      paymentMethods: [VOUCHER_PAYMENT_METHOD.CASH],
       startDate: formatDateForForm(new Date()),
       endDate: formatDateForForm(new Date()),
       code: '',
@@ -187,6 +188,7 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
       description: '',
       applicabilityRule: APPLICABILITY_RULE.ALL_REQUIRED,
       type: VOUCHER_TYPE.PERCENT_ORDER,
+      paymentMethods: [VOUCHER_PAYMENT_METHOD.CASH],
       startDate: formatDateForForm(new Date()),
       endDate: formatDateForForm(new Date()),
       code: '',
@@ -306,6 +308,30 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                 onChange={(value) => {
                   field.onChange(value);
                   form.setValue('value', 0); // Reset value when type changes
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    paymentMethods: (
+      <FormField
+        control={form.control}
+        name="paymentMethods"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='flex gap-1 items-center'>
+              <span className="text-destructive">
+                *
+              </span>
+              {t('voucher.paymentMethods')}</FormLabel>
+            <FormControl>
+              <VoucherPaymentMethodSelect
+                {...field}
+                onChange={(value) => {
+                  field.onChange(value);
                 }}
               />
             </FormControl>
@@ -629,6 +655,11 @@ export default function CreateVoucherSheet({ onSuccess, isOpen, openChange }: { 
                   <div className={`grid grid-cols-2 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
                     {formFields.applicabilityRule}
                     {formFields.type}
+                  </div>
+
+                  {/* Nhóm: Mã phương thức thanh toán */}
+                  <div className={`grid grid-cols-1 gap-2 p-4 bg-white rounded-md border dark:bg-transparent`}>
+                    {formFields.paymentMethods}
                   </div>
 
                   {/* Nhóm: Code */}

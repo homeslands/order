@@ -122,6 +122,26 @@
     "searchByCode": "Enter discount code",
     "expiresInHoursMinutes": "Expires in {{hours}} hours {{minutes}} minutes",
     "expiresInDaysHoursMinutes": "Expires in {{days}} days {{hours}} hours {{minutes}} minutes",
-    "invalidVoucher": "Invalid voucher"
+    "invalidVoucher": "Invalid voucher",
+    "paymentMethods": "Payment Methods",
+    "paymentMethod": {
+      "cash": "Cash",
+      "bankTransfer": "Bank Transfer",
+      "point": "Points",
+      "error": "Please select at least one payment method",
+      "selected": "Selected",
+      "paymentMethods": "payment methods"
+    },
+    "updatePaymentMethod": "Update Payment Method",
+    "toAdd": "To Add",
+    "toRemove": "To Remove",
+    "notValid": "Voucher is not valid",
+    "becameInvalid": "Selected voucher has become invalid",
+    "applied": "Applied",
+    "appliedToOrder": "This voucher is currently applied to your order",
+    "appliedVoucherNote": "This voucher is applied to your order and will remain active",
+    "cannotRemoveApplied": "Cannot remove voucher that is currently applied to the order",
+    "currentlyApplied": "Currently Applied",
+    "availableVouchers": "Available Vouchers"
   }
 }
