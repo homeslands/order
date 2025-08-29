@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Base } from 'src/app/base.entity';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('voucher_group_tbl')

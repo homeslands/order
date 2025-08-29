@@ -4,7 +4,7 @@ import { PaymentService } from './payment.service';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
-import { Payment } from './payment.entity';
+import { Payment } from './entity/payment.entity';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CashStrategy } from './strategy/cash.strategy';
@@ -30,7 +30,7 @@ import { SharedBalanceService } from 'src/shared/services/shared-balance.service
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { OrderUtils } from 'src/order/order.utils';
 import { ProductUtils } from 'src/product/product.utils';

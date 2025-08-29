@@ -32,7 +32,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ConfigService } from '@nestjs/config';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { PrinterUtils } from 'src/printer/printer.utils';
 import { PrinterManager } from 'src/printer/printer.manager';
