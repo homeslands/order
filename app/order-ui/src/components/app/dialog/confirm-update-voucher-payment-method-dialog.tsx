@@ -46,34 +46,25 @@ export default function ConfirmUpdateVoucherPaymentMethodDialog({
     if (!diff || (diff.toAdd.length === 0 && diff.toRemove.length === 0)) return
 
     try {
-      const promises: Promise<unknown>[] = []
-
-      // Add new payment methods
+      // Add new payment methods FIRST to avoid voucher having no payment methods
       if (diff.toAdd.length > 0) {
-        diff.toAdd.forEach(paymentMethod => {
-          promises.push(
-            updateVoucherPaymentMethod({
-              voucher: diff.voucher,
-              paymentMethod: paymentMethod,
-            })
-          )
-        })
+        for (const paymentMethod of diff.toAdd) {
+          await updateVoucherPaymentMethod({
+            voucher: diff.voucher,
+            paymentMethod: paymentMethod,
+          })
+        }
       }
 
-      // Remove payment methods
+      // Then remove payment methods AFTER adding new ones
       if (diff.toRemove.length > 0) {
-        diff.toRemove.forEach(paymentMethod => {
-          promises.push(
-            deleteVoucherPaymentMethod({
-              voucher: diff.voucher,
-              paymentMethod: paymentMethod,
-            })
-          )
-        })
+        for (const paymentMethod of diff.toRemove) {
+          await deleteVoucherPaymentMethod({
+            voucher: diff.voucher,
+            paymentMethod: paymentMethod,
+          })
+        }
       }
-
-      // Wait for all operations to complete
-      await Promise.all(promises)
 
       // Success - refetch data, close dialog, show toast
       queryClient.invalidateQueries({
