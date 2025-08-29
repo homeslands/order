@@ -8,7 +8,6 @@ import {
   IsDate,
   IsDefined,
   IsEnum,
-  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -16,12 +15,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
-import { INVALID_VOUCHER_SLUGS } from './voucher.validation';
+import {
+  INVALID_VOUCHER_SLUGS,
+} from './voucher.validation';
 import { VoucherApplicabilityRule, VoucherType } from './voucher.constant';
 import { CreateOrderItemRequestDto } from 'src/order-item/order-item.dto';
 import { INVALID_ORDER_ITEMS } from 'src/order/order.validation';
 import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
-import { PaymentMethod } from 'src/payment/payment.constants';
 
 export class CreateVoucherDto {
   @ApiProperty()
@@ -141,32 +141,6 @@ export class CreateVoucherDto {
   @IsString({ each: true, message: 'Each slug in the array must be a string' })
   @Type(() => String)
   products: string[];
-
-  @AutoMap()
-  @ApiProperty({
-    description: 'The payment methods to be created voucher payment method',
-    required: true,
-    example: ['payment-method'],
-  })
-  @IsDefined({
-    message: 'The array of the payment methods is not defined',
-  })
-  @IsArray({
-    message: 'The array of the payment methods must be an array',
-  })
-  @ArrayNotEmpty({
-    message: 'The array of the payment methods is not empty',
-  })
-  @IsString({
-    each: true,
-    message: 'Each payment method in the array must be a string',
-  })
-  @IsIn(Object.values(PaymentMethod), {
-    each: true,
-    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
-  })
-  @Type(() => String)
-  paymentMethods: string[];
 }
 
 export class BulkCreateVoucherDto {
@@ -286,32 +260,6 @@ export class BulkCreateVoucherDto {
   @IsString({ each: true, message: 'Each slug in the array must be a string' })
   @Type(() => String)
   products: string[];
-
-  @AutoMap()
-  @ApiProperty({
-    description: 'The payment methods to be created voucher payment method',
-    required: true,
-    example: ['payment-method'],
-  })
-  @IsDefined({
-    message: 'The array of the payment methods is not defined',
-  })
-  @IsArray({
-    message: 'The array of the payment methods must be an array',
-  })
-  @ArrayNotEmpty({
-    message: 'The array of the payment methods is not empty',
-  })
-  @IsString({
-    each: true,
-    message: 'Each payment method in the array must be a string',
-  })
-  @IsIn(Object.values(PaymentMethod), {
-    each: true,
-    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
-  })
-  @Type(() => String)
-  paymentMethods: string[];
 }
 
 export class UpdateVoucherDto extends CreateVoucherDto {
@@ -322,18 +270,6 @@ export class UpdateVoucherDto extends CreateVoucherDto {
 }
 
 export class GetAllVoucherForUserDto extends BaseQueryDto {
-  @AutoMap()
-  @ApiProperty({
-    description: 'The payment methods to be created voucher payment method',
-    required: false,
-    example: 'payment-method',
-  })
-  @IsOptional()
-  @IsEnum(PaymentMethod, {
-    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
-  })
-  paymentMethod?: string;
-
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
@@ -385,18 +321,6 @@ export class GetAllVoucherForUserDto extends BaseQueryDto {
   hasPaging?: boolean;
 }
 export class GetAllVoucherForUserPublicDto extends BaseQueryDto {
-  @AutoMap()
-  @ApiProperty({
-    description: 'The payment methods to be created voucher payment method',
-    required: false,
-    example: 'payment-method',
-  })
-  @IsOptional()
-  @IsEnum(PaymentMethod, {
-    message: `Each payment method must be one of: ${Object.values(PaymentMethod).join(', ')}`,
-  })
-  paymentMethod?: string;
-
   @ApiProperty({ required: false })
   @AutoMap()
   @IsOptional()
@@ -622,10 +546,6 @@ export class VoucherResponseDto extends BaseResponseDto {
   @ApiProperty()
   @AutoMap()
   voucherProducts: VoucherProductResponseDto[];
-
-  @ApiProperty()
-  @AutoMap()
-  voucherPaymentMethods: VoucherPaymentMethodResponseDto[];
 }
 
 export class ExportPdfVoucherDto {
@@ -635,39 +555,4 @@ export class ExportPdfVoucherDto {
   @IsArray({ message: INVALID_VOUCHER_SLUGS })
   @ArrayNotEmpty({ message: INVALID_VOUCHER_SLUGS })
   vouchers: string[];
-}
-
-export class VoucherPaymentMethodResponseDto extends BaseResponseDto {
-  @ApiProperty()
-  @AutoMap()
-  paymentMethod: string;
-}
-
-export class AddVoucherPaymentMethodRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsNotEmpty({ message: 'INVALID_PAYMENT_METHOD' })
-  @IsEnum(PaymentMethod, { message: 'INVALID_PAYMENT_METHOD' })
-  paymentMethod: string;
-}
-
-export class RemoveVoucherPaymentMethodRequestDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsNotEmpty({ message: 'INVALID_PAYMENT_METHOD' })
-  @IsEnum(PaymentMethod, { message: 'INVALID_PAYMENT_METHOD' })
-  paymentMethod: string;
-}
-
-export class ValidateVoucherPaymentMethodDto {
-  @ApiProperty()
-  @AutoMap()
-  @IsOptional()
-  slug: string;
-
-  @ApiProperty()
-  @AutoMap()
-  @IsNotEmpty({ message: 'INVALID_PAYMENT_METHOD' })
-  @IsEnum(PaymentMethod, { message: 'INVALID_PAYMENT_METHOD' })
-  paymentMethod: string;
 }

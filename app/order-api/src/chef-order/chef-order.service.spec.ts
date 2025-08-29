@@ -32,7 +32,7 @@ import { PaymentUtils } from 'src/payment/payment.utils';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ConfigService } from '@nestjs/config';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
-import { Payment } from 'src/payment/entity/payment.entity';
+import { Payment } from 'src/payment/payment.entity';
 import { PrinterUtils } from 'src/printer/printer.utils';
 import { Printer } from 'src/printer/entity/printer.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -4,7 +4,7 @@ import { VoucherProductService } from './voucher-product.service';
 import { VoucherProduct } from './voucher-product.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 import { Product } from 'src/product/product.entity';
 import { MAPPER_MODULE_PROVIDER } from 'src/app/app.constants';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';

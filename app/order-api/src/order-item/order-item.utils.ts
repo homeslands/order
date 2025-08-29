@@ -5,7 +5,7 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { OrderItemException } from './order-item.exception';
 import { OrderItemValidation } from './order-item.validation';
 import { Promotion } from 'src/promotion/promotion.entity';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 import {
   VoucherApplicabilityRule,
   VoucherType,

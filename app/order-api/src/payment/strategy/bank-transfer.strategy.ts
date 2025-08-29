@@ -20,7 +20,7 @@ import {
   ACBInitiateQRCodeRequestDto,
 } from 'src/acb-connector/acb-connector.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Payment } from '../entity/payment.entity';
+import { Payment } from '../payment.entity';
 import { PaymentMethod, PaymentStatus } from '../payment.constants';
 import { formatMoment, getRandomString } from 'src/helper';
 import { OrderException } from 'src/order/order.exception';

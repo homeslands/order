@@ -27,7 +27,7 @@ import { OrderValidation } from 'src/order/order.validation';
 import { MenuItemValidation } from 'src/menu-item/menu-item.validation';
 import { MenuItemException } from 'src/menu-item/menu-item.exception';
 import { VoucherUtils } from 'src/voucher/voucher.utils';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentUtils } from 'src/payment/payment.utils';
