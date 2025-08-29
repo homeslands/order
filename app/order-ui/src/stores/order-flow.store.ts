@@ -96,7 +96,7 @@ export interface IOrderFlowStore {
   clearOrderingData: () => void
 
   // Payment phase actions (tương tự payment store)
-  initializePayment: (orderSlug: string) => void
+  initializePayment: (orderSlug: string, paymentMethod: PaymentMethod) => void
   setPaymentData: (data: Partial<IPaymentData>) => void
   updatePaymentMethod: (method: PaymentMethod) => void
   updateQrCode: (qrCode: string) => void
@@ -554,10 +554,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       // ===================
       // PAYMENT PHASE
       // ===================
-      initializePayment: (orderSlug: string) => {
+      initializePayment: (orderSlug: string, paymentMethod?: PaymentMethod) => {
         const newPaymentData: IPaymentData = {
           orderSlug,
-          paymentMethod: PaymentMethod.BANK_TRANSFER,
+          paymentMethod: paymentMethod || PaymentMethod.BANK_TRANSFER,
           qrCode: '',
           paymentSlug: '',
           isQrValid: false,
@@ -1111,7 +1111,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       // ===================
       transitionToPayment: (orderSlug: string) => {
         get().clearOrderingData()
-        get().initializePayment(orderSlug)
+        get().initializePayment(orderSlug, PaymentMethod.BANK_TRANSFER)
       },
 
       transitionToUpdating: (originalOrder: IOrder) => {

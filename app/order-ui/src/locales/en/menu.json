@@ -270,7 +270,10 @@
     "voucherChanged": "Voucher changed",
     "voucherDiscount": "Voucher discount",
     "waitingForKitchen": "Waiting for kitchen",
-    "waitingForPayment": "Waiting for payment"
+    "waitingForPayment": "Waiting for payment",
+    "voucherNotApplicable": "Voucher not applicable",
+    "voucherNotApplicableDescription": "Voucher is not applicable to the selected payment method. You can cancel the voucher or select a different payment method.",
+    "removeVoucher": "Remove voucher"
   },
   "paymentMethod": {
     "bankTransfer": "Bank transfer",
