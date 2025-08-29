@@ -17,7 +17,7 @@ export const useQueryCardOrders = (req: ICardOrderGetRequest) => {
   return useQuery({
     queryKey: ['cardOrders', JSON.stringify(req)],
     queryFn: () => getCardOrders(req),
-    enabled: !!req
+    enabled: !!req,
   })
 }
 
@@ -94,17 +94,16 @@ export const useGetCardOrdersInfinite = ({ pageSize = 10 }) => {
       status: CardOrderStatus.ALL,
       fromDate: '',
       toDate: '',
-      customerSlug: '',
+      customerSlug: userInfo!.slug,
     })
-  }, [])
+  }, [userInfo])
 
   // Check if filters are active
   const hasActiveFilters = useMemo(() => {
     return (
       !!filters.fromDate ||
       !!filters.toDate ||
-      filters.status !== CardOrderStatus.ALL ||
-      !!filters.customerSlug
+      filters.status !== CardOrderStatus.ALL
     )
   }, [filters])
 
