@@ -26,3 +26,5 @@ export { default as CreateMultipleTablesSheet } from './create-multiple-tables-s
 export { default as AddProductInChefAreaSheet } from './add-product-in-chef-area-sheet'
 export { default as OrderHistoryDetailSheet } from './order-history-detail-sheet'
 export { default as CreatePrinterSheet } from './create-printer-sheet'
+export { default as UpdateVoucherPaymentMethodSheet } from './update-voucher-payment-method-sheet'
+export { default as VoucherListSheetInPayment } from './client-voucher-list-sheet-in-payment'
