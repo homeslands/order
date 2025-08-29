@@ -40,8 +40,8 @@ export const formatPaymentMethod = (method: string) => {
       return 'Chuyển khoản';
     case PaymentMethod.CASH:
       return 'Tiền mặt';
-    // case PaymentMethod.INTERNAL:
-    //   return 'Ví nội bộ';
+    case PaymentMethod.INTERNAL:
+      return 'Ví nội bộ';
     case PaymentMethod.POINT:
       return 'Xu';
     default:

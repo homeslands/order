@@ -27,7 +27,7 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Mutex } from 'async-mutex';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strategy';
-import { Payment } from 'src/payment/entity/payment.entity';
+import { Payment } from 'src/payment/payment.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { ConfigService } from '@nestjs/config';

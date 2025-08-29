@@ -6,7 +6,7 @@ import { InternalStrategy } from './strategy/internal.strategy';
 import { CashStrategy } from './strategy/cash.strategy';
 import { PaymentProfile } from './payment.mapper';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Payment } from './entity/payment.entity';
+import { Payment } from './payment.entity';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { Order } from 'src/order/order.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
@@ -26,7 +26,7 @@ import { OrderItem } from 'src/order-item/order-item.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 
 @Module({
   imports: [

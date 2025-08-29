@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { OrderValidation } from './order.validation';
 import { OrderException } from './order.exception';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 import { OrderStatus } from './order.constants';
 import moment from 'moment';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
@@ -52,7 +52,6 @@ export class OrderUtils {
         'invoice.invoiceItems',
         'table',
         'voucher.voucherProducts.product',
-        'voucher.voucherPaymentMethods',
         'branch',
         'chefOrders.chefOrderItems',
       ],

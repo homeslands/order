@@ -8,18 +8,16 @@ import {
   mapWith,
 } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
-import { Voucher } from './entity/voucher.entity';
+import { Voucher } from './voucher.entity';
 import {
   BulkCreateVoucherDto,
   CreateVoucherDto,
-  VoucherPaymentMethodResponseDto,
   VoucherResponseDto,
 } from './voucher.dto';
 import { baseMapper } from 'src/app/base.mapper';
 import { VoucherProductResponseDto } from 'src/voucher-product/voucher-product.dto';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import moment from 'moment';
-import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 
 @Injectable()
 export class VoucherProfile extends AutomapperProfile {
@@ -40,14 +38,6 @@ export class VoucherProfile extends AutomapperProfile {
             VoucherProductResponseDto,
             VoucherProduct,
             (source) => source.voucherProducts,
-          ),
-        ),
-        forMember(
-          (destination) => destination.voucherPaymentMethods,
-          mapWith(
-            VoucherPaymentMethodResponseDto,
-            VoucherPaymentMethod,
-            (source) => source.voucherPaymentMethods,
           ),
         ),
         // forMember(
@@ -116,12 +106,6 @@ export class VoucherProfile extends AutomapperProfile {
             return date;
           }),
         ),
-      );
-      createMap(
-        mapper,
-        VoucherPaymentMethod,
-        VoucherPaymentMethodResponseDto,
-        extend(baseMapper(mapper)),
       );
     };
   }

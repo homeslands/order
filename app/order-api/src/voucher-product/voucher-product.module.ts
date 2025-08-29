@@ -4,7 +4,7 @@ import { VoucherProduct } from './voucher-product.entity';
 import { VoucherProductService } from './voucher-product.service';
 import { VoucherProductController } from './voucher-product.controller';
 import { Product } from 'src/product/product.entity';
-import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { Voucher } from 'src/voucher/voucher.entity';
 import { DbModule } from 'src/db/db.module';
 import { VoucherProductProfile } from './voucher-product.mapper';
 

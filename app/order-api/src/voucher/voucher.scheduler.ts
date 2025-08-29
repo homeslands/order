@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { VoucherUtils } from './voucher.utils';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Voucher } from './voucher.entity';
 import {
   LessThan,
   LessThanOrEqual,
@@ -9,7 +10,6 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { Voucher } from './entity/voucher.entity';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import _ from 'lodash';
