@@ -8,6 +8,7 @@ import {
   XCircle,
   Loader,
   CoinsIcon,
+  Gift,
 } from 'lucide-react'
 
 import { useCancelCardOrder, useIsMobile } from '@/hooks'
@@ -199,15 +200,19 @@ export function CustomerGiftCardOrderTabsContent() {
           <div className="grid grid-cols-12 gap-2 py-4">
             <div className="relative col-span-3 sm:col-span-2">
               <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md">
-                <img
-                  src={`${publicFileURL}/${cardOrder.cardImage}`}
-                  alt={cardOrder.cardImage}
-                  className="h-full w-full rounded-md object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      'https://placehold.co/96x64?text=No+Image'
-                  }}
-                />
+                {cardOrder.cardImage ? (
+                  <img
+                    src={`${publicFileURL}/${cardOrder.cardImage}`}
+                    alt={cardOrder.cardImage}
+                    className={`${isMobile ? 'h-8' : 'h-20'} w-full rounded-md object-contain`}
+                  />
+                ) : (
+                  <div
+                    className={`${isMobile ? 'h-8' : 'h-20'} flex w-full items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-primary/40`}
+                  >
+                    <Gift className={`h-1/2 w-1/2 text-primary`} />
+                  </div>
+                )}
               </div>
               <div className="absolute -bottom-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-white sm:-right-4 sm:h-10 sm:w-10 sm:text-sm lg:right-4 xl:-right-4">
                 x{cardOrder.quantity}
