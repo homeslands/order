@@ -40,16 +40,18 @@ export default function VoucherPaymentMethodSelect({
     let newSelected: string[]
 
     if (selected.includes(key)) {
+      // Kiểm tra nếu đây là phương thức cuối cùng
       if (selected.length === 1) {
         setHasError(true)
-        return
+        return // Không cho phép xóa phương thức cuối cùng
       }
       newSelected = selected.filter((item) => item !== key)
+      setHasError(false)
     } else {
       newSelected = [...selected, key]
+      setHasError(false)
     }
 
-    setHasError(false)
     setSelected(newSelected)
     onChange(newSelected)
   }
