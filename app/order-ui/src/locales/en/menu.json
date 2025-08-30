@@ -310,7 +310,10 @@
     "title": "Payment method",
     "total": "Total amount: ",
     "unpaid": "Unpaid",
-    "userInfo": "Customer information"
+    "userInfo": "Customer information",
+    "voucherNotCompatible": "This voucher only supports",
+    "butYouCanUse": "but you can only use",
+    "voucherNotSupport": "Voucher not supported"
   },
   "table": {
     "title": "Table list"
