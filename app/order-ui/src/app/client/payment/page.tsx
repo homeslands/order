@@ -47,7 +47,6 @@ export function ClientPaymentPage() {
 
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
   const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
-  const paymentMethod = paymentData?.paymentMethod
   // const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
@@ -74,26 +73,58 @@ export function ClientPaymentPage() {
     qrCode && qrCode.trim() !== ''
 
   const voucherPaymentMethods = useMemo(() =>
-    orderData?.voucher?.voucherPaymentMethods || [],
+    orderData?.voucher?.voucherPaymentMethods ?? [],
     [orderData?.voucher?.voucherPaymentMethods]
-  )
+  );
+
+  const paymentMethod = voucherPaymentMethods[0]?.paymentMethod as PaymentMethod || PaymentMethod.BANK_TRANSFER
+
+  // Check if there's a conflict between voucher payment methods and user role
+  const hasVoucherPaymentConflict = useMemo(() => {
+    if (!voucher || !voucherPaymentMethods.length) return false
+
+    // Get available payment methods for current user role
+    const availableForRole = [PaymentMethod.BANK_TRANSFER]
+    if (userInfo && userInfo.role.name !== Role.CUSTOMER) {
+      availableForRole.push(PaymentMethod.CASH)
+    }
+    if (userInfo && userInfo.role.name === Role.CUSTOMER) {
+      availableForRole.push(PaymentMethod.POINT)
+    }
+
+    // Check if any voucher payment method is compatible with user role
+    const voucherSupportedMethods = voucherPaymentMethods.map(vpm => vpm.paymentMethod as PaymentMethod)
+    const hasCompatibleMethod = voucherSupportedMethods.some(method => availableForRole.includes(method))
+
+    return !hasCompatibleMethod
+  }, [voucher, voucherPaymentMethods, userInfo])
 
   useEffect(() => {
-    if (slug && slug !== initializedSlugRef.current) {
-      const paymentMethod = voucherPaymentMethods.find(method => method.paymentMethod === PaymentMethod.BANK_TRANSFER)
-      // ✅ Initialize payment phase with order slug
-      if (currentStep !== OrderFlowStep.PAYMENT) {
+    if (slug) {
+      const availablePaymentMethod = paymentMethod
+      // Initialize payment phase with order slug
+      if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
         initializePayment(
           slug,
-          paymentMethod?.paymentMethod as PaymentMethod
+          availablePaymentMethod
         )
-      }
 
-      // Mark as initialized
-      initializedSlugRef.current = slug
-      qrCodeSetRef.current = false // Reset QR code tracking for new order
+        // Mark as initialized only for new slugs
+        if (slug !== initializedSlugRef.current) {
+          initializedSlugRef.current = slug
+          qrCodeSetRef.current = false // Reset QR code tracking for new order
+        }
+      }
     }
-  }, [slug, currentStep, initializePayment, voucherPaymentMethods])
+  }, [slug, currentStep, initializePayment, voucherPaymentMethods, paymentMethod])
+
+  // Check voucher payment method compatibility on render
+  useEffect(() => {
+    if (hasVoucherPaymentConflict && voucher && !isRemoveVoucherOption) {
+      // Automatically show remove voucher dialog when there's a conflict
+      setIsRemoveVoucherOption(true)
+    }
+  }, [hasVoucherPaymentConflict, voucher, isRemoveVoucherOption])
 
   // Sync order data with Order Flow Store when orderData changes
   useEffect(() => {
@@ -197,6 +228,17 @@ export function ClientPaymentPage() {
     // Lưu payment method hiện tại trước khi thay đổi
     setPreviousPaymentMethod(paymentMethod)
 
+    // If there's already a voucher payment conflict detected, don't validate again
+    if (hasVoucherPaymentConflict) {
+      updatePaymentMethod(selectedPaymentMethod)
+      if (!isRemoveVoucherOption) {
+        setIsRemoveVoucherOption(true)
+      }
+      setIsLoading(false)
+      return
+    }
+
+    // Normal validation flow for compatible payment methods
     if (!userInfo) {
       validatePublicVoucherPaymentMethod(
         { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
@@ -629,7 +671,7 @@ export function ClientPaymentPage() {
         {/* Payment method */}
         <ClientPaymentMethodSelect
           order={order?.result}
-          paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+          paymentMethod={paymentMethod}
           qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}

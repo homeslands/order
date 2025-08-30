@@ -121,7 +121,7 @@ export default function VoucherListSheetInPayment({
 
     // Nếu không có voucher nào được chọn, xóa voucher hiện tại nếu có
     if (!selectedVoucher) {
-      if (orderData.voucher) {
+      if (orderData.voucher && orderData.voucher !== null) {
         updateVoucherInOrder({
           slug: orderSlug,
           voucher: null,
@@ -137,9 +137,6 @@ export default function VoucherListSheetInPayment({
             setSheetOpen(false)
             onSuccess()
           },
-          onError: () => {
-            showErrorToast(1000)
-          }
         })
       } else {
         setSheetOpen(false)
