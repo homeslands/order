@@ -20,7 +20,7 @@ import { OrderCountdown } from '@/components/app/countdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
-import { RemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
+import { ClientRemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
 import { VoucherListSheetInPayment } from '@/components/app/sheet'
 
 export function ClientPaymentPage() {
@@ -47,6 +47,7 @@ export function ClientPaymentPage() {
 
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
   const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
+  const isRemovingVoucherRef = useRef<boolean>(false) // Track if voucher removal is in progress
   // const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
@@ -79,9 +80,7 @@ export function ClientPaymentPage() {
   );
 
   // Use payment method from order flow store, fallback to voucher method if needed
-  const paymentMethod = paymentData?.paymentMethod ||
-    (voucherPaymentMethods[0]?.paymentMethod as PaymentMethod) ||
-    PaymentMethod.BANK_TRANSFER
+  const paymentMethod = paymentData?.paymentMethod || voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER
 
   // Check if there's a conflict between voucher payment methods and user role
   const hasVoucherPaymentConflict = useMemo(() => {
@@ -108,7 +107,7 @@ export function ClientPaymentPage() {
       // Initialize payment phase with order slug
       if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
         // Use current payment method from store if available, otherwise fallback to voucher method
-        const currentPaymentMethod = paymentData?.paymentMethod || paymentMethod
+        const currentPaymentMethod = (paymentData?.paymentMethod || voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER) as PaymentMethod
         initializePayment(
           slug,
           currentPaymentMethod
@@ -126,9 +125,18 @@ export function ClientPaymentPage() {
 
   // Check voucher payment method compatibility on render
   useEffect(() => {
+    // Skip if voucher removal is in progress to avoid double dialog
+    if (isRemovingVoucherRef.current) {
+      return
+    }
+
     if (hasVoucherPaymentConflict && voucher && !isRemoveVoucherOption) {
       // Automatically show remove voucher dialog when there's a conflict
       setIsRemoveVoucherOption(true)
+    }
+    // Reset dialog state when voucher is removed (voucher becomes null)
+    else if (!voucher && isRemoveVoucherOption) {
+      setIsRemoveVoucherOption(false)
     }
   }, [hasVoucherPaymentConflict, voucher, isRemoveVoucherOption])
 
@@ -232,10 +240,14 @@ export function ClientPaymentPage() {
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
     // Lưu payment method hiện tại trước khi thay đổi
-    setPreviousPaymentMethod(paymentMethod)
+    setPreviousPaymentMethod(paymentMethod as PaymentMethod)
 
-    // If there's already a voucher payment conflict detected, don't validate again
-    if (hasVoucherPaymentConflict) {
+    // Check if selected payment method is compatible with voucher
+    const isSelectedMethodCompatible = !voucher || !voucherPaymentMethods.length ||
+      voucherPaymentMethods.some(vpm => vpm.paymentMethod === selectedPaymentMethod);
+
+    // Show dialog if payment method is not compatible with voucher
+    if (!isSelectedMethodCompatible || hasVoucherPaymentConflict) {
       // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
       setPendingPaymentMethod(selectedPaymentMethod)
       if (!isRemoveVoucherOption) {
@@ -454,30 +466,48 @@ export function ClientPaymentPage() {
       </span>
 
       {isRemoveVoucherOption && (
-        <RemoveVoucherWhenPayingDialog
+        <ClientRemoveVoucherWhenPayingDialog
           voucher={voucher}
           selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
           previousPaymentMethod={previousPaymentMethod}
           isOpen={isRemoveVoucherOption}
           onOpenChange={setIsRemoveVoucherOption}
           order={order?.result}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
           onCancel={() => {
             // Reset pending payment method sau khi cancel
             setPendingPaymentMethod(undefined)
             // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
             setPreviousPaymentMethod(undefined)
+            // Reset voucher removal flag
+            isRemovingVoucherRef.current = false
           }}
           onSuccess={(updatedOrder) => {
             // Không reset initializedSlugRef để tránh trigger lại initializePayment
             // initializedSlugRef.current = ''
             qrCodeSetRef.current = false
-            // Sync updated order data với Order Flow Store BEFORE resetting states
+
+            // Explicitly close dialog FIRST to prevent race conditions
+            setIsRemoveVoucherOption(false)
+
+            // Sync updated order data với Order Flow Store
             setOrderFromAPI(updatedOrder)
+
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
             setPendingPaymentMethod(undefined)
-            // Optional: Refetch để đảm bảo data consistency (có thể bỏ nếu không cần)
-            refetchOrder()
+
+            // Delay refetch and reset flag after process is complete
+            setTimeout(() => {
+              refetchOrder()
+              // Reset flag after everything is complete - allow new voucher dialogs
+              setTimeout(() => {
+                isRemovingVoucherRef.current = false
+              }, 200)
+            }, 50)
           }}
         />
       )}
