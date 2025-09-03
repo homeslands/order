@@ -22,7 +22,6 @@ export default function ClientPaymentMethodSelect({
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
-  // console.log("paymentMethod", paymentMethod)
   const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
     if (onSubmit) {
       onSubmit(paymentMethodSubmit)
