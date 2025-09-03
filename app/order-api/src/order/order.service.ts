@@ -457,6 +457,21 @@ export class OrderService {
     return this.mapper.map(updatedOrder, Order, OrderResponseDto);
   }
 
+  async updateVoucherOrderPublic(
+    slug: string,
+    orders: string[],
+    requestData: UpdateVoucherOrderRequestDto,
+  ): Promise<OrderResponseDto> {
+    const context = `${OrderService.name}.${this.updateOrder.name}`;
+
+    if (!orders.includes(slug)) {
+      this.logger.warn(`Order ${slug} is not in the list`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    return await this.updateVoucherOrder(slug, requestData);
+  }
+
   /**
    * Handles order creation
    * This method creates new order and order items
