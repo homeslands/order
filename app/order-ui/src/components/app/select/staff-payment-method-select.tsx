@@ -9,7 +9,7 @@ import { IOrder } from '@/types'
 
 interface PaymentMethodSelectProps {
   order?: IOrder
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod | string
   qrCode?: string
   total?: number
   onSubmit?: (paymentMethod: PaymentMethod) => void
@@ -23,7 +23,6 @@ export default function StaffPaymentMethodSelect({
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
-
   const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
     if (onSubmit) {
       onSubmit(paymentMethodSubmit)

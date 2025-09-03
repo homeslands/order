@@ -14,7 +14,8 @@ import { useUpdateVoucherInOrder } from '@/hooks'
 import { IOrder, IVoucher } from '@/types'
 import { useOrderFlowStore } from '@/stores'
 import { PaymentMethod } from '@/constants'
-export default function RemoveVoucherWhenPayingDialog({
+
+export default function ClientRemoveVoucherWhenPayingDialog({
   voucher: _voucher,
   isOpen,
   onOpenChange,
@@ -23,15 +24,17 @@ export default function RemoveVoucherWhenPayingDialog({
   previousPaymentMethod,
   onSuccess,
   onCancel,
+  onRemoveStart,
 }: {
   voucher?: IVoucher | null
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   order?: IOrder
-  selectedPaymentMethod: PaymentMethod
+  selectedPaymentMethod: PaymentMethod | string
   previousPaymentMethod?: PaymentMethod
   onSuccess?: (updatedOrder: IOrder) => void
   onCancel?: () => void
+  onRemoveStart?: () => void
 }) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
@@ -49,6 +52,9 @@ export default function RemoveVoucherWhenPayingDialog({
   }
 
   const handleRemoveVoucher = () => {
+    // Notify parent that removal process is starting
+    onRemoveStart?.()
+
     updateVoucherInOrder(
       {
         slug: order?.slug || '',
@@ -64,9 +70,18 @@ export default function RemoveVoucherWhenPayingDialog({
       {
         onSuccess: (response) => {
           showToast(tToast('toast.removeVoucherSuccess'))
-          updatePaymentMethod(selectedPaymentMethod)
+
+          // Close dialog immediately to prevent flicker
           onOpenChange(false)
-          onSuccess?.(response.result)
+
+          // Update payment method after dialog is closed
+          setTimeout(() => {
+            // Always use selectedPaymentMethod since it's what user wants to switch to
+            updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+
+            // Call parent onSuccess after payment method is updated
+            onSuccess?.(response.result)
+          }, 50)
         },
       }
     )
