@@ -93,25 +93,25 @@ export default function PaymentMethodRadioGroup({
   }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
 
   // Randomly select a payment method based on conditions
-  const getRandomDefaultPaymentMethod = useCallback(() => {
-    if (!order?.voucher || voucherPaymentMethods.length === 0) {
-      // No voucher: random from all available methods
-      const availableMethods = getAvailablePaymentMethods()
-      return availableMethods[Math.floor(Math.random() * availableMethods.length)]
-    } else {
-      // Has voucher: random from supported methods that are also available for user role
-      const availableMethods = getAvailablePaymentMethods()
-      const supportedMethods = getSupportedPaymentMethods()
-      const compatibleMethods = supportedMethods.filter(method => availableMethods.includes(method))
+  // const getRandomDefaultPaymentMethod = useCallback(() => {
+  //   if (!order?.voucher || voucherPaymentMethods.length === 0) {
+  //     // No voucher: random from all available methods
+  //     const availableMethods = getAvailablePaymentMethods()
+  //     return availableMethods[Math.floor(Math.random() * availableMethods.length)]
+  //   } else {
+  //     // Has voucher: random from supported methods that are also available for user role
+  //     const availableMethods = getAvailablePaymentMethods()
+  //     const supportedMethods = getSupportedPaymentMethods()
+  //     const compatibleMethods = supportedMethods.filter(method => availableMethods.includes(method))
 
-      if (compatibleMethods.length === 0) {
-        // No compatible methods - fallback to first available method for user role
-        return availableMethods[0]
-      }
+  //     if (compatibleMethods.length === 0) {
+  //       // No compatible methods - fallback to first available method for user role
+  //       return availableMethods[0]
+  //     }
 
-      return compatibleMethods[Math.floor(Math.random() * compatibleMethods.length)]
-    }
-  }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
+  //     return compatibleMethods[Math.floor(Math.random() * compatibleMethods.length)]
+  //   }
+  // }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
 
   // Initialize payment method when defaultValue changes
   useEffect(() => {
@@ -122,15 +122,15 @@ export default function PaymentMethodRadioGroup({
   }, [defaultValue, selectedPaymentMethod])
 
   // Initialize with random method if no defaultValue
-  useEffect(() => {
-    if (!defaultValue && !selectedPaymentMethod) {
-      const randomMethod = getRandomDefaultPaymentMethod()
-      setSelectedPaymentMethod(randomMethod)
-      if (onSubmit) {
-        onSubmit(randomMethod)
-      }
-    }
-  }, [defaultValue, selectedPaymentMethod, getRandomDefaultPaymentMethod, onSubmit])
+  // useEffect(() => {
+  //   if (!defaultValue && !selectedPaymentMethod) {
+  //     const randomMethod = getRandomDefaultPaymentMethod()
+  //     setSelectedPaymentMethod(randomMethod)
+  //     if (onSubmit) {
+  //       onSubmit(randomMethod)
+  //     }
+  //   }
+  // }, [defaultValue, selectedPaymentMethod, getRandomDefaultPaymentMethod, onSubmit])
 
   const handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
     setSelectedPaymentMethod(paymentMethod)

@@ -44,6 +44,7 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isRemoveVoucherOption, setIsRemoveVoucherOption] = useState<boolean>(false)
   const [previousPaymentMethod, setPreviousPaymentMethod] = useState<PaymentMethod | undefined>()
+  const [pendingPaymentMethod, setPendingPaymentMethod] = useState<PaymentMethod | undefined>()
   const {
     currentStep,
     paymentData,
@@ -58,16 +59,39 @@ export default function PaymentPage() {
 
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
   const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
-  const paymentMethod = paymentData?.paymentMethod
   // console.log('paymentMethod', paymentMethod)
-  const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
+
+  const orderItems = order?.result?.orderItems || []
+  const voucher = order?.result?.voucher || null
 
   const voucherPaymentMethods = useMemo(() =>
     orderData?.voucher?.voucherPaymentMethods || [],
     [orderData?.voucher?.voucherPaymentMethods]
   )
+
+  // Use payment method from order flow store, fallback to voucher method if needed
+  const paymentMethod = paymentData?.paymentMethod ||
+    (voucherPaymentMethods[0]?.paymentMethod as PaymentMethod) ||
+    PaymentMethod.BANK_TRANSFER
+
+  // Check if there's a conflict between voucher payment methods and user role (staff only have BANK_TRANSFER and CASH)
+  const hasVoucherPaymentConflict = useMemo(() => {
+    if (!voucher || !voucherPaymentMethods.length) return false
+
+    // Staff available payment methods (no POINT for staff)
+    const availableForStaff = [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
+
+    // Check if any voucher payment method is compatible with staff role
+    const voucherSupportedMethods = voucherPaymentMethods.map(vpm => vpm.paymentMethod as PaymentMethod)
+    const hasCompatibleMethod = voucherSupportedMethods.some(method => availableForStaff.includes(method))
+
+    return !hasCompatibleMethod
+  }, [voucher, voucherPaymentMethods])
+
+  const isDisabled = !paymentMethod || !slug
+
 
   // 🚀 Đảm bảo đang ở ORDERING phase khi component mount
   useEffect(() => {
@@ -85,9 +109,6 @@ export default function PaymentPage() {
       }
     }
   }, [isHydrated, currentStep, paymentData, setCurrentStep, initializePayment, slug, voucherPaymentMethods])
-
-  const orderItems = order?.result?.orderItems || []
-  const voucher = order?.result?.voucher || null
 
   const displayItems = calculateOrderItemDisplay(orderItems, voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
@@ -123,6 +144,14 @@ export default function PaymentPage() {
   useEffect(() => {
     handleSyncOrderData()
   }, [handleSyncOrderData])
+
+  // Check voucher payment method compatibility on render
+  useEffect(() => {
+    if (hasVoucherPaymentConflict && voucher && !isRemoveVoucherOption) {
+      // Automatically show remove voucher dialog when there's a conflict
+      setIsRemoveVoucherOption(true)
+    }
+  }, [hasVoucherPaymentConflict, voucher, isRemoveVoucherOption])
 
   // Stable QR code update function
   const handleUpdateQrCode = useCallback(() => {
@@ -247,17 +276,33 @@ export default function PaymentPage() {
   }, [isPolling, handlePolling])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
+    // Lưu payment method hiện tại trước khi thay đổi
     setPreviousPaymentMethod(paymentMethod)
+
+    // If there's already a voucher payment conflict detected, don't validate again
+    if (hasVoucherPaymentConflict) {
+      // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
+      setPendingPaymentMethod(selectedPaymentMethod)
+      if (!isRemoveVoucherOption) {
+        setIsRemoveVoucherOption(true)
+      }
+      setIsLoading(false)
+      return
+    }
+
+    // Normal validation flow for compatible payment methods
     validateVoucherPaymentMethod(
       { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
       {
         onSuccess: () => {
-          // console.log('selectedPaymentMethod', selectedPaymentMethod)
           updatePaymentMethod(selectedPaymentMethod)
+          setPendingPaymentMethod(undefined)
+          setPreviousPaymentMethod(undefined) // Clear previous method when successful
           setIsLoading(false)
         },
         onError: () => {
-          updatePaymentMethod(selectedPaymentMethod)
+          // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
+          setPendingPaymentMethod(selectedPaymentMethod)
           setIsRemoveVoucherOption(true)
           setIsLoading(false)
         },
@@ -553,36 +598,40 @@ export default function PaymentPage() {
 
             {isRemoveVoucherOption && (
               <RemoveVoucherWhenPayingDialog
-                selectedPaymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+                voucher={voucher}
+                selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
+                previousPaymentMethod={previousPaymentMethod}
                 isOpen={isRemoveVoucherOption}
                 onOpenChange={setIsRemoveVoucherOption}
                 order={order?.result}
-                previousPaymentMethod={previousPaymentMethod}
                 onCancel={() => {
-                  // Reset previous payment method sau khi cancel
+                  // Reset pending payment method sau khi cancel
+                  setPendingPaymentMethod(undefined)
+                  // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
                   setPreviousPaymentMethod(undefined)
                 }}
                 onSuccess={(updatedOrder) => {
                   // Reset lại refs để init lại payment store với dữ liệu mới không có voucher
                   initializedSlugRef.current = ''
                   qrCodeSetRef.current = false
-                  // Init lại payment trước, sau đó set order data
-                  // initializePayment(slug || '', paymentMethod)
-                  // Sync updated order data với Order Flow Store AFTER init
+                  // Sync updated order data với Order Flow Store BEFORE resetting states
                   setOrderFromAPI(updatedOrder)
+                  // Reset states sau khi đã sync order data
+                  setPreviousPaymentMethod(undefined)
+                  setPendingPaymentMethod(undefined)
                   // Optional: Refetch để đảm bảo data consistency (có thể bỏ nếu không cần)
                   refetchOrder()
                 }}
               />
             )}
 
-            <VoucherListSheetInPayment paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER} onSuccess={refetchOrder} />
+            <VoucherListSheetInPayment onSuccess={refetchOrder} />
             {/* Payment method */}
             <StaffPaymentMethodSelect
               order={order?.result}
               qrCode={hasValidPaymentAndQr ? qrCode : ''}
               total={order.result ? order.result.subtotal : 0}
-              paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+              paymentMethod={pendingPaymentMethod || paymentMethod}
               onSubmit={handleSelectPaymentMethod}
             />
           </div>
