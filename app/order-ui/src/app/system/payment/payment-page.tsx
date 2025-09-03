@@ -73,7 +73,7 @@ export default function PaymentPage() {
   )
 
   // Use payment method from order flow store, fallback to voucher method if needed
-  const paymentMethod = paymentData?.paymentMethod || voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER
+  const paymentMethod = voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER
 
   // Check if there's a conflict between voucher payment methods and user role (staff only have BANK_TRANSFER and CASH)
   const hasVoucherPaymentConflict = useMemo(() => {
@@ -96,10 +96,10 @@ export default function PaymentPage() {
       // Initialize payment phase with order slug
       if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
         // Use current payment method from store if available, otherwise fallback to voucher method
-        const currentPaymentMethod = (paymentData?.paymentMethod || voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER) as PaymentMethod
+        // const currentPaymentMethod = (voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER) as PaymentMethod
         initializePayment(
           slug,
-          currentPaymentMethod
+          paymentMethod as PaymentMethod
         )
 
         // Mark as initialized only for new slugs
