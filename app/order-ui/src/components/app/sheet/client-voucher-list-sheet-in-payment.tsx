@@ -70,7 +70,7 @@ export default function VoucherListSheetInPayment({
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
 
-  // console.log('paymentMethod in voucher list sheet in payment', paymentMethod)
+  // console.log('paymentMethod in voucher list sheet in payment', paymentData)
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)

@@ -8,7 +8,7 @@ import { PaymentMethod } from '@/constants'
 import { IOrder } from '@/types'
 interface PaymentMethodSelectProps {
   order?: IOrder
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod | string
   qrCode?: string
   total?: number
   onSubmit?: (paymentMethod: PaymentMethod) => void
@@ -22,7 +22,7 @@ export default function ClientPaymentMethodSelect({
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
-
+  // console.log("paymentMethod", paymentMethod)
   const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
     if (onSubmit) {
       onSubmit(paymentMethodSubmit)
