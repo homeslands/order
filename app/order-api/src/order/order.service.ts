@@ -274,7 +274,7 @@ export class OrderService {
     slug: string,
     requestData: UpdateVoucherOrderRequestDto,
   ): Promise<OrderResponseDto> {
-    const context = `${OrderService.name}.${this.updateOrder.name}`;
+    const context = `${OrderService.name}.${this.updateVoucherOrder.name}`;
 
     const order = await this.orderUtils.getOrder({ where: { slug } });
 
@@ -461,14 +461,191 @@ export class OrderService {
     orders: string[],
     requestData: UpdateVoucherOrderRequestDto,
   ): Promise<OrderResponseDto> {
-    const context = `${OrderService.name}.${this.updateOrder.name}`;
+    const context = `${OrderService.name}.${this.updateVoucherOrderPublic.name}`;
 
     if (!orders.includes(slug)) {
       this.logger.warn(`Order ${slug} is not in the list`, context);
       throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
     }
 
-    return await this.updateVoucherOrder(slug, requestData);
+    const order = await this.orderUtils.getOrder({ where: { slug } });
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(`Order ${slug} is not pending`, context);
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    // Get new voucher
+    let voucher: Voucher = null;
+
+    // Remove voucher from order
+    const previousVoucher = order.voucher;
+
+    // update order item => remove voucher value
+    if (
+      previousVoucher?.applicabilityRule ===
+      VoucherApplicabilityRule.ALL_REQUIRED
+    ) {
+      if (previousVoucher?.type === VoucherType.SAME_PRICE_PRODUCT) {
+        const updatedOrderItems = order.orderItems.map((orderItem) => {
+          const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+            null,
+            orderItem,
+            false, // is add voucher
+          );
+          return updatedOrderItem;
+        });
+        order.orderItems = updatedOrderItems;
+      }
+    }
+
+    if (
+      previousVoucher?.applicabilityRule ===
+      VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+    ) {
+      const updatedOrderItems = order.orderItems.map((orderItem) => {
+        const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+          null,
+          orderItem,
+          false, // is add voucher
+        );
+        return updatedOrderItem;
+      });
+      order.orderItems = updatedOrderItems;
+    }
+
+    order.voucher = null;
+    const { subtotal, originalSubtotal } =
+      await this.orderUtils.getOrderSubtotal(order, null);
+
+    order.subtotal = subtotal;
+    order.originalSubtotal = originalSubtotal;
+
+    // Validate new voucher
+    if (requestData.voucher) {
+      voucher = await this.voucherUtils.getVoucher({
+        where: {
+          slug: requestData.voucher ?? IsNull(),
+        },
+        relations: ['voucherProducts.product'],
+      });
+
+      if (previousVoucher?.id === voucher.id) {
+        this.logger.warn(
+          `Voucher ${voucher.code} is the same as the previous voucher`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER,
+        );
+      }
+
+      // await this.voucherUtils.validateVoucher(voucher);
+      await this.voucherUtils.validateVoucherTime(voucher);
+      this.voucherUtils.validateVoucherRemainingUsage(voucher);
+      await this.voucherUtils.validateVoucherUsage(voucher);
+      await this.voucherUtils.validateMinOrderValue(voucher, order);
+
+      await this.voucherUtils.validateVoucherProduct(
+        voucher,
+        order.orderItems.map((item) => item.variant.slug),
+      );
+    }
+
+    // Update order
+    const updatedOrder = await this.transactionManagerService.execute<Order>(
+      async (manager) => {
+        if (order.payment) {
+          await this.paymentUtils.cancelPayment(order.payment.slug);
+        }
+
+        if (voucher) {
+          // Update remaining quantity of voucher
+          voucher.remainingUsage -= 1;
+
+          // Update order
+          order.voucher = voucher;
+
+          // update order item => add voucher value
+          if (
+            voucher.applicabilityRule === VoucherApplicabilityRule.ALL_REQUIRED
+          ) {
+            if (voucher.type === VoucherType.SAME_PRICE_PRODUCT) {
+              const updatedOrderItems = order.orderItems.map((orderItem) => {
+                const updatedOrderItem =
+                  this.orderItemUtils.getUpdatedOrderItem(
+                    voucher,
+                    orderItem,
+                    true, // is add voucher
+                  );
+                return updatedOrderItem;
+              });
+              order.orderItems = updatedOrderItems;
+            } else {
+              // with other voucher type => remove voucher value
+              const updatedOrderItems = order.orderItems.map((orderItem) => {
+                const updatedOrderItem =
+                  this.orderItemUtils.getUpdatedOrderItem(
+                    null,
+                    orderItem,
+                    false, // is add voucher
+                  );
+                return updatedOrderItem;
+              });
+              order.orderItems = updatedOrderItems;
+            }
+          }
+
+          if (
+            voucher.applicabilityRule ===
+            VoucherApplicabilityRule.AT_LEAST_ONE_REQUIRED
+          ) {
+            const updatedOrderItems = order.orderItems.map((orderItem) => {
+              const updatedOrderItem = this.orderItemUtils.getUpdatedOrderItem(
+                voucher,
+                orderItem,
+                true, // is add voucher
+              );
+              return updatedOrderItem;
+            });
+            order.orderItems = updatedOrderItems;
+          }
+
+          const { subtotal } = await this.orderUtils.getOrderSubtotal(
+            order,
+            voucher,
+          );
+          order.subtotal = subtotal;
+
+          await manager.save(voucher);
+        }
+
+        if (previousVoucher) {
+          previousVoucher.remainingUsage += 1;
+          await manager.save(previousVoucher);
+        }
+
+        return await manager.save(order);
+      },
+      (result) => {
+        this.logger.log(
+          `Order with slug ${result.slug} updated successfully`,
+          context,
+        );
+      },
+      (error) => {
+        this.logger.warn(
+          `Error when updating order: ${error.message}`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.UPDATE_ORDER_ERROR,
+          error.message,
+        );
+      },
+    );
+
+    return this.mapper.map(updatedOrder, Order, OrderResponseDto);
   }
 
   /**
