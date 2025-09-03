@@ -47,10 +47,8 @@ import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export default function VoucherListSheetInPayment({
-  paymentMethod,
   onSuccess,
 }: {
-  paymentMethod: string
   onSuccess: () => void
 }) {
   const isMobile = useIsMobile()
@@ -67,8 +65,12 @@ export default function VoucherListSheetInPayment({
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
 
+  const paymentMethod = paymentData?.paymentMethod
+
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
+
+  // console.log('paymentMethod in voucher list sheet in payment', paymentMethod)
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
