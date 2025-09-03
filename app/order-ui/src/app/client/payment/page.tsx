@@ -56,6 +56,7 @@ export function ClientPaymentPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isRemoveVoucherOption, setIsRemoveVoucherOption] = useState<boolean>(false)
   const [previousPaymentMethod, setPreviousPaymentMethod] = useState<PaymentMethod | undefined>()
+  const [pendingPaymentMethod, setPendingPaymentMethod] = useState<PaymentMethod | undefined>()
 
   const orderItems = order?.result?.orderItems || []
   const voucher = order?.result?.voucher || null
@@ -77,7 +78,10 @@ export function ClientPaymentPage() {
     [orderData?.voucher?.voucherPaymentMethods]
   );
 
-  const paymentMethod = voucherPaymentMethods[0]?.paymentMethod as PaymentMethod || PaymentMethod.BANK_TRANSFER
+  // Use payment method from order flow store, fallback to voucher method if needed
+  const paymentMethod = paymentData?.paymentMethod ||
+    (voucherPaymentMethods[0]?.paymentMethod as PaymentMethod) ||
+    PaymentMethod.BANK_TRANSFER
 
   // Check if there's a conflict between voucher payment methods and user role
   const hasVoucherPaymentConflict = useMemo(() => {
@@ -101,12 +105,13 @@ export function ClientPaymentPage() {
 
   useEffect(() => {
     if (slug) {
-      const availablePaymentMethod = paymentMethod
       // Initialize payment phase with order slug
       if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
+        // Use current payment method from store if available, otherwise fallback to voucher method
+        const currentPaymentMethod = paymentData?.paymentMethod || paymentMethod
         initializePayment(
           slug,
-          availablePaymentMethod
+          currentPaymentMethod
         )
 
         // Mark as initialized only for new slugs
@@ -116,7 +121,8 @@ export function ClientPaymentPage() {
         }
       }
     }
-  }, [slug, currentStep, initializePayment, voucherPaymentMethods, paymentMethod])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, currentStep, initializePayment])
 
   // Check voucher payment method compatibility on render
   useEffect(() => {
@@ -230,7 +236,8 @@ export function ClientPaymentPage() {
 
     // If there's already a voucher payment conflict detected, don't validate again
     if (hasVoucherPaymentConflict) {
-      updatePaymentMethod(selectedPaymentMethod)
+      // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
+      setPendingPaymentMethod(selectedPaymentMethod)
       if (!isRemoveVoucherOption) {
         setIsRemoveVoucherOption(true)
       }
@@ -244,8 +251,9 @@ export function ClientPaymentPage() {
         { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
         {
           onSuccess: () => {
-            // console.log('selectedPaymentMethod', selectedPaymentMethod)
             updatePaymentMethod(selectedPaymentMethod)
+            setPendingPaymentMethod(undefined)
+            setPreviousPaymentMethod(undefined) // Clear previous method when successful
             setIsLoading(false)
           },
         }
@@ -255,12 +263,14 @@ export function ClientPaymentPage() {
         { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
         {
           onSuccess: () => {
-            // console.log('selectedPaymentMethod', selectedPaymentMethod)
             updatePaymentMethod(selectedPaymentMethod)
+            setPendingPaymentMethod(undefined)
+            setPreviousPaymentMethod(undefined) // Clear previous method when successful
             setIsLoading(false)
           },
           onError: () => {
-            updatePaymentMethod(selectedPaymentMethod)
+            // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
+            setPendingPaymentMethod(selectedPaymentMethod)
             setIsRemoveVoucherOption(true)
             setIsLoading(false)
           },
@@ -446,25 +456,26 @@ export function ClientPaymentPage() {
       {isRemoveVoucherOption && (
         <RemoveVoucherWhenPayingDialog
           voucher={voucher}
-          selectedPaymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
           previousPaymentMethod={previousPaymentMethod}
           isOpen={isRemoveVoucherOption}
           onOpenChange={setIsRemoveVoucherOption}
           order={order?.result}
           onCancel={() => {
-            // Reset previous payment method sau khi cancel
+            // Reset pending payment method sau khi cancel
+            setPendingPaymentMethod(undefined)
+            // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
             setPreviousPaymentMethod(undefined)
           }}
           onSuccess={(updatedOrder) => {
-            // Reset lại refs để init lại payment store với dữ liệu mới không có voucher
-            initializedSlugRef.current = ''
+            // Không reset initializedSlugRef để tránh trigger lại initializePayment
+            // initializedSlugRef.current = ''
             qrCodeSetRef.current = false
-            // Reset previous payment method sau khi success
-            setPreviousPaymentMethod(undefined)
-            // Init lại payment trước, sau đó set order data
-            // initializePayment(slug || '', paymentMethod)
-            // Sync updated order data với Order Flow Store AFTER init
+            // Sync updated order data với Order Flow Store BEFORE resetting states
             setOrderFromAPI(updatedOrder)
+            // Reset states sau khi đã sync order data
+            setPreviousPaymentMethod(undefined)
+            setPendingPaymentMethod(undefined)
             // Optional: Refetch để đảm bảo data consistency (có thể bỏ nếu không cần)
             refetchOrder()
           }}
@@ -667,11 +678,11 @@ export function ClientPaymentPage() {
             </div>
           </div>
         </div>
-        <VoucherListSheetInPayment paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER} onSuccess={refetchOrder} />
+        <VoucherListSheetInPayment onSuccess={refetchOrder} />
         {/* Payment method */}
         <ClientPaymentMethodSelect
           order={order?.result}
-          paymentMethod={paymentMethod}
+          paymentMethod={pendingPaymentMethod || paymentMethod}
           qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
