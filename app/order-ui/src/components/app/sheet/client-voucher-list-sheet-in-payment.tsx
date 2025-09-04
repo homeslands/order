@@ -38,6 +38,7 @@ import {
   useVouchersForOrder,
   useUpdateVoucherInOrder,
   useUpdatePublicVoucherInOrder,
+  usePublicVouchersForOrder,
 } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
@@ -80,7 +81,7 @@ export default function VoucherListSheetInPayment({
     !!orderData?.owner && // Check khác null, undefined, ""
     orderData.owner.role.name === Role.CUSTOMER;
 
-  const { data: voucherList } = useVouchersForOrder(
+  const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
     isCustomerOwner
       ? {
         isActive: true,
@@ -99,6 +100,19 @@ export default function VoucherListSheetInPayment({
       },
     !!sheetOpen
   );
+
+  const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
+    !isCustomerOwner
+      ? {
+        isActive: true,
+        hasPaging: true,
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+        paymentMethod: paymentMethod
+      }
+      : undefined,
+    !!sheetOpen
+  )
 
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
@@ -133,6 +147,11 @@ export default function VoucherListSheetInPayment({
 
         const successCallback = () => {
           showToast(tToast('toast.removeVoucherSuccess'))
+          if (userInfo) {
+            refetchVoucherList()
+          } else {
+            refetchPublicVoucherList()
+          }
           setSheetOpen(false)
           onSuccess()
         }
@@ -208,6 +227,11 @@ export default function VoucherListSheetInPayment({
     validateVoucher(validateVoucherParam, {
       onSuccess: () => {
         const successCallback = () => {
+          if (userInfo) {
+            refetchVoucherList()
+          } else {
+            refetchPublicVoucherList()
+          }
           setSheetOpen(false)
           showToast(tToast('toast.applyVoucherSuccess'))
           onSuccess()
@@ -289,7 +313,7 @@ export default function VoucherListSheetInPayment({
   }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const baseList = voucherList?.result?.items || []
+    const baseList = userInfo ? voucherList?.result?.items || [] : publicVoucherList?.result?.items || []
     let newList = [...baseList]
 
     // Add specific voucher from search
@@ -309,7 +333,7 @@ export default function VoucherListSheetInPayment({
     }
 
     setLocalVoucherList(newList)
-  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher])
+  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, publicVoucherList?.result?.items])
 
   // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
