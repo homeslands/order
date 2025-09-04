@@ -25,6 +25,7 @@ import {
   updateVoucherInOrder,
   getOrderProvisionalBill,
   reprintFailedInvoicePrinterJobs,
+  updatePublicVoucherInOrder,
 } from '@/api'
 import {
   ICreateOrderRequest,
@@ -44,7 +45,7 @@ export const useOrders = (q: IOrdersQuery) => {
     queryKey: ['orders', q],
     queryFn: () => getAllOrders(q),
     placeholderData: keepPreviousData,
-    select: (data) => data.result 
+    select: (data) => data.result,
   })
 }
 
@@ -68,7 +69,6 @@ export const useOrderBySlug = (slug: string | null | undefined) => {
     placeholderData: keepPreviousData,
   })
 }
-
 
 export const useCreateOrder = () => {
   return useMutation({
@@ -207,6 +207,22 @@ export const useUpdateVoucherInOrder = () => {
       orderItems: IOrderItemsParam[]
     }) => {
       return updateVoucherInOrder(slug, voucher, orderItems)
+    },
+  })
+}
+
+export const useUpdatePublicVoucherInOrder = () => {
+  return useMutation({
+    mutationFn: async ({
+      slug,
+      voucher,
+      orderItems,
+    }: {
+      slug: string
+      voucher: string | null
+      orderItems: IOrderItemsParam[]
+    }) => {
+      return updatePublicVoucherInOrder(slug, voucher, orderItems)
     },
   })
 }
