@@ -37,6 +37,7 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
   useUpdateVoucherInOrder,
+  useUpdatePublicVoucherInOrder,
 } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
@@ -59,6 +60,7 @@ export default function VoucherListSheetInPayment({
   const { paymentData } = useOrderFlowStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updatePublicVoucherInOrder } = useUpdatePublicVoucherInOrder()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
@@ -69,8 +71,6 @@ export default function VoucherListSheetInPayment({
 
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
-
-  // console.log('paymentMethod in voucher list sheet in payment', paymentData)
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
@@ -124,22 +124,40 @@ export default function VoucherListSheetInPayment({
     // Nếu không có voucher nào được chọn, xóa voucher hiện tại nếu có
     if (!selectedVoucher) {
       if (orderData.voucher && orderData.voucher !== null) {
-        updateVoucherInOrder({
-          slug: orderSlug,
-          voucher: null,
-          orderItems: orderData.orderItems.map((item) => ({
-            quantity: item.quantity,
-            variant: item.variant.slug,
-            note: item.note,
-            promotion: item.promotion ? item.promotion.slug : null,
-          }))
-        }, {
-          onSuccess: () => {
-            showToast(tToast('toast.removeVoucherSuccess'))
-            setSheetOpen(false)
-            onSuccess()
-          },
-        })
+        const orderItemsPayload = orderData.orderItems.map((item) => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+
+        const successCallback = () => {
+          showToast(tToast('toast.removeVoucherSuccess'))
+          setSheetOpen(false)
+          onSuccess()
+        }
+
+        // Check if user is logged in based on firstName
+        if (orderData?.owner?.firstName === 'Default') {
+          // For non-logged in users
+          updatePublicVoucherInOrder({
+            slug: orderSlug,
+            voucher: null,
+            orderItems: orderItemsPayload
+          }, {
+            onSuccess: successCallback,
+          })
+        } else {
+          // For logged in users
+          updateVoucherInOrder({
+            slug: orderSlug,
+            voucher: null,
+            orderItems: orderItemsPayload
+          }, {
+            onSuccess: successCallback,
+          })
+        }
+        return
       } else {
         setSheetOpen(false)
       }
@@ -189,20 +207,38 @@ export default function VoucherListSheetInPayment({
     // Validate voucher trước, sau đó update order
     validateVoucher(validateVoucherParam, {
       onSuccess: () => {
-        updateVoucherInOrder({
-          slug: orderSlug,
-          voucher: selectedVoucherData.slug,
-          orderItems: orderItemsParam
-        }, {
-          onSuccess: () => {
-            setSheetOpen(false)
-            showToast(tToast('toast.applyVoucherSuccess'))
-            onSuccess()
-          },
-          onError: () => {
-            showErrorToast(1000)
-          }
-        })
+        const successCallback = () => {
+          setSheetOpen(false)
+          showToast(tToast('toast.applyVoucherSuccess'))
+          onSuccess()
+        }
+
+        const errorCallback = () => {
+          showErrorToast(1000)
+        }
+
+        // Check if user is logged in based on firstName
+        if (orderData?.owner?.firstName === 'Default') {
+          // For non-logged in users
+          updatePublicVoucherInOrder({
+            slug: orderSlug,
+            voucher: selectedVoucherData.slug,
+            orderItems: orderItemsParam
+          }, {
+            onSuccess: successCallback,
+            onError: errorCallback
+          })
+        } else {
+          // For logged in users
+          updateVoucherInOrder({
+            slug: orderSlug,
+            voucher: selectedVoucherData.slug,
+            orderItems: orderItemsParam
+          }, {
+            onSuccess: successCallback,
+            onError: errorCallback
+          })
+        }
       },
       onError: () => {
         showErrorToast(1000)

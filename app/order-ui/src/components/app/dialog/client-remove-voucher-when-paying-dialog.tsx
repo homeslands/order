@@ -10,9 +10,9 @@ import {
   DialogFooter,
 } from '@/components/ui'
 import { showToast } from '@/utils'
-import { useUpdateVoucherInOrder } from '@/hooks'
+import { useUpdatePublicVoucherInOrder, useUpdateVoucherInOrder } from '@/hooks'
 import { IOrder, IVoucher } from '@/types'
-import { useOrderFlowStore } from '@/stores'
+import { useOrderFlowStore, useUserStore } from '@/stores'
 import { PaymentMethod } from '@/constants'
 
 export default function ClientRemoveVoucherWhenPayingDialog({
@@ -39,7 +39,9 @@ export default function ClientRemoveVoucherWhenPayingDialog({
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
+  const { userInfo } = useUserStore()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updatePublicVoucherInOrder } = useUpdatePublicVoucherInOrder()
   const { updatePaymentMethod } = useOrderFlowStore()
 
   const handleCancel = () => {
@@ -55,36 +57,69 @@ export default function ClientRemoveVoucherWhenPayingDialog({
     // Notify parent that removal process is starting
     onRemoveStart?.()
 
-    updateVoucherInOrder(
-      {
-        slug: order?.slug || '',
-        voucher: null,
-        orderItems:
-          order?.orderItems?.map((item) => ({
-            quantity: item.quantity || 0,
-            variant: item.variant.slug || '',
-            note: item.note || '',
-            promotion: item.promotion ? item.promotion.slug : null,
-          })) || [],
-      },
-      {
-        onSuccess: (response) => {
-          showToast(tToast('toast.removeVoucherSuccess'))
-
-          // Close dialog immediately to prevent flicker
-          onOpenChange(false)
-
-          // Update payment method after dialog is closed
-          setTimeout(() => {
-            // Always use selectedPaymentMethod since it's what user wants to switch to
-            updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
-
-            // Call parent onSuccess after payment method is updated
-            onSuccess?.(response.result)
-          }, 50)
+    if (userInfo) {
+      updateVoucherInOrder(
+        {
+          slug: order?.slug || '',
+          voucher: null,
+          orderItems:
+            order?.orderItems?.map((item) => ({
+              quantity: item.quantity || 0,
+              variant: item.variant.slug || '',
+              note: item.note || '',
+              promotion: item.promotion ? item.promotion.slug : null,
+            })) || [],
         },
-      }
-    )
+        {
+          onSuccess: (response) => {
+            showToast(tToast('toast.removeVoucherSuccess'))
+
+            // Close dialog immediately to prevent flicker
+            onOpenChange(false)
+
+            // Update payment method after dialog is closed
+            setTimeout(() => {
+              // Always use selectedPaymentMethod since it's what user wants to switch to
+              updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+
+              // Call parent onSuccess after payment method is updated
+              onSuccess?.(response.result)
+            }, 50)
+          },
+        }
+      )
+    } else {
+      updatePublicVoucherInOrder(
+        {
+          slug: order?.slug || '',
+          voucher: null,
+          orderItems:
+            order?.orderItems?.map((item) => ({
+              quantity: item.quantity || 0,
+              variant: item.variant.slug || '',
+              note: item.note || '',
+              promotion: item.promotion ? item.promotion.slug : null,
+            })) || [],
+        },
+        {
+          onSuccess: (response) => {
+            showToast(tToast('toast.removeVoucherSuccess'))
+
+            // Close dialog immediately to prevent flicker
+            onOpenChange(false)
+
+            // Update payment method after dialog is closed
+            setTimeout(() => {
+              // Always use selectedPaymentMethod since it's what user wants to switch to
+              updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+
+              // Call parent onSuccess after payment method is updated
+              onSuccess?.(response.result)
+            }, 50)
+          },
+        }
+      )
+    }
   }
 
   return (
