@@ -76,13 +76,23 @@ export default function VoucherListSheetInPayment({
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-  const isCustomerOwner =
-    sheetOpen &&
-    !!orderData?.owner && // Check khác null, undefined, ""
+  // 1. Khách hàng đặt và có login
+  const isCustomerLoggedIn =
+    !!userInfo &&
+    !!orderData?.owner &&
+    userInfo.slug === orderData.owner.slug &&
     orderData.owner.role.name === Role.CUSTOMER;
 
+  // 2. Khách hàng đặt không login
+  const isCustomerNotLoggedIn =
+    !userInfo &&
+    !!orderData?.owner &&
+    orderData.owner.firstName === 'Default' &&
+    orderData.owner.role.name === Role.CUSTOMER;
+  // console.log('isCustomerNotLoggedIn', isCustomerNotLoggedIn)
+
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    isCustomerOwner
+    isCustomerLoggedIn // Nếu là khách hàng đã login
       ? {
         isActive: true,
         hasPaging: true,
@@ -90,19 +100,21 @@ export default function VoucherListSheetInPayment({
         size: pagination.pageSize,
         paymentMethod: paymentMethod
       }
-      : {
-        isVerificationIdentity: false,
-        isActive: true,
-        hasPaging: true,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        paymentMethod: paymentMethod
-      },
+      : !isCustomerNotLoggedIn // Nếu là nhân viên (cả 2 case đặt hộ)
+        ? {
+          isVerificationIdentity: false,
+          isActive: true,
+          hasPaging: true,
+          page: pagination.pageIndex,
+          size: pagination.pageSize,
+          paymentMethod: paymentMethod
+        }
+        : undefined,
     !!sheetOpen
   );
 
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
-    !isCustomerOwner
+    isCustomerNotLoggedIn // Nếu là customer chưa login
       ? {
         isActive: true,
         hasPaging: true,
@@ -147,10 +159,10 @@ export default function VoucherListSheetInPayment({
 
         const successCallback = () => {
           showToast(tToast('toast.removeVoucherSuccess'))
-          if (userInfo) {
-            refetchVoucherList()
-          } else {
+          if (isCustomerNotLoggedIn) {
             refetchPublicVoucherList()
+          } else if (userInfo) {
+            refetchVoucherList()
           }
           setSheetOpen(false)
           onSuccess()
@@ -313,8 +325,12 @@ export default function VoucherListSheetInPayment({
   }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const baseList = userInfo ? voucherList?.result?.items || [] : publicVoucherList?.result?.items || []
-    let newList = [...baseList]
+    const baseList = isCustomerNotLoggedIn
+      ? publicVoucherList?.result?.items || [] // Khách không login - lấy public vouchers
+      : isCustomerLoggedIn
+        ? voucherList?.result?.items || [] // Khách đã login - lấy vouchers
+        : voucherList?.result?.items || []; // Nhân viên - lấy vouchers
+    let newList = [...baseList];
 
     // Add specific voucher from search
     if (specificVoucher?.result) {
@@ -333,7 +349,7 @@ export default function VoucherListSheetInPayment({
     }
 
     setLocalVoucherList(newList)
-  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, publicVoucherList?.result?.items])
+  }, [voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isCustomerNotLoggedIn, isCustomerLoggedIn])
 
   // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
@@ -385,10 +401,10 @@ export default function VoucherListSheetInPayment({
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
     const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!orderData?.owner && orderData.owner.role.name === Role.CUSTOMER
+    const isUserLoggedIn = isCustomerLoggedIn // Chỉ coi là logged in khi là khách hàng đã login
     const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
     return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
-  }, [cartTotals, orderData])
+  }, [cartTotals, orderData, isCustomerLoggedIn])
 
   // Auto-deselect voucher if it becomes invalid (out of stock or other conditions)
   useEffect(() => {
@@ -419,8 +435,8 @@ export default function VoucherListSheetInPayment({
     const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
     const isCurrentlyApplied = orderData?.voucher?.slug === voucher.slug
 
-    if (voucher.isVerificationIdentity && !isCustomerOwner) {
-      return t('voucher.needVerifyIdentity')
+    if (voucher.isVerificationIdentity && !isCustomerLoggedIn) {
+      return t('voucher.needLogin')
     }
 
     // Không hiển thị "hết số lượng" cho voucher đang được áp dụng
@@ -525,9 +541,23 @@ export default function VoucherListSheetInPayment({
             <span className="text-xs text-muted-foreground/80">
               {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
-            <span className="text-xs italic text-destructive">
-              {getVoucherErrorMessage(voucher)}
-            </span>
+            <div className="flex gap-2 items-center">
+              <span className="text-xs italic text-destructive">
+                {getVoucherErrorMessage(voucher)}
+              </span>
+              {voucher.isVerificationIdentity && !isCustomerLoggedIn && (
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-xs text-primary"
+                  onClick={() => {
+                    // Redirect to login page or open login modal
+                    // Implement based on your authentication flow
+                  }}
+                >
+                  {t('voucher.loginToUse')}
+                </Button>
+              )}
+            </div>
           </div>
           <div className="flex gap-2 justify-between items-center">
             <div className="flex flex-col gap-1 w-full">
