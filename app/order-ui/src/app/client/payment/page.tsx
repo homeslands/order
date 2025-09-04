@@ -79,13 +79,8 @@ export function ClientPaymentPage() {
     [orderData?.voucher?.voucherPaymentMethods]
   );
 
-  // eslint-disable-next-line no-console
-  console.log('voucherPaymentMethods', voucherPaymentMethods)
-
   // Use payment method from order flow store, fallback to voucher method if needed
   const paymentMethod = voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER
-  // eslint-disable-next-line no-console
-  console.log('paymentMethod', paymentMethod)
 
   // Check if there's a conflict between voucher payment methods and user role
   const hasVoucherPaymentConflict = useMemo(() => {
