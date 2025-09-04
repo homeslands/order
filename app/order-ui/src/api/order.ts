@@ -283,6 +283,18 @@ export async function updateVoucherInOrder(
   return response.data
 }
 
+export async function updatePublicVoucherInOrder(
+  slug: string,
+  voucher: string | null,
+  orderItems: IOrderItemsParam[],
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.patch<IApiResponse<IOrder>>(
+    `/orders/${slug}/voucher/public`,
+    { voucher, orderItems },
+  )
+  return response.data
+}
+
 export async function updateOrderType(
   slug: string,
   params: IUpdateOrderTypeRequest,

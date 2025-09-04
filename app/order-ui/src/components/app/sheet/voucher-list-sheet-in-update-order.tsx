@@ -37,6 +37,7 @@ import {
   usePublicVouchersForOrder,
   useSpecificPublicVoucher,
   useSpecificVoucher,
+  useUpdatePublicVoucherInOrder,
   useUpdateVoucherInOrder,
   useValidatePublicVoucher,
   useValidateVoucher,
@@ -66,6 +67,7 @@ export default function VoucherListSheetInUpdateOrder({
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updatePublicVoucherInOrder } = useUpdatePublicVoucherInOrder()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -314,16 +316,29 @@ export default function VoucherListSheetInUpdateOrder({
     // Nếu đang bỏ chọn
     if (isSelected) {
       if (voucher) {
-        updateVoucherInOrder(
-          { slug: voucher.slug, voucher: null, orderItems: orderItemsParam || [] },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: ['orders'] })
-              setSelectedVoucher('')
-              handleApplySuccess(removeMessage, false)
+        if (userInfo) {
+          updateVoucherInOrder(
+            { slug: voucher.slug, voucher: null, orderItems: orderItemsParam || [] },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['orders'] })
+                setSelectedVoucher('')
+                handleApplySuccess(removeMessage, false)
+              },
             },
-          },
-        )
+          )
+        } else {
+          updatePublicVoucherInOrder(
+            { slug: voucher.slug, voucher: null, orderItems: orderItemsParam || [] },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['orders'] })
+                setSelectedVoucher('')
+                handleApplySuccess(removeMessage, false)
+              },
+            },
+          )
+        }
       } else {
         removeDraftVoucher()
         setSelectedVoucher('')
@@ -341,23 +356,35 @@ export default function VoucherListSheetInUpdateOrder({
 
     const onValidated = () => {
       if (voucher) {
-        updateVoucherInOrder(
-          { slug: voucher.slug, voucher: voucher.slug, orderItems: orderItemsParam || [] },
-          {
-            onSuccess: () => {
-              if (userInfo) {
-                refetchVoucherList()
-                setLocalVoucherList(voucherList?.result?.items || [])
-              } else {
+        if (userInfo) {
+          updateVoucherInOrder(
+            { slug: voucher.slug, voucher: voucher.slug, orderItems: orderItemsParam || [] },
+            {
+              onSuccess: () => {
+                if (userInfo) {
+                  refetchVoucherList()
+                  setLocalVoucherList(voucherList?.result?.items || [])
+                } else {
+                  refetchPublicVoucherList()
+                  setLocalVoucherList(publicVoucherList?.result?.items || [])
+                }
+                queryClient.invalidateQueries({ queryKey: ['orders'] })
+                setSelectedVoucher(voucher.slug)
+                handleApplySuccess(applyMessage)
+              },
+            },
+          )
+        } else {
+          updatePublicVoucherInOrder(
+            { slug: voucher.slug, voucher: voucher.slug, orderItems: orderItemsParam || [] },
+            {
+              onSuccess: () => {
                 refetchPublicVoucherList()
                 setLocalVoucherList(publicVoucherList?.result?.items || [])
-              }
-              queryClient.invalidateQueries({ queryKey: ['orders'] })
-              setSelectedVoucher(voucher.slug)
-              handleApplySuccess(applyMessage)
+              },
             },
-          },
-        )
+          )
+        }
       } else {
         setDraftVoucher(voucher)
         setSelectedVoucher('')
