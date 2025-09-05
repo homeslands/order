@@ -20,7 +20,7 @@ import { OrderCountdown } from '@/components/app/countdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
-import { ClientRemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
+import { ClientNoLoginRemoveVoucherWhenPayingDialog, ClientRemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
 import { VoucherListSheetInPayment } from '@/components/app/sheet'
 
 export function ClientPaymentPage() {
@@ -475,7 +475,7 @@ export function ClientPaymentPage() {
         <span className="text-muted-foreground">#{slug}</span>
       </span>
 
-      {isRemoveVoucherOption && (
+      {isRemoveVoucherOption && userInfo?.slug && (
         <ClientRemoveVoucherWhenPayingDialog
           voucher={voucher}
           selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.POINT}
@@ -517,6 +517,35 @@ export function ClientPaymentPage() {
                 isRemovingVoucherRef.current = false
               }, 200)
             }, 50)
+          }}
+        />
+      )}
+      {isRemoveVoucherOption && !userInfo?.slug && (
+        <ClientNoLoginRemoveVoucherWhenPayingDialog
+          voucher={voucher}
+          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
+          previousPaymentMethod={previousPaymentMethod}
+          isOpen={isRemoveVoucherOption}
+          onOpenChange={setIsRemoveVoucherOption}
+          order={order?.result}
+          onCancel={() => {
+            // Reset pending payment method sau khi cancel
+            setPendingPaymentMethod(undefined)
+            // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
+            setPreviousPaymentMethod(undefined)
+            // Reset voucher removal flag
+            isRemovingVoucherRef.current = false
+          }}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
+          onSuccess={() => {
+            // Không reset initializedSlugRef để tránh trigger lại initializePayment
+            qrCodeSetRef.current = false
+
+            // Explicitly close dialog FIRST to prevent race conditions
+            setIsRemoveVoucherOption(false)
           }}
         />
       )}

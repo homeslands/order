@@ -212,6 +212,23 @@ export default function PaymentPage() {
     handleUpdateQrCode()
   }, [handleUpdateQrCode])
 
+  // Check voucher payment method compatibility on render
+  useEffect(() => {
+    // Skip if voucher removal is in progress to avoid double dialog
+    if (isRemovingVoucherRef.current) {
+      return
+    }
+
+    if (hasVoucherPaymentConflict && voucher && !isRemoveVoucherOption) {
+      // Automatically show remove voucher dialog when there's a conflict
+      setIsRemoveVoucherOption(true)
+    }
+    // Reset dialog state when voucher is removed (voucher becomes null)
+    else if (!voucher && isRemoveVoucherOption) {
+      setIsRemoveVoucherOption(false)
+    }
+  }, [hasVoucherPaymentConflict, voucher, isRemoveVoucherOption])
+
   const handleGetOrderProvisionalBill = (slug: string) => {
     getOrderProvisionalBill(slug, {
       onSuccess: (data: Blob) => {
@@ -341,24 +358,33 @@ export default function PaymentPage() {
       return
     }
 
-    // Normal validation flow for compatible payment methods
-    validateVoucherPaymentMethod(
-      { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
-      {
-        onSuccess: () => {
-          updatePaymentMethod(selectedPaymentMethod)
-          setPendingPaymentMethod(undefined)
-          setPreviousPaymentMethod(undefined) // Clear previous method when successful
-          setIsLoading(false)
-        },
-        onError: () => {
-          // Restore previous method on validation failure
-          setPendingPaymentMethod(undefined)
-          setIsRemoveVoucherOption(true)
-          setIsLoading(false)
-        },
-      }
-    )
+    // Check if voucher exists and needs validation
+    if (voucher) {
+      // Normal validation flow for compatible payment methods
+      validateVoucherPaymentMethod(
+        { slug: voucher.slug, paymentMethod: selectedPaymentMethod },
+        {
+          onSuccess: () => {
+            updatePaymentMethod(selectedPaymentMethod)
+            setPendingPaymentMethod(undefined)
+            setPreviousPaymentMethod(undefined) // Clear previous method when successful
+            setIsLoading(false)
+          },
+          onError: () => {
+            // Restore previous method on validation failure
+            setPendingPaymentMethod(undefined)
+            setIsRemoveVoucherOption(true)
+            setIsLoading(false)
+          },
+        }
+      )
+    } else {
+      // No voucher, just update payment method
+      updatePaymentMethod(selectedPaymentMethod)
+      setPendingPaymentMethod(undefined)
+      setPreviousPaymentMethod(undefined)
+      setIsLoading(false)
+    }
   }
 
   const handleConfirmPayment = () => {
@@ -647,6 +673,9 @@ export default function PaymentPage() {
               </div>
             </div>
 
+            <VoucherListSheetInPayment onSuccess={refetchOrder} />
+
+            {/* Remove Voucher Dialog */}
             {isRemoveVoucherOption && (
               <StaffRemoveVoucherWhenPayingDialog
                 voucher={voucher}
@@ -693,7 +722,6 @@ export default function PaymentPage() {
               />
             )}
 
-            <VoucherListSheetInPayment onSuccess={refetchOrder} />
             {/* Payment method */}
             {/* Show banner message if exists */}
             {bannerMessage && (
