@@ -40,6 +40,9 @@ import { MenuUtils } from 'src/menu/menu.utils';
 import { Menu } from 'src/menu/menu.entity';
 import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { OrderItem } from 'src/order-item/order-item.entity';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 describe('PaymentService', () => {
   let service: PaymentService;
 
@@ -151,6 +154,15 @@ describe('PaymentService', () => {
         OrderItemUtils,
         {
           provide: getRepositoryToken(OrderItem),
+          useValue: repositoryMockFactory,
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
           useValue: repositoryMockFactory,
         },
       ],

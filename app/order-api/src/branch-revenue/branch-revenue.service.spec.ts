@@ -35,6 +35,11 @@ import { HttpService } from '@nestjs/axios';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { User } from 'src/user/user.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 // import { Mapper } from '@automapper/core';
 // import {
 //   ExportBranchRevenueQueryDto,
@@ -171,6 +176,25 @@ describe('BranchRevenueService', () => {
         {
           provide: getRepositoryToken(Invoice),
           useFactory: repositoryMockFactory,
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
         },
       ],
     }).compile();
