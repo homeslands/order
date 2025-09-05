@@ -11,12 +11,16 @@ import { IOrder } from '@/types'
 
 interface PaymentMethodRadioGroupProps {
   order?: IOrder
-  defaultValue?: string
+  defaultValue: string | null
+  disabledMethods?: PaymentMethod[]
+  disabledReasons?: Record<PaymentMethod, string>
   onSubmit?: (paymentMethod: PaymentMethod) => void
 }
 export default function PaymentMethodRadioGroup({
   order,
   defaultValue,
+  disabledMethods,
+  disabledReasons,
   onSubmit,
 }: PaymentMethodRadioGroupProps) {
   const { t } = useTranslation('menu')
@@ -47,8 +51,13 @@ export default function PaymentMethodRadioGroup({
       methods.push(PaymentMethod.POINT)
     }
 
+    // Filter out disabled methods
+    if (disabledMethods) {
+      return methods.filter(method => !disabledMethods.includes(method))
+    }
+
     return methods
-  }, [userInfo])
+  }, [userInfo, disabledMethods])
 
   // Get supported payment methods from voucher
   const getSupportedPaymentMethods = useCallback(() => {
@@ -56,7 +65,7 @@ export default function PaymentMethodRadioGroup({
       return getAvailablePaymentMethods()
     }
 
-    return voucherPaymentMethods.map(vpm => {
+    const supportedMethods = voucherPaymentMethods.map(vpm => {
       // Map voucher payment methods to PaymentMethod enum
       switch (vpm.paymentMethod) {
         case VOUCHER_PAYMENT_METHOD.CASH:
@@ -69,68 +78,67 @@ export default function PaymentMethodRadioGroup({
           return PaymentMethod.BANK_TRANSFER
       }
     })
-  }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods])
 
-  // Check if payment method is supported by voucher
-  const isPaymentMethodSupported = (paymentMethod: PaymentMethod) => {
-    if (!order?.voucher || voucherPaymentMethods.length === 0) {
-      return true // No voucher means all methods are supported
+    // Filter out disabled methods
+    if (disabledMethods) {
+      return supportedMethods.filter(method => !disabledMethods.includes(method))
     }
 
-    const supportedMethods = getSupportedPaymentMethods()
-    return supportedMethods.includes(paymentMethod)
+    return supportedMethods
+  }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, disabledMethods])
+
+  // Check if payment method is supported by voucher and role
+  const isPaymentMethodSupported = (paymentMethod: PaymentMethod) => {
+    // Nếu method nằm trong danh sách disabled thì không hỗ trợ
+    if (disabledMethods?.includes(paymentMethod)) {
+      return false
+    }
+
+    // Lấy danh sách method theo role
+    const availableMethods = getAvailablePaymentMethods()
+    if (!availableMethods.includes(paymentMethod)) {
+      return false
+    }
+
+    // Nếu không có voucher hoặc voucher không giới hạn phương thức thì chỉ check theo role
+    if (!order?.voucher || voucherPaymentMethods.length === 0) {
+      return true
+    }
+
+    // Nếu có voucher, kiểm tra method có trong danh sách voucher hỗ trợ không
+    return voucherPaymentMethods.some(vpm => {
+      switch (paymentMethod) {
+        case PaymentMethod.CASH:
+          return vpm.paymentMethod === 'cash'
+        case PaymentMethod.BANK_TRANSFER:
+          return vpm.paymentMethod === 'bank-transfer'
+        case PaymentMethod.POINT:
+          return vpm.paymentMethod === 'point'
+        default:
+          return false
+      }
+    })
   }
 
   // Check if there's any compatible payment method between voucher and user role
   const hasCompatiblePaymentMethod = useMemo(() => {
+    const availableMethods = getAvailablePaymentMethods()
+
     if (!order?.voucher || voucherPaymentMethods.length === 0) {
-      return true // No voucher means all methods are compatible
+      return availableMethods.length > 0 // Has at least one available method
     }
 
-    const availableMethods = getAvailablePaymentMethods()
     const supportedMethods = getSupportedPaymentMethods()
     return supportedMethods.some(method => availableMethods.includes(method))
   }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
 
-  // Randomly select a payment method based on conditions
-  // const getRandomDefaultPaymentMethod = useCallback(() => {
-  //   if (!order?.voucher || voucherPaymentMethods.length === 0) {
-  //     // No voucher: random from all available methods
-  //     const availableMethods = getAvailablePaymentMethods()
-  //     return availableMethods[Math.floor(Math.random() * availableMethods.length)]
-  //   } else {
-  //     // Has voucher: random from supported methods that are also available for user role
-  //     const availableMethods = getAvailablePaymentMethods()
-  //     const supportedMethods = getSupportedPaymentMethods()
-  //     const compatibleMethods = supportedMethods.filter(method => availableMethods.includes(method))
-
-  //     if (compatibleMethods.length === 0) {
-  //       // No compatible methods - fallback to first available method for user role
-  //       return availableMethods[0]
-  //     }
-
-  //     return compatibleMethods[Math.floor(Math.random() * compatibleMethods.length)]
-  //   }
-  // }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
-
-  // Initialize payment method when defaultValue changes
+  // Initialize payment method when defaultValue changes or when voucher payment methods change
+  // Chỉ set selectedPaymentMethod khi component mount hoặc khi voucher thay đổi
   useEffect(() => {
-    if (defaultValue && defaultValue !== selectedPaymentMethod) {
-      // Update when defaultValue changes and is different from current selection
+    if (defaultValue) {
       setSelectedPaymentMethod(defaultValue)
     }
-  }, [defaultValue, selectedPaymentMethod])
-
-  // Initialize with random method if no defaultValue
-  // useEffect(() => {
-  //   if (!defaultValue && !selectedPaymentMethod) {
-  //     const randomMethod = getRandomDefaultPaymentMethod()
-  //     setSelectedPaymentMethod(randomMethod)
-  //     if (onSubmit) {
-  //       onSubmit(randomMethod)
-  //     }
-  //   }
-  // }, [defaultValue, selectedPaymentMethod, getRandomDefaultPaymentMethod, onSubmit])
+  }, [defaultValue, voucherPaymentMethods.length])
 
   const handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
     setSelectedPaymentMethod(paymentMethod)
@@ -166,7 +174,7 @@ export default function PaymentMethodRadioGroup({
           </p>
         </div>
         <RadioGroup
-          value={selectedPaymentMethod || defaultValue || PaymentMethod.BANK_TRANSFER}
+          value={selectedPaymentMethod || defaultValue || ''}
           className="gap-6 min-w-full"
           onValueChange={handlePaymentMethodChange}
         >
@@ -181,7 +189,9 @@ export default function PaymentMethodRadioGroup({
                 <CreditCard size={20} />
                 {t('paymentMethod.bankTransfer')}
                 {!isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER) && (
-                  <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
+                  <span className="ml-1 text-xs text-orange-500">
+                    ({disabledReasons?.[PaymentMethod.BANK_TRANSFER] || t('paymentMethod.voucherNotSupport')})
+                  </span>
                 )}
               </Label>
             </div>
@@ -198,7 +208,9 @@ export default function PaymentMethodRadioGroup({
                   <Coins size={20} />
                   {t('paymentMethod.cash')}
                   {!isPaymentMethodSupported(PaymentMethod.CASH) && (
-                    <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
+                    <span className="ml-1 text-xs text-orange-500">
+                      ({disabledReasons?.[PaymentMethod.CASH] || t('paymentMethod.voucherNotSupport')})
+                    </span>
                   )}
                 </Label>
               </div>
@@ -212,22 +224,24 @@ export default function PaymentMethodRadioGroup({
                 className="mt-[2px]"
               />
               <div className="flex flex-col space-x-2">
-                <div className={`flex items-center gap-1 pl-2 ${isPaymentMethodSupported(PaymentMethod.POINT)
+                <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.POINT)
                   ? 'text-muted-foreground'
                   : 'text-muted-foreground/50'
                   }`}>
-                  <Label htmlFor="r4" className={`flex items-center gap-1 ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
+                  <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
                     }`}>
                     <CircleDollarSign size={20} />
                     <span className="flex flex-col">
                       <span>{t('paymentMethod.coin')}</span>
                       {!isPaymentMethodSupported(PaymentMethod.POINT) && (
-                        <span className="text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
+                        <span className="text-xs text-orange-500">
+                          ({disabledReasons?.[PaymentMethod.POINT] || t('paymentMethod.voucherNotSupport')})
+                        </span>
                       )}
                     </span>
                   </Label>
                 </div>
-                <span className={`flex items-center gap-1 text-xs font-medium ${isPaymentMethodSupported(PaymentMethod.POINT)
+                <span className={`flex gap-1 items-center text-xs font-medium ${isPaymentMethodSupported(PaymentMethod.POINT)
                   ? 'text-primary'
                   : 'text-primary/50'
                   }`}>
@@ -244,7 +258,7 @@ export default function PaymentMethodRadioGroup({
 
   return (
     <RadioGroup
-      value={selectedPaymentMethod || defaultValue || PaymentMethod.BANK_TRANSFER}
+      value={selectedPaymentMethod || defaultValue || ''}
       className="gap-6 min-w-full"
       onValueChange={handlePaymentMethodChange}
     >
@@ -299,11 +313,11 @@ export default function PaymentMethodRadioGroup({
             className="mt-[2px]"
           />
           <div className="flex flex-col space-x-2">
-            <div className={`flex items-center gap-1 pl-2 ${isPaymentMethodSupported(PaymentMethod.POINT)
+            <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.POINT)
               ? 'text-muted-foreground'
               : 'text-muted-foreground/50'
               }`}>
-              <Label htmlFor="r4" className={`flex items-center gap-1 ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
+              <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
                 }`}>
                 <CircleDollarSign size={20} />
                 <span className="flex flex-col">
@@ -314,7 +328,7 @@ export default function PaymentMethodRadioGroup({
                 </span>
               </Label>
             </div>
-            <span className={`flex items-center gap-1 text-xs font-medium ${isPaymentMethodSupported(PaymentMethod.POINT)
+            <span className={`flex gap-1 items-center text-xs font-medium ${isPaymentMethodSupported(PaymentMethod.POINT)
               ? 'text-primary'
               : 'text-primary/50'
               }`}>

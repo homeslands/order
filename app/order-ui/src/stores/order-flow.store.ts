@@ -585,6 +585,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       },
 
       updatePaymentMethod: (method: PaymentMethod) => {
+        // console.log('method in updatePaymentMethod', method)
         const { paymentData } = get()
         if (!paymentData) return
 

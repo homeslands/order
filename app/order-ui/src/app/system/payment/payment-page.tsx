@@ -8,8 +8,8 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui'
-import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOrderBySlug, useValidateVoucherPaymentMethod } from '@/hooks'
-import { PaymentMethod, paymentStatus, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOrderBySlug, usePaymentResolver, useValidateVoucherPaymentMethod } from '@/hooks'
+import { PaymentMethod, paymentStatus, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
 import { OrderStatus } from '@/types'
@@ -72,22 +72,40 @@ export default function PaymentPage() {
     [orderData?.voucher?.voucherPaymentMethods]
   )
 
-  // Use payment method from order flow store, fallback to voucher method if needed
-  const paymentMethod = voucherPaymentMethods?.[0]?.paymentMethod || PaymentMethod.BANK_TRANSFER
+  // Use payment resolver to get available methods and handle conflicts
+  const {
+    effectiveMethods,
+    defaultMethod,
+    disabledMethods,
+    reasonMap,
+    bannerMessage,
+  } = usePaymentResolver(orderData || null, Role.STAFF, paymentData?.paymentMethod || null);
 
-  // Check if there's a conflict between voucher payment methods and user role (staff only have BANK_TRANSFER and CASH)
+  // Use payment method from order flow store, fallback to default method from payment resolver
+  const paymentMethod = useMemo(() => {
+    // Nếu đang có pending method (đang chờ remove voucher), ưu tiên dùng nó
+    if (pendingPaymentMethod) {
+      return pendingPaymentMethod
+    }
+
+    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
+    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+      return paymentData.paymentMethod
+    }
+
+    // Nếu có voucher, ưu tiên dùng method của voucher
+    if (voucherPaymentMethods?.length > 0) {
+      return voucherPaymentMethods[0].paymentMethod
+    }
+
+    // Nếu không có voucher, dùng method từ payment resolver
+    return defaultMethod || PaymentMethod.BANK_TRANSFER
+  }, [pendingPaymentMethod, paymentData?.paymentMethod, voucherPaymentMethods, defaultMethod, effectiveMethods])
+
+  // Check if there's a conflict between voucher payment methods and user role
   const hasVoucherPaymentConflict = useMemo(() => {
-    if (!voucher || !voucherPaymentMethods.length) return false
-
-    // Staff available payment methods (no POINT for staff)
-    const availableForStaff = [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
-
-    // Check if any voucher payment method is compatible with staff role
-    const voucherSupportedMethods = voucherPaymentMethods.map(vpm => vpm.paymentMethod as PaymentMethod)
-    const hasCompatibleMethod = voucherSupportedMethods.some(method => availableForStaff.includes(method))
-
-    return !hasCompatibleMethod
-  }, [voucher, voucherPaymentMethods])
+    return effectiveMethods.length === 0 && !!voucher
+  }, [effectiveMethods.length, voucher])
 
   const isDisabled = !paymentMethod || !slug
 
@@ -305,17 +323,17 @@ export default function PaymentPage() {
   }, [isPolling, handlePolling])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
-    // Lưu payment method hiện tại trước khi thay đổi
+    // Lưu method hiện tại để có thể restore nếu validate fail
     setPreviousPaymentMethod(paymentMethod as PaymentMethod)
 
-    // Check if selected payment method is compatible with voucher
-    const isSelectedMethodCompatible = !voucher || !voucherPaymentMethods.length ||
-      voucherPaymentMethods.some(vpm => vpm.paymentMethod === selectedPaymentMethod);
+    // Set pending method ngay để UI cập nhật mượt mà
+    setPendingPaymentMethod(selectedPaymentMethod)
 
-    // Show dialog if payment method is not compatible with voucher
-    if (!isSelectedMethodCompatible || hasVoucherPaymentConflict) {
-      // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
-      setPendingPaymentMethod(selectedPaymentMethod)
+    // Check if selected method is disabled
+    const isMethodDisabled = disabledMethods.includes(selectedPaymentMethod)
+
+    // Show dialog if method is disabled
+    if (isMethodDisabled) {
       if (!isRemoveVoucherOption) {
         setIsRemoveVoucherOption(true)
       }
@@ -334,8 +352,8 @@ export default function PaymentPage() {
           setIsLoading(false)
         },
         onError: () => {
-          // Không cập nhật payment method ngay, chỉ lưu vào pending và hiển thị dialog
-          setPendingPaymentMethod(selectedPaymentMethod)
+          // Restore previous method on validation failure
+          setPendingPaymentMethod(undefined)
           setIsRemoveVoucherOption(true)
           setIsLoading(false)
         },
@@ -677,11 +695,20 @@ export default function PaymentPage() {
 
             <VoucherListSheetInPayment onSuccess={refetchOrder} />
             {/* Payment method */}
+            {/* Show banner message if exists */}
+            {bannerMessage && (
+              <div className="p-4 mb-4 text-sm text-orange-800 bg-orange-50 rounded-lg border border-orange-200">
+                <p>{bannerMessage}</p>
+              </div>
+            )}
             <StaffPaymentMethodSelect
               order={order?.result}
+              paymentMethod={effectiveMethods}
+              defaultMethod={defaultMethod}
+              disabledMethods={disabledMethods}
+              disabledReasons={reasonMap}
               qrCode={hasValidPaymentAndQr ? qrCode : ''}
               total={order.result ? order.result.subtotal : 0}
-              paymentMethod={pendingPaymentMethod || paymentMethod}
               onSubmit={handleSelectPaymentMethod}
             />
           </div>
