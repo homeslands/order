@@ -546,6 +546,19 @@ export function ClientPaymentPage() {
 
             // Explicitly close dialog FIRST to prevent race conditions
             setIsRemoveVoucherOption(false)
+
+            // Reset states sau khi đã sync order data
+            setPreviousPaymentMethod(undefined)
+            setPendingPaymentMethod(undefined)
+
+            // Delay refetch and reset flag after process is complete
+            setTimeout(() => {
+              refetchOrder()
+              // Reset flag after everything is complete - allow new voucher dialogs
+              setTimeout(() => {
+                isRemovingVoucherRef.current = false
+              }, 200)
+            }, 50)
           }}
         />
       )}
