@@ -16,17 +16,9 @@ export function getAvailableMethodsByRole(role: Role): PaymentMethod[] {
     case Role.CUSTOMER:
       return [PaymentMethod.BANK_TRANSFER, PaymentMethod.POINT]
     case Role.STAFF:
-      return [
-        PaymentMethod.BANK_TRANSFER,
-        PaymentMethod.POINT,
-        PaymentMethod.CASH,
-      ]
+      return [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
     case Role.ADMIN:
-      return [
-        PaymentMethod.BANK_TRANSFER,
-        PaymentMethod.POINT,
-        PaymentMethod.CASH,
-      ]
+      return [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
     default:
       return []
   }
