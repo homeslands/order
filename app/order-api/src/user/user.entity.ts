@@ -11,6 +11,7 @@ import { Recipient } from 'src/gift-card-modules/receipient/entities/receipient.
 import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
 import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -114,4 +115,10 @@ export class User extends Base {
 
   @OneToMany(() => GiftCard, (gc) => gc.usedBy)
   giftCards?: GiftCard[];
+
+  @OneToMany(
+    () => AccumulatedPoint,
+    (accumulatedPoint) => accumulatedPoint.user,
+  )
+  accumulatedPoints: AccumulatedPoint[];
 }
