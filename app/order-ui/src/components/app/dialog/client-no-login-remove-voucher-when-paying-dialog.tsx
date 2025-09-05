@@ -15,7 +15,7 @@ import { IOrder, IVoucher } from '@/types'
 import { useOrderFlowStore, useUserStore } from '@/stores'
 import { PaymentMethod } from '@/constants'
 
-export default function ClientRemoveVoucherWhenPayingDialog({
+export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
   voucher: _voucher,
   isOpen,
   onOpenChange,
@@ -80,8 +80,7 @@ export default function ClientRemoveVoucherWhenPayingDialog({
             // Update payment method after dialog is closed
             setTimeout(() => {
               // Sau khi xóa voucher, giữ nguyên method mà user đã chọn
-              // Không cần check với payment resolver nữa vì không còn voucher
-              updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
               // Call parent onSuccess after payment method is updated
               onSuccess?.(response.result)
