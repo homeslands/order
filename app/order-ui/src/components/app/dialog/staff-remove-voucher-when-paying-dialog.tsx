@@ -20,7 +20,6 @@ export default function StaffRemoveVoucherWhenPayingDialog({
   isOpen,
   onOpenChange,
   order,
-  selectedPaymentMethod,
   previousPaymentMethod,
   onSuccess,
   onCancel,
@@ -76,8 +75,8 @@ export default function StaffRemoveVoucherWhenPayingDialog({
 
           // Update payment method after dialog is closed
           setTimeout(() => {
-            // Always use selectedPaymentMethod since it's what user wants to switch to
-            updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+            // For staff, default to BANK_TRANSFER after removing voucher
+            updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
             // Call parent onSuccess after payment method is updated
             onSuccess?.(response.result)
