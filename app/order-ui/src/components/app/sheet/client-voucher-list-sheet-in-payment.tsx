@@ -76,23 +76,20 @@ export default function VoucherListSheetInPayment({
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-  // 1. Khách hàng đặt và có login
-  const isCustomerLoggedIn =
-    !!userInfo &&
+  // 1. Owner là khách hàng có tài khoản
+  const isCustomerOwner =
     !!orderData?.owner &&
-    userInfo.slug === orderData.owner.slug &&
-    orderData.owner.role.name === Role.CUSTOMER;
+    orderData.owner.role.name === Role.CUSTOMER &&
+    orderData.owner.firstName !== 'Default';
 
-  // 2. Khách hàng đặt không login
-  const isCustomerNotLoggedIn =
-    !userInfo &&
+  // 2. Owner là khách hàng không có tài khoản (default)
+  const isDefaultCustomer =
     !!orderData?.owner &&
-    orderData.owner.firstName === 'Default' &&
-    orderData.owner.role.name === Role.CUSTOMER;
-  // console.log('isCustomerNotLoggedIn', isCustomerNotLoggedIn)
+    orderData.owner.role.name === Role.CUSTOMER &&
+    orderData.owner.firstName === 'Default';
 
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
-    isCustomerLoggedIn // Nếu là khách hàng đã login
+    isCustomerOwner // Nếu owner là khách có tài khoản
       ? {
         isActive: true,
         hasPaging: true,
@@ -100,7 +97,7 @@ export default function VoucherListSheetInPayment({
         size: pagination.pageSize,
         paymentMethod: paymentMethod
       }
-      : !isCustomerNotLoggedIn // Nếu là nhân viên (cả 2 case đặt hộ)
+      : !isDefaultCustomer // Nếu là nhân viên hoặc owner không phải default customer
         ? {
           isVerificationIdentity: false,
           isActive: true,
@@ -114,7 +111,7 @@ export default function VoucherListSheetInPayment({
   );
 
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
-    isCustomerNotLoggedIn // Nếu là customer chưa login
+    isDefaultCustomer // Nếu owner là default customer
       ? {
         isActive: true,
         hasPaging: true,
@@ -159,7 +156,7 @@ export default function VoucherListSheetInPayment({
 
         const successCallback = () => {
           showToast(tToast('toast.removeVoucherSuccess'))
-          if (isCustomerNotLoggedIn) {
+          if (isDefaultCustomer) {
             refetchPublicVoucherList()
           } else if (userInfo) {
             refetchVoucherList()
@@ -325,11 +322,11 @@ export default function VoucherListSheetInPayment({
   }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const baseList = isCustomerNotLoggedIn
-      ? publicVoucherList?.result?.items || [] // Khách không login - lấy public vouchers
-      : isCustomerLoggedIn
-        ? voucherList?.result?.items || [] // Khách đã login - lấy vouchers
-        : voucherList?.result?.items || []; // Nhân viên - lấy vouchers
+    const baseList = isDefaultCustomer
+      ? publicVoucherList?.result?.items || [] // Khách default - lấy public vouchers
+      : isCustomerOwner
+        ? voucherList?.result?.items || [] // Owner là khách có tài khoản - lấy all vouchers
+        : voucherList?.result?.items || []; // Nhân viên hoặc case khác - lấy vouchers không yêu cầu xác thực
     let newList = [...baseList];
 
     // Add specific voucher from search
@@ -349,7 +346,7 @@ export default function VoucherListSheetInPayment({
     }
 
     setLocalVoucherList(newList)
-  }, [voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isCustomerNotLoggedIn, isCustomerLoggedIn])
+  }, [voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isDefaultCustomer, isCustomerOwner])
 
   // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
@@ -368,6 +365,7 @@ export default function VoucherListSheetInPayment({
   }
 
   const isVoucherValid = useCallback((voucher: IVoucher) => {
+    // console.log('voucher in isVoucherValid', voucher)
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
@@ -400,11 +398,11 @@ export default function VoucherListSheetInPayment({
 
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
-    const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = isCustomerLoggedIn // Chỉ coi là logged in khi là khách hàng đã login
-    const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
+    const requiresIdentity = voucher.isVerificationIdentity === true
+    const hasValidIdentity = isCustomerOwner // Chỉ coi là valid khi owner là khách có tài khoản
+    const isIdentityValid = !requiresIdentity || (requiresIdentity && hasValidIdentity)
     return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
-  }, [cartTotals, orderData, isCustomerLoggedIn])
+  }, [cartTotals, orderData, isCustomerOwner])
 
   // Auto-deselect voucher if it becomes invalid (out of stock or other conditions)
   useEffect(() => {
@@ -435,8 +433,8 @@ export default function VoucherListSheetInPayment({
     const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
     const isCurrentlyApplied = orderData?.voucher?.slug === voucher.slug
 
-    if (voucher.isVerificationIdentity && !isCustomerLoggedIn) {
-      return t('voucher.needLogin')
+    if (voucher.isVerificationIdentity && !isCustomerOwner) {
+      return t('voucher.needVerifyIdentity')
     }
 
     // Không hiển thị "hết số lượng" cho voucher đang được áp dụng
@@ -545,7 +543,7 @@ export default function VoucherListSheetInPayment({
               <span className="text-xs italic text-destructive">
                 {getVoucherErrorMessage(voucher)}
               </span>
-              {voucher.isVerificationIdentity && !isCustomerLoggedIn && (
+              {voucher.isVerificationIdentity && !isCustomerOwner && (
                 <Button
                   variant="link"
                   className="p-0 h-auto text-xs text-primary"
