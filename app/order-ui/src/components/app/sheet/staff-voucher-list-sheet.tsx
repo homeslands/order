@@ -75,32 +75,10 @@ export default function StaffVoucherListSheet() {
     )
   }, [cartItems?.voucher?.slug, appliedVoucher])
 
-  // let subTotal = 0
-  // calculate subtotal
-  // const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
-  // const subTotal = cartItems?.orderItems.reduce(
-  //   (acc, item) => acc + item.price * item.quantity,
-  //   0,
-  // ) || 0
-
-  // calculate discount base on voucher type, voucher value and subtotal
-  // const discount = cartItems?.voucher?.type === VOUCHER_TYPE.PERCENT_ORDER
-  //   ? subTotal * cartItems?.voucher?.value / 100
-  //   : cartItems?.voucher?.value
-
   const isCustomerOwner =
     sheetOpen &&
     !!cartItems?.owner && // Check khác null, undefined, ""
     cartItems.ownerRole === Role.CUSTOMER;
-
-  // const { cartWithVoucher, itemLevelDiscount } = useMemo(() => {
-  //   const { cart: cartWithVoucher, itemLevelDiscount } = applyVoucherToCart(cartItems)
-  //   const calculations = calculateCartTotals(cartWithVoucher, itemLevelDiscount)
-
-  //   return { cartWithVoucher, itemLevelDiscount, calculations }
-  // }, [
-  //   cartItems,
-  // ])
 
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner
