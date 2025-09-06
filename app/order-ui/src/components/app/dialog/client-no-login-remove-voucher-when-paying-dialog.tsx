@@ -20,7 +20,7 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
   isOpen,
   onOpenChange,
   order,
-  selectedPaymentMethod,
+  selectedPaymentMethod: _selectedPaymentMethod,
   previousPaymentMethod,
   onSuccess,
   onCancel,
@@ -79,7 +79,7 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
 
             // Update payment method after dialog is closed
             setTimeout(() => {
-              // Sau khi xóa voucher, giữ nguyên method mà user đã chọn
+              // Always use BANK_TRANSFER after voucher removal for consistency
               updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
               // Call parent onSuccess after payment method is updated
@@ -110,8 +110,8 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
 
             // Update payment method after dialog is closed
             setTimeout(() => {
-              // Always use selectedPaymentMethod since it's what user wants to switch to
-              updatePaymentMethod(selectedPaymentMethod as PaymentMethod)
+              // Always use BANK_TRANSFER after voucher removal for consistency
+              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
               // Call parent onSuccess after payment method is updated
               onSuccess?.(response.result)

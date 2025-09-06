@@ -94,14 +94,14 @@ export function ClientPaymentPage() {
       return pendingPaymentMethod
     }
 
-    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
-    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
-      return paymentData.paymentMethod
-    }
-
     // Nếu có voucher, ưu tiên dùng method của voucher
     if (voucherPaymentMethods?.length > 0) {
       return voucherPaymentMethods[0].paymentMethod
+    }
+
+    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
+    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+      return paymentData.paymentMethod
     }
 
     // Nếu không có voucher, dùng method từ payment resolver
@@ -478,7 +478,7 @@ export function ClientPaymentPage() {
       {isRemoveVoucherOption && userInfo?.slug && (
         <ClientRemoveVoucherWhenPayingDialog
           voucher={voucher}
-          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.POINT}
+          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
           previousPaymentMethod={previousPaymentMethod}
           isOpen={isRemoveVoucherOption}
           onOpenChange={setIsRemoveVoucherOption}
@@ -502,8 +502,8 @@ export function ClientPaymentPage() {
             // Explicitly close dialog FIRST to prevent race conditions
             setIsRemoveVoucherOption(false)
 
-            // Sync updated order data với Order Flow Store
-            // setOrderFromAPI(updatedOrder)
+            // Update payment method to BANK_TRANSFER after voucher removal
+            updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
@@ -511,7 +511,12 @@ export function ClientPaymentPage() {
 
             // Delay refetch and reset flag after process is complete
             setTimeout(() => {
-              refetchOrder()
+              refetchOrder().then(() => {
+                // Re-initialize payment with updated order data
+                if (slug) {
+                  initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                }
+              })
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
                 isRemovingVoucherRef.current = false
@@ -547,13 +552,21 @@ export function ClientPaymentPage() {
             // Explicitly close dialog FIRST to prevent race conditions
             setIsRemoveVoucherOption(false)
 
+            // Update payment method to BANK_TRANSFER after voucher removal
+            updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
+
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
             setPendingPaymentMethod(undefined)
 
             // Delay refetch and reset flag after process is complete
             setTimeout(() => {
-              refetchOrder()
+              refetchOrder().then(() => {
+                // Re-initialize payment with updated order data
+                if (slug) {
+                  initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                }
+              })
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
                 isRemovingVoucherRef.current = false
