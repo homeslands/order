@@ -60,7 +60,6 @@ export default function PaymentPage() {
 
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
   const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
-  // console.log('paymentMethod', paymentMethod)
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
 
@@ -673,7 +672,14 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <VoucherListSheetInPayment onSuccess={refetchOrder} />
+            <VoucherListSheetInPayment onSuccess={() => {
+              refetchOrder().then(() => {
+                // Re-initialize payment with updated order data after voucher update
+                if (slug) {
+                  initializePayment(slug, paymentMethod as PaymentMethod)
+                }
+              })
+            }} />
 
             {/* Remove Voucher Dialog */}
             {isRemoveVoucherOption && (
@@ -691,7 +697,7 @@ export default function PaymentPage() {
                 onCancel={() => {
                   // Reset pending payment method sau khi cancel
                   setPendingPaymentMethod(undefined)
-                  // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
+                  // Reset previous payment method
                   setPreviousPaymentMethod(undefined)
                   // Reset voucher removal flag
                   isRemovingVoucherRef.current = false
@@ -710,14 +716,20 @@ export default function PaymentPage() {
                   setPreviousPaymentMethod(undefined)
                   setPendingPaymentMethod(undefined)
 
-                  // Delay refetch and reset flag after process is complete
+                  // Refetch order data and re-initialize payment
+                  refetchOrder().then(() => {
+                    // Re-initialize payment with updated order data (no voucher)
+                    if (slug) {
+                      initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                    }
+                    // Update payment method after re-initialization
+                    updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
+                  })
+
+                  // Reset flag after everything is complete - allow new voucher dialogs
                   setTimeout(() => {
-                    refetchOrder()
-                    // Reset flag after everything is complete - allow new voucher dialogs
-                    setTimeout(() => {
-                      isRemovingVoucherRef.current = false
-                    }, 200)
-                  }, 50)
+                    isRemovingVoucherRef.current = false
+                  }, 100)
                 }}
               />
             )}
@@ -732,7 +744,7 @@ export default function PaymentPage() {
             <StaffPaymentMethodSelect
               order={order?.result}
               paymentMethod={effectiveMethods}
-              defaultMethod={defaultMethod}
+              defaultMethod={paymentMethod as PaymentMethod}
               disabledMethods={disabledMethods}
               disabledReasons={reasonMap}
               qrCode={hasValidPaymentAndQr ? qrCode : ''}
