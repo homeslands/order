@@ -11,7 +11,7 @@ interface PaymentResolution {
 }
 
 /** role → methods khả dụng */
-export function getAvailableMethodsByRole(role: Role): PaymentMethod[] {
+export function getAvailableMethodsByRole(role: Role | undefined | null): PaymentMethod[] {
   switch (role) {
     case Role.CUSTOMER:
       return [PaymentMethod.BANK_TRANSFER, PaymentMethod.POINT]
@@ -20,7 +20,8 @@ export function getAvailableMethodsByRole(role: Role): PaymentMethod[] {
     case Role.ADMIN:
       return [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
     default:
-      return []
+      // Default cho user không login - chỉ có bank transfer
+      return [PaymentMethod.BANK_TRANSFER]
   }
 }
 
