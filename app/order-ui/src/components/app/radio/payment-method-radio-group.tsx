@@ -27,6 +27,7 @@ export default function PaymentMethodRadioGroup({
   const { t: tProfile } = useTranslation('profile')
   const { userInfo } = useUserStore()
 
+
   const { data: balanceData } = useGetUserBalance(
     userInfo?.slug,
     !!userInfo?.slug,
@@ -133,12 +134,14 @@ export default function PaymentMethodRadioGroup({
   }, [order?.voucher, voucherPaymentMethods, getAvailablePaymentMethods, getSupportedPaymentMethods])
 
   // Initialize payment method when defaultValue changes or when voucher payment methods change
-  // Chỉ set selectedPaymentMethod khi component mount hoặc khi voucher thay đổi
+  // Reset selectedPaymentMethod whenever defaultValue changes
   useEffect(() => {
     if (defaultValue) {
       setSelectedPaymentMethod(defaultValue)
+    } else {
+      setSelectedPaymentMethod('')
     }
-  }, [defaultValue, voucherPaymentMethods.length])
+  }, [defaultValue])
 
   const handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
     setSelectedPaymentMethod(paymentMethod)
@@ -174,7 +177,7 @@ export default function PaymentMethodRadioGroup({
           </p>
         </div>
         <RadioGroup
-          value={selectedPaymentMethod || defaultValue || ''}
+          value={defaultValue || selectedPaymentMethod || ''}
           className="gap-6 min-w-full"
           onValueChange={handlePaymentMethodChange}
         >
@@ -258,7 +261,7 @@ export default function PaymentMethodRadioGroup({
 
   return (
     <RadioGroup
-      value={selectedPaymentMethod || defaultValue || ''}
+      value={defaultValue || selectedPaymentMethod || ''}
       className="gap-6 min-w-full"
       onValueChange={handlePaymentMethodChange}
     >
