@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 
 import {
   Dialog,
@@ -9,6 +10,7 @@ import {
   Button,
   DialogFooter,
 } from '@/components/ui'
+import { ButtonLoading } from '@/components/app/loading'
 import { showToast } from '@/utils'
 import { useUpdatePublicVoucherInOrder, useUpdateVoucherInOrder } from '@/hooks'
 import { IOrder, IVoucher } from '@/types'
@@ -43,8 +45,12 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { mutate: updatePublicVoucherInOrder } = useUpdatePublicVoucherInOrder()
   const { updatePaymentMethod } = useOrderFlowStore()
+  const [isRemoving, setIsRemoving] = useState(false)
 
   const handleCancel = () => {
+    // Don't allow cancel when removing
+    if (isRemoving) return
+
     // Revert về payment method trước đó nếu có
     if (previousPaymentMethod) {
       updatePaymentMethod(previousPaymentMethod)
@@ -54,6 +60,10 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
   }
 
   const handleRemoveVoucher = () => {
+    // Prevent multiple clicks
+    if (isRemoving) return
+
+    setIsRemoving(true)
     // Notify parent that removal process is starting
     onRemoveStart?.()
 
@@ -74,18 +84,20 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
           onSuccess: (response) => {
             showToast(tToast('toast.removeVoucherSuccess'))
 
-            // Close dialog immediately to prevent flicker
-            onOpenChange(false)
+            // Update payment method immediately - use selectedPaymentMethod that user chose
+            updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
 
-            // Update payment method after dialog is closed
+            // Close dialog after payment method is updated
             setTimeout(() => {
-              // Always use BANK_TRANSFER after voucher removal for consistency
-              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-
-              // Call parent onSuccess after payment method is updated
+              onOpenChange(false)
+              // Call parent onSuccess after dialog is closed
               onSuccess?.(response.result)
-            }, 50)
+              setIsRemoving(false)
+            }, 100)
           },
+          onError: () => {
+            setIsRemoving(false)
+          }
         }
       )
     } else {
@@ -105,18 +117,20 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
           onSuccess: (response) => {
             showToast(tToast('toast.removeVoucherSuccess'))
 
-            // Close dialog immediately to prevent flicker
-            onOpenChange(false)
+            // Update payment method immediately - use selectedPaymentMethod that user chose
+            updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
 
-            // Update payment method after dialog is closed
+            // Close dialog after payment method is updated
             setTimeout(() => {
-              // Always use BANK_TRANSFER after voucher removal for consistency
-              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-
-              // Call parent onSuccess after payment method is updated
+              onOpenChange(false)
+              // Call parent onSuccess after dialog is closed
               onSuccess?.(response.result)
-            }, 50)
+              setIsRemoving(false)
+            }, 100)
           },
+          onError: () => {
+            setIsRemoving(false)
+          }
         }
       )
     }
@@ -139,6 +153,7 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
             variant="outline"
             className="w-full sm:w-auto"
             onClick={handleCancel}
+            disabled={isRemoving}
           >
             {tCommon('common.cancel')}
           </Button>
@@ -146,7 +161,9 @@ export default function ClientNoLoginRemoveVoucherWhenPayingDialog({
             variant="destructive"
             className="w-full sm:w-auto"
             onClick={handleRemoveVoucher}
+            disabled={isRemoving}
           >
+            {isRemoving && <ButtonLoading />}
             {t('order.removeVoucher')}
           </Button>
         </DialogFooter>

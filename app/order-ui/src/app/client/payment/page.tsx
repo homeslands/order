@@ -89,7 +89,12 @@ export function ClientPaymentPage() {
 
   // Use payment method from order flow store, fallback to default method from payment resolver
   const paymentMethod = useMemo(() => {
-    // Nếu đang có pending method (đang chờ remove voucher), ưu tiên dùng nó
+    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
+    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+      return paymentData.paymentMethod
+    }
+
+    // Nếu đang có pending method (đang chờ remove voucher), dùng nó
     if (pendingPaymentMethod) {
       return pendingPaymentMethod
     }
@@ -97,11 +102,6 @@ export function ClientPaymentPage() {
     // Nếu có voucher, ưu tiên dùng method của voucher
     if (voucherPaymentMethods?.length > 0) {
       return voucherPaymentMethods[0].paymentMethod
-    }
-
-    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
-    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
-      return paymentData.paymentMethod
     }
 
     // Nếu không có voucher, dùng method từ payment resolver
@@ -490,7 +490,7 @@ export function ClientPaymentPage() {
           onCancel={() => {
             // Reset pending payment method sau khi cancel
             setPendingPaymentMethod(undefined)
-            // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
+            // Reset previous payment method
             setPreviousPaymentMethod(undefined)
             // Reset voucher removal flag
             isRemovingVoucherRef.current = false
@@ -502,26 +502,24 @@ export function ClientPaymentPage() {
             // Explicitly close dialog FIRST to prevent race conditions
             setIsRemoveVoucherOption(false)
 
-            // Update payment method to BANK_TRANSFER after voucher removal
-            updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
             setPendingPaymentMethod(undefined)
 
-            // Delay refetch and reset flag after process is complete
-            setTimeout(() => {
-              refetchOrder().then(() => {
-                // Re-initialize payment with updated order data
-                if (slug) {
-                  initializePayment(slug, PaymentMethod.BANK_TRANSFER)
-                }
-              })
+            // Refetch order data immediately
+            refetchOrder().then(() => {
+              // Re-initialize payment with updated order data (no voucher)
+              if (slug) {
+                initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+              }
+              // Update payment method after re-initialization
+              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
+
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
                 isRemovingVoucherRef.current = false
-              }, 200)
-            }, 50)
+              }, 100)
+            })
           }}
         />
       )}
@@ -536,7 +534,7 @@ export function ClientPaymentPage() {
           onCancel={() => {
             // Reset pending payment method sau khi cancel
             setPendingPaymentMethod(undefined)
-            // Không cần revert payment method ở đây vì dialog đã handle việc revert trong handleCancel
+            // Reset previous payment method
             setPreviousPaymentMethod(undefined)
             // Reset voucher removal flag
             isRemovingVoucherRef.current = false
@@ -552,26 +550,24 @@ export function ClientPaymentPage() {
             // Explicitly close dialog FIRST to prevent race conditions
             setIsRemoveVoucherOption(false)
 
-            // Update payment method to BANK_TRANSFER after voucher removal
-            updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
             setPendingPaymentMethod(undefined)
 
-            // Delay refetch and reset flag after process is complete
-            setTimeout(() => {
-              refetchOrder().then(() => {
-                // Re-initialize payment with updated order data
-                if (slug) {
-                  initializePayment(slug, PaymentMethod.BANK_TRANSFER)
-                }
-              })
+            // Refetch order data immediately
+            refetchOrder().then(() => {
+              // Re-initialize payment with updated order data (no voucher)
+              if (slug) {
+                initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+              }
+              // Update payment method after re-initialization
+              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
+
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
                 isRemovingVoucherRef.current = false
-              }, 200)
-            }, 50)
+              }, 100)
+            })
           }}
         />
       )}
@@ -772,7 +768,14 @@ export function ClientPaymentPage() {
             </div>
           </div>
         </div>
-        <VoucherListSheetInPayment onSuccess={refetchOrder} />
+        <VoucherListSheetInPayment onSuccess={() => {
+          refetchOrder().then(() => {
+            // Re-initialize payment with updated order data after voucher update
+            if (slug) {
+              initializePayment(slug, paymentMethod as PaymentMethod)
+            }
+          })
+        }} />
         {/* Show banner message if exists */}
         {bannerMessage && (
           <div className="p-4 mb-4 text-sm text-orange-800 bg-orange-50 rounded-lg border border-orange-200">
@@ -783,7 +786,7 @@ export function ClientPaymentPage() {
         <ClientPaymentMethodSelect
           order={order?.result}
           paymentMethod={effectiveMethods}
-          defaultMethod={defaultMethod}
+          defaultMethod={paymentMethod as PaymentMethod}
           disabledMethods={disabledMethods}
           disabledReasons={reasonMap}
           qrCode={hasValidPaymentAndQr ? qrCode : ''}
