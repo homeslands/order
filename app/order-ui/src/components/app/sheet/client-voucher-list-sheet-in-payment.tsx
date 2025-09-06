@@ -161,6 +161,7 @@ export default function VoucherListSheetInPayment({
           } else if (userInfo) {
             refetchVoucherList()
           }
+          setSelectedVoucher('') // Clear selected voucher state
           setSheetOpen(false)
           onSuccess()
         }
@@ -297,6 +298,14 @@ export default function VoucherListSheetInPayment({
       }
     }
   }, [orderData?.voucher, refetchSpecificVoucher, sheetOpen])
+
+  // Clear selectedVoucher when orderData.voucher becomes null (voucher removed)
+  // But only if we're not in the middle of selecting a new voucher
+  useEffect(() => {
+    if (!orderData?.voucher && selectedVoucher && !sheetOpen) {
+      setSelectedVoucher('')
+    }
+  }, [orderData?.voucher, selectedVoucher, sheetOpen])
 
   // check if specificVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
