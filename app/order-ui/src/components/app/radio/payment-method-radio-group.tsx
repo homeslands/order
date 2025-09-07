@@ -143,6 +143,13 @@ export default function PaymentMethodRadioGroup({
     }
   }, [defaultValue])
 
+  // Sync selectedPaymentMethod with defaultValue to prevent flickering
+  useEffect(() => {
+    if (defaultValue && defaultValue !== selectedPaymentMethod) {
+      setSelectedPaymentMethod(defaultValue)
+    }
+  }, [defaultValue, selectedPaymentMethod])
+
   const handlePaymentMethodChange = (paymentMethod: PaymentMethod) => {
     setSelectedPaymentMethod(paymentMethod)
     if (onSubmit) {

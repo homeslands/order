@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -70,10 +70,16 @@ export default function VoucherListSheetInPayment({
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
 
-  const paymentMethod = paymentData?.paymentMethod
-
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
+
+  // Get payment method from voucher first, then fallback to paymentData
+  const paymentMethod = useMemo(() => {
+    if (voucher?.voucherPaymentMethods?.length && voucher.voucherPaymentMethods.length > 0) {
+      return voucher.voucherPaymentMethods[0].paymentMethod
+    }
+    return paymentData?.paymentMethod
+  }, [voucher?.voucherPaymentMethods, paymentData?.paymentMethod])
 
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
