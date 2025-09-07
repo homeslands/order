@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -12,18 +12,31 @@ import { RevenueTypeSelect } from "../select";
 import { RevenueFilterForm } from "../form";
 import { RevenueTypeQuery } from "@/constants";
 import { IRevenueQuery } from "@/types";
+import { useOverviewFilterStore } from "@/stores";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    // const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
     const [open, setOpen] = useState(false);
     const [localType, setLocalType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY);
+    const { overviewFilter } = useOverviewFilterStore();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const handleExportRevenue = (data: IRevenueQuery) => {
-        onApply({ ...data, type: localType })
+    // Load giá trị từ store khi component mount
+    useEffect(() => {
+        if (overviewFilter.type) {
+            setLocalType(overviewFilter.type);
+        }
+    }, [overviewFilter.type]);
+
+    const handleFilterRevenue = (data: IRevenueQuery) => {
+        const finalData = {
+            ...data,
+            type: localType
+        }
+
+        onApply(finalData)
         setOpen(false)
     };
 
@@ -42,7 +55,7 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                     </div>
                     <RevenueTypeSelect value={localType} onChange={(value) => setLocalType(value as RevenueTypeQuery)} />
                     <RevenueFilterForm
-                        onSubmit={handleExportRevenue}
+                        onSubmit={handleFilterRevenue}
                         type={localType}
                         onSuccess={() => setOpen(false)}
                     />

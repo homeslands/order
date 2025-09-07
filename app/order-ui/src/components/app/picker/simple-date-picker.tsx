@@ -24,7 +24,7 @@ interface ISimpleDatePickerProps {
     onChange: (date: string) => void
     disabledDates?: (date: Date) => boolean
     disableFutureDates?: boolean
-    minDate?: string 
+    minDate?: string
     maxDate?: string
     allowEmpty?: boolean
 }
