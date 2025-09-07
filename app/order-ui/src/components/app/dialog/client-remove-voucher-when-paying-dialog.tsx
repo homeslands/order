@@ -84,16 +84,12 @@ export default function ClientRemoveVoucherWhenPayingDialog({
           onSuccess: (response) => {
             showToast(tToast('toast.removeVoucherSuccess'))
 
-            // Update payment method immediately - use selectedPaymentMethod that user chose
-            updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
+            // Close dialog immediately
+            onOpenChange(false)
 
-            // Close dialog after payment method is updated
-            setTimeout(() => {
-              onOpenChange(false)
-              // Call parent onSuccess after dialog is closed
-              onSuccess?.(response.result)
-              setIsRemoving(false)
-            }, 100)
+            // Call parent onSuccess immediately - parent will handle payment method update
+            onSuccess?.(response.result)
+            setIsRemoving(false)
           },
           onError: () => {
             setIsRemoving(false)
@@ -117,16 +113,12 @@ export default function ClientRemoveVoucherWhenPayingDialog({
           onSuccess: (response) => {
             showToast(tToast('toast.removeVoucherSuccess'))
 
-            // Update payment method immediately - use selectedPaymentMethod that user chose
-            updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
+            // Close dialog immediately
+            onOpenChange(false)
 
-            // Close dialog after payment method is updated
-            setTimeout(() => {
-              onOpenChange(false)
-              // Call parent onSuccess after dialog is closed
-              onSuccess?.(response.result)
-              setIsRemoving(false)
-            }, 100)
+            // Call parent onSuccess immediately - parent will handle payment method update
+            onSuccess?.(response.result)
+            setIsRemoving(false)
           },
           onError: () => {
             setIsRemoving(false)
