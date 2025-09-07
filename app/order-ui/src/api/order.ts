@@ -283,6 +283,18 @@ export async function updateVoucherInOrder(
   return response.data
 }
 
+export async function updatePublicVoucherInOrder(
+  slug: string,
+  voucher: string | null,
+  orderItems: IOrderItemsParam[],
+): Promise<IApiResponse<IOrder>> {
+  const response = await http.patch<IApiResponse<IOrder>>(
+    `/orders/${slug}/voucher/public`,
+    { voucher, orderItems },
+  )
+  return response.data
+}
+
 export async function updateOrderType(
   slug: string,
   params: IUpdateOrderTypeRequest,
@@ -351,6 +363,8 @@ export async function deleteOrderWithoutLogin(
 export async function reprintFailedInvoicePrinterJobs(
   slug: string,
 ): Promise<IApiResponse<{ success: boolean }>> {
-  const response = await http.patch(`/orders/${slug}/re-print-failed-invoice-printer-jobs`)
+  const response = await http.patch(
+    `/orders/${slug}/re-print-failed-invoice-printer-jobs`,
+  )
   return response.data
 }

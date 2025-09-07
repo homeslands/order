@@ -626,6 +626,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         set({
           paymentData: {
             ...paymentData,
+            // Only update paymentMethod if API provides one, otherwise keep existing
+            paymentMethod:
+              (order.payment?.paymentMethod as PaymentMethod) ||
+              paymentData.paymentMethod,
             orderData: order,
             paymentAmount: order.payment?.amount || 0,
             paymentSlug: order.payment?.slug || '',
@@ -695,8 +699,6 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           description: updatedOriginalOrder.description || '',
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
-
-        // console.log('updateDraft in initializeUpdating', updateDraft)
 
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,

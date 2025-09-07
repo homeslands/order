@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -37,6 +37,9 @@ import {
   useValidateVoucher,
   useVouchersForOrder,
   useUpdateVoucherInOrder,
+  useUpdatePublicVoucherInOrder,
+  usePublicVouchersForOrder,
+  useValidatePublicVoucher,
 } from '@/hooks'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
@@ -47,10 +50,8 @@ import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export default function VoucherListSheetInPayment({
-  paymentMethod,
   onSuccess,
 }: {
-  paymentMethod: string
   onSuccess: () => void
 }) {
   const isMobile = useIsMobile()
@@ -60,7 +61,9 @@ export default function VoucherListSheetInPayment({
   const { userInfo } = useUserStore()
   const { paymentData } = useOrderFlowStore()
   const { mutate: validateVoucher } = useValidateVoucher()
+  const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
+  const { mutate: updatePublicVoucherInOrder } = useUpdatePublicVoucherInOrder()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
@@ -70,16 +73,31 @@ export default function VoucherListSheetInPayment({
   const voucher = paymentData?.orderData?.voucher || null
   const orderData = paymentData?.orderData
 
+  // Get payment method from voucher first, then fallback to paymentData
+  const paymentMethod = useMemo(() => {
+    if (voucher?.voucherPaymentMethods?.length && voucher.voucherPaymentMethods.length > 0) {
+      return voucher.voucherPaymentMethods[0].paymentMethod
+    }
+    return paymentData?.paymentMethod
+  }, [voucher?.voucherPaymentMethods, paymentData?.paymentMethod])
+
   const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
   const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
+  // 1. Owner là khách hàng có tài khoản
   const isCustomerOwner =
-    sheetOpen &&
-    !!orderData?.owner && // Check khác null, undefined, ""
-    orderData.owner.role.name === Role.CUSTOMER;
+    !!orderData?.owner &&
+    orderData.owner.role.name === Role.CUSTOMER &&
+    orderData.owner.firstName !== 'Default';
 
-  const { data: voucherList } = useVouchersForOrder(
-    isCustomerOwner
+  // 2. Owner là khách hàng không có tài khoản (default)
+  const isDefaultCustomer =
+    !!orderData?.owner &&
+    orderData.owner.role.name === Role.CUSTOMER &&
+    orderData.owner.firstName === 'Default';
+
+  const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
+    isCustomerOwner // Nếu owner là khách có tài khoản
       ? {
         isActive: true,
         hasPaging: true,
@@ -87,16 +105,31 @@ export default function VoucherListSheetInPayment({
         size: pagination.pageSize,
         paymentMethod: paymentMethod
       }
-      : {
-        isVerificationIdentity: false,
+      : !isDefaultCustomer // Nếu là nhân viên hoặc owner không phải default customer
+        ? {
+          isVerificationIdentity: false,
+          isActive: true,
+          hasPaging: true,
+          page: pagination.pageIndex,
+          size: pagination.pageSize,
+          paymentMethod: paymentMethod
+        }
+        : undefined,
+    !!sheetOpen
+  );
+
+  const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
+    isDefaultCustomer // Nếu owner là default customer
+      ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         paymentMethod: paymentMethod
-      },
+      }
+      : undefined,
     !!sheetOpen
-  );
+  )
 
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
@@ -121,26 +154,47 @@ export default function VoucherListSheetInPayment({
 
     // Nếu không có voucher nào được chọn, xóa voucher hiện tại nếu có
     if (!selectedVoucher) {
-      if (orderData.voucher) {
-        updateVoucherInOrder({
-          slug: orderSlug,
-          voucher: null,
-          orderItems: orderData.orderItems.map((item) => ({
-            quantity: item.quantity,
-            variant: item.variant.slug,
-            note: item.note,
-            promotion: item.promotion ? item.promotion.slug : null,
-          }))
-        }, {
-          onSuccess: () => {
-            showToast(tToast('toast.removeVoucherSuccess'))
-            setSheetOpen(false)
-            onSuccess()
-          },
-          onError: () => {
-            showErrorToast(1000)
+      if (orderData.voucher && orderData.voucher !== null) {
+        const orderItemsPayload = orderData.orderItems.map((item) => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+
+        const successCallback = () => {
+          showToast(tToast('toast.removeVoucherSuccess'))
+          if (isDefaultCustomer) {
+            refetchPublicVoucherList()
+          } else if (userInfo) {
+            refetchVoucherList()
           }
-        })
+          setSelectedVoucher('') // Clear selected voucher state
+          setSheetOpen(false)
+          onSuccess()
+        }
+
+        // Check if user is logged in based on firstName
+        if (orderData?.owner?.firstName === 'Default') {
+          // For non-logged in users
+          updatePublicVoucherInOrder({
+            slug: orderSlug,
+            voucher: null,
+            orderItems: orderItemsPayload
+          }, {
+            onSuccess: successCallback,
+          })
+        } else {
+          // For logged in users
+          updateVoucherInOrder({
+            slug: orderSlug,
+            voucher: null,
+            orderItems: orderItemsPayload
+          }, {
+            onSuccess: successCallback,
+          })
+        }
+        return
       } else {
         setSheetOpen(false)
       }
@@ -168,18 +222,6 @@ export default function VoucherListSheetInPayment({
       return
     }
 
-    // Validate và áp dụng voucher mới
-    const validateVoucherParam: IValidateVoucherRequest = {
-      voucher: selectedVoucherData.slug,
-      user: orderData.owner.slug || userInfo?.slug || '',
-      orderItems: orderData.orderItems.map((item) => ({
-        quantity: item.quantity,
-        variant: item.variant.slug,
-        note: item.note,
-        promotion: item.promotion ? item.promotion.slug : null,
-      }))
-    }
-
     const orderItemsParam = orderData.orderItems.map((item) => ({
       quantity: item.quantity,
       variant: item.variant.slug,
@@ -187,28 +229,79 @@ export default function VoucherListSheetInPayment({
       promotion: item.promotion ? item.promotion.slug : null,
     }))
 
-    // Validate voucher trước, sau đó update order
-    validateVoucher(validateVoucherParam, {
-      onSuccess: () => {
-        updateVoucherInOrder({
-          slug: orderSlug,
-          voucher: selectedVoucherData.slug,
-          orderItems: orderItemsParam
-        }, {
-          onSuccess: () => {
-            setSheetOpen(false)
-            showToast(tToast('toast.applyVoucherSuccess'))
-            onSuccess()
-          },
-          onError: () => {
-            showErrorToast(1000)
-          }
-        })
-      },
-      onError: () => {
-        showErrorToast(1000)
+    const successCallback = () => {
+      if (userInfo) {
+        refetchVoucherList()
+      } else {
+        refetchPublicVoucherList()
       }
-    })
+      setSheetOpen(false)
+      showToast(tToast('toast.applyVoucherSuccess'))
+      onSuccess()
+    }
+
+    const errorCallback = () => {
+      showErrorToast(1000)
+    }
+
+    // Check if user is logged in based on firstName
+    if (orderData?.owner?.firstName === 'Default') {
+      // For non-logged in users - use public voucher validation and update
+      const validatePublicVoucherParam: IValidateVoucherRequest = {
+        voucher: selectedVoucherData.slug,
+        user: '', // Empty string for non-logged in users
+        orderItems: orderData.orderItems.map((item) => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+      }
+
+      validatePublicVoucher(validatePublicVoucherParam, {
+        onSuccess: () => {
+          updatePublicVoucherInOrder({
+            slug: orderSlug,
+            voucher: selectedVoucherData.slug,
+            orderItems: orderItemsParam
+          }, {
+            onSuccess: successCallback,
+            onError: errorCallback
+          })
+        },
+        onError: () => {
+          showErrorToast(1000)
+        }
+      })
+    } else {
+      // For logged in users - use regular voucher validation and update
+      const validateVoucherParam: IValidateVoucherRequest = {
+        voucher: selectedVoucherData.slug,
+        user: orderData.owner.slug || userInfo?.slug || '',
+        orderItems: orderData.orderItems.map((item) => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+      }
+
+      validateVoucher(validateVoucherParam, {
+        onSuccess: () => {
+          updateVoucherInOrder({
+            slug: orderSlug,
+            voucher: selectedVoucherData.slug,
+            orderItems: orderItemsParam
+          }, {
+            onSuccess: successCallback,
+            onError: errorCallback
+          })
+        },
+        onError: () => {
+          showErrorToast(1000)
+        }
+      })
+    }
   }
 
   // Set initial selected voucher when order has a voucher OR when sheet opens
@@ -229,6 +322,14 @@ export default function VoucherListSheetInPayment({
       }
     }
   }, [orderData?.voucher, refetchSpecificVoucher, sheetOpen])
+
+  // Clear selectedVoucher when orderData.voucher becomes null (voucher removed)
+  // But only if we're not in the middle of selecting a new voucher
+  useEffect(() => {
+    if (!orderData?.voucher && selectedVoucher && !sheetOpen) {
+      setSelectedVoucher('')
+    }
+  }, [orderData?.voucher, selectedVoucher, sheetOpen])
 
   // check if specificVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
@@ -254,8 +355,12 @@ export default function VoucherListSheetInPayment({
   }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const baseList = voucherList?.result?.items || []
-    let newList = [...baseList]
+    const baseList = isDefaultCustomer
+      ? publicVoucherList?.result?.items || [] // Khách default - lấy public vouchers
+      : isCustomerOwner
+        ? voucherList?.result?.items || [] // Owner là khách có tài khoản - lấy all vouchers
+        : voucherList?.result?.items || []; // Nhân viên hoặc case khác - lấy vouchers không yêu cầu xác thực
+    let newList = [...baseList];
 
     // Add specific voucher from search
     if (specificVoucher?.result) {
@@ -274,7 +379,7 @@ export default function VoucherListSheetInPayment({
     }
 
     setLocalVoucherList(newList)
-  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher])
+  }, [voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isDefaultCustomer, isCustomerOwner])
 
   // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
@@ -325,11 +430,11 @@ export default function VoucherListSheetInPayment({
 
     const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
     const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
-    const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!orderData?.owner && orderData.owner.role.name === Role.CUSTOMER
-    const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
+    const requiresIdentity = voucher.isVerificationIdentity === true
+    const hasValidIdentity = isCustomerOwner // Chỉ coi là valid khi owner là khách có tài khoản
+    const isIdentityValid = !requiresIdentity || (requiresIdentity && hasValidIdentity)
     return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
-  }, [cartTotals, orderData])
+  }, [cartTotals, orderData, isCustomerOwner])
 
   // Auto-deselect voucher if it becomes invalid (out of stock or other conditions)
   useEffect(() => {
@@ -466,9 +571,23 @@ export default function VoucherListSheetInPayment({
             <span className="text-xs text-muted-foreground/80">
               {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
-            <span className="text-xs italic text-destructive">
-              {getVoucherErrorMessage(voucher)}
-            </span>
+            <div className="flex gap-2 items-center">
+              <span className="text-xs italic text-destructive">
+                {getVoucherErrorMessage(voucher)}
+              </span>
+              {voucher.isVerificationIdentity && !isCustomerOwner && (
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-xs text-primary"
+                  onClick={() => {
+                    // Redirect to login page or open login modal
+                    // Implement based on your authentication flow
+                  }}
+                >
+                  {t('voucher.loginToUse')}
+                </Button>
+              )}
+            </div>
           </div>
           <div className="flex gap-2 justify-between items-center">
             <div className="flex flex-col gap-1 w-full">

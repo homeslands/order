@@ -8,7 +8,10 @@ import { PaymentMethod } from '@/constants'
 import { IOrder } from '@/types'
 interface PaymentMethodSelectProps {
   order?: IOrder
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod[]
+  defaultMethod: PaymentMethod | null
+  disabledMethods: PaymentMethod[]
+  disabledReasons?: Record<PaymentMethod, string>
   qrCode?: string
   total?: number
   onSubmit?: (paymentMethod: PaymentMethod) => void
@@ -17,12 +20,14 @@ interface PaymentMethodSelectProps {
 export default function ClientPaymentMethodSelect({
   order,
   paymentMethod,
+  defaultMethod,
+  disabledMethods,
+  disabledReasons,
   qrCode,
   total,
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
-
   const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
     if (onSubmit) {
       onSubmit(paymentMethodSubmit)
@@ -42,14 +47,20 @@ export default function ClientPaymentMethodSelect({
       >
         <div className="flex flex-col col-span-1">
           <div className="p-4">
-            <PaymentMethodRadioGroup order={order} defaultValue={paymentMethod} onSubmit={handlePaymentMethodSubmit} />
+            <PaymentMethodRadioGroup
+              order={order}
+              defaultValue={defaultMethod}
+              disabledMethods={disabledMethods}
+              disabledReasons={disabledReasons}
+              onSubmit={handlePaymentMethodSubmit}
+            />
           </div>
           <div className="flex items-center gap-1 px-4 pb-4 text-[0.5rem] text-muted-foreground">
             <CircleAlert size={12} className="text-blue-500" />
             {t('paymentMethod.bankTransferProcessing')}
           </div>
         </div>
-        {qrCode && paymentMethod === PaymentMethod.BANK_TRANSFER && (
+        {qrCode && paymentMethod[0] === PaymentMethod.BANK_TRANSFER && (
           <div className="col-span-1 pb-4">
             <div className="flex flex-col justify-center items-center">
               <img src={qrCode} alt="QR Code" className="w-2/5" />

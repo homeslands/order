@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 
 import {
   Dialog,
@@ -9,37 +10,45 @@ import {
   Button,
   DialogFooter,
 } from '@/components/ui'
+import { ButtonLoading } from '@/components/app/loading'
 import { showToast } from '@/utils'
 import { useUpdateVoucherInOrder } from '@/hooks'
 import { IOrder, IVoucher } from '@/types'
 import { useOrderFlowStore } from '@/stores'
 import { PaymentMethod } from '@/constants'
-export default function RemoveVoucherWhenPayingDialog({
+
+export default function StaffRemoveVoucherWhenPayingDialog({
   voucher: _voucher,
   isOpen,
   onOpenChange,
   order,
-  selectedPaymentMethod,
+  selectedPaymentMethod: _selectedPaymentMethod,
   previousPaymentMethod,
   onSuccess,
   onCancel,
+  onRemoveStart,
 }: {
   voucher?: IVoucher | null
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   order?: IOrder
-  selectedPaymentMethod: PaymentMethod
+  selectedPaymentMethod: PaymentMethod | string
   previousPaymentMethod?: PaymentMethod
   onSuccess?: (updatedOrder: IOrder) => void
   onCancel?: () => void
+  onRemoveStart?: () => void
 }) {
   const { t } = useTranslation(['menu'])
   const { t: tCommon } = useTranslation('common')
   const { t: tToast } = useTranslation('toast')
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { updatePaymentMethod } = useOrderFlowStore()
+  const [isRemoving, setIsRemoving] = useState(false)
 
   const handleCancel = () => {
+    // Don't allow cancel when removing
+    if (isRemoving) return
+
     // Revert về payment method trước đó nếu có
     if (previousPaymentMethod) {
       updatePaymentMethod(previousPaymentMethod)
@@ -49,6 +58,13 @@ export default function RemoveVoucherWhenPayingDialog({
   }
 
   const handleRemoveVoucher = () => {
+    // Prevent multiple clicks
+    if (isRemoving) return
+
+    setIsRemoving(true)
+    // Notify parent that removal process is starting
+    onRemoveStart?.()
+
     updateVoucherInOrder(
       {
         slug: order?.slug || '',
@@ -64,10 +80,21 @@ export default function RemoveVoucherWhenPayingDialog({
       {
         onSuccess: (response) => {
           showToast(tToast('toast.removeVoucherSuccess'))
-          updatePaymentMethod(selectedPaymentMethod)
-          onOpenChange(false)
-          onSuccess?.(response.result)
+
+          // Update payment method immediately - use selectedPaymentMethod that user chose
+          updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
+
+          // Close dialog after payment method is updated
+          setTimeout(() => {
+            onOpenChange(false)
+            // Call parent onSuccess with updated order data
+            onSuccess?.(response.result)
+            setIsRemoving(false)
+          }, 100)
         },
+        onError: () => {
+          setIsRemoving(false)
+        }
       }
     )
   }
@@ -86,6 +113,7 @@ export default function RemoveVoucherWhenPayingDialog({
             variant="outline"
             className="w-full sm:w-auto"
             onClick={handleCancel}
+            disabled={isRemoving}
           >
             {tCommon('common.cancel')}
           </Button>
@@ -93,7 +121,9 @@ export default function RemoveVoucherWhenPayingDialog({
             variant="destructive"
             className="w-full sm:w-auto"
             onClick={handleRemoveVoucher}
+            disabled={isRemoving}
           >
+            {isRemoving && <ButtonLoading />}
             {t('order.removeVoucher')}
           </Button>
         </DialogFooter>
