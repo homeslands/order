@@ -87,16 +87,16 @@ export function ClientPaymentPage() {
     [orderData?.voucher?.voucherPaymentMethods]
   );
 
-  // Use payment method from order flow store, fallback to default method from payment resolver
+  // Use payment method from order flow store, fallback to voucher method, then default method
   const paymentMethod = useMemo(() => {
-    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
-    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
-      return paymentData.paymentMethod
-    }
-
     // Nếu đang có pending method (đang chờ remove voucher), dùng nó
     if (pendingPaymentMethod) {
       return pendingPaymentMethod
+    }
+
+    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
+    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+      return paymentData.paymentMethod
     }
 
     // Nếu có voucher, ưu tiên dùng method của voucher
@@ -117,10 +117,23 @@ export function ClientPaymentPage() {
     if (slug) {
       // Initialize payment phase with order slug
       if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
-        // Use current payment method from store if available, otherwise fallback to voucher method
+        // Determine initial payment method: voucher method first, then store method, then default
+        let initialPaymentMethod = PaymentMethod.BANK_TRANSFER
+
+        if (voucherPaymentMethods?.length > 0) {
+          // Use voucher's first payment method
+          initialPaymentMethod = voucherPaymentMethods[0].paymentMethod as PaymentMethod
+        } else if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+          // Use store method if it's still valid
+          initialPaymentMethod = paymentData.paymentMethod
+        } else if (defaultMethod) {
+          // Use default method from payment resolver
+          initialPaymentMethod = defaultMethod
+        }
+
         initializePayment(
           slug,
-          paymentMethod as PaymentMethod
+          initialPaymentMethod
         )
 
         // Mark as initialized only for new slugs
@@ -130,8 +143,7 @@ export function ClientPaymentPage() {
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, currentStep, initializePayment])
+  }, [slug, currentStep, initializePayment, voucherPaymentMethods, paymentData?.paymentMethod, effectiveMethods, defaultMethod])
 
   // Check voucher payment method compatibility on render
   useEffect(() => {
@@ -496,6 +508,7 @@ export function ClientPaymentPage() {
             isRemovingVoucherRef.current = false
           }}
           onSuccess={() => {
+
             // Không reset initializedSlugRef để tránh trigger lại initializePayment
             qrCodeSetRef.current = false
 
@@ -504,20 +517,28 @@ export function ClientPaymentPage() {
 
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
-            setPendingPaymentMethod(undefined)
+
+            // Keep the payment method that user selected (pendingPaymentMethod or current paymentMethod)
+            // Use the actual selected method instead of relying on state
+            const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+            // Set the selected method as the new pending method
+            setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+            // Update payment method in store immediately BEFORE refetch
+            updatePaymentMethod(selectedMethod as PaymentMethod)
 
             // Refetch order data immediately
             refetchOrder().then(() => {
               // Re-initialize payment with updated order data (no voucher)
               if (slug) {
-                initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                initializePayment(slug, selectedMethod as PaymentMethod)
               }
-              // Update payment method after re-initialization
-              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
                 isRemovingVoucherRef.current = false
+                setPendingPaymentMethod(undefined)
               }, 100)
             })
           }}
@@ -552,16 +573,23 @@ export function ClientPaymentPage() {
 
             // Reset states sau khi đã sync order data
             setPreviousPaymentMethod(undefined)
-            setPendingPaymentMethod(undefined)
+
+            // Keep the payment method that user selected (pendingPaymentMethod or current paymentMethod)
+            // Use the actual selected method instead of relying on state
+            const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+            // Set the selected method as the new pending method
+            setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+            // Update payment method in store immediately BEFORE refetch
+            updatePaymentMethod(selectedMethod as PaymentMethod)
 
             // Refetch order data immediately
             refetchOrder().then(() => {
               // Re-initialize payment with updated order data (no voucher)
               if (slug) {
-                initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                initializePayment(slug, selectedMethod as PaymentMethod)
               }
-              // Update payment method after re-initialization
-              updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
 
               // Reset flag after everything is complete - allow new voucher dialogs
               setTimeout(() => {
