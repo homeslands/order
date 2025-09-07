@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCcw, SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
@@ -9,7 +9,7 @@ import { RevenueFilterPopover } from '@/components/app/popover'
 import { Badge, Button } from '@/components/ui'
 import { useBranchRevenue, useLatestRevenue, useRefreshProductAnalysis, useTopBranchProducts } from '@/hooks'
 import { showToast } from '@/utils'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useOverviewFilterStore } from '@/stores'
 import { RevenueTypeQuery } from '@/constants'
 import { IRefreshProductAnalysisRequest, IRevenueQuery } from '@/types'
 import { RevenueToolDropdown } from '@/components/app/dropdown'
@@ -19,12 +19,18 @@ export default function OverviewDetailPage() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation('toast')
   const { branch } = useBranchStore()
-  // const { overviewFilter, setOverviewFilter, clearOverviewFilter } = useOverviewFilterStore()
+  const { clearOverviewFilter } = useOverviewFilterStore()
   const [startDate, setStartDate] = useState<string>(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [type, setType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY)
   const { mutate: refreshRevenue } = useLatestRevenue()
   const { mutate: refreshProductAnalysis } = useRefreshProductAnalysis()
+  const hasMounted = useRef(false)
+
+  const refreshProductAnalysisParams: IRefreshProductAnalysisRequest = useMemo(() => ({
+    startDate: moment(startDate).format('YYYY-MM-DD'),
+    endDate: moment(endDate).format('YYYY-MM-DD'),
+  }), [startDate, endDate])
 
   const { data, isLoading, refetch: refetchRevenue } = useBranchRevenue({
     branch: branch?.slug || '',
@@ -44,6 +50,24 @@ export default function OverviewDetailPage() {
   const revenueData = data?.result
   const topProducts = topBranchProducts?.result.items
 
+  // call refreshRevenue and refreshProductAnalysis when component mount
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      refreshRevenue(undefined, {
+        onSuccess: () => {
+          showToast(tToast('toast.refreshRevenueSuccess'))
+          refetchRevenue()
+        }
+      })
+      refreshProductAnalysis(refreshProductAnalysisParams, {
+        onSuccess: () => {
+          showToast(tToast('toast.refreshProductAnalysisSuccess'))
+        }
+      })
+    }
+  }, [refreshRevenue, refreshProductAnalysis, refreshProductAnalysisParams, tToast, refetchRevenue])
+
   // adjust date in revenueData to be in format YYYY-MM-DD, based on revenueType
   const adjustedRevenueData = revenueData?.map(item => ({
     ...item,
@@ -59,10 +83,15 @@ export default function OverviewDetailPage() {
   const minReferenceNumberOrder = referenceNumbers?.length ? Math.min(...referenceNumbers) : null
 
   const handleRefreshRevenue = useCallback(() => {
-    const refreshProductAnalysisParams: IRefreshProductAnalysisRequest = {
-      startDate: moment(startDate).format('YYYY-MM-DD'),
-      endDate: moment(endDate).format('YYYY-MM-DD'),
-    }
+    // Reset filter về giá trị mặc định
+    setStartDate(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'))
+    setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
+    setType(RevenueTypeQuery.DAILY)
+
+    // Clear store filter khi refresh
+    clearOverviewFilter()
+
+    // Gọi refresh APIs
     refreshRevenue(undefined, {
       onSuccess: () => {
         showToast(tToast('toast.refreshRevenueSuccess'))
@@ -74,7 +103,7 @@ export default function OverviewDetailPage() {
         showToast(tToast('toast.refreshProductAnalysisSuccess'))
       }
     })
-  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, startDate, endDate])
+  }, [refreshRevenue, tToast, refetchRevenue, refreshProductAnalysis, refreshProductAnalysisParams, clearOverviewFilter])
 
   const handleSelectDateRange = (data: IRevenueQuery) => {
     const newStartDate = data.startDate
@@ -84,6 +113,7 @@ export default function OverviewDetailPage() {
     const newEndDate = data.endDate
       ? moment(data.endDate).format('YYYY-MM-DD HH:mm:ss')
       : '';
+
     setStartDate(newStartDate)
     setEndDate(newEndDate)
     setType(data.type || RevenueTypeQuery.DAILY)

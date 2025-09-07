@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RevenueTypeQuery } from '@/constants'
 import { DateAndTimePicker, SimpleDatePicker } from '../picker'
 import { IRevenueQuery } from '@/types'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useOverviewFilterStore } from '@/stores'
 
 interface IRevenueFilterFormProps {
     type: RevenueTypeQuery
@@ -31,23 +31,28 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
 }) => {
     const { t } = useTranslation(['revenue'])
     const { branch } = useBranchStore()
-    // const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
+    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
 
     const [localStartDate, setLocalStartDate] = useState<string>('')
     const [localEndDate, setLocalEndDate] = useState<string>('')
     const [localType, setLocalType] = useState<RevenueTypeQuery>(type)
 
     const getDefaultValues = React.useCallback(() => {
+        // Ưu tiên sử dụng giá trị từ store nếu có
+        const storeStartDate = overviewFilter.startDate
+        const storeEndDate = overviewFilter.endDate
+        const storeType = overviewFilter.type
+
         const defaultStartDate = type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
         const defaultEndDate = type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
 
         return {
             branch: branch?.slug || '',
-            startDate: localStartDate || defaultStartDate,
-            endDate: localEndDate || defaultEndDate,
-            type: localType || type || RevenueTypeQuery.DAILY,
+            startDate: localStartDate || storeStartDate || defaultStartDate,
+            endDate: localEndDate || storeEndDate || defaultEndDate,
+            type: localType || storeType || type || RevenueTypeQuery.DAILY,
         }
-    }, [branch?.slug, type, localStartDate, localEndDate, localType])
+    }, [branch?.slug, type, localStartDate, localEndDate, localType, overviewFilter])
 
     const form = useForm<TExportRevenueSchema>({
         resolver: zodResolver(useExportRevenueSchema()),
@@ -63,13 +68,30 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
         form.setValue('endDate', defaultValues.endDate)
 
         setLocalType(defaultValues.type)
+        // Chỉ set local state nếu chưa có giá trị
         if (!localStartDate) setLocalStartDate(defaultValues.startDate)
         if (!localEndDate) setLocalEndDate(defaultValues.endDate)
-    }, [type, branch?.slug, form, getDefaultValues, localStartDate, localEndDate])
+    }, [type, branch?.slug, form, getDefaultValues, localStartDate, localEndDate, overviewFilter])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
-        onSubmit(data)
+        // Update overview filter
+        setOverviewFilter({
+            ...overviewFilter,
+            startDate: localStartDate || data.startDate || '',
+            endDate: localEndDate || data.endDate || '',
+            type: localType || data.type || RevenueTypeQuery.DAILY
+        })
+
+        // Đảm bảo sử dụng giá trị từ local state nếu có
+        const submitData = {
+            ...data,
+            startDate: localStartDate || data.startDate,
+            endDate: localEndDate || data.endDate,
+            type: localType || data.type
+        }
+
+        onSubmit(submitData)
     }
 
     const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {
