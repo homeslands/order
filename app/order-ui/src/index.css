@@ -227,6 +227,47 @@ input[type='number']::-webkit-outer-spin-button {
   .primary-highlight {
     @apply pl-2 font-bold uppercase border-l-4 border-primary text-primary;
   }
+
+  /* ========== Cross-browser: Firefox ========== */
+  .custom-scroll {
+    /* Firefox: make thin and set colors */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
+  }
+
+  /* ========== WebKit/Blink (Chrome, Edge, Safari) ========== */
+  /* Apply thickness for both vertical (width) and horizontal (height) */
+  .custom-scroll::-webkit-scrollbar {
+    width: 4px !important;   /* vertical scrollbar thickness */
+    height: 4px !important;  /* horizontal scrollbar thickness */
+    background: transparent !important;
+  }
+
+  /* Track (background of scrollbar) */
+  .custom-scroll::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  /* Thumb (the draggable part) */
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground)) !important;
+    border-radius: 9999px !important;
+    min-height: 4px !important;  /* ensure it's visible */
+    min-width: 4px !important;
+    border: 1px solid transparent !important; /* reduce aliasing */
+  }
+
+  /* Hide the two arrow buttons at the ends */
+  .custom-scroll::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Remove the scrollbar corner block (bottom-right) */
+  .custom-scroll::-webkit-scrollbar-corner {
+    background: transparent !important;
+  }
 }
 
 /* Roboto */
