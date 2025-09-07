@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { Banknote, DollarSign, Star, AlertCircle } from "lucide-react"
 
@@ -31,28 +31,23 @@ export default function VoucherPaymentMethodSelect({
   const { t } = useTranslation(["voucher"])
 
   // Đảm bảo luôn có ít nhất 1 phương thức được chọn mặc định
-  const getDefaultValues = useCallback(() => {
+  const defaultValues = useMemo(() => {
     const existingValues = initialValues || voucher?.voucherPaymentMethods?.map((method) => method.paymentMethod) || []
-
-    // Nếu không có giá trị nào, chọn phương thức đầu tiên làm mặc định
-    if (existingValues.length === 0) {
-      return [PAYMENT_METHODS[0].key]
-    }
-
-    return existingValues
+    return existingValues.length === 0 ? [PAYMENT_METHODS[0].key] : existingValues
   }, [initialValues, voucher])
 
-  const [selected, setSelected] = useState<string[]>(getDefaultValues())
+  const [selected, setSelected] = useState<string[]>(defaultValues)
   const [hasError, setHasError] = useState(false)
+  const initializedRef = useRef(false)
 
   // Đảm bảo luôn có ít nhất 1 phương thức được chọn khi component mount
   useEffect(() => {
-    const defaultValues = getDefaultValues()
-    if (defaultValues.length > 0) {
+    if (!initializedRef.current && defaultValues.length > 0) {
       setSelected(defaultValues)
       onChange(defaultValues)
+      initializedRef.current = true
     }
-  }, [getDefaultValues, onChange])
+  }, [defaultValues, onChange])
 
   const toggleMethod = (key: string) => {
     if (disabled) return
