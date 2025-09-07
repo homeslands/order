@@ -201,9 +201,9 @@ export function DataTable<TData, TValue>({
   })
 
   const handlePeriodOfTimeChange = useCallback((periodOfTime: string) => {
-   const result = timeChange(periodOfTime, today);
-   setStartDate(result.startDate);
-   setEndDate(result.endDate);
+    const result = timeChange(periodOfTime, today);
+    setStartDate(result.startDate);
+    setEndDate(result.endDate);
   }, [today])
 
   const handleRefresh = () => {
@@ -261,7 +261,7 @@ export function DataTable<TData, TValue>({
         </div>
         <div className="flex gap-2 items-center w-fit">
           {onRefresh && (
-            <Button variant="outline" onClick={handleRefresh}>
+            <Button type="button" variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />
               <span className='text-muted-foreground'>
                 {t('common.refresh')}
@@ -564,6 +564,7 @@ export function DataTablePagination<TData>({
         </div>
         <div className="flex items-center space-x-2">
           <Button
+            type="button"
             variant="outline"
             className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
@@ -576,6 +577,7 @@ export function DataTablePagination<TData>({
             <DoubleArrowLeftIcon className="w-4 h-4" />
           </Button>
           <Button
+            type="button"
             variant="outline"
             className="p-0 w-8 h-8"
             onClick={() => {
@@ -588,6 +590,7 @@ export function DataTablePagination<TData>({
             <ChevronLeftIcon className="w-4 h-4" />
           </Button>
           <Button
+            type="button"
             variant="outline"
             className="p-0 w-8 h-8"
             onClick={() => {
@@ -600,6 +603,7 @@ export function DataTablePagination<TData>({
             <ChevronRightIcon className="w-4 h-4" />
           </Button>
           <Button
+            type="button"
             variant="outline"
             className="hidden p-0 w-8 h-8 lg:flex"
             onClick={() => {
