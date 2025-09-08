@@ -98,6 +98,34 @@ export class AccumulatedPointController {
     } as AppResponseDto<ApplyPointsResponseDto>;
   }
 
+  @Post('order/:slug/cancel-reservation')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel reservation for order' })
+  @ApiParam({
+    name: 'slug',
+    description: 'Slug of order',
+    required: true,
+    example: 'order-slug-123',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Cancel reservation for order successfully',
+    type: String,
+  })
+  async cancelReservation(
+    @Param('slug') slug: string,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    user: CurrentUserDto,
+  ): Promise<AppResponseDto<string>> {
+    await this.accumulatedPointService.cancelReservation(slug, user?.userId);
+    return {
+      message: 'Cancel reservation for order successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result: 'Cancel reservation for order successfully',
+    } as AppResponseDto<string>;
+  }
+
   @Get('user/:slug/history')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get accumulated points history of user' })

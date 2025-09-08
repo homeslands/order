@@ -38,6 +38,8 @@ import { ConfigService } from '@nestjs/config';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { OrderStatus } from 'src/order/order.constants';
+import { OrderException } from 'src/order/order.exception';
+import { OrderValidation } from 'src/order/order.validation';
 
 @Injectable()
 export class AccumulatedPointService {
@@ -540,10 +542,41 @@ export class AccumulatedPointService {
   }
 
   /**
+   * Cancel reservation if exists, refund points if confirmed
+   */
+  async cancelReservation(
+    orderSlug: string,
+    createdUserId: string,
+  ): Promise<void> {
+    const context = `${AccumulatedPointService.name}.${this.handleCancelReservation.name}`;
+
+    const order = await this.orderRepository.findOne({
+      where: { slug: orderSlug },
+    });
+
+    if (!order) {
+      this.logger.log(`Order not found: ${orderSlug}`, context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    await this.handleCancelReservation(order.id, createdUserId);
+    // Update subtotal and accumulated points to use in order
+    const subtotalBeforeUseAccumulatedPoints =
+      order.subtotal + order.accumulatedPointsToUse;
+    order.accumulatedPointsToUse = 0;
+    order.subtotal = subtotalBeforeUseAccumulatedPoints;
+
+    await this.orderRepository.save(order);
+  }
+
+  /**
    * Automatically handle when order is cancelled or expired
    * Cancel reservation if exists, refund points if confirmed
    */
-  async handleCancelReservation(orderId: string): Promise<void> {
+  async handleCancelReservation(
+    orderId: string,
+    createdUserId?: string | null,
+  ): Promise<void> {
     const context = `${AccumulatedPointService.name}.${this.handleCancelReservation.name}`;
 
     const reservation = await this.transactionHistoryRepository.findOne({
@@ -600,7 +633,7 @@ export class AccumulatedPointService {
       points: reservation.points,
       lastPoints: accumulatedPoint.totalPoints,
       status: AccumulatedPointTransactionStatus.CONFIRMED,
-      createdUserId: null,
+      createdUserId,
     });
 
     this.logger.log(
