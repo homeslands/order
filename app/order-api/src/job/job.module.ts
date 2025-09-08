@@ -36,6 +36,7 @@ import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
 import { SharedModule } from 'src/shared/shared.module';
+import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { SharedModule } from 'src/shared/shared.module';
     NotificationModule,
     ACBConnectorModule,
     SharedModule,
+    AccumulatedPointModule,
   ],
   controllers: [JobController],
   providers: [

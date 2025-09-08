@@ -70,6 +70,7 @@ import { PrinterModule } from 'src/printer/printer.module';
 import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
+import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
 
 @Module({
   imports: [
@@ -162,6 +163,7 @@ import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
     ZaloOaConnectorModule,
     SharedModule,
     InvoiceAreaModule,
+    AccumulatedPointModule,
   ],
   controllers: [AppController],
   providers: [

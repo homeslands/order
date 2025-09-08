@@ -269,6 +269,7 @@ export class InvoiceService {
       branchId: order.branch.id,
       date: order.createdAt,
       voucherCode: order.voucher?.code ?? null,
+      accumulatedPointsToUse: order.accumulatedPointsToUse,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -456,6 +457,7 @@ export class InvoiceService {
       voucherType: order.voucher?.type ?? null,
       valueEachVoucher: order.voucher?.value ?? null,
       voucherRule: order.voucher?.applicabilityRule ?? null,
+      accumulatedPointsToUse: order.accumulatedPointsToUse,
     });
 
     this.logger.log(`Temporary invoice created for order ${order.id}`, context);

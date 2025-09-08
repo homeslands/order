@@ -37,6 +37,10 @@ import { ACBConnectorClient } from 'src/acb-connector/acb-connector.client';
 import { Payment } from 'src/payment/entity/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 
 describe('VoucherController', () => {
   let controller: VoucherController;
@@ -129,6 +133,21 @@ describe('VoucherController', () => {
         {
           provide: getRepositoryToken(VoucherPaymentMethod),
           useFactory: repositoryMockFactory,
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
         },
       ],
     }).compile();

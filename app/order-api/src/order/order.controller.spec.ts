@@ -31,6 +31,12 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { RoleEnum } from 'src/role/role.enum';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { User } from 'src/user/user.entity';
+import { Order } from './order.entity';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -88,6 +94,29 @@ describe('OrderController', () => {
         },
         {
           provide: getRepositoryToken(Invoice),
+          useValue: repositoryMockFactory,
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
+        },
+        {
+          provide: getRepositoryToken(Order),
           useValue: repositoryMockFactory,
         },
       ],

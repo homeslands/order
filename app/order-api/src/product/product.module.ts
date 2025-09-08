@@ -32,6 +32,9 @@ import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strateg
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 
 @Module({
   imports: [
@@ -51,6 +54,8 @@ import { Invoice } from 'src/invoice/invoice.entity';
       Payment,
       ACBConnectorConfig,
       Invoice,
+      AccumulatedPoint,
+      AccumulatedPointTransactionHistory,
     ]),
     FileModule,
     MenuModule,
@@ -70,6 +75,7 @@ import { Invoice } from 'src/invoice/invoice.entity';
     MenuItemUtils,
     PaymentUtils,
     BankTransferStrategy,
+    AccumulatedPointService,
   ],
   exports: [ProductService, ProductUtils],
 })
