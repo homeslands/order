@@ -142,7 +142,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="overflow-x-auto no-scrollbar scroll-smooth">
+      <SidebarContent className="overflow-x-auto custom-scroll scroll-smooth">
         <SidebarGroup>
           <SidebarMenu>
             {filteredRoutes.map((item) => (
