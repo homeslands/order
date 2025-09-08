@@ -50,7 +50,7 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
             branch: branch?.slug || '',
             startDate: localStartDate || storeStartDate || defaultStartDate,
             endDate: localEndDate || storeEndDate || defaultEndDate,
-            type: localType || storeType || type || RevenueTypeQuery.DAILY,
+            type: localType || storeType || type || RevenueTypeQuery.HOURLY,
         }
     }, [branch?.slug, type, localStartDate, localEndDate, localType, overviewFilter])
 
@@ -73,6 +73,23 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
         if (!localEndDate) setLocalEndDate(defaultValues.endDate)
     }, [type, branch?.slug, form, getDefaultValues, localStartDate, localEndDate, overviewFilter])
 
+    // Reset local state when overviewFilter is cleared
+    useEffect(() => {
+        if (!overviewFilter.startDate && !overviewFilter.endDate && !overviewFilter.type) {
+            const defaultStartDate = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+            const defaultEndDate = moment().format('YYYY-MM-DD HH:mm:ss')
+            const defaultType = RevenueTypeQuery.HOURLY
+
+            setLocalStartDate(defaultStartDate)
+            setLocalEndDate(defaultEndDate)
+            setLocalType(defaultType)
+
+            form.setValue('startDate', defaultStartDate)
+            form.setValue('endDate', defaultEndDate)
+            form.setValue('type', defaultType)
+        }
+    }, [overviewFilter, form])
+
 
     const handleSubmit = (data: IRevenueQuery) => {
         // Update overview filter
@@ -80,7 +97,7 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
             ...overviewFilter,
             startDate: localStartDate || data.startDate || '',
             endDate: localEndDate || data.endDate || '',
-            type: localType || data.type || RevenueTypeQuery.DAILY
+            type: localType || data.type || RevenueTypeQuery.HOURLY
         })
 
         // Đảm bảo sử dụng giá trị từ local state nếu có

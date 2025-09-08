@@ -22,7 +22,7 @@ export default function OverviewDetailPage() {
   const { clearOverviewFilter } = useOverviewFilterStore()
   const [startDate, setStartDate] = useState<string>(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD HH:mm:ss'))
-  const [type, setType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY)
+  const [type, setType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY)
   const { mutate: refreshRevenue } = useLatestRevenue()
   const { mutate: refreshProductAnalysis } = useRefreshProductAnalysis()
   const hasMounted = useRef(false)
@@ -68,6 +68,38 @@ export default function OverviewDetailPage() {
     }
   }, [refreshRevenue, refreshProductAnalysis, refreshProductAnalysisParams, tToast, refetchRevenue])
 
+  // Handle F5/refresh - reset filter state to default values
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Reset to default values when page is about to refresh
+      const defaultStartDate = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+      const defaultEndDate = moment().format('YYYY-MM-DD HH:mm:ss')
+      const defaultType = RevenueTypeQuery.HOURLY
+
+      setStartDate(defaultStartDate)
+      setEndDate(defaultEndDate)
+      setType(defaultType)
+      clearOverviewFilter()
+    }
+
+    // Listen for beforeunload event (F5, refresh button, etc.)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    // Also reset on component mount to ensure clean state
+    const defaultStartDate = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+    const defaultEndDate = moment().format('YYYY-MM-DD HH:mm:ss')
+    const defaultType = RevenueTypeQuery.HOURLY
+
+    setStartDate(defaultStartDate)
+    setEndDate(defaultEndDate)
+    setType(defaultType)
+    clearOverviewFilter()
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [clearOverviewFilter])
+
   // adjust date in revenueData to be in format YYYY-MM-DD, based on revenueType
   const adjustedRevenueData = revenueData?.map(item => ({
     ...item,
@@ -84,9 +116,13 @@ export default function OverviewDetailPage() {
 
   const handleRefreshRevenue = useCallback(() => {
     // Reset filter về giá trị mặc định
-    setStartDate(moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'))
-    setEndDate(moment().format('YYYY-MM-DD HH:mm:ss'))
-    setType(RevenueTypeQuery.DAILY)
+    const defaultStartDate = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+    const defaultEndDate = moment().format('YYYY-MM-DD HH:mm:ss')
+    const defaultType = RevenueTypeQuery.HOURLY
+
+    setStartDate(defaultStartDate)
+    setEndDate(defaultEndDate)
+    setType(defaultType)
 
     // Clear store filter khi refresh
     clearOverviewFilter()
@@ -116,7 +152,7 @@ export default function OverviewDetailPage() {
 
     setStartDate(newStartDate)
     setEndDate(newEndDate)
-    setType(data.type || RevenueTypeQuery.DAILY)
+    setType(data.type || RevenueTypeQuery.HOURLY)
   };
 
   return (
@@ -155,7 +191,7 @@ export default function OverviewDetailPage() {
                 {startDate === endDate ? moment(startDate).format('HH:mm DD/MM/YYYY') : `${moment(startDate).format('HH:mm DD/MM/YYYY')} - ${moment(endDate).format('HH:mm DD/MM/YYYY')}`}
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
-                {type === RevenueTypeQuery.DAILY ? t('dashboard.daily') : t('dashboard.hourly')}
+                {type === RevenueTypeQuery.HOURLY ? t('dashboard.hourly') : t('dashboard.daily')}
               </Badge>
               <Badge className='flex gap-1 items-center h-8 text-sm border-primary text-primary bg-primary/10' variant='outline'>
                 {t('dashboard.referenceNumberOrder')}: {minReferenceNumberOrder} - {maxReferenceNumberOrder}
