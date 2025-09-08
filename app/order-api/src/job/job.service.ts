@@ -25,6 +25,7 @@ import { SharedBalanceService } from 'src/shared/services/shared-balance.service
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
 import { InvoiceAction } from 'src/invoice/invoice.constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 
 @Injectable()
 export class JobService {
@@ -42,7 +43,8 @@ export class JobService {
     private readonly sharedBalanceService: SharedBalanceService,
     private readonly sharedPointTransactionService: SharedPointTransactionService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+    private readonly accumulatedPointService: AccumulatedPointService,
+  ) {}
 
   async updateOrderStatusAfterPaymentPaid(job: Job) {
     const context = `${JobService.name}.${this.updateOrderStatusAfterPaymentPaid.name}`;
@@ -117,7 +119,9 @@ export class JobService {
             type: 'out',
           });
 
-          const currentBalance = await this.sharedBalanceService.findOneByField({ userSlug: order.owner?.slug, slug: null })
+          const currentBalance = await this.sharedBalanceService.findOneByField(
+            { userSlug: order.owner?.slug, slug: null },
+          );
 
           // Create point transaction
           await this.sharedPointTransactionService.create({
@@ -127,8 +131,43 @@ export class JobService {
             objectSlug: order.slug,
             points: order.payment?.amount,
             userSlug: order.owner?.slug,
-            balance: currentBalance.points
+            balance: currentBalance.points,
           } as CreatePointTransactionDto);
+        }
+
+        // confirm use accumulated points
+        try {
+          await this.accumulatedPointService.confirmPointsUsage(order.id);
+          this.logger.log(
+            `Confirmed points usage for order ${order.slug}`,
+            context,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Error when confirming points usage for order ${order.slug}: ${error.message}`,
+            error.stack,
+            context,
+          );
+        }
+
+        // add accumulated points
+        try {
+          await this.accumulatedPointService.addPointsForOrder({
+            userId: order.owner.id,
+            orderId: order.id,
+            points: order.payment?.amount,
+            orderTotal: order.subtotal,
+          });
+          this.logger.log(
+            `Added accumulated points for order ${order.slug}`,
+            context,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Error when adding accumulated points for order ${order.slug}: ${error.message}`,
+            error.stack,
+            context,
+          );
         }
 
         // create invoice

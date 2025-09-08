@@ -63,6 +63,9 @@ export class BranchRevenueQueryResponseDto {
 
   @AutoMap()
   totalAmountPoint: string;
+
+  @AutoMap()
+  totalAccumulatedPointsToUse: string;
 }
 
 export class BranchRevenueQueryResponseForHourDto {
@@ -119,6 +122,9 @@ export class BranchRevenueQueryResponseForHourDto {
 
   @AutoMap()
   totalAmountPoint: string;
+
+  @AutoMap()
+  totalAccumulatedPointsToUse: string;
 }
 
 export class GetBranchRevenueQueryDto {
@@ -235,6 +241,10 @@ export class AggregateBranchRevenueResponseDto {
   @AutoMap()
   @ApiProperty()
   totalAmountPoint: number;
+
+  @AutoMap()
+  @ApiProperty()
+  totalAccumulatedPointsToUse: number;
 }
 
 export class RefreshSpecificRangeBranchRevenueQueryDto {
