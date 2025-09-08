@@ -23,6 +23,8 @@ import {
 } from './menu.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppPaginatedResponseDto, AppResponseDto } from 'src/app/app.dto';
+import { CurrentUserDto } from 'src/user/user.dto';
+import { CurrentUser } from 'src/user/user.decorator';
 
 @ApiTags('Menu')
 @Controller('menu')
@@ -53,8 +55,29 @@ export class MenuController {
     } as AppResponseDto<AppPaginatedResponseDto<MenuResponseDto>>;
   }
 
-  @Get('specific')
+  @Get('specific/public')
   @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve specific menu' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'The specific menu was retrieved successfully',
+    type: MenuResponseDto,
+  })
+  async getMenuPublic(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: GetMenuRequestDto,
+  ) {
+    const result = await this.menuService.getMenuPublic(query);
+    return {
+      message: 'The specific menu was retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<MenuResponseDto>;
+  }
+
+  @Get('specific')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve specific menu' })
   @ApiResponseWithType({
@@ -65,8 +88,10 @@ export class MenuController {
   async getMenu(
     @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: GetMenuRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
   ) {
-    const result = await this.menuService.getMenu(query);
+    const result = await this.menuService.getMenu(query, currentUserDto);
     return {
       message: 'The specific menu was retrieved successfully',
       statusCode: HttpStatus.OK,

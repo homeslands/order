@@ -30,6 +30,7 @@ export const VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER =
   'VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER';
 export const ORDER_IS_NOT_PAID = 'ORDER_IS_NOT_PAID';
 export const ERROR_WHEN_UPDATE_ORDER = 'ERROR_WHEN_UPDATE_ORDER';
+export const GIFT_PRODUCT_NOT_ALLOWED = 'GIFT_PRODUCT_NOT_ALLOWED';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -57,7 +58,8 @@ export type TOrderErrorCodeKey =
   | typeof ERROR_WHEN_CANCEL_ORDER
   | typeof VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER
   | typeof ORDER_IS_NOT_PAID
-  | typeof ERROR_WHEN_UPDATE_ORDER;
+  | typeof ERROR_WHEN_UPDATE_ORDER
+  | typeof GIFT_PRODUCT_NOT_ALLOWED;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -107,4 +109,8 @@ export const OrderValidation: TOrderErrorCode = {
   ),
   ORDER_IS_NOT_PAID: createErrorCode(1010024, 'Order is not paid'),
   ERROR_WHEN_UPDATE_ORDER: createErrorCode(1010025, 'Error when update order'),
+  GIFT_PRODUCT_NOT_ALLOWED: createErrorCode(
+    1010026,
+    'Gift product not allowed',
+  ),
 };

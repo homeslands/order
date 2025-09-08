@@ -659,6 +659,7 @@ export class OrderService {
    */
   async createOrder(
     requestData: CreateOrderRequestDto,
+    requestUserRole?: string | null,
   ): Promise<OrderResponseDto> {
     const context = `${OrderService.name}.${this.createOrder.name}`;
 
@@ -694,6 +695,7 @@ export class OrderService {
       requestData.branch,
       requestData.orderItems,
       voucher,
+      requestUserRole,
     );
     this.logger.log(`Number of order items: ${orderItems.length}`, context);
     order.orderItems = orderItems;
@@ -825,6 +827,7 @@ export class OrderService {
     branch: string,
     createOrderItemRequestDtos: CreateOrderItemRequestDto[],
     voucher?: Voucher,
+    requestUserRole?: string | null,
   ): Promise<OrderItem[]> {
     // Get menu
     const menu = await this.menuUtils.getMenu({
@@ -838,7 +841,8 @@ export class OrderService {
 
     return await Promise.all(
       createOrderItemRequestDtos.map(
-        async (item) => await this.constructOrderItem(item, menu, voucher),
+        async (item) =>
+          await this.constructOrderItem(item, menu, voucher, requestUserRole),
       ),
     );
   }
@@ -847,6 +851,7 @@ export class OrderService {
     item: CreateOrderItemRequestDto,
     menu: Menu,
     voucher?: Voucher,
+    requestUserRole?: string | null,
   ): Promise<OrderItem> {
     const context = `${OrderService.name}.${this.constructOrderItem.name}`;
     // Get variant
@@ -855,6 +860,17 @@ export class OrderService {
         slug: item.variant,
       },
     });
+
+    // validate gift product
+    if (!requestUserRole || requestUserRole === RoleEnum.Customer) {
+      if (variant.product?.isGift) {
+        this.logger.warn(
+          `Gift product ${variant.product.slug} is not allowed for customer`,
+          context,
+        );
+        throw new OrderException(OrderValidation.GIFT_PRODUCT_NOT_ALLOWED);
+      }
+    }
 
     // Get menu item
     const menuItem = await this.menuItemUtils.getMenuItem({
