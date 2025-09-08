@@ -77,4 +77,8 @@ export class Product extends Base {
 
   @OneToMany(() => VoucherProduct, (voucherProduct) => voucherProduct.product)
   voucherProducts: VoucherProduct[];
+
+  @AutoMap()
+  @Column({ name: 'isGift', default: false })
+  isGift: boolean;
 }

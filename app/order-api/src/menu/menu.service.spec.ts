@@ -18,6 +18,7 @@ import { BranchException } from 'src/branch/branch.exception';
 import { MenuUtils } from './menu.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
+import { User } from 'src/user/user.entity';
 
 describe('MenuService', () => {
   let service: MenuService;
@@ -51,6 +52,10 @@ describe('MenuService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
