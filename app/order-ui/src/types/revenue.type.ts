@@ -57,4 +57,5 @@ export interface IOverviewFilterStore {
       | ((prev: IOverviewFilter) => IOverviewFilter),
   ) => void
   clearOverviewFilter: () => void
+  resetToDefault: () => void
 }

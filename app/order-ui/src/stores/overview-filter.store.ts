@@ -7,9 +7,9 @@ import { RevenueTypeQuery } from '@/constants'
 
 const defaultOverviewFilter: IOverviewFilter = {
   branch: '',
-  startDate: moment().format('YYYY-MM-DD'),
-  endDate: moment().format('YYYY-MM-DD'),
-  type: RevenueTypeQuery.DAILY,
+  startDate: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+  endDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+  type: RevenueTypeQuery.HOURLY,
 }
 
 export const useOverviewFilterStore = create<IOverviewFilterStore>()(
@@ -30,17 +30,23 @@ export const useOverviewFilterStore = create<IOverviewFilterStore>()(
       },
       clearOverviewFilter: () => {
         set({
-          overviewFilter: {
-            branch: '',
-            startDate: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-            endDate: moment().format('YYYY-MM-DD HH:mm:ss'),
-            type: RevenueTypeQuery.HOURLY,
-          },
+          overviewFilter: defaultOverviewFilter,
+        })
+      },
+      resetToDefault: () => {
+        set({
+          overviewFilter: defaultOverviewFilter,
         })
       },
     }),
     {
       name: 'overview-filter-store',
+      // Clear store khi page refresh
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.overviewFilter = defaultOverviewFilter
+        }
+      },
     },
   ),
 )
