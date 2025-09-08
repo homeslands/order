@@ -50,6 +50,9 @@ import { BankTransferStrategy } from 'src/payment/strategy/bank-transfer.strateg
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { ACBConnectorModule } from 'src/acb-connector/acb-connector.module';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -73,6 +76,8 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
       Payment,
       ACBConnectorConfig,
       PrinterJob,
+      AccumulatedPoint,
+      AccumulatedPointTransactionHistory,
     ]),
     RobotConnectorModule,
     DbModule,
@@ -106,6 +111,7 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
     Mutex,
     PaymentUtils,
     BankTransferStrategy,
+    AccumulatedPointService,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

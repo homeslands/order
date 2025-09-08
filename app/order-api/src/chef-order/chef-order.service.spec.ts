@@ -42,6 +42,10 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 import { InvoiceService } from 'src/invoice/invoice.service';
 import { Invoice } from 'src/invoice/invoice.entity';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { User } from 'src/user/user.entity';
 
 describe('ChefOrderService', () => {
   let service: ChefOrderService;
@@ -155,6 +159,19 @@ describe('ChefOrderService', () => {
           useValue: {},
         },
         QrCodeService,
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: repositoryMockFactory,
+        },
       ],
     }).compile();
 

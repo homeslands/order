@@ -188,6 +188,7 @@ export class BranchRevenueScheduler {
           branchId: firstBranchRevenue.branchId,
           totalOrderPoint: 0,
           totalAmountPoint: 0,
+          totalAccumulatedPointsToUse: 0,
         });
         results.push(revenue);
       }
@@ -332,6 +333,7 @@ export class BranchRevenueScheduler {
           promotionAmount: 0,
           date: yesterdayDate,
           branchId: branch.id,
+          totalAccumulatedPointsToUse: 0,
         });
         newBranchRevenues.push(revenue);
       }
