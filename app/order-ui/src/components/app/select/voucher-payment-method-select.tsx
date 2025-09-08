@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { Banknote, DollarSign, Star, AlertCircle } from "lucide-react"
 
@@ -29,10 +29,25 @@ export default function VoucherPaymentMethodSelect({
   initialValues,
 }: VoucherPaymentMethodSelectProps) {
   const { t } = useTranslation(["voucher"])
-  const [selected, setSelected] = useState<string[]>(
-    initialValues || voucher?.voucherPaymentMethods?.map((method) => method.paymentMethod) || []
-  )
+
+  // Đảm bảo luôn có ít nhất 1 phương thức được chọn mặc định
+  const defaultValues = useMemo(() => {
+    const existingValues = initialValues || voucher?.voucherPaymentMethods?.map((method) => method.paymentMethod) || []
+    return existingValues.length === 0 ? [PAYMENT_METHODS[0].key] : existingValues
+  }, [initialValues, voucher])
+
+  const [selected, setSelected] = useState<string[]>(defaultValues)
   const [hasError, setHasError] = useState(false)
+  const initializedRef = useRef(false)
+
+  // Đảm bảo luôn có ít nhất 1 phương thức được chọn khi component mount
+  useEffect(() => {
+    if (!initializedRef.current && defaultValues.length > 0) {
+      setSelected(defaultValues)
+      onChange(defaultValues)
+      initializedRef.current = true
+    }
+  }, [defaultValues, onChange])
 
   const toggleMethod = (key: string) => {
     if (disabled) return
