@@ -8,6 +8,7 @@ import {
   Min,
   IsArray,
   IsIn,
+  IsInt,
 } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import { AccumulatedPointTransactionType } from './accumulated-point.constants';
@@ -28,6 +29,7 @@ export class ApplyPointsRequestDto {
   })
   @IsNotEmpty({ message: 'Points to use cannot be empty' })
   @IsNumber({}, { message: 'Points must be a number' })
+  @IsInt({ message: 'Points must be a integer' })
   @Min(1, { message: 'Points must be greater than 0' })
   pointsToUse: number;
 }
