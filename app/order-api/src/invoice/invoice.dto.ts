@@ -95,4 +95,8 @@ export class InvoiceResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   voucherCode?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  accumulatedPointsToUse: number;
 }

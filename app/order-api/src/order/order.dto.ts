@@ -225,6 +225,9 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap(() => [PrinterJobResponseDto])
   printerInvoices?: PrinterJobResponseDto[];
+
+  @AutoMap()
+  accumulatedPointsToUse: number;
 }
 
 export class GetOrderRequestDto extends BaseQueryDto {
