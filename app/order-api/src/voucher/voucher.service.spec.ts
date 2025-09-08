@@ -49,6 +49,10 @@ import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
 import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -145,6 +149,21 @@ describe('VoucherService', () => {
         {
           provide: getRepositoryToken(VoucherPaymentMethod),
           useFactory: repositoryMockFactory,
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(), // Mock the emit method
+          },
         },
       ],
     }).compile();
@@ -511,6 +530,8 @@ describe('VoucherService', () => {
         chefOrders: [],
         originalSubtotal: 100,
         referenceNumber: 1,
+        accumulatedPointTransactionHistories: [],
+        accumulatedPointsToUse: 0,
       } as Order;
 
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(mockVoucherRepo);
