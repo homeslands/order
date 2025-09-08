@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import { VoucherController } from './voucher.controller';
 import { VoucherProfile } from './voucher.mapper';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbModule } from 'src/db/db.module';
 import { VoucherUtils } from './voucher.utils';
@@ -17,9 +17,16 @@ import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { ProductUtils } from 'src/product/product.utils';
 import { Product } from 'src/product/product.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
+import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Voucher, VoucherGroup, Product, VoucherProduct]),
+    TypeOrmModule.forFeature([
+      Voucher,
+      VoucherGroup,
+      Product,
+      VoucherProduct,
+      VoucherPaymentMethod,
+    ]),
     DbModule,
     UserModule,
     forwardRef(() => OrderModule),

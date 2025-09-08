@@ -14,6 +14,7 @@ import {
 import { PaymentService } from './payment.service';
 import {
   ApiBearerAuth,
+  ApiExcludeEndpoint,
   ApiOperation,
   ApiQuery,
   ApiTags,
@@ -30,12 +31,22 @@ import { ACBStatusRequestDto } from 'src/acb-connector/acb-connector.dto';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CurrentUser } from 'src/user/user.decorator';
+import { ConfigService } from '@nestjs/config';
+import { PaymentException } from './payment.exception';
 
 @ApiTags('Payment')
 @ApiBearerAuth()
 @Controller('payment')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+
+  private NODE_ENV = this.configService.get('NODE_ENV');
+  private isProd = this.NODE_ENV === 'production';
+
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly configService: ConfigService,
+  ) {
+  }
 
   @Get('specific')
   @HttpCode(HttpStatus.OK)
@@ -158,7 +169,10 @@ export class PaymentController {
   @Put(':slug')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update payment' })
+  @ApiExcludeEndpoint(process.env.NODE_ENV === 'production')
   async update(@Param('slug') slug: string) {
+    if (this.isProd) throw new PaymentException(HttpStatus.FORBIDDEN, 'This endpoint is not available in this environment');
+
     await this.paymentService.update(slug);
     return {
       statusCode: HttpStatus.NO_CONTENT,

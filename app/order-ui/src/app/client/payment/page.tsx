@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import moment from 'moment'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,7 @@ import { CircleX, SquareMenu } from 'lucide-react'
 import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
-import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug } from '@/hooks'
+import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug, useValidatePublicVoucherPaymentMethod, useValidateVoucherPaymentMethod, usePaymentResolver } from '@/hooks'
 import { PaymentMethod, Role, ROUTE, paymentStatus, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
@@ -20,6 +20,8 @@ import { OrderCountdown } from '@/components/app/countdown'
 import PaymentPageSkeleton from './skeleton/page'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
+import { ClientNoLoginRemoveVoucherWhenPayingDialog, ClientRemoveVoucherWhenPayingDialog } from '@/components/app/dialog'
+import { VoucherListSheetInPayment } from '@/components/app/sheet'
 
 export function ClientPaymentPage() {
   const { t } = useTranslation(['menu'])
@@ -31,6 +33,8 @@ export function ClientPaymentPage() {
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
+  const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
+  const { mutate: validatePublicVoucherPaymentMethod } = useValidatePublicVoucherPaymentMethod()
   const {
     currentStep,
     paymentData,
@@ -43,14 +47,25 @@ export function ClientPaymentPage() {
 
   const qrCodeSetRef = useRef<boolean>(false) // Track if QR code has been set to avoid repeated calls
   const initializedSlugRef = useRef<string>('') // Track initialized slug to avoid repeated initialization
-  const paymentMethod = paymentData?.paymentMethod
+  const isRemovingVoucherRef = useRef<boolean>(false) // Track if voucher removal is in progress
   // const isDisabled = !paymentMethod || !slug
   const timeDefaultExpired = "Sat Jan 01 2000 07:00:00 GMT+0700 (Indochina Time)" // Khi order không tồn tại 
   const orderData = order?.result
+  const {
+    effectiveMethods,
+    defaultMethod,
+    disabledMethods,
+    reasonMap,
+    payButtonEnabled,
+    bannerMessage,
+  } = usePaymentResolver(orderData || null, userInfo?.role.name as Role, paymentData?.paymentMethod || null);
   // const { paymentMethod, setPaymentMethod, clearStore: clearPaymentMethodStore } = usePaymentMethodStore()
   const [isPolling, setIsPolling] = useState<boolean>(false)
   const [isExpired, setIsExpired] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isRemoveVoucherOption, setIsRemoveVoucherOption] = useState<boolean>(false)
+  const [previousPaymentMethod, setPreviousPaymentMethod] = useState<PaymentMethod | undefined>()
+  const [pendingPaymentMethod, setPendingPaymentMethod] = useState<PaymentMethod | undefined>()
 
   const orderItems = order?.result?.orderItems || []
   const voucher = order?.result?.voucher || null
@@ -67,18 +82,85 @@ export function ClientPaymentPage() {
     orderData.payment.amount === orderData.subtotal &&
     qrCode && qrCode.trim() !== ''
 
-  useEffect(() => {
-    if (slug && slug !== initializedSlugRef.current) {
-      // ✅ Initialize payment phase with order slug
-      if (currentStep !== OrderFlowStep.PAYMENT) {
-        initializePayment(slug)
-      }
+  const voucherPaymentMethods = useMemo(() =>
+    orderData?.voucher?.voucherPaymentMethods ?? [],
+    [orderData?.voucher?.voucherPaymentMethods]
+  );
 
-      // Mark as initialized
-      initializedSlugRef.current = slug
-      qrCodeSetRef.current = false // Reset QR code tracking for new order
+  // Use payment method from order flow store, fallback to voucher method, then default method
+  const paymentMethod = useMemo(() => {
+    // Nếu đang có pending method (đang chờ remove voucher), dùng nó
+    if (pendingPaymentMethod) {
+      return pendingPaymentMethod
     }
-  }, [slug, currentStep, initializePayment]) // ✅ Remove function dependencies
+
+    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
+    if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+      return paymentData.paymentMethod
+    }
+
+    // Nếu có voucher, ưu tiên dùng method của voucher
+    if (voucherPaymentMethods?.length > 0) {
+      return voucherPaymentMethods[0].paymentMethod
+    }
+
+    // Nếu không có voucher, dùng method từ payment resolver
+    return defaultMethod || PaymentMethod.BANK_TRANSFER
+  }, [pendingPaymentMethod, paymentData?.paymentMethod, voucherPaymentMethods, defaultMethod, effectiveMethods])
+
+  // Check if there's a conflict between voucher payment methods and user role
+  const hasVoucherPaymentConflict = useMemo(() => {
+    return effectiveMethods.length === 0 && !!voucher
+  }, [effectiveMethods.length, voucher])
+
+  useEffect(() => {
+    if (slug) {
+      // Initialize payment phase with order slug
+      if (slug !== initializedSlugRef.current || currentStep !== OrderFlowStep.PAYMENT) {
+        // Determine initial payment method: voucher method first, then store method, then default
+        let initialPaymentMethod = PaymentMethod.BANK_TRANSFER
+
+        if (voucherPaymentMethods?.length > 0) {
+          // Use voucher's first payment method
+          initialPaymentMethod = voucherPaymentMethods[0].paymentMethod as PaymentMethod
+        } else if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
+          // Use store method if it's still valid
+          initialPaymentMethod = paymentData.paymentMethod
+        } else if (defaultMethod) {
+          // Use default method from payment resolver
+          initialPaymentMethod = defaultMethod
+        }
+
+        initializePayment(
+          slug,
+          initialPaymentMethod
+        )
+
+        // Mark as initialized only for new slugs
+        if (slug !== initializedSlugRef.current) {
+          initializedSlugRef.current = slug
+          qrCodeSetRef.current = false // Reset QR code tracking for new order
+        }
+      }
+    }
+  }, [slug, currentStep, initializePayment, voucherPaymentMethods, paymentData?.paymentMethod, effectiveMethods, defaultMethod])
+
+  // Check voucher payment method compatibility on render
+  useEffect(() => {
+    // Skip if voucher removal is in progress to avoid double dialog
+    if (isRemovingVoucherRef.current) {
+      return
+    }
+
+    if (hasVoucherPaymentConflict && voucher && !isRemoveVoucherOption) {
+      // Automatically show remove voucher dialog when there's a conflict
+      setIsRemoveVoucherOption(true)
+    }
+    // Reset dialog state when voucher is removed (voucher becomes null)
+    else if (!voucher && isRemoveVoucherOption) {
+      setIsRemoveVoucherOption(false)
+    }
+  }, [hasVoucherPaymentConflict, voucher, isRemoveVoucherOption])
 
   // Sync order data with Order Flow Store when orderData changes
   useEffect(() => {
@@ -88,7 +170,7 @@ export function ClientPaymentPage() {
         setOrderFromAPI(orderData)
       }
     }
-  }, [orderData, slug, paymentData, setOrderFromAPI]) // ✅ Remove paymentData and setOrderFromAPI from dependencies
+  }, [orderData, slug, paymentData, setOrderFromAPI])
 
   // Separate effect for QR code to avoid infinite loop
   useEffect(() => {
@@ -96,7 +178,7 @@ export function ClientPaymentPage() {
       updateQrCode(qrCode)
       qrCodeSetRef.current = true
     }
-  }, [qrCode, updateQrCode]) // ✅ Remove updateQrCode from dependencies
+  }, [qrCode, updateQrCode])
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
@@ -146,7 +228,7 @@ export function ClientPaymentPage() {
 
         // Sync order data with Order Flow Store
         if (updatedOrderData) {
-          setOrderFromAPI(updatedOrderData)
+          // setOrderFromAPI(updatedOrderData)
         }
 
         // Only update QR code if it's not already set and becomes available during polling
@@ -179,8 +261,56 @@ export function ClientPaymentPage() {
   }, [isPolling, refetchOrder, navigate, slug, updateQrCode, qrCodeSetRef, clearPaymentData, setIsLoading, orderData, paymentData, setOrderFromAPI])
 
   const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
-    updatePaymentMethod(selectedPaymentMethod)
-    // Polling logic is handled in useEffect above based on paymentMethod and payment status
+    // Lưu method hiện tại để có thể restore nếu validate fail
+    setPreviousPaymentMethod(paymentMethod as PaymentMethod)
+
+    // Set pending method ngay để UI cập nhật mượt mà
+    setPendingPaymentMethod(selectedPaymentMethod)
+
+    // Check if selected method is disabled
+    const isMethodDisabled = disabledMethods.includes(selectedPaymentMethod)
+
+    // Show dialog if method is disabled
+    if (isMethodDisabled) {
+      if (!isRemoveVoucherOption) {
+        setIsRemoveVoucherOption(true)
+      }
+      setIsLoading(false)
+      return
+    }
+
+    // Normal validation flow for compatible payment methods
+    if (!userInfo) {
+      validatePublicVoucherPaymentMethod(
+        { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+        {
+          onSuccess: () => {
+            updatePaymentMethod(selectedPaymentMethod)
+            setPendingPaymentMethod(undefined)
+            setPreviousPaymentMethod(undefined) // Clear previous method when successful
+            setIsLoading(false)
+          },
+        }
+      )
+    } else {
+      validateVoucherPaymentMethod(
+        { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+        {
+          onSuccess: () => {
+            updatePaymentMethod(selectedPaymentMethod)
+            setPendingPaymentMethod(undefined) // Clear pending after successful validation
+            setPreviousPaymentMethod(undefined)
+            setIsLoading(false)
+          },
+          onError: () => {
+            // Restore previous method on validation failure
+            setPendingPaymentMethod(undefined)
+            setIsRemoveVoucherOption(true)
+            setIsLoading(false)
+          },
+        }
+      )
+    }
   }
 
   const handleConfirmPayment = () => {
@@ -356,6 +486,119 @@ export function ClientPaymentPage() {
         {t('menu.payment')}
         <span className="text-muted-foreground">#{slug}</span>
       </span>
+
+      {isRemoveVoucherOption && userInfo?.slug && (
+        <ClientRemoveVoucherWhenPayingDialog
+          voucher={voucher}
+          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
+          previousPaymentMethod={previousPaymentMethod}
+          isOpen={isRemoveVoucherOption}
+          onOpenChange={setIsRemoveVoucherOption}
+          order={order?.result}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
+          onCancel={() => {
+            // Reset pending payment method sau khi cancel
+            setPendingPaymentMethod(undefined)
+            // Reset previous payment method
+            setPreviousPaymentMethod(undefined)
+            // Reset voucher removal flag
+            isRemovingVoucherRef.current = false
+          }}
+          onSuccess={() => {
+
+            // Không reset initializedSlugRef để tránh trigger lại initializePayment
+            qrCodeSetRef.current = false
+
+            // Explicitly close dialog FIRST to prevent race conditions
+            setIsRemoveVoucherOption(false)
+
+            // Reset states sau khi đã sync order data
+            setPreviousPaymentMethod(undefined)
+
+            // Keep the payment method that user selected (pendingPaymentMethod or current paymentMethod)
+            // Use the actual selected method instead of relying on state
+            const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+            // Set the selected method as the new pending method
+            setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+            // Update payment method in store immediately BEFORE refetch
+            updatePaymentMethod(selectedMethod as PaymentMethod)
+
+            // Refetch order data immediately
+            refetchOrder().then(() => {
+              // Re-initialize payment with updated order data (no voucher)
+              if (slug) {
+                initializePayment(slug, selectedMethod as PaymentMethod)
+              }
+
+              // Reset flag after everything is complete - allow new voucher dialogs
+              setTimeout(() => {
+                isRemovingVoucherRef.current = false
+                setPendingPaymentMethod(undefined)
+              }, 100)
+            })
+          }}
+        />
+      )}
+      {isRemoveVoucherOption && !userInfo?.slug && (
+        <ClientNoLoginRemoveVoucherWhenPayingDialog
+          voucher={voucher}
+          selectedPaymentMethod={pendingPaymentMethod || paymentMethod || PaymentMethod.BANK_TRANSFER}
+          previousPaymentMethod={previousPaymentMethod}
+          isOpen={isRemoveVoucherOption}
+          onOpenChange={setIsRemoveVoucherOption}
+          order={order?.result}
+          onCancel={() => {
+            // Reset pending payment method sau khi cancel
+            setPendingPaymentMethod(undefined)
+            // Reset previous payment method
+            setPreviousPaymentMethod(undefined)
+            // Reset voucher removal flag
+            isRemovingVoucherRef.current = false
+          }}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
+          onSuccess={() => {
+            // Không reset initializedSlugRef để tránh trigger lại initializePayment
+            qrCodeSetRef.current = false
+
+            // Explicitly close dialog FIRST to prevent race conditions
+            setIsRemoveVoucherOption(false)
+
+            // Reset states sau khi đã sync order data
+            setPreviousPaymentMethod(undefined)
+
+            // Keep the payment method that user selected (pendingPaymentMethod or current paymentMethod)
+            // Use the actual selected method instead of relying on state
+            const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+            // Set the selected method as the new pending method
+            setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+            // Update payment method in store immediately BEFORE refetch
+            updatePaymentMethod(selectedMethod as PaymentMethod)
+
+            // Refetch order data immediately
+            refetchOrder().then(() => {
+              // Re-initialize payment with updated order data (no voucher)
+              if (slug) {
+                initializePayment(slug, selectedMethod as PaymentMethod)
+              }
+
+              // Reset flag after everything is complete - allow new voucher dialogs
+              setTimeout(() => {
+                isRemovingVoucherRef.current = false
+              }, 100)
+            })
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-3 mt-5">
         <div className="flex flex-col gap-5 lg:flex-row">
@@ -553,9 +796,27 @@ export function ClientPaymentPage() {
             </div>
           </div>
         </div>
+        <VoucherListSheetInPayment onSuccess={() => {
+          refetchOrder().then(() => {
+            // Re-initialize payment with updated order data after voucher update
+            if (slug) {
+              initializePayment(slug, paymentMethod as PaymentMethod)
+            }
+          })
+        }} />
+        {/* Show banner message if exists */}
+        {bannerMessage && (
+          <div className="p-4 mb-4 text-sm text-orange-800 bg-orange-50 rounded-lg border border-orange-200">
+            <p>{bannerMessage}</p>
+          </div>
+        )}
         {/* Payment method */}
         <ClientPaymentMethodSelect
-          paymentMethod={paymentMethod || PaymentMethod.BANK_TRANSFER}
+          order={order?.result}
+          paymentMethod={effectiveMethods}
+          defaultMethod={paymentMethod as PaymentMethod}
+          disabledMethods={disabledMethods}
+          disabledReasons={reasonMap}
           qrCode={hasValidPaymentAndQr ? qrCode : ''}
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
@@ -569,7 +830,7 @@ export function ClientPaymentPage() {
                 <DownloadQrCode qrCode={qrCode} slug={slug} />
                 :
                 <Button
-                  disabled={isPendingInitiatePayment || isPendingInitiatePublicPayment}
+                  disabled={isPendingInitiatePayment || isPendingInitiatePublicPayment || !payButtonEnabled}
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >

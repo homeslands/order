@@ -349,6 +349,7 @@ export const useCartItemStore = create<ICartItemStore>()(
               remainingUsage: voucher.remainingUsage || 0,
               startDate: voucher.startDate,
               endDate: voucher.endDate,
+              voucherPaymentMethods: voucher.voucherPaymentMethods || [],
               numberOfUsagePerUser: voucher.numberOfUsagePerUser || 0,
               slug: voucher.slug,
               title: voucher.title,

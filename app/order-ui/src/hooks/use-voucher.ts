@@ -6,6 +6,7 @@ import {
   createVoucher,
   createVoucherGroup,
   deleteVoucher,
+  deleteVoucherPaymentMethod,
   getPublicVouchersForOrder,
   getSpecificPublicVoucher,
   getSpecificVoucher,
@@ -15,8 +16,11 @@ import {
   removeAppliedVoucher,
   updateVoucher,
   updateVoucherGroup,
+  updateVoucherPaymentMethod,
   validatePublicVoucher,
+  validatePublicVoucherPaymentMethod,
   validateVoucher,
+  validateVoucherPaymentMethod,
 } from '@/api'
 import { QUERYKEY } from '@/constants'
 import {
@@ -29,7 +33,9 @@ import {
   IGetSpecificVoucherRequest,
   IRemoveAppliedVoucherRequest,
   IUpdateVoucherGroupRequest,
+  IUpdateVoucherPaymentMethodParamToRequest,
   IUpdateVoucherRequest,
+  IValidateVoucherPaymentMethodRequest,
   IValidateVoucherRequest,
 } from '@/types'
 
@@ -156,6 +162,22 @@ export const useValidatePublicVoucher = () => {
   })
 }
 
+export const useValidateVoucherPaymentMethod = () => {
+  return useMutation({
+    mutationFn: async (data: IValidateVoucherPaymentMethodRequest) => {
+      return validateVoucherPaymentMethod(data)
+    },
+  })
+}
+
+export const useValidatePublicVoucherPaymentMethod = () => {
+  return useMutation({
+    mutationFn: async (data: IValidateVoucherPaymentMethodRequest) => {
+      return validatePublicVoucherPaymentMethod(data)
+    },
+  })
+}
+
 export const useApplyVoucher = () => {
   return useMutation({
     mutationFn: async (data: IApplyVoucherRequest) => {
@@ -168,6 +190,22 @@ export const useRemoveAppliedVoucher = () => {
   return useMutation({
     mutationFn: async (data: IRemoveAppliedVoucherRequest) => {
       return removeAppliedVoucher(data)
+    },
+  })
+}
+
+export const useUpdateVoucherPaymentMethod = () => {
+  return useMutation({
+    mutationFn: async (data: IUpdateVoucherPaymentMethodParamToRequest) => {
+      return updateVoucherPaymentMethod(data)
+    },
+  })
+}
+
+export const useDeleteVoucherPaymentMethod = () => {
+  return useMutation({
+    mutationFn: async (data: IUpdateVoucherPaymentMethodParamToRequest) => {
+      return deleteVoucherPaymentMethod(data)
     },
   })
 }

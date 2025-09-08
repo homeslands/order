@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { VoucherService } from './voucher.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Voucher } from './voucher.entity';
+import { Voucher } from './entity/voucher.entity';
 import {
   MockType,
   repositoryMockFactory,
@@ -29,7 +29,7 @@ import { VoucherValidation } from './voucher.validation';
 import { Branch } from 'src/branch/branch.entity';
 import { User } from 'src/user/user.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { MenuItemUtils } from 'src/menu-item/menu-item.utils';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { UserUtils } from 'src/user/user.utils';
@@ -48,6 +48,7 @@ import { SystemConfigService } from 'src/system-config/system-config.service';
 import { HttpService } from '@nestjs/axios';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { VoucherPaymentMethod } from './entity/voucher-payment-method.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -140,6 +141,10 @@ describe('VoucherService', () => {
         {
           provide: getRepositoryToken(Invoice),
           useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(VoucherPaymentMethod),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

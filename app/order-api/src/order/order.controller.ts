@@ -236,6 +236,38 @@ export class OrderController {
     } as AppResponseDto<OrderResponseDto>;
   }
 
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Patch(':slug/voucher/public')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update voucher order public' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Update voucher order successfully',
+    type: OrderResponseDto,
+  })
+  async updateVoucherOrderPublic(
+    @Param('slug') slug: string,
+    @Session() session: Record<string, any>,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    requestData: UpdateVoucherOrderRequestDto,
+  ) {
+    if (!session.orders) {
+      session.orders = [] as string[];
+    }
+    const result = await this.orderService.updateVoucherOrderPublic(
+      slug,
+      session.orders,
+      requestData,
+    );
+    return {
+      message: 'Update voucher order successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<OrderResponseDto>;
+  }
+
   @Delete(':slug')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete order' })

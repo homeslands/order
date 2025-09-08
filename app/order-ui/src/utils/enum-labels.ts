@@ -43,8 +43,6 @@ export const getPaymentMethodLabel = (method: string): string => {
       return i18next.t('paymentMethod.bankTransfer', { ns: 'menu' })
     case PaymentMethod.CASH:
       return i18next.t('paymentMethod.cash', { ns: 'menu' })
-    case PaymentMethod.INTERNAL_WALLET:
-      return i18next.t('paymentMethod.internalWallet', { ns: 'menu' })
     case PaymentMethod.POINT:
       return i18next.t('paymentMethod.point', { ns: 'menu' })
     default:

@@ -22,7 +22,7 @@ import { VoucherUtils } from 'src/voucher/voucher.utils';
 import { OrderUtils } from 'src/order/order.utils';
 import { UserUtils } from 'src/user/user.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
-import { Voucher } from 'src/voucher/voucher.entity';
+import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Order } from 'src/order/order.entity';
 import { VoucherProduct } from 'src/voucher-product/voucher-product.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
@@ -42,7 +42,7 @@ import { HttpService } from '@nestjs/axios';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { SystemConfig } from 'src/system-config/system-config.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
 
 describe('ProductController', () => {

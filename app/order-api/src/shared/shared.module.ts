@@ -9,7 +9,7 @@ import { User } from 'src/user/user.entity';
 import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { CardOrder } from 'src/gift-card-modules/card-order/entities/card-order.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 import { ACBConnectorConfig } from 'src/acb-connector/acb-connector.entity';
 import { DbModule } from 'src/db/db.module';
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';

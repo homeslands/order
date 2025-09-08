@@ -38,16 +38,21 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
     const [localType, setLocalType] = useState<RevenueTypeQuery>(type)
 
     const getDefaultValues = React.useCallback(() => {
+        // Ưu tiên sử dụng giá trị từ store nếu có
+        const storeStartDate = overviewFilter.startDate
+        const storeEndDate = overviewFilter.endDate
+        const storeType = overviewFilter.type
+
         const defaultStartDate = type === RevenueTypeQuery.HOURLY ? moment().startOf('day').format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
         const defaultEndDate = type === RevenueTypeQuery.HOURLY ? moment().format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD')
 
         return {
-            branch: overviewFilter?.branch || branch?.slug || '',
-            startDate: localStartDate || overviewFilter?.startDate || defaultStartDate,
-            endDate: localEndDate || overviewFilter?.endDate || defaultEndDate,
-            type: localType || type || RevenueTypeQuery.DAILY,
+            branch: branch?.slug || '',
+            startDate: localStartDate || storeStartDate || defaultStartDate,
+            endDate: localEndDate || storeEndDate || defaultEndDate,
+            type: localType || storeType || type || RevenueTypeQuery.HOURLY,
         }
-    }, [overviewFilter, branch?.slug, type, localStartDate, localEndDate, localType])
+    }, [branch?.slug, type, localStartDate, localEndDate, localType, overviewFilter])
 
     const form = useForm<TExportRevenueSchema>({
         resolver: zodResolver(useExportRevenueSchema()),
@@ -63,19 +68,47 @@ export const RevenueFilterForm: React.FC<IRevenueFilterFormProps> = ({
         form.setValue('endDate', defaultValues.endDate)
 
         setLocalType(defaultValues.type)
+        // Chỉ set local state nếu chưa có giá trị
         if (!localStartDate) setLocalStartDate(defaultValues.startDate)
         if (!localEndDate) setLocalEndDate(defaultValues.endDate)
-    }, [type, branch?.slug, overviewFilter, form, getDefaultValues, localStartDate, localEndDate])
+    }, [type, branch?.slug, form, getDefaultValues, localStartDate, localEndDate, overviewFilter])
+
+    // Reset local state when overviewFilter is cleared
+    useEffect(() => {
+        if (!overviewFilter.startDate && !overviewFilter.endDate && !overviewFilter.type) {
+            const defaultStartDate = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+            const defaultEndDate = moment().format('YYYY-MM-DD HH:mm:ss')
+            const defaultType = RevenueTypeQuery.HOURLY
+
+            setLocalStartDate(defaultStartDate)
+            setLocalEndDate(defaultEndDate)
+            setLocalType(defaultType)
+
+            form.setValue('startDate', defaultStartDate)
+            form.setValue('endDate', defaultEndDate)
+            form.setValue('type', defaultType)
+        }
+    }, [overviewFilter, form])
 
 
     const handleSubmit = (data: IRevenueQuery) => {
+        // Update overview filter
         setOverviewFilter({
-            branch: data.branch || '',
-            startDate: data.startDate || moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-            endDate: data.endDate || moment().format('YYYY-MM-DD HH:mm:ss'),
-            type: data.type || RevenueTypeQuery.DAILY
+            ...overviewFilter,
+            startDate: localStartDate || data.startDate || '',
+            endDate: localEndDate || data.endDate || '',
+            type: localType || data.type || RevenueTypeQuery.HOURLY
         })
-        onSubmit(data)
+
+        // Đảm bảo sử dụng giá trị từ local state nếu có
+        const submitData = {
+            ...data,
+            startDate: localStartDate || data.startDate,
+            endDate: localEndDate || data.endDate,
+            type: localType || data.type
+        }
+
+        onSubmit(submitData)
     }
 
     const handleDateChange = (fieldName: 'startDate' | 'endDate', date: string | null) => {

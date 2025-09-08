@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 import { IVoucher } from '@/types'
 import { formatCurrency, showToast } from '@/utils'
-import { ApplyVoucherSheet, RemoveAppliedVoucherSheet, UpdateVoucherSheet } from '@/components/app/sheet'
+import { ApplyVoucherSheet, RemoveAppliedVoucherSheet, UpdateVoucherPaymentMethodSheet, UpdateVoucherSheet } from '@/components/app/sheet'
 import { DeleteVoucherDialog } from '@/components/app/dialog'
 import { VOUCHER_TYPE } from '@/constants'
 
@@ -258,6 +258,7 @@ export const useVoucherColumns = (onSuccess: () => void, onSelectionChange: (sel
                 <ApplyVoucherSheet voucher={voucher} />
                 <RemoveAppliedVoucherSheet voucher={voucher} />
                 <UpdateVoucherSheet voucher={voucher} onSuccess={handleUpdateVoucherSuccess} />
+                <UpdateVoucherPaymentMethodSheet voucher={voucher} />
                 <DeleteVoucherDialog voucher={voucher} />
               </DropdownMenuContent>
             </DropdownMenu>

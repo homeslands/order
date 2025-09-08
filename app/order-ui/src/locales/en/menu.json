@@ -270,7 +270,11 @@
     "voucherChanged": "Voucher changed",
     "voucherDiscount": "Voucher discount",
     "waitingForKitchen": "Waiting for kitchen",
-    "waitingForPayment": "Waiting for payment"
+    "waitingForPayment": "Waiting for payment",
+    "voucherNotApplicable": "Voucher not applicable",
+    "voucherNotApplicableDescription": "Voucher is not applicable to the selected payment method. You can cancel the voucher or select a different payment method.",
+    "cashContactSupport": "For cash payments, please contact the cashier to get support.",
+    "removeVoucher": "Remove voucher"
   },
   "paymentMethod": {
     "bankTransfer": "Bank transfer",
@@ -307,7 +311,10 @@
     "title": "Payment method",
     "total": "Total amount: ",
     "unpaid": "Unpaid",
-    "userInfo": "Customer information"
+    "userInfo": "Customer information",
+    "voucherNotCompatible": "This voucher only supports",
+    "butYouCanUse": "but you can only use",
+    "voucherNotSupport": "Voucher not supported"
   },
   "table": {
     "title": "Table list"

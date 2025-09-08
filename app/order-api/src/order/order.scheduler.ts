@@ -6,7 +6,7 @@ import { Order } from './order.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Branch } from 'src/branch/branch.entity';
-import { Payment } from 'src/payment/payment.entity';
+import { Payment } from 'src/payment/entity/payment.entity';
 
 @Injectable()
 export class OrderScheduler {

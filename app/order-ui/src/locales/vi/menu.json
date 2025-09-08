@@ -270,7 +270,11 @@
     "voucherChanged": "Thay đổi voucher",
     "voucherDiscount": "Giảm giá voucher",
     "waitingForKitchen": "Chờ phòng bếp",
-    "waitingForPayment": "Chờ thanh toán"
+    "waitingForPayment": "Chờ thanh toán",
+    "voucherNotApplicable": "Voucher không thể áp dụng",
+    "voucherNotApplicableDescription": "Voucher hiện không áp dụng được cho phương thức thanh toán đã chọn. Bạn có thể hủy voucher hoặc chọn phương thức thanh toán khác.",
+    "cashContactSupport": "Với phương thức thanh toán bằng tiền mặt, vui lòng liên hệ quầy thanh toán để được hỗ trợ.",
+    "removeVoucher": "Hủy voucher"
   },
   "paymentMethod": {
     "bankTransfer": "Chuyển khoản ngân hàng",
@@ -307,7 +311,10 @@
     "title": "Phương thức thanh toán",
     "total": "Số tiền thanh toán: ",
     "unpaid": "Chưa thanh toán",
-    "userInfo": "Thông tin khách hàng"
+    "userInfo": "Thông tin khách hàng",
+    "voucherNotCompatible": "Voucher này chỉ hỗ trợ",
+    "butYouCanUse": "nhưng bạn chỉ có thể sử dụng",
+    "voucherNotSupport": "Voucher không hỗ trợ"
   },
   "table": {
     "title": "Danh sách bàn"

@@ -39,15 +39,6 @@ export default function RevenueTypeSelect({
     }
   }, [defaultValue])
 
-  // const handleChange = (
-  //   selectedOption: SingleValue<{ value: string; label: string }>,
-  // ) => {
-  //   if (selectedOption) {
-  //     setSelectedRevenueType(selectedOption)
-  //     onChange(selectedOption.value) // Only pass the value (slug)
-  //   }
-  // }
-
   return (
     <Select
       onValueChange={(value) => {

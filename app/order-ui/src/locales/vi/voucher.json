@@ -105,7 +105,7 @@
     "title": "Tiêu đề",
     "tool": "Công cụ",
     "type": "Loại voucher",
-    "update": "Cập nhật voucher",
+    "update": "Cập nhật",
     "updateVoucherDescription": "Cập nhật thông tin voucher",
     "updateVoucherGroup": "Cập nhật nhóm voucher",
     "usage": "lần",
@@ -122,6 +122,28 @@
     "searchByCode": "Nhập mã giảm giá",
     "expiresInHoursMinutes": "Còn {{hours}} giờ {{minutes}} phút",
     "expiresInDaysHoursMinutes": "Còn {{days}} ngày {{hours}} giờ {{minutes}} phút",
-    "invalidVoucher": "Voucher không khả dụng"
+    "invalidVoucher": "Voucher không khả dụng",
+    "paymentMethods": "Phương thức thanh toán",
+    "paymentMethod": {
+      "cash": "Tiền mặt",
+      "bankTransfer": "Chuyển khoản",
+      "point": "Điểm tích lũy",
+      "error": "Vui lòng chọn ít nhất 1 phương thức thanh toán",
+      "selected": "Đã chọn",
+      "paymentMethods": "phương thức thanh toán"
+    },
+    "updatePaymentMethod": "Cập nhật phương thức thanh toán",
+    "confirmUpdateVoucherPaymentMethod": "Bạn có chắc chắn muốn cập nhật phương thức thanh toán voucher này không?",
+    "updateVoucherPaymentMethod": "Cập nhật phương thức thanh toán voucher",
+    "toAdd": "Sẽ thêm",
+    "toRemove": "Sẽ xóa",
+    "notValid": "Voucher không hợp lệ",
+    "becameInvalid": "Voucher đã chọn trở thành không hợp lệ",
+    "applied": "Đang áp dụng",
+    "appliedToOrder": "Voucher này đang được áp dụng cho đơn hàng của bạn",
+    "appliedVoucherNote": "Voucher này đã được áp dụng cho đơn hàng và sẽ được giữ nguyên",
+    "cannotRemoveApplied": "Không thể bỏ chọn voucher đang được áp dụng cho đơn hàng",
+    "currentlyApplied": "Đang áp dụng",
+    "availableVouchers": "Voucher khả dụng"
   }
 }

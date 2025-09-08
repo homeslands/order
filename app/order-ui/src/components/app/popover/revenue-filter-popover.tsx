@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -16,16 +16,30 @@ import { useOverviewFilterStore } from "@/stores";
 
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
-    const { overviewFilter, setOverviewFilter } = useOverviewFilterStore()
     const [open, setOpen] = useState(false);
-    const [localType, setLocalType] = useState<RevenueTypeQuery>(overviewFilter.type);
+    const [localType, setLocalType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
+    const { overviewFilter } = useOverviewFilterStore();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const handleExportRevenue = (data: IRevenueQuery) => {
-        setOverviewFilter({ ...overviewFilter, type: localType });
-        onApply({ ...data, type: localType })
+    // Load giá trị từ store khi component mount
+    useEffect(() => {
+        if (overviewFilter.type) {
+            setLocalType(overviewFilter.type);
+        } else {
+            // Reset to default if no store value
+            setLocalType(RevenueTypeQuery.HOURLY);
+        }
+    }, [overviewFilter.type]);
+
+    const handleFilterRevenue = (data: IRevenueQuery) => {
+        const finalData = {
+            ...data,
+            type: localType
+        }
+
+        onApply(finalData)
         setOpen(false)
     };
 
@@ -44,7 +58,7 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
                     </div>
                     <RevenueTypeSelect value={localType} onChange={(value) => setLocalType(value as RevenueTypeQuery)} />
                     <RevenueFilterForm
-                        onSubmit={handleExportRevenue}
+                        onSubmit={handleFilterRevenue}
                         type={localType}
                         onSuccess={() => setOpen(false)}
                     />
