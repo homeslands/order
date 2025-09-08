@@ -17,7 +17,7 @@ import { useOverviewFilterStore } from "@/stores";
 export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRevenueQuery) => void }) {
     const { t } = useTranslation(["revenue"]);
     const [open, setOpen] = useState(false);
-    const [localType, setLocalType] = useState<RevenueTypeQuery>(RevenueTypeQuery.DAILY);
+    const [localType, setLocalType] = useState<RevenueTypeQuery>(RevenueTypeQuery.HOURLY);
     const { overviewFilter } = useOverviewFilterStore();
 
     const today = new Date();
@@ -27,6 +27,9 @@ export default function RevenueFilterPopover({ onApply }: { onApply: (data: IRev
     useEffect(() => {
         if (overviewFilter.type) {
             setLocalType(overviewFilter.type);
+        } else {
+            // Reset to default if no store value
+            setLocalType(RevenueTypeQuery.HOURLY);
         }
     }, [overviewFilter.type]);
 
