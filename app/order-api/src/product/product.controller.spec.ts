@@ -243,6 +243,7 @@ describe('ProductController', () => {
         isNew: false,
         saleQuantityHistory: 0,
         isCombo: false,
+        isGift: false,
       };
       const mockOutput = {
         items: [product],
