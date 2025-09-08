@@ -265,7 +265,10 @@ export class OrderItemService {
         if (voucher) await manager.save(voucher);
 
         // Cancel accumulated points reservation
-        await this.accumulatedPointService.handleCancelReservation(order.id);
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
         // Update accumulated points to use in order
         order.accumulatedPointsToUse = 0;
 
@@ -387,7 +390,10 @@ export class OrderItemService {
         if (voucher) await manager.save(voucher);
 
         // Cancel accumulated points reservation
-        await this.accumulatedPointService.handleCancelReservation(order.id);
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
         // Update accumulated points to use in order
         order.accumulatedPointsToUse = 0;
 
@@ -562,7 +568,10 @@ export class OrderItemService {
           await manager.save(menuItem);
 
           // Cancel accumulated points reservation
-          await this.accumulatedPointService.handleCancelReservation(order.id);
+          await this.accumulatedPointService.handleCancelReservation(
+            order.id,
+            null,
+          );
           // Update accumulated points to use in order
           order.accumulatedPointsToUse = 0;
 
