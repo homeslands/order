@@ -543,8 +543,8 @@ export class AccumulatedPointService {
    * Automatically handle when order is cancelled or expired
    * Cancel reservation if exists, refund points if confirmed
    */
-  async handleOrderCancellation(orderId: string): Promise<void> {
-    const context = `${AccumulatedPointService.name}.${this.handleOrderCancellation.name}`;
+  async handleCancelReservation(orderId: string): Promise<void> {
+    const context = `${AccumulatedPointService.name}.${this.handleCancelReservation.name}`;
 
     const reservation = await this.transactionHistoryRepository.findOne({
       where: {

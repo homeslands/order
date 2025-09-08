@@ -197,7 +197,7 @@ export class OrderUtils {
     const removedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
         // Cancel accumulated points reservation
-        await this.accumulatedPointService.handleOrderCancellation(order.id);
+        await this.accumulatedPointService.handleCancelReservation(order.id);
         // Update subtotal and accumulated points to use in order
         const subtotalBeforeUseAccumulatedPoints =
           order.subtotal + order.accumulatedPointsToUse;
