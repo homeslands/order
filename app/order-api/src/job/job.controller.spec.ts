@@ -47,6 +47,9 @@ import { PointTransaction } from 'src/gift-card-modules/point-transaction/entiti
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { SharedBalanceService } from 'src/shared/services/shared-balance.service';
 import { SharedPointTransactionService } from 'src/shared/services/shared-point-transaction.service';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 
 describe('JobController', () => {
   let controller: JobController;
@@ -180,6 +183,15 @@ describe('JobController', () => {
           useValue: {
             execute: jest.fn(),
           },
+        },
+        AccumulatedPointService,
+        {
+          provide: getRepositoryToken(AccumulatedPoint),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(AccumulatedPointTransactionHistory),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();

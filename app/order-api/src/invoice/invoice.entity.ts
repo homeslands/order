@@ -96,4 +96,8 @@ export class Invoice extends Base {
   @AutoMap()
   @Column({ name: 'date_column', nullable: true })
   date?: Date;
+
+  @AutoMap()
+  @Column({ name: 'accumulated_points_to_use_column', default: 0 })
+  accumulatedPointsToUse: number;
 }

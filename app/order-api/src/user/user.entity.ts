@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { Base } from 'src/app/base.entity';
 import { AutoMap } from '@automapper/classes';
 import { Branch } from 'src/branch/branch.entity';
@@ -12,6 +19,7 @@ import { PointTransaction } from 'src/gift-card-modules/point-transaction/entiti
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-token.entity';
 import { Balance } from 'src/gift-card-modules/balance/entities/balance.entity';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -119,4 +127,9 @@ export class User extends Base {
   @OneToOne(() => Balance, (b) => b.user)
   @AutoMap(() => Balance)
   balance: Balance;
+
+  @OneToOne(() => AccumulatedPoint, (accumulatedPoint) => accumulatedPoint.user)
+  @JoinColumn({ name: 'accumulated_point_column' })
+  @AutoMap(() => AccumulatedPoint)
+  accumulatedPoint: AccumulatedPoint;
 }
