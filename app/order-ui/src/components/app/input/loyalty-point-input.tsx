@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Input, Button } from "@/components/ui"
-import { useTranslation } from "react-i18next"
 import { useApplyLoyaltyPoint, useCancelReservationForOrder } from "@/hooks"
 
 interface LoyaltyPointsInputProps {
@@ -47,7 +47,7 @@ export default function LoyaltyPointsInput({
     const maxPoints = Math.min(totalPoints, orderTotal)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // giữ lại số
+        // keep only numbers
         const raw = e.target.value.replace(/\D/g, "")
         if (raw === "") {
             setDisplayValue("")
