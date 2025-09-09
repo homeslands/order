@@ -29,7 +29,7 @@ export async function getSpecificMenu(
   query: ISpecificMenuRequest,
 ): Promise<IApiResponse<ISpecificMenu>> {
   const response = await http.get<IApiResponse<ISpecificMenu>>(
-    `/menu/specific`,
+    `/menu/specific/public`,
     {
       params: query,
     },

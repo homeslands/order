@@ -1,0 +1,29 @@
+{
+    "loyaltyPoint": {
+        "title": "Loyalty Point",
+        "searchByPhoneNumber": "Search by phone number",
+        "searchByPhoneNumberPlaceholder": "Enter phone number",
+        "searchByPhoneNumberButton": "Search",
+        "createdAt": "Created At",
+        "type": "Type",
+        "points": "Point change",
+        "lastPoints": "Last point",
+        "orderSlug": "Order Slug",
+        "date": "Date",
+        "add": "Add",
+        "use": "Use",
+        "reserve": "Reserve",
+        "refund": "Refund",
+        "youHavePoints": "You have {points} points",
+        "useAll": "Use All",
+        "enterPointsToRedeem": "Enter points to redeem",
+        "pointsToRedeem": "Points to redeem",
+        "discountAmount": "Discount amount",
+        "newTotal": "New total",
+        "maximum": "Maximum",
+        "maximumCanBeUsed": "Maximum usable points are limited by the order total.",
+        "limitedByOrderTotal": "limited by order total",
+        "cancel": "Cancel",
+        "apply": "Apply"
+    }
+}

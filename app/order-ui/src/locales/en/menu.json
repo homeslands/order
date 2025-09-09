@@ -247,6 +247,7 @@
     "slug": "Order ID",
     "status": "Status",
     "subtotal": "Subtotal",
+    "loyaltyPoint": "Loyalty point",
     "subTotal": "Subtotal",
     "subtotalBeforeDiscount": "Original Total Price",
     "table": "Table",

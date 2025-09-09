@@ -1,0 +1,30 @@
+{
+    "loyaltyPoint": {
+        "title": "Điểm thưởng",
+        "searchByPhoneNumber": "Nhập số điện thoại",
+        "searchByPhoneNumberPlaceholder": "Nhập số điện thoại",
+        "searchByPhoneNumberButton": "Tìm kiếm",
+        "createdAt": "Ngày tạo",
+        "type": "Loại",
+        "points": "Điểm thay đổi",
+        "lastPoints": "Điểm cuối",
+        "orderSlug": "Mã đơn hàng",
+        "date": "Ngày",
+        "action": "Hành động",
+        "add": "Thêm",
+        "use": "Sử dụng",
+        "reserve": "Đặt hàng",
+        "refund": "Hoàn trả",
+        "youHavePoints": "Bạn có {{points}} điểm",
+        "useAll": "Sử dụng tất cả",
+        "enterPointsToRedeem": "Nhập điểm cần sử dụng",
+        "pointsToRedeem": "Điểm cần sử dụng",
+        "discountAmount": "Số tiền giảm giá",
+        "newTotal": "Tổng tiền mới",
+        "maximum": "Tối đa",
+        "maximumCanBeUsed": "Số điểm tối đa được sử dụng giới hạn bởi giá trị đơn hàng.",
+        "limitedByOrderTotal": "giới hạn bởi tổng đơn hàng",
+        "cancel": "Hủy",
+        "apply": "Áp dụng"
+    }
+}
