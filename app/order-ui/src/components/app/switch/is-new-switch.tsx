@@ -10,7 +10,7 @@ export default function IsNewProductSwitch({ defaultValue, onChange }: IIsNewPro
     const { t } = useTranslation(['product'])
     return (
         <>
-            <div className="flex items-center gap-4 py-2">
+            <div className="flex gap-4 justify-between items-center py-2 w-full">
                 <Label>{t('product.isNew')}</Label>
                 <Switch defaultChecked={defaultValue} onCheckedChange={onChange} />
             </div>
