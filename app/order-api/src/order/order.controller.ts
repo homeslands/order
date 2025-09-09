@@ -35,6 +35,8 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
+import { CurrentUser } from 'src/user/user.decorator';
+import { CurrentUserDto } from 'src/user/user.dto';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -62,8 +64,13 @@ export class OrderController {
       }),
     )
     requestData: CreateOrderRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
   ) {
-    const result = await this.orderService.createOrder(requestData);
+    const result = await this.orderService.createOrder(
+      requestData,
+      currentUserDto.scope?.role,
+    );
     return {
       message: 'Order have been created successfully',
       statusCode: HttpStatus.CREATED,
@@ -96,7 +103,7 @@ export class OrderController {
     if (!session.orders) {
       session.orders = [] as string[];
     }
-    const result = await this.orderService.createOrder(requestData);
+    const result = await this.orderService.createOrder(requestData, null);
     session.orders.push(result.slug);
     this.logger.log(
       'Session orders from createOrderPublic:',

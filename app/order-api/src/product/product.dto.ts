@@ -69,6 +69,17 @@ export class CreateProductRequestDto {
   @IsBoolean()
   @Type(() => Boolean)
   isCombo?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is gift',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  isGift?: boolean;
 }
 
 export class UpdateProductRequestDto {
@@ -142,6 +153,17 @@ export class UpdateProductRequestDto {
   @IsBoolean()
   @Type(() => Boolean)
   isCombo: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is gift',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty({ message: 'The isGift field is required' })
+  @IsBoolean()
+  @Type(() => Boolean)
+  isGift: boolean;
 }
 
 export class ProductResponseDto extends BaseResponseDto {
@@ -183,6 +205,9 @@ export class ProductResponseDto extends BaseResponseDto {
 
   @AutoMap()
   saleQuantityHistory: number;
+
+  @AutoMap()
+  isGift: boolean;
 }
 
 export class ValidationError {
@@ -345,4 +370,18 @@ export class GetProductRequestDto extends BaseQueryDto {
     return value === 'true'; // Transform 'true' to `true` and others to `false`
   })
   hasPaging?: boolean;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The option get product is gift',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return true; // Default true
+    return value === 'true'; // Transform 'true' to `true` and others to `false`
+  })
+  isGift?: boolean;
 }

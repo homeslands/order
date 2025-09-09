@@ -19,6 +19,8 @@ import {
   UpdateOrderItemRequestDto,
 } from './order-item.dto';
 import { AppResponseDto } from 'src/app/app.dto';
+import { CurrentUserDto } from 'src/user/user.dto';
+import { CurrentUser } from 'src/user/user.decorator';
 
 @ApiTags('Order Item')
 @Controller('order-items')
@@ -34,8 +36,15 @@ export class OrderItemController {
     description: 'New order item created successfully',
     type: OrderItemResponseDto,
   })
-  async createOrderItem(@Body() requestData: CreateOrderItemRequestDto) {
-    const result = await this.orderItemService.createOrderItem(requestData);
+  async createOrderItem(
+    @Body() requestData: CreateOrderItemRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
+  ) {
+    const result = await this.orderItemService.createOrderItem(
+      requestData,
+      currentUserDto.scope?.role,
+    );
     return {
       message: 'New order item created successfully',
       statusCode: HttpStatus.CREATED,
@@ -81,10 +90,13 @@ export class OrderItemController {
     @Param('slug') slug: string,
     @Body(new ValidationPipe({ transform: true }))
     requestData: UpdateOrderItemRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
   ) {
     const result = await this.orderItemService.updateOrderItem(
       slug,
       requestData,
+      currentUserDto.scope?.role,
     );
     return {
       message: 'Order item updated successfully',
@@ -102,8 +114,15 @@ export class OrderItemController {
     description: 'Order item deleted successfully',
     type: OrderItemResponseDto,
   })
-  async deleteOrderItem(@Param('slug') slug: string) {
-    await this.orderItemService.deleteOrderItem(slug);
+  async deleteOrderItem(
+    @Param('slug') slug: string,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
+  ) {
+    await this.orderItemService.deleteOrderItem(
+      slug,
+      currentUserDto.scope?.role,
+    );
     return {
       message: 'Order item deleted successfully',
       statusCode: HttpStatus.OK,

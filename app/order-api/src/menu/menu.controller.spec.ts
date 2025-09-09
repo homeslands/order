@@ -12,6 +12,7 @@ import { MenuUtils } from './menu.utils';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { DataSource } from 'typeorm';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { User } from 'src/user/user.entity';
 
 describe('MenuController', () => {
   let controller: MenuController;
@@ -42,6 +43,10 @@ describe('MenuController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();

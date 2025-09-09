@@ -22,12 +22,17 @@ import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { MenuUtils } from './menu.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { User } from 'src/user/user.entity';
+import { RoleEnum } from 'src/role/role.enum';
+import { CurrentUserDto } from 'src/user/user.dto';
 
 @Injectable()
 export class MenuService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Branch)
     private readonly branchRepository: Repository<Branch>,
     @InjectMapper() private readonly mapper: Mapper,
@@ -58,7 +63,7 @@ export class MenuService {
   }
 
   /**
-   * Handles retrieve specific menu
+   * Handles retrieve specific menu public
    *
    * This method retrieves a specific menu based on the query
    *
@@ -66,7 +71,130 @@ export class MenuService {
    * @returns {Promise<MenuResponseDto>} The specific menu was retrieved
    * @throws {MenuException} Menu not found
    */
-  async getMenu(query: GetMenuRequestDto): Promise<MenuResponseDto> {
+  async getMenuPublic(query: GetMenuRequestDto): Promise<MenuResponseDto> {
+    const context = `${MenuService.name}.${this.getMenuPublic.name}`;
+
+    if (_.isEmpty(query)) {
+      this.logger.warn(`Query is empty`, context);
+      throw new MenuException(MenuValidation.MENU_NOT_FOUND);
+    }
+
+    if (query.date && !query.branch) {
+      this.logger.warn(`Branch slug is required`, context);
+      throw new BranchException(
+        BranchValidation.INVALID_BRANCH_SLUG,
+        BranchValidation.BRANCH_NOT_FOUND.message,
+      );
+    }
+    if (query.branch && !query.date) {
+      this.logger.warn(`Date is required`, context);
+      throw new MenuException(MenuValidation.INVALID_DATE);
+    }
+
+    const findOptionsWhere: FindOptionsWhere<Menu> = {
+      date: query.date,
+      branch: { slug: query.branch },
+      slug: query.slug,
+    };
+
+    if (query.productName)
+      findOptionsWhere.menuItems = {
+        product: {
+          name: Like(`%${query.productName}%`),
+        },
+      };
+
+    if (query.catalog) {
+      findOptionsWhere.menuItems = {
+        product: {
+          catalog: {
+            slug: query.catalog,
+          },
+        },
+      };
+    }
+
+    if (query.catalog && query.productName) {
+      findOptionsWhere.menuItems = {
+        product: {
+          catalog: { slug: query.catalog },
+          name: Like(`%${query.productName}%`),
+        },
+      };
+    }
+
+    if (_.isBoolean(query.promotion)) {
+      findOptionsWhere.menuItems = {
+        promotion: query.promotion ? Not(IsNull()) : IsNull(),
+      };
+    }
+
+    const menu = await this.menuUtils.getMenu({
+      where: findOptionsWhere,
+      relations: [
+        'menuItems.product.variants.size',
+        'menuItems.product.catalog',
+        'menuItems.promotion',
+        'branch',
+      ],
+      order: {
+        menuItems: {
+          product: {
+            variants: {
+              price: 'ASC',
+            },
+          },
+        },
+      },
+    });
+
+    if (_.isBoolean(query.isNewProduct)) {
+      if (query.isNewProduct) {
+        menu.menuItems = menu.menuItems.filter((item) => item.product.isNew);
+      }
+    }
+
+    if (_.isBoolean(query.isSortTopSell)) {
+      if (query.isSortTopSell) {
+        menu.menuItems = menu.menuItems.sort((a, b) => {
+          return (
+            b.product?.saleQuantityHistory - a.product?.saleQuantityHistory
+          );
+        });
+      }
+    }
+
+    if (_.isNumber(query.minPrice) && _.isNumber(query.maxPrice)) {
+      menu.menuItems = menu.menuItems.filter((item) => {
+        return item.product.variants.some((variant) => {
+          return (
+            variant.price >= query.minPrice && variant.price <= query.maxPrice
+          );
+        });
+      });
+    }
+
+    // for get public menu, not show gift product
+    menu.menuItems = menu.menuItems.filter(
+      (item) => item.product.isGift === false,
+    );
+
+    return this.mapper.map(menu, Menu, MenuResponseDto);
+  }
+
+  /**
+   * Handles retrieve specific menu private (staff, manager, admin, super admin can access)
+   *
+   * This method retrieves a specific menu based on the query
+   *
+   * @param {GetMenuRequestDto} query
+   * @returns {Promise<MenuResponseDto>} The specific menu was retrieved
+   * @throws {MenuException} Menu not found
+   */
+  async getMenu(
+    query: GetMenuRequestDto,
+    currentUserDto: CurrentUserDto,
+  ): Promise<MenuResponseDto> {
     const context = `${MenuService.name}.${this.getMenu.name}`;
 
     if (_.isEmpty(query)) {
@@ -167,6 +295,16 @@ export class MenuService {
           );
         });
       });
+    }
+
+    // for public user, customer, only show non-gift products
+    if (
+      !currentUserDto.scope ||
+      currentUserDto.scope?.role === RoleEnum.Customer
+    ) {
+      menu.menuItems = menu.menuItems.filter(
+        (item) => item.product.isGift === false,
+      );
     }
 
     return this.mapper.map(menu, Menu, MenuResponseDto);
