@@ -14,7 +14,6 @@ import { useIsMobile } from '@/hooks'
 import { PromotionTag } from '@/components/app/badge'
 import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
 
-
 interface IClientMenuItemProps {
   item: IMenuItem
 }
