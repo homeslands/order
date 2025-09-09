@@ -1,3 +1,5 @@
+import { RoleEnum } from 'src/role/role.enum';
+
 /**
  * Calculate accumulated points based on order total
  * @param orderTotal Order total after discount
@@ -18,6 +20,16 @@ export function calculateAccumulatedPoints(
  */
 export function isDefaultCustomer(phoneNumber: string): boolean {
   return phoneNumber === 'default-customer';
+}
+
+/**
+ * Check if user is customer
+ * @param role Role of user
+ * @returns true if user is customer
+ */
+export function isCustomer(role: string): boolean {
+  // include default customer
+  return role === RoleEnum.Customer;
 }
 
 /**
