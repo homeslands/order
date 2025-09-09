@@ -348,6 +348,7 @@
     "xServiceInvalid": "Service invalid",
     "voucherPaymentMethodInvalid": "Payment method invalid",
     "voucherPaymentMethodAlreadyExists": "Payment method already exists",
-    "voucherPaymentMethodValidationError": "Payment method is not valid"
+    "voucherPaymentMethodValidationError": "Payment method is not valid",
+    "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order"
   }
 }
