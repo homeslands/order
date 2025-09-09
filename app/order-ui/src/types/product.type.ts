@@ -11,6 +11,7 @@ export interface IProduct {
   isTopSell: boolean
   isNew: boolean
   isCombo: boolean
+  isGift: boolean
   image: string
   images: string[]
   rating: number

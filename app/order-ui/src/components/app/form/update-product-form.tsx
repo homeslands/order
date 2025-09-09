@@ -21,7 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { IProduct, IUpdateProductRequest } from '@/types'
 import { useUpdateProduct } from '@/hooks'
 import { showToast } from '@/utils'
-import { IsComboSwitch, IsLimitSwitch, IsNewProductSwitch, IsTopSaleSwitch } from '@/components/app/switch'
+import { IsComboSwitch, IsGiftSwitch, IsLimitSwitch, IsNewProductSwitch, IsTopSaleSwitch } from '@/components/app/switch'
 import { CatalogSelect } from '@/components/app/select'
 
 interface IFormUpdateProductProps {
@@ -47,6 +47,7 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
       isNew: product.isNew || false,
       isActive: product.isActive || true,
       isCombo: product.isCombo || false,
+      isGift: product.isGift || false,
       catalog: product.catalog.slug || '',
     },
   })
@@ -99,13 +100,13 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
       />
     ),
     switch: (
-      <div className='flex justify-between'>
+      <div className='grid grid-cols-1 gap-2 justify-between sm:grid-cols-2'>
         <FormField
           control={form.control}
           name="isLimit"
           render={({ field }) => (
             <FormItem className="flex gap-4 items-center">
-              <FormControl className="flex items-center p-0">
+              <FormControl className="flex items-center p-0 w-full">
                 <IsLimitSwitch defaultValue={product.isLimit}
                   onChange={field.onChange} />
               </FormControl>
@@ -118,7 +119,7 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
           name="isTopSell"
           render={({ field }) => (
             <FormItem className="flex gap-4 items-center">
-              <FormControl className="flex items-center p-0">
+              <FormControl className="flex items-center p-0 w-full">
                 <IsTopSaleSwitch defaultValue={product.isTopSell} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
@@ -130,7 +131,7 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
           name="isNew"
           render={({ field }) => (
             <FormItem className="flex items-center">
-              <FormControl className="flex items-center p-0">
+              <FormControl className="flex items-center p-0 w-full">
                 <IsNewProductSwitch defaultValue={product.isNew} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
@@ -142,8 +143,20 @@ export const UpdateProductForm: React.FC<IFormUpdateProductProps> = ({
           name="isCombo"
           render={({ field }) => (
             <FormItem className="flex items-center">
-              <FormControl className="flex items-center p-0">
+              <FormControl className="flex items-center p-0 w-full">
                 <IsComboSwitch defaultValue={product.isCombo} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isGift"
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl className="flex items-center p-0 w-full">
+                <IsGiftSwitch defaultValue={product.isGift} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
