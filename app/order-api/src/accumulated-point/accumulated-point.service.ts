@@ -29,6 +29,7 @@ import { AccumulatedPointException } from './accumulated-point.exception';
 import { AccumulatedPointValidation } from './accumulated-point.validation';
 import {
   calculateAccumulatedPoints,
+  isCustomer,
   isDefaultCustomer,
   validatePointsUsage,
 } from './accumulated-point.utils';
@@ -79,13 +80,21 @@ export class AccumulatedPointService {
 
     const user = await this.userRepository.findOne({
       where: { slug: userSlug },
-      relations: ['accumulatedPoint'],
+      relations: ['accumulatedPoint', 'role'],
     });
 
     if (!user) {
       this.logger.error(`User not found: ${userSlug}`, context);
       throw new AccumulatedPointException(
         AccumulatedPointValidation.USER_NOT_FOUND,
+      );
+    }
+
+    // Check if user is customer
+    if (!isCustomer(user.role?.name)) {
+      this.logger.log(`User is not customer: ${userSlug}`, context);
+      throw new AccumulatedPointException(
+        AccumulatedPointValidation.CUSTOMER_ONLY_FEATURE,
       );
     }
 
@@ -189,13 +198,21 @@ export class AccumulatedPointService {
 
     const user = await this.userRepository.findOne({
       where: { slug: userSlug },
-      relations: ['accumulatedPoint'],
+      relations: ['accumulatedPoint', 'role'],
     });
 
     if (!user) {
       this.logger.error(`User not found: ${userSlug}`, context);
       throw new AccumulatedPointException(
         AccumulatedPointValidation.USER_NOT_FOUND,
+      );
+    }
+
+    // Check if user is customer
+    if (!isCustomer(user.role?.name)) {
+      this.logger.log(`User is not customer: ${userSlug}`, context);
+      throw new AccumulatedPointException(
+        AccumulatedPointValidation.CUSTOMER_ONLY_FEATURE,
       );
     }
 
@@ -232,7 +249,7 @@ export class AccumulatedPointService {
 
     const user = await this.userRepository.findOne({
       where: { id: addPointsDto.userId },
-      relations: ['accumulatedPoint'],
+      relations: ['accumulatedPoint', 'role'],
     });
 
     if (!user) {
@@ -240,6 +257,12 @@ export class AccumulatedPointService {
       throw new AccumulatedPointException(
         AccumulatedPointValidation.USER_NOT_FOUND,
       );
+    }
+
+    // Check if user is customer
+    if (!isCustomer(user.role?.name)) {
+      this.logger.log(`User is not customer: ${addPointsDto.userId}`, context);
+      return; // Don't add points for non-customer
     }
 
     // Check if user is default customer
@@ -332,7 +355,7 @@ export class AccumulatedPointService {
 
     const order = await this.orderRepository.findOne({
       where: { slug: orderSlug },
-      relations: ['owner.accumulatedPoint'],
+      relations: ['owner.accumulatedPoint', 'owner.role'],
     });
 
     if (!order) {
@@ -354,6 +377,14 @@ export class AccumulatedPointService {
       this.logger.error(`Order owner not found: ${orderSlug}`, context);
       throw new AccumulatedPointException(
         AccumulatedPointValidation.ORDER_OWNER_NOT_FOUND,
+      );
+    }
+
+    // Check if user is customer
+    if (!isCustomer(user.role?.name)) {
+      this.logger.log(`User is not customer: ${user.id}`, context);
+      throw new AccumulatedPointException(
+        AccumulatedPointValidation.CUSTOMER_ONLY_FEATURE,
       );
     }
 
@@ -585,7 +616,7 @@ export class AccumulatedPointService {
         type: AccumulatedPointTransactionType.RESERVE,
         status: AccumulatedPointTransactionStatus.PENDING,
       },
-      relations: ['accumulatedPoint.user'],
+      relations: ['accumulatedPoint.user.role'],
     });
 
     if (!reservation) {
@@ -602,6 +633,15 @@ export class AccumulatedPointService {
     if (!reservation.accumulatedPoint.user) {
       this.logger.log(
         `No user found for accumulated point ${orderId}`,
+        context,
+      );
+      return; // No points to reserve, skip
+    }
+
+    // Check if user is customer
+    if (!isCustomer(reservation.accumulatedPoint.user.role?.name)) {
+      this.logger.log(
+        `User is not customer: ${reservation.accumulatedPoint.user.id}`,
         context,
       );
       return; // No points to reserve, skip
