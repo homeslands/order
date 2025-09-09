@@ -9,6 +9,7 @@ import {
   updateMenuItem,
   deleteMenuItem,
   getSpecificMenuItem,
+  getPublicSpecificMenu,
 } from '@/api'
 import {
   IAddMenuItemRequest,
@@ -31,6 +32,13 @@ export const useSpecificMenu = (query: ISpecificMenuRequest) => {
   return useQuery({
     queryKey: ['specific-menu', query],
     queryFn: async () => getSpecificMenu(query),
+  })
+}
+
+export const usePublicSpecificMenu = (query: ISpecificMenuRequest) => {
+  return useQuery({
+    queryKey: ['public-specific-menu', query],
+    queryFn: async () => getPublicSpecificMenu(query),
   })
 }
 
