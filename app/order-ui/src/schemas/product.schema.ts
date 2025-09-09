@@ -10,6 +10,7 @@ export const createProductSchema = z.object({
   isTopSell: z.boolean(),
   isNew: z.boolean(),
   isCombo: z.boolean(),
+  isGift: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống'),
 })
 
@@ -25,6 +26,7 @@ export const updateProductSchema = z.object({
   isTopSell: z.boolean(),
   isNew: z.boolean(),
   isCombo: z.boolean(),
+  isGift: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống'),
 })
 
