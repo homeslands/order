@@ -23,4 +23,5 @@ export const QUERYKEY = {
   revenue: ['revenue'],
   userGiftCards: ['userGiftCards'],
   giftCardDetail: ['giftCardDetail'],
+  loyaltyPoints: ['loyaltyPoints'],
 }

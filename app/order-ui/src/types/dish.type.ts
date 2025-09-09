@@ -182,7 +182,9 @@ export interface IOrder extends IBase {
   table: ITable
   payment: IPayment
   branch: string
+  accumulatedPointsToUse: number
   owner: IOrderOwner
+  originalSubtotal: number
   subtotal: number
   loss: number
   orderItems: IOrderDetail[]
