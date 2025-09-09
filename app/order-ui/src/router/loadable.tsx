@@ -464,3 +464,10 @@ export const CardOrderHistoryPage = React.lazy(() =>
     default: module.CardOrderHistoryPage,
   })),
 )
+
+// System loyalty point page
+export const SystemLoyaltyPointPage = React.lazy(() =>
+  import('@/app/system/loyalty-point').then((module) => ({
+    default: module.LoyaltyPointPage,
+  })),
+)
