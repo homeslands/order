@@ -56,7 +56,7 @@ const publicRoutes = [
   { path: /^\/orders\/[^/]+$/, methods: ['get'] }, // get order by slug
   { path: /^\/orders\/[^/]+\/public$/, methods: ['delete'] }, // delete order by slug
   { path: /^\/invoice\/export\/public$/, methods: ['post'] }, // export public order invoice
-  { path: /^\/menu\/specific$/, methods: ['get'] },
+  { path: /^\/menu\/specific\/public$/, methods: ['get'] },
   { path: /^\/payment\/initiate\/public$/, methods: ['post'] },
   { path: /^\/products\/[^/]+$/, methods: ['get'] }, // get product by slug
   { path: /^\/products$/, methods: ['get'] },
