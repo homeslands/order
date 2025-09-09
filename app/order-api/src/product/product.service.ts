@@ -253,6 +253,7 @@ export class ProductService {
         },
         isTopSell: query.isTopSell,
         isNew: query.isNew,
+        isGift: query.isGift,
       },
       relations: ['catalog', 'variants.size'],
     });
@@ -327,6 +328,7 @@ export class ProductService {
       },
       isTopSell: query.isTopSell,
       isNew: query.isNew,
+      isGift: query.isGift,
     };
 
     if (query.promotion) {
