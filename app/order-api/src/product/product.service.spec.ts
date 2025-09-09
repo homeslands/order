@@ -246,6 +246,7 @@ describe('ProductService', () => {
         productChefAreas: [],
         voucherProducts: [],
         isCombo: false,
+        isGift: false,
       };
 
       (productRepositoryMock.findOneBy as jest.Mock).mockResolvedValue(product);

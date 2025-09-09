@@ -32,6 +32,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { OrderStatus } from 'src/order/order.constants';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Injectable()
 export class OrderItemService {
@@ -109,6 +111,7 @@ export class OrderItemService {
   async updateOrderItem(
     slug: string,
     requestData: UpdateOrderItemRequestDto,
+    requestUserRole?: string | null,
   ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.updateOrderItem.name}`;
 
@@ -137,11 +140,31 @@ export class OrderItemService {
       throw new OrderItemException(OrderItemValidation.ORDER_ITEM_NOT_FOUND);
     }
 
+    if (orderItem.order.status !== OrderStatus.PENDING) {
+      this.logger.warn(
+        `Order item ${orderItem.slug} is not allowed to update`,
+        context,
+      );
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
     // Đổi variant => đổi size trong cùng sản phẩm đó
     // => Không cần check lại voucher có hiệu lực cho sản phẩm hay không
     const variant = await this.variantUtils.getVariant({
       where: { slug: requestData.variant },
     });
+
+    // validate gift product + order status
+    if (variant.product?.isGift) {
+      // if customer add gift product to order, it's not allowed
+      if (!requestUserRole || requestUserRole === RoleEnum.Customer) {
+        this.logger.warn(
+          `Gift product ${variant.product.slug} is not allowed for customer`,
+          context,
+        );
+        throw new OrderException(OrderValidation.GIFT_PRODUCT_NOT_ALLOWED);
+      }
+    }
 
     // # Check promotion
     const date = new Date(orderItem.order.createdAt);
@@ -297,7 +320,10 @@ export class OrderItemService {
    * @param {string} slug
    * @returns {Promise<void>} Result when deleting order item
    */
-  async deleteOrderItem(slug: string): Promise<void> {
+  async deleteOrderItem(
+    slug: string,
+    requestUserRole?: string | null,
+  ): Promise<void> {
     const context = `${OrderItemService.name}.${this.deleteOrderItem.name}`;
     const orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
@@ -306,6 +332,26 @@ export class OrderItemService {
     const order = await this.orderUtils.getOrder({
       where: { slug: orderSlug },
     });
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(
+        `Order item ${orderItem.slug} is not allowed to delete`,
+        context,
+      );
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    // validate gift product + order status
+    if (orderItem.variant?.product?.isGift) {
+      // if customer add gift product to order, it's not allowed
+      if (!requestUserRole || requestUserRole === RoleEnum.Customer) {
+        this.logger.warn(
+          `Gift product ${orderItem.variant.product.slug} is not allowed for customer`,
+          context,
+        );
+        throw new OrderException(OrderValidation.GIFT_PRODUCT_NOT_ALLOWED);
+      }
+    }
 
     const updatedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
@@ -427,6 +473,7 @@ export class OrderItemService {
    */
   async createOrderItem(
     requestData: CreateOrderItemRequestDto,
+    requestUserRole?: string | null,
   ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
     const order = await this.orderUtils.getOrder({
@@ -434,6 +481,32 @@ export class OrderItemService {
         slug: requestData.order,
       },
     });
+
+    if (order.status !== OrderStatus.PENDING) {
+      this.logger.warn(
+        `Order ${order.slug} is not allowed to create order item`,
+        context,
+      );
+      throw new OrderException(OrderValidation.ORDER_IS_NOT_PENDING);
+    }
+
+    const variant = await this.variantUtils.getVariant({
+      where: {
+        slug: requestData.variant,
+      },
+    });
+
+    // validate gift product + order status
+    if (variant.product?.isGift) {
+      // if customer add gift product to order, it's not allowed
+      if (!requestUserRole || requestUserRole === RoleEnum.Customer) {
+        this.logger.warn(
+          `Gift product ${variant.product.slug} is not allowed for customer`,
+          context,
+        );
+        throw new OrderException(OrderValidation.GIFT_PRODUCT_NOT_ALLOWED);
+      }
+    }
 
     let updatedVoucher: Voucher = null;
 
@@ -481,12 +554,6 @@ export class OrderItemService {
         OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY,
       );
     }
-
-    const variant = await this.variantUtils.getVariant({
-      where: {
-        slug: requestData.variant,
-      },
-    });
 
     // # Check promotion
     const date = new Date(order.createdAt);
