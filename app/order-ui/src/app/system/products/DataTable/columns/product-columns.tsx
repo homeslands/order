@@ -14,7 +14,6 @@ import {
 import { IProduct } from '@/types'
 import {
   UpdateProductDialog,
-  DeleteProductDialog,
   UploadProductImageDialog
 } from '@/components/app/dialog'
 import { publicFileURL } from '@/constants'
@@ -45,7 +44,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         return (
           <div className="flex flex-col gap-1">
             <div className="font-bold">{name}</div>
-            <p className="overflow-hidden text-sm text-muted-foreground break-words line-clamp-3 text-ellipsis">{description}</p>
+            <p className="overflow-hidden text-sm break-words text-muted-foreground line-clamp-3 text-ellipsis">{description}</p>
           </div>
         )
       },
@@ -78,7 +77,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
         <DataTableColumnHeader column={column} title={t('product.highlight')} />
       ),
       cell: ({ row }) => {
-        const { isLimit, isTopSell, isNew, isCombo } = row.original
+        const { isLimit, isTopSell, isNew, isCombo, isGift } = row.original
         return (
           <div className="flex flex-col gap-1.5 min-w-[8rem] px-2">
             {isLimit && (
@@ -99,6 +98,11 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
             {isCombo && (
               <div className="flex gap-1 justify-center items-center px-2 py-1 text-xs font-bold text-blue-500 bg-blue-600 rounded-xl border border-blue-500 bg-opacity-15">
                 🎁 {t('product.isCombo')}
+              </div>
+            )}
+            {isGift && (
+              <div className="flex gap-1 justify-center items-center px-2 py-1 text-xs font-bold text-purple-500 bg-purple-600 rounded-xl border border-purple-500 bg-opacity-15">
+                🎁 {t('product.isGift')}
               </div>
             )}
           </div>
@@ -124,7 +128,7 @@ export const useProductColumns = (): ColumnDef<IProduct>[] => {
                 <DropdownMenuLabel>{tCommon('common.action')}</DropdownMenuLabel>
                 <div onClick={(e) => e.stopPropagation()}>
                   <UpdateProductDialog product={product} />
-                  <DeleteProductDialog product={product} />
+                  {/* <DeleteProductDialog product={product} /> */}
                   <UploadProductImageDialog product={product} />
                 </div>
               </DropdownMenuContent>
