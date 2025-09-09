@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Coins } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -28,6 +28,15 @@ export default function ClientLoyaltyPointSelector({ usedPoints, orderSlug, owne
     const [pointsInput, setPointsInput] = useState(usedPoints)
     const { mutate: applyLoyaltyPoint } = useApplyLoyaltyPoint()
     const { mutate: cancelReservationForOrder } = useCancelReservationForOrder()
+
+    // Sync local states when upstream usedPoints changes (e.g., voucher removed resets points to 0)
+    useEffect(() => {
+        setPointsInput(usedPoints)
+        if (usedPoints === 0 && useAllPoints) {
+            setUseAllPoints(false)
+            setError(null)
+        }
+    }, [usedPoints, useAllPoints])
 
     const handleUseAllPointsToggle = (checked: boolean) => {
         setUseAllPoints(checked)
