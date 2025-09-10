@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { ProductResponseDto } from 'src/product/product.dto';
 import { SizeResponseDto } from 'src/size/size.dto';
@@ -12,7 +12,18 @@ export class CreateVariantRequestDto {
     example: '50000',
   })
   @IsNotEmpty({ message: 'The price is required' })
+  @Min(0, { message: 'The price must be greater or equal to 0' })
   price: number;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The cost price of product at this size',
+    example: '50000',
+    required: false,
+  })
+  @IsOptional()
+  @Min(0, { message: 'The cost price must be greater or equal to 0' })
+  costPrice?: number;
 
   @ApiProperty({ description: 'The slug of size', example: 'XOT7hr58Q' })
   @IsNotEmpty({ message: 'The slug of size is required' })
@@ -33,12 +44,25 @@ export class UpdateVariantRequestDto {
     example: '50000',
   })
   @IsNotEmpty({ message: 'The price is required' })
+  @Min(0, { message: 'The price must be greater or equal to 0' })
   price: number;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The price of product at this size',
+    example: '50000',
+  })
+  @IsNotEmpty({ message: 'The price is required' })
+  @Min(0, { message: 'The cost price must be greater or equal to 0' })
+  costPrice: number;
 }
 
 export class VariantResponseDto extends BaseResponseDto {
   @AutoMap()
   price: number;
+
+  @AutoMap()
+  costPrice: number;
 
   @AutoMap(() => SizeResponseDto)
   size: SizeResponseDto;
