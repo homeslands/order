@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Gift } from 'lucide-react'
 import { Button, Badge } from '@/components/ui'
 import { useIsMobile } from '@/hooks'
@@ -17,10 +17,47 @@ export default function DraggableGiftCardButton({
   // Trạng thái và vị trí cho kéo thả
   const [isDragging, setIsDragging] = useState(false)
   const [position, setPosition] = useState({
-    x: window.innerWidth - 60,
-    y: window.innerHeight / 2 - 20,
+    x: 0,
+    y: 0,
   })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const newX = window.innerWidth - 70 
+      const newY = window.innerHeight / 2 - 25
+
+      const maxX = window.innerWidth - 50
+      const maxY = window.innerHeight - 50
+
+      setPosition({
+        x: Math.min(Math.max(newX, 0), maxX),
+        y: Math.min(Math.max(newY, 0), maxY),
+      })
+    }
+
+    updatePosition()
+
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [])
+
+  useEffect(() => {
+    const adjustPositionForViewport = () => {
+      const maxX = window.innerWidth - 50
+      const maxY = window.innerHeight - 50
+
+      setPosition((prev) => ({
+        x: Math.min(Math.max(prev.x, 0), maxX),
+        y: Math.min(Math.max(prev.y, 0), maxY),
+      }))
+    }
+
+    adjustPositionForViewport()
+  }, [isMobile])
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true)
