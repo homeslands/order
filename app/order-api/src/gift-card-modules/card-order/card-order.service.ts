@@ -51,6 +51,9 @@ import { CashStrategy } from 'src/payment/strategy/cash.strategy';
 import { PaymentException } from 'src/payment/payment.exception';
 import { PaymentValidation } from 'src/payment/payment.validation';
 import { PaymentUtils } from 'src/payment/payment.utils';
+import { CurrentUserDto } from 'src/user/user.dto';
+import { UserException } from 'src/user/user.exception';
+import { UserValidation } from 'src/user/user.validation';
 
 @Injectable()
 export class CardOrderService {
@@ -74,7 +77,7 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) {}
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -228,9 +231,17 @@ export class CardOrderService {
     return this.mapper.map(cardOrder, CardOrder, CardOrderResponseDto);
   }
 
-  async cancel(slug: string): Promise<void> {
+  async cancel(slug: string, userDto: CurrentUserDto): Promise<void> {
     const context = `${CardOrderService.name}.${this.cancel.name}`;
     this.logger.log(`Cancelling card order: ${slug}`, context);
+
+    const canceler = await this.userRepository.findOne({
+      where: {
+        id: userDto.userId
+      }
+    })
+
+    if (!canceler) throw new UserException(UserValidation.USER_NOT_FOUND, 'Canceler not found');
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug },
@@ -245,12 +256,15 @@ export class CardOrderService {
       throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
     }
 
-    await this.paymentUtils.cancelPayment(cardOrder.payment?.slug);
+    if (cardOrder.payment)
+      await this.paymentUtils.cancelPayment(cardOrder.payment?.slug);
 
     Object.assign(cardOrder, {
       status: CardOrderStatus.CANCELLED,
       paymentStatus: PaymentStatus.CANCELLED,
-      deletedAt: new Date(),
+      cancelBySlug: canceler.slug,
+      cancelByName: `${canceler.firstName} ${canceler.lastName}`,
+      cancelAt: new Date()
     } as CardOrder);
 
     await this.cardOrderRepository.save(cardOrder);
@@ -472,7 +486,7 @@ export class CardOrderService {
       order: sortOpts,
       take: size,
       skip: (page - 1) * size,
-      withDeleted: true,
+      // withDeleted: true,
     });
 
     // Calculate total pages
