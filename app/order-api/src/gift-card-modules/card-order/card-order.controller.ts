@@ -17,6 +17,8 @@ import { CardOrderResponseDto } from './dto/card-order-response.dto';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { FindAllCardOrderDto } from './dto/find-all-card-order.dto';
 import { InitiateCardOrderPaymentAdminDto, InitiateCardOrderPaymentDto } from './dto/initiate-card-order-payment.dto';
+import { CurrentUser } from 'src/user/user.decorator';
+import { CurrentUserDto } from 'src/user/user.dto';
 
 @Controller('card-order')
 @ApiTags('Card Order Resource')
@@ -127,8 +129,10 @@ export class CardOrderController {
     type: CardOrderResponseDto,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async cancel(@Param('slug') slug: string) {
-    await this.cardOrderService.cancel(slug);
+  async cancel(
+    @Param('slug') slug: string,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true })) user: CurrentUserDto) {
+    await this.cardOrderService.cancel(slug, user);
     return {
       statusCode: HttpStatus.NO_CONTENT,
       timestamp: new Date().toISOString(),

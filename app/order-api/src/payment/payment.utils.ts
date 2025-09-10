@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Payment } from './entity/payment.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {
@@ -44,7 +44,7 @@ export class PaymentUtils {
 
     const payment = await this.paymentRepository.findOne({
       where: {
-        slug,
+        slug: slug ?? IsNull(),
       },
     });
     if (!payment) {
