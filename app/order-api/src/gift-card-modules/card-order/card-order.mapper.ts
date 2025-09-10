@@ -1,5 +1,5 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, extend, Mapper } from '@automapper/core';
+import { createMap, extend, forMember, mapFrom, Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 
 import { baseMapper } from 'src/app/base.mapper';
@@ -20,6 +20,7 @@ export class CardOrderProfile extends AutomapperProfile {
         CardOrder,
         CardOrderResponseDto,
         extend(baseMapper(mapper)),
+        forMember(d => d.cancelAt, mapFrom(s => s.cancelAt?.toISOString() ?? null)),
       );
       createMap(mapper, CreateCardOrderDto, CardOrder);
     };

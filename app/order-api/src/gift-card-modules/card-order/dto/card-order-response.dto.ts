@@ -96,4 +96,16 @@ export class CardOrderResponseDto extends BaseResponseDto {
   @ApiProperty({ type: () => PaymentResponseDto })
   @AutoMap(() => PaymentResponseDto)
   payment: PaymentResponseDto;
+
+  @AutoMap()
+  @ApiProperty()
+  cancelBySlug: string;
+
+  @AutoMap()
+  @ApiProperty()
+  cancelAt: string;
+
+  @AutoMap()
+  @ApiProperty()
+  cancelByName: string;
 }
