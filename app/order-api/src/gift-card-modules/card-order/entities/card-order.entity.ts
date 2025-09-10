@@ -143,4 +143,16 @@ export class CardOrder extends Base {
   @JoinColumn({ name: 'payment_column' })
   @AutoMap(() => Payment)
   payment: Payment;
+
+  @Column({ name: 'cancel_by_slug_column', nullable: true })
+  @AutoMap()
+  cancelBySlug: string;
+
+  @Column({ name: 'cancel_at_column', nullable: true, type: "timestamp" })
+  @AutoMap(() => Date)
+  cancelAt: Date;
+
+  @Column({ name: 'cancel_by_name_column', nullable: true })
+  @AutoMap()
+  cancelByName: string;
 }

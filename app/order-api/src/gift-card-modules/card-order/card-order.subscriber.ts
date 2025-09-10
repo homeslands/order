@@ -18,11 +18,14 @@ import { GiftCardService } from '../gift-card/gift-card.service';
 import { PointTransactionService } from '../point-transaction/point-transaction.service';
 import { BalanceService } from '../balance/balance.service';
 import { CardOrderService } from './card-order.service';
+import { CardOrderException } from './card-order.exception';
+import { CardOrderValidation } from './card-order.validation';
+import { PaymentStatus } from 'src/payment/payment.constants';
+import { PaymentUtils } from 'src/payment/payment.utils';
 
 @EventSubscriber()
 export class CardOrderSubscriber
-  implements EntitySubscriberInterface<CardOrder>
-{
+  implements EntitySubscriberInterface<CardOrder> {
   private readonly CANCEL_CARD_ORDER_JOB_DELAY = 1000 * 60 * 15;
 
   constructor(
@@ -36,6 +39,7 @@ export class CardOrderSubscriber
     private readonly ptService: PointTransactionService,
     private readonly balanceService: BalanceService,
     private readonly cardOrderService: CardOrderService,
+    private readonly paymentUtils: PaymentUtils
   ) {
     dataSource.subscribers.push(this);
   }
@@ -91,11 +95,7 @@ export class CardOrderSubscriber
     }
 
     const timeoutId = setTimeout(async () => {
-      Object.assign(entity, {
-        status: CardOrderStatus.CANCELLED,
-        deletedAt: new Date(),
-      });
-      await this.cardOrderRepository.save(entity);
+      await this.handleCancel(entity.slug);
     }, delay);
 
     if (!job) {
@@ -105,6 +105,36 @@ export class CardOrderSubscriber
         context,
       );
     }
+  }
+
+  async handleCancel(slug: string) {
+    const context = `${CardOrderSubscriber.name}.${this.handleCancel.name}`;
+    this.logger.log(`Cancelling card order: ${slug}`, context);
+
+    const cardOrder = await this.cardOrderRepository.findOne({
+      where: { slug },
+      relations: ['payment'],
+    });
+
+    if (!cardOrder) {
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_FOUND);
+    }
+
+    if (cardOrder.status !== CardOrderStatus.PENDING) {
+      throw new CardOrderException(CardOrderValidation.CARD_ORDER_NOT_PENDING);
+    }
+
+    if (cardOrder.payment)
+      await this.paymentUtils.cancelPayment(cardOrder.payment?.slug);
+
+    Object.assign(cardOrder, {
+      status: CardOrderStatus.CANCELLED,
+      paymentStatus: PaymentStatus.CANCELLED,
+      cancelByName: `system`,
+      cancelAt: new Date()
+    } as CardOrder);
+
+    await this.cardOrderRepository.save(cardOrder);
   }
 
   async deleteCancelCardOrderJob(entity: CardOrder) {
