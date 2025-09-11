@@ -114,10 +114,12 @@ export async function initiateCardOrderPayment(
 export async function initiateCardOrderPaymentAdmin(
   slug: string,
   paymentMethod: string,
+  cashierSlug: string,
 ): Promise<IApiResponse<ICardOrderResponse>> {
   const response = await http.post(`/card-order/payment/initiate/admin`, {
     cardorderSlug: slug,
     paymentMethod,
+    cashierSlug,
   })
   return response.data
 }
