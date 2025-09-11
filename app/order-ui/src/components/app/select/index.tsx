@@ -35,3 +35,4 @@ export { default as VoucherPaymentMethodSelect } from './voucher-payment-method-
 export { default as StaffPaymentMethodSelect } from './staff-payment-method-select'
 export { default as StaffLoyaltyPointSelector } from './staff-loyalty-point-selector'
 export { default as ClientLoyaltyPointSelector } from './client-loyalty-point-selector'
+export { default as LoyaltyPointTypeSelect } from './loyalty-point-type-select'

@@ -78,7 +78,7 @@ export default function CardOrderHistoryPage() {
       startDate,
       endDate
     })
-  }, [filter.startDate, filter.endDate, setFilter])
+  }, [setFilter, filter])
 
   const handleStatusChange = useCallback((v: string) => {
     setFilter(prev => (prev.status === v ? prev : { ...prev, status: v }));
@@ -92,14 +92,14 @@ export default function CardOrderHistoryPage() {
   ), [filter.status, handleStatusChange]);
 
   return (
-    <div className="grid h-full grid-cols-1 gap-2">
+    <div className="grid grid-cols-1 gap-2 h-full">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.cardOrder.title')}</title>
         <meta name="description" content={tHelmet('helmet.cardOrder.title')} />
       </Helmet>
-      <span className="flex items-center justify-between gap-1 pt-1 text-lg text-gray-900 dark:text-white">
-        <div className="flex items-center gap-2">
+      <span className="flex gap-1 justify-between items-center pt-1 text-lg text-gray-900 dark:text-white">
+        <div className="flex gap-2 items-center">
           <Gift className="text-gray-700 dark:text-gray-300" />
           {t('giftCard.cardOrder.title')}
         </div>
