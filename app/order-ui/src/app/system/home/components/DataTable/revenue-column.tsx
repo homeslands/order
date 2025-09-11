@@ -72,7 +72,7 @@ export const useRevenueListColumns = (): ColumnDef<IBranchRevenue>[] => {
                 <DataTableColumnHeader column={column} title={t('revenue.pointAmount')} />
             ),
             cell: ({ row }) => {
-                const pointAmount = row.original.totalAmountPoint
+                const pointAmount = row.original.totalAccumulatedPointsToUse
                 return <div className="text-sm text-red-500">- {formatPoints(pointAmount)}</div>
             },
         },

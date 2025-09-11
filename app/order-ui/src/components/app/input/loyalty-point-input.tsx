@@ -29,6 +29,7 @@ export default function LoyaltyPointsInput({
     )
     const { mutate: applyLoyaltyPoint } = useApplyLoyaltyPoint()
     const { mutate: cancelReservationForOrder } = useCancelReservationForOrder()
+    const [isApplied, setIsApplied] = useState<boolean>(false)
 
     // Sync displayValue when value prop changes
     useEffect(() => {
@@ -51,6 +52,15 @@ export default function LoyaltyPointsInput({
         if (raw === "") {
             setDisplayValue("")
             onChange(0)
+            if (isApplied) {
+                // Auto-cancel reservation when user clears the input after applying
+                cancelReservationForOrder(orderSlug, {
+                    onSuccess: () => {
+                        setIsApplied(false)
+                        onSuccess()
+                    }
+                })
+            }
             return
         }
 
@@ -75,6 +85,7 @@ export default function LoyaltyPointsInput({
     const handleApply = () => {
         applyLoyaltyPoint({ orderSlug, pointsToUse: value }, {
             onSuccess: () => {
+                setIsApplied(true)
                 onSuccess()
             }
         })
@@ -84,6 +95,7 @@ export default function LoyaltyPointsInput({
         cancelReservationForOrder(orderSlug, {
             onSuccess: () => {
                 onChange(0)
+                setIsApplied(false)
                 onSuccess()
             }
         })
@@ -105,7 +117,7 @@ export default function LoyaltyPointsInput({
                 <Button type="button" onClick={handleApply} disabled={value <= 0} className="text-sm">
                     {t('loyaltyPoint.apply')}
                 </Button>
-                <Button type="button" variant="outline" onClick={handleCancel} className="text-sm">
+                <Button type="button" variant="outline" onClick={handleCancel} disabled={!isApplied} className="text-sm">
                     {t('loyaltyPoint.cancel')}
                 </Button>
             </div>

@@ -19,44 +19,24 @@ export default function LoyaltyPointHistoryAction() {
     // Helpers to format ranges
     const startOfYear = useMemo(() => moment().startOf('year').format('YYYY-MM-DD HH:mm:ss'), [])
 
-    // Initialize defaults if not present in URL: fromDate=start of year, toDate=now
+    // On mount/reload: always set toDate to now; default fromDate to start of year if missing
     useEffect(() => {
-        const from = searchParams.get('fromDate')
-        const to = searchParams.get('toDate')
+        const existingFrom = searchParams.get('fromDate')
+        const defaultFrom = existingFrom ?? startOfYear
+        const defaultTo = moment().format('YYYY-MM-DD HH:mm:ss')
 
-        if (!from || !to) {
-            const defaultFrom = startOfYear
-            const defaultTo = moment().format('YYYY-MM-DD HH:mm:ss')
-
-            setSearchParams((prev) => {
+        setSearchParams((prev) => {
+            if (!existingFrom) {
                 prev.set('fromDate', defaultFrom)
-                prev.set('toDate', defaultTo)
-                prev.set('page', '1')
-                return prev
-            })
-            setStartDate(defaultFrom)
-            setEndDate(defaultTo)
-            setQuickRange('all')
-        } else {
-            setStartDate(from)
-            setEndDate(to)
-            // Determine quick range based on current dates
-            const now = moment()
-            const start = moment(from)
-            const end = moment(to)
-
-            if (start.isSame(now, 'day') && end.isSame(now, 'day')) {
-                setQuickRange('today')
-            } else if (start.isSame(now.subtract(1, 'day'), 'day') && end.isSame(now.subtract(1, 'day'), 'day')) {
-                setQuickRange('yesterday')
-            } else if (start.isSame(now.startOf('week'), 'day') && end.isSame(now, 'day')) {
-                setQuickRange('this_week')
-            } else if (start.isSame(now.startOf('month'), 'day') && end.isSame(now, 'day')) {
-                setQuickRange('this_month')
-            } else {
-                setQuickRange('all')
             }
-        }
+            prev.set('toDate', defaultTo)
+            prev.set('page', '1')
+            return prev
+        })
+
+        setStartDate(defaultFrom)
+        setEndDate(defaultTo)
+        setQuickRange('all')
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -85,8 +65,8 @@ export default function LoyaltyPointHistoryAction() {
     }
 
     return (
-        <div className="w-full overflow-x-auto scrollbar-hide">
-            <div className="flex gap-3 items-center min-w-max py-2">
+        <div className="overflow-x-auto w-full scrollbar-hide">
+            <div className="flex gap-3 items-center py-2 min-w-max">
                 <div className="min-w-[200px] flex-shrink-0">
                     <DateAndTimePicker
                         date={startDate}
