@@ -26,6 +26,7 @@ export interface IBranchRevenue extends IBase {
   promotionAmount: number
   voucherAmount: number
   totalAmount: number
+  totalOrderPoint: number
   totalOrder: number
 }
 
