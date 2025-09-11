@@ -123,7 +123,7 @@ export const useGetUserGiftCardsInfinite = ({ pageSize = 10 }) => {
       toDate: '',
       customerSlug: userInfo?.slug,
     })
-  }, [])
+  }, [userInfo?.slug])
 
   // Check if filters are active
   const hasActiveFilters = useMemo(() => {
@@ -276,9 +276,17 @@ export const useInitiateCardOrderPayment = () => {
   const { userInfo } = useUserStore()
   const role = userInfo?.role?.name
   return useMutation({
-    mutationFn: async (payload: { slug: string; paymentMethod: string }) => {
+    mutationFn: async (payload: {
+      slug: string
+      paymentMethod: string
+      cashierSlug: string
+    }) => {
       return role !== Role.CUSTOMER
-        ? initiateCardOrderPaymentAdmin(payload.slug, payload.paymentMethod)
+        ? initiateCardOrderPaymentAdmin(
+            payload.slug,
+            payload.paymentMethod,
+            payload.cashierSlug,
+          )
         : initiateCardOrderPayment(payload.slug, payload.paymentMethod)
     },
   })

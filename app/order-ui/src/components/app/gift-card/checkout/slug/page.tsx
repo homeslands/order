@@ -84,7 +84,7 @@ export default function GiftCardCheckoutWithSlugPage() {
   } = useGiftCardPolling({
     slug: slug || '',
     shouldPoll: shouldStartPolling && !isExpired,
-    pollingInterval: 30000, // Poll every 30 seconds
+    pollingInterval: 15000, // Poll every 15 seconds
     onPaymentSuccess: () => {
       // Navigate to gift card success page when payment is completed
       navigate(`${routes.success}/${slug}`)
@@ -187,6 +187,8 @@ export default function GiftCardCheckoutWithSlugPage() {
       {
         slug: currentOrderData.slug,
         paymentMethod,
+        cashierSlug:
+          userInfo?.role?.name !== Role.CUSTOMER ? userInfo?.slug || '' : '',
       },
       {
         onSuccess: (_data) => {
@@ -202,7 +204,16 @@ export default function GiftCardCheckoutWithSlugPage() {
         },
       },
     )
-  }, [currentOrderData?.slug, initiatePayment, paymentMethod, t])
+  }, [
+    currentOrderData?.slug,
+    initiatePayment,
+    navigate,
+    paymentMethod,
+    routes.success,
+    t,
+    userInfo?.role?.name,
+    userInfo?.slug,
+  ])
 
   // Handle countdown expiration
   const handleExpired = useCallback(
