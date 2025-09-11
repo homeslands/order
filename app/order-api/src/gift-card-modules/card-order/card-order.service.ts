@@ -74,7 +74,7 @@ export class CardOrderService {
     private readonly ptService: SharedPointTransactionService,
     private readonly cashStrategy: CashStrategy,
     private readonly paymentUtils: PaymentUtils,
-  ) {}
+  ) { }
 
   async initiatePayment(payload: InitiateCardOrderPaymentDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
@@ -127,6 +127,12 @@ export class CardOrderService {
   async initiatePaymentAdmin(payload: InitiateCardOrderPaymentAdminDto) {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
     this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
+
+    const cashier = await this.userRepository.findOne({
+      where: { slug: payload.cashierSlug }
+    })
+    if (!cashier)
+      throw new CardOrderException(CardOrderValidation.CASHIER_NOT_FOUND);
 
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
@@ -198,6 +204,11 @@ export class CardOrderService {
       paymentId: payment.id,
       paymentSlug: payment.slug,
       paymentStatus: payment.statusCode,
+      cashier: cashier,
+      cashierId: cashier.id,
+      cashierName: `${cashier.firstName} ${cashier.lastName}`,
+      cashierPhone: cashier.phonenumber,
+      cashierSlug: cashier.slug
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
