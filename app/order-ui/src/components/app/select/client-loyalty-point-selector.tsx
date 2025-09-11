@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Coins } from "lucide-react"
+import { Coins, Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Badge, Label, Switch } from "@/components/ui"
@@ -26,6 +26,7 @@ export default function ClientLoyaltyPointSelector({ usedPoints, orderSlug, owne
 
     const [useAllPoints, setUseAllPoints] = useState(false)
     const [pointsInput, setPointsInput] = useState(usedPoints)
+    const [isLoading, setIsLoading] = useState(false)
     const { mutate: applyLoyaltyPoint } = useApplyLoyaltyPoint()
     const { mutate: cancelReservationForOrder } = useCancelReservationForOrder()
 
@@ -35,29 +36,50 @@ export default function ClientLoyaltyPointSelector({ usedPoints, orderSlug, owne
         if (usedPoints === 0 && useAllPoints) {
             setUseAllPoints(false)
             setError(null)
+        } else if (usedPoints > 0 && usedPoints === maxUsablePoints && !useAllPoints) {
+            // If usedPoints equals maxUsablePoints, it means "use all" was applied
+            setUseAllPoints(true)
         }
-    }, [usedPoints, useAllPoints])
+    }, [usedPoints, useAllPoints, maxUsablePoints])
 
     const handleUseAllPointsToggle = (checked: boolean) => {
-        setUseAllPoints(checked)
+        if (isLoading) return // Prevent multiple clicks while loading
+
+        setIsLoading(true)
+        setError(null)
+
         if (checked) {
             // Apply maximum usable points when switch is on
             applyLoyaltyPoint({ orderSlug: orderSlug ?? '', pointsToUse: maxUsablePoints }, {
                 onSuccess: () => {
+                    setUseAllPoints(true)
+                    setPointsInput(maxUsablePoints)
+                    setError(null)
+                    setIsLoading(false)
                     onSuccess()
+                },
+                onError: (error) => {
+                    setError(error.message || 'Failed to apply loyalty points')
+                    setIsLoading(false)
+                    // Don't update useAllPoints state on error
                 }
             })
-            setPointsInput(maxUsablePoints)
-            setError(null)
         } else {
             // Reset to 0 when turning off use all points
             cancelReservationForOrder(orderSlug, {
                 onSuccess: () => {
+                    setUseAllPoints(false)
+                    setPointsInput(0)
+                    setError(null)
+                    setIsLoading(false)
                     onSuccess()
+                },
+                onError: (error) => {
+                    setError(error.message || 'Failed to cancel reservation')
+                    setIsLoading(false)
+                    // Don't update useAllPoints state on error
                 }
             })
-            setPointsInput(0)
-            setError(null)
         }
     }
 
@@ -85,11 +107,15 @@ export default function ClientLoyaltyPointSelector({ usedPoints, orderSlug, owne
                     <Label htmlFor="use-all-switch" className="text-sm font-medium">
                         {t('loyaltyPoint.useAll')}
                     </Label>
-                    <Switch
-                        id="use-all-switch"
-                        checked={useAllPoints}
-                        onCheckedChange={handleUseAllPointsToggle}
-                    />
+                    <div className="flex gap-2 items-center">
+                        {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <Switch
+                            id="use-all-switch"
+                            checked={useAllPoints}
+                            onCheckedChange={handleUseAllPointsToggle}
+                            disabled={isLoading}
+                        />
+                    </div>
                 </div>
 
                 {/* Conditional Controls - Only show when switch is off */}

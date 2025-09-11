@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Input, Button } from "@/components/ui"
@@ -70,11 +69,6 @@ export default function LoyaltyPointsInput({
         onChange(selectedAmount)
     }
 
-    const handleClear = () => {
-        setDisplayValue("")
-        onChange(0)
-    }
-
     // Quick select options
     const quickOptions = [5000, 10000, 20000, 50000, maxPoints].filter(amount => amount > 0)
 
@@ -107,15 +101,6 @@ export default function LoyaltyPointsInput({
                         placeholder={placeholder}
                         className="pr-8 text-sm"
                     />
-                    {displayValue && (
-                        <button
-                            type="button"
-                            onClick={handleClear}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                            <X size={14} />
-                        </button>
-                    )}
                 </div>
                 <Button type="button" onClick={handleApply} disabled={value <= 0} className="text-sm">
                     {t('loyaltyPoint.apply')}

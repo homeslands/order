@@ -758,20 +758,22 @@ export default function PaymentPage() {
               total={order.result ? order.result.subtotal : 0}
               onSubmit={handleSelectPaymentMethod}
             />
-            <StaffLoyaltyPointSelector
-              usedPoints={order.result.accumulatedPointsToUse}
-              orderSlug={slug ?? ''}
-              ownerSlug={ownerSlug ?? null}
-              total={order.result.subtotal}
-              onSuccess={() => {
-                refetchOrder().then(() => {
-                  // Re-initialize payment with updated order data after voucher update
-                  if (slug) {
-                    initializePayment(slug, paymentMethod as PaymentMethod)
-                  }
-                })
-              }}
-            />
+            {order?.result.owner.firstName !== 'Default' && order?.result.owner.role.name === Role.CUSTOMER && (
+              <StaffLoyaltyPointSelector
+                usedPoints={order.result.accumulatedPointsToUse}
+                orderSlug={slug ?? ''}
+                ownerSlug={ownerSlug ?? null}
+                total={order.result.subtotal}
+                onSuccess={() => {
+                  refetchOrder().then(() => {
+                    // Re-initialize payment with updated order data after voucher update
+                    if (slug) {
+                      initializePayment(slug, paymentMethod as PaymentMethod)
+                    }
+                  })
+                }}
+              />
+            )}
           </div>
         )}
         <div className="flex flex-wrap-reverse gap-2 justify-between px-2 py-6">
