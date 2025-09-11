@@ -3,6 +3,7 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  StreamableFile,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -23,6 +24,17 @@ export class RoleBasedSerializationInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
+        // If data is StreamableFile or Buffer then return directly
+        if (data instanceof StreamableFile || data instanceof Buffer) {
+          return data;
+        }
+
+        // If data is not object or array then return directly
+        if (typeof data !== 'object') {
+          return data;
+        }
+
+        // Transform with plain object
         return plainToInstance(data?.constructor ?? Object, data, {
           groups: role ? [role] : [],
           // excludeExtraneousValues: true,
