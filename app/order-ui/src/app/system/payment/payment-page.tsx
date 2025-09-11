@@ -657,7 +657,7 @@ export default function PaymentPage() {
                       - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
-                  <div className="flex justify-between pb-4 w-full border-b">
+                  <div className="flex justify-between py-4 w-full border-b">
                     <h3 className="text-sm italic font-medium text-primary">
                       {t('order.loyaltyPoint')}
                     </h3>
@@ -665,7 +665,7 @@ export default function PaymentPage() {
                       - {`${formatCurrency(order.result.accumulatedPointsToUse || 0)}`}
                     </p>
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col py-4">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">
                         {t('order.totalPayment')}

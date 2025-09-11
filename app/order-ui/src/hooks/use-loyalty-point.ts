@@ -9,12 +9,13 @@ import {
 import { QUERYKEY } from '@/constants'
 import { ILoyaltyPointHistoryQuery } from '@/types'
 
-export const useLoyaltyPoints = (q: string) => {
+export const useLoyaltyPoints = (q?: string) => {
   return useQuery({
-    queryKey: [QUERYKEY.loyaltyPoints, q],
-    queryFn: () => getLoyaltyPoints(q),
+    queryKey: [QUERYKEY.loyaltyPoints, 'total', { slug: q || '' }],
+    queryFn: () => getLoyaltyPoints(q as string),
     placeholderData: keepPreviousData,
     select: (data) => data.result,
+    enabled: !!q,
   })
 }
 
@@ -39,9 +40,19 @@ export const useCancelReservationForOrder = () => {
 
 export const useLoyaltyPointHistory = (params: ILoyaltyPointHistoryQuery) => {
   return useQuery({
-    queryKey: [QUERYKEY.loyaltyPoints, params.slug],
+    queryKey: [
+      QUERYKEY.loyaltyPoints,
+      'history',
+      params.slug,
+      params.page,
+      params.size,
+      params.fromDate,
+      params.toDate,
+      (params.types || []).join(','),
+    ],
     queryFn: () => getLoyaltyPointHistory(params),
     placeholderData: keepPreviousData,
     select: (data) => data.result,
+    enabled: !!params.slug,
   })
 }
