@@ -38,6 +38,7 @@
         "totalRevenueToday": "Revenue today",
         "type": "Revenue type",
         "voucherAmount": "Voucher amount",
+        "pointAmount": "Point amount",
         "endDateMustBeGreaterThanOrEqualToStartDate": "End date must be greater than or equal to start date"
       }
     }

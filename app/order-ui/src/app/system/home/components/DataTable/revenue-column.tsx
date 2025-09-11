@@ -6,7 +6,7 @@ import {
     DataTableColumnHeader,
 } from '@/components/ui'
 import { IBranchRevenue } from '@/types'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, formatPoints } from '@/utils'
 
 export const useRevenueListColumns = (): ColumnDef<IBranchRevenue>[] => {
     const { t } = useTranslation(['revenue', 'common'])
@@ -64,6 +64,16 @@ export const useRevenueListColumns = (): ColumnDef<IBranchRevenue>[] => {
             cell: ({ row }) => {
                 const voucherAmount = row.original.voucherAmount
                 return <div className="text-sm text-red-500">- {formatCurrency(voucherAmount)}</div>
+            },
+        },
+        {
+            accessorKey: 'pointAmount',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title={t('revenue.pointAmount')} />
+            ),
+            cell: ({ row }) => {
+                const pointAmount = row.original.totalAmountPoint
+                return <div className="text-sm text-red-500">- {formatPoints(pointAmount)}</div>
             },
         },
         {
