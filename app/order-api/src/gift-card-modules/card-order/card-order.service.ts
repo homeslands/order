@@ -131,6 +131,12 @@ export class CardOrderService {
     const context = `${CardOrderService.name}.${this.initiatePayment.name}`;
     this.logger.log(`Initiate a payment: ${JSON.stringify(payload)}`, context);
 
+    const cashier = await this.userRepository.findOne({
+      where: { slug: payload.cashierSlug }
+    })
+    if (!cashier)
+      throw new CardOrderException(CardOrderValidation.CASHIER_NOT_FOUND);
+
     const cardOrder = await this.cardOrderRepository.findOne({
       where: { slug: payload.cardorderSlug ?? IsNull() },
       relations: ['payment', 'customer'],
@@ -201,6 +207,11 @@ export class CardOrderService {
       paymentId: payment.id,
       paymentSlug: payment.slug,
       paymentStatus: payment.statusCode,
+      cashier: cashier,
+      cashierId: cashier.id,
+      cashierName: `${cashier.firstName} ${cashier.lastName}`,
+      cashierPhone: cashier.phonenumber,
+      cashierSlug: cashier.slug
     } as Partial<CardOrder>);
 
     if (payment.paymentMethod === PaymentMethod.CASH) {
