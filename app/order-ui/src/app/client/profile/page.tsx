@@ -7,11 +7,12 @@ import { ProfilePicture } from '@/components/app/avatar'
 import { useUploadProfilePicture, useGetUserBalance, useLoyaltyPoints } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency, formatPoints, showToast } from '@/utils'
 import { CustomerProfileTabs } from '@/components/app/tabs'
 
 export default function ProfilePage() {
   const { t } = useTranslation(['profile', 'toast'])
+  const { t: tLoyaltyPoint } = useTranslation('loyaltyPoint')
   const { t: tHelmet } = useTranslation('helmet')
   const { userInfo, setUserInfo } = useUserStore()
   const { data: pointsData } = useLoyaltyPoints(userInfo?.slug ?? '')
@@ -100,9 +101,8 @@ export default function ProfilePage() {
           </div>
           <div className="flex flex-row gap-2 items-center px-6 py-4 bg-gradient-to-r from-orange-100 to-amber-50 dark:from-orange-900/40 dark:to-amber-800/30">
             <span className="text-[13px] tracking-tight">
-              {t('profile.points.points')}: <span className="text-primary dark:text-orange-300">{points}</span>
+              {t('profile.points.points')}: <span className="text-primary dark:text-orange-300">{formatPoints(points)} {' '} ({tLoyaltyPoint('loyaltyPoint.pointWithCurrency', { points: formatPoints(points) })})</span>
             </span>
-            <Coins className="text-primary dark:text-orange-300" />
           </div>
         </div>
         {/* Info */}
