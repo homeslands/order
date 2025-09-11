@@ -28,6 +28,7 @@
         "rulesTitle": "Quy tắc quy đổi điểm",
         "earnRate": "Tích điểm: {{percent}}% giá trị đơn hàng",
         "convertRate": "Quy đổi: {{points}} điểm = {{value}}₫",
+        "pointWithCurrency": "{{points}} VNĐ",
         "additionalRules": "Quy tắc bổ sung:",
         "selectLoyaltyPointType": "Chọn loại điểm thưởng",
         "type": {
