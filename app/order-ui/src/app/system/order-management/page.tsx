@@ -24,7 +24,7 @@ export default function OrderHistoryPage() {
   const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
   const [status, setStatus] = useState<OrderStatus | 'all'>('all')
   const [isSelected, setIsSelected] = useState(false)
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null)
   const [startDate, setStartDate] = useState<string>(moment().format('YYYY-MM-DD'))
   const [endDate, setEndDate] = useState<string>(moment().format('YYYY-MM-DD'))
@@ -123,6 +123,10 @@ export default function OrderHistoryPage() {
   const handleOrderClick = (order: IOrder) => {
     setIsSelected(true)
     setSelectedOrder(order)
+    setSearchParams(prev => {
+      prev.set('order', order.slug)
+      return prev
+    })
   }
 
   return (
@@ -166,7 +170,13 @@ export default function OrderHistoryPage() {
         <OrderHistoryDetailSheet
           order={selectedOrder}
           isOpen={isSelected}
-          onClose={() => setIsSelected(false)}
+          onClose={() => {
+            setIsSelected(false)
+            setSearchParams(prev => {
+              prev.delete('order')
+              return prev
+            })
+          }}
         />
       </div>
     </div>
