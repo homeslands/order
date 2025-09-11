@@ -126,7 +126,7 @@ export class JobService {
           // Create point transaction
           await this.sharedPointTransactionService.create({
             type: PointTransactionTypeEnum.OUT,
-            desc: `Su dung ${CurrencyUtil.formatCurrency(order.subtotal)} xu thanh toan don hang`,
+            desc: `Sử dụng ${CurrencyUtil.formatCurrency(order.subtotal)} xu thanh toán đơn hàng`,
             objectType: PointTransactionObjectTypeEnum.ORDER,
             objectSlug: order.slug,
             points: order.payment?.amount,
