@@ -5,7 +5,7 @@ import { validate } from './env.validation';
 import { AuthModule } from 'src/auth/auth.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { FileModule } from 'src/file/file.module';
 import { HealthModule } from 'src/health/health.module';
@@ -38,7 +38,7 @@ import { WorkflowModule } from 'src/workflow/workflow.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { DbModule } from 'src/db/db.module';
-import { JwtAuthGuard } from 'src/auth/passport/jwt/jwt-auth.guard';
+// import { JwtAuthGuard } from 'src/auth/passport/jwt/jwt-auth.guard';
 import { RoleModule } from 'src/role/role.module';
 import { RolesGuard } from 'src/role/roles.guard';
 import { SystemConfigModule } from 'src/system-config/system-config.module';
@@ -71,6 +71,8 @@ import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.m
 import { SharedModule } from 'src/shared/shared.module';
 import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
+import { RoleBasedSerializationInterceptor } from 'src/role/role.interceptor';
+import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.guard';
 
 @Module({
   imports: [
@@ -173,9 +175,13 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useClass: JwtOptionalAuthGuard,
     },
     {
       provide: APP_GUARD,
@@ -184,6 +190,10 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RoleBasedSerializationInterceptor,
     },
   ],
 })
