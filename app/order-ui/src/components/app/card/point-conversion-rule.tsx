@@ -12,7 +12,7 @@ interface LoyaltyPointRulesProps {
 }
 
 // constant quy đổi: 10 điểm = 1 VNĐ
-const POINT_TO_MONEY_RATE = 10 // 10 points = 1 VND
+const POINT_TO_MONEY_RATE = 1 // 1 points = 1 VND
 const EARN_RATE = 10 // ví dụ: 10% giá trị đơn hàng
 
 export default function LoyaltyPointRules({ rules = [] }: LoyaltyPointRulesProps) {

@@ -3,7 +3,6 @@ import moment from 'moment'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  CoinsIcon,
   TrendingUp,
   Tag,
 } from 'lucide-react'
@@ -14,7 +13,7 @@ import {
 } from '@/components/ui'
 
 import { useIsMobile, useLoyaltyPointHistory, useLoyaltyPoints, usePagination } from '@/hooks'
-import { formatCurrency } from '@/utils'
+import { formatPoints } from '@/utils'
 import { useUserStore } from '@/stores'
 import { useLoyaltyPointTransactionColumns } from '@/app/client/profile/DataTable/columns'
 import { LoyaltyPointAction } from '@/app/client/profile/DataTable/actions'
@@ -25,6 +24,7 @@ import { LoyaltyPointDetailHistoryDialog } from '../dialog'
 
 export function CustomerLoyaltyPointTabsContent() {
   const { t } = useTranslation(['profile'])
+  const { t: tLoyaltyPoint } = useTranslation('loyaltyPoint')
   const isMobile = useIsMobile()
   const { userInfo } = useUserStore()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -182,10 +182,7 @@ export function CustomerLoyaltyPointTabsContent() {
                     <div
                       className={`flex items-center gap-1 ${item.color} font-bold ${isMobile ? 'text-lg' : 'text-xl'}`}
                     >
-                      <span>{formatCurrency(Math.abs(item.value), '')}</span>
-                      <CoinsIcon
-                        className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-primary`}
-                      />
+                      <span>{formatPoints(Math.abs(item.value))} {' '} ({tLoyaltyPoint('loyaltyPoint.pointWithCurrency', { points: formatPoints(Math.abs(item.value)) })})</span>
                     </div>
                   </div>
                   <div className={`rounded-full p-2 ${item.iconBg}`}>
