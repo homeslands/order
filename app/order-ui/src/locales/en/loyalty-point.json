@@ -5,7 +5,6 @@
         "searchByPhoneNumberPlaceholder": "Enter phone number",
         "searchByPhoneNumberButton": "Search",
         "createdAt": "Created At",
-        "type": "Type",
         "points": "Point change",
         "lastPoints": "Last point",
         "orderSlug": "Order Slug",
@@ -24,6 +23,24 @@
         "maximumCanBeUsed": "Maximum usable points are limited by the order total.",
         "limitedByOrderTotal": "limited by order total",
         "cancel": "Cancel",
-        "apply": "Apply"
+        "apply": "Apply",
+        "type": {
+            "type": "Type",
+            "all": "All",
+            "add": "Add",
+            "use": "Use",
+            "reserve": "Reserve",
+            "refund": "Refund"
+        },
+        "detailHistory": "Detail History",
+        "history": "History",
+        "relatedOrder": "Related Order",
+        "noRelatedOrder": "No related order",
+        "loadingOrder": "Loading order",
+        "orderNotFound": "Order not found",
+        "orderCode": "Order code",
+        "orderStatus": "Order status",
+        "orderDate": "Order date",
+        "orderTotal": "Order total"
     }
 }

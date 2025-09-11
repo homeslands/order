@@ -8,9 +8,8 @@ import {
 import { ILoyaltyPointHistory } from '@/types'
 import { LoyaltyPointTypeBadge } from '@/components/app/badge'
 import { LoyaltyPointHistoryType } from '@/constants'
-import { formatPoints } from '@/utils'
 
-export const useLoyaltyPointHistoryColumns = (): ColumnDef<ILoyaltyPointHistory>[] => {
+export const useLoyaltyPointTransactionColumns = (): ColumnDef<ILoyaltyPointHistory>[] => {
   const { t } = useTranslation(['profile'])
   return [
     {
@@ -36,7 +35,7 @@ export const useLoyaltyPointHistoryColumns = (): ColumnDef<ILoyaltyPointHistory>
         const loyaltyPointHistory = row.original
         return (
           <div className="text-sm">
-            {formatPoints(loyaltyPointHistory?.points)}
+            {loyaltyPointHistory?.points}
           </div>
         )
       },
@@ -48,7 +47,7 @@ export const useLoyaltyPointHistoryColumns = (): ColumnDef<ILoyaltyPointHistory>
       ),
       cell: ({ row }) => {
         const loyaltyPointHistory = row.original
-        return <div className="text-sm">{formatPoints(loyaltyPointHistory?.lastPoints)}</div>
+        return <div className="text-sm">{loyaltyPointHistory?.lastPoints}</div>
       },
     },
     {

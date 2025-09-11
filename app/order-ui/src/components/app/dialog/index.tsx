@@ -161,3 +161,6 @@ export { default as ConfirmLeavingRoleDetailPageDialog } from './confirm-leaving
 export { default as ChooseTableDialog } from './choose-table-dialog'
 
 export { default as CancelPublicOrderDialog } from './cancel-public-order-dialog'
+
+export { default as LoyaltyPointDetailHistoryDialog } from './loyalty-point-detail-history-dialog'
+export { default as StaffLoyaltyPointDetailHistoryDialog } from './staff-loyalty-point-detail-history-dialog'

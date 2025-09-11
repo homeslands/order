@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { CircleX, SquareMenu } from 'lucide-react'
+import { CircleX, SquareMenu, Info } from 'lucide-react'
 import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
@@ -795,6 +795,15 @@ export function ClientPaymentPage() {
                         {`${formatCurrency(order?.result.subtotal || 0)}`}
                       </p>
                     </div>
+                    {/* Loyalty point earning note */}
+                    <div className="p-2 mt-2 rounded-md bg-muted-foreground/10 text-muted-foreground">
+                      <div className="flex gap-2 items-center text-xs">
+                        <Info className="w-4 h-4" />
+                        <span>
+                          {t('paymentMethod.loyaltyPointEarningNote')}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -855,7 +864,7 @@ export function ClientPaymentPage() {
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >
-                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment) && <ButtonLoading />}
+                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment || !payButtonEnabled) && <ButtonLoading />}
                   {t('paymentMethod.confirmPayment')}
                 </Button>}
             </div>}

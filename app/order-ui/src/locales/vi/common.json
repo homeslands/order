@@ -62,7 +62,12 @@
     "rowsPerPage": "Số hàng mỗi trang",
     "search": "Tìm kiếm",
     "selected": "Đã chọn",
-    "warn": "Warn"
+    "warn": "Warn",
+    "quickRange": "Chọn nhanh",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "thisWeek": "Tuần này",
+    "thisMonth": "Tháng này"
   },
   "dayOfWeek": {
     "0": "Thứ hai",
