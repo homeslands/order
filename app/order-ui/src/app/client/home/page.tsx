@@ -6,11 +6,11 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet'
 
 import { Button } from '@/components/ui'
-import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
+import { useBanners, useIsMobile, usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 import { ROUTE, youtubeVideoId } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './components'
 // import { AdPopup } from '@/components/app/AdPopup'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useUserStore } from '@/stores'
 import { IMenuItem } from '@/types'
 
 // Animation Variants
@@ -28,13 +28,18 @@ export default function HomePage() {
   const { t: tHelmet } = useTranslation('helmet')
   const isMobile = useIsMobile()
   const { branch } = useBranchStore()
+  const { userInfo } = useUserStore()
   const { data: banner } = useBanners({ isActive: true })
-  const { data: specificMenu, isFetching: isFetchingSpecificMenu } = useSpecificMenu(
-    {
-      date: moment().format('YYYY-MM-DD'),
-      branch: branch ? branch?.slug : '',
-    },
-  )
+
+  const specificMenuRequest = {
+    date: moment().format('YYYY-MM-DD'),
+    branch: branch ? branch?.slug : '',
+  }
+  const { data: specificMenuData, isPending: specificMenuPending } = useSpecificMenu(specificMenuRequest)
+  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } = usePublicSpecificMenu(specificMenuRequest)
+
+  const specificMenu = userInfo?.slug ? specificMenuData : publicSpecificMenuData
+  const isPending = userInfo?.slug ? specificMenuPending : publicSpecificMenuPending
 
   //get banner data
   const bannerData = useMemo(() => banner?.result || [], [banner])
@@ -47,9 +52,9 @@ export default function HomePage() {
   const exploreMenuItems = useMemo(() => menuItemsAvailable.slice(0, 5), [menuItemsAvailable])
   // get best seller Items
   const bestSellerItems = useMemo(() => menuItemsAvailable.filter((item) => item.product.isTopSell)
-  .sort((a,b)=> b.product.saleQuantityHistory - a.product.saleQuantityHistory)
-  .slice(0,5)
-  , [menuItemsAvailable])
+    .sort((a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory)
+    .slice(0, 5)
+    , [menuItemsAvailable])
   // get news items & promotion items
   const { newsProducts, promotionProducts } = useMemo(() => menuItemsAvailable.reduce(
     (
@@ -61,7 +66,7 @@ export default function HomePage() {
       return acc
     },
     { newsProducts: [], promotionProducts: [] })
-  , [menuItemsAvailable]) 
+    , [menuItemsAvailable])
 
   return (
     <>
@@ -126,7 +131,7 @@ export default function HomePage() {
               <SliderMenu
                 type="promotion"
                 menus={promotionProducts}
-                isFetching={isFetchingSpecificMenu}
+                isFetching={isPending}
               />
             </motion.div>
           </div>
@@ -150,7 +155,7 @@ export default function HomePage() {
               </div>
               <SliderMenu
                 menus={bestSellerItems}
-                isFetching={isFetchingSpecificMenu}
+                isFetching={isPending}
                 type="best-sell"
               />
             </motion.div>
@@ -174,7 +179,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={newsProducts} isFetching={isFetchingSpecificMenu} type="new" />
+              <SliderMenu menus={newsProducts} isFetching={isPending} type="new" />
             </motion.div>
           </div>
         )}
