@@ -15,7 +15,7 @@ import {
   Button,
 } from '@/components/ui'
 import {
-  createProductVariantSchema,
+  useCreateProductVariantSchema,
   TCreateProductVariantSchema,
 } from '@/schemas'
 
@@ -38,7 +38,7 @@ export const CreateProductVariantForm: React.FC<
   const { slug } = useParams()
   const { mutate: createProductVariant } = useCreateProductVariant()
   const form = useForm<TCreateProductVariantSchema>({
-    resolver: zodResolver(createProductVariantSchema),
+    resolver: zodResolver(useCreateProductVariantSchema()),
     defaultValues: {
       price: 0,
       size: '',
@@ -68,18 +68,36 @@ export const CreateProductVariantForm: React.FC<
           <FormItem>
             <FormLabel>{t('product.price')}</FormLabel>
             <FormControl>
-              <Input
-                type="number"
-                {...field}
-                placeholder={t('product.enterPrice')}
-                value={field.value || ''}
-                onChange={(e) => field.onChange(Number(e.target.value))} // Chuyển đổi giá trị thành số
-              />
+              <div className="flex relative items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={t('product.enterPrice')}
+                  value={
+                    field.value === 0
+                      ? '0'
+                      : field.value
+                        ? field.value.toLocaleString()
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/,/g, '')
+                    const num = raw === '' ? '' : Number(raw)
+                    if (num === '' || !isNaN(num)) {
+                      field.onChange(num === '' ? '' : num)
+                    }
+                  }}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  className="pr-8 font-medium tracking-wide text-right"
+                />
+                <span className="absolute right-2 text-muted-foreground">₫</span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
+
     ),
     size: (
       <FormField
