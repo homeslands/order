@@ -52,7 +52,8 @@ export const getCurrentBranchRevenueFromInvoiceClause = `
             ii.invoice_column AS invoice_id,
             SUM(ii.price_column * ii.quantity_column) AS totalOriginalOrderItemAmount,
             SUM(ii.total_column) AS totalFinalOrderItemAmount,
-            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount
+            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount,
+            SUM(CASE WHEN ii.is_gift_column = true THEN ii.total_cost_column ELSE 0 END) AS totalCostGiftOrderItemAmount
         FROM order_db.invoice_item_tbl ii
         JOIN order_db.invoice_tbl iv ON iv.id_column = ii.invoice_column
         WHERE iv.date_column >= CURRENT_DATE()
@@ -83,7 +84,8 @@ export const getCurrentBranchRevenueFromInvoiceClause = `
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        SUM(ivi.totalCostGiftOrderItemAmount) AS totalCostGiftProductAmount
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -154,7 +156,8 @@ export const getYesterdayBranchRevenueFromInvoiceClause = `
             ii.invoice_column AS invoice_id,
             SUM(ii.price_column * ii.quantity_column) AS totalOriginalOrderItemAmount,
             SUM(ii.total_column) AS totalFinalOrderItemAmount,
-            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount
+            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount,
+            SUM(CASE WHEN ii.is_gift_column = true THEN ii.total_cost_column ELSE 0 END) AS totalCostGiftOrderItemAmount
         FROM order_db.invoice_item_tbl ii
         JOIN order_db.invoice_tbl iv ON iv.id_column = ii.invoice_column
         WHERE iv.date_column >= CURRENT_DATE() - INTERVAL 1 DAY
@@ -185,7 +188,8 @@ export const getYesterdayBranchRevenueFromInvoiceClause = `
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        SUM(ivi.totalCostGiftOrderItemAmount) AS totalCostGiftProductAmount
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -251,7 +255,8 @@ export const getAllBranchRevenueFromInvoiceClause = `
             ii.invoice_column AS invoice_id,
             SUM(ii.price_column * ii.quantity_column) AS totalOriginalOrderItemAmount,
             SUM(ii.total_column) AS totalFinalOrderItemAmount,
-            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount
+            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount,
+            SUM(CASE WHEN ii.is_gift_column = true THEN ii.total_cost_column ELSE 0 END) AS totalCostGiftOrderItemAmount
         FROM order_db.invoice_item_tbl ii
         JOIN order_db.invoice_tbl iv ON iv.id_column = ii.invoice_column
         WHERE iv.deleted_at_column IS NULL
@@ -280,7 +285,8 @@ export const getAllBranchRevenueFromInvoiceClause = `
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        SUM(ivi.totalCostGiftOrderItemAmount) AS totalCostGiftProductAmount
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -396,7 +402,8 @@ export const getSpecificRangeBranchRevenueFromInvoiceClause = `
             ii.invoice_column AS invoice_id,
             SUM(ii.price_column * ii.quantity_column) AS totalOriginalOrderItemAmount,
             SUM(ii.total_column) AS totalFinalOrderItemAmount,
-            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount
+            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount,
+            SUM(CASE WHEN ii.is_gift_column = true THEN ii.total_cost_column ELSE 0 END) AS totalCostGiftOrderItemAmount
         FROM order_db.invoice_item_tbl ii
         JOIN order_db.invoice_tbl iv ON iv.id_column = ii.invoice_column
         WHERE iv.date_column >= ?
@@ -427,7 +434,8 @@ export const getSpecificRangeBranchRevenueFromInvoiceClause = `
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        SUM(ivi.totalCostGiftOrderItemAmount) AS totalCostGiftProductAmount
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -497,7 +505,8 @@ export const getSpecificRangeBranchRevenueByHourFromInvoiceClause = `
             ii.invoice_column AS invoice_id,
             SUM(ii.price_column * ii.quantity_column) AS totalOriginalOrderItemAmount,
             SUM(ii.total_column) AS totalFinalOrderItemAmount,
-            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount
+            SUM(ii.voucher_value_column) AS totalVoucherValueOrderItemAmount,
+            SUM(CASE WHEN ii.is_gift_column = true THEN ii.total_cost_column ELSE 0 END) AS totalCostGiftOrderItemAmount
         FROM order_db.invoice_item_tbl ii
         JOIN order_db.invoice_tbl iv ON iv.id_column = ii.invoice_column
         WHERE iv.date_column >= ?
@@ -529,7 +538,8 @@ export const getSpecificRangeBranchRevenueByHourFromInvoiceClause = `
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        SUM(ivi.totalCostGiftOrderItemAmount) AS totalCostGiftProductAmount
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
