@@ -19,7 +19,7 @@ import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
 import { StaffRemoveVoucherWhenPayingDialog } from '@/components/app/dialog';
-import { VoucherListSheetInPayment } from '@/components/app/sheet';
+import { StaffVoucherListSheetInPayment } from '@/components/app/sheet';
 import { StaffLoyaltyPointSelector, StaffPaymentMethodSelect } from '@/components/app/select';
 
 export default function PaymentPage() {
@@ -679,7 +679,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <VoucherListSheetInPayment onSuccess={() => {
+            <StaffVoucherListSheetInPayment onSuccess={() => {
               refetchOrder().then(() => {
                 // Re-initialize payment with updated order data after voucher update
                 if (slug) {
