@@ -27,6 +27,7 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { CreditCardStrategy } from './strategy/credit-card.strategy';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
     OrderItemUtils,
     MenuItemUtils,
     MenuUtils,
+    CreditCardStrategy,
   ],
   exports: [PaymentService, PaymentUtils],
 })
