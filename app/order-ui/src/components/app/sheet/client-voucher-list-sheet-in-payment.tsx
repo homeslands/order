@@ -49,7 +49,7 @@ import {
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
-export default function VoucherListSheetInPayment({
+export default function ClientVoucherListSheetInPayment({
   onSuccess,
 }: {
   onSuccess: () => void
@@ -88,13 +88,13 @@ export default function VoucherListSheetInPayment({
   const isCustomerOwner =
     !!orderData?.owner &&
     orderData.owner.role.name === Role.CUSTOMER &&
-    orderData.owner.firstName !== 'Default';
+    orderData.owner.phonenumber !== 'default-customer';
 
   // 2. Owner là khách hàng không có tài khoản (default)
   const isDefaultCustomer =
     !!orderData?.owner &&
     orderData.owner.role.name === Role.CUSTOMER &&
-    orderData.owner.firstName === 'Default';
+    orderData.owner.phonenumber === 'default-customer';
 
   const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
     isCustomerOwner // Nếu owner là khách có tài khoản
@@ -105,32 +105,21 @@ export default function VoucherListSheetInPayment({
         size: pagination.pageSize,
         paymentMethod: paymentMethod
       }
-      : !isDefaultCustomer // Nếu là nhân viên hoặc owner không phải default customer
-        ? {
-          isVerificationIdentity: false,
-          isActive: true,
-          hasPaging: true,
-          page: pagination.pageIndex,
-          size: pagination.pageSize,
-          paymentMethod: paymentMethod
-        }
-        : undefined,
+      : undefined,
     !!sheetOpen
   );
 
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
-    isDefaultCustomer // Nếu owner là default customer
+    !isCustomerOwner
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
-        paymentMethod: paymentMethod
       }
       : undefined,
     !!sheetOpen
   )
-
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -175,7 +164,7 @@ export default function VoucherListSheetInPayment({
         }
 
         // Check if user is logged in based on firstName
-        if (orderData?.owner?.firstName === 'Default') {
+        if (orderData?.owner?.phonenumber === 'default-customer') {
           // For non-logged in users
           updatePublicVoucherInOrder({
             slug: orderSlug,
@@ -245,7 +234,7 @@ export default function VoucherListSheetInPayment({
     }
 
     // Check if user is logged in based on firstName
-    if (orderData?.owner?.firstName === 'Default') {
+    if (orderData?.owner?.phonenumber === 'default-customer') {
       // For non-logged in users - use public voucher validation and update
       const validatePublicVoucherParam: IValidateVoucherRequest = {
         voucher: selectedVoucherData.slug,

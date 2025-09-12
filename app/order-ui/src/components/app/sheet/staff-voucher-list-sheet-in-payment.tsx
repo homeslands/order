@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import {
@@ -30,18 +30,15 @@ import {
   Badge,
   Checkbox,
 } from '@/components/ui'
-
 import {
   useIsMobile,
   usePagination,
-  usePublicVouchersForOrder,
-  useSpecificPublicVoucher,
   useSpecificVoucher,
-  useValidatePublicVoucher,
   useValidateVoucher,
   useVouchersForOrder,
+  useUpdateVoucherInOrder,
 } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, isVoucherApplicableToCartItems, showErrorToast, showToast } from '@/utils'
 import {
   IValidateVoucherRequest,
   IVoucher,
@@ -49,357 +46,309 @@ import {
 import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
-export default function VoucherListSheet() {
+export default function StaffVoucherListSheetInPayment({
+  onSuccess,
+}: {
+  onSuccess: () => void
+}) {
   const isMobile = useIsMobile()
   const { getTheme } = useThemeStore()
   const { t } = useTranslation(['voucher'])
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
-  const { getCartItems, addVoucher, removeVoucher, isHydrated } = useOrderFlowStore()
-  const isRemovingVoucherRef = useRef(false)
-  // const { cartItems, addVoucher, removeVoucher, isHydrated } = useCartItemStore()
+  const { paymentData } = useOrderFlowStore()
   const { mutate: validateVoucher } = useValidateVoucher()
-  const { mutate: validatePublicVoucher } = useValidatePublicVoucher()
+  const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { pagination } = usePagination()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [localVoucherList, setLocalVoucherList] = useState<IVoucher[]>([])
   const [selectedVoucher, setSelectedVoucher] = useState<string>('')
-  const [tempSelectedVoucher, setTempSelectedVoucher] = useState<string>('')
+  const [inputValue, setInputValue] = useState<string>('')
 
-  const cartItems = getCartItems()
-  // Add useEffect to check voucher validation
-  const isVoucherSelected = useCallback((voucherSlug: string) => {
-    return (
-      cartItems?.voucher?.slug === voucherSlug ||
-      selectedVoucher === voucherSlug
-    )
-  }, [cartItems?.voucher?.slug, selectedVoucher])
-  useEffect(() => {
-    if (cartItems?.voucher) {
-      // If user is not logged in but voucher requires verification
-      if (!userInfo && cartItems?.voucher.isVerificationIdentity) {
-        showErrorToast(1003) // Show error toast
-        removeVoucher() // Remove invalid voucher
-      }
+  const voucher = paymentData?.orderData?.voucher || null
+  const orderData = paymentData?.orderData
+
+  // Get payment method from voucher first, then fallback to paymentData
+  const paymentMethod = useMemo(() => {
+    if (voucher?.voucherPaymentMethods?.length && voucher.voucherPaymentMethods.length > 0) {
+      return voucher.voucherPaymentMethods[0].paymentMethod
     }
-  }, [userInfo, cartItems?.voucher, removeVoucher, getCartItems])
+    return paymentData?.paymentMethod
+  }, [voucher?.voucherPaymentMethods, paymentData?.paymentMethod])
 
-  // 1. Owner là khách hàng có tài khoản
+  const displayItems = calculateOrderItemDisplay(orderData?.orderItems || [], voucher)
+  const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
+
+  // 1. Owner là khách hàng có tài khoản (Lấy theo userInfo của nhân viên)
   const isCustomerOwner =
-    !!userInfo &&
-    userInfo.role?.name === Role.CUSTOMER &&
-    userInfo.phonenumber !== 'default-customer';
+    !!orderData?.owner &&
+    orderData.owner.role.name === Role.CUSTOMER &&
+    orderData.owner.phonenumber !== 'default-customer';
 
-  const { data: voucherList } = useVouchersForOrder(
+  const { data: voucherList, refetch: refetchVoucherList } = useVouchersForOrder(
     isCustomerOwner // Nếu owner là khách có tài khoản
       ? {
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
+        paymentMethod: paymentMethod
       }
-      : undefined,
-    !!sheetOpen
-  )
-
-  const { data: publicVoucherList } = usePublicVouchersForOrder(
-    !isCustomerOwner
-      ? {
+      :
+      {
+        isVerificationIdentity: false,
         isActive: true,
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
-      }
-      : undefined,
+        paymentMethod: paymentMethod
+      },
     !!sheetOpen
-  )
+  );
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
-      code: selectedVoucher
+      code: inputValue
     }
   )
 
-  const { data: specificPublicVoucher, refetch: refetchSpecificPublicVoucher } = useSpecificPublicVoucher(
-    {
-      code: selectedVoucher
-    },
-  )
+  const isVoucherSelected = (voucherSlug: string) => {
+    // Nếu user đã chọn voucher mới, chỉ hiển thị voucher đó là selected
+    if (selectedVoucher && selectedVoucher !== '') {
+      return selectedVoucher === voucherSlug
+    }
+    // Nếu chưa chọn voucher mới, hiển thị voucher hiện tại của order
+    return orderData?.voucher?.slug === voucherSlug
+  }
 
-  const handleToggleVoucher = useCallback((voucher: IVoucher) => {
-    const isSelected = isVoucherSelected(voucher.slug)
+  const handleCompleteSelection = async () => {
+    if (!orderData) return
 
-    const handleRemove = () => {
-      removeVoucher()
-      setSelectedVoucher('')
-      showToast(tToast('toast.removeVoucherSuccess'))
+    const orderSlug = orderData.slug
+
+    // Nếu không có voucher nào được chọn, xóa voucher hiện tại nếu có
+    if (!selectedVoucher) {
+      if (orderData.voucher && orderData.voucher !== null) {
+        const orderItemsPayload = orderData.orderItems.map((item) => ({
+          quantity: item.quantity,
+          variant: item.variant.slug,
+          note: item.note,
+          promotion: item.promotion ? item.promotion.slug : null,
+        }))
+
+        const successCallback = () => {
+          showToast(tToast('toast.removeVoucherSuccess'))
+          if (isCustomerOwner) {
+            refetchVoucherList()
+          } else if (userInfo) {
+            refetchVoucherList()
+          }
+          setSelectedVoucher('') // Clear selected voucher state
+          setSheetOpen(false)
+          onSuccess()
+        }
+        // For logged in users
+        updateVoucherInOrder({
+          slug: orderSlug,
+          voucher: null,
+          orderItems: orderItemsPayload
+        }, {
+          onSuccess: successCallback,
+        })
+        return
+      } else {
+        setSheetOpen(false)
+      }
+      return
     }
 
-    const handleApply = () => {
-      addVoucher(voucher)
-      setSelectedVoucher(voucher.slug)
+    // Tìm voucher được chọn
+    const selectedVoucherData = localVoucherList.find(v => v.slug === selectedVoucher)
+
+    if (!selectedVoucherData) {
+      showErrorToast(1000)
+      return
+    }
+
+    // Kiểm tra lại voucher có hợp lệ không trước khi apply
+    if (!isVoucherValid(selectedVoucherData)) {
+      showToast(t('voucher.notValid'))
+      setSelectedVoucher('') // Reset selection
+      return
+    }
+
+    // Nếu voucher được chọn giống với voucher hiện tại, chỉ đóng sheet
+    if (orderData.voucher?.slug === selectedVoucher) {
+      setSheetOpen(false)
+      return
+    }
+
+    const orderItemsParam = orderData.orderItems.map((item) => ({
+      quantity: item.quantity,
+      variant: item.variant.slug,
+      note: item.note,
+      promotion: item.promotion ? item.promotion.slug : null,
+    }))
+
+    const successCallback = () => {
+      if (userInfo) {
+        refetchVoucherList()
+      } else {
+        refetchVoucherList()
+      }
       setSheetOpen(false)
       showToast(tToast('toast.applyVoucherSuccess'))
+      onSuccess()
     }
 
+    const errorCallback = () => {
+      showErrorToast(1000)
+    }
     const validateVoucherParam: IValidateVoucherRequest = {
-      voucher: voucher.slug,
-      user: userInfo?.slug || '',
-      orderItems: cartItems?.orderItems.map(item => ({
+      voucher: selectedVoucherData.slug,
+      user: isCustomerOwner ? orderData.owner.slug : userInfo?.slug || '',
+      orderItems: orderData.orderItems.map((item) => ({
         quantity: item.quantity,
         variant: item.variant.slug,
         note: item.note,
         promotion: item.promotion ? item.promotion.slug : null,
-        order: null, // hoặc bỏ nếu không cần
-      })) || []
+      }))
     }
 
+    validateVoucher(validateVoucherParam, {
+      onSuccess: () => {
+        updateVoucherInOrder({
+          slug: orderSlug,
+          voucher: selectedVoucherData.slug,
+          orderItems: orderItemsParam
+        }, {
+          onSuccess: successCallback,
+          onError: errorCallback
+        })
+      },
+      onError: () => {
+        showErrorToast(1000)
+      }
+    })
+  }
 
-    const onSuccess = () => handleApply()
-    // const onError = () => handleRemove()
+  // Set initial selected voucher when order has a voucher OR when sheet opens
+  useEffect(() => {
+    if (sheetOpen) {
+      // Reset input value mỗi khi mở sheet
+      setInputValue('')
 
-    if (isSelected) {
-      handleRemove()
-    } else {
-      if (userInfo && voucher?.isVerificationIdentity) {
-        validateVoucher(validateVoucherParam, { onSuccess })
+      if (orderData?.voucher && orderData.voucher !== null) {
+        const slug = orderData.voucher.slug
+        setSelectedVoucher(slug)
+
+        if (orderData.voucher.isPrivate) {
+          refetchSpecificVoucher()
+        }
       } else {
-        validatePublicVoucher(validateVoucherParam, { onSuccess })
+        setSelectedVoucher('')
       }
     }
-  }, [removeVoucher, addVoucher, setSelectedVoucher, setSheetOpen, tToast, userInfo, validateVoucher, validatePublicVoucher, cartItems, isVoucherSelected])
+  }, [orderData?.voucher, refetchSpecificVoucher, sheetOpen])
 
-  // Auto-check voucher validity when orderItems change
+  // Clear selectedVoucher when orderData.voucher becomes null (voucher removed)
+  // But only if we're not in the middle of selecting a new voucher
   useEffect(() => {
-    if (!cartItems?.voucher || !cartItems?.orderItems || isRemovingVoucherRef.current) {
-      isRemovingVoucherRef.current = false
-      return
+    if (!orderData?.voucher && selectedVoucher && !sheetOpen) {
+      setSelectedVoucher('')
     }
+  }, [orderData?.voucher, selectedVoucher, sheetOpen])
 
-    const { voucher, orderItems } = cartItems
-    const voucherProductSlugs = voucher.voucherProducts?.map(vp => vp.product.slug) || []
-    const cartProductSlugs = orderItems.map(item => item.productSlug || item.slug)
-
-    // Tổng tiền gốc (sau promotion nhưng chưa áp voucher)
-    const subtotalBeforeVoucher = orderItems.reduce((acc, item) => {
-      const original = item.originalPrice
-      const promotionDiscount = item.promotionDiscount ?? 0
-      return acc + ((original ?? 0) - promotionDiscount) * item.quantity
-    }, 0)
-
-    let shouldRemove = false
-
-    switch (voucher.applicabilityRule) {
-      case APPLICABILITY_RULE.ALL_REQUIRED: {
-        const hasInvalidProducts = cartProductSlugs.some(slug => !voucherProductSlugs.includes(slug))
-        if (hasInvalidProducts) shouldRemove = true
-        break
-      }
-      case APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED: {
-        const hasAtLeastOne = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
-        if (!hasAtLeastOne) shouldRemove = true
-        break
-      }
-      default:
-        break
-    }
-
-    // Check minOrderValue (trừ type SAME_PRICE_PRODUCT)
-    if (!shouldRemove && voucher.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT) {
-      if (subtotalBeforeVoucher < (voucher.minOrderValue || 0)) {
-        shouldRemove = true
-      }
-    }
-
-    // Remove voucher nếu cần
-    if (shouldRemove) {
-      isRemovingVoucherRef.current = true
-      handleToggleVoucher(voucher)
-    }
-
-  }, [cartItems, cartItems?.orderItems, cartItems?.voucher, handleToggleVoucher])
-
-
-  // check if voucher is private, then refetch specific voucher, then set the voucher list to the local voucher list
+  // check if specificVoucher is not null, then set the voucher list to the local voucher list
   useEffect(() => {
-    if (specificVoucher?.result?.isPrivate) {
-      refetchSpecificVoucher()
-    }
-  }, [specificVoucher?.result?.isPrivate, refetchSpecificVoucher])
-
-  // check if voucher is private and user is logged in, then refetch specific voucher
-  useEffect(() => {
-    if (userInfo && specificVoucher?.result?.isPrivate) {
-      refetchSpecificVoucher();
-    } else if (!userInfo && specificPublicVoucher?.result) {
-      refetchSpecificPublicVoucher();
-    }
-  }, [
-    userInfo,
-    specificVoucher?.result?.isPrivate,
-    specificPublicVoucher?.result,
-    refetchSpecificVoucher,
-    refetchSpecificPublicVoucher
-  ]);
-
-  // check if specificVoucher or specificPublicVoucher is not null, then set the voucher list to the local voucher list
-  useEffect(() => {
-    const vouchers = userInfo
-      ? [specificVoucher?.result].filter((v): v is IVoucher => !!v)
-      : [specificPublicVoucher?.result].filter((v): v is IVoucher => !!v);
+    const vouchers = [specificVoucher?.result].filter((v): v is IVoucher => !!v)
 
     if (vouchers.length > 0) {
       setLocalVoucherList(prevList => {
-        const newList = [...(prevList || [])];
+        const newList = [...(prevList || [])]
         vouchers.forEach(voucher => {
-          const existingIndex = newList.findIndex(v => v.slug === voucher.slug);
+          const existingIndex = newList.findIndex(v => v.slug === voucher.slug)
           if (existingIndex === -1) {
-            newList.unshift(voucher);
+            newList.unshift(voucher)
           }
-        });
-        return newList;
-      });
+        })
+        return newList
+      })
+
+      // Nếu tìm thấy voucher từ input code, tự động select nó
+      if (specificVoucher?.result && inputValue.trim() !== '') {
+        setSelectedVoucher(specificVoucher.result.slug)
+      }
     }
-  }, [userInfo, specificVoucher?.result, specificPublicVoucher?.result]);
+  }, [specificVoucher?.result, inputValue])
 
   useEffect(() => {
-    const isCustomer = userInfo?.role.name === Role.CUSTOMER || (!userInfo && cartItems?.owner !== '' && cartItems?.ownerRole === Role.CUSTOMER)
+    const baseList = isCustomerOwner
+      ? voucherList?.result?.items || [] // Khách default - lấy public vouchers
+      : isCustomerOwner
+        ? voucherList?.result?.items || [] // Owner là khách có tài khoản - lấy all vouchers
+        : voucherList?.result?.items || []; // Nhân viên hoặc case khác - lấy vouchers không yêu cầu xác thực
+    let newList = [...baseList];
 
-    const baseList = (isCustomer ? voucherList?.result.items : publicVoucherList?.result.items) || []
-
-    let newList = [...baseList]
-
-    if (userInfo && specificVoucher?.result) {
+    // Add specific voucher from search
+    if (specificVoucher?.result) {
       const existingIndex = newList.findIndex(v => v.slug === specificVoucher.result.slug)
       if (existingIndex === -1) {
         newList = [specificVoucher.result, ...newList]
       }
     }
 
-    if (!userInfo && specificPublicVoucher?.result) {
-      const existingIndex = newList.findIndex(v => v.slug === specificPublicVoucher.result.slug)
+    // Add current voucher from order draft if it exists and not already in list
+    if (orderData?.voucher) {
+      const existingIndex = newList.findIndex(v => v.slug === orderData.voucher!.slug)
       if (existingIndex === -1) {
-        newList = [specificPublicVoucher.result, ...newList]
+        newList = [orderData.voucher, ...newList]
       }
     }
 
     setLocalVoucherList(newList)
-  }, [userInfo, voucherList?.result?.items, publicVoucherList?.result?.items, specificVoucher?.result, specificPublicVoucher?.result, cartItems?.ownerRole, selectedVoucher, cartItems?.owner])
+  }, [voucherList?.result?.items, specificVoucher?.result, orderData?.voucher, userInfo, isCustomerOwner])
 
+  // check if voucher is private and user is logged in, then refetch specific voucher
   useEffect(() => {
-    if (cartItems?.voucher) {
-      const code = cartItems.voucher.code;
-      setSelectedVoucher(code);
-      setTempSelectedVoucher(cartItems.voucher.slug);
-
-      if (cartItems.voucher.isPrivate) {
-        refetchSpecificVoucher();
-      }
-    } else {
-      setTempSelectedVoucher('');
+    if (userInfo && specificVoucher?.result?.isPrivate) {
+      refetchSpecificVoucher()
     }
-  }, [cartItems?.voucher, refetchSpecificVoucher]);
-
-  // If cartItems is not hydrated, return null
-  if (!isHydrated) {
-    // eslint-disable-next-line no-console
-    console.warn('Cart items are not hydrated yet.')
-    return null
-  }
-
-  // let subTotal = 0
-  const voucher = cartItems?.voucher || null
-  // calculate subtotal
-  const displayItems = calculateCartItemDisplay(cartItems, voucher)
-  const cartTotals = calculateCartTotals(displayItems, voucher)
-  // const subTotal = cartItems?.orderItems.reduce((acc, item) => acc + (item.originalPrice || 0) * item.quantity, 0) || 0
+  }, [
+    userInfo,
+    specificVoucher?.result?.isPrivate,
+    refetchSpecificVoucher
+  ])
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
     showToast(tToast('toast.copyCodeSuccess'))
   }
 
-  const handleCompleteSelection = async () => {
-    // Nếu không có voucher nào được chọn, chỉ đóng sheet
-    if (!tempSelectedVoucher) {
-      // Nếu có voucher đang áp dụng, xóa nó
-      if (cartItems?.voucher) {
-        removeVoucher();
-        showToast(tToast('toast.removeVoucherSuccess'));
-      }
-      setSheetOpen(false);
-      return;
-    }
-
-    // Tìm voucher được chọn
-    const selectedVoucherData = localVoucherList.find(v => v.slug === tempSelectedVoucher);
-
-    if (!selectedVoucherData) {
-      showErrorToast(1000);
-      return;
-    }
-
-    // Nếu voucher được chọn giống với voucher hiện tại, chỉ đóng sheet
-    if (cartItems?.voucher?.slug === tempSelectedVoucher) {
-      setSheetOpen(false);
-      return;
-    }
-
-    // Validate và áp dụng voucher mới
-    const validateVoucherParam: IValidateVoucherRequest = {
-      voucher: selectedVoucherData.slug,
-      user: userInfo?.slug || '',
-      orderItems: cartItems?.orderItems.map(item => ({
-        quantity: item.quantity,
-        variant: item.variant.slug,
-        note: item.note,
-        promotion: item.promotion ? item.promotion.slug : null,
-        order: null,
-      })) || []
-    }
-
-    const onValidated = () => {
-      addVoucher(selectedVoucherData);
-      setSheetOpen(false);
-      showToast(tToast('toast.applyVoucherSuccess'));
-    }
-
-    if (userInfo?.slug) {
-      validateVoucher(validateVoucherParam, { onSuccess: onValidated })
-    } else {
-      validatePublicVoucher(validateVoucherParam, { onSuccess: onValidated })
-    }
-  };
-
-  const isVoucherValid = (voucher: IVoucher) => {
+  const isVoucherValid = useCallback((voucher: IVoucher) => {
     const isValidAmount =
       voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
         ? true
         : (voucher?.minOrderValue || 0) <= ((cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0))
-    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
-    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate))
-
-    const requiresLogin = voucher.isVerificationIdentity === true
-    const isUserLoggedIn = !!userInfo?.slug
-
-    const isIdentityValid = !requiresLogin || (requiresLogin && isUserLoggedIn)
-
+    // Check if voucher has voucherProducts and if cart items match
     const hasValidProducts = (() => {
+      // If voucher doesn't have voucherProducts or it's empty, return false
       if (!voucher.voucherProducts || voucher.voucherProducts.length === 0) {
         return false
       }
 
-      if (!cartItems?.orderItems || cartItems.orderItems.length === 0) {
+      // If cart is empty, return false
+      if (!orderData?.orderItems || orderData.orderItems.length === 0) {
         return false
       }
 
+      // Check if at least one cart item matches voucher products
       const voucherProductSlugs = voucher.voucherProducts.map(vp => vp.product.slug)
 
-      const cartProductSlugs = cartItems.orderItems.reduce((acc, item) => {
-        if (item.slug) acc.push(item.slug) // Slug của product
+      const cartProductSlugs = orderData.orderItems.reduce((acc, item) => {
+        if (item.variant.product.slug) acc.push(item.variant.product.slug) // Slug của product
         return acc
       }, [] as string[])
-
       return isVoucherApplicableToCartItems(
         cartProductSlugs,
         voucherProductSlugs,
@@ -407,23 +356,49 @@ export default function VoucherListSheet() {
       )
     })()
 
+    const sevenAmToday = moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 });
+    const isValidDate = sevenAmToday.isSameOrBefore(moment(voucher.endDate));
+    const requiresIdentity = voucher.isVerificationIdentity === true
+    const hasValidIdentity = isCustomerOwner // Chỉ coi là valid khi owner là khách có tài khoản
+    const isIdentityValid = !requiresIdentity || (requiresIdentity && hasValidIdentity)
     return isValidAmount && isValidDate && isIdentityValid && hasValidProducts
-  }
+  }, [cartTotals, orderData, isCustomerOwner])
+
+  // Auto-deselect voucher if it becomes invalid (out of stock or other conditions)
+  useEffect(() => {
+    if (selectedVoucher && localVoucherList.length > 0) {
+      const currentSelectedVoucher = localVoucherList.find(v => v.slug === selectedVoucher)
+
+      if (currentSelectedVoucher && !isVoucherValid(currentSelectedVoucher)) {
+        // Auto-deselect invalid voucher
+        setSelectedVoucher('')
+
+        // Show warning notification - use showToast instead of showErrorToast for messages
+        if (currentSelectedVoucher.remainingUsage === 0) {
+          showToast(t('voucher.outOfStock'))
+        } else {
+          showToast(t('voucher.becameInvalid'))
+        }
+      }
+    }
+  }, [selectedVoucher, localVoucherList, t, isVoucherValid])
 
   const getVoucherErrorMessage = (voucher: IVoucher) => {
-    const cartProductSlugs = cartItems?.orderItems?.map((item) => item.slug) || []
-    const voucherProductSlugs = voucher.voucherProducts?.map((vp) => vp.product?.slug) || []
+    const cartProductSlugs = orderData?.orderItems?.map((item) => item.variant.product.slug) || []
+    const voucherProductSlugs = voucher.voucherProducts?.map((vp) => vp.product.slug) || []
 
-    const allCartProductsInVoucher = cartProductSlugs.every(slug => voucherProductSlugs.includes(slug))
-    const hasAnyCartProductInVoucher = cartProductSlugs.some(slug => voucherProductSlugs.includes(slug))
+    const allCartProductsInVoucher = cartProductSlugs.every((slug: string) => voucherProductSlugs.includes(slug))
+    const hasAnyCartProductInVoucher = cartProductSlugs.some((slug: string) => voucherProductSlugs.includes(slug))
 
     const subTotalAfterPromotion = (cartTotals?.subTotalBeforeDiscount || 0) - (cartTotals?.promotionDiscount || 0)
+    const isCurrentlyApplied = orderData?.voucher?.slug === voucher.slug
 
     if (voucher.isVerificationIdentity && !isCustomerOwner) {
       return t('voucher.needVerifyIdentity')
     }
 
-    if (voucher.remainingUsage === 0) {
+    // Không hiển thị "hết số lượng" cho voucher đang được áp dụng
+    if (voucher.remainingUsage === 0 && !isCurrentlyApplied) {
       return t('voucher.outOfStock')
     }
 
@@ -460,6 +435,7 @@ export default function VoucherListSheet() {
 
   const renderVoucherCard = (voucher: IVoucher) => {
     const usagePercentage = (voucher.remainingUsage / voucher.maxUsage) * 100
+
     const expiryText = (endDate: string) => {
       const now = moment()
       const end = moment.utc(endDate).local() // Convert UTC to local timezone
@@ -483,29 +459,33 @@ export default function VoucherListSheet() {
       const minutes = Math.floor(diff.asMinutes()) % 60
       return t('voucher.expiresInDaysHoursMinutes', { days, hours, minutes })
     }
-
     const isValid = isVoucherValid(voucher)
+    const isSelected = isVoucherSelected(voucher.slug)
+    const isSelectedButInvalid = isSelected && !isValid
+    const isCurrentlyApplied = orderData?.voucher?.slug === voucher.slug
+
     const baseCardClass = `grid h-40 grid-cols-8 gap-2 p-2 rounded-md sm:h-36 relative
-    ${isVoucherSelected(voucher.slug)
-        ? `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
+    ${isSelected
+        ? isSelectedButInvalid
+          ? `bg-destructive/10 border-destructive`
+          : `bg-${getTheme() === 'light' ? 'primary/10' : 'black'} border-primary`
         : `${getTheme() === 'light' ? 'bg-white' : 'border'}`
       }
     border border-muted-foreground/50
-    ${voucher.remainingUsage === 0 ? 'opacity-50' : ''}
-    ${!isValid ? 'opacity-60' : ''}
+    ${voucher.remainingUsage === 0 && !isCurrentlyApplied ? 'opacity-50' : ''}
+    ${!isValid && !isSelected && !isCurrentlyApplied ? 'opacity-60' : ''}
   `
+
+    // const needsLogin = voucher.isVerificationIdentity && !orderDraft?.ownerPhoneNumber
+    // const isVoucherUsable = isVoucherValid(voucher) && !needsLogin
+
 
     return (
       <div className={baseCardClass} key={voucher.slug}>
-        {/* Overlay mờ cho voucher không hợp lệ */}
-        {!isValid && (
+        {/* Overlay mờ cho voucher không hợp lệ - NHƯNG KHÔNG áp dụng cho voucher đang được sử dụng */}
+        {!isValid && !isCurrentlyApplied && (
           <div className="absolute inset-0 z-10 rounded-md pointer-events-none bg-muted-foreground/10" />
         )}
-        {/* {isBest && (
-          <div className="absolute -top-0 -left-0 px-2 py-1 text-xs text-white rounded-tl-md rounded-br-md bg-primary">
-            {t('voucher.bestChoice')}
-          </div>
-        )} */}
         <div
           className={`flex col-span-2 justify-center items-center w-full rounded-md bg-primary`}
         >
@@ -519,85 +499,44 @@ export default function VoucherListSheet() {
             <span className="text-xs text-muted-foreground/80">
               {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
             </span>
-            {/* <span className="text-xs italic text-primary">
-              {(() => {
-                const { type, value, applicabilityRule: rule } = voucher
-
-                const discountValueText =
-                  type === VOUCHER_TYPE.PERCENT_ORDER
-                    ? t('voucher.percentDiscount', { value })
-                    : type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                      ? t('voucher.samePriceProduct', { value: formatCurrency(value) })
-                      : t('voucher.fixedDiscount', { value: formatCurrency(value) })
-
-                const ruleText =
-                  rule === APPLICABILITY_RULE.ALL_REQUIRED
-                    ? t(
-                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                        ? 'voucher.requireAllSamePrice'
-                        : 'voucher.requireAll'
-                    )
-                    : t(
-                      type === VOUCHER_TYPE.SAME_PRICE_PRODUCT
-                        ? 'voucher.requireAtLeastOneSamePrice'
-                        : 'voucher.requireAtLeastOne'
-                    )
-
-                return `${discountValueText} ${ruleText}`
-              })()}
-            </span> */}
-            {/* <span className="flex gap-1 items-center text-sm text-muted-foreground">
-              {voucher.code}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-6 h-6"
-                      onClick={() => handleCopyCode(voucher?.code)}
-                    >
-                      <Copy className="w-4 h-4 text-primary" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('voucher.copyCode')}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </span> */}
-            <span className="text-xs italic text-destructive">
-              {getVoucherErrorMessage(voucher)}
-              {/* {voucher?.type !== VOUCHER_TYPE.SAME_PRICE_PRODUCT && voucher?.minOrderValue > subTotal
-                ? t('voucher.minOrderNotMet')
-                : moment(voucher.endDate).isBefore(moment().set({ hour: 7, minute: 0, second: 0, millisecond: 0 }))
-                  ? t('voucher.expired')
-                  : voucher.isVerificationIdentity && !userInfo?.slug
-                    ? t('voucher.needVerifyIdentity')
-                    : ''} */}
-            </span>
-            <span className="hidden text-muted-foreground/60 sm:text-xs">
-              {t('voucher.minOrderValue')}: {formatCurrency(voucher.minOrderValue)}
-            </span>
+            <div className="flex gap-2 items-center">
+              <span className="text-xs italic text-destructive">
+                {getVoucherErrorMessage(voucher)}
+              </span>
+              {voucher.isVerificationIdentity && !isCustomerOwner && (
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-xs text-primary"
+                  onClick={() => {
+                    // Redirect to login page or open login modal
+                    // Implement based on your authentication flow
+                  }}
+                >
+                  {t('voucher.loginToUse')}
+                </Button>
+              )}
+            </div>
           </div>
           <div className="flex gap-2 justify-between items-center">
             <div className="flex flex-col gap-1 w-full">
               <span className="text-xs text-muted-foreground">
-                {voucher.remainingUsage === 0
+                {voucher.remainingUsage === 0 && !isCurrentlyApplied
                   ? <span className="text-xs italic text-destructive">
                     {t('voucher.outOfStock')}
                   </span>
                   : `${t('voucher.remainingUsage')}: ${Math.round(usagePercentage)}%`}
               </span>
-              {voucher.remainingUsage > 0 && (
+              {(voucher.remainingUsage > 0 || isCurrentlyApplied) && (
                 <Progress value={usagePercentage} className="h-1" />
               )}
             </div>
             <Checkbox
               id={voucher.slug}
-              checked={tempSelectedVoucher === voucher.slug}
+              checked={selectedVoucher === voucher.slug}
               onCheckedChange={(checked) => {
-                setTempSelectedVoucher(checked ? voucher.slug : '')
+                setSelectedVoucher(checked ? voucher.slug : '')
               }}
-              disabled={!isValid || voucher.remainingUsage === 0}
+              disabled={(!isValid || voucher.remainingUsage === 0) && !isCurrentlyApplied}
               className="w-5 h-5 rounded-full"
             />
           </div>
@@ -740,6 +679,7 @@ export default function VoucherListSheet() {
               </Popover>
             )}
           </div>
+
         </div>
       </div>
     )
@@ -748,16 +688,32 @@ export default function VoucherListSheet() {
   return (
     <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="px-0 w-full bg-primary/15 hover:bg-primary/20">
-          <div className="flex gap-1 justify-between items-center p-2 w-full rounded-md cursor-pointer">
+        <Button variant="ghost" className="px-0 mt-3 w-full bg-primary/15 hover:bg-primary/20">
+          <div className="flex gap-3 items-center p-2 w-full rounded-md cursor-pointer">
             <div className="flex gap-1 items-center">
               <TicketPercent className="icon text-primary" />
-              <span className="text-sm text-primary">
+              <span className="text-xs text-muted-foreground">
                 {t('voucher.useVoucher')}
               </span>
             </div>
+            {/* {orderDraft?.voucher && (
+              <div className="flex justify-start w-full">
+                <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
+                  -{`${formatCurrency(orderDraft?.voucher?.value || 0)}`}
+                </span>
+              </div>
+            )} */}
+            {/* {orderDraft?.voucher && (
+              <div className="flex justify-start w-full">
+                <div className="flex gap-2 items-center w-full">
+                  <span className="px-2 py-[0.1rem] text-[0.5rem] xl:text-xs font-semibold text-white rounded-full bg-primary/60">
+                    -{`${formatCurrency(discount || 0)}`}
+                  </span>
+                </div>
+              </div>
+            )} */}
             <div>
-              <ChevronRight className="icon text-primary" />
+              <ChevronRight className="icon text-muted-foreground" />
             </div>
           </div>
         </Button>
@@ -772,14 +728,14 @@ export default function VoucherListSheet() {
           >
             {/* Voucher search */}
             <div className="flex flex-col flex-1">
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1 gap-2 items-center">
                 <div className="relative p-1">
                   <TicketPercent className="absolute left-2 top-1/2 text-gray-400 -translate-y-1/2" />
                   <Input
                     placeholder={t('voucher.enterVoucher')}
                     className="pl-10"
-                    onChange={(e) => setSelectedVoucher(e.target.value)}
-                    value={selectedVoucher}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    value={inputValue}
                   />
                 </div>
               </div>
@@ -837,7 +793,16 @@ export default function VoucherListSheet() {
             </div>
           </ScrollArea>
           <SheetFooter className="p-4">
-            <Button className="w-full" onClick={handleCompleteSelection}>
+            <Button
+              className="w-full"
+              onClick={handleCompleteSelection}
+              disabled={!!selectedVoucher && localVoucherList.length > 0 &&
+                (() => {
+                  const selected = localVoucherList.find(v => v.slug === selectedVoucher)
+                  return selected ? !isVoucherValid(selected) : false
+                })()
+              }
+            >
               {t('voucher.complete')}
             </Button>
           </SheetFooter>

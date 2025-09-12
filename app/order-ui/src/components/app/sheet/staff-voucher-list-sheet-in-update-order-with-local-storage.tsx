@@ -52,7 +52,6 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { updatingData, setDraftVoucher, removeDraftVoucher } = useOrderFlowStore()
-  const { getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { mutate: updateVoucherInOrder } = useUpdateVoucherInOrder()
   const { pagination } = usePagination()
@@ -89,10 +88,11 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
   const displayItems = calculateCartItemDisplay(tempCartItem, voucher)
   const cartTotals = calculateCartTotals(displayItems, voucher)
 
+  // 1. Owner là khách hàng có tài khoản (Lấy theo userInfo của nhân viên)
   const isCustomerOwner =
-    sheetOpen &&
-    !!orderDraft?.owner && // Check khác null, undefined, ""
-    orderDraft.ownerRole === Role.CUSTOMER;
+    !!orderDraft?.owner &&
+    orderDraft.ownerRole === Role.CUSTOMER &&
+    orderDraft.ownerPhoneNumber !== 'default-customer';
 
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner
@@ -205,7 +205,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
 
       const validateVoucherParam: IValidateVoucherRequest = {
         voucher: voucher.slug,
-        user: orderDraft.owner || getUserInfo()?.slug || '',
+        user: isCustomerOwner ? orderDraft.owner || '' : userInfo?.slug || '',
         orderItems: orderItemsParam
       }
 
@@ -245,7 +245,7 @@ export default function StaffVoucherListSheetInUpdateOrderWithLocalStorage() {
         showErrorToast(1000)
       })
     }
-  }, [orderDraft, updatingData?.originalOrder, isVoucherSelected, setAppliedVoucher, setSelectedVoucher, setRemovedVouchers, tToast, validateVoucher, updateVoucherInOrder, addVoucher, removeVoucher, getUserInfo])
+  }, [orderDraft, updatingData?.originalOrder, isVoucherSelected, setAppliedVoucher, setSelectedVoucher, setRemovedVouchers, tToast, validateVoucher, updateVoucherInOrder, addVoucher, removeVoucher, userInfo?.slug, isCustomerOwner])
 
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
