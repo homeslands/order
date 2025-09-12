@@ -21,6 +21,7 @@ export { default as VoucherListSheetInUpdateOrder } from './voucher-list-sheet-i
 export { default as StaffVoucherListSheet } from './staff-voucher-list-sheet'
 export { default as StaffVoucherListSheetInUpdateOrder } from './staff-voucher-list-sheet-in-update-order'
 export { default as StaffVoucherListSheetInUpdateOrderWithLocalStorage } from './staff-voucher-list-sheet-in-update-order-with-local-storage'
+export { default as ClientVoucherListSheetInUpdateOrderWithLocalStorage } from './client-voucher-list-sheet-in-update-order-with-local-storage'
 export { default as CartContentSheet } from './cart-content-sheet'
 export { default as CreateMultipleTablesSheet } from './create-multiple-tables-sheet'
 export { default as AddProductInChefAreaSheet } from './add-product-in-chef-area-sheet'
@@ -28,3 +29,4 @@ export { default as OrderHistoryDetailSheet } from './order-history-detail-sheet
 export { default as CreatePrinterSheet } from './create-printer-sheet'
 export { default as UpdateVoucherPaymentMethodSheet } from './update-voucher-payment-method-sheet'
 export { default as VoucherListSheetInPayment } from './client-voucher-list-sheet-in-payment'
+export { default as StaffVoucherListSheetInPayment } from './staff-voucher-list-sheet-in-payment'
