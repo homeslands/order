@@ -1,6 +1,6 @@
 {
     "loyaltyPoint": {
-        "title": "Loyalty Point",
+        "title": "Accumulated Point",
         "searchByPhoneNumber": "Search by phone number",
         "searchByPhoneNumberPlaceholder": "Enter phone number",
         "searchByPhoneNumberButton": "Search",
