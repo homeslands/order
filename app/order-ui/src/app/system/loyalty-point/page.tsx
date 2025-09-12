@@ -21,13 +21,13 @@ export default function CustomerPage() {
     const { t: tHelmet } = useTranslation('helmet')
     const [searchParams, setSearchParams] = useSearchParams()
     const [isDetailHistoryOpen, setIsDetailHistoryOpen] = useState(false)
-    const [startDate, setStartDate] = useState<string>(searchParams.get('fromDate') || moment().startOf('year').format('YYYY-MM-DD'))
+    const [startDate, setStartDate] = useState<string>(searchParams.get('fromDate') || moment().format('YYYY-MM-DD'))
     const [endDate, setEndDate] = useState<string>(searchParams.get('toDate') || moment().format('YYYY-MM-DD'))
     const [history, setHistory] = useState<ILoyaltyPointHistory | null>(null)
     const page = Number(searchParams.get('page')) || 1
     const size = Number(searchParams.get('size')) || 10
     const type = searchParams.get('type') || 'all'
-    const { pagination, handlePageChange, handlePageSizeChange, setPagination } = usePagination()
+    const { handlePageChange, handlePageSizeChange, setPagination } = usePagination()
     const [phonenumber, setPhoneNumber] = useState<string>('')
 
     // Sync local state with URL changes (from action)
@@ -39,17 +39,17 @@ export default function CustomerPage() {
     }, [searchParams])
 
     // Initialize URL params if not present (sync with action component)
-    useEffect(() => {
-        const from = searchParams.get('fromDate')
-        const to = searchParams.get('toDate')
-        if (!from || !to) {
-            setSearchParams((prev) => {
-                if (!from) prev.set('fromDate', moment().startOf('year').format('YYYY-MM-DD'))
-                if (!to) prev.set('toDate', moment().format('YYYY-MM-DD'))
-                return prev
-            })
-        }
-    }, [searchParams, setSearchParams])
+    // useEffect(() => {
+    //     const from = searchParams.get('fromDate')
+    //     const to = searchParams.get('toDate')
+    //     if (!from || !to) {
+    //         setSearchParams((prev) => {
+    //             if (!from) prev.set('fromDate', moment().startOf('year').format('YYYY-MM-DD HH:mm:ss'))
+    //             if (!to) prev.set('toDate', moment().format('YYYY-MM-DD HH:mm:ss'))
+    //             return prev
+    //         })
+    //     }
+    // }, [searchParams, setSearchParams])
 
     // Reset page when filters change
     useEffect(() => {
@@ -60,19 +60,19 @@ export default function CustomerPage() {
     }, [startDate, endDate, type, setPagination])
 
     // add page size to query params
-    useEffect(() => {
-        setSearchParams((prev) => {
-            prev.set('page', pagination.pageIndex.toString())
-            prev.set('size', pagination.pageSize.toString())
-            return prev
-        })
-    }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
+    // useEffect(() => {
+    //     setSearchParams((prev) => {
+    //         prev.set('page', pagination.pageIndex.toString())
+    //         prev.set('size', pagination.pageSize.toString())
+    //         return prev
+    //     })
+    // }, [pagination.pageIndex, pagination.pageSize, setSearchParams])
 
 
     const hasPhone = phonenumber && phonenumber.trim().length > 0
-    const { data, isLoading } = useUsers(hasPhone ? {
-        page,
-        size,
+    const { data } = useUsers(hasPhone ? {
+        page: 1,
+        size: 1,
         order: 'DESC',
         phonenumber,
         hasPaging: true,
@@ -83,8 +83,13 @@ export default function CustomerPage() {
     const selectedUserSlug = data?.result?.items?.[0]?.slug
     const { data: totalPointsData, isLoading: loadingTotalPoints } = useLoyaltyPoints(selectedUserSlug)
 
+    // Loyalty point history hook
     const { data: loyaltyPointHistory, isLoading: loadingLoyaltyPointHistory } = useLoyaltyPointHistory({
-        slug: selectedUserSlug || '', page, size, sort: 'DESC', hasPaging: true,
+        slug: selectedUserSlug || '',
+        page,
+        size,
+        sort: 'DESC',
+        hasPaging: true,
         fromDate: startDate || undefined,
         toDate: endDate || undefined,
         types: type !== 'all' && Object.values(LoyaltyPointHistoryType).includes(type as LoyaltyPointHistoryType)
@@ -225,6 +230,18 @@ export default function CustomerPage() {
         )
     }
 
+    // Keep URL in sync when table changes page/size so hooks re-fetch
+    const onTablePageChange = (nextPage: number) => {
+        setSearchParams(prev => { prev.set('page', String(nextPage)); return prev })
+        handlePageChange(nextPage)
+    }
+
+    const onTablePageSizeChange = (nextSize: number) => {
+        setSearchParams(prev => { prev.set('size', String(nextSize)); prev.set('page', '1'); return prev })
+        handlePageSizeChange(nextSize)
+        setPagination(prev => ({ ...prev, pageIndex: 1 }))
+    }
+
     return (
         <div className="grid grid-cols-1 gap-2 h-full">
             <Helmet>
@@ -257,13 +274,14 @@ export default function CustomerPage() {
             <DataTable
                 columns={useLoyaltyPointHistoryColumns()}
                 data={loyaltyPointHistory?.items || []}
-                isLoading={isLoading}
+                isLoading={loadingLoyaltyPointHistory}
                 pages={loyaltyPointHistory?.totalPages || 0}
                 onInputChange={handleSearchChange}
                 hiddenInput={false}
+                hiddenDatePicker={true}
                 searchPlaceholder={tProfile('profile.points.searchByPhoneNumber')}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
+                onPageChange={onTablePageChange}
+                onPageSizeChange={onTablePageSizeChange}
                 actionOptions={LoyaltyPointHistoryAction}
                 filterConfig={filterConfig}
                 onFilterChange={handleFilterChange}
