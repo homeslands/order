@@ -941,9 +941,13 @@ export class OrderService {
     );
     const originalSubtotal = orderItem.quantity * orderItem.variant.price;
 
+    const subtotalCost = this.orderItemUtils.calculateSubTotalCost(orderItem);
+
     Object.assign(orderItem, {
       subtotal,
       originalSubtotal,
+      subtotalCost,
+      isGift: variant.product.isGift,
     });
     // default discount type is none
     orderItem.voucherValue = 0;
