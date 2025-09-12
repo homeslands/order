@@ -30,6 +30,7 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { CreditCardStrategy } from './strategy/credit-card.strategy';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entiti
     MenuItemUtils,
     MenuUtils,
     AccumulatedPointService,
+    CreditCardStrategy,
   ],
   exports: [PaymentService, PaymentUtils],
 })

@@ -1,6 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponseDto } from 'src/app/base.dto';
+import { PaymentMethod } from './payment.constants';
+import { IsEnum } from 'class-validator';
 
 export class CreatePaymentDto {
   @AutoMap()
@@ -8,8 +10,9 @@ export class CreatePaymentDto {
   @ApiProperty({
     example: 'bank-transfer',
     description: 'Payment method',
-    enum: ['cash', 'bank-transfer', 'internal'],
+    enum: PaymentMethod,
   })
+  @IsEnum(PaymentMethod)
   paymentMethod: string;
 
   @AutoMap()

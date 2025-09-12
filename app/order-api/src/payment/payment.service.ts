@@ -52,6 +52,7 @@ import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { VoucherException } from 'src/voucher/voucher.exception';
 import { VoucherValidation } from 'src/voucher/voucher.validation';
+import { CreditCardStrategy } from './strategy/credit-card.strategy';
 
 @Injectable()
 export class PaymentService {
@@ -66,6 +67,7 @@ export class PaymentService {
     private readonly cashStrategy: CashStrategy,
     private readonly pointStategy: PointStrategy,
     private readonly bankTransferStrategy: BankTransferStrategy,
+    private readonly creditCardStrategy: CreditCardStrategy,
     private readonly eventEmitter: EventEmitter2,
     private readonly pdfService: PdfService,
     private readonly userUtils: UserUtils,
@@ -340,6 +342,16 @@ export class PaymentService {
           }
           payment = await this.bankTransferStrategy.process(order);
           break;
+        case PaymentMethod.CREDIT_CARD:
+          if (order.subtotal < 2000) {
+            order.loss = order.subtotal;
+            order.subtotal = 0;
+            createPaymentDto.paymentMethod = PaymentMethod.CASH;
+            payment = await this.cashStrategy.process(order);
+            break;
+          }
+          payment = await this.creditCardStrategy.process(order);
+          break;
         case PaymentMethod.CASH:
           if (order.subtotal < 2000) {
             order.loss = order.subtotal;
@@ -373,7 +385,8 @@ export class PaymentService {
 
     if (
       payment.paymentMethod === PaymentMethod.CASH ||
-      payment.paymentMethod === PaymentMethod.POINT
+      payment.paymentMethod === PaymentMethod.POINT ||
+      payment.paymentMethod === PaymentMethod.CREDIT_CARD
     ) {
       // Update order status
       this.eventEmitter.emit(PaymentAction.PAYMENT_PAID, { orderId: order.id });
