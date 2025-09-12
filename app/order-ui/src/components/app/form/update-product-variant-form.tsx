@@ -14,7 +14,7 @@ import {
   Button,
 } from '@/components/ui'
 import {
-  updateProductVariantSchema,
+  useUpdateProductVariantSchema,
   TUpdateProductVariantSchema,
 } from '@/schemas'
 
@@ -38,7 +38,7 @@ export const UpdateProductVariantForm: React.FC<
   const { slug } = useParams()
   const { mutate: createProductVariant } = useUpdateProductVariant()
   const form = useForm<TUpdateProductVariantSchema>({
-    resolver: zodResolver(updateProductVariantSchema),
+    resolver: zodResolver(useUpdateProductVariantSchema()),
     defaultValues: {
       price: productVariant.price,
       product: productVariant.slug,
@@ -67,13 +67,30 @@ export const UpdateProductVariantForm: React.FC<
           <FormItem>
             <FormLabel>{t('product.price')}</FormLabel>
             <FormControl>
-              <Input
-                type="number"
-                {...field}
-                placeholder={t('product.enterPrice')}
-                value={field.value || ''}
-                onChange={(e) => field.onChange(Number(e.target.value))} // Chuyển đổi giá trị thành số
-              />
+              <div className="flex relative items-center">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={t('product.enterPrice')}
+                  value={
+                    field.value === 0
+                      ? '0'
+                      : field.value
+                        ? field.value.toLocaleString()
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/,/g, '') // bỏ dấu phẩy
+                    const num = raw === '' ? '' : Number(raw)
+                    if (num === '' || !isNaN(num)) {
+                      field.onChange(num === '' ? '' : num)
+                    }
+                  }}
+                  onWheel={(e) => e.currentTarget.blur()} // tránh scroll đổi số
+                  className="pr-8 font-medium tracking-wide text-right"
+                />
+                <span className="absolute right-2 text-muted-foreground">₫</span>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
