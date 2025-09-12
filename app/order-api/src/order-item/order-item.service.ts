@@ -222,10 +222,16 @@ export class OrderItemService {
       requestData.promotion,
       menuItem,
     );
-
     orderItem.variant = variant;
     orderItem.quantity = requestData.quantity;
     orderItem.promotion = menuItem.promotion;
+
+    const subtotalCost = this.orderItemUtils.calculateSubTotalCost(orderItem);
+    Object.assign(orderItem, {
+      subtotalCost,
+      isGift: variant.product.isGift,
+    });
+
     // const { subtotal: subtotalOrderItem, voucherValue } =
     //   this.orderItemUtils.calculateSubTotal(
     //     orderItem,
@@ -665,9 +671,17 @@ export class OrderItemService {
       CreateOrderItemRequestDto,
       OrderItem,
     );
+
     orderItem.variant = variant;
     orderItem.order = order;
     orderItem.promotion = menuItem.promotion;
+
+    const subtotalCost = this.orderItemUtils.calculateSubTotalCost(orderItem);
+    Object.assign(orderItem, {
+      subtotalCost,
+      isGift: variant.product.isGift,
+    });
+
     // const { subtotal, voucherValue } = this.orderItemUtils.calculateSubTotal(
     //   orderItem,
     //   menuItem.promotion,

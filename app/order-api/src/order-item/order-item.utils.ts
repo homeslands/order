@@ -132,6 +132,15 @@ export class OrderItemUtils {
   }
 
   /**
+   * Calculate the subtotal cost of an order item.
+   * @param orderItem order item.
+   * @returns the subtotal cost of an order item.
+   */
+  calculateSubTotalCost(orderItem: OrderItem): number {
+    return orderItem.variant.costPrice * orderItem.quantity;
+  }
+
+  /**
    * Update or Update order item: subtotal, voucherValue, discountType, originalSubtotal
    * @param voucher
    * @param orderItem
