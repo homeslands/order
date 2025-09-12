@@ -26,9 +26,7 @@ export default function LoyaltyPointHistoryAction() {
         const defaultTo = moment().format('YYYY-MM-DD HH:mm:ss')
 
         setSearchParams((prev) => {
-            if (!existingFrom) {
-                prev.set('fromDate', defaultFrom)
-            }
+            if (!existingFrom) prev.set('fromDate', defaultFrom)
             prev.set('toDate', defaultTo)
             prev.set('page', '1')
             return prev

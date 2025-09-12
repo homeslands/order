@@ -5,7 +5,7 @@ import { SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
-import { useOrders, usePagination } from '@/hooks'
+import { useOrders, usePagination, useOrderBySlug } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useOrderHistoryColumns } from './DataTable/columns'
 import { IOrder, OrderStatus } from '@/types'
@@ -31,6 +31,7 @@ export default function OrderHistoryPage() {
   const [previousOrderCount, setPreviousOrderCount] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const order = searchParams.get('order')
+  const [shouldFetchOrderBySlug, setShouldFetchOrderBySlug] = useState(false)
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -43,6 +44,11 @@ export default function OrderHistoryPage() {
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
 
+  // Fetch order by slug when not found in current data
+  const { data: orderBySlugData } = useOrderBySlug(
+    shouldFetchOrderBySlug ? order : null
+  )
+
   // use useEffect to check is there order param in url, then check is there order in data, if there is, then set selected order and open the dialog
   useEffect(() => {
     if (order) {
@@ -50,9 +56,35 @@ export default function OrderHistoryPage() {
       if (orderData) {
         setSelectedOrder(orderData)
         setIsSelected(true)
+        setShouldFetchOrderBySlug(false) // Reset flag when found in current data
+      } else {
+        // If order not found in current data, fetch by slug
+        setShouldFetchOrderBySlug(true)
       }
     }
   }, [data?.items, order])
+
+  // Handle order fetched by slug
+  useEffect(() => {
+    if (orderBySlugData?.result && shouldFetchOrderBySlug) {
+      setSelectedOrder(orderBySlugData.result)
+      setIsSelected(true)
+      setShouldFetchOrderBySlug(false) // Reset flag after successful fetch
+    }
+  }, [orderBySlugData, shouldFetchOrderBySlug])
+
+  // Reset flag when order param changes
+  useEffect(() => {
+    setShouldFetchOrderBySlug(false)
+  }, [order])
+
+  // Handle order param from URL when component mounts or order changes
+  useEffect(() => {
+    if (order && !selectedOrder) {
+      // If there's an order param but no selected order, fetch it immediately
+      setShouldFetchOrderBySlug(true)
+    }
+  }, [order, selectedOrder])
 
   // Check for new orders and play sound
   useEffect(() => {
@@ -123,6 +155,7 @@ export default function OrderHistoryPage() {
   const handleOrderClick = (order: IOrder) => {
     setIsSelected(true)
     setSelectedOrder(order)
+    setShouldFetchOrderBySlug(false) // Reset flag when clicking on order
     setSearchParams(prev => {
       prev.set('order', order.slug)
       return prev
@@ -172,6 +205,7 @@ export default function OrderHistoryPage() {
           isOpen={isSelected}
           onClose={() => {
             setIsSelected(false)
+            setShouldFetchOrderBySlug(false) // Reset flag when closing dialog
             setSearchParams(prev => {
               prev.delete('order')
               return prev
@@ -182,3 +216,4 @@ export default function OrderHistoryPage() {
     </div>
   )
 }
+
