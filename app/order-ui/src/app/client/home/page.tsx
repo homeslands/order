@@ -35,8 +35,8 @@ export default function HomePage() {
     date: moment().format('YYYY-MM-DD'),
     branch: branch ? branch?.slug : '',
   }
-  const { data: specificMenuData, isPending: specificMenuPending } = useSpecificMenu(specificMenuRequest)
-  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } = usePublicSpecificMenu(specificMenuRequest)
+  const { data: specificMenuData, isPending: specificMenuPending } = useSpecificMenu(specificMenuRequest, !!userInfo?.slug)
+  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } = usePublicSpecificMenu(specificMenuRequest, !!userInfo?.slug === false)
 
   const specificMenu = userInfo?.slug ? specificMenuData : publicSpecificMenuData
   const isPending = userInfo?.slug ? specificMenuPending : publicSpecificMenuPending

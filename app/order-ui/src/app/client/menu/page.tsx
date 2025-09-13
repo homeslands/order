@@ -33,8 +33,13 @@ export default function ClientMenuPage() {
     }
   }
 
-  const { data: specificMenuData, isPending: specificMenuPending } = useSpecificMenu(mapMenuFilterToRequest(menuFilter))
-  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } = usePublicSpecificMenu(mapMenuFilterToRequest(menuFilter))
+  const hasUser = !!userInfo?.slug
+
+  const { data: specificMenuData, isPending: specificMenuPending } =
+    useSpecificMenu(mapMenuFilterToRequest(menuFilter), hasUser)
+
+  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } =
+    usePublicSpecificMenu(mapMenuFilterToRequest(menuFilter), !hasUser)
 
   const specificMenu = userInfo?.slug ? specificMenuData : publicSpecificMenuData
   const isPending = userInfo?.slug ? specificMenuPending : publicSpecificMenuPending
