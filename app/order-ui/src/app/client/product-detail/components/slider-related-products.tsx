@@ -8,8 +8,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { publicFileURL, ROUTE } from "@/constants";
 import { SkeletonMenuList } from '@/components/app/skeleton';
 import { Com } from '@/assets/images';
-import { useSpecificMenu } from "@/hooks";
-import { useBranchStore } from "@/stores";
+import { usePublicSpecificMenu, useSpecificMenu } from "@/hooks";
+import { useBranchStore, useUserStore } from "@/stores";
 import { FilterState, IProduct } from "@/types";
 import { formatCurrency } from "@/utils";
 import { PromotionTag } from "@/components/app/badge";
@@ -17,6 +17,7 @@ import { PromotionTag } from "@/components/app/badge";
 export default function SliderRelatedProducts({ currentProduct, catalog }: { currentProduct: string, catalog: string }) {
     const { t } = useTranslation('menu')
     const { branch } = useBranchStore()
+    const { userInfo } = useUserStore()
     const [filters,] = useState<FilterState>({
         date: moment().format('YYYY-MM-DD'),
         branch: branch?.slug,
@@ -24,7 +25,8 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
         productName: '',
     })
 
-    const { data: relatedProducts, isPending } = useSpecificMenu(filters)
+    const { data: relatedProducts, isPending } = useSpecificMenu(filters, !!userInfo?.slug)
+    const { data: publicSpecificMenuData } = usePublicSpecificMenu(filters, !!userInfo?.slug === false)
     const getPriceRange = (variants: IProduct['variants']) => {
         if (!variants || variants.length === 0) return null
 
@@ -39,7 +41,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
         }
     }
     // const { data: relatedProducts, isPending } = useSpecificMenu({ catalog, branch?.slug || "" })
-    const relatedProductsData = relatedProducts?.result.menuItems.filter((item) => item.slug !== currentProduct)
+    const relatedProductsData = userInfo?.slug ? relatedProducts?.result.menuItems.filter((item) => item.slug !== currentProduct) : publicSpecificMenuData?.result.menuItems.filter((item) => item.slug !== currentProduct)
     return (
         <Swiper
             slidesPerView={6}
@@ -58,7 +60,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
             modules={[Autoplay, Pagination, Grid]}
             className="w-full h-full mySwiper"
         >
-            {!isPending ? relatedProductsData?.map((item, index) => {
+            {!isPending && userInfo?.slug ? relatedProductsData?.map((item, index) => {
                 const imageProduct = item?.product.image ? publicFileURL + "/" + item.product.image : Com
                 return (
                     <SwiperSlide key={index} className="py-2 mt-4 w-full h-full">

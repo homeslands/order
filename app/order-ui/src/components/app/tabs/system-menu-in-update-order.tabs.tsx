@@ -19,7 +19,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
-  const { getOrderItems, initializeUpdating} = useOrderFlowStore()
+  const { getOrderItems, initializeUpdating } = useOrderFlowStore()
   const orderItems = getOrderItems()
   const updatingOrder = orderItems?.updateDraft
   const { catalog } = useCatalogStore()
@@ -32,14 +32,14 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
     catalog: catalog?.slug,
     productName: '',
   })
-  const { data: specificMenu, isLoading } = useSpecificMenu(filters)
+  const { data: specificMenu, isLoading } = useSpecificMenu(filters, !!userInfo?.slug)
   const specificMenuResult = specificMenu?.result;
 
   // Handle tab change by updating URL
   const handleTabChange = (tab: string) => {
     setSearchParams({ tab }, { replace: true })
   }
-  
+
   useEffect(() => {
     if (updatingOrder?.type === OrderTypeEnum.TAKE_OUT && searchParams.get('tab') !== 'menu') {
       handleTabChange('menu')
@@ -67,7 +67,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
-      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white dark:bg-background shadow-sm">
+      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white shadow-sm dark:bg-background">
         <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
           {type === OrderTypeEnum.AT_TABLE && (
             <TabsTrigger value="table" className="flex justify-center">
@@ -79,7 +79,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
           </TabsTrigger>
         </TabsList>
       </div>
-      
+
       {type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0">
           <SystemTableSelectInUpdateOrder order={order} />
@@ -87,7 +87,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
       )}
 
       <TabsContent value="menu" className="p-0 pb-4 mt-0 w-full">
-        <div className="sticky top-14 z-20 py-2 bg-white dark:bg-background shadow-sm">
+        <div className="sticky top-14 z-20 py-2 bg-white shadow-sm dark:bg-background">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
 
