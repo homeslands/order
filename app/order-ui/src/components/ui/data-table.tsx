@@ -212,7 +212,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="flex overflow-x-auto gap-2 items-center py-2 pt-2 whitespace-nowrap sm:max-w-full scrollbar-hide">
+      <div className="flex overflow-x-auto gap-2 justify-end items-center py-2 pt-2 whitespace-nowrap sm:max-w-full scrollbar-hide">
         <div className="flex flex-shrink-0 gap-2 items-center min-w-max">
           {/* Input search */}
           {!hiddenInput && (
