@@ -28,25 +28,17 @@ export const useAllMenus = (q: IAllMenuRequest) => {
   })
 }
 
-export const useSpecificMenu = (
-  query: ISpecificMenuRequest,
-  enabled?: boolean,
-) => {
+export const useSpecificMenu = (query: ISpecificMenuRequest) => {
   return useQuery({
     queryKey: ['specific-menu', query],
     queryFn: async () => getSpecificMenu(query),
-    enabled: !!enabled,
   })
 }
 
-export const usePublicSpecificMenu = (
-  query: ISpecificMenuRequest,
-  enabled?: boolean,
-) => {
+export const usePublicSpecificMenu = (query: ISpecificMenuRequest) => {
   return useQuery({
     queryKey: ['public-specific-menu', query],
     queryFn: async () => getPublicSpecificMenu(query),
-    enabled: !!enabled,
   })
 }
 

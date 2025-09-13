@@ -111,6 +111,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       createOrderWithoutLogin(createOrderRequest, {
         onSuccess: (data) => {
           onSuccess?.()
+
           // ✅ Chuyển sang payment phase với order slug
           transitionToPayment(data.result.slug)
 
