@@ -316,6 +316,8 @@ export class BranchRevenueService {
           totalOrderPoint: '0',
           totalAmountPoint: '0',
           totalAccumulatedPointsToUse: '0',
+          totalAmountCreditCard: '0',
+          totalOrderCreditCard: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -382,6 +384,8 @@ export class BranchRevenueService {
             totalOrderPoint: 0,
             totalAmountPoint: 0,
             totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -400,6 +404,8 @@ export class BranchRevenueService {
         acc[index].totalAmountPoint += item.totalAmountPoint;
         acc[index].totalAccumulatedPointsToUse +=
           item.totalAccumulatedPointsToUse;
+        acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
+        acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -438,6 +444,8 @@ export class BranchRevenueService {
             totalOrderPoint: 0,
             totalAmountPoint: 0,
             totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -456,6 +464,8 @@ export class BranchRevenueService {
         acc[index].totalAmountPoint += item.totalAmountPoint;
         acc[index].totalAccumulatedPointsToUse +=
           item.totalAccumulatedPointsToUse;
+        acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
+        acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -621,7 +631,11 @@ export class BranchRevenueService {
             existedInNewData.totalAmountPoint !==
               existedBranchRevenue.totalAmountPoint ||
             existedInNewData.totalAccumulatedPointsToUse !==
-              existedBranchRevenue.totalAccumulatedPointsToUse
+              existedBranchRevenue.totalAccumulatedPointsToUse ||
+            existedInNewData.totalAmountCreditCard !==
+              existedBranchRevenue.totalAmountCreditCard ||
+            existedInNewData.totalOrderCreditCard !==
+              existedBranchRevenue.totalOrderCreditCard
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -674,6 +688,8 @@ export class BranchRevenueService {
             totalOrderPoint: 0,
             totalAmountPoint: 0,
             totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -877,6 +893,8 @@ export class BranchRevenueService {
           totalOrderPoint: 0,
           totalAmountPoint: 0,
           totalAccumulatedPointsToUse: 0,
+          totalAmountCreditCard: 0,
+          totalOrderCreditCard: 0,
         });
         results.push(revenue);
       }
@@ -946,7 +964,11 @@ export class BranchRevenueService {
           existedBranchRevenue.totalAmountPoint !==
             newBranchRevenue.totalAmountPoint ||
           existedBranchRevenue.totalAccumulatedPointsToUse !==
-            newBranchRevenue.totalAccumulatedPointsToUse
+            newBranchRevenue.totalAccumulatedPointsToUse ||
+          existedBranchRevenue.totalAmountCreditCard !==
+            newBranchRevenue.totalAmountCreditCard ||
+          existedBranchRevenue.totalOrderCreditCard !==
+            newBranchRevenue.totalOrderCreditCard
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -1071,6 +1093,7 @@ export class BranchRevenueService {
       let totalLossAmount = 0;
       let totalAmountPoint = 0;
       let totalAccumulatedPointsToUse = 0;
+      let totalAmountCreditCard = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1165,6 +1188,12 @@ export class BranchRevenueService {
             type: 'data',
             style: cellStyle,
           },
+          {
+            cellPosition: `N${currentRow}`,
+            value: revenue.totalAmountCreditCard,
+            type: 'data',
+            style: cellStyle,
+          },
         );
 
         totalOriginalAmount += revenue.originalAmount;
@@ -1178,6 +1207,7 @@ export class BranchRevenueService {
         totalLossAmount += revenue.lossAmount;
         totalAmountPoint += revenue.totalAmountPoint;
         totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
+        totalAmountCreditCard += revenue.totalAmountCreditCard;
         currentRow++;
       });
 
@@ -1269,6 +1299,12 @@ export class BranchRevenueService {
           type: 'data',
           style: totalRowStyle,
         },
+        {
+          cellPosition: `N${currentRow}`,
+          value: totalAmountCreditCard,
+          type: 'data',
+          style: totalRowStyle,
+        },
       );
 
       return this.fileService.generateExcelFile({
@@ -1346,6 +1382,8 @@ export class BranchRevenueService {
     let totalAmountPoint = 0;
     let totalOrderPoint = 0;
     let totalAccumulatedPointsToUse = 0;
+    let totalAmountCreditCard = 0;
+    let totalOrderCreditCard = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1363,6 +1401,8 @@ export class BranchRevenueService {
       totalAmountPoint += revenue.totalAmountPoint;
       totalOrderPoint += revenue.totalOrderPoint;
       totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
+      totalAmountCreditCard += revenue.totalAmountCreditCard;
+      totalOrderCreditCard += revenue.totalOrderCreditCard;
     });
 
     if (
@@ -1421,6 +1461,8 @@ export class BranchRevenueService {
       totalOrderPoint: totalOrderPoint,
       totalRevenuePoint: totalAmountPoint,
       totalAccumulatedPointsToUse,
+      totalRevenueCreditCard: totalAmountCreditCard,
+      totalOrderCreditCard: totalOrderCreditCard,
     };
 
     const data = await this.pdfService.generatePdf(
