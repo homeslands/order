@@ -189,6 +189,8 @@ export class BranchRevenueScheduler {
           totalOrderPoint: 0,
           totalAmountPoint: 0,
           totalAccumulatedPointsToUse: 0,
+          totalAmountCreditCard: 0,
+          totalOrderCreditCard: 0,
         });
         results.push(revenue);
       }
@@ -199,149 +201,150 @@ export class BranchRevenueScheduler {
 
   // @Cron(CronExpression.EVERY_DAY_AT_1PM)
   // @Timeout(5000)
-  async refreshBranchRevenueWhenEmpty() {
-    await this.mutex.runExclusive(async () => {
-      const context = `${BranchRevenue.name}.${this.refreshBranchRevenueWhenEmpty.name}`;
+  // async refreshBranchRevenueWhenEmpty() {
+  //   await this.mutex.runExclusive(async () => {
+  //     const context = `${BranchRevenue.name}.${this.refreshBranchRevenueWhenEmpty.name}`;
 
-      const yesterdayDate = new Date();
-      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-      yesterdayDate.setHours(7, 0, 0, 0);
+  //     const yesterdayDate = new Date();
+  //     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  //     yesterdayDate.setHours(7, 0, 0, 0);
 
-      // console.log({yesterdayDate})
+  //     // console.log({yesterdayDate})
 
-      const hasBranchRevenues = await this.branchRevenueRepository.find({
-        where: {
-          date: yesterdayDate,
-        },
-      });
-      // console.log({hasBranchRevenues})
-      const branches = await this.branchRepository.find();
-      // console.log({branches})
-      if (_.size(hasBranchRevenues) >= _.size(branches)) {
-        this.logger.log(
-          `Branch revenue for ${yesterdayDate} already exists`,
-          context,
-        );
-        return;
-      }
+  //     const hasBranchRevenues = await this.branchRevenueRepository.find({
+  //       where: {
+  //         date: yesterdayDate,
+  //       },
+  //     });
+  //     // console.log({hasBranchRevenues})
+  //     const branches = await this.branchRepository.find();
+  //     // console.log({branches})
+  //     if (_.size(hasBranchRevenues) >= _.size(branches)) {
+  //       this.logger.log(
+  //         `Branch revenue for ${yesterdayDate} already exists`,
+  //         context,
+  //       );
+  //       return;
+  //     }
 
-      // const branchIdsFromBranchRevenues = _.map(hasBranchRevenues, 'branchId');
-      const branchIdsFromBranchRevenues = hasBranchRevenues.map(
-        (item) => item.branchId,
-      );
-      const branchesDoNotExistBranchRevenues = branches.filter(
-        (item) => !_.includes(branchIdsFromBranchRevenues, item.id),
-      );
+  //     // const branchIdsFromBranchRevenues = _.map(hasBranchRevenues, 'branchId');
+  //     const branchIdsFromBranchRevenues = hasBranchRevenues.map(
+  //       (item) => item.branchId,
+  //     );
+  //     const branchesDoNotExistBranchRevenues = branches.filter(
+  //       (item) => !_.includes(branchIdsFromBranchRevenues, item.id),
+  //     );
 
-      // console.log({branchesDoNotExistBranchRevenues});
+  //     // console.log({branchesDoNotExistBranchRevenues});
 
-      const results: BranchRevenueQueryResponseDto[] =
-        await this.branchRevenueRepository.query(
-          getYesterdayBranchRevenueFromInvoiceClause,
-        );
-      // console.log({results})
+  //     const results: BranchRevenueQueryResponseDto[] =
+  //       await this.branchRevenueRepository.query(
+  //         getYesterdayBranchRevenueFromInvoiceClause,
+  //       );
+  //     // console.log({results})
 
-      const branchRevenueQueryResponseDtos = plainToInstance(
-        BranchRevenueQueryResponseDto,
-        results,
-      );
-      // console.log({branchRevenueQueryResponseDtos})
+  //     const branchRevenueQueryResponseDtos = plainToInstance(
+  //       BranchRevenueQueryResponseDto,
+  //       results,
+  //     );
+  //     // console.log({branchRevenueQueryResponseDtos})
 
-      const revenues = branchRevenueQueryResponseDtos.map((item) => {
-        return this.mapper.map(
-          item,
-          BranchRevenueQueryResponseDto,
-          BranchRevenue,
-        );
-      });
-      // console.log({revenues})
+  //     const revenues = branchRevenueQueryResponseDtos.map((item) => {
+  //       return this.mapper.map(
+  //         item,
+  //         BranchRevenueQueryResponseDto,
+  //         BranchRevenue,
+  //       );
+  //     });
+  //     // console.log({revenues})
 
-      const newBranchRevenues: BranchRevenue[] =
-        await this.getBranchRevenuesToCreate(
-          branchesDoNotExistBranchRevenues,
-          revenues,
-          yesterdayDate,
-        );
+  //     const newBranchRevenues: BranchRevenue[] =
+  //       await this.getBranchRevenuesToCreate(
+  //         branchesDoNotExistBranchRevenues,
+  //         revenues,
+  //         yesterdayDate,
+  //       );
 
-      const queryRunner = this.dataSource.createQueryRunner();
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
+  //     const queryRunner = this.dataSource.createQueryRunner();
+  //     await queryRunner.connect();
+  //     await queryRunner.startTransaction();
 
-      try {
-        await queryRunner.manager.save(newBranchRevenues);
-        await queryRunner.commitTransaction();
-        this.logger.log(
-          `Revenue ${new Date().toISOString()} created successfully`,
-          context,
-        );
-      } catch (error) {
-        await queryRunner.rollbackTransaction();
-        this.logger.error(
-          `Error when creating branch revenues: ${JSON.stringify(error)}`,
-          error.stack,
-          context,
-        );
-        throw new BranchRevenueException(
-          BranchRevenueValidation.CREATE_BRANCH_REVENUE_ERROR,
-          error.message,
-        );
-      } finally {
-        await queryRunner.release();
-      }
-    });
-  }
+  //     try {
+  //       await queryRunner.manager.save(newBranchRevenues);
+  //       await queryRunner.commitTransaction();
+  //       this.logger.log(
+  //         `Revenue ${new Date().toISOString()} created successfully`,
+  //         context,
+  //       );
+  //     } catch (error) {
+  //       await queryRunner.rollbackTransaction();
+  //       this.logger.error(
+  //         `Error when creating branch revenues: ${JSON.stringify(error)}`,
+  //         error.stack,
+  //         context,
+  //       );
+  //       throw new BranchRevenueException(
+  //         BranchRevenueValidation.CREATE_BRANCH_REVENUE_ERROR,
+  //         error.message,
+  //       );
+  //     } finally {
+  //       await queryRunner.release();
+  //     }
+  //   });
+  // }
 
-  async getBranchRevenuesToCreate(
-    branchesDoNotExistBranchRevenues: Branch[],
-    revenues: BranchRevenue[],
-    yesterdayDate: Date,
-  ): Promise<BranchRevenue[]> {
-    const newBranchRevenues: BranchRevenue[] = [];
+  // async getBranchRevenuesToCreate(
+  //   branchesDoNotExistBranchRevenues: Branch[],
+  //   revenues: BranchRevenue[],
+  //   yesterdayDate: Date,
+  // ): Promise<BranchRevenue[]> {
+  //   const newBranchRevenues: BranchRevenue[] = [];
 
-    for (const branch of branchesDoNotExistBranchRevenues) {
-      const matchRevenue = revenues.find((item) => item.branchId === branch.id);
+  //   for (const branch of branchesDoNotExistBranchRevenues) {
+  //     const matchRevenue = revenues.find((item) => item.branchId === branch.id);
 
-      if (matchRevenue) {
-        const startDate = moment(matchRevenue.date).startOf('days').toDate();
-        const endDate = moment(matchRevenue.date).endOf('day').toDate();
-        const { minReferenceNumberOrder, maxReferenceNumberOrder } =
-          await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
-            matchRevenue.branchId,
-            startDate,
-            endDate,
-          );
-        Object.assign(matchRevenue, {
-          minReferenceNumberOrder,
-          maxReferenceNumberOrder,
-        });
-        newBranchRevenues.push(matchRevenue);
-      } else {
-        const revenue = new BranchRevenue();
-        Object.assign(revenue, {
-          totalAmount: 0,
-          totalOrder: 0,
-          minReferenceNumberOrder: 0,
-          maxReferenceNumberOrder: 0,
-          totalOrderCash: 0,
-          totalOrderBank: 0,
-          totalOrderInternal: 0,
-          totalAmountBank: 0,
-          totalAmountCash: 0,
-          totalAmountInternal: 0,
-          originalAmount: 0,
-          voucherAmount: 0,
-          promotionAmount: 0,
-          date: yesterdayDate,
-          branchId: branch.id,
-          totalAccumulatedPointsToUse: 0,
-        });
-        newBranchRevenues.push(revenue);
-      }
-    }
+  //     if (matchRevenue) {
+  //       const startDate = moment(matchRevenue.date).startOf('days').toDate();
+  //       const endDate = moment(matchRevenue.date).endOf('day').toDate();
+  //       const { minReferenceNumberOrder, maxReferenceNumberOrder } =
+  //         await this.orderUtils.getMinAndMaxReferenceNumberForBranch(
+  //           matchRevenue.branchId,
+  //           startDate,
+  //           endDate,
+  //         );
+  //       Object.assign(matchRevenue, {
+  //         minReferenceNumberOrder,
+  //         maxReferenceNumberOrder,
+  //       });
+  //       newBranchRevenues.push(matchRevenue);
+  //     } else {
+  //       const revenue = new BranchRevenue();
+  //       Object.assign(revenue, {
+  //         totalAmount: 0,
+  //         totalOrder: 0,
+  //         minReferenceNumberOrder: 0,
+  //         maxReferenceNumberOrder: 0,
+  //         totalOrderCash: 0,
+  //         totalOrderBank: 0,
+  //         totalOrderInternal: 0,
+  //         totalAmountBank: 0,
+  //         totalAmountCash: 0,
+  //         totalAmountInternal: 0,
+  //         originalAmount: 0,
+  //         voucherAmount: 0,
+  //         promotionAmount: 0,
+  //         date: yesterdayDate,
+  //         branchId: branch.id,
+  //         totalAmountCreditCard: 0,
+  //         totalOrderCreditCard: 0,
+  //       });
+  //       newBranchRevenues.push(revenue);
+  //     }
+  //   }
 
-    // console.log({newBranchRevenues});
-    return newBranchRevenues;
-  }
+  //   // console.log({newBranchRevenues});
+  //   return newBranchRevenues;
+  // }
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async refreshBranchRevenueAnyWhen() {
