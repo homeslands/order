@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
+
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemHorizontalCatalogSelect, SystemTableSelect } from '../select'
 import { SystemMenuTabscontent } from '../tabscontent'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { FilterState, OrderTypeEnum } from '@/types'
-import moment from 'moment'
 import { useSpecificMenu } from '@/hooks'
 
 export function SystemMenuTabs() {
@@ -27,7 +28,7 @@ export function SystemMenuTabs() {
     catalog: catalog?.slug,
     productName: '',
   })
-  const { data: specificMenu, isLoading } = useSpecificMenu(filters)
+  const { data: specificMenu, isLoading } = useSpecificMenu(filters, !!userInfo?.slug)
   const specificMenuResult = specificMenu?.result;
 
   useEffect(() => {
@@ -74,7 +75,7 @@ export function SystemMenuTabs() {
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange}>
       {/* TabsList luôn sticky */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-2 bg-white dark:bg-background shadow-sm">
+      <div className="flex sticky top-0 z-20 flex-wrap gap-4 items-center py-2 bg-white shadow-sm dark:bg-background">
         <TabsList className="grid grid-cols-2 gap-3 sm:grid-cols-5 xl:grid-cols-6">
           {cartItems?.type === OrderTypeEnum.AT_TABLE && (
             <TabsTrigger value="table" className="flex justify-center">
@@ -95,9 +96,9 @@ export function SystemMenuTabs() {
       )}
 
       {/* Tab Content: Menu */}
-      <TabsContent value="menu" className="w-full p-0 pb-4 mt-0">
+      <TabsContent value="menu" className="p-0 pb-4 mt-0 w-full">
         {/* Sticky CatalogSelect chỉ trong tab này */}
-        <div className="sticky z-20 w-full py-2 overflow-x-auto bg-white dark:bg-background top-14">
+        <div className="overflow-x-auto sticky top-14 z-20 py-2 w-full bg-white dark:bg-background">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
         </div>
 
