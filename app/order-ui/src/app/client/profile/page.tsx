@@ -4,22 +4,25 @@ import { Coins, EyeIcon, EyeOffIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { ProfilePicture } from '@/components/app/avatar'
-import { useUploadProfilePicture, useGetUserBalance } from '@/hooks'
+import { useUploadProfilePicture, useGetUserBalance, useLoyaltyPoints } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { publicFileURL } from '@/constants'
-import { formatCurrency, showToast } from '@/utils'
+import { formatCurrency, formatPoints, showToast } from '@/utils'
 import { CustomerProfileTabs } from '@/components/app/tabs'
 
 export default function ProfilePage() {
   const { t } = useTranslation(['profile', 'toast'])
+  const { t: tLoyaltyPoint } = useTranslation('loyaltyPoint')
   const { t: tHelmet } = useTranslation('helmet')
   const { userInfo, setUserInfo } = useUserStore()
+  const { data: pointsData } = useLoyaltyPoints(userInfo?.slug ?? '')
   const { mutate: uploadProfilePicture } = useUploadProfilePicture()
   const fullname = userInfo?.firstName + ' ' + userInfo?.lastName
   const [showBalance, setShowBalance] = useState(true)
 
   const { data: balanceData } = useGetUserBalance(userInfo?.slug)
   const balance = balanceData?.result?.points || 0
+  const points = pointsData?.totalPoints || 0
 
   const handleUploadProfilePicture = (file: File) => {
     uploadProfilePicture(file, {
@@ -35,64 +38,71 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container py-10 mx-auto">
       <Helmet>
         <meta charSet="utf-8" />
         <title>{tHelmet('helmet.profile.title')}</title>
         <meta name="description" content={tHelmet('helmet.profile.title')} />
       </Helmet>
-      <div className="flex flex-col items-start gap-6 lg:flex-row">
+      <div className="flex flex-col gap-6 items-start lg:flex-row">
         {/* Profile picture */}
-        <div
-          className={`flex flex-col justify-between w-full bg-white rounded-sm dark:border dark:bg-transparent lg:w-1/4`}
-        >
-          <div className="flex flex-row p-4">
-            <ProfilePicture
-              height={70}
-              width={70}
-              src={
-                userInfo?.image
-                  ? `${publicFileURL}/${userInfo?.image}`
-                  : 'https://github.com/shadcn.png'
-              }
-              onUpload={handleUploadProfilePicture}
-            />
-            <div className="ml-4 flex flex-col justify-center">
-              <span className="font-bold dark:text-white">{fullname}</span>
-              <div className="text-description flex items-center text-[13px] dark:text-gray-300">
-                {userInfo?.phonenumber}
+        <div className='flex flex-col gap-2 w-full lg:w-1/4'>
+          <div
+            className={`flex flex-col justify-between w-full bg-white rounded-sm dark:border dark:bg-transparent`}
+          >
+            <div className="flex flex-row p-4">
+              <ProfilePicture
+                height={70}
+                width={70}
+                src={
+                  userInfo?.image
+                    ? `${publicFileURL}/${userInfo?.image}`
+                    : 'https://github.com/shadcn.png'
+                }
+                onUpload={handleUploadProfilePicture}
+              />
+              <div className="flex flex-col justify-center ml-4">
+                <span className="font-bold dark:text-white">{fullname}</span>
+                <div className="text-description flex items-center text-[13px] dark:text-gray-300">
+                  {userInfo?.phonenumber}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="bg-gradient-to-r from-orange-100 to-amber-50 px-6 py-4 dark:from-orange-900/40 dark:to-amber-800/30">
-            <h3 className="m-0 flex flex-wrap items-center gap-3 text-[13px] font-semibold">
-              <div className="flex flex-row items-center gap-2">
-                <span className="text-gray-700 dark:text-gray-300">
-                  {t('profile.coinBalance')}:
-                </span>
-                <span className="text-[13px] font-bold tracking-tight text-primary dark:text-orange-300">
-                  {showBalance ? formatCurrency(balance, '') : '••••••••'}
-                </span>
-                {showBalance && (
-                  <Coins className="text-primary dark:text-orange-300" />
-                )}
-                <button
-                  onClick={toggleBalanceVisibility}
-                  className="text-primary hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors ml-1"
-                  aria-label={
-                    showBalance
-                      ? t('profile.hideBalance')
-                      : t('profile.showBalance')
-                  }
-                >
-                  {showBalance ? (
-                    <EyeOffIcon className="w-4 h-4 text-primary" />
-                  ) : (
-                    <EyeIcon className="w-4 h-4 text-primary" />
+            <div className="px-6 py-4 bg-gradient-to-r from-orange-100 to-amber-50 dark:from-orange-900/40 dark:to-amber-800/30">
+              <h3 className="m-0 flex flex-wrap items-center gap-3 text-[13px] font-semibold">
+                <div className="flex flex-row gap-2 items-center">
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t('profile.coinBalance')}:
+                  </span>
+                  <span className="text-[13px] font-bold tracking-tight text-primary dark:text-orange-300">
+                    {showBalance ? formatCurrency(balance, '') : '••••••••'}
+                  </span>
+                  {showBalance && (
+                    <Coins className="text-primary dark:text-orange-300" />
                   )}
-                </button>
-              </div>
-            </h3>
+                  <button
+                    onClick={toggleBalanceVisibility}
+                    className="ml-1 transition-colors text-primary hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    aria-label={
+                      showBalance
+                        ? t('profile.hideBalance')
+                        : t('profile.showBalance')
+                    }
+                  >
+                    {showBalance ? (
+                      <EyeOffIcon className="w-4 h-4 text-primary" />
+                    ) : (
+                      <EyeIcon className="w-4 h-4 text-primary" />
+                    )}
+                  </button>
+                </div>
+              </h3>
+            </div>
+          </div>
+          <div className="flex flex-row gap-2 items-center px-6 py-4 bg-gradient-to-r from-orange-100 to-amber-50 dark:from-orange-900/40 dark:to-amber-800/30">
+            <span className="text-[13px] tracking-tight">
+              {t('profile.points.points')}: <span className="text-primary dark:text-orange-300">{formatPoints(points)} {' '} ({tLoyaltyPoint('loyaltyPoint.pointWithCurrency', { points: formatPoints(points) })})</span>
+            </span>
           </div>
         </div>
         {/* Info */}

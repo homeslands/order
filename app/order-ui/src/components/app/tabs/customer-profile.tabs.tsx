@@ -7,6 +7,7 @@ import {
   CustomerInfoTabsContent,
   CustomerCoinTabsContent,
   CustomerGiftCardTabsContent,
+  CustomerLoyaltyPointTabsContent,
 } from '@/components/app/tabscontent'
 import CustomerOrderTabs from './customer-order.tabs'
 
@@ -27,7 +28,7 @@ export function CustomerProfileTabs() {
 
   return (
     <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="scrollbar-hide mb-6 flex h-full w-full !justify-start gap-3 overflow-x-auto border-b lg:mb-0">
+      <TabsList className="scrollbar-hide mb-6 flex h-full w-full !justify-start gap-3 overflow-x-auto lg:mb-0">
         <TabsTrigger
           value="info"
           className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3"
@@ -35,16 +36,16 @@ export function CustomerProfileTabs() {
           {t('profile.generalInfo')}
         </TabsTrigger>
         <TabsTrigger
-          value="notification"
-          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
-        >
-          {t('profile.notification')}
-        </TabsTrigger>
-        <TabsTrigger
           value="history"
           className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.history')}
+        </TabsTrigger>
+        <TabsTrigger
+          value="loyalty-point"
+          className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
+        >
+          {t('profile.loyaltyPoints')}
         </TabsTrigger>
         <TabsTrigger
           value="coin"
@@ -57,21 +58,21 @@ export function CustomerProfileTabs() {
           className="min-w-[100px] flex-shrink-0 justify-center whitespace-nowrap px-3 text-center dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:text-white"
         >
           {t('profile.giftCard.defaultTitle')}
-          </TabsTrigger>
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="info" className="w-full p-0 dark:text-gray-200">
+      <TabsContent value="info" className="p-0 w-full dark:text-gray-200">
         <CustomerInfoTabsContent />
       </TabsContent>
-      {/* <TabsContent value="notification" className="w-full p-0">
-        <CustomerNotificationTabsContent />
-      </TabsContent> */}
-      <TabsContent value="history" className="w-full p-0">
+      <TabsContent value="loyalty-point" className="p-0 w-full dark:text-gray-200">
+        <CustomerLoyaltyPointTabsContent />
+      </TabsContent>
+      <TabsContent value="history" className="p-0 w-full">
         <CustomerOrderTabs />
       </TabsContent>
-      <TabsContent value="coin" className="w-full p-0 dark:text-gray-200">
+      <TabsContent value="coin" className="p-0 w-full dark:text-gray-200">
         <CustomerCoinTabsContent />
       </TabsContent>
-      <TabsContent value="gift-card" className="w-full p-0 dark:text-gray-200">
+      <TabsContent value="gift-card" className="p-0 w-full dark:text-gray-200">
         <CustomerGiftCardTabsContent />
       </TabsContent>
     </Tabs>

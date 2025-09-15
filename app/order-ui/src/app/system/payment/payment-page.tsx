@@ -19,8 +19,8 @@ import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
 import { StaffRemoveVoucherWhenPayingDialog } from '@/components/app/dialog';
-import { VoucherListSheetInPayment } from '@/components/app/sheet';
-import { StaffPaymentMethodSelect } from '@/components/app/select';
+import { StaffVoucherListSheetInPayment } from '@/components/app/sheet';
+import { StaffLoyaltyPointSelector, StaffPaymentMethodSelect } from '@/components/app/select';
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -31,6 +31,7 @@ export default function PaymentPage() {
   const navigate = useNavigate()
   const { mutate: getOrderProvisionalBill, isPending: isPendingGetOrderProvisionalBill } = useGetOrderProvisionalBill()
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
+  const ownerSlug = order?.result?.owner?.firstName !== 'Default' ? order?.result?.owner?.slug : null
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
   const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
@@ -569,37 +570,35 @@ export default function PaymentPage() {
                   key={item.slug}
                   className="grid gap-4 items-center p-4 pb-4 w-full border-b"
                 >
-                  <div className="grid flex-row grid-cols-4 items-center w-full">
-                    <div className="flex col-span-1 gap-2 w-full">
-                      <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
-                        <span className="text-[12px] sm:text-sm lg:text-base font-bold truncate text-wrap w-full">
-                          {item.variant.product.name}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex col-span-1 items-center">
-                      {(() => {
-                        const displayItem = displayItems.find(di => di.slug === item.slug)
-                        const original = item.variant.price || 0
-                        const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                        const finalPrice = displayItem?.finalPrice || 0
+                  {(() => {
+                    const displayItem = displayItems.find(di => di.slug === item.slug)
+                    const original = item.variant.price || 0
+                    const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                    const finalPrice = displayItem?.finalPrice || 0
 
-                        const isSamePriceVoucher =
-                          voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                          voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+                    const isSamePriceVoucher =
+                      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                      voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
 
-                        const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                    const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                        const displayPrice = isSamePriceVoucher
-                          ? finalPrice
-                          : hasPromotionDiscount
-                            ? priceAfterPromotion
-                            : original
-
-                        const shouldShowLineThrough =
-                          isSamePriceVoucher || hasPromotionDiscount
-
-                        return (
+                    const displayPrice = isSamePriceVoucher
+                      ? finalPrice
+                      : hasPromotionDiscount
+                        ? priceAfterPromotion
+                        : original
+                    const shouldShowLineThrough =
+                      isSamePriceVoucher || hasPromotionDiscount
+                    return (
+                      <div className="grid flex-row grid-cols-4 items-center w-full">
+                        <div className="flex col-span-1 gap-2 w-full">
+                          <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
+                            <span className="text-[12px] sm:text-sm lg:text-base font-bold truncate text-wrap w-full">
+                              {item.variant.product.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex col-span-1 items-center">
                           <div className="flex gap-1 items-center">
                             {shouldShowLineThrough && original !== finalPrice && (
                               <span className="text-sm line-through text-muted-foreground">
@@ -610,20 +609,20 @@ export default function PaymentPage() {
                               {formatCurrency(displayPrice)}
                             </span>
                           </div>
-                        )
-                      })()}
-                    </div>
-                    <div className="flex col-span-1 justify-center">
-                      <span className="text-sm">
-                        {item.quantity || 0}
-                      </span>
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <span className="text-sm">
-                        {`${formatCurrency((item.subtotal || 0))}`}
-                      </span>
-                    </div>
-                  </div>
+                        </div>
+                        <div className="flex col-span-1 justify-center">
+                          <span className="text-sm">
+                            {item.quantity || 0}
+                          </span>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          <span className="text-sm">
+                            {`${formatCurrency((original || 0))}`}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })()}
                   {item.note && (
                     <div className="grid grid-cols-9 items-center w-full text-sm">
                       <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
@@ -639,7 +638,7 @@ export default function PaymentPage() {
                       {t('order.total')}
                     </h3>
                     <p className="text-sm font-semibold">
-                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
+                      {`${formatCurrency(order?.result.originalSubtotal || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full">
@@ -658,7 +657,15 @@ export default function PaymentPage() {
                       - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex justify-between py-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-primary">
+                      {t('order.loyaltyPoint')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-primary">
+                      - {`${formatCurrency(order.result.accumulatedPointsToUse || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex flex-col py-4">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">
                         {t('order.totalPayment')}
@@ -672,7 +679,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <VoucherListSheetInPayment onSuccess={() => {
+            <StaffVoucherListSheetInPayment onSuccess={() => {
               refetchOrder().then(() => {
                 // Re-initialize payment with updated order data after voucher update
                 if (slug) {
@@ -751,6 +758,22 @@ export default function PaymentPage() {
               total={order.result ? order.result.subtotal : 0}
               onSubmit={handleSelectPaymentMethod}
             />
+            {order?.result.owner.firstName !== 'Default' && order?.result.owner.role.name === Role.CUSTOMER && (
+              <StaffLoyaltyPointSelector
+                usedPoints={order.result.accumulatedPointsToUse}
+                orderSlug={slug ?? ''}
+                ownerSlug={ownerSlug ?? null}
+                total={order.result.subtotal}
+                onSuccess={() => {
+                  refetchOrder().then(() => {
+                    // Re-initialize payment with updated order data after voucher update
+                    if (slug) {
+                      initializePayment(slug, paymentMethod as PaymentMethod)
+                    }
+                  })
+                }}
+              />
+            )}
           </div>
         )}
         <div className="flex flex-wrap-reverse gap-2 justify-between px-2 py-6">

@@ -90,6 +90,7 @@
     "userManagement": "Employee Management",
     "voucher": "Voucher",
     "voucherGroup": "Voucher Group",
-    "cardOrderManagement": "Card Order Management"
+    "cardOrderManagement": "Card Order Management",
+    "loyaltyPoint": "Accumulated Point"
   }
 }

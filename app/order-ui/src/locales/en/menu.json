@@ -247,6 +247,7 @@
     "slug": "Order ID",
     "status": "Status",
     "subtotal": "Subtotal",
+    "loyaltyPoint": "Loyalty point",
     "subTotal": "Subtotal",
     "subtotalBeforeDiscount": "Original Total Price",
     "table": "Table",
@@ -314,7 +315,8 @@
     "userInfo": "Customer information",
     "voucherNotCompatible": "This voucher only supports",
     "butYouCanUse": "but you can only use",
-    "voucherNotSupport": "Voucher not supported"
+    "voucherNotSupport": "Voucher not supported",
+    "loyaltyPointEarningNote": "After payment is successful, loyalty points will be added to the account."
   },
   "table": {
     "title": "Table list"

@@ -127,8 +127,8 @@ export function CustomerCoinTabsContent() {
               .map((_, index) => (
                 <Card key={index} className="animate-pulse">
                   <CardContent className="p-4">
-                    <div className="mb-2 h-4 rounded bg-gray-200"></div>
-                    <div className="h-8 rounded bg-gray-200"></div>
+                    <div className="mb-2 h-4 bg-gray-200 rounded"></div>
+                    <div className="h-8 bg-gray-200 rounded"></div>
                   </CardContent>
                 </Card>
               ))}
@@ -188,7 +188,7 @@ export function CustomerCoinTabsContent() {
               className={`border ${item.border} ${item.bg} shadow-sm transition-shadow hover:shadow-md`}
             >
               <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center">
                   <div className="flex-1">
                     <p
                       className={`mb-1 text-xs font-medium text-gray-600 dark:text-gray-400 ${isMobile ? 'text-[10px]' : ''}`}
@@ -200,7 +200,7 @@ export function CustomerCoinTabsContent() {
                     >
                       <span>{formatCurrency(Math.abs(item.value), '')}</span>
                       <CoinsIcon
-                        className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-primary`}
+                        className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-primary`}
                       />
                     </div>
                   </div>
@@ -253,21 +253,20 @@ export function CustomerCoinTabsContent() {
     return (
       <TransactionGiftCardDetailDialog transaction={transaction}>
         <div
-          className={`mb-3 cursor-pointer rounded-md px-2 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md ${bgClass} ${borderClass}`}
+          className={`px-2 py-3 mb-3 rounded-md shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md ${bgClass} ${borderClass}`}
         >
           <div
-            className={`${amountClass} mb-2 flex items-center text-lg font-bold`}
+            className={`flex items-center mb-2 text-lg font-bold ${amountClass}`}
           >
             <span
-              className={`mr-1 rounded-full p-1 ${
-                isAdd
+              className={`mr-1 rounded-full p-1 ${isAdd
                   ? isGiftCard
-                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    ? 'text-purple-700 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-300'
                   : isOrder
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-              }`}
+                    ? 'text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-300'
+                }`}
             >
               {getTransactionIcon()}
             </span>
@@ -275,7 +274,7 @@ export function CustomerCoinTabsContent() {
             <span className={`${isMobile ? 'text-sm' : 'text-lg'}`}>
               {formatCurrency(Math.abs(transaction.points), '')}
             </span>
-            <CoinsIcon className="ml-1 h-5 w-5 text-primary" />
+            <CoinsIcon className="ml-1 w-5 h-5 text-primary" />
           </div>
 
           <div
@@ -290,9 +289,9 @@ export function CustomerCoinTabsContent() {
             style={{ width: '13rem' }}
             variant="light"
           />
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between items-center">
             <div
-              className={`mt-1 flex w-full items-center text-[10px] text-gray-500 dark:text-gray-400`}
+              className={`flex items-center mt-1 w-full text-gray-500 text-[10px] dark:text-gray-400`}
             >
               <Clock size={12} className="mr-1" />
               {moment(transaction.createdAt).format('HH:mm:ss DD/MM/YYYY')}
@@ -306,7 +305,7 @@ export function CustomerCoinTabsContent() {
                 exportTransaction(transaction.slug)
               }}
               disabled={exportingTransactionSlug === transaction.slug}
-              className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-0 w-8 h-8 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <Download
                 size={14}
@@ -329,11 +328,11 @@ export function CustomerCoinTabsContent() {
         <CardHeader
           className={`${isMobile ? 'px-3 py-2' : 'px-6 py-4'} bg-gray-50 dark:bg-gray-800/50`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-2 justify-between items-center">
             <CardTitle
               className={`${isMobile ? 'text-sm' : 'text-lg'} flex items-center gap-2`}
             >
-              <span className="rounded-full bg-orange-100 p-1 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+              <span className="p-1 text-orange-600 bg-orange-100 rounded-full dark:bg-orange-900/30 dark:text-orange-300">
                 <Tag size={isMobile ? 16 : 18} />
               </span>
               {t('profile.coinTransactions')}
@@ -379,7 +378,7 @@ export function CustomerCoinTabsContent() {
           {/* Filter Panel */}
           <Collapsible open={isFilterOpen}>
             <CollapsibleContent className="mt-4">
-              <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
+              <div className="p-4 bg-white rounded-lg border shadow-sm dark:bg-gray-800">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   {/* Date From */}
                   <div className="space-y-2">
@@ -439,14 +438,14 @@ export function CustomerCoinTabsContent() {
                 </div>
 
                 {/* Filter Actions */}
-                <div className="mt-4 flex gap-2">
+                <div className="flex gap-2 mt-4">
                   <Button
                     onClick={handleClearFilter}
                     variant="outline"
                     size="sm"
                     disabled={!hasActiveFilters}
                   >
-                    <X className="mr-2 h-4 w-4" />
+                    <X className="mr-2 w-4 h-4" />
                     {t('profile.clearFilter')}
                   </Button>
                 </div>
@@ -467,9 +466,9 @@ export function CustomerCoinTabsContent() {
               ))
           ) : isError ? (
             // Error state
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="mb-4 rounded-full bg-red-100 p-3 dark:bg-red-900/30">
-                <Coins className="h-8 w-8 text-red-400" />
+            <div className="flex flex-col justify-center items-center py-10 text-center">
+              <div className="p-3 mb-4 bg-red-100 rounded-full dark:bg-red-900/30">
+                <Coins className="w-8 h-8 text-red-400" />
               </div>
               <h3 className="mb-2 text-lg font-medium">
                 {t('profile.errorLoadingTransactions')}
@@ -480,9 +479,9 @@ export function CustomerCoinTabsContent() {
             </div>
           ) : transactions.length === 0 ? (
             // Empty state
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="mb-4 rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <Coins className="h-8 w-8 text-gray-400" />
+            <div className="flex flex-col justify-center items-center py-10 text-center">
+              <div className="p-3 mb-4 bg-gray-100 rounded-full dark:bg-gray-800">
+                <Coins className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="mb-2 text-lg font-medium">
                 {t('profile.noTransactions')}
@@ -514,7 +513,7 @@ export function CustomerCoinTabsContent() {
 
               {/* End of list message */}
               {!hasNextPage && transactions.length > 0 && (
-                <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="py-4 text-sm text-center text-gray-500 dark:text-gray-400">
                   {t('profile.noMoreTransactions')}
                 </div>
               )}

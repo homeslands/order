@@ -7,7 +7,7 @@ import { Badge, ScrollArea } from '@/components/ui'
 import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, OrderStatus, OrderTypeEnum } from '@/types'
-import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
+import { ClientVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './client-update-quantity'
 import { useOrderFlowStore } from '@/stores'
@@ -168,7 +168,7 @@ export default function ClientUpdateOrderContent({
                     <div className='space-y-1'>
                         <div className="flex flex-col">
                             <OrderNoteInUpdateOrderInput order={updatingData?.updateDraft} />
-                            <StaffVoucherListSheetInUpdateOrderWithLocalStorage />
+                            <ClientVoucherListSheetInUpdateOrderWithLocalStorage />
                         </div>
 
                         <div>

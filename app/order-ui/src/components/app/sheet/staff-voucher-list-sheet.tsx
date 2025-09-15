@@ -51,7 +51,6 @@ export default function StaffVoucherListSheet() {
   const { t: tToast } = useTranslation('toast')
   const { userInfo } = useUserStore()
   const { getCartItems, addVoucher, removeVoucher } = useOrderFlowStore()
-  const { getUserInfo } = useUserStore()
   const { mutate: validateVoucher } = useValidateVoucher()
   const { pagination } = usePagination()
   const isRemovingVoucherRef = useRef(false)
@@ -75,10 +74,11 @@ export default function StaffVoucherListSheet() {
     )
   }, [cartItems?.voucher?.slug, appliedVoucher])
 
+  // 1. Owner là khách hàng có tài khoản (Lấy theo userInfo của nhân viên)
   const isCustomerOwner =
-    sheetOpen &&
-    !!cartItems?.owner && // Check khác null, undefined, ""
-    cartItems.ownerRole === Role.CUSTOMER;
+    !!cartItems?.owner &&
+    cartItems.ownerRole === Role.CUSTOMER &&
+    cartItems.ownerPhoneNumber !== 'default-customer';
 
   const { data: voucherList } = useVouchersForOrder(
     isCustomerOwner
@@ -117,7 +117,7 @@ export default function StaffVoucherListSheet() {
         // Apply voucher
         const validateVoucherParam: IValidateVoucherRequest = {
           voucher: voucher.slug,
-          user: cartItems.owner || getUserInfo()?.slug || '',
+          user: isCustomerOwner ? cartItems.owner || '' : userInfo?.slug || '',
           orderItems: cartItems?.orderItems.map(item => ({
             quantity: item.quantity,
             variant: item.variant.slug,
@@ -142,7 +142,7 @@ export default function StaffVoucherListSheet() {
         })
       }
     }
-  }, [cartItems, getUserInfo, removeVoucher, addVoucher, setAppliedVoucher, setSelectedVoucher, setSheetOpen, tToast, validateVoucher, isVoucherSelected])
+  }, [cartItems, removeVoucher, addVoucher, setAppliedVoucher, setSelectedVoucher, setSheetOpen, tToast, validateVoucher, isVoucherSelected, isCustomerOwner, userInfo?.slug])
 
   // Auto-check voucher validity when orderItems change
   useEffect(() => {
