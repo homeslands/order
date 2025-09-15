@@ -157,10 +157,15 @@ export default function OrderHistoryDetailSheet({
                       {t('order.orderType')}
                     </div>
                     <div className="px-3 py-2 text-sm">
-                      <p className="font-bold">
-                        {orderDetail?.type === OrderTypeEnum.AT_TABLE
-                          ? t('order.dineIn')
-                          : t('order.takeAway')} - {orderDetail?.timeLeftTakeOut && t('menu.waiting')} {orderDetail?.timeLeftTakeOut} {t('menu.minutes')}
+                      <p className="col-span-1 text-sm font-bold">
+                        <p className="col-span-1 text-sm">
+                          {orderDetail?.type === OrderTypeEnum.AT_TABLE
+                            ? t('order.dineIn')
+                            : `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
+                              ? t('menu.immediately')
+                              : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
+                            }`}
+                        </p>
                       </p>
                       {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
                         <p className="flex gap-1 text-muted-foreground">
