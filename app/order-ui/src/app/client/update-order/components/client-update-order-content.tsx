@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Badge, ScrollArea } from '@/components/ui'
-import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect } from '@/components/app/select'
+import { ClientTableSelectInUpdateOrder, OrderTypeInUpdateOrderSelect, PickupTimeSelectInUpdateOrder } from '@/components/app/select'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, OrderStatus, OrderTypeEnum } from '@/types'
 import { ClientVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
@@ -50,9 +50,13 @@ export default function ClientUpdateOrderContent({
                     <div className="w-full">
                         <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
                     </div>
-                    {orderType === OrderTypeEnum.AT_TABLE && (
+                    {orderType === OrderTypeEnum.AT_TABLE ? (
                         <div className='my-5 w-full'>
                             <ClientTableSelectInUpdateOrder tableOrder={updatingData?.originalOrder?.table} orderType={orderType} />
+                        </div>
+                    ) : (
+                        <div className='my-5 w-full'>
+                            <PickupTimeSelectInUpdateOrder orderType={orderType} pickupTime={updatingData?.originalOrder?.timeLeftTakeOut} />
                         </div>
                     )}
                 </div>

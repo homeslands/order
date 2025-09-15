@@ -12,7 +12,6 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableHeader,
   TableRow,
   Textarea,
 } from '@/components/ui'
@@ -129,7 +128,7 @@ export default function OrderHistoryPage() {
                   <p>
                     {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
                       ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
-                      : t('order.takeAway')}{' '}
+                      : t('order.takeAway')}{' '} - {orderDetail?.result?.timeLeftTakeOut && t('menu.waiting')}{' '}{orderDetail?.result?.timeLeftTakeOut} {t('menu.minutes')}
                   </p>
                 </div>
               </div>
@@ -138,14 +137,6 @@ export default function OrderHistoryPage() {
             <div className="overflow-x-auto pb-4 bg-white rounded-sm border dark:bg-transparent">
               <Table className="min-w-full table-auto">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
-                {/* Header */}
-                <TableHeader className="rounded bg-muted-foreground/10">
-                  {/* <TableRow>
-                    <TableHead className="w-3/4 text-left">{t('order.product')}</TableHead>
-                    <TableHead className="w-1/4 text-right bg-red-200">{t('order.grandTotal')}</TableHead>
-                  </TableRow> */}
-                </TableHeader>
-
                 {/* Body */}
                 <TableBody>
                   {orderInfo?.orderItems?.map((item) => {
