@@ -8,15 +8,15 @@ import { useCatalogs, useSpecificMenu } from '@/hooks'
 import { ProductDetailSkeleton } from '@/components/app/skeleton'
 import { MenuItemCard } from './components'
 import { AddMenuItemSheet } from '@/components/app/sheet'
+import { useUserStore } from '@/stores'
 
 export default function MenuDetailManagementPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
   const { slug } = useParams()
   const { data: catalogs } = useCatalogs()
-  const { data: menuDetail, isLoading, refetch } = useSpecificMenu({
-    slug: slug as string,
-  })
+  const { userInfo } = useUserStore()
+  const { data: menuDetail, isLoading, refetch } = useSpecificMenu({ slug: slug as string }, !!userInfo?.slug)
 
   const menuDetailData = menuDetail?.result
 
