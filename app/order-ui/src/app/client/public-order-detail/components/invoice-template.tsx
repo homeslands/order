@@ -69,9 +69,15 @@ export default function Invoice({
                     <p className="text-xs">
                         <span className="font-bold">{t('order.cashier')}:</span> {order?.approvalBy?.firstName} {order?.approvalBy?.lastName}
                     </p>)}
-                <p className="text-xs">
-                    <span className="font-bold">{t('order.orderType')}:</span> {order?.type === OrderTypeEnum.AT_TABLE ? t('order.dineIn') : t('order.takeAway')} - {order?.timeLeftTakeOut && t('menu.waiting')} {order?.timeLeftTakeOut} {t('menu.minutes')}
-                </p>
+                {order?.type === OrderTypeEnum.TAKE_OUT ? (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.takeAway')} - {order?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                    </p>
+                ) : (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.dineIn')}
+                    </p>
+                )}
             </div>
 
             {/* Invoice items */}

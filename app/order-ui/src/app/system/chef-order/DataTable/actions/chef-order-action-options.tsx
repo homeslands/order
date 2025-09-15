@@ -15,7 +15,7 @@ export default function ChefOrderActionOptions(): FC<DataTableActionOptionsProps
   return function ActionOptions() {
 
     return (
-      <>
+      <div className='flex gap-2 items-center'>
         <ChefOrderStatusSelect
           onSelect={setChefOrderStatus}
           value={chefOrderStatus}
@@ -25,7 +25,7 @@ export default function ChefOrderActionOptions(): FC<DataTableActionOptionsProps
           onSelect={setChefOrderByChefAreaSlug}
           value={chefOrderByChefAreaSlug}
         />
-      </>
+      </div>
     )
   }
 }

@@ -646,14 +646,16 @@ export function ClientPaymentPage() {
                     : t('order.takeAway')}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <h3 className="col-span-1 text-sm font-medium">
-                  {t('menu.pickupTime')}
-                </h3>
-                <span className="text-sm font-semibold">
-                  {order?.result.timeLeftTakeOut} {t('menu.minutes')}
-                </span>
-              </div>
+              {order?.result.type === OrderTypeEnum.TAKE_OUT && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('menu.pickupTime')}
+                  </h3>
+                  <span className="text-sm font-semibold">
+                    {order?.result.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.result.timeLeftTakeOut} ${t('menu.minutes')}`}
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.location')}
