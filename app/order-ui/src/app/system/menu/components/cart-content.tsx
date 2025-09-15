@@ -10,7 +10,7 @@ import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components
 import { useOrderFlowStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
-import { OrderTypeSelect } from '@/components/app/select'
+import { OrderTypeSelect, PickupTimeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
 import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
@@ -118,6 +118,9 @@ export function CartContent() {
         {/* Order type and customer selection */}
         <div className="grid grid-cols-1 gap-2 p-2 backdrop-blur-sm xl:pr-2 bg-background/95">
           <OrderTypeSelect />
+          {cartItems?.type === OrderTypeEnum.TAKE_OUT && (
+            <PickupTimeSelect />
+          )}
           <CustomerSearchInput />
         </div>
 

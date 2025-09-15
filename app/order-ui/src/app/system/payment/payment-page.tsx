@@ -532,7 +532,7 @@ export default function PaymentPage() {
                   <p className="col-span-1 text-sm">
                     {order.result.type === 'at-table'
                       ? t('order.dineIn')
-                      : t('order.takeAway')}
+                      : t('order.takeAway')} - {order.result.timeLeftTakeOut && t('menu.waiting')} {order.result.timeLeftTakeOut} {t('menu.minutes')}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
