@@ -59,6 +59,12 @@ export class Order extends Base {
   @IsNotEmpty()
   type: string;
 
+  // If 'at table', time left take out is 0
+  // unit: minutes
+  @AutoMap()
+  @Column({ name: 'time_left_take_out_column', default: 0 })
+  timeLeftTakeOut: number;
+
   // many to one with branch
   @ManyToOne(() => Branch, (branch) => branch.orders)
   @JoinColumn({ name: 'branch_column' })

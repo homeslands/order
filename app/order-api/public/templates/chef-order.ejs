@@ -44,6 +44,14 @@
           <%= tableName %>
         </span>
       </p>
+      <% if (tableName === 'take out') { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Thời gian mang đi:
+          </span>
+          <%= timeLeftTakeOut %> (phút)
+        </p>
+      <% } %>
       <p class="text-xs"> 
         <span class="font-bold">
           Khu vực:
