@@ -21,6 +21,7 @@ export interface IOrderComparison {
   tableChanged: boolean
   ownerChanged: boolean
   noteChanged: boolean
+  pickupTimeChanged: boolean
   hasChanges: boolean
 }
 
@@ -35,6 +36,7 @@ export function compareOrdersForStaff(
       tableChanged: false,
       ownerChanged: false,
       noteChanged: false,
+      pickupTimeChanged: false,
       // orderItemNoteChanged: false,
       hasChanges: false,
     }
@@ -276,13 +278,18 @@ export function compareOrdersForStaff(
     (change) => change.type === 'orderItemNoteChanged',
   )
 
+  // Kiểm tra thay đổi thời gian nhận hàng
+  const pickupTimeChanged =
+    originalOrder.timeLeftTakeOut !== newOrder.timeLeftTakeOut
+
   const hasChanges =
     itemChanges.some((change) => change.type !== 'unchanged') ||
     voucherChanged ||
     tableChanged ||
     ownerChanged ||
     noteChanged ||
-    orderItemNoteChanged
+    orderItemNoteChanged ||
+    pickupTimeChanged
 
   return {
     itemChanges,
@@ -290,6 +297,7 @@ export function compareOrdersForStaff(
     tableChanged,
     ownerChanged,
     noteChanged,
+    pickupTimeChanged,
     // orderItemNoteChanged,
     hasChanges,
   }
@@ -306,6 +314,7 @@ export function compareOrders(
       tableChanged: false,
       ownerChanged: false,
       noteChanged: false,
+      pickupTimeChanged: false,
       // orderItemNoteChanged: false,
       hasChanges: false,
     }
@@ -547,13 +556,18 @@ export function compareOrders(
     (change) => change.type === 'orderItemNoteChanged',
   )
 
+  // Kiểm tra thay đổi thời gian nhận hàng
+  const pickupTimeChanged =
+    originalOrder.timeLeftTakeOut !== newOrder.timeLeftTakeOut
+
   const hasChanges =
     itemChanges.some((change) => change.type !== 'unchanged') ||
     voucherChanged ||
     tableChanged ||
     ownerChanged ||
     noteChanged ||
-    orderItemNoteChanged
+    orderItemNoteChanged ||
+    pickupTimeChanged
 
   return {
     itemChanges,
@@ -561,6 +575,7 @@ export function compareOrders(
     tableChanged,
     ownerChanged,
     noteChanged,
+    pickupTimeChanged,
     // orderItemNoteChanged,
     hasChanges,
   }
@@ -618,6 +633,10 @@ export function getChangesSummary(comparison: IOrderComparison): string {
 
   if (comparison.noteChanged) {
     changes.push(`${i18next.t('order.noteChanged', { ns: 'menu' })}`)
+  }
+
+  if (comparison.pickupTimeChanged) {
+    changes.push(`${i18next.t('order.pickupTimeChanged', { ns: 'menu' })}`)
   }
 
   return changes.length > 0

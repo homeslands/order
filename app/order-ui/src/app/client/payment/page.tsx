@@ -648,6 +648,14 @@ export function ClientPaymentPage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
+                  {t('menu.pickupTime')}
+                </h3>
+                <span className="text-sm font-semibold">
+                  {order?.result.timeLeftTakeOut} {t('menu.minutes')}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <h3 className="col-span-1 text-sm font-medium">
                   {t('order.location')}
                 </h3>
                 <p className="col-span-1 text-sm font-semibold">

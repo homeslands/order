@@ -12,7 +12,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, IExportChefOrderParams, IExportChefOrderTicketParams, OrderTypeEnum } from '@/types'
+import { ChefOrderItemStatus, ChefOrderStatus, IChefOrders, OrderTypeEnum } from '@/types'
+
+interface IExportChefOrderParams {
+  logoString: string
+  logo: string
+  branchName: string
+  referenceNumber: string
+  createdAt: string
+  type: string
+  tableName: string
+  timeLeftTakeOut?: string
+  note: string
+  invoiceItems: Array<{
+    variant: {
+      name: string
+      size: string
+    }
+    quantity: string
+    note: string
+  }>
+  formatDate: (date: string, fmt: string) => string
+}
+
+interface IExportChefOrderTicketParams {
+  logoString: string
+  logo: string
+  referenceNumber: string
+  orderItem: {
+    variant: {
+      name: string
+      size: string
+      note: string
+    }
+    quantity: string
+  }
+}
 import {
   ConfirmCompleteChefOrderDialog,
   ConfirmUpdateChefOrderStatusDialog,
@@ -124,7 +159,12 @@ const CHEF_ORDER_TEMPLATE = `<!DOCTYPE html>
   <!-- Thông tin hóa đơn -->
   <div class="section">
     <div class="text-xs">Thời gian: <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY') %></div>
-    <div class="text-xs">Bàn: <%= tableName %></div>
+    <div class="text-xs">Loại đơn: <%= type === 'at-table' ? 'Tại bàn' : 'Mang đi' %></div>
+    <% if (type === 'at-table') { %>
+      <div class="text-xs">Bàn: <%= tableName %></div>
+    <% } else if (timeLeftTakeOut) { %>
+      <div class="text-xs">Thời gian chờ: <%= timeLeftTakeOut %> phút</div>
+    <% } %>
     <div class="mt-4 text-sm font-extrabold">
       Ghi chú: <%= note && note.trim() !== '' ? note : 'Không có ghi chú' %>
     </div>
@@ -296,14 +336,14 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         const html = await generateChefOrderTicketHTML({
           logoString: Be_Vietnam_Pro_base64,
           logo: Logo,
-          referenceNumber: chefOrder.order.referenceNumber,
+          referenceNumber: chefOrder.order.referenceNumber?.toString() || '',
           orderItem: {
             variant: {
               name: item.orderItem.variant.product?.name || '',
               size: item.orderItem.variant.size?.name || '',
               note: item.orderItem.note || ''
             },
-            quantity: item.orderItem.quantity,
+            quantity: item.orderItem.quantity.toString(),
           },
         });
 
@@ -341,17 +381,18 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         logoString: Be_Vietnam_Pro_base64,
         logo: Logo,
         branchName: userInfo?.branch?.name || '',
-        referenceNumber: chefOrder?.order?.referenceNumber,
+        referenceNumber: chefOrder?.order?.referenceNumber?.toString() || '',
         createdAt: chefOrder?.createdAt,
-        type: chefOrder?.order?.type,
-        tableName: chefOrder?.order?.type === OrderTypeEnum.AT_TABLE ? chefOrder?.order.table?.name || '' : 'Mang đi',
+        type: chefOrder?.order?.type || '',
+        tableName: chefOrder?.order?.table?.name || '',
+        timeLeftTakeOut: chefOrder?.order?.timeLeftTakeOut?.toString(),
         note: chefOrder?.order?.description || '',
         invoiceItems: chefOrder?.chefOrderItems.map(item => ({
           variant: {
             name: item?.orderItem?.variant?.product?.name || '',
             size: item?.orderItem?.variant?.size?.name || '',
           },
-          quantity: item?.defaultQuantity,
+          quantity: item?.defaultQuantity?.toString() || '0',
           note: item?.orderItem?.note || ''
         })),
         formatDate: (date: string, fmt: string) => moment(date).format(fmt),
@@ -502,6 +543,16 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
       },
     },
     {
+      accessorKey: 'pickupTime',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('chefOrder.pickupTime')} />
+      ),
+      cell: ({ row }) => {
+        const pickupTime = row.original.order.timeLeftTakeOut && t('chefOrder.waiting') + " " + row.original.order.timeLeftTakeOut + " " + t('chefOrder.minutes')
+        return <span className="text-xs text-primary xl:text-sm">{pickupTime}</span>
+      },
+    },
+    {
       accessorKey: 'quantity',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('chefOrder.quantity')} />
@@ -568,7 +619,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         }
 
         return (
-          <div className="flex flex-col flex-wrap text-xs font-medium gap-x-3 xl:text-sm">
+          <div className="flex flex-col flex-wrap gap-x-3 text-xs font-medium xl:text-sm">
             {(['printed', 'printing', 'pending', 'failed'] as PrinterJobType[]).map(status => (
               <span key={status} className={statusColors[status]}>
                 {statusLabels[status]}: {countByStatus[status]}
@@ -622,7 +673,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         }
 
         return (
-          <div className="flex flex-col flex-wrap text-xs font-medium gap-x-3 xl:text-sm">
+          <div className="flex flex-col flex-wrap gap-x-3 text-xs font-medium xl:text-sm">
             {(['printed', 'printing', 'pending', 'failed'] as PrinterJobType[]).map(status => (
               <span key={status} className={statusColors[status]}>
                 {statusLabels[status]}: {countByStatus[status]}
@@ -643,7 +694,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -661,7 +712,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                   <Button
                     disabled={isReprintingFailedChefOrderJobs}
                     variant="ghost"
-                    className="flex justify-start w-full px-2 text-xs xl:text-sm"
+                    className="flex justify-start px-2 w-full text-xs xl:text-sm"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleReprintFailedChefOrderPrinterJobs(chefOrder)
@@ -676,7 +727,7 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
                   <Button
                     disabled={isReprintingFailedLabelJobs}
                     variant="ghost"
-                    className="flex justify-start w-full px-2 text-xs xl:text-sm"
+                    className="flex justify-start px-2 w-full text-xs xl:text-sm"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleReprintFailedLabelPrinterJobs(chefOrder)

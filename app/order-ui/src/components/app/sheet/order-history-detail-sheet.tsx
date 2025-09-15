@@ -160,7 +160,7 @@ export default function OrderHistoryDetailSheet({
                       <p className="font-bold">
                         {orderDetail?.type === OrderTypeEnum.AT_TABLE
                           ? t('order.dineIn')
-                          : t('order.takeAway')}
+                          : t('order.takeAway')} - {orderDetail?.timeLeftTakeOut && t('menu.waiting')} {orderDetail?.timeLeftTakeOut} {t('menu.minutes')}
                       </p>
                       {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
                         <p className="flex gap-1 text-muted-foreground">

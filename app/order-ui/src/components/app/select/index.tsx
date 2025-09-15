@@ -36,3 +36,5 @@ export { default as StaffPaymentMethodSelect } from './staff-payment-method-sele
 export { default as StaffLoyaltyPointSelector } from './staff-loyalty-point-selector'
 export { default as ClientLoyaltyPointSelector } from './client-loyalty-point-selector'
 export { default as LoyaltyPointTypeSelect } from './loyalty-point-type-select'
+export { default as PickupTimeSelect } from './pickup-time-select'
+export { default as PickupTimeSelectInUpdateOrder } from './pickup-time-in-update-order-select'

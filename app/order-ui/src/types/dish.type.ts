@@ -38,6 +38,7 @@ export interface ICartItem {
   ownerPhoneNumber?: string
   ownerRole?: string
   type: string
+  timeLeftTakeOut?: number
   // branch?: string
   orderItems: IOrderItem[]
   table?: string
@@ -106,6 +107,7 @@ export interface IOrderToUpdate {
   ownerPhoneNumber?: string
   ownerRole?: string
   type: string
+  timeLeftTakeOut?: number
   // branch?: string
   orderItems: IOrderItem[]
   table?: string
@@ -193,6 +195,7 @@ export interface IOrder extends IBase {
   voucher: IVoucher
   isExtend?: boolean
   description?: string
+  timeLeftTakeOut?: number
 }
 
 export interface IOrderItems extends IBase {
@@ -310,6 +313,7 @@ export interface ICreateOrderResponse extends IBase {
 
 export interface ICreateOrderRequest {
   type: string
+  timeLeftTakeOut?: number
   table: string
   branch: string
   owner: string
@@ -335,6 +339,7 @@ export interface IUpdateOrderTypeRequest {
   type: string
   table: string | null
   description?: string
+  timeLeftTakeOut?: number
 }
 
 export interface IUpdateOrderItemRequest {
