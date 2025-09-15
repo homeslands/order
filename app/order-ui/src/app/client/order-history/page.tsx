@@ -124,13 +124,23 @@ export default function OrderHistoryPage() {
                 <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.orderType')}
                 </div>
-                <div className="px-3 py-2 text-sm">
-                  <p>
-                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
-                      ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
-                      : t('order.takeAway')}{' '} - {orderDetail?.result?.timeLeftTakeOut && t('menu.waiting')}{' '}{orderDetail?.result?.timeLeftTakeOut} {t('menu.minutes')}
-                  </p>
-                </div>
+                {orderInfo?.type === OrderTypeEnum.TAKE_OUT ? (
+                  <div className="px-3 py-2 text-sm">
+                    <p>
+                      {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                        ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                        : t('order.takeAway')}{' '} - {orderDetail?.result?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${orderDetail?.result?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2 text-sm">
+                    <p>
+                      {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                        ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                        : t('order.takeAway')}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             {/* Order table */}
