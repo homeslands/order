@@ -4,6 +4,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   ValidateNested,
@@ -34,6 +35,18 @@ export class CreateOrderRequestDto {
   @IsNotEmpty({ message: ORDER_TYPE_INVALID })
   @IsEnum(OrderType, { message: ORDER_TYPE_INVALID })
   type: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The time left take out',
+    example: 0,
+    required: false,
+  })
+  @IsOptional()
+  @IsIn([0, 5, 10, 15, 30, 45, 60], {
+    message: 'timeLeftTakeOut must be one of 0 5, 10, 15, 30, 45, 60',
+  })
+  timeLeftTakeOut?: number;
 
   @AutoMap()
   @ApiProperty({ description: 'The slug of table' })
@@ -96,6 +109,16 @@ export class UpdateOrderRequestDto {
   @IsNotEmpty({ message: ORDER_TYPE_INVALID })
   @IsEnum(OrderType, { message: ORDER_TYPE_INVALID })
   type: string;
+
+  @AutoMap()
+  @ApiProperty({
+    description: 'The time left take out',
+    example: 0,
+  })
+  @IsIn([0, 5, 10, 15, 30, 45, 60], {
+    message: 'timeLeftTakeOut must be one of 0 5, 10, 15, 30, 45, 60',
+  })
+  timeLeftTakeOut: number;
 
   @AutoMap()
   @ApiProperty({ description: 'The slug of table' })
@@ -195,6 +218,9 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   type: string;
+
+  @AutoMap()
+  timeLeftTakeOut: number;
 
   @AutoMap()
   tableName: string;
