@@ -29,6 +29,8 @@ import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { CurrentUserDto } from 'src/user/user.dto';
+import { RoleEnum } from 'src/role/role.enum';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -112,12 +114,17 @@ describe('OrderController', () => {
         owner: '',
         orderItems: [],
       } as CreateOrderRequestDto;
+      const mockCurrentUser = {
+        scope: {
+          role: RoleEnum.Customer,
+        },
+      } as CurrentUserDto;
       (service.createOrder as jest.Mock).mockRejectedValue(
         new ProductException(ProductValidation.PRODUCT_NAME_EXIST),
       );
-      await expect(controller.createOrder(mockInput)).rejects.toThrow(
-        ProductException,
-      );
+      await expect(
+        controller.createOrder(mockInput, mockCurrentUser),
+      ).rejects.toThrow(ProductException);
     });
 
     it('should return result when create success', async () => {
@@ -128,6 +135,12 @@ describe('OrderController', () => {
         owner: '',
         orderItems: [],
       } as CreateOrderRequestDto;
+
+      const mockCurrentUser = {
+        scope: {
+          role: RoleEnum.Staff,
+        },
+      } as CurrentUserDto;
 
       const mockOutput = {
         subtotal: 0,
@@ -143,9 +156,9 @@ describe('OrderController', () => {
       } as OrderResponseDto;
 
       (service.createOrder as jest.Mock).mockResolvedValue(mockOutput);
-      expect((await controller.createOrder(mockInput)).result).toEqual(
-        mockOutput,
-      );
+      expect(
+        (await controller.createOrder(mockInput, mockCurrentUser)).result,
+      ).toEqual(mockOutput);
     });
   });
 

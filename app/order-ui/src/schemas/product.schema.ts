@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 
 export const createProductSchema = z.object({
@@ -10,6 +11,7 @@ export const createProductSchema = z.object({
   isTopSell: z.boolean(),
   isNew: z.boolean(),
   isCombo: z.boolean(),
+  isGift: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống'),
 })
 
@@ -25,25 +27,42 @@ export const updateProductSchema = z.object({
   isTopSell: z.boolean(),
   isNew: z.boolean(),
   isCombo: z.boolean(),
+  isGift: z.boolean(),
   catalog: z.string().min(1, 'Danh mục không được để trống'),
 })
 
-export const createProductVariantSchema = z.object({
-  price: z.number().min(0, 'Giá sản phẩm không được nhỏ hơn 0'),
-  size: z.string().min(1, 'Kích thước không được để trống'),
-  product: z.string().min(1, 'Sản phẩm không được để trống'),
-})
+export function useCreateProductVariantSchema() {
+  const { t } = useTranslation(['product'])
+  return z.object({
+    price: z.coerce
+      .number({
+        required_error: t('product.priceRequired'),
+        invalid_type_error: t('product.priceInvalid'),
+      })
+      .min(0, t('product.priceMin')),
+    size: z.string().min(1, t('product.sizeRequired')),
+    product: z.string().min(1, t('product.productRequired')),
+  })
+}
 
-export const updateProductVariantSchema = z.object({
-  price: z.number().min(0, 'Giá sản phẩm không được nhỏ hơn 0'),
-  product: z.string().min(1, 'Sản phẩm không được để trống'),
-})
+export function useUpdateProductVariantSchema() {
+  const { t } = useTranslation(['product'])
+  return z.object({
+    price: z.coerce
+      .number({
+        required_error: t('product.priceRequired'),
+        invalid_type_error: t('product.priceInvalid'),
+      })
+      .min(0, t('product.priceMin')),
+    product: z.string().min(1, t('product.productRequired')),
+  })
+}
 
 export type TCreateProductSchema = z.infer<typeof createProductSchema>
 export type TUpdateProductSchema = z.infer<typeof updateProductSchema>
 export type TCreateProductVariantSchema = z.infer<
-  typeof createProductVariantSchema
+  ReturnType<typeof useCreateProductVariantSchema>
 >
 export type TUpdateProductVariantSchema = z.infer<
-  typeof updateProductVariantSchema
+  ReturnType<typeof useUpdateProductVariantSchema>
 >

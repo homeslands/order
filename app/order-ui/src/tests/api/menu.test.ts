@@ -12,6 +12,7 @@ import {
   addMenuItems,
   updateMenuItem,
   deleteMenuItem,
+  getPublicSpecificMenu,
 } from '@/api'
 import { SERVER_ERROR } from '../constants'
 
@@ -85,6 +86,24 @@ describe('Menu API', () => {
 
       const result = await getSpecificMenu(query)
       expect(http.get).toHaveBeenCalledWith('/menu/specific', { params: query })
+      expect(result).toEqual(mockResponse.data)
+    })
+
+    it('should fetch public specific menu with correct parameters', async () => {
+      const mockResponse = {
+        data: {
+          slug: 'menu-1',
+          date: '2024-01-01',
+          menuItems: [],
+          dayIndex: 1,
+          isTemplate: false,
+        },
+      }
+      ;(http.get as Mock).mockResolvedValue(mockResponse)
+      const result = await getPublicSpecificMenu(query)
+      expect(http.get).toHaveBeenCalledWith('/menu/specific/public', {
+        params: query,
+      })
       expect(result).toEqual(mockResponse.data)
     })
 

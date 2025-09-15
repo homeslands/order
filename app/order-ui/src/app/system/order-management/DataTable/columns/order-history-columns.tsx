@@ -141,13 +141,20 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       ),
       cell: ({ row }) => {
         const order = row.original
+        let paymentMethodValue = '';
+        if (order?.payment?.paymentMethod === PaymentMethod.CASH) {
+          paymentMethodValue = t('order.cash');
+        }
+        if (order?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER) {
+          paymentMethodValue = t('order.bankTransfer')
+        }
+        if (order?.payment?.paymentMethod === PaymentMethod.POINT) {
+          paymentMethodValue = t('order.point')
+        }
         return (
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
-              {order?.payment &&
-                order?.payment?.paymentMethod === PaymentMethod.CASH
-                ? t('order.cash')
-                : t('order.bankTransfer')}
+              {paymentMethodValue}
             </span>
           </div>
         )

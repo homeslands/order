@@ -15,7 +15,7 @@ import {
   Label,
   Switch,
 } from '@/components/ui'
-import { IsComboSwitch } from '@/components/app/switch'
+import { IsComboSwitch, IsGiftSwitch } from '@/components/app/switch'
 import { createProductSchema, TCreateProductSchema } from '@/schemas'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -44,6 +44,7 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
       isTopSell: false,
       isNew: false,
       isCombo: false,
+      isGift: false,
       catalog: '',
     },
   })
@@ -63,6 +64,7 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           isLimit: false,
           isTopSell: false,
           isNew: false,
+          isGift: false,
         })
         showToast(t('toast.createProductSuccess'))
       },
@@ -104,15 +106,15 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
       />
     ),
     switch: (
-      <div className='flex justify-between'>
+      <div className='grid grid-cols-1 gap-2 justify-between sm:grid-cols-2'>
         <FormField
           control={form.control}
           name="isLimit"
           render={({ field }) => (
             <FormItem className="flex gap-4 items-center">
-              <FormControl className="flex items-center p-0">
+              <FormControl className="flex items-center p-0 w-full">
                 {/* <IsLimitSwitch {...field} /> */}
-                <div className="flex gap-4 items-center py-2">
+                <div className="flex gap-4 justify-between items-center py-2 w-full">
                   <Label>{t('product.isLimited')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
@@ -127,8 +129,8 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           name="isTopSell"
           render={({ field }) => (
             <FormItem className="flex gap-4 items-center">
-              <FormControl className="flex items-center p-0">
-                <div className="flex gap-4 items-center py-2">
+              <FormControl className="flex items-center p-0 w-full">
+                <div className="flex gap-4 justify-between items-center py-2 w-full">
                   <Label>{t('product.isTopSell')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
@@ -143,8 +145,8 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           name="isNew"
           render={({ field }) => (
             <FormItem className="flex items-center">
-              <FormControl className="flex items-center p-0">
-                <div className="flex gap-4 items-center py-2">
+              <FormControl className="flex items-center p-0 w-full">
+                <div className="flex gap-4 justify-between items-center py-2 w-full">
                   <Label>{t('product.isNew')}</Label>
                   <Switch checked={field.value}
                     onCheckedChange={field.onChange} />
@@ -159,11 +161,30 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
           name="isCombo"
           render={({ field }) => (
             <FormItem className="flex items-center">
-              <FormControl className="flex items-center p-0">
-                <IsComboSwitch
-                  defaultValue={field.value}
-                  onChange={field.onChange}
-                />
+              <FormControl className="flex items-center p-0 w-full">
+                <div className="flex gap-4 justify-between items-center w-full">
+                  <IsComboSwitch
+                    defaultValue={field.value}
+                    onChange={field.onChange}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isGift"
+          render={({ field }) => (
+            <FormItem className="flex items-center">
+              <FormControl className="flex items-center p-0 w-full">
+                <div className="flex gap-4 justify-between items-center w-full">
+                  <IsGiftSwitch
+                    defaultValue={field.value}
+                    onChange={field.onChange}
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -200,7 +221,7 @@ export const CreateProductForm: React.FC<IFormCreateProductProps> = ({
             ))}
           </div>
           <div className="flex gap-4 justify-end">
-            <Button className="text-orange-500 bg-white border dark:bg-background border-orange-500 hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
+            <Button className="text-orange-500 bg-white border border-orange-500 dark:bg-background hover:bg-orange-100" type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, false))}>
               {t('product.btnCreateAndContinue')}
             </Button>
             <Button type="submit" onClick={form.handleSubmit((data) => handleSubmit(data, true))}>

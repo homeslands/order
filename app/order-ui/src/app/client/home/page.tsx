@@ -6,11 +6,11 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet'
 
 import { Button } from '@/components/ui'
-import { useBanners, useIsMobile, useSpecificMenu } from '@/hooks'
+import { useBanners, useIsMobile, usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 import { ROUTE, youtubeVideoId } from '@/constants'
 import { SliderMenu, StoreCarousel, SwiperBanner, YouTubeVideoSection } from './components'
 // import { AdPopup } from '@/components/app/AdPopup'
-import { useBranchStore } from '@/stores'
+import { useBranchStore, useUserStore } from '@/stores'
 import { IMenuItem } from '@/types'
 
 // Animation Variants
@@ -28,28 +28,38 @@ export default function HomePage() {
   const { t: tHelmet } = useTranslation('helmet')
   const isMobile = useIsMobile()
   const { branch } = useBranchStore()
+  const { userInfo } = useUserStore()
   const { data: banner } = useBanners({ isActive: true })
   const { data: specificMenu, isFetching: isFetchingSpecificMenu } = useSpecificMenu(
     {
       date: moment().format('YYYY-MM-DD'),
       branch: branch ? branch?.slug : '',
     },
+    !!userInfo?.slug
+  )
+
+  const { data: publicSpecificMenu, isFetching: isFetchingPublicSpecificMenu } = usePublicSpecificMenu(
+    {
+      date: moment().format('YYYY-MM-DD'),
+      branch: branch ? branch?.slug : '',
+    },
+    !!userInfo?.slug === false
   )
 
   //get banner data
   const bannerData = useMemo(() => banner?.result || [], [banner])
   //get menu items available
-  const menuItemsAvailable = useMemo(() => (specificMenu?.result?.menuItems || []).filter((item) => {
+  const menuItemsAvailable = useMemo(() => (userInfo?.slug ? specificMenu?.result?.menuItems || [] : publicSpecificMenu?.result?.menuItems || []).filter((item) => {
     const isAvailable = item.product.isLimit ? item.currentStock > 0 : true
     return !item.isLocked && isAvailable
-  }), [specificMenu])
+  }), [specificMenu, publicSpecificMenu, userInfo?.slug])
   // get explore menu items
   const exploreMenuItems = useMemo(() => menuItemsAvailable.slice(0, 5), [menuItemsAvailable])
   // get best seller Items
   const bestSellerItems = useMemo(() => menuItemsAvailable.filter((item) => item.product.isTopSell)
-  .sort((a,b)=> b.product.saleQuantityHistory - a.product.saleQuantityHistory)
-  .slice(0,5)
-  , [menuItemsAvailable])
+    .sort((a, b) => b.product.saleQuantityHistory - a.product.saleQuantityHistory)
+    .slice(0, 5)
+    , [menuItemsAvailable])
   // get news items & promotion items
   const { newsProducts, promotionProducts } = useMemo(() => menuItemsAvailable.reduce(
     (
@@ -61,7 +71,7 @@ export default function HomePage() {
       return acc
     },
     { newsProducts: [], promotionProducts: [] })
-  , [menuItemsAvailable]) 
+    , [menuItemsAvailable])
 
   return (
     <>
@@ -75,8 +85,6 @@ export default function HomePage() {
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
-
-        {/* <StoreCarousel /> */}
 
         {/* Section Menu Highlight */}
         {exploreMenuItems.length > 0 && (
@@ -126,7 +134,7 @@ export default function HomePage() {
               <SliderMenu
                 type="promotion"
                 menus={promotionProducts}
-                isFetching={isFetchingSpecificMenu}
+                isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu}
               />
             </motion.div>
           </div>
@@ -150,7 +158,7 @@ export default function HomePage() {
               </div>
               <SliderMenu
                 menus={bestSellerItems}
-                isFetching={isFetchingSpecificMenu}
+                isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu}
                 type="best-sell"
               />
             </motion.div>
@@ -174,7 +182,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={newsProducts} isFetching={isFetchingSpecificMenu} type="new" />
+              <SliderMenu menus={newsProducts} isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu} type="new" />
             </motion.div>
           </div>
         )}

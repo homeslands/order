@@ -4,8 +4,8 @@ import { CircleXIcon, MapPinIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Helmet } from "react-helmet";
 
-import { useBranchStore, useMenuFilterStore } from '@/stores'
-import { useSpecificMenu } from '@/hooks'
+import { useBranchStore, useMenuFilterStore, useUserStore } from '@/stores'
+import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 import { ClientCatalogSelect, HorizontalCatalogSelect } from '@/components/app/select'
 import { ClientMenus } from './components'
 import ProductNameSearch from './components/product-name-search'
@@ -17,6 +17,7 @@ import { IMenuFilter, ISpecificMenuRequest } from '@/types';
 export default function ClientMenuPage() {
   const { t } = useTranslation(['menu'])
   const { t: tHelmet } = useTranslation('helmet')
+  const { userInfo } = useUserStore()
   const { menuFilter, setMenuFilter } = useMenuFilterStore()
   const { branch } = useBranchStore()
 
@@ -32,7 +33,17 @@ export default function ClientMenuPage() {
     }
   }
 
-  const { data: specificMenu, isPending } = useSpecificMenu(mapMenuFilterToRequest(menuFilter))
+  const hasUser = !!userInfo?.slug
+
+  const { data: specificMenuData, isPending: specificMenuPending } =
+    useSpecificMenu(mapMenuFilterToRequest(menuFilter), hasUser)
+
+  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } =
+    usePublicSpecificMenu(mapMenuFilterToRequest(menuFilter), !hasUser)
+
+
+  const specificMenu = userInfo?.slug ? specificMenuData : publicSpecificMenuData
+  const isPending = userInfo?.slug ? specificMenuPending : publicSpecificMenuPending
 
   useEffect(() => {
     setMenuFilter(prev => {
