@@ -548,8 +548,10 @@ export const usePendingChefOrdersColumns = ({ onSuccess }: { onSuccess?: () => v
         <DataTableColumnHeader column={column} title={t('chefOrder.pickupTime')} />
       ),
       cell: ({ row }) => {
-        const pickupTime = row.original.order.timeLeftTakeOut && t('chefOrder.waiting') + " " + row.original.order.timeLeftTakeOut + " " + t('chefOrder.minutes')
-        return <span className="text-xs text-primary xl:text-sm">{pickupTime}</span>
+        const pickupTime = row.original.order.timeLeftTakeOut !== undefined && row.original.order.timeLeftTakeOut === 0
+          ? t('chefOrder.immediately')
+          : `${t('chefOrder.waiting')} ${row.original.order.timeLeftTakeOut} ${t('chefOrder.minutes')}`
+        return <span className={`text-xs xl:text-sm ${row.original.order.timeLeftTakeOut === 0 ? 'text-green-600' : 'text-destructive'}`}>{pickupTime}</span>
       },
     },
     {

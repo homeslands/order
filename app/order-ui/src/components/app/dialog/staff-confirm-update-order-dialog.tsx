@@ -269,13 +269,17 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
               </Badge>
             </div>
-            {order?.timeLeftTakeOut && (
+            {order?.type === OrderTypeEnum.TAKE_OUT && order?.timeLeftTakeOut !== undefined && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
                 <span className="flex gap-2 items-center text-gray-600">
                   <Clock className="w-4 h-4" />
                   {t('menu.pickupTime')}
                 </span>
-                <span className="font-medium">{order.timeLeftTakeOut} {t('menu.minutes')}</span>
+                <Badge className="font-medium">
+                  {order.timeLeftTakeOut === 0
+                    ? t('menu.immediately')
+                    : `${order.timeLeftTakeOut} ${t('menu.minutes')}`}
+                </Badge>
               </div>
             )}
             {order?.tableName && (
