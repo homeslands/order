@@ -75,4 +75,8 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_amount_point_column', default: 0 })
   totalAmountPoint: number;
+
+  @AutoMap()
+  @Column({ name: 'total_accumulated_points_to_use_column', default: 0 })
+  totalAccumulatedPointsToUse: number;
 }

@@ -33,6 +33,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentUtils } from 'src/payment/payment.utils';
 import { OrderStatus } from 'src/order/order.constants';
 import { RoleEnum } from 'src/role/role.enum';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 
 @Injectable()
 export class OrderItemService {
@@ -51,6 +52,7 @@ export class OrderItemService {
     private readonly paymentUtils: PaymentUtils,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    private readonly accumulatedPointService: AccumulatedPointService,
   ) {}
 
   /**
@@ -284,6 +286,15 @@ export class OrderItemService {
     await this.transactionManagerService.execute(
       async (manager) => {
         if (voucher) await manager.save(voucher);
+
+        // Cancel accumulated points reservation
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
+        // Update accumulated points to use in order
+        order.accumulatedPointsToUse = 0;
+
         await manager.save(order);
       },
       () => {
@@ -423,6 +434,14 @@ export class OrderItemService {
         order.originalSubtotal = originalSubtotalOrder;
 
         if (voucher) await manager.save(voucher);
+
+        // Cancel accumulated points reservation
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
+        // Update accumulated points to use in order
+        order.accumulatedPointsToUse = 0;
 
         return await manager.save(order);
       },
@@ -614,6 +633,14 @@ export class OrderItemService {
             'decrement',
           );
           await manager.save(menuItem);
+
+          // Cancel accumulated points reservation
+          await this.accumulatedPointService.handleCancelReservation(
+            order.id,
+            null,
+          );
+          // Update accumulated points to use in order
+          order.accumulatedPointsToUse = 0;
 
           // Update order
           await manager.save(order);
