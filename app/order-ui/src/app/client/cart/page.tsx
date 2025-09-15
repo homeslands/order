@@ -16,7 +16,7 @@ import {
 } from '@/components/app/dialog'
 import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL } from '@/constants'
 import { Badge, Button } from '@/components/ui'
-import { OrderTypeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
+import { OrderTypeSelect, PickupTimeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
 import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay } from '@/utils'
 import { OrderNoteInput } from '@/components/app/input'
@@ -127,7 +127,9 @@ export default function ClientCartPage() {
             </div>
             <div className="grid grid-cols-2 gap-1 sm:grid-cols-5">
               <div className="joyride-step-2 sm:col-span-4">
-                <TableInCartSelect />
+                {currentCartItems?.type === OrderTypeEnum.TAKE_OUT ? (
+                  <PickupTimeSelect />
+                ) : <TableInCartSelect />}
               </div>
               <DeleteAllCartDialog />
               {/* <Joyride

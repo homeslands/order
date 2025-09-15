@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Loader2, MapPin, Notebook, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
+import { Clock, Loader2, MapPin, Notebook, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
 
 import {
   Badge,
@@ -70,6 +70,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
 
     const createOrderRequest: ICreateOrderRequest = {
       type: order.type,
+      timeLeftTakeOut: order.timeLeftTakeOut || 0,
       table: order.table || '',
       branch: selectedBranch,
       owner: order.owner || getUserInfo()?.slug || '',
@@ -169,6 +170,15 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
               </Badge>
             </div>
+            {order?.timeLeftTakeOut && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-muted-foreground">
+                  <Clock className="w-4 h-4" />
+                  {t('menu.pickupTime')}
+                </span>
+                <Badge className="font-medium">{order.timeLeftTakeOut} {t('menu.minutes')}</Badge>
+              </div>
+            )}
             {order?.tableName && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
                 <span className="flex gap-2 items-center text-muted-foreground">
