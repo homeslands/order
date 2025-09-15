@@ -250,8 +250,10 @@ export class OrderService {
         },
       });
       order.table = table;
+      order.timeLeftTakeOut = 0;
     } else {
       order.table = null;
+      order.timeLeftTakeOut = requestData.timeLeftTakeOut;
     }
 
     if (requestData.description) {
@@ -800,6 +802,9 @@ export class OrderService {
           },
         },
       });
+      data.timeLeftTakeOut = 0;
+    } else if (data.type === OrderType.TAKE_OUT) {
+      data.timeLeftTakeOut = data.timeLeftTakeOut || 0;
     }
 
     const defaultCustomer = await this.userUtils.getUser({

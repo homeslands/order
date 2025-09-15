@@ -223,6 +223,7 @@ export class InvoiceService {
         voucherCode: order.invoice?.voucherCode ?? 'N/A',
         valueEachVoucher: order.invoice?.valueEachVoucher ?? 0,
         usedPoints,
+        timeLeftTakeOut: order.timeLeftTakeOut || 0,
       });
       return order.invoice;
     }
@@ -255,6 +256,7 @@ export class InvoiceService {
       status: OrderStatus.PAID,
       tableName:
         order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
+      timeLeftTakeOut: order.timeLeftTakeOut,
       customer: `${order.owner.firstName} ${order.owner.lastName}`,
       branchAddress: order.branch.address,
       cashier: `${order.approvalBy?.firstName} ${order.approvalBy?.lastName}`,
@@ -444,6 +446,7 @@ export class InvoiceService {
       status: order.status,
       tableName:
         order.type === OrderType.AT_TABLE ? order.table.name : 'take out',
+      timeLeftTakeOut: order.timeLeftTakeOut,
       customer: `${order.owner.firstName} ${order.owner.lastName}`,
       branchAddress: order.branch.address,
       cashier: `${order.approvalBy?.firstName} ${order.approvalBy?.lastName}`,
