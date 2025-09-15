@@ -44,6 +44,7 @@ import { OrderItemUtils } from 'src/order-item/order-item.utils';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { CreditCardStrategy } from './strategy/credit-card.strategy';
 describe('PaymentController', () => {
   let controller: PaymentController;
 
@@ -167,6 +168,7 @@ describe('PaymentController', () => {
           provide: getRepositoryToken(AccumulatedPointTransactionHistory),
           useValue: repositoryMockFactory,
         },
+        CreditCardStrategy,
       ],
     }).compile();
 
