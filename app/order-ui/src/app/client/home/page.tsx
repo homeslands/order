@@ -30,24 +30,29 @@ export default function HomePage() {
   const { branch } = useBranchStore()
   const { userInfo } = useUserStore()
   const { data: banner } = useBanners({ isActive: true })
+  const { data: specificMenu, isFetching: isFetchingSpecificMenu } = useSpecificMenu(
+    {
+      date: moment().format('YYYY-MM-DD'),
+      branch: branch ? branch?.slug : '',
+    },
+    !!userInfo?.slug
+  )
 
-  const specificMenuRequest = {
-    date: moment().format('YYYY-MM-DD'),
-    branch: branch ? branch?.slug : '',
-  }
-  const { data: specificMenuData, isPending: specificMenuPending } = useSpecificMenu(specificMenuRequest, !!userInfo?.slug)
-  const { data: publicSpecificMenuData, isPending: publicSpecificMenuPending } = usePublicSpecificMenu(specificMenuRequest, !!userInfo?.slug === false)
-
-  const specificMenu = userInfo?.slug ? specificMenuData : publicSpecificMenuData
-  const isPending = userInfo?.slug ? specificMenuPending : publicSpecificMenuPending
+  const { data: publicSpecificMenu, isFetching: isFetchingPublicSpecificMenu } = usePublicSpecificMenu(
+    {
+      date: moment().format('YYYY-MM-DD'),
+      branch: branch ? branch?.slug : '',
+    },
+    !!userInfo?.slug === false
+  )
 
   //get banner data
   const bannerData = useMemo(() => banner?.result || [], [banner])
   //get menu items available
-  const menuItemsAvailable = useMemo(() => (specificMenu?.result?.menuItems || []).filter((item) => {
+  const menuItemsAvailable = useMemo(() => (userInfo?.slug ? specificMenu?.result?.menuItems || [] : publicSpecificMenu?.result?.menuItems || []).filter((item) => {
     const isAvailable = item.product.isLimit ? item.currentStock > 0 : true
     return !item.isLocked && isAvailable
-  }), [specificMenu])
+  }), [specificMenu, publicSpecificMenu, userInfo?.slug])
   // get explore menu items
   const exploreMenuItems = useMemo(() => menuItemsAvailable.slice(0, 5), [menuItemsAvailable])
   // get best seller Items
@@ -80,8 +85,6 @@ export default function HomePage() {
       <div className="flex flex-col gap-6">
         {/* Section 1: Hero - Full width */}
         <SwiperBanner bannerData={bannerData} />
-
-        {/* <StoreCarousel /> */}
 
         {/* Section Menu Highlight */}
         {exploreMenuItems.length > 0 && (
@@ -131,7 +134,7 @@ export default function HomePage() {
               <SliderMenu
                 type="promotion"
                 menus={promotionProducts}
-                isFetching={isPending}
+                isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu}
               />
             </motion.div>
           </div>
@@ -155,7 +158,7 @@ export default function HomePage() {
               </div>
               <SliderMenu
                 menus={bestSellerItems}
-                isFetching={isPending}
+                isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu}
                 type="best-sell"
               />
             </motion.div>
@@ -179,7 +182,7 @@ export default function HomePage() {
                 </NavLink>
               </div>
 
-              <SliderMenu menus={newsProducts} isFetching={isPending} type="new" />
+              <SliderMenu menus={newsProducts} isFetching={isFetchingSpecificMenu || isFetchingPublicSpecificMenu} type="new" />
             </motion.div>
           </div>
         )}

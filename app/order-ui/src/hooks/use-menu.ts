@@ -38,7 +38,6 @@ export const useSpecificMenu = (
     enabled: !!enabled,
   })
 }
-
 export const usePublicSpecificMenu = (
   query: ISpecificMenuRequest,
   enabled?: boolean,

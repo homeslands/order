@@ -26,7 +26,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
     })
 
     const { data: relatedProducts, isPending } = useSpecificMenu(filters, !!userInfo?.slug)
-    const { data: publicSpecificMenuData } = usePublicSpecificMenu(filters, !!userInfo?.slug === false)
+    const { data: publicSpecificMenu, isPending: isPendingPublicSpecificMenu } = usePublicSpecificMenu(filters, !!userInfo?.slug === false)
     const getPriceRange = (variants: IProduct['variants']) => {
         if (!variants || variants.length === 0) return null
 
@@ -41,7 +41,7 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
         }
     }
     // const { data: relatedProducts, isPending } = useSpecificMenu({ catalog, branch?.slug || "" })
-    const relatedProductsData = userInfo?.slug ? relatedProducts?.result.menuItems.filter((item) => item.slug !== currentProduct) : publicSpecificMenuData?.result.menuItems.filter((item) => item.slug !== currentProduct)
+    const relatedProductsData = userInfo?.slug ? relatedProducts?.result.menuItems.filter((item) => item.slug !== currentProduct) : publicSpecificMenu?.result.menuItems.filter((item) => item.slug !== currentProduct)
     return (
         <Swiper
             slidesPerView={6}
@@ -60,20 +60,20 @@ export default function SliderRelatedProducts({ currentProduct, catalog }: { cur
             modules={[Autoplay, Pagination, Grid]}
             className="w-full h-full mySwiper"
         >
-            {!isPending && userInfo?.slug ? relatedProductsData?.map((item, index) => {
+            {!isPending || !isPendingPublicSpecificMenu ? relatedProductsData?.map((item, index) => {
                 const imageProduct = item?.product.image ? publicFileURL + "/" + item.product.image : Com
                 return (
-                    <SwiperSlide key={index} className="py-2 mt-4 w-full h-full">
+                    <SwiperSlide key={index} className="pb-4 mt-4 w-full h-full">
                         <NavLink to={`${ROUTE.CLIENT_MENU_ITEM}?slug=${item.slug}`}>
-                            <div className="flex flex-col w-full min-h-[16rem] transition-all duration-300 bg-white rounded-xl shadow-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
-                                <img src={imageProduct} alt="product" className="object-cover w-full h-36 rounded-t-md" />
+                            <div className="flex flex-col w-full min-h-[14rem] p-1 transition-all duration-300 bg-white rounded-xl shadow-xl dark:bg-gray-700 backdrop-blur-md hover:scale-105">
+                                <img src={imageProduct} alt="product" className="object-cover w-full h-28 rounded-md" />
 
                                 {item.promotion && item.promotion.value > 0 && (
                                     <PromotionTag promotion={item.promotion} />
                                 )}
-                                <div className={`flex flex-1 flex-col ${item.product.isLimit ? 'justify-between' : 'justify-start'} space-y-1.5 p-2`}>
+                                <div className={`flex flex-1 flex-col ${item.product.isLimit ? 'justify-between' : 'justify-start'} space-y-1.5 py-2`}>
                                     <div className="h-fit">
-                                        <h3 className="font-bold text-md line-clamp-1">{item.product.name}</h3>
+                                        <h3 className="text-sm font-bold line-clamp-1">{item.product.name}</h3>
                                     </div>
                                     {item?.promotion && item?.promotion?.value > 0 ? (
                                         <div className="flex flex-col gap-1">

@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
+
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemHorizontalCatalogSelect, SystemTableSelect } from '../select'
 import { SystemMenuTabscontent } from '../tabscontent'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { FilterState, OrderTypeEnum } from '@/types'
-import moment from 'moment'
 import { useSpecificMenu } from '@/hooks'
 
 export function SystemMenuTabs() {

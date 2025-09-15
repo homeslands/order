@@ -2,7 +2,7 @@ import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 
 import { useBranchStore, useUserStore } from '@/stores'
-import { useSpecificMenu } from '@/hooks'
+import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 import { SkeletonMenuList } from '../skeleton'
 import { ClientMenuItemInUpdateOrder } from '@/app/client/menu/components/client-menu-item-in-update-order'
 
@@ -11,9 +11,9 @@ interface ClientMenuTabscontentProps {
 }
 
 export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps) {
-  const { t } = useTranslation('menu')
   const { branch } = useBranchStore()
   const { userInfo } = useUserStore()
+  const { t } = useTranslation('menu')
   function getCurrentDate() {
     return moment().format('YYYY-MM-DD')
   }
@@ -22,7 +22,10 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
     branch: branch?.slug,
   }
   const { data: specificMenu, isLoading } = useSpecificMenu(request, !!userInfo?.slug)
-  const menuItems = specificMenu?.result.menuItems.sort((a, b) => {
+
+  const { data: publicSpecificMenu, isLoading: isLoadingPublicSpecificMenu } = usePublicSpecificMenu(request, !!userInfo?.slug === false)
+
+  const menuItems = userInfo?.slug ? specificMenu?.result.menuItems.sort((a, b) => {
     // Đưa các mục không bị khóa lên trước
     if (a.isLocked !== b.isLocked) {
       return Number(a.isLocked) - Number(b.isLocked);
@@ -40,9 +43,18 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
       return a.product.catalog.name.localeCompare(b.product.catalog.name)
     }
     return 0;
+  }) : publicSpecificMenu?.result.menuItems.sort((a, b) => {
+    // Đưa các mục không bị khóa lên trước
+    if (a.isLocked !== b.isLocked) {
+      return Number(a.isLocked) - Number(b.isLocked);
+    }
+    if (a.product.catalog.name !== b.product.catalog.name) {
+      return a.product.catalog.name.localeCompare(b.product.catalog.name)
+    }
+    return 0;
   })
 
-  if (isLoading) {
+  if (isLoading || isLoadingPublicSpecificMenu) {
     return (
       <div className={`grid grid-cols-2 gap-3 lg:grid-cols-3`}>
         {[...Array(8)].map((_, index) => (
@@ -61,7 +73,7 @@ export function ClientMenuTabscontent({ onSuccess }: ClientMenuTabscontentProps)
       className={`flex flex-col pr-2 w-full transition-all duration-300 ease-in-out`}
     >
       <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
-        {specificMenu?.result.menuItems.map((item) => (
+        {menuItems.map((item) => (
           <ClientMenuItemInUpdateOrder item={item} key={item.slug} onSuccess={onSuccess} />
         ))}
       </div>

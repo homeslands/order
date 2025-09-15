@@ -7,7 +7,7 @@ import { SystemMenuInUpdateOrderTabscontent } from '../tabscontent'
 import { FilterState, IOrder, OrderTypeEnum } from '@/types'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
 import moment from 'moment'
-import { useSpecificMenu } from '@/hooks'
+import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
@@ -33,7 +33,9 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
     productName: '',
   })
   const { data: specificMenu, isLoading } = useSpecificMenu(filters, !!userInfo?.slug)
-  const specificMenuResult = specificMenu?.result;
+  const { data: publicSpecificMenu } = usePublicSpecificMenu(filters, !!userInfo?.slug === false)
+
+  const specificMenuResult = userInfo?.slug ? specificMenu?.result : publicSpecificMenu?.result;
 
   // Handle tab change by updating URL
   const handleTabChange = (tab: string) => {
