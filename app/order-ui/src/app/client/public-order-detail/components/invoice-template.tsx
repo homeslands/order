@@ -134,7 +134,9 @@ export default function Invoice({
                                 ? t('order.cash')
                                 : order?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER
                                     ? t('order.bankTransfer')
-                                    : t('order.point')}
+                                    : order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD
+                                        ? t('order.creditCard')
+                                        : t('order.point')}
                         </td>
                     </tr>
                     <tr>
