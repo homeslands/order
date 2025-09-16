@@ -111,7 +111,7 @@ export default function ClientVoucherListSheetInUpdateOrderWithLocalStorage() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && isCustomerOwner
   );
 
   const { data: publicVoucherList } = usePublicVouchersForOrder(
@@ -123,7 +123,7 @@ export default function ClientVoucherListSheetInUpdateOrderWithLocalStorage() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && !isCustomerOwner
   )
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
