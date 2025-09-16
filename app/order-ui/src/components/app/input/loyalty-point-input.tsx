@@ -80,7 +80,14 @@ export default function LoyaltyPointsInput({
     }
 
     // Quick select options
-    const quickOptions = [5000, 10000, 20000, 50000, maxPoints].filter(amount => amount > 0)
+    // const quickOptions = [...new Set([5000, 10000, 20000, 50000, maxPoints])].filter(amount => amount > 0).sort((a, b) => a - b)
+
+    // Quick select options - chỉ hiển thị các giá trị cố định nhỏ hơn maxPoints
+    const fixedOptions = [1000, 2000, 3000, 5000, 10000, 20000, 50000].filter(amount => amount < maxPoints)
+    // Thêm maxPoints vào cuối nếu nó lớn hơn giá trị cố định lớn nhất
+    const quickOptions = maxPoints > (fixedOptions[fixedOptions.length - 1] || 0)
+        ? [...fixedOptions, maxPoints]
+        : fixedOptions
 
     const handleApply = () => {
         applyLoyaltyPoint({ orderSlug, pointsToUse: value }, {
@@ -133,7 +140,11 @@ export default function LoyaltyPointsInput({
                         onClick={() => handleQuickSelect(amount)}
                         className="text-xs"
                     >
-                        {amount === maxPoints ? t('loyaltyPoint.maximum') : `${(amount / 1000).toFixed(0)}K`}
+                        {/* Chỉ hiển thị Maximum khi amount là maxPoints và khác với các giá trị cố định */}
+                        {amount === maxPoints && !([1000, 2000, 3000, 5000, 10000, 20000, 50000].includes(amount))
+                            ? t('loyaltyPoint.maximum')
+                            : `${(amount / 1000).toFixed(0)}K`
+                        }
                     </Button>
                 ))}
             </div>

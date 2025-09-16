@@ -120,7 +120,7 @@ export default function StaffLoyaltyPointSelector({ usedPoints, orderSlug, owner
             </div>
 
             {/* Real-time Calculation */}
-            {pointsInput > 0 && (
+            {usedPoints > 0 && (
                 <div className="p-4 space-y-2 rounded-lg bg-muted">
                     <div className="flex justify-between text-sm">
                         <span>{t('loyaltyPoint.discountAmount')}</span>
