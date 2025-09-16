@@ -272,6 +272,12 @@ export default function OrderHistoryPage() {
                                 {t('paymentMethod.point')}
                               </span>
                             )}
+                          {orderInfo?.payment.paymentMethod ===
+                            PaymentMethod.CREDIT_CARD && (
+                              <span className="italic">
+                                {t('paymentMethod.creditCard')}
+                              </span>
+                            )}
                         </>
                       )}
                     </span>

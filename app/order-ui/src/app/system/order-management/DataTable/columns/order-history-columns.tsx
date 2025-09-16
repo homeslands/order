@@ -151,6 +151,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         if (order?.payment?.paymentMethod === PaymentMethod.POINT) {
           paymentMethodValue = t('order.point')
         }
+        if (order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD) {
+          paymentMethodValue = t('order.creditCard')
+        }
         return (
           <div className="flex flex-col">
             <span className="text-[0.8rem]">

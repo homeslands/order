@@ -13,4 +13,5 @@ export const VOUCHER_PAYMENT_METHOD = {
   CASH: 'cash',
   POINT: 'point',
   BANK_TRANSFER: 'bank-transfer',
+  CREDIT_CARD: 'credit-card',
 }
