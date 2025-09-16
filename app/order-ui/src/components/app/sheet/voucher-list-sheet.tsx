@@ -99,7 +99,7 @@ export default function VoucherListSheet() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && isCustomerOwner
   )
 
   const { data: publicVoucherList } = usePublicVouchersForOrder(
@@ -111,7 +111,7 @@ export default function VoucherListSheet() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && !isCustomerOwner
   )
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(

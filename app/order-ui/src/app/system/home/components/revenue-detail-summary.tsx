@@ -28,6 +28,9 @@ export default function RevenueDetailSummary({ revenueData, topProduct }: Revenu
     // get totalAmountPoint
     const totalAmountPoint = revenueData?.reduce((sum, item) => sum + (item.totalAmountPoint || 0), 0) || 0;
 
+    // get totalAmountCreditCard
+    const totalAmountCreditCard = revenueData?.reduce((sum, item) => sum + (item.totalAmountCreditCard || 0), 0) || 0;
+
     // Tính tổng số đơn hàng
     const totalOrders = revenueData?.reduce((sum, item) => sum + (item.totalOrder || 0), 0) || 0;
 
@@ -35,7 +38,7 @@ export default function RevenueDetailSummary({ revenueData, topProduct }: Revenu
     // const totalOrderItem = revenueData?.reduce((sum, item) => sum + (item.totalOrderItem || 0), 0) || 0;
 
     return (
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <Card className="text-white shadow-none bg-primary">
                 <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
                     <CardTitle className="text-sm font-bold">
@@ -104,6 +107,17 @@ export default function RevenueDetailSummary({ revenueData, topProduct }: Revenu
                 <CardContent className='p-3'>
                     <div className="text-xl font-bold">{formatCurrency(totalAmountBank)}</div>
                     {/* <p className="text-xs text-muted-foreground">+2.5% from last month</p> */}
+                </CardContent>
+            </Card>
+            <Card className="bg-white shadow-none dark:bg-transparent">
+                <CardHeader className="flex flex-row justify-between items-center p-3 pb-2 space-y-0">
+                    <CardTitle className="text-sm font-medium">
+                        {t('revenue.totalAmountCreditCard')}
+                    </CardTitle>
+                    <CreditCard className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className='p-3'>
+                    <div className="text-xl font-bold">{formatCurrency(totalAmountCreditCard)}</div>
                 </CardContent>
             </Card>
             <Card className="bg-white shadow-none dark:bg-transparent">

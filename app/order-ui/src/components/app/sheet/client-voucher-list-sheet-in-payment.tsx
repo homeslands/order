@@ -106,7 +106,7 @@ export default function ClientVoucherListSheetInPayment({
         paymentMethod: paymentMethod
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && isCustomerOwner
   );
 
   const { data: publicVoucherList, refetch: refetchPublicVoucherList } = usePublicVouchersForOrder(
@@ -116,9 +116,10 @@ export default function ClientVoucherListSheetInPayment({
         hasPaging: true,
         page: pagination.pageIndex,
         size: pagination.pageSize,
+        paymentMethod: paymentMethod
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && !isCustomerOwner
   )
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
