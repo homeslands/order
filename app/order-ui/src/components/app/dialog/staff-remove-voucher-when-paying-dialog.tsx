@@ -81,16 +81,23 @@ export default function StaffRemoveVoucherWhenPayingDialog({
         onSuccess: (response) => {
           showToast(tToast('toast.removeVoucherSuccess'))
 
-          // Update payment method immediately - use selectedPaymentMethod that user chose
-          updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
+          // Close dialog immediately
+          onOpenChange(false)
+
+          // Call parent onSuccess immediately - parent will handle payment method update
+          onSuccess?.(response.result)
+          setIsRemoving(false)
+
+          // // Update payment method immediately - use selectedPaymentMethod that user chose
+          // updatePaymentMethod(_selectedPaymentMethod as PaymentMethod)
 
           // Close dialog after payment method is updated
-          setTimeout(() => {
-            onOpenChange(false)
-            // Call parent onSuccess with updated order data
-            onSuccess?.(response.result)
-            setIsRemoving(false)
-          }, 100)
+          // setTimeout(() => {
+          //   onOpenChange(false)
+          //   // Call parent onSuccess with updated order data
+          //   onSuccess?.(response.result)
+          //   setIsRemoving(false)
+          // }, 100)
         },
         onError: () => {
           setIsRemoving(false)

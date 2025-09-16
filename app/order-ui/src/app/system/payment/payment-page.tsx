@@ -416,7 +416,7 @@ export default function PaymentPage() {
           }
         },
       )
-    } else if (paymentMethod === PaymentMethod.CASH) {
+    } else if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.CREDIT_CARD) {
       initiatePayment(
         { orderSlug: slug, paymentMethod },
         {
@@ -717,34 +717,39 @@ export default function PaymentPage() {
                   // Reset voucher removal flag
                   isRemovingVoucherRef.current = false
                 }}
-                onSuccess={(updatedOrder) => {
+                onSuccess={() => {
                   // Không reset initializedSlugRef để tránh trigger lại initializePayment
                   qrCodeSetRef.current = false
 
                   // Explicitly close dialog FIRST to prevent flicker
                   setIsRemoveVoucherOption(false)
 
-                  // Sync updated order data với Order Flow Store
-                  setOrderFromAPI(updatedOrder)
-
                   // Reset states sau khi đã sync order data
                   setPreviousPaymentMethod(undefined)
-                  setPendingPaymentMethod(undefined)
 
-                  // Refetch order data and re-initialize payment
+                  // Sync updated order data với Order Flow Store
+                  // setOrderFromAPI(updatedOrder)
+                  const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+                  // Reset states sau khi đã sync order data
+                  setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+                  // Update payment method in store immediately BEFORE refetch
+                  updatePaymentMethod(selectedMethod as PaymentMethod)
+
+                  // Refetch order data immediately
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data (no voucher)
                     if (slug) {
-                      initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                      initializePayment(slug, selectedMethod as PaymentMethod)
                     }
-                    // Update payment method after re-initialization
-                    updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-                  })
 
-                  // Reset flag after everything is complete - allow new voucher dialogs
-                  setTimeout(() => {
-                    isRemovingVoucherRef.current = false
-                  }, 100)
+                    // Reset flag after everything is complete - allow new voucher dialogs
+                    setTimeout(() => {
+                      isRemovingVoucherRef.current = false
+                      setPendingPaymentMethod(undefined)
+                    }, 100)
+                  })
                 }}
               />
             )}
@@ -792,7 +797,8 @@ export default function PaymentPage() {
             {t('order.backToMenu')}
           </Button>
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
-            paymentMethod === PaymentMethod.CASH) && (
+            paymentMethod === PaymentMethod.CASH ||
+            paymentMethod === PaymentMethod.CREDIT_CARD) && (
               <div className="flex gap-2 justify-end">
                 {/* Chỉ hiển thị nếu là BANK_TRANSFER và có QR */}
                 {hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER ? (
