@@ -341,7 +341,7 @@ export default function OrderHistoryPage() {
                   <p className="font-semibold text-md">
                     {t('order.totalPayment')}
                   </p>
-                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
+                  <p className="text-2xl font-extrabold text-primary">{`${formatCurrency(orderDetail?.result?.subtotal || 0)}`}</p>
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
