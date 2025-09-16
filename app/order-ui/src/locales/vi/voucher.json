@@ -128,6 +128,7 @@
       "cash": "Tiền mặt",
       "bankTransfer": "Chuyển khoản",
       "point": "Điểm tích lũy",
+      "creditCard": "Thẻ tín dụng",
       "error": "Vui lòng chọn ít nhất 1 phương thức thanh toán",
       "selected": "Đã chọn",
       "paymentMethods": "phương thức thanh toán"

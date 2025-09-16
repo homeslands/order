@@ -11,14 +11,26 @@ interface PaymentResolution {
 }
 
 /** role → methods khả dụng */
-export function getAvailableMethodsByRole(role: Role | undefined | null): PaymentMethod[] {
+export function getAvailableMethodsByRole(
+  role: Role | undefined | null,
+): PaymentMethod[] {
   switch (role) {
     case Role.CUSTOMER:
       return [PaymentMethod.BANK_TRANSFER, PaymentMethod.POINT]
     case Role.STAFF:
-      return [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
+      return [
+        PaymentMethod.BANK_TRANSFER,
+        PaymentMethod.CASH,
+        PaymentMethod.CREDIT_CARD,
+        PaymentMethod.POINT,
+      ]
     case Role.ADMIN:
-      return [PaymentMethod.BANK_TRANSFER, PaymentMethod.CASH]
+      return [
+        PaymentMethod.BANK_TRANSFER,
+        PaymentMethod.CASH,
+        PaymentMethod.CREDIT_CARD,
+        PaymentMethod.POINT,
+      ]
     default:
       // Default cho user không login - chỉ có bank transfer
       return [PaymentMethod.BANK_TRANSFER]
@@ -55,6 +67,7 @@ export const paymentResolver = (
     [PaymentMethod.BANK_TRANSFER]: '',
     [PaymentMethod.CASH]: '',
     [PaymentMethod.POINT]: '',
+    [PaymentMethod.CREDIT_CARD]: '',
   }
 
   if (voucherMethods.length) {
@@ -70,7 +83,9 @@ export const paymentResolver = (
       reasonMap[m as PaymentMethod] =
         m === PaymentMethod.CASH
           ? 'Voucher này chỉ áp dụng cho tiền mặt. Vui lòng đến quầy.'
-          : 'Phương thức này không khả dụng.'
+          : m === PaymentMethod.CREDIT_CARD
+            ? 'Voucher này chỉ áp dụng cho thẻ tín dụng. Vui lòng đến quầy.'
+            : 'Phương thức này không khả dụng.'
     }
   }
 

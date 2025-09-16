@@ -36,6 +36,7 @@ export const createVoucherSchema = z
           VOUCHER_PAYMENT_METHOD.CASH,
           VOUCHER_PAYMENT_METHOD.POINT,
           VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+          VOUCHER_PAYMENT_METHOD.CREDIT_CARD,
         ]),
       )
       .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
@@ -93,6 +94,7 @@ export const createMultipleVoucherSchema = z
           VOUCHER_PAYMENT_METHOD.CASH,
           VOUCHER_PAYMENT_METHOD.POINT,
           VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+          VOUCHER_PAYMENT_METHOD.CREDIT_CARD,
         ]),
       )
       .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
@@ -150,6 +152,7 @@ export const updateVoucherSchema = z
           VOUCHER_PAYMENT_METHOD.CASH,
           VOUCHER_PAYMENT_METHOD.POINT,
           VOUCHER_PAYMENT_METHOD.BANK_TRANSFER,
+          VOUCHER_PAYMENT_METHOD.CREDIT_CARD,
         ]),
       )
       .min(1, { message: 'Vui lòng chọn ít nhất một phương thức thanh toán' }),
