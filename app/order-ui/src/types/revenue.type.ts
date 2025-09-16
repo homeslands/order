@@ -23,6 +23,7 @@ export interface IBranchRevenue extends IBase {
   totalAmountInternal: number
   totalAccumulatedPointsToUse: number
   totalAmountPoint: number
+  totalAmountCreditCard: number
   originalAmount: number
   promotionAmount: number
   voucherAmount: number
