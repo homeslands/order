@@ -38,6 +38,8 @@ export default function UpdateOrderContent({
     const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
     const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
+    // console.log('updatingData', updatingData)
+
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
             onSuccess: () => {

@@ -53,7 +53,6 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
   const order: ICartItem | null = orderDraft ? {
     id: orderDraft.id,
     slug: orderDraft.slug,
-    // productSlug: orderDraft.productSlug,
     owner: orderDraft.owner,
     ownerFullName: orderDraft.ownerFullName,
     ownerPhoneNumber: orderDraft.ownerPhoneNumber,

@@ -731,11 +731,16 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
 
+        // console.log('updateDraft in initializeUpdating', updateDraft)
+
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,
           updateDraft,
           hasChanges: false,
         }
+
+        // console.log('🔍 Created updateDraft with timeLeftTakeOut:', updateDraft.timeLeftTakeOut)
+        // console.log('🔍 Created updateDraft with type:', updateDraft.type)
 
         set({
           currentStep: OrderFlowStep.UPDATING,
@@ -973,7 +978,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           timeLeftTakeOut: undefined,
           table: table.slug,
           tableName: table.name,
-          type: OrderTypeEnum.AT_TABLE,
+          type: table.type || OrderTypeEnum.AT_TABLE,
         }
 
         set({
@@ -995,6 +1000,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           timeLeftTakeOut: undefined,
           table: '',
           tableName: '',
+          type: OrderTypeEnum.AT_TABLE,
         }
 
         set({
@@ -1052,11 +1058,14 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updatedDraft = {
           ...updatingData.updateDraft,
           type,
-          // Nếu type là take-out, remove table
+          // Nếu type là take-out, chỉ remove table, giữ nguyên timeLeftTakeOut
           ...(type === OrderTypeEnum.TAKE_OUT && {
-            timeLeftTakeOut: undefined,
             table: '',
             tableName: '',
+          }),
+          // Nếu type là at-table, remove timeLeftTakeOut
+          ...(type === OrderTypeEnum.AT_TABLE && {
+            timeLeftTakeOut: undefined,
           }),
         }
 
