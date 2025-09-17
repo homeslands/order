@@ -1,5 +1,6 @@
 import { TableStatus } from '@/constants'
 import { IBase } from './base.type'
+import { OrderTypeEnum } from './dish.type'
 
 export interface Table extends IBase {
   id: string
@@ -10,6 +11,7 @@ export interface Table extends IBase {
 }
 
 export interface ITable extends IBase {
+  type?: OrderTypeEnum
   name: string
   location: string
   status: TableStatus
