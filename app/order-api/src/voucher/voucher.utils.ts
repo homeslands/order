@@ -5,7 +5,6 @@ import {
   FindOneOptions,
   In,
   IsNull,
-  Not,
   Repository,
 } from 'typeorm';
 import { Voucher } from './entity/voucher.entity';
@@ -23,12 +22,15 @@ import { VoucherApplicabilityRule, VoucherType } from './voucher.constant';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import moment from 'moment';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class VoucherUtils {
   constructor(
     @InjectRepository(Voucher)
     private readonly voucherRepository: Repository<Voucher>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(VoucherProduct)
     private readonly voucherProductRepository: Repository<VoucherProduct>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -178,18 +180,19 @@ export class VoucherUtils {
   ): Promise<boolean> {
     const context = `${VoucherUtils.name}.${this.validateVoucherUsage.name}`;
 
-    // validate voucher for user
-    if (userSlug) {
-      // user login
-      const user = await this.userUtils.getUser({
-        where: {
-          slug: userSlug ?? IsNull(),
-          phonenumber: Not('default-customer'),
-        },
-        relations: ['role'],
-      });
+    const user = await this.userRepository.findOne({
+      where: {
+        slug: userSlug ?? IsNull(),
+      },
+      relations: ['role'],
+    });
 
-      if (user.role.name === RoleEnum.Customer) {
+    // user login
+    if (user) {
+      if (
+        user.role?.name === RoleEnum.Customer &&
+        user.phonenumber !== 'default-customer'
+      ) {
         // user order
         if (voucher.isVerificationIdentity) {
           // check user already verify email or not
@@ -225,35 +228,22 @@ export class VoucherUtils {
         }
         this.logger.log('Validate voucher success', context);
         return true;
-      } else {
-        // staff order for user
-        if (voucher.isVerificationIdentity) {
-          this.logger.warn(
-            `Voucher ${voucher.slug} must verify identity to use voucher`,
-            context,
-          );
-          throw new VoucherException(
-            VoucherValidation.MUST_VERIFY_IDENTITY_TO_USE_VOUCHER,
-          );
-        }
       }
-      this.logger.log('Validate voucher success', context);
-      return true;
-    } else {
-      // user not login
-      if (voucher.isVerificationIdentity) {
-        this.logger.warn(
-          `Voucher ${voucher.slug} must verify identity to use voucher`,
-          context,
-        );
-        throw new VoucherException(
-          VoucherValidation.MUST_VERIFY_IDENTITY_TO_USE_VOUCHER,
-        );
-      }
-
-      this.logger.log('Validate voucher success', context);
-      return true;
     }
+
+    // user not login and staff order for user
+    if (voucher.isVerificationIdentity) {
+      this.logger.warn(
+        `Voucher ${voucher.slug} must verify identity to use voucher`,
+        context,
+      );
+      throw new VoucherException(
+        VoucherValidation.MUST_VERIFY_IDENTITY_TO_USE_VOUCHER,
+      );
+    }
+
+    this.logger.log('Validate voucher success', context);
+    return true;
   }
 
   async validateVoucherProduct(
