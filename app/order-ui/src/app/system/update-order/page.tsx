@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { ROUTE } from '@/constants'
 import { Button } from '@/components/ui'
 import { useIsMobile, useOrderBySlug } from '@/hooks'
-import { ITable, OrderStatus, OrderTypeEnum } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
 import { SystemMenuInUpdateOrderTabs } from '@/components/app/tabs'
 import { OrderCountdown } from '@/components/app/countdown'
 import { useOrderFlowStore } from '@/stores'
@@ -30,9 +30,12 @@ export default function UpdateOrderPage() {
         updatingData,
         initializeUpdating,
         clearUpdatingData,
-        setDraftTable
+        setDraftTable,
+        setDraftType,
+        addDraftPickupTime
     } = useOrderFlowStore()
 
+    // Initialize updating data
     useEffect(() => {
         if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
             // Đảm bảo order data đầy đủ trước khi initialize
@@ -43,27 +46,40 @@ export default function UpdateOrderPage() {
                 return
             }
             // 
-            if(shouldReinitialize)
-            {
+            if (shouldReinitialize) {
+                // ✅ Preserve current draft values before reinitializing
+                const currentDraft = updatingData?.updateDraft
+                const preservedTimeLeftTakeOut = currentDraft?.timeLeftTakeOut
+                const preservedType = currentDraft?.type || orderData.type
+
                 // ✅ Update order data with current draft table and name if available
-                const exampleTable: ITable = {
+                const exampleTable = {
                     ...orderData.table,
-                    slug: updatingData?.updateDraft.table || orderData.table.slug,
-                    name: updatingData?.updateDraft.tableName || orderData.table.name,
-                  }
+                    type: preservedType as OrderTypeEnum,
+                    slug: preservedType === OrderTypeEnum.AT_TABLE ? currentDraft?.table || orderData.table?.slug || '' : orderData.table?.slug || '',
+                    name: preservedType === OrderTypeEnum.AT_TABLE ? currentDraft?.tableName || orderData.table?.name || '' : orderData.table?.name || '',
+                }
+
                 initializeUpdating(orderData)
+
+                // ✅ Restore preserved values after initialization
+                if (preservedType && preservedType !== orderData.type) {
+                    setDraftType(preservedType as OrderTypeEnum)
+                }
+                if (preservedTimeLeftTakeOut !== undefined && preservedType === OrderTypeEnum.TAKE_OUT) {
+                    addDraftPickupTime(preservedTimeLeftTakeOut)
+                }
                 setDraftTable(exampleTable) // Set updated table in store
                 setShouldReinitialize(false)
-            }else
-            {
-           // ✅ Force initialize updating phase với original order (không check currentStep)
-            try {
-                initializeUpdating(orderData)
-                setIsDataLoaded(true) // Mark data as loaded
-            } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error('❌ Update Order: Failed to initialize updating data:', error)
-            } 
+            } else {
+                // ✅ Force initialize updating phase với original order (không check currentStep)
+                try {
+                    initializeUpdating(orderData)
+                    setIsDataLoaded(true) // Mark data as loaded
+                } catch (error) {
+                    // eslint-disable-next-line no-console
+                    console.error('❌ Update Order: Failed to initialize updating data:', error)
+                }
             }
 
 
@@ -132,10 +148,6 @@ export default function UpdateOrderPage() {
                     // Stop polling if order status changed from PENDING
                     if (orderData.status !== OrderStatus.PENDING) {
                         setIsPolling(false)
-
-                        // Show notification to user about status change
-                        // TODO: Add toast notification here
-                        // showToast('Order status has changed. Please refresh the page.')
                     }
                 }
             }, 5000) // Poll every 5 seconds
@@ -163,16 +175,6 @@ export default function UpdateOrderPage() {
             setIsDataLoaded(false)
         }
     }, [clearUpdatingData])
-
-    const handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
-        }
-    }, [refetchOrder])
 
     if (isExpired) {
         return (
@@ -226,7 +228,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
                                 </div>
                             </div>
                         </>
@@ -235,7 +237,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
                             </div>
 
                             {/* Desktop layout - Content right */}
