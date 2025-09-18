@@ -295,6 +295,7 @@ export class ChefOrderService {
     const tableName = chefOrder.order.table?.name ?? 'Take out';
     const referenceNumber = chefOrder.order.referenceNumber;
     const areaName = chefOrder.chefArea.name;
+    const timeLeftTakeOut = chefOrder.order.timeLeftTakeOut;
     const data = await this.pdfService.generatePdf(
       'chef-order',
       {
@@ -304,6 +305,7 @@ export class ChefOrderService {
         referenceNumber,
         tableName,
         areaName,
+        timeLeftTakeOut,
       },
       {
         width: '80mm',

@@ -532,6 +532,7 @@ describe('VoucherService', () => {
         referenceNumber: 1,
         accumulatedPointTransactionHistories: [],
         accumulatedPointsToUse: 0,
+        timeLeftTakeOut: 0,
       } as Order;
 
       jest.spyOn(voucherUtils, 'getVoucher').mockResolvedValue(mockVoucherRepo);

@@ -18,7 +18,6 @@ import { PrinterException } from './printer.exception';
 import PrinterValidation from './printer.validation';
 import { ExportInvoiceDto } from 'src/invoice/invoice.dto';
 import { InvoiceService } from 'src/invoice/invoice.service';
-
 @Injectable()
 export class PrinterUtils {
   constructor(
@@ -115,7 +114,9 @@ export class PrinterUtils {
       moment(chefOrder.order?.createdAt).format('DD/MM/YYYY HH:mm:ss'),
       chefOrder.order?.description ?? 'N/A',
       chefOrder.chefOrderItems,
+      chefOrder.order?.timeLeftTakeOut ?? 0,
     );
+
     try {
       const socket = this.printerManager.getOrCreateConnection(
         printerIp,
@@ -142,6 +143,7 @@ export class PrinterUtils {
     createdAt: string,
     noteAll: string,
     chefOrderItems: ChefOrderItem[],
+    timeLeftTakeOut: number,
   ): Promise<Buffer> {
     const canvasWidth = 576;
     const lineHeight = 36;
@@ -173,12 +175,14 @@ export class PrinterUtils {
     }, 0);
 
     // Estimate lines for header info (branchName, createdAt, table, noteAll)
-    const infoFields = [
-      branchName,
-      createdAt,
-      table,
-      noteAll || 'Không có ghi chú',
-    ];
+    const infoFields = [branchName, createdAt, table];
+
+    if (table === 'Mang đi') {
+      infoFields.push(timeLeftTakeOut.toString());
+    }
+
+    infoFields.push(noteAll || 'Không có ghi chú');
+
     const infoWrappedLines = infoFields.reduce((sum, field) => {
       return (
         sum + this.wrapText(tempCtx, field, canvasWidth - 2 * padding).length
@@ -203,15 +207,20 @@ export class PrinterUtils {
     ctx.font = '24px Roboto';
     ctx.fillText(`Mã đơn: ${orderCode}`, canvasWidth / 2, 80);
 
-    // Info section (Chi nhánh, Thời gian, Bàn, Ghi chú)
+    // Info section (Chi nhánh, Thời gian, Bàn, Thời gian mang đi, Ghi chú)
     ctx.textAlign = 'left';
     let currentY = 120;
     const infoData = [
       `Chi nhánh: ${branchName}`,
       `Thời gian: ${createdAt}`,
       `Bàn: ${table}`,
-      `Ghi chú: ${noteAll || 'Không có ghi chú'}`,
     ];
+
+    if (table === 'Mang đi') {
+      infoData.push(`Thời gian mang đi: ${timeLeftTakeOut} (phút)`);
+    }
+
+    infoData.push(`Ghi chú: ${noteAll || 'Không có ghi chú'}`);
 
     infoData.forEach((text) => {
       const lines = this.wrapText(ctx, text, canvasWidth - 2 * padding);
