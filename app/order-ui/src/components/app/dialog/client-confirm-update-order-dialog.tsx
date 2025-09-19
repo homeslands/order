@@ -133,7 +133,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               type: orderDraft.type,
               table: orderDraft.table || null,
               description: orderDraft.description || '',
-              timeLeftTakeOut: orderDraft.timeLeftTakeOut
+              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0
             }
           }, {
             onSuccess: () => resolve(true),
