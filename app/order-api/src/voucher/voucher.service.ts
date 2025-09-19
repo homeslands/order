@@ -182,6 +182,9 @@ export class VoucherService {
           case PaymentMethod.POINT:
             voucherPaymentMethod.paymentMethod = PaymentMethod.POINT;
             break;
+          case PaymentMethod.CREDIT_CARD:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.CREDIT_CARD;
+            break;
         }
 
         return voucherPaymentMethod;
@@ -295,6 +298,9 @@ export class VoucherService {
             break;
           case PaymentMethod.POINT:
             voucherPaymentMethod.paymentMethod = PaymentMethod.POINT;
+            break;
+          case PaymentMethod.CREDIT_CARD:
+            voucherPaymentMethod.paymentMethod = PaymentMethod.CREDIT_CARD;
             break;
         }
 

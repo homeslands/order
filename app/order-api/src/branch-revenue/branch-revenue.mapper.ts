@@ -108,6 +108,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
           mapFrom((source) => +source.totalAccumulatedPointsToUse),
         ),
         forMember(
+          (destination) => destination.totalAmountCreditCard,
+          mapFrom((source) => +source.totalAmountCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalOrderCreditCard,
+          mapFrom((source) => +source.totalOrderCreditCard),
+        ),
+        forMember(
           (destination) => destination.date,
           mapFrom((source) => {
             // Date format: YYYY-MM-DDT00:00:00Z
@@ -199,6 +207,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalAccumulatedPointsToUse,
           mapFrom((source) => +source.totalAccumulatedPointsToUse),
+        ),
+        forMember(
+          (destination) => destination.totalAmountCreditCard,
+          mapFrom((source) => +source.totalAmountCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalOrderCreditCard,
+          mapFrom((source) => +source.totalOrderCreditCard),
         ),
         forMember(
           (destination) => destination.date,
