@@ -21,7 +21,7 @@ import {
 } from '@/components/ui'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
-import { VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, VOUCHER_TYPE } from '@/constants'
 import { DownloadIcon, Loader2 } from 'lucide-react'
 
 interface IOrderHistoryDetailSheetProps {
@@ -191,11 +191,15 @@ export default function OrderHistoryDetailSheet({
                           {orderDetail?.payment?.paymentMethod ? (
                             <>
                               {orderDetail?.payment.paymentMethod ===
-                                'bank-transfer' && (
+                                PaymentMethod.BANK_TRANSFER && (
                                   <span>{t('paymentMethod.bankTransfer')}</span>
                                 )}
                               {orderDetail?.payment.paymentMethod ===
-                                'cash' && <span>{t('paymentMethod.cash')}</span>}
+                                PaymentMethod.CASH && <span>{t('paymentMethod.cash')}</span>}
+                              {orderDetail?.payment.paymentMethod ===
+                                PaymentMethod.CREDIT_CARD && <span>{t('paymentMethod.creditCard')}</span>}
+                              {orderDetail?.payment.paymentMethod ===
+                                PaymentMethod.POINT && <span>{t('paymentMethod.point')}</span>}
                             </>
                           ) : (
                             <span className="text-sm text-muted-foreground">

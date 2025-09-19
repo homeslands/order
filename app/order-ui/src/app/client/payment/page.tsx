@@ -193,7 +193,25 @@ export function ClientPaymentPage() {
 
   // Start polling when QR code exists and payment is valid, or when payment method is selected
   useEffect(() => {
-    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+    // For polling decisions, ignore effectiveMethods conflicts and focus on actual payment state
+    // This ensures polling continues even when voucher conflicts cause effectiveMethods to be empty
+    const actualPaymentMethod = paymentData?.paymentMethod
+      ? paymentData.paymentMethod  // Always use stored method if available, regardless of effectiveMethods
+      : (voucherPaymentMethods?.length > 0
+        ? voucherPaymentMethods[0].paymentMethod
+        : defaultMethod || PaymentMethod.BANK_TRANSFER)
+
+    // Check if we should poll - prioritize existing BANK_TRANSFER payment over current UI state
+    const shouldPollForBankTransfer = !isExpired && (
+      // There's already a BANK_TRANSFER payment in progress
+      orderData?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER ||
+      // Or the actual method (not pending) is BANK_TRANSFER
+      actualPaymentMethod === PaymentMethod.BANK_TRANSFER ||
+      // Or current UI method is BANK_TRANSFER (but only if no existing payment conflicts)
+      (paymentMethod === PaymentMethod.BANK_TRANSFER && !orderData?.payment)
+    )
+
+    if (shouldPollForBankTransfer) {
       if (hasValidPaymentAndQr) {
         // Case 1: Valid QR code - check if payment is completed
         if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
@@ -207,8 +225,8 @@ export function ClientPaymentPage() {
       } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
         // Case 3: Payment exists but no QR code (amount < 2000) - start polling
         setIsPolling(true)
-      } else if (!orderData?.payment) {
-        // Case 4: No payment exists yet - start polling to wait for payment creation
+      } else if (!orderData?.payment && actualPaymentMethod === PaymentMethod.BANK_TRANSFER) {
+        // Case 4: No payment exists yet but actual method is BANK_TRANSFER - start polling to wait for payment creation
         setIsPolling(true)
       } else {
         setIsPolling(false)
@@ -216,7 +234,7 @@ export function ClientPaymentPage() {
     } else {
       setIsPolling(false)
     }
-  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
+  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, paymentData, voucherPaymentMethods, defaultMethod, qrCode])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -245,7 +263,7 @@ export function ClientPaymentPage() {
           clearPaymentData()
           // Always ensure loading is false before navigating
           setIsLoading(false)
-          navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+          navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
         } else {
           // Turn off loading if order is updated but not yet paid (for orders without QR code)
           if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
@@ -276,7 +294,6 @@ export function ClientPaymentPage() {
       if (!isRemoveVoucherOption) {
         setIsRemoveVoucherOption(true)
       }
-      setIsLoading(false)
       return
     }
 
@@ -553,6 +570,10 @@ export function ClientPaymentPage() {
           isOpen={isRemoveVoucherOption}
           onOpenChange={setIsRemoveVoucherOption}
           order={order?.result}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
           onCancel={() => {
             // Reset pending payment method sau khi cancel
             setPendingPaymentMethod(undefined)
@@ -560,10 +581,6 @@ export function ClientPaymentPage() {
             setPreviousPaymentMethod(undefined)
             // Reset voucher removal flag
             isRemovingVoucherRef.current = false
-          }}
-          onRemoveStart={() => {
-            // Set flag immediately when user clicks remove
-            isRemovingVoucherRef.current = true
           }}
           onSuccess={() => {
             // Không reset initializedSlugRef để tránh trigger lại initializePayment

@@ -31,6 +31,8 @@
         "totalAmountCash": "Cash",
         "totalAmountInternal": "Internal wallet",
         "totalAmountPoint": "Point",
+        "totalAmountCreditCard": "Credit card",
+        "creditCard": "Credit card",
         "totalOrder": "Total order",
         "totalOrderItem": "Total order item",
         "totalOrders": "Total orders",

@@ -71,16 +71,18 @@ export default function RevenueDetailChart({
             const cash = formatCurrency(params[1].value)
             const bank = formatCurrency(params[2].value)
             const point = formatCurrency(params[3].value, '')
+            const creditCard = formatCurrency(params[4].value)
 
             return `${date}<br/>
               ${params[0].seriesName}: ${orders} ${t('revenue.orderUnit')}<br/>
               ${params[1].seriesName}: ${cash}<br/>
               ${params[2].seriesName}: ${bank}<br/>
-              ${params[3].seriesName}: ${point}`
+              ${params[3].seriesName}: ${point}<br/>
+              ${params[4].seriesName}: ${creditCard}`
           },
         },
         legend: {
-          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet'), t('revenue.point')],
+          data: [t('revenue.order'), t('revenue.cash'), t('revenue.bank'), t('revenue.internalWallet'), t('revenue.point'), t('revenue.creditCard')],
           textStyle: {
             color: textColor,
           },
@@ -170,6 +172,15 @@ export default function RevenueDetailChart({
             },
           },
           {
+            name: t('revenue.creditCard'),
+            type: 'bar',
+            data: sortedData.map((item) => item.totalAmountCreditCard),
+            itemStyle: {
+              color: '#F0A313',
+              borderRadius: [5, 5, 0, 0],
+            },
+          },
+          {
             name: t('revenue.point'),
             type: 'bar',
             data: sortedData.map((item) => item.totalAmountPoint),
@@ -199,11 +210,11 @@ export default function RevenueDetailChart({
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex justify-between items-center">
           {t('revenue.revenueSystem')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex items-center justify-center p-2">
+      <CardContent className="flex justify-center items-center p-2">
         <div ref={chartRef} className="h-[26rem] w-full" />
       </CardContent>
     </Card>
