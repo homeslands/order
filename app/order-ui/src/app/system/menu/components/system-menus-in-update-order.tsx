@@ -19,14 +19,14 @@ interface IMenuProps {
   onSuccess?: () => void
 }
 
-export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }: IMenuProps) {
+export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { state } = useSidebar()
   const { slug } = useParams()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
-  const { updatingData } = useOrderFlowStore()
+  const { updatingData, addDraftItem } = useOrderFlowStore()
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const menuItems = menu?.menuItems?.sort((a, b) => {
@@ -56,10 +56,15 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
       promotion: item.promotion ? item.promotion.slug : '',
       order: slug || '',
     }
+    // ✅ Optimistic update: thêm item vào local state ngay lập tức
+    addDraftItem(item)
+
     addNewOrderItem(request, {
       onSuccess: () => {
-        onSuccess?.()
-      }
+        // ✅ API call thành công, item đã được thêm vào draft ở trên
+        // Không cần refetch toàn bộ order nữa
+        showToast(tToast('toast.addSuccess'))
+      },
     })
   }
 
@@ -92,11 +97,8 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
       note: '',
     }
 
-    // Thêm vào draft order
+    // Thêm vào draft order với optimistic update
     handleAddNewOrderItem(orderItem)
-
-    // Reset states
-    showToast(tToast('toast.addSuccess'))
   }
 
   const getPriceRange = (variants: IProduct['variants']) => {

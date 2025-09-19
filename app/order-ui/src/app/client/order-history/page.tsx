@@ -12,7 +12,6 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableHeader,
   TableRow,
   Textarea,
 } from '@/components/ui'
@@ -125,27 +124,29 @@ export default function OrderHistoryPage() {
                 <div className="px-3 py-2 font-bold rounded-t-sm bg-muted-foreground/20">
                   {t('order.orderType')}
                 </div>
-                <div className="px-3 py-2 text-sm">
-                  <p>
-                    {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
-                      ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
-                      : t('order.takeAway')}{' '}
-                  </p>
-                </div>
+                {orderInfo?.type === OrderTypeEnum.TAKE_OUT ? (
+                  <div className="px-3 py-2 text-sm">
+                    <p>
+                      {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                        ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                        : t('order.takeAway')}{' '} - {orderDetail?.result?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${orderDetail?.result?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2 text-sm">
+                    <p>
+                      {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                        ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                        : t('order.takeAway')}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             {/* Order table */}
             <div className="overflow-x-auto pb-4 bg-white rounded-sm border dark:bg-transparent">
               <Table className="min-w-full table-auto">
                 <TableCaption>{t('order.aListOfOrders')}</TableCaption>
-                {/* Header */}
-                <TableHeader className="rounded bg-muted-foreground/10">
-                  {/* <TableRow>
-                    <TableHead className="w-3/4 text-left">{t('order.product')}</TableHead>
-                    <TableHead className="w-1/4 text-right bg-red-200">{t('order.grandTotal')}</TableHead>
-                  </TableRow> */}
-                </TableHeader>
-
                 {/* Body */}
                 <TableBody>
                   {orderInfo?.orderItems?.map((item) => {

@@ -107,6 +107,7 @@ export interface IChefOrderInfo extends IBase {
   subtotal: number
   status: string
   type: string
+  timeLeftTakeOut: number
   table: ITable
   description: string
 }

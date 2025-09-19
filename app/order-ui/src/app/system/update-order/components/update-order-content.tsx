@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Badge, Button, ScrollArea } from '@/components/ui'
-import { OrderTypeInUpdateOrderSelect } from '@/components/app/select'
+import { OrderTypeInUpdateOrderSelect, PickupTimeSelectInUpdateOrder } from '@/components/app/select'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
@@ -38,6 +38,8 @@ export default function UpdateOrderContent({
     const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
     const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
+    // console.log('updatingData', updatingData)
+
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
             onSuccess: () => {
@@ -56,10 +58,15 @@ export default function UpdateOrderContent({
         >
             {/* Header */}
             <div className={`flex flex-col gap-2 p-2 ${isMobile ? 'border-b bg-background' : 'backdrop-blur-sm shrink-0 bg-background/95'}`}>
-                <div className='flex items-center'>
+                <div className='flex flex-col gap-2 items-center'>
                     <div className="w-full">
                         <OrderTypeInUpdateOrderSelect typeOrder={orderType} />
                     </div>
+                    {orderType === OrderTypeEnum.TAKE_OUT && (
+                        <div className='w-full'>
+                            <PickupTimeSelectInUpdateOrder orderType={orderType} pickupTime={updatingData?.originalOrder?.timeLeftTakeOut} />
+                        </div>
+                    )}
                 </div>
             </div>
 

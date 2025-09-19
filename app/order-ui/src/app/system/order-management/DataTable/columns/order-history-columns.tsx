@@ -185,6 +185,27 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       },
     },
     {
+      accessorKey: 'pickupTime',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.pickupTime')} />
+      ),
+      cell: ({ row }) => {
+        const pickupTime = row.original.timeLeftTakeOut
+
+        return row.original.type === OrderTypeEnum.TAKE_OUT ? (
+          <div className={`text-sm ${pickupTime === 0 ? 'text-green-600' : 'text-destructive'}`}>
+            {pickupTime === 0
+              ? t('menu.immediately')
+              : pickupTime
+                ? `${t('menu.waiting')} ${pickupTime} ${t('menu.minutes')}`
+                : ""}
+          </div>
+        ) : (
+          <div className="text-sm">{t('menu.dineIn')}</div>
+        )
+      },
+    },
+    {
       accessorKey: 'orderStatus',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={t('order.orderStatus')} />

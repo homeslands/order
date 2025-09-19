@@ -12,7 +12,7 @@ import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOr
 import { PaymentMethod, paymentStatus, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
-import { OrderStatus } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
 import { OrderCountdown } from '@/components/app/countdown'
 import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep } from '@/stores'
@@ -530,9 +530,17 @@ export default function PaymentPage() {
                     {t('order.deliveryMethod')}
                   </h3>
                   <p className="col-span-1 text-sm">
-                    {order.result.type === 'at-table'
+                    {order.result.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
                       : t('order.takeAway')}
+                    {order.result.type === OrderTypeEnum.TAKE_OUT && (
+                      <>
+                        {" - "}
+                        {order.result.timeLeftTakeOut === 0
+                          ? t('menu.immediately')
+                          : `${t('menu.waiting')} ${order.result.timeLeftTakeOut} ${t('menu.minutes')}`}
+                      </>
+                    )}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

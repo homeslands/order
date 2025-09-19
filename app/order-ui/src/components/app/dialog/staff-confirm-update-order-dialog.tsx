@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Loader2, MapPin, Notebook, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
+import { Clock, Loader2, MapPin, Notebook, Phone, Receipt, ShoppingCart, User } from 'lucide-react'
 
 import {
   Badge,
@@ -53,12 +53,12 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
   const order: ICartItem | null = orderDraft ? {
     id: orderDraft.id,
     slug: orderDraft.slug,
-    // productSlug: orderDraft.productSlug,
     owner: orderDraft.owner,
     ownerFullName: orderDraft.ownerFullName,
     ownerPhoneNumber: orderDraft.ownerPhoneNumber,
     ownerRole: orderDraft.ownerRole,
     type: orderDraft.type as string,
+    timeLeftTakeOut: orderDraft.timeLeftTakeOut,
     orderItems: orderDraft.orderItems.map(item => ({
       ...item,
       slug: item.slug || item.id,
@@ -81,6 +81,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     ownerPhoneNumber: originalOrder.owner?.phonenumber || '',
     ownerRole: originalOrder.owner?.role?.name || '',
     type: originalOrder.type,
+    timeLeftTakeOut: originalOrder.timeLeftTakeOut,
     orderItems: originalOrder.orderItems.map(detail => ({
       id: detail.id || detail.slug,
       slug: detail.slug,
@@ -121,15 +122,16 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     if (!orderDraft || !originalOrder) return
 
     try {
-      // 1. Update order type/table/description if changed
-      if (orderComparison.tableChanged || orderComparison.noteChanged) {
+      // 1. Update order type/table/description/pickup time if changed
+      if (orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged) {
         await new Promise((resolve, reject) => {
           updateOrderType({
             slug: originalOrder.slug,
             params: {
               type: orderDraft.type,
               table: orderDraft.table || null,
-              description: orderDraft.description || ''
+              description: orderDraft.description || '',
+              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0
             }
           }, {
             onSuccess: () => resolve(true),
@@ -266,6 +268,19 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
               </Badge>
             </div>
+            {order?.type === OrderTypeEnum.TAKE_OUT && order?.timeLeftTakeOut !== undefined && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  {t('menu.pickupTime')}
+                </span>
+                <Badge className="font-medium">
+                  {order.timeLeftTakeOut === 0
+                    ? t('menu.immediately')
+                    : `${order.timeLeftTakeOut} ${t('menu.minutes')}`}
+                </Badge>
+              </div>
+            )}
             {order?.tableName && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
                 <span className="flex gap-2 items-center text-gray-600">

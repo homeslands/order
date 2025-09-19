@@ -1,12 +1,12 @@
 import moment from 'moment';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
+import { CoinsIcon } from 'lucide-react';
 
 import { Logo } from '@/assets/images';
 import { capitalizeFirstLetter, formatCurrency, formatPoints } from '@/utils';
-import { IOrder } from '@/types';
+import { IOrder, OrderTypeEnum } from '@/types';
 import { PaymentMethod, VOUCHER_TYPE } from '@/constants';
-import { CoinsIcon } from 'lucide-react';
 
 interface InvoiceProps {
     order: IOrder | undefined
@@ -69,6 +69,15 @@ export default function Invoice({
                     <p className="text-xs">
                         <span className="font-bold">{t('order.cashier')}:</span> {order?.approvalBy?.firstName} {order?.approvalBy?.lastName}
                     </p>)}
+                {order?.type === OrderTypeEnum.TAKE_OUT ? (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.takeAway')} - {order?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                    </p>
+                ) : (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.dineIn')}
+                    </p>
+                )}
             </div>
 
             {/* Invoice items */}
