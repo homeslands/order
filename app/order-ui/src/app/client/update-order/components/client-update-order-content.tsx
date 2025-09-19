@@ -29,7 +29,7 @@ export default function ClientUpdateOrderContent({
     const { t: tVoucher } = useTranslation(['voucher'])
 
     const isMobile = useIsMobile()
-    const { updatingData } = useOrderFlowStore()
+    const { updatingData, setDraftTable } = useOrderFlowStore()
 
     const voucher = updatingData?.updateDraft?.voucher || null
     const orderItems = updatingData?.updateDraft?.orderItems || []
@@ -52,7 +52,7 @@ export default function ClientUpdateOrderContent({
                     </div>
                     {orderType === OrderTypeEnum.AT_TABLE ? (
                         <div className='my-5 w-full'>
-                            <ClientTableSelectInUpdateOrder tableOrder={updatingData?.originalOrder?.table} orderType={orderType} />
+                            <ClientTableSelectInUpdateOrder tableOrder={updatingData?.originalOrder?.table} orderType={orderType} onTableSelect={setDraftTable} />
                         </div>
                     ) : (
                         <div className='my-5 w-full'>
