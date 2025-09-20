@@ -16,7 +16,7 @@ import {
     TableRow,
 } from '@/components/ui'
 import { useExportPublicOrderInvoice, useIsMobile, useOrderBySlug } from '@/hooks'
-import { publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, publicFileURL, ROUTE, VOUCHER_TYPE } from '@/constants'
 import PaymentStatusBadge from '@/components/app/badge/payment-status-badge'
 import { formatCurrency, showToast } from '@/utils'
 import { ProgressBar } from '@/components/app/progress'
@@ -124,13 +124,23 @@ export default function PublicOrderDetailPage() {
                                 <div className="px-3 py-2 font-bold bg-muted-foreground/10">
                                     {t('order.orderType')}
                                 </div>
-                                <div className="px-3 py-2 text-sm">
-                                    <p>
-                                        {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
-                                            ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
-                                            : t('order.takeAway')}{' '}
-                                    </p>
-                                </div>
+                                {orderInfo?.type === OrderTypeEnum.TAKE_OUT ? (
+                                    <div className="px-3 py-2 text-sm">
+                                        <p>
+                                            {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                                                ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                                                : t('order.takeAway')}{' '} - {orderDetail?.result?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${orderDetail?.result?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="px-3 py-2 text-sm">
+                                        <p>
+                                            {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
+                                                ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
+                                                : t('order.takeAway')}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         {/* Order table */}
@@ -212,15 +222,27 @@ export default function PublicOrderDetailPage() {
                                             {orderInfo?.payment?.paymentMethod && (
                                                 <>
                                                     {orderInfo?.payment.paymentMethod ===
-                                                        'bank-transfer' && (
+                                                        PaymentMethod.BANK_TRANSFER && (
                                                             <span className="italic">
                                                                 {t('paymentMethod.bankTransfer')}
                                                             </span>
                                                         )}
                                                     {orderInfo?.payment.paymentMethod ===
-                                                        'cash' && (
+                                                        PaymentMethod.CASH && (
                                                             <span className="italic">
                                                                 {t('paymentMethod.cash')}
+                                                            </span>
+                                                        )}
+                                                    {orderInfo?.payment.paymentMethod ===
+                                                        PaymentMethod.CREDIT_CARD && (
+                                                            <span className="italic">
+                                                                {t('paymentMethod.creditCard')}
+                                                            </span>
+                                                        )}
+                                                    {orderInfo?.payment.paymentMethod ===
+                                                        PaymentMethod.POINT && (
+                                                            <span className="italic">
+                                                                {t('paymentMethod.point')}
                                                             </span>
                                                         )}
                                                 </>
