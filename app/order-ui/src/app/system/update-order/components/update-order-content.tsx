@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { ShoppingCart, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useMemo } from 'react'
 
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { OrderTypeInUpdateOrderSelect, PickupTimeSelectInUpdateOrder } from '@/components/app/select'
@@ -12,7 +13,7 @@ import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './update-quantity'
 import { useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
-import { StaffConfirmUpdateOrderDialog } from '@/components/app/dialog'
+import { StaffConfirmUpdateOrderDialog, DeleteLastOrderItemDialog } from '@/components/app/dialog'
 import { useDeleteOrderItem, useIsMobile } from '@/hooks'
 
 interface UpdateOrderContentProps {
@@ -33,12 +34,23 @@ export default function UpdateOrderContent({
     const isMobile = useIsMobile()
 
     const voucher = updatingData?.updateDraft?.voucher || null
-    const orderItems = updatingData?.updateDraft?.orderItems || []
-    const transformedOrderItems = transformOrderItemToOrderDetail(orderItems)
-    const displayItems = calculateOrderItemDisplay(transformedOrderItems, voucher)
-    const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
 
-    // console.log('updatingData', updatingData)
+    // Memoize orderItems để tránh dependency thay đổi
+    const orderItems = useMemo(() =>
+        updatingData?.updateDraft?.orderItems || [],
+        [updatingData?.updateDraft?.orderItems]
+    )
+
+    // Memoize calculations để tránh re-render không cần thiết
+    const { displayItems, cartTotals } = useMemo(() => {
+        const transformed = transformOrderItemToOrderDetail(orderItems)
+        const display = calculateOrderItemDisplay(transformed, voucher)
+        const totals = calculatePlacedOrderTotals(display, voucher)
+        return {
+            displayItems: display,
+            cartTotals: totals
+        }
+    }, [orderItems, voucher])
 
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
@@ -76,6 +88,10 @@ export default function UpdateOrderContent({
                     <AnimatePresence>
                         {orderItems && orderItems.length > 0 ? (
                             orderItems.map((item: IOrderItem, index: number) => {
+                                // Tạo key thống nhất - dựa trên product + variant để tránh key conflict
+                                const stableKey = `${item.productSlug}-${item.variant?.slug || 'default'}-${index}`
+
+                                // console.log(`Item ${item.name}: stableKey=${stableKey}`)
                                 const displayItem = displayItems.find(di => di.productSlug === item.productSlug)
 
                                 const original = item.variant.price || 0
@@ -108,11 +124,14 @@ export default function UpdateOrderContent({
 
                                 return (
                                     <motion.div
-                                        key={item.id || item.slug}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, x: -100 }}
-                                        transition={{ delay: index * 0.1 }}
+                                        key={stableKey}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{
+                                            duration: 0.25,
+                                            ease: "easeInOut"
+                                        }}
                                         className="flex flex-col gap-1 p-2 rounded-lg border transition-colors border-primary/80 group bg-primary/10"
                                     >
                                         <div className="flex flex-col flex-1 min-w-0">
@@ -141,16 +160,25 @@ export default function UpdateOrderContent({
                                                 </div>
                                                 <div className="flex gap-2 items-center">
                                                     <UpdateOrderQuantity orderItem={item} />
-                                                    <Button
-                                                        disabled={isPendingDeleteOrderItem}
-                                                        title={t('common.remove')}
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleRemoveOrderItem(item)}
-                                                        className="hover:bg-destructive/10 hover:text-destructive"
-                                                    >
-                                                        <Trash2 size={18} className='icon text-destructive' />
-                                                    </Button>
+                                                    {orderItems.length === 1 ? (
+                                                        // Nếu là món cuối cùng, hiển thị dialog cảnh báo
+                                                        <DeleteLastOrderItemDialog
+                                                            orderItem={item}
+                                                            onSuccess={() => removeDraftItem(item.id)}
+                                                        />
+                                                    ) : (
+                                                        // Nếu không phải món cuối cùng, xóa bình thường
+                                                        <Button
+                                                            disabled={isPendingDeleteOrderItem}
+                                                            title={t('common.remove')}
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleRemoveOrderItem(item)}
+                                                            className="hover:bg-destructive/10 hover:text-destructive"
+                                                        >
+                                                            <Trash2 size={18} className='icon text-destructive' />
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </div>
                                             <OrderItemNoteInUpdateOrderInput orderItem={item} />

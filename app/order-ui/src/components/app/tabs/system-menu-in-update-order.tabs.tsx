@@ -12,9 +12,10 @@ import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
+  onSuccess?: () => void
 }
 
-export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateOrderTabsProps) {
+export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
@@ -94,7 +95,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order }: SystemMenuInUpdateO
 
         {/* Scrollable nội dung menu */}
         <ScrollArea className="w-full h-full">
-          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} />
+          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} onSuccess={onSuccess} />
         </ScrollArea>
       </TabsContent>
     </Tabs>
