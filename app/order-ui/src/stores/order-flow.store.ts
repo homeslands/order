@@ -824,6 +824,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
 
         const newItem = {
           ...item,
+          slug: item.productSlug || '',
           id: generateOrderItemId(),
         }
 
