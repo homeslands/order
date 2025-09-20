@@ -32,7 +32,10 @@ export default function UpdateOrderPage() {
         clearUpdatingData,
         setDraftTable,
         setDraftType,
-        addDraftPickupTime
+        addDraftPickupTime,
+        setDraftDescription,
+        setDraftVoucher,
+        updateDraftItem
     } = useOrderFlowStore()
 
     // Initialize updating data
@@ -51,6 +54,26 @@ export default function UpdateOrderPage() {
                 const currentDraft = updatingData?.updateDraft
                 const preservedTimeLeftTakeOut = currentDraft?.timeLeftTakeOut
                 const preservedType = currentDraft?.type || orderData.type
+                const preservedDescription = currentDraft?.description || orderData.description
+                const preservedVoucher = currentDraft?.voucher || orderData.voucher
+
+                // ✅ Preserve non-optimistic item changes (quantity, notes)
+                const preservedItemChanges = currentDraft?.orderItems?.reduce((acc, draftItem) => {
+                    // Chỉ preserve changes cho items có slug thật (không phải optimistic)
+                    if (draftItem.slug && draftItem.slug !== draftItem.productSlug) {
+                        const originalItem = orderData.orderItems.find(oi => oi.slug === draftItem.slug)
+                        if (originalItem) {
+                            // Preserve nếu có thay đổi quantity hoặc note
+                            if (draftItem.quantity !== originalItem.quantity || draftItem.note !== (originalItem.note || '')) {
+                                acc[draftItem.slug] = {
+                                    quantity: draftItem.quantity,
+                                    note: draftItem.note || ''
+                                }
+                            }
+                        }
+                    }
+                    return acc
+                }, {} as Record<string, { quantity: number; note: string }>)
 
                 // ✅ Update order data with current draft table and name if available
                 const exampleTable = {
@@ -60,7 +83,9 @@ export default function UpdateOrderPage() {
                     name: preservedType === OrderTypeEnum.AT_TABLE ? currentDraft?.tableName || orderData.table?.name || '' : orderData.table?.name || '',
                 }
 
+                // ✅ Reinitialize với data mới từ server (bao gồm món vừa add)
                 initializeUpdating(orderData)
+                // console.log('✅ Initialized with', orderData.orderItems.length, 'items from server')
 
                 // ✅ Restore preserved values after initialization
                 if (preservedType && preservedType !== orderData.type) {
@@ -69,6 +94,24 @@ export default function UpdateOrderPage() {
                 if (preservedTimeLeftTakeOut !== undefined && preservedType === OrderTypeEnum.TAKE_OUT) {
                     addDraftPickupTime(preservedTimeLeftTakeOut)
                 }
+                if (preservedDescription !== orderData.description) {
+                    setDraftDescription(preservedDescription || '')
+                }
+                if (preservedVoucher?.slug !== orderData.voucher?.slug) {
+                    setDraftVoucher(preservedVoucher)
+                }
+
+                // ✅ Restore preserved item changes (với delay để đảm bảo store đã update)
+                setTimeout(() => {
+                    const currentUpdatingData = useOrderFlowStore.getState().updatingData
+                    Object.entries(preservedItemChanges || {}).forEach(([itemSlug, changes]) => {
+                        const itemId = currentUpdatingData?.updateDraft?.orderItems?.find(item => item.slug === itemSlug)?.id
+                        if (itemId) {
+                            updateDraftItem(itemId, changes)
+                        }
+                    })
+                }, 100)
+
                 setDraftTable(exampleTable) // Set updated table in store
                 setShouldReinitialize(false)
             } else {
@@ -167,6 +210,15 @@ export default function UpdateOrderPage() {
         }
     }, [isExpired])
 
+    const handleRefetchAndReinitialize = useCallback(async () => {
+        try {
+            await refetchOrder()
+            setShouldReinitialize(true)
+        } catch {
+            // Ignore refetch errors
+        }
+    }, [refetchOrder])
+
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
         if (value) {
@@ -228,7 +280,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -237,7 +289,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
                             </div>
 
                             {/* Desktop layout - Content right */}
