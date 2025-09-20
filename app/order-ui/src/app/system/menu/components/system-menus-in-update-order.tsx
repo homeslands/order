@@ -19,14 +19,14 @@ interface IMenuProps {
   onSuccess?: () => void
 }
 
-export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps) {
+export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }: IMenuProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const isMobile = useIsMobile()
   const { state } = useSidebar()
   const { slug } = useParams()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
-  const { updatingData, addDraftItem } = useOrderFlowStore()
+  const { updatingData } = useOrderFlowStore()
   const { mutate: addNewOrderItem, isPending: isPendingAddNewOrderItem } = useAddNewOrderItem()
 
   const menuItems = menu?.menuItems?.sort((a, b) => {
@@ -56,13 +56,11 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading }: IMenuProps
       promotion: item.promotion ? item.promotion.slug : '',
       order: slug || '',
     }
-    // ✅ Optimistic update: thêm item vào local state ngay lập tức
-    addDraftItem(item)
 
     addNewOrderItem(request, {
       onSuccess: () => {
-        // ✅ API call thành công, item đã được thêm vào draft ở trên
-        // Không cần refetch toàn bộ order nữa
+        // ✅ API call thành công, refetch ngay để sync với server data
+        onSuccess?.()
         showToast(tToast('toast.addSuccess'))
       },
     })
