@@ -32,6 +32,7 @@
     "viewDetail": "Xem chi tiết",
     "searchByPhoneNumber": "Nhập số điện thoại",
     "points": "Số dư xu",
-    "coinTransactionHistory": "Lịch sử giao dịch xu"
+    "coinTransactionHistory": "Lịch sử giao dịch xu",
+    "viewOrders": "Xem đơn hàng"
   }
 }

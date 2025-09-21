@@ -32,6 +32,7 @@
     "viewDetail": "View details",
     "searchByPhoneNumber": "Enter phone number",
     "points": "Coins",
-    "coinTransactionHistory": "Coin transaction history"
+    "coinTransactionHistory": "Coin transaction history",
+    "viewOrders": "View orders"
   }
 }
