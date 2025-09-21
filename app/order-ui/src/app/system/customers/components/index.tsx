@@ -1,0 +1,1 @@
+export { default as CustomerOrderPage } from './customer-order-page'
