@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import moment from 'moment'
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, ShoppingBag } from 'lucide-react'
 
 import {
   Button,
@@ -13,6 +13,8 @@ import {
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
 import { ResetPasswordDialog, UpdateCustomerDialog, UserInfoDialog } from '@/components/app/dialog'
+import { NavLink } from 'react-router-dom'
+import { ROUTE } from '@/constants'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['customer', 'common'])
@@ -85,7 +87,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -94,6 +96,12 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
+                <NavLink to={`${ROUTE.STAFF_CUSTOMER_MANAGEMENT}/${user.slug}/order-history`}>
+                  <Button variant="ghost" className="flex gap-1 justify-start px-2 w-full text-sm">
+                    <ShoppingBag className="icon" />
+                    {t('customer.viewOrders')}
+                  </Button>
+                </NavLink>
                 <UserInfoDialog user={user} />
                 <ResetPasswordDialog user={user} />
                 <UpdateCustomerDialog customer={user} />

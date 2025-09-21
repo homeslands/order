@@ -30,6 +30,7 @@
     "updateRole": "Update role",
     "updateRoleDescription": "Update employee role",
     "viewDetail": "View details",
-    "searchByPhoneNumber": "Enter phone number"
+    "searchByPhoneNumber": "Enter phone number",
+    "viewOrders": "View orders"
   }
 }

@@ -365,12 +365,6 @@ export default function OrderHistoryDetailSheet({
                               <span className="text-xs text-muted-foreground">{item.note}</span>
                             </div>
                           )}
-
-                          {/* Total */}
-                          {/* <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-600">
-                            <span className="text-xs font-medium text-muted-foreground">{t('order.grandTotal')}:</span>
-                            <span className="font-bold text-primary">{formatCurrency(item.subtotal)}</span>
-                          </div> */}
                         </div>
                       )
                     })}
@@ -392,7 +386,7 @@ export default function OrderHistoryDetailSheet({
                   {orderDetail?.voucher &&
                     <div className="flex justify-between pb-4 w-full border-b">
                       <h3 className="text-sm italic font-medium text-green-500">
-                        {t('order.voucher')}
+                        {t('order.voucher')} ({voucher?.title})
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
                         - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}

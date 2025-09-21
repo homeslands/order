@@ -178,6 +178,13 @@ export const CustomerPage = React.lazy(() =>
   })),
 )
 
+// Customer order page
+export const CustomerOrderPage = React.lazy(() =>
+  import('@/app/system/customers/components').then((module) => ({
+    default: module.CustomerOrderPage,
+  })),
+)
+
 // Role page
 export const RolePage = React.lazy(() =>
   import('@/app/system/role').then((module) => ({
