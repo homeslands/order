@@ -1,7 +1,12 @@
 import * as z from 'zod'
 import { useTranslation } from 'react-i18next'
 
-import { AuthRules, PASSWORD_REGEX, PHONE_NUMBER_REGEX } from '@/constants'
+import {
+  AuthRules,
+  NAME_REGEX,
+  PASSWORD_REGEX,
+  PHONE_NUMBER_REGEX,
+} from '@/constants'
 
 export const loginSchema = z.object({
   phonenumber: z.string(),
@@ -12,6 +17,17 @@ export function useRegisterSchema() {
   const { t } = useTranslation('auth')
   return z
     .object({
+      email: z.string().email(),
+      firstName: z
+        .string()
+        .min(1, t('register.firstNameRequired'))
+        .max(100, t('register.firstNameTooLong'))
+        .regex(NAME_REGEX, t('register.firstNameInvalid')),
+      lastName: z
+        .string()
+        .min(1, t('register.lastNameRequired'))
+        .max(100, t('register.lastNameTooLong'))
+        .regex(NAME_REGEX, t('register.lastNameInvalid')),
       phonenumber: z
         .string()
         .min(10, t('register.phoneNumberRequired'))
