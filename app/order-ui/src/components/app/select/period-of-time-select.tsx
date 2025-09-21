@@ -33,7 +33,7 @@ export default function PeriodOfTimeSelect({ periodOfTime, onChange }: PeriodOfT
 
     return (
         <Select onValueChange={setSelectedTime} value={selectedTime}>
-            <SelectTrigger className="w-fit gap-1 outline-none">
+            <SelectTrigger className="gap-1 outline-none w-fit">
                 <SelectValue placeholder={t('dayOfWeek.selectTimeRange')} />
             </SelectTrigger>
             <SelectContent>
