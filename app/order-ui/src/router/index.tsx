@@ -70,6 +70,7 @@ import {
   CardOrderHistoryPage,
   SystemLoyaltyPointPage,
   SystemGiftCardCheckoutWithSlugPage,
+  CustomerOrderPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -531,6 +532,10 @@ export const router = createBrowserRouter([
                 element={<SuspenseElement component={CustomerPage} />}
               />
             ),
+          },
+          {
+            path: ":slug/order-history",
+            element: <SuspenseElement component={CustomerOrderPage} />,
           },
         ],
       },
