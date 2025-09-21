@@ -128,7 +128,14 @@ export const LoginForm: React.FC = () => {
           <FormItem>
             <FormLabel>{t('login.phoneNumber')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('login.enterPhoneNumber')} {...field} />
+              <Input placeholder={t('login.enterPhoneNumber')} {...field}
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/\D/g, '')
+                  field.onChange(onlyNumbers)
+                }}
+                inputMode="numeric"
+                pattern="[0-9]*"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

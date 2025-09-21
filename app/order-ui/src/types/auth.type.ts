@@ -17,6 +17,9 @@ export interface ILoginResponse {
 }
 
 export interface IRegisterSchema {
+  email: string
+  firstName: string
+  lastName: string
   phonenumber: string
   password: string
   confirmPassword: string

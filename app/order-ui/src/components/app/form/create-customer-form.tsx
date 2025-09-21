@@ -21,7 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ICreateUserRequest } from '@/types'
 import { showToast } from '@/utils'
 import { PasswordWithRulesInput } from '../input'
-import { useCartItemStore } from '@/stores'
+import { useOrderFlowStore } from '@/stores'
 import { Role } from '@/constants'
 
 interface IFormCreateCustomerProps {
@@ -35,7 +35,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
   const { t } = useTranslation(['customer'])
   const { mutate: createUser } = useCreateUser()
   const { data } = useRoles()
-  const { addCustomerInfo } = useCartItemStore()
+  const { addCustomerInfo } = useOrderFlowStore()
 
 
   // get slug of role customer
@@ -85,6 +85,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
+            <span className="pr-1 text-destructive">*</span>
             <FormLabel>{t('customer.phoneNumber')}</FormLabel>
             <FormControl>
               <Input
@@ -155,6 +156,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="firstName"
         render={({ field }) => (
           <FormItem>
+            <span className="pr-1 text-destructive">*</span>
             <FormLabel>{t('customer.firstName')}</FormLabel>
             <FormControl>
               <Input placeholder={t('customer.enterFirstName')} {...field} />
@@ -170,6 +172,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
         name="lastName"
         render={({ field }) => (
           <FormItem>
+            <span className="pr-1 text-destructive">*</span>
             <FormLabel>{t('customer.lastName')}</FormLabel>
             <FormControl>
               <Input placeholder={t('customer.enterLastName')} {...field} />
