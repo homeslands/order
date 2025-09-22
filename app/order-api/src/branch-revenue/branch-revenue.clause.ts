@@ -72,6 +72,8 @@ export const getCurrentBranchRevenueFromInvoiceClause = `
         SUM(CASE WHEN iv.payment_method_column = 'internal' THEN iv.amount_column ELSE 0 END) AS totalAmountInternal,
         -- Total amount for point
         SUM(CASE WHEN iv.payment_method_column = 'point' THEN iv.amount_column ELSE 0 END) AS totalAmountPoint,
+        -- Total amount for credit card
+        SUM(CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.amount_column ELSE 0 END) AS totalAmountCreditCard,
         SUM(iv.amount_column) AS totalFinalAmountOrder,
         SUM(iv.voucher_value_column) AS totalVoucherValueOrderAmount,
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalAmountOrder,
@@ -79,11 +81,13 @@ export const getCurrentBranchRevenueFromInvoiceClause = `
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(ivi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
         SUM(ivi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
+        SUM(iv.accumulated_points_to_use_column) AS totalAccumulatedPointsToUse,
         COUNT(DISTINCT iv.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.id_column ELSE NULL END) AS totalOrderCreditCard
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -174,6 +178,8 @@ export const getYesterdayBranchRevenueFromInvoiceClause = `
         SUM(CASE WHEN iv.payment_method_column = 'internal' THEN iv.amount_column ELSE 0 END) AS totalAmountInternal,
         -- Total amount for point
         SUM(CASE WHEN iv.payment_method_column = 'point' THEN iv.amount_column ELSE 0 END) AS totalAmountPoint,
+        -- Total amount for credit card
+        SUM(CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.amount_column ELSE 0 END) AS totalAmountCreditCard,
         SUM(iv.amount_column) AS totalFinalAmountOrder,
         SUM(iv.voucher_value_column) AS totalVoucherValueOrderAmount,
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalAmountOrder,
@@ -181,11 +187,13 @@ export const getYesterdayBranchRevenueFromInvoiceClause = `
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(ivi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
         SUM(ivi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
+        SUM(iv.accumulated_points_to_use_column) AS totalAccumulatedPointsToUse,
         COUNT(DISTINCT iv.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.id_column ELSE NULL END) AS totalOrderCreditCard
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -269,6 +277,8 @@ export const getAllBranchRevenueFromInvoiceClause = `
         SUM(CASE WHEN iv.payment_method_column = 'internal' THEN iv.amount_column ELSE 0 END) AS totalAmountInternal,
         -- Total amount for point
         SUM(CASE WHEN iv.payment_method_column = 'point' THEN iv.amount_column ELSE 0 END) AS totalAmountPoint,
+        -- Total amount for credit card
+        SUM(CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.amount_column ELSE 0 END) AS totalAmountCreditCard,
         SUM(iv.amount_column) AS totalFinalAmountOrder,
         SUM(iv.voucher_value_column) AS totalVoucherValueOrderAmount,
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalAmountOrder,
@@ -276,11 +286,13 @@ export const getAllBranchRevenueFromInvoiceClause = `
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(ivi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
         SUM(ivi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
+        SUM(iv.accumulated_points_to_use_column) AS totalAccumulatedPointsToUse,
         COUNT(DISTINCT iv.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.id_column ELSE NULL END) AS totalOrderCreditCard
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -416,6 +428,8 @@ export const getSpecificRangeBranchRevenueFromInvoiceClause = `
         SUM(CASE WHEN iv.payment_method_column = 'internal' THEN iv.amount_column ELSE 0 END) AS totalAmountInternal,
         -- Total amount for point
         SUM(CASE WHEN iv.payment_method_column = 'point' THEN iv.amount_column ELSE 0 END) AS totalAmountPoint,
+        -- Total amount for credit card
+        SUM(CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.amount_column ELSE 0 END) AS totalAmountCreditCard,
         SUM(iv.amount_column) AS totalFinalAmountOrder,
         SUM(iv.voucher_value_column) AS totalVoucherValueOrderAmount,
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalAmountOrder,
@@ -423,11 +437,13 @@ export const getSpecificRangeBranchRevenueFromInvoiceClause = `
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(ivi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
         SUM(ivi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
+        SUM(iv.accumulated_points_to_use_column) AS totalAccumulatedPointsToUse,
         COUNT(DISTINCT iv.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.id_column ELSE NULL END) AS totalOrderCreditCard
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 
@@ -518,6 +534,8 @@ export const getSpecificRangeBranchRevenueByHourFromInvoiceClause = `
         SUM(CASE WHEN iv.payment_method_column = 'internal' THEN iv.amount_column ELSE 0 END) AS totalAmountInternal,
         -- Total amount for point
         SUM(CASE WHEN iv.payment_method_column = 'point' THEN iv.amount_column ELSE 0 END) AS totalAmountPoint,
+        -- Total amount for credit card
+        SUM(CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.amount_column ELSE 0 END) AS totalAmountCreditCard,
         SUM(iv.amount_column) AS totalFinalAmountOrder,
         SUM(iv.voucher_value_column) AS totalVoucherValueOrderAmount,
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalAmountOrder,
@@ -525,11 +543,13 @@ export const getSpecificRangeBranchRevenueByHourFromInvoiceClause = `
         SUM(ivi.totalOriginalOrderItemAmount) AS totalOriginalOrderItemAmount,
         SUM(ivi.totalFinalOrderItemAmount) AS totalFinalOrderItemAmount,
         SUM(ivi.totalVoucherValueOrderItemAmount) AS totalVoucherValueOrderItemAmount,
+        SUM(iv.accumulated_points_to_use_column) AS totalAccumulatedPointsToUse,
         COUNT(DISTINCT iv.id_column) AS totalOrder,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'cash' THEN iv.id_column ELSE NULL END) AS totalOrderCash,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'bank-transfer' THEN iv.id_column ELSE NULL END) AS totalOrderBank,
         COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'internal' THEN iv.id_column ELSE NULL END) AS totalOrderInternal,
-        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'point' THEN iv.id_column ELSE NULL END) AS totalOrderPoint,
+        COUNT(DISTINCT CASE WHEN iv.payment_method_column = 'credit-card' THEN iv.id_column ELSE NULL END) AS totalOrderCreditCard
     FROM 
         order_db.invoice_tbl AS iv
     LEFT JOIN 

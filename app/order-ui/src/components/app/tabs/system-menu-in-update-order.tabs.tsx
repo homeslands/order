@@ -12,14 +12,14 @@ import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
-  onSuccess: () => void
+  onSuccess?: () => void
 }
 
 export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
-  const { getOrderItems, initializeUpdating } = useOrderFlowStore()
+  const { getOrderItems } = useOrderFlowStore()
   const orderItems = getOrderItems()
   const updatingOrder = orderItems?.updateDraft
   const { catalog } = useCatalogStore()
@@ -45,9 +45,9 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
   useEffect(() => {
     if (updatingOrder?.type === OrderTypeEnum.TAKE_OUT && searchParams.get('tab') !== 'menu') {
       handleTabChange('menu')
-    } else if (updatingOrder?.type === OrderTypeEnum.AT_TABLE && orderItems?.originalOrder.type === OrderTypeEnum.AT_TABLE) {
-      initializeUpdating(orderItems?.originalOrder)
     }
+    // ✅ Removed unnecessary reinitialize - this was causing timeLeftTakeOut to be reset
+    // The initializeUpdating should only be called when absolutely necessary, not on every type change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatingOrder?.type])
 

@@ -52,6 +52,14 @@
           <%= tableName %>
         </span>
       </p>
+      <% if (tableName === 'take out') { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Thời gian mang đi:
+          </span>
+          <%= timeLeftTakeOut %> (phút)
+        </p>
+      <% } %>
       <p class="text-xs"><span class="font-bold">
           Khách hàng:
         </span>
@@ -201,6 +209,15 @@
                       <td class="py-2 text-right">
                         <%= formatCurrency(voucherValue) %>
                       </td>
+            </tr>
+
+            <tr class="border-t border-black">
+              <td class="py-2 text-left">
+                Số điểm tích lũy đã dùng (điểm)
+              </td>
+              <td class="py-2 text-right" colspan="4">
+                <%= formatCurrency(accumulatedPointsToUse) %>
+              </td>
             </tr>
 
             <% if ((paymentMethod==='point' )) { %>

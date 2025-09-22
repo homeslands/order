@@ -212,13 +212,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div
-        className={`${!hiddenInput || !hiddenDatePicker ? 'justify-between' : 'justify-end'} flex overflow-x-auto gap-2 items-center py-2 pt-2 whitespace-nowrap sm:max-w-full`}
-      >
-        <div className="flex gap-2 items-center">
+      <div className="flex overflow-x-auto gap-2 justify-between items-center py-2 pt-2 whitespace-nowrap sm:max-w-full scrollbar-hide">
+        <div className="flex flex-shrink-0 gap-2 items-center min-w-max">
           {/* Input search */}
           {!hiddenInput && (
-            <div className="relative w-48">
+            <div className="relative w-48 min-w-[192px]">
               <SearchIcon className="absolute left-2 top-1/2 w-4 h-4 text-gray-400 transform -translate-y-1/2" />
               <Input
                 placeholder={searchPlaceholder || t('dataTable.search')}
@@ -229,8 +227,8 @@ export function DataTable<TData, TValue>({
             </div>
           )}
           {!hiddenDatePicker && (
-            <div className="flex gap-2 items-center">
-              <div className="flex gap-2 items-center w-[400px]">
+            <div className="flex gap-2 items-center min-w-max">
+              <div className="flex gap-2 items-center w-[400px] min-w-[400px]">
                 <div className="flex-1">
                   <SimpleDatePicker
                     value={startDate}
@@ -259,7 +257,7 @@ export function DataTable<TData, TValue>({
             </div>
           )}
         </div>
-        <div className="flex gap-2 items-center w-fit">
+        <div className="flex flex-shrink-0 gap-2 justify-end items-center min-w-max">
           {onRefresh && (
             <Button type="button" variant="outline" onClick={handleRefresh}>
               <RefreshCcw className="w-4 h-4 text-muted-foreground" />
@@ -269,15 +267,17 @@ export function DataTable<TData, TValue>({
             </Button>
           )}
           {/* Actions */}
-          {DataTableActionOptions && <DataTableActionOptions table={table} />}
+          {DataTableActionOptions && <div className="min-w-max"><DataTableActionOptions table={table} /></div>}
           {/* Filter */}
           {DataTableFilterOptions && (
-            <DataTableFilterOptions
-              setFilterOption={setColumnFilters}
-              data={data}
-              filterConfig={filterConfig}
-              onFilterChange={onFilterChange}
-            />
+            <div className="min-w-max">
+              <DataTableFilterOptions
+                setFilterOption={setColumnFilters}
+                data={data}
+                filterConfig={filterConfig}
+                onFilterChange={onFilterChange}
+              />
+            </div>
           )}
           {/* View options */}
           {/* <DataTableViewOptions table={table} /> */}

@@ -16,6 +16,7 @@
     "hourly": "Theo giờ",
     "internalWallet": "Ví nội bộ",
     "point": "Xu",
+    "creditCard": "Thẻ tín dụng",
     "order": "Đơn hàng",
     "orderUnit": "đơn",
     "originalAmount": "Tiền gốc",
@@ -31,6 +32,7 @@
     "totalAmountCash": "Tiền mặt",
     "totalAmountInternal": "Ví nội bộ",
     "totalAmountPoint": "Xu",
+    "totalAmountCreditCard": "Thẻ tín dụng",
     "totalOrder": "Tổng đơn hàng",
     "totalOrderItem": "Tổng số ly",
     "totalOrders": "Tổng đơn hàng",
@@ -38,6 +40,7 @@
     "totalRevenueToday": "Doanh thu hôm nay",
     "type": "Loại doanh thu",
     "voucherAmount": "Tiền voucher",
+    "pointAmount": "Điểm tích lũy",
     "endDateMustBeGreaterThanOrEqualToStartDate": "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu"
   }
 }

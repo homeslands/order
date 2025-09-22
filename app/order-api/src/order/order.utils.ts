@@ -24,6 +24,8 @@ import {
   VoucherType,
 } from 'src/voucher/voucher.constant';
 import { Invoice } from 'src/invoice/invoice.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 
 @Injectable()
 export class OrderUtils {
@@ -36,6 +38,8 @@ export class OrderUtils {
     private readonly menuItemUtils: MenuItemUtils,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly paymentUtils: PaymentUtils,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly accumulatedPointService: AccumulatedPointService,
   ) {}
 
   async getOrder(options: FindOneOptions<Order>) {
@@ -192,6 +196,15 @@ export class OrderUtils {
     // Delete order
     const removedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        // Cancel accumulated points reservation
+        await this.accumulatedPointService.handleCancelReservation(order.id);
+        // Update subtotal and accumulated points to use in order
+        const subtotalBeforeUseAccumulatedPoints =
+          order.subtotal + order.accumulatedPointsToUse;
+        order.accumulatedPointsToUse = 0;
+        order.subtotal = subtotalBeforeUseAccumulatedPoints;
+        await manager.save(order);
+
         // Update stock of menu items
         await manager.save(menuItems);
         this.logger.log(

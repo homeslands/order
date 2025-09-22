@@ -315,6 +315,9 @@ export class BranchRevenueService {
           totalLossAmount: '0',
           totalOrderPoint: '0',
           totalAmountPoint: '0',
+          totalAccumulatedPointsToUse: '0',
+          totalAmountCreditCard: '0',
+          totalOrderCreditCard: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -380,6 +383,9 @@ export class BranchRevenueService {
             lossAmount: 0,
             totalOrderPoint: 0,
             totalAmountPoint: 0,
+            totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -396,6 +402,10 @@ export class BranchRevenueService {
         acc[index].lossAmount += item.lossAmount;
         acc[index].totalOrderPoint += item.totalOrderPoint;
         acc[index].totalAmountPoint += item.totalAmountPoint;
+        acc[index].totalAccumulatedPointsToUse +=
+          item.totalAccumulatedPointsToUse;
+        acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
+        acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -433,6 +443,9 @@ export class BranchRevenueService {
             lossAmount: 0,
             totalOrderPoint: 0,
             totalAmountPoint: 0,
+            totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -449,6 +462,10 @@ export class BranchRevenueService {
         acc[index].lossAmount += item.lossAmount;
         acc[index].totalOrderPoint += item.totalOrderPoint;
         acc[index].totalAmountPoint += item.totalAmountPoint;
+        acc[index].totalAccumulatedPointsToUse +=
+          item.totalAccumulatedPointsToUse;
+        acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
+        acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -612,7 +629,13 @@ export class BranchRevenueService {
             existedInNewData.totalOrderPoint !==
               existedBranchRevenue.totalOrderPoint ||
             existedInNewData.totalAmountPoint !==
-              existedBranchRevenue.totalAmountPoint
+              existedBranchRevenue.totalAmountPoint ||
+            existedInNewData.totalAccumulatedPointsToUse !==
+              existedBranchRevenue.totalAccumulatedPointsToUse ||
+            existedInNewData.totalAmountCreditCard !==
+              existedBranchRevenue.totalAmountCreditCard ||
+            existedInNewData.totalOrderCreditCard !==
+              existedBranchRevenue.totalOrderCreditCard
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -664,6 +687,9 @@ export class BranchRevenueService {
             branchId: branch.id,
             totalOrderPoint: 0,
             totalAmountPoint: 0,
+            totalAccumulatedPointsToUse: 0,
+            totalAmountCreditCard: 0,
+            totalOrderCreditCard: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -866,6 +892,9 @@ export class BranchRevenueService {
           lossAmount: 0,
           totalOrderPoint: 0,
           totalAmountPoint: 0,
+          totalAccumulatedPointsToUse: 0,
+          totalAmountCreditCard: 0,
+          totalOrderCreditCard: 0,
         });
         results.push(revenue);
       }
@@ -933,7 +962,13 @@ export class BranchRevenueService {
           existedBranchRevenue.totalOrderPoint !==
             newBranchRevenue.totalOrderPoint ||
           existedBranchRevenue.totalAmountPoint !==
-            newBranchRevenue.totalAmountPoint
+            newBranchRevenue.totalAmountPoint ||
+          existedBranchRevenue.totalAccumulatedPointsToUse !==
+            newBranchRevenue.totalAccumulatedPointsToUse ||
+          existedBranchRevenue.totalAmountCreditCard !==
+            newBranchRevenue.totalAmountCreditCard ||
+          existedBranchRevenue.totalOrderCreditCard !==
+            newBranchRevenue.totalOrderCreditCard
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -1057,6 +1092,8 @@ export class BranchRevenueService {
       let totalAmountInternal = 0;
       let totalLossAmount = 0;
       let totalAmountPoint = 0;
+      let totalAccumulatedPointsToUse = 0;
+      let totalAmountCreditCard = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1117,31 +1154,43 @@ export class BranchRevenueService {
           },
           {
             cellPosition: `H${currentRow}`,
-            value: revenue.totalAmount,
+            value: revenue.totalAccumulatedPointsToUse,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `I${currentRow}`,
-            value: revenue.totalAmountPoint,
+            value: revenue.totalAmount,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `J${currentRow}`,
-            value: revenue.totalAmountCash,
+            value: revenue.totalAmountPoint,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `K${currentRow}`,
-            value: revenue.totalAmountBank,
+            value: revenue.totalAmountCash,
             type: 'data',
             style: cellStyle,
           },
           {
             cellPosition: `L${currentRow}`,
+            value: revenue.totalAmountBank,
+            type: 'data',
+            style: cellStyle,
+          },
+          {
+            cellPosition: `M${currentRow}`,
             value: revenue.totalAmountInternal,
+            type: 'data',
+            style: cellStyle,
+          },
+          {
+            cellPosition: `N${currentRow}`,
+            value: revenue.totalAmountCreditCard,
             type: 'data',
             style: cellStyle,
           },
@@ -1157,6 +1206,8 @@ export class BranchRevenueService {
         totalAmountInternal += revenue.totalAmountInternal;
         totalLossAmount += revenue.lossAmount;
         totalAmountPoint += revenue.totalAmountPoint;
+        totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
+        totalAmountCreditCard += revenue.totalAmountCreditCard;
         currentRow++;
       });
 
@@ -1214,31 +1265,43 @@ export class BranchRevenueService {
         },
         {
           cellPosition: `H${currentRow}`,
-          value: totalAmount,
+          value: totalAccumulatedPointsToUse,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `I${currentRow}`,
-          value: totalAmountPoint,
+          value: totalAmount,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `J${currentRow}`,
-          value: totalAmountCash,
+          value: totalAmountPoint,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `K${currentRow}`,
-          value: totalAmountBank,
+          value: totalAmountCash,
           type: 'data',
           style: totalRowStyle,
         },
         {
           cellPosition: `L${currentRow}`,
+          value: totalAmountBank,
+          type: 'data',
+          style: totalRowStyle,
+        },
+        {
+          cellPosition: `M${currentRow}`,
           value: totalAmountInternal,
+          type: 'data',
+          style: totalRowStyle,
+        },
+        {
+          cellPosition: `N${currentRow}`,
+          value: totalAmountCreditCard,
           type: 'data',
           style: totalRowStyle,
         },
@@ -1318,6 +1381,9 @@ export class BranchRevenueService {
     let totalLossAmount = 0;
     let totalAmountPoint = 0;
     let totalOrderPoint = 0;
+    let totalAccumulatedPointsToUse = 0;
+    let totalAmountCreditCard = 0;
+    let totalOrderCreditCard = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1334,6 +1400,9 @@ export class BranchRevenueService {
       totalLossAmount += revenue.lossAmount;
       totalAmountPoint += revenue.totalAmountPoint;
       totalOrderPoint += revenue.totalOrderPoint;
+      totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
+      totalAmountCreditCard += revenue.totalAmountCreditCard;
+      totalOrderCreditCard += revenue.totalOrderCreditCard;
     });
 
     if (
@@ -1391,6 +1460,9 @@ export class BranchRevenueService {
       totalLossAmount,
       totalOrderPoint: totalOrderPoint,
       totalRevenuePoint: totalAmountPoint,
+      totalAccumulatedPointsToUse,
+      totalRevenueCreditCard: totalAmountCreditCard,
+      totalOrderCreditCard: totalOrderCreditCard,
     };
 
     const data = await this.pdfService.generatePdf(

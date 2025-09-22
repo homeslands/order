@@ -1,12 +1,12 @@
 import moment from 'moment';
 import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
+import { CoinsIcon } from 'lucide-react';
 
 import { Logo } from '@/assets/images';
-import { capitalizeFirstLetter, formatCurrency } from '@/utils';
-import { IOrder } from '@/types';
+import { capitalizeFirstLetter, formatCurrency, formatPoints } from '@/utils';
+import { IOrder, OrderTypeEnum } from '@/types';
 import { PaymentMethod, VOUCHER_TYPE } from '@/constants';
-import { CoinsIcon } from 'lucide-react';
 
 interface InvoiceProps {
     order: IOrder | undefined
@@ -32,19 +32,21 @@ export default function Invoice({
 
     const isPointPayment = order?.payment?.paymentMethod === PaymentMethod.POINT;
 
+    const isLoyaltyPoint = order && order?.accumulatedPointsToUse > 0;
+
     return (
         <div className="px-3 py-5 bg-white rounded-md dark:bg-transparent">
             {/* Logo */}
             <div className="mb-1">
-                <div className="flex items-center justify-center">
+                <div className="flex justify-center items-center">
                     <img src={Logo} alt="logo" className="w-52" />
                 </div>
                 <p className="text-sm text-center">{order?.invoice?.branchAddress || ''}</p>
-                <div className="flex items-center justify-center py-4">
+                <div className="flex justify-center items-center py-4">
                     <QRCodeSVG value={order?.slug || ''} size={128} />
                 </div>
                 <p className="text-xs text-center">
-                    <span>{t('order.slug')}</span>{' '}
+                    <span>{t('order.slug')}:</span>{' '}
                     <span>{order?.referenceNumber}</span>
                 </p>
             </div>
@@ -52,7 +54,7 @@ export default function Invoice({
             {/* Invoice info */}
             <div className="flex flex-col gap-2">
                 <p className="text-xs">
-                    <span className="font-bold">{t('order.orderTime')}:</span>{' '}
+                    <span className="font-bold">{t('order.orderTime')}</span>{' '}
                     {moment(order?.createdAt).format('HH:mm:ss DD/MM/YYYY')}
                 </p>
                 {order?.table?.slug && (
@@ -67,10 +69,19 @@ export default function Invoice({
                     <p className="text-xs">
                         <span className="font-bold">{t('order.cashier')}:</span> {order?.approvalBy?.firstName} {order?.approvalBy?.lastName}
                     </p>)}
+                {order?.type === OrderTypeEnum.TAKE_OUT ? (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.takeAway')} - {order?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.timeLeftTakeOut} ${t('menu.minutes')}`}
+                    </p>
+                ) : (
+                    <p className="text-xs">
+                        <span className="font-bold">{t('order.orderType')}:</span> {t('order.dineIn')}
+                    </p>
+                )}
             </div>
 
             {/* Invoice items */}
-            <table className="min-w-full mt-4 text-sm border-collapse table-auto">
+            <table className="mt-4 min-w-full text-sm border-collapse table-auto">
                 <thead>
                     <tr className="text-sm font-semibold text-left border-b border-dashed border-muted-foreground">
                         <th className="w-[35%] sm:w-[40%] py-2">{t('order.item')}</th>
@@ -122,8 +133,10 @@ export default function Invoice({
                             {order?.payment?.paymentMethod === PaymentMethod.CASH
                                 ? t('order.cash')
                                 : order?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER
-                                ? t('order.bankTransfer')
-                                : t('order.point')}
+                                    ? t('order.bankTransfer')
+                                    : order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD
+                                        ? t('order.creditCard')
+                                        : t('order.point')}
                         </td>
                     </tr>
                     <tr>
@@ -148,7 +161,17 @@ export default function Invoice({
                                 {t('order.deductedCoinAmount')}
                             </td>
                             <td colSpan={3} className="py-2 text-right">
-                                {formatCurrency(order?.invoice?.amount, '')} <CoinsIcon className="inline h-4 w-4 text-primary" />
+                                {formatCurrency(order?.invoice?.amount, '')} <CoinsIcon className="inline w-4 h-4 text-primary" />
+                            </td>
+                        </tr>
+                    )}
+                    {isLoyaltyPoint && (
+                        <tr>
+                            <td className="py-2" colSpan={3}>
+                                {t('order.loyaltyPoint')}
+                            </td>
+                            <td colSpan={3} className="py-2 text-right">
+                                {formatPoints(order?.accumulatedPointsToUse || 0)}
                             </td>
                         </tr>
                     )}
@@ -165,7 +188,7 @@ export default function Invoice({
                             {t('order.totalPayment')}
                         </td>
                         <td colSpan={3} className="py-3 text-xl font-bold text-right text-primary">
-                            {isPointPayment ? formatCurrency(0): formatCurrency(order?.subtotal || 0)}
+                            {isPointPayment ? formatCurrency(0) : formatCurrency(order?.subtotal || 0)}
                         </td>
                     </tr>
                 </tfoot>

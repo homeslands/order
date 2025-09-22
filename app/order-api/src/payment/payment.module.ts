@@ -27,6 +27,10 @@ import { MenuItem } from 'src/menu-item/menu-item.entity';
 import { Menu } from 'src/menu/menu.entity';
 import { MenuUtils } from 'src/menu/menu.utils';
 import { Voucher } from 'src/voucher/entity/voucher.entity';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { CreditCardStrategy } from './strategy/credit-card.strategy';
 
 @Module({
   imports: [
@@ -40,6 +44,8 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
       MenuItem,
       Menu,
       Voucher,
+      AccumulatedPoint,
+      AccumulatedPointTransactionHistory,
     ]),
     ACBConnectorModule,
     PdfModule,
@@ -61,6 +67,8 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
     OrderItemUtils,
     MenuItemUtils,
     MenuUtils,
+    AccumulatedPointService,
+    CreditCardStrategy,
   ],
   exports: [PaymentService, PaymentUtils],
 })

@@ -90,6 +90,10 @@
             <span><%= formatCurrency(totalLossAmount) %></span>
           </div>
           <div class="flex justify-between">
+            <span>Tổng điểm tích lũy:</span>
+            <span><%= formatCurrency(totalAccumulatedPointsToUse) %></span>
+          </div>
+          <div class="flex justify-between">
             <span>Tổng xu:</span>
             <span><%= formatCurrency(totalRevenuePoint) %></span>
           </div>
@@ -100,6 +104,10 @@
           <div class="flex justify-between">
             <span>Doanh thu chuyển khoản:</span>
             <span><%= formatCurrency(totalRevenueBank) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Doanh thu quẹt thẻ:</span>
+            <span><%= formatCurrency(totalRevenueCreditCard) %></span>
           </div>
           <div class="flex justify-between">
             <span>Tổng doanh thu sau khấu trừ (Net):</span>
@@ -160,6 +168,18 @@
           <div class="flex justify-between">
             <span>Xu:</span>
             <span><%= formatCurrency(totalRevenuePoint) %></span>
+          </div>
+
+          <h4 class="text-center font-bold text-xxs">
+            Phương thức quẹt thẻ
+          </h4>
+          <div class="flex justify-between">
+            <span>Số lượng hóa đơn:</span>
+            <span><%= totalOrderCreditCard %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tiền quẹt thẻ:</span>
+            <span><%= formatCurrency(totalRevenueCreditCard) %></span>
           </div>
         </div>
       </div>

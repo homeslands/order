@@ -69,6 +69,7 @@ import {
   FeatureLockManagementPage,
   SystemGiftCardCheckoutWithSlugPage,
   CardOrderHistoryPage,
+  SystemLoyaltyPointPage,
 } from './loadable'
 import ProtectedElement from '@/components/app/elements/protected-element'
 import { ClientLayout, PublicClientLayout } from '@/app/layouts/client'
@@ -808,6 +809,26 @@ export const router = createBrowserRouter([
               <ProtectedElement
                 // allowedRoles={[Role.MANAGER, Role.ADMIN, Role.SUPER_ADMIN]}
                 element={<SuspenseElement component={PromotionPage} />}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        path: ROUTE.STAFF_LOYALTY_POINT,
+        element: (
+          <Suspense fallback={<SkeletonCart />}>
+            <SuspenseElement component={SystemLayout} />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedElement
+                element={
+                  <SuspenseElement component={SystemLoyaltyPointPage} />
+                }
               />
             ),
           },

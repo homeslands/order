@@ -63,6 +63,7 @@ import {
   PrinterJobType,
 } from 'src/printer/printer.constants';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 @Injectable()
 export class OrderService {
   constructor(
@@ -87,6 +88,7 @@ export class OrderService {
     private readonly orderItemUtils: OrderItemUtils,
     private readonly promotionUtils: PromotionUtils,
     private readonly paymentUtils: PaymentUtils,
+    private readonly accumulatedPointService: AccumulatedPointService,
   ) {}
 
   /**
@@ -154,6 +156,18 @@ export class OrderService {
     // Delete order
     const removedOrder = await this.transactionManagerService.execute<Order>(
       async (manager) => {
+        // Cancel accumulated points reservation
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
+        // Update subtotal and accumulated points to use in order
+        const subtotalBeforeUseAccumulatedPoints =
+          order.subtotal + order.accumulatedPointsToUse;
+        order.accumulatedPointsToUse = 0;
+        order.subtotal = subtotalBeforeUseAccumulatedPoints;
+        await manager.save(order);
+
         // Update stock of menu items
         await manager.save(menuItems);
         this.logger.log(
@@ -236,8 +250,10 @@ export class OrderService {
         },
       });
       order.table = table;
+      order.timeLeftTakeOut = 0;
     } else {
       order.table = null;
+      order.timeLeftTakeOut = requestData.timeLeftTakeOut;
     }
 
     if (requestData.description) {
@@ -432,6 +448,14 @@ export class OrderService {
           previousVoucher.remainingUsage += 1;
           await manager.save(previousVoucher);
         }
+
+        // Cancel accumulated points reservation
+        await this.accumulatedPointService.handleCancelReservation(
+          order.id,
+          null,
+        );
+        // Update accumulated points to use in order
+        order.accumulatedPointsToUse = 0;
 
         return await manager.save(order);
       },
@@ -778,6 +802,9 @@ export class OrderService {
           },
         },
       });
+      data.timeLeftTakeOut = 0;
+    } else if (data.type === OrderType.TAKE_OUT) {
+      data.timeLeftTakeOut = data.timeLeftTakeOut || 0;
     }
 
     const defaultCustomer = await this.userUtils.getUser({

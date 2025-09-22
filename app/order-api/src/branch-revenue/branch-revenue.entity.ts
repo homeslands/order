@@ -75,4 +75,15 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_amount_point_column', default: 0 })
   totalAmountPoint: number;
+
+  @AutoMap()
+  @Column({ name: 'total_accumulated_points_to_use_column', default: 0 })
+  totalAccumulatedPointsToUse: number;
+  @Column({ name: 'total_amount_credit_card_column', default: 0 })
+  @AutoMap()
+  totalAmountCreditCard: number;
+
+  @AutoMap()
+  @Column({ name: 'total_order_credit_card_column', default: 0 })
+  totalOrderCreditCard: number;
 }

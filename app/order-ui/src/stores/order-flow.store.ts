@@ -34,6 +34,7 @@ export interface IOrderingData {
   ownerPhoneNumber: string
   ownerRole?: string
   type: OrderTypeEnum
+  timeLeftTakeOut?: number
   table?: string
   tableName?: string
   voucher: IVoucher | null
@@ -81,6 +82,8 @@ export interface IOrderFlowStore {
   setOrderingData: (data: IOrderingData) => void
   addOrderingItem: (item: IOrderItem) => void
   addOrderingProductVariant: (id: string) => void
+  addPickupTime: (time: number) => void
+  removePickupTime: () => void
   updateOrderingItemQuantity: (itemId: string, quantity: number) => void
   removeOrderingItem: (itemId: string) => void
   addOrderingNote: (itemId: string, note: string) => void
@@ -109,6 +112,8 @@ export interface IOrderFlowStore {
   setUpdateDraft: (draft: IOrderToUpdate) => void
   updateDraftItem: (itemId: string, changes: Partial<IOrderItem>) => void
   updateDraftItemQuantity: (itemId: string, quantity: number) => void
+  addDraftPickupTime: (time: number) => void
+  removeDraftPickupTime: () => void
   addDraftItem: (item: IOrderItem) => void
   removeDraftItem: (itemId: string) => void
   addDraftNote: (itemId: string, note: string) => void
@@ -232,6 +237,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             useUserStore.getState().getUserInfo()?.phonenumber || '',
           ownerRole: useUserStore.getState().getUserInfo()?.role?.name || '',
           type: OrderTypeEnum.AT_TABLE,
+          timeLeftTakeOut: undefined,
           table: '',
           tableName: '',
           voucher: null,
@@ -271,6 +277,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ownerFullName: '',
             ownerPhoneNumber: '',
             type: OrderTypeEnum.AT_TABLE,
+            timeLeftTakeOut: undefined,
             table: '',
             tableName: '',
             voucher: null,
@@ -356,6 +363,29 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ...orderingData,
             orderItems: updatedItems,
           },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      addPickupTime: (time: number) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            timeLeftTakeOut: time,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      removePickupTime: () => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: { ...orderingData, timeLeftTakeOut: undefined },
           lastModified: moment().valueOf(),
         })
       },
@@ -689,6 +719,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           ownerRole: updatedOriginalOrder.owner?.role.name || '',
           paymentMethod: updatedOriginalOrder.payment?.paymentMethod || '',
           type: updatedOriginalOrder.type,
+          timeLeftTakeOut: updatedOriginalOrder.timeLeftTakeOut,
           table: updatedOriginalOrder.table?.slug || '',
           tableName: updatedOriginalOrder.table?.name || '',
           orderItems: orderItemsWithIds.map((item) => ({
@@ -700,11 +731,16 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
         }
 
+        // console.log('updateDraft in initializeUpdating', updateDraft)
+
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,
           updateDraft,
           hasChanges: false,
         }
+
+        // console.log('🔍 Created updateDraft with timeLeftTakeOut:', updateDraft.timeLeftTakeOut)
+        // console.log('🔍 Created updateDraft with type:', updateDraft.type)
 
         set({
           currentStep: OrderFlowStep.UPDATING,
@@ -788,6 +824,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
 
         const newItem = {
           ...item,
+          slug: item.productSlug || '',
           id: generateOrderItemId(),
         }
 
@@ -823,6 +860,34 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ...updatingData,
             updateDraft: updatedDraft,
             hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      addDraftPickupTime: (time: number) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: { ...updatingData.updateDraft, timeLeftTakeOut: time },
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      removeDraftPickupTime: () => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: {
+              ...updatingData.updateDraft,
+              timeLeftTakeOut: undefined,
+            },
           },
           lastModified: moment().valueOf(),
         })
@@ -911,9 +976,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
 
         const updatedDraft = {
           ...updatingData.updateDraft,
+          timeLeftTakeOut: undefined,
           table: table.slug,
           tableName: table.name,
-          type: OrderTypeEnum.AT_TABLE,
+          type: table.type || OrderTypeEnum.AT_TABLE,
         }
 
         set({
@@ -932,8 +998,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
 
         const updatedDraft = {
           ...updatingData.updateDraft,
+          timeLeftTakeOut: undefined,
           table: '',
           tableName: '',
+          type: OrderTypeEnum.AT_TABLE,
         }
 
         set({
@@ -991,10 +1059,14 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updatedDraft = {
           ...updatingData.updateDraft,
           type,
-          // Nếu type là take-out, remove table
+          // Nếu type là take-out, chỉ remove table, giữ nguyên timeLeftTakeOut
           ...(type === OrderTypeEnum.TAKE_OUT && {
             table: '',
             tableName: '',
+          }),
+          // Nếu type là at-table, remove timeLeftTakeOut
+          ...(type === OrderTypeEnum.AT_TABLE && {
+            timeLeftTakeOut: undefined,
           }),
         }
 

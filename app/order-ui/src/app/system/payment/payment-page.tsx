@@ -12,15 +12,15 @@ import { useExportPayment, useGetOrderProvisionalBill, useInitiatePayment, useOr
 import { PaymentMethod, paymentStatus, Role, ROUTE, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
-import { OrderStatus } from '@/types'
+import { OrderStatus, OrderTypeEnum } from '@/types'
 import PaymentPageSkeleton from "@/app/client/payment/skeleton/page"
 import { OrderCountdown } from '@/components/app/countdown'
 import { useCartItemStore, useUpdateOrderStore, useOrderFlowStore, OrderFlowStep } from '@/stores'
 import DownloadQrCode from '@/components/app/button/download-qr-code'
 import LoadingAnimation from "@/assets/images/loading-animation.json"
 import { StaffRemoveVoucherWhenPayingDialog } from '@/components/app/dialog';
-import { VoucherListSheetInPayment } from '@/components/app/sheet';
-import { StaffPaymentMethodSelect } from '@/components/app/select';
+import { StaffVoucherListSheetInPayment } from '@/components/app/sheet';
+import { StaffLoyaltyPointSelector, StaffPaymentMethodSelect } from '@/components/app/select';
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -31,6 +31,7 @@ export default function PaymentPage() {
   const navigate = useNavigate()
   const { mutate: getOrderProvisionalBill, isPending: isPendingGetOrderProvisionalBill } = useGetOrderProvisionalBill()
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug)
+  const ownerSlug = order?.result?.owner?.firstName !== 'Default' ? order?.result?.owner?.slug : null
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } =
     useInitiatePayment()
   const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
@@ -415,7 +416,7 @@ export default function PaymentPage() {
           }
         },
       )
-    } else if (paymentMethod === PaymentMethod.CASH) {
+    } else if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.CREDIT_CARD) {
       initiatePayment(
         { orderSlug: slug, paymentMethod },
         {
@@ -529,9 +530,17 @@ export default function PaymentPage() {
                     {t('order.deliveryMethod')}
                   </h3>
                   <p className="col-span-1 text-sm">
-                    {order.result.type === 'at-table'
+                    {order.result.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
                       : t('order.takeAway')}
+                    {order.result.type === OrderTypeEnum.TAKE_OUT && (
+                      <>
+                        {" - "}
+                        {order.result.timeLeftTakeOut === 0
+                          ? t('menu.immediately')
+                          : `${t('menu.waiting')} ${order.result.timeLeftTakeOut} ${t('menu.minutes')}`}
+                      </>
+                    )}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -569,37 +578,35 @@ export default function PaymentPage() {
                   key={item.slug}
                   className="grid gap-4 items-center p-4 pb-4 w-full border-b"
                 >
-                  <div className="grid flex-row grid-cols-4 items-center w-full">
-                    <div className="flex col-span-1 gap-2 w-full">
-                      <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
-                        <span className="text-[12px] sm:text-sm lg:text-base font-bold truncate text-wrap w-full">
-                          {item.variant.product.name}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex col-span-1 items-center">
-                      {(() => {
-                        const displayItem = displayItems.find(di => di.slug === item.slug)
-                        const original = item.variant.price || 0
-                        const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                        const finalPrice = displayItem?.finalPrice || 0
+                  {(() => {
+                    const displayItem = displayItems.find(di => di.slug === item.slug)
+                    const original = item.variant.price || 0
+                    const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                    const finalPrice = displayItem?.finalPrice || 0
 
-                        const isSamePriceVoucher =
-                          voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                          voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+                    const isSamePriceVoucher =
+                      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                      voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
 
-                        const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                    const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                        const displayPrice = isSamePriceVoucher
-                          ? finalPrice
-                          : hasPromotionDiscount
-                            ? priceAfterPromotion
-                            : original
-
-                        const shouldShowLineThrough =
-                          isSamePriceVoucher || hasPromotionDiscount
-
-                        return (
+                    const displayPrice = isSamePriceVoucher
+                      ? finalPrice
+                      : hasPromotionDiscount
+                        ? priceAfterPromotion
+                        : original
+                    const shouldShowLineThrough =
+                      isSamePriceVoucher || hasPromotionDiscount
+                    return (
+                      <div className="grid flex-row grid-cols-4 items-center w-full">
+                        <div className="flex col-span-1 gap-2 w-full">
+                          <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
+                            <span className="text-[12px] sm:text-sm lg:text-base font-bold truncate text-wrap w-full">
+                              {item.variant.product.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex col-span-1 items-center">
                           <div className="flex gap-1 items-center">
                             {shouldShowLineThrough && original !== finalPrice && (
                               <span className="text-sm line-through text-muted-foreground">
@@ -610,20 +617,20 @@ export default function PaymentPage() {
                               {formatCurrency(displayPrice)}
                             </span>
                           </div>
-                        )
-                      })()}
-                    </div>
-                    <div className="flex col-span-1 justify-center">
-                      <span className="text-sm">
-                        {item.quantity || 0}
-                      </span>
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <span className="text-sm">
-                        {`${formatCurrency((item.subtotal || 0))}`}
-                      </span>
-                    </div>
-                  </div>
+                        </div>
+                        <div className="flex col-span-1 justify-center">
+                          <span className="text-sm">
+                            {item.quantity || 0}
+                          </span>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          <span className="text-sm">
+                            {`${formatCurrency((original || 0))}`}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })()}
                   {item.note && (
                     <div className="grid grid-cols-9 items-center w-full text-sm">
                       <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
@@ -639,7 +646,7 @@ export default function PaymentPage() {
                       {t('order.total')}
                     </h3>
                     <p className="text-sm font-semibold">
-                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
+                      {`${formatCurrency(order?.result.originalSubtotal || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full">
@@ -658,7 +665,15 @@ export default function PaymentPage() {
                       - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex justify-between py-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-primary">
+                      {t('order.loyaltyPoint')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-primary">
+                      - {`${formatCurrency(order.result.accumulatedPointsToUse || 0)}`}
+                    </p>
+                  </div>
+                  <div className="flex flex-col py-4">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">
                         {t('order.totalPayment')}
@@ -672,7 +687,7 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <VoucherListSheetInPayment onSuccess={() => {
+            <StaffVoucherListSheetInPayment onSuccess={() => {
               refetchOrder().then(() => {
                 // Re-initialize payment with updated order data after voucher update
                 if (slug) {
@@ -702,34 +717,39 @@ export default function PaymentPage() {
                   // Reset voucher removal flag
                   isRemovingVoucherRef.current = false
                 }}
-                onSuccess={(updatedOrder) => {
+                onSuccess={() => {
                   // Không reset initializedSlugRef để tránh trigger lại initializePayment
                   qrCodeSetRef.current = false
 
                   // Explicitly close dialog FIRST to prevent flicker
                   setIsRemoveVoucherOption(false)
 
-                  // Sync updated order data với Order Flow Store
-                  setOrderFromAPI(updatedOrder)
-
                   // Reset states sau khi đã sync order data
                   setPreviousPaymentMethod(undefined)
-                  setPendingPaymentMethod(undefined)
 
-                  // Refetch order data and re-initialize payment
+                  // Sync updated order data với Order Flow Store
+                  // setOrderFromAPI(updatedOrder)
+                  const selectedMethod = pendingPaymentMethod || PaymentMethod.BANK_TRANSFER
+
+                  // Reset states sau khi đã sync order data
+                  setPendingPaymentMethod(selectedMethod as PaymentMethod)
+
+                  // Update payment method in store immediately BEFORE refetch
+                  updatePaymentMethod(selectedMethod as PaymentMethod)
+
+                  // Refetch order data immediately
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data (no voucher)
                     if (slug) {
-                      initializePayment(slug, PaymentMethod.BANK_TRANSFER)
+                      initializePayment(slug, selectedMethod as PaymentMethod)
                     }
-                    // Update payment method after re-initialization
-                    updatePaymentMethod(PaymentMethod.BANK_TRANSFER)
-                  })
 
-                  // Reset flag after everything is complete - allow new voucher dialogs
-                  setTimeout(() => {
-                    isRemovingVoucherRef.current = false
-                  }, 100)
+                    // Reset flag after everything is complete - allow new voucher dialogs
+                    setTimeout(() => {
+                      isRemovingVoucherRef.current = false
+                      setPendingPaymentMethod(undefined)
+                    }, 100)
+                  })
                 }}
               />
             )}
@@ -751,6 +771,22 @@ export default function PaymentPage() {
               total={order.result ? order.result.subtotal : 0}
               onSubmit={handleSelectPaymentMethod}
             />
+            {order?.result.owner.firstName !== 'Default' && order?.result.owner.role.name === Role.CUSTOMER && (
+              <StaffLoyaltyPointSelector
+                usedPoints={order.result.accumulatedPointsToUse}
+                orderSlug={slug ?? ''}
+                ownerSlug={ownerSlug ?? null}
+                total={order.result.subtotal}
+                onSuccess={() => {
+                  refetchOrder().then(() => {
+                    // Re-initialize payment with updated order data after voucher update
+                    if (slug) {
+                      initializePayment(slug, paymentMethod as PaymentMethod)
+                    }
+                  })
+                }}
+              />
+            )}
           </div>
         )}
         <div className="flex flex-wrap-reverse gap-2 justify-between px-2 py-6">
@@ -761,7 +797,8 @@ export default function PaymentPage() {
             {t('order.backToMenu')}
           </Button>
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
-            paymentMethod === PaymentMethod.CASH) && (
+            paymentMethod === PaymentMethod.CASH ||
+            paymentMethod === PaymentMethod.CREDIT_CARD) && (
               <div className="flex gap-2 justify-end">
                 {/* Chỉ hiển thị nếu là BANK_TRANSFER và có QR */}
                 {hasValidPaymentAndQr && paymentMethod === PaymentMethod.BANK_TRANSFER ? (

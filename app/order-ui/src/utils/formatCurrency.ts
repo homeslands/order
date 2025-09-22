@@ -22,3 +22,8 @@ export function formatShortCurrency(value: number, currency = 'VND') {
     maximumFractionDigits: 0,
   }).format(safeValue)
 }
+
+export function formatPoints(value: number) {
+  const safeValue = value < 0 ? 0 : value
+  return new Intl.NumberFormat('vi-VN').format(safeValue)
+}

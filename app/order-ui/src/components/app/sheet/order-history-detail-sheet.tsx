@@ -21,7 +21,7 @@ import {
 } from '@/components/ui'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
-import { VOUCHER_TYPE } from '@/constants'
+import { PaymentMethod, VOUCHER_TYPE } from '@/constants'
 import { DownloadIcon, Loader2 } from 'lucide-react'
 
 interface IOrderHistoryDetailSheetProps {
@@ -80,7 +80,7 @@ export default function OrderHistoryDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[100%] p-2">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2 mt-8">
+          <SheetTitle className="flex gap-2 items-center mt-8">
             {t('order.orderDetail')}
             <span className="text-muted-foreground">
               #{order?.slug}
@@ -91,11 +91,11 @@ export default function OrderHistoryDetailSheet({
           {orderDetail ? (
             <div className="flex flex-col gap-4">
               {/* Info */}
-              <div className="flex flex-col w-full gap-4">
+              <div className="flex flex-col gap-4 w-full">
                 {/* Order info */}
-                <div className="flex items-center justify-between p-3 border rounded-sm">
+                <div className="flex justify-between items-center p-3 rounded-sm border">
                   <div className="flex flex-col gap-2">
-                    <p className="flex items-center gap-2 pb-2">
+                    <p className="flex gap-2 items-center pb-2">
                       <span className="font-bold">
                         {t('order.order')}{' '}
                       </span>{' '}
@@ -104,14 +104,14 @@ export default function OrderHistoryDetailSheet({
                       </span>
                       <OrderStatusBadge order={orderDetail || undefined} />
                     </p>
-                    <div className="flex items-center gap-1 text-sm font-thin">
+                    <div className="flex gap-1 items-center text-sm font-thin">
                       <p>
                         {moment(orderDetail?.createdAt).format(
                           'hh:mm:ss DD/MM/YYYY',
                         )}
                       </p>{' '}
                       |
-                      <p className="flex items-center gap-1">
+                      <p className="flex gap-1 items-center">
                         <span>
                           {t('order.cashier')}{' '}
                         </span>
@@ -125,21 +125,21 @@ export default function OrderHistoryDetailSheet({
                         <h3 className="w-20 text-sm font-semibold">
                           {t('order.note')}
                         </h3>
-                        <p className="w-full p-2 border rounded-md sm:col-span-8 border-muted-foreground/20">{orderDetail?.description}</p>
+                        <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{orderDetail?.description}</p>
                       </div>
                     ) : (
                       <div className="flex items-center w-full text-sm">
                         <h3 className="w-20 text-sm font-semibold">
                           {t('order.note')}
                         </h3>
-                        <p className="w-full p-2 border rounded-md sm:col-span-8 border-muted-foreground/20">{t('order.noNote')}</p>
+                        <p className="p-2 w-full rounded-md border sm:col-span-8 border-muted-foreground/20">{t('order.noNote')}</p>
                       </div>
                     )}
                   </div>
                 </div>
                 {/* Order owner info */}
                 <div className="flex gap-2">
-                  <div className="w-1/2 border rounded-sm">
+                  <div className="w-1/2 rounded-sm border">
                     <div className="px-3 py-2 font-bold uppercase">
                       {t('order.customer')}
                     </div>
@@ -152,15 +152,20 @@ export default function OrderHistoryDetailSheet({
                       </p>
                     </div>
                   </div>
-                  <div className="w-1/2 border rounded-sm">
+                  <div className="w-1/2 rounded-sm border">
                     <div className="px-3 py-2 font-bold uppercase">
                       {t('order.orderType')}
                     </div>
                     <div className="px-3 py-2 text-sm">
-                      <p className="font-bold">
-                        {orderDetail?.type === OrderTypeEnum.AT_TABLE
-                          ? t('order.dineIn')
-                          : t('order.takeAway')}
+                      <p className="col-span-1 text-sm font-bold">
+                        <p className="col-span-1 text-sm">
+                          {orderDetail?.type === OrderTypeEnum.AT_TABLE
+                            ? t('order.dineIn')
+                            : `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
+                              ? t('menu.immediately')
+                              : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
+                            }`}
+                        </p>
                       </p>
                       {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
                         <p className="flex gap-1 text-muted-foreground">
@@ -174,11 +179,11 @@ export default function OrderHistoryDetailSheet({
                   </div>
                 </div>
                 {/* payment */}
-                <div className="flex flex-col w-full gap-2">
+                <div className="flex flex-col gap-2 w-full">
                   {/* Payment method, status */}
                   <div className={`rounded-sm border ${orderDetail?.payment && orderDetail?.payment?.statusMessage === OrderStatus.COMPLETED ? 'border-green-500 bg-green-500/10' : 'border-destructive bg-destructive/10'}`}>
                     <div className="px-3 py-2">
-                      <p className="flex flex-col items-start gap-1 pb-2">
+                      <p className="flex flex-col gap-1 items-start pb-2">
                         <span className="col-span-1 text-sm font-bold">
                           {t('paymentMethod.title')}
                         </span>
@@ -186,11 +191,15 @@ export default function OrderHistoryDetailSheet({
                           {orderDetail?.payment?.paymentMethod ? (
                             <>
                               {orderDetail?.payment.paymentMethod ===
-                                'bank-transfer' && (
+                                PaymentMethod.BANK_TRANSFER && (
                                   <span>{t('paymentMethod.bankTransfer')}</span>
                                 )}
                               {orderDetail?.payment.paymentMethod ===
-                                'cash' && <span>{t('paymentMethod.cash')}</span>}
+                                PaymentMethod.CASH && <span>{t('paymentMethod.cash')}</span>}
+                              {orderDetail?.payment.paymentMethod ===
+                                PaymentMethod.CREDIT_CARD && <span>{t('paymentMethod.creditCard')}</span>}
+                              {orderDetail?.payment.paymentMethod ===
+                                PaymentMethod.POINT && <span>{t('paymentMethod.point')}</span>}
                             </>
                           ) : (
                             <span className="text-sm text-muted-foreground">
@@ -199,7 +208,7 @@ export default function OrderHistoryDetailSheet({
                           )}
                         </span>
                       </p>
-                      <p className="flex items-center gap-1">
+                      <p className="flex gap-1 items-center">
                         <span className="col-span-1 text-sm font-semibold">
                           {t('paymentMethod.status')}
                         </span>
@@ -287,7 +296,7 @@ export default function OrderHistoryDetailSheet({
                               </div>
                             </TableCell>
 
-                            <TableCell className="font-extrabold text-right text-primary whitespace-nowrap">
+                            <TableCell className="font-extrabold text-right whitespace-nowrap text-primary">
                               {formatCurrency(item.subtotal)}
                             </TableCell>
                           </TableRow>
@@ -322,9 +331,9 @@ export default function OrderHistoryDetailSheet({
                       const shouldShowLineThrough = isSamePriceVoucher || hasPromotionDiscount
 
                       return (
-                        <div key={item.slug} className="p-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div key={item.slug} className="p-3 bg-white rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                           {/* Product Name */}
-                          <div className="flex items-start justify-between mb-2">
+                          <div className="flex justify-between items-start mb-2">
                             <h4 className="flex-1 pr-2 text-sm font-semibold">{item.variant?.product.name}</h4>
                             <span className="px-2 py-1 text-xs bg-gray-100 rounded dark:bg-gray-700">
                               {capitalizeFirstLetter(item.variant?.size?.name || '')}
@@ -332,8 +341,8 @@ export default function OrderHistoryDetailSheet({
                           </div>
 
                           {/* Quantity and Price Row */}
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex gap-1 items-center">
                               <span className="text-xs text-muted-foreground">{t('order.quantity')}:</span>
                               <span className="text-sm font-medium">{item.quantity}</span>
                             </div>
@@ -358,7 +367,7 @@ export default function OrderHistoryDetailSheet({
                           )}
 
                           {/* Total */}
-                          {/* <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-600">
+                          {/* <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-600">
                             <span className="text-xs font-medium text-muted-foreground">{t('order.grandTotal')}:</span>
                             <span className="font-bold text-primary">{formatCurrency(item.subtotal)}</span>
                           </div> */}
@@ -367,21 +376,21 @@ export default function OrderHistoryDetailSheet({
                     })}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 p-2 border rounded-sm">
-                  <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2 p-2 rounded-sm border">
+                  <div className="flex justify-between items-center">
                     <p className="text-sm text-muted-foreground">
                       {t('order.subtotal')}
                     </p>
                     <p className='text-muted-foreground'>{`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}</p>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex justify-between items-center">
                     <p className="text-sm italic text-green-500">
                       {t('order.promotionDiscount')}
                     </p>
                     <p className='text-sm italic text-green-500'>{`- ${formatCurrency(cartTotals?.promotionDiscount || 0)}`}</p>
                   </div>
                   {orderDetail?.voucher &&
-                    <div className="flex justify-between w-full pb-4 border-b">
+                    <div className="flex justify-between pb-4 w-full border-b">
                       <h3 className="text-sm italic font-medium text-green-500">
                         {t('order.voucher')}
                       </h3>
@@ -389,22 +398,31 @@ export default function OrderHistoryDetailSheet({
                         - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                       </p>
                     </div>}
-                  {/* {orderDetail?.loss > 0 &&
-                    <div className="flex justify-between w-full pb-4">
+                  {orderDetail && orderDetail?.accumulatedPointsToUse > 0 &&
+                    <div className="flex justify-between pb-4 w-full">
+                      <h3 className="text-sm italic font-medium text-primary">
+                        {t('order.loyaltyPoint')}
+                      </h3>
+                      <p className="text-sm italic font-semibold text-primary">
+                        - {`${formatCurrency(orderDetail?.accumulatedPointsToUse || 0)}`}
+                      </p>
+                    </div>}
+                  {orderDetail?.loss > 0 &&
+                    <div className="flex justify-between pb-4 w-full">
                       <h3 className="text-sm italic font-medium text-green-500">
                         {t('order.invoiceAutoDiscountUnderThreshold')}
                       </h3>
                       <p className="text-sm italic font-semibold text-green-500">
-                        - {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
+                        - {`${formatCurrency(orderDetail?.loss || 0)}`}
                       </p>
-                    </div>} */}
-                  <div className="flex items-center justify-between">
+                    </div>}
+                  <div className="flex justify-between items-center">
                     <p className="font-bold text-md">
                       {t('order.totalPayment')}
                     </p>
-                    <p className="text-xl font-bold text-primary">{`${formatCurrency(cartTotals?.finalTotal || 0)}`}</p>
+                    <p className="text-xl font-bold text-primary">{`${formatCurrency(orderDetail?.subtotal || 0)}`}</p>
                   </div>
-                  {/* <div className="flex items-center justify-between">
+                  {/* <div className="flex justify-between items-center">
                     <p className="text-xs text-muted-foreground/80">({t('order.vat')})</p>
                   </div> */}
                 </div>

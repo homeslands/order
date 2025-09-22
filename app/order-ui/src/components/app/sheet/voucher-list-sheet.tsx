@@ -84,13 +84,14 @@ export default function VoucherListSheet() {
     }
   }, [userInfo, cartItems?.voucher, removeVoucher, getCartItems])
 
+  // 1. Owner là khách hàng có tài khoản
   const isCustomerOwner =
-    sheetOpen &&
-    !!cartItems?.owner && // Check khác null, undefined, ""
-    cartItems.ownerRole === Role.CUSTOMER;
+    !!userInfo &&
+    userInfo.role?.name === Role.CUSTOMER &&
+    userInfo.phonenumber !== 'default-customer';
 
   const { data: voucherList } = useVouchersForOrder(
-    isCustomerOwner
+    isCustomerOwner // Nếu owner là khách có tài khoản
       ? {
         isActive: true,
         hasPaging: true,
@@ -98,8 +99,9 @@ export default function VoucherListSheet() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && isCustomerOwner
   )
+
   const { data: publicVoucherList } = usePublicVouchersForOrder(
     !isCustomerOwner
       ? {
@@ -109,10 +111,8 @@ export default function VoucherListSheet() {
         size: pagination.pageSize,
       }
       : undefined,
-    !!sheetOpen
+    !!sheetOpen && !isCustomerOwner
   )
-
-
 
   const { data: specificVoucher, refetch: refetchSpecificVoucher } = useSpecificVoucher(
     {
@@ -300,15 +300,6 @@ export default function VoucherListSheet() {
     }
   }, [cartItems?.voucher, refetchSpecificVoucher]);
 
-
-  // useEffect(() => {
-  //   if (defaultValue?.voucher?.slug) {
-  //     setSelectedVoucher(defaultValue.voucher.slug)
-  //   } else {
-  //     setSelectedVoucher('')
-  //   }
-  // }, [defaultValue?.voucher?.slug, sheetOpen])
-
   // If cartItems is not hydrated, return null
   if (!isHydrated) {
     // eslint-disable-next-line no-console
@@ -327,82 +318,6 @@ export default function VoucherListSheet() {
     navigator.clipboard.writeText(code)
     showToast(tToast('toast.copyCodeSuccess'))
   }
-
-  // Filter and sort vouchers to get the best one
-  // const getBestVoucher = () => {
-  //   if (!Array.isArray(localVoucherList)) {
-  //     return null
-  //   }
-
-  //   const currentDate = new Date()
-
-  //   const validVouchers = localVoucherList
-  //     .filter((voucher) => {
-  //       const isValid = voucher.isActive &&
-  //         moment(currentDate).isSameOrAfter(moment(voucher.startDate)) &&
-  //         moment(currentDate).isSameOrBefore(moment(voucher.endDate)) &&
-  //         voucher.remainingUsage > 0 &&
-  //         (!userInfo ? voucher.isVerificationIdentity === false : true)
-  //       return isValid
-  //     })
-  //     .sort((a, b) => {
-  //       const endDateDiff = new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-  //       if (endDateDiff !== 0) return endDateDiff
-  //       if (a.minOrderValue !== b.minOrderValue) {
-  //         return a.minOrderValue - b.minOrderValue
-  //       }
-  //       return b.value - a.value
-  //     })
-
-  //   return validVouchers.length > 0 ? validVouchers[0] : null
-  // }
-
-  // const bestVoucher = getBestVoucher()
-
-
-
-  // const handleToggleVoucher = (voucher: IVoucher) => {
-  //   const isSelected = isVoucherSelected(voucher.slug)
-
-  //   const handleRemove = () => {
-  //     removeVoucher()
-  //     setSelectedVoucher('')
-  //     showToast(tToast('toast.removeVoucherSuccess'))
-  //   }
-
-  //   const handleApply = () => {
-  //     addVoucher(voucher)
-  //     setSelectedVoucher(voucher.slug)
-  //     setSheetOpen(false)
-  //     showToast(tToast('toast.applyVoucherSuccess'))
-  //   }
-
-  //   const validateVoucherParam: IValidateVoucherRequest = {
-  //     voucher: voucher.slug,
-  //     user: userInfo?.slug || '',
-  //     orderItems: cartItems?.orderItems.map(item => ({
-  //       quantity: item.quantity,
-  //       variant: item.variant.slug,
-  //       note: item.note,
-  //       promotion: item.promotion ?? null,
-  //       order: null, // hoặc bỏ nếu không cần
-  //     })) || []
-  //   }
-
-
-  //   const onSuccess = () => handleApply()
-  //   // const onError = () => handleRemove()
-
-  //   if (isSelected) {
-  //     handleRemove()
-  //   } else {
-  //     if (userInfo && voucher?.isVerificationIdentity) {
-  //       validateVoucher(validateVoucherParam, { onSuccess })
-  //     } else {
-  //       validatePublicVoucher(validateVoucherParam, { onSuccess })
-  //     }
-  //   }
-  // }
 
   const handleCompleteSelection = async () => {
     // Nếu không có voucher nào được chọn, chỉ đóng sheet
@@ -449,7 +364,7 @@ export default function VoucherListSheet() {
       showToast(tToast('toast.applyVoucherSuccess'));
     }
 
-    if (userInfo && selectedVoucherData.isVerificationIdentity) {
+    if (userInfo?.slug) {
       validateVoucher(validateVoucherParam, { onSuccess: onValidated })
     } else {
       validatePublicVoucher(validateVoucherParam, { onSuccess: onValidated })

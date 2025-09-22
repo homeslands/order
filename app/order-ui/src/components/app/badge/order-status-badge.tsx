@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { DollarSign, PackageCheck, Clock, Truck, AlertCircle } from 'lucide-react'
+// import { DollarSign, PackageCheck, Clock, Truck, AlertCircle } from 'lucide-react'
 
 import { IOrder, OrderStatus } from '@/types'
 import { paymentStatus } from '@/constants'
@@ -28,22 +28,22 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
     }
   }
 
-  const getBadgeIcon = (status: OrderStatus) => {
-    switch (status) {
-      case OrderStatus.PAID:
-        return <DollarSign className="mr-1 w-3 h-3" />
-      case OrderStatus.COMPLETED:
-        return <PackageCheck className="mr-1 w-3 h-3" />
-      case OrderStatus.SHIPPING:
-        return <Truck className="mr-1 w-3 h-3" />
-      case OrderStatus.PENDING:
-        return <Clock className="mr-1 w-3 h-3" />
-      case OrderStatus.FAILED:
-        return <AlertCircle className="mr-1 w-3 h-3" />
-      default:
-        return null
-    }
-  }
+  // const getBadgeIcon = (status: OrderStatus) => {
+  //   switch (status) {
+  //     case OrderStatus.PAID:
+  //       return <DollarSign className="mr-1 w-3 h-3" />
+  //     case OrderStatus.COMPLETED:
+  //       return <PackageCheck className="mr-1 w-3 h-3" />
+  //     case OrderStatus.SHIPPING:
+  //       return <Truck className="mr-1 w-3 h-3" />
+  //     case OrderStatus.PENDING:
+  //       return <Clock className="mr-1 w-3 h-3" />
+  //     case OrderStatus.FAILED:
+  //       return <AlertCircle className="mr-1 w-3 h-3" />
+  //     default:
+  //       return null
+  //   }
+  // }
 
   const getBadgeText = (order: IOrder) => {
     const { status, payment } = order
@@ -79,7 +79,7 @@ export default function OrderStatusBadge({ order }: IOrderStatusBadgeProps) {
         status,
       )} rounded-full`}
     >
-      {getBadgeIcon(status)}
+      {/* {getBadgeIcon(status)} */}
       {order && getBadgeText(order)}
     </span>
   )

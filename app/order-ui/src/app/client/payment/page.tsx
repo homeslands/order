@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
-import { CircleX, SquareMenu } from 'lucide-react'
+import { CircleX, SquareMenu, Info } from 'lucide-react'
 import Lottie from "lottie-react"
 
 import { Button } from '@/components/ui'
@@ -12,7 +12,7 @@ import { useInitiatePayment, useInitiatePublicPayment, useOrderBySlug, useValida
 import { PaymentMethod, Role, ROUTE, paymentStatus, VOUCHER_TYPE } from '@/constants'
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, formatCurrency } from '@/utils'
 import { ButtonLoading } from '@/components/app/loading'
-import { ClientPaymentMethodSelect } from '@/components/app/select'
+import { ClientLoyaltyPointSelector, ClientPaymentMethodSelect } from '@/components/app/select'
 import { Label } from '@radix-ui/react-context-menu'
 import { OrderStatus, OrderTypeEnum } from '@/types'
 import { OrderFlowStep, useOrderFlowStore, useUserStore } from '@/stores'
@@ -31,6 +31,7 @@ export function ClientPaymentPage() {
   const slug = searchParams.get('order')
   const navigate = useNavigate()
   const { data: order, isPending, refetch: refetchOrder } = useOrderBySlug(slug as string)
+  const ownerSlug = order?.result?.owner?.firstName !== 'Default' ? order?.result?.owner?.slug : null
   const { mutate: initiatePayment, isPending: isPendingInitiatePayment } = useInitiatePayment()
   const { mutate: initiatePublicPayment, isPending: isPendingInitiatePublicPayment } = useInitiatePublicPayment()
   const { mutate: validateVoucherPaymentMethod } = useValidateVoucherPaymentMethod()
@@ -192,7 +193,25 @@ export function ClientPaymentPage() {
 
   // Start polling when QR code exists and payment is valid, or when payment method is selected
   useEffect(() => {
-    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+    // For polling decisions, ignore effectiveMethods conflicts and focus on actual payment state
+    // This ensures polling continues even when voucher conflicts cause effectiveMethods to be empty
+    const actualPaymentMethod = paymentData?.paymentMethod
+      ? paymentData.paymentMethod  // Always use stored method if available, regardless of effectiveMethods
+      : (voucherPaymentMethods?.length > 0
+        ? voucherPaymentMethods[0].paymentMethod
+        : defaultMethod || PaymentMethod.BANK_TRANSFER)
+
+    // Check if we should poll - prioritize existing BANK_TRANSFER payment over current UI state
+    const shouldPollForBankTransfer = !isExpired && (
+      // There's already a BANK_TRANSFER payment in progress
+      orderData?.payment?.paymentMethod === PaymentMethod.BANK_TRANSFER ||
+      // Or the actual method (not pending) is BANK_TRANSFER
+      actualPaymentMethod === PaymentMethod.BANK_TRANSFER ||
+      // Or current UI method is BANK_TRANSFER (but only if no existing payment conflicts)
+      (paymentMethod === PaymentMethod.BANK_TRANSFER && !orderData?.payment)
+    )
+
+    if (shouldPollForBankTransfer) {
       if (hasValidPaymentAndQr) {
         // Case 1: Valid QR code - check if payment is completed
         if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
@@ -206,8 +225,8 @@ export function ClientPaymentPage() {
       } else if (orderData?.payment && !qrCode && orderData.payment.amount === orderData.subtotal) {
         // Case 3: Payment exists but no QR code (amount < 2000) - start polling
         setIsPolling(true)
-      } else if (!orderData?.payment) {
-        // Case 4: No payment exists yet - start polling to wait for payment creation
+      } else if (!orderData?.payment && actualPaymentMethod === PaymentMethod.BANK_TRANSFER) {
+        // Case 4: No payment exists yet but actual method is BANK_TRANSFER - start polling to wait for payment creation
         setIsPolling(true)
       } else {
         setIsPolling(false)
@@ -215,7 +234,7 @@ export function ClientPaymentPage() {
     } else {
       setIsPolling(false)
     }
-  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, qrCode])
+  }, [hasValidPaymentAndQr, isExpired, orderData, paymentMethod, paymentData, voucherPaymentMethods, defaultMethod, qrCode])
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout | null = null
@@ -244,7 +263,7 @@ export function ClientPaymentPage() {
           clearPaymentData()
           // Always ensure loading is false before navigating
           setIsLoading(false)
-          navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+          navigate(`${ROUTE.CLIENT_ORDER_SUCCESS}/${slug}`)
         } else {
           // Turn off loading if order is updated but not yet paid (for orders without QR code)
           if (updatedOrderData?.payment && !updatedOrderData.payment.qrCode &&
@@ -275,7 +294,6 @@ export function ClientPaymentPage() {
       if (!isRemoveVoucherOption) {
         setIsRemoveVoucherOption(true)
       }
-      setIsLoading(false)
       return
     }
 
@@ -552,6 +570,10 @@ export function ClientPaymentPage() {
           isOpen={isRemoveVoucherOption}
           onOpenChange={setIsRemoveVoucherOption}
           order={order?.result}
+          onRemoveStart={() => {
+            // Set flag immediately when user clicks remove
+            isRemovingVoucherRef.current = true
+          }}
           onCancel={() => {
             // Reset pending payment method sau khi cancel
             setPendingPaymentMethod(undefined)
@@ -559,10 +581,6 @@ export function ClientPaymentPage() {
             setPreviousPaymentMethod(undefined)
             // Reset voucher removal flag
             isRemovingVoucherRef.current = false
-          }}
-          onRemoveStart={() => {
-            // Set flag immediately when user clicks remove
-            isRemovingVoucherRef.current = true
           }}
           onSuccess={() => {
             // Không reset initializedSlugRef để tránh trigger lại initializePayment
@@ -645,6 +663,16 @@ export function ClientPaymentPage() {
                     : t('order.takeAway')}
                 </p>
               </div>
+              {order?.result.type === OrderTypeEnum.TAKE_OUT && (
+                <div className="grid grid-cols-2 gap-2">
+                  <h3 className="col-span-1 text-sm font-medium">
+                    {t('menu.pickupTime')}
+                  </h3>
+                  <span className="text-sm font-semibold">
+                    {order?.result.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.result.timeLeftTakeOut} ${t('menu.minutes')}`}
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <h3 className="col-span-1 text-sm font-medium">
                   {t('order.location')}
@@ -691,38 +719,37 @@ export function ClientPaymentPage() {
                   key={item.slug}
                   className="grid gap-4 items-center p-4 pb-4 w-full rounded-t-md border-b"
                 >
-                  <div className="grid flex-row grid-cols-5 items-center w-full">
-                    <div className="flex col-span-2 gap-2 w-full">
-                      <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
-                        <span className="overflow-hidden w-full text-sm font-bold truncate whitespace-nowrap sm:text-lg text-ellipsis">
-                          {item.variant.product.name}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex col-span-1 items-center">
-                      <div className='flex gap-2 items-center'>
-                        {(() => {
-                          const displayItem = displayItems.find(di => di.slug === item.slug)
-                          const original = item.variant.price || 0
-                          const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
-                          const finalPrice = displayItem?.finalPrice || 0
+                  {(() => {
+                    const displayItem = displayItems.find(di => di.slug === item.slug)
+                    const original = item.variant.price || 0
+                    const priceAfterPromotion = displayItem?.priceAfterPromotion || 0
+                    const finalPrice = displayItem?.finalPrice || 0
 
-                          const isSamePriceVoucher =
-                            voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
-                            voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
+                    const isSamePriceVoucher =
+                      voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
+                      voucher?.voucherProducts?.some(vp => vp.product?.slug === item.variant.product.slug)
 
-                          const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
+                    const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
 
-                          const displayPrice = isSamePriceVoucher
-                            ? finalPrice
-                            : hasPromotionDiscount
-                              ? priceAfterPromotion
-                              : original
+                    const displayPrice = isSamePriceVoucher
+                      ? finalPrice
+                      : hasPromotionDiscount
+                        ? priceAfterPromotion
+                        : original
 
-                          const shouldShowLineThrough =
-                            isSamePriceVoucher || hasPromotionDiscount
-
-                          return (
+                    const shouldShowLineThrough =
+                      isSamePriceVoucher || hasPromotionDiscount
+                    return (
+                      <div className="grid flex-row grid-cols-5 items-center w-full">
+                        <div className="flex col-span-2 gap-2 w-full">
+                          <div className="flex flex-col gap-2 justify-start items-center w-full sm:flex-row sm:justify-center">
+                            <span className="overflow-hidden w-full text-sm font-bold truncate whitespace-nowrap sm:text-lg text-ellipsis">
+                              {item.variant.product.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex col-span-1 items-center">
+                          <div className='flex gap-2 items-center'>
                             <div className="flex gap-1 items-center">
                               {shouldShowLineThrough && original !== finalPrice && (
                                 <span className="text-xs line-through sm:text-sm text-muted-foreground">
@@ -733,19 +760,19 @@ export function ClientPaymentPage() {
                                 {formatCurrency(displayPrice)}
                               </span>
                             </div>
-                          )
-                        })()}
+                          </div>
+                        </div>
+                        <div className="flex col-span-1 justify-center">
+                          <span className="text-xs sm:text-sm">{item.quantity || 0}</span>
+                        </div>
+                        <div className="col-span-1 text-end">
+                          <span className="text-xs sm:text-sm">
+                            {`${formatCurrency((original || 0))}`}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex col-span-1 justify-center">
-                      <span className="text-xs sm:text-sm">{item.quantity || 0}</span>
-                    </div>
-                    <div className="col-span-1 text-end">
-                      <span className="text-xs sm:text-sm">
-                        {`${formatCurrency((item.subtotal || 0))}`}
-                      </span>
-                    </div>
-                  </div>
+                    )
+                  })()}
                   {item.note && (
                     <div className="grid grid-cols-9 items-center w-full text-sm">
                       <span className="col-span-2 font-semibold sm:col-span-1">{t('order.note')}: </span>
@@ -759,7 +786,7 @@ export function ClientPaymentPage() {
                   <div className="flex justify-between pb-4 w-full border-b">
                     <h3 className="text-sm font-medium">{t('order.total')}</h3>
                     <p className="text-sm font-semibold text-muted-foreground">
-                      {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
+                      {`${formatCurrency(order?.result.originalSubtotal || 0)}`}
                     </p>
                   </div>
                   <div className="flex justify-between pb-4 w-full border-b">
@@ -778,18 +805,32 @@ export function ClientPaymentPage() {
                       - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>
+                  <div className="flex justify-between pb-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-primary">
+                      {t('order.loyaltyPoint')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-primary">
+                      - {`${formatCurrency(order?.result.accumulatedPointsToUse || 0)}`}
+                    </p>
+                  </div>
                   <div className="flex flex-col">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">
                         {t('order.totalPayment')}
                       </h3>
                       <p className="text-lg font-semibold text-primary">
-                        {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
+                        {`${formatCurrency(order?.result.subtotal || 0)}`}
                       </p>
                     </div>
-                    {/* <span className="text-xs text-muted-foreground">
-                      ({t('order.vat')})
-                    </span> */}
+                    {/* Loyalty point earning note */}
+                    <div className="p-2 mt-2 rounded-md bg-muted-foreground/10 text-muted-foreground">
+                      <div className="flex gap-2 items-center text-xs">
+                        <Info className="w-4 h-4" />
+                        <span>
+                          {t('paymentMethod.loyaltyPointEarningNote')}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -821,6 +862,22 @@ export function ClientPaymentPage() {
           total={order?.result ? order?.result.subtotal : 0}
           onSubmit={handleSelectPaymentMethod}
         />
+        {userInfo && userInfo?.slug && (
+          <ClientLoyaltyPointSelector
+            usedPoints={order?.result.accumulatedPointsToUse || 0}
+            orderSlug={slug ?? ''}
+            ownerSlug={ownerSlug ?? null}
+            total={order?.result.subtotal || 0}
+            onSuccess={() => {
+              refetchOrder().then(() => {
+                // Re-initialize payment with updated order data after voucher update
+                if (slug) {
+                  initializePayment(slug, paymentMethod as PaymentMethod)
+                }
+              })
+            }}
+          />
+        )}
         <div className="flex flex-wrap-reverse gap-2 justify-end px-2 py-6">
           {(paymentMethod === PaymentMethod.BANK_TRANSFER ||
             paymentMethod === PaymentMethod.CASH ||
@@ -834,7 +891,7 @@ export function ClientPaymentPage() {
                   className="w-fit"
                   onClick={handleConfirmPayment}
                 >
-                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment) && <ButtonLoading />}
+                  {(isPendingInitiatePayment || isPendingInitiatePublicPayment || !payButtonEnabled) && <ButtonLoading />}
                   {t('paymentMethod.confirmPayment')}
                 </Button>}
             </div>}

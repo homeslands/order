@@ -19,6 +19,7 @@ import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { ORDER_STATUS_INVALID } from './order.validation';
 import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
+import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 
 @Entity('order_tbl')
 export class Order extends Base {
@@ -57,6 +58,12 @@ export class Order extends Base {
   @Column({ name: 'type_column' })
   @IsNotEmpty()
   type: string;
+
+  // If 'at table', time left take out is 0
+  // unit: minutes
+  @AutoMap()
+  @Column({ name: 'time_left_take_out_column', default: 0 })
+  timeLeftTakeOut: number;
 
   // many to one with branch
   @ManyToOne(() => Branch, (branch) => branch.orders)
@@ -107,4 +114,14 @@ export class Order extends Base {
 
   @OneToMany(() => ChefOrder, (chefOrder) => chefOrder.order)
   chefOrders: ChefOrder[];
+
+  @OneToMany(
+    () => AccumulatedPointTransactionHistory,
+    (transaction) => transaction.order,
+  )
+  accumulatedPointTransactionHistories: AccumulatedPointTransactionHistory[];
+
+  @AutoMap()
+  @Column({ name: 'accumulated_points_to_use_column', default: 0 })
+  accumulatedPointsToUse: number;
 }

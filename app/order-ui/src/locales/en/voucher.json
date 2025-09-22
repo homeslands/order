@@ -128,6 +128,7 @@
       "cash": "Cash",
       "bankTransfer": "Bank Transfer",
       "point": "Points",
+      "creditCard": "Credit Card",
       "error": "Please select at least one payment method",
       "selected": "Selected",
       "paymentMethods": "payment methods"

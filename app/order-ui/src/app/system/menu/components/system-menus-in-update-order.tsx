@@ -56,10 +56,13 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
       promotion: item.promotion ? item.promotion.slug : '',
       order: slug || '',
     }
+
     addNewOrderItem(request, {
       onSuccess: () => {
+        // ✅ API call thành công, refetch ngay để sync với server data
         onSuccess?.()
-      }
+        showToast(tToast('toast.addSuccess'))
+      },
     })
   }
 
@@ -92,11 +95,8 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
       note: '',
     }
 
-    // Thêm vào draft order
+    // Thêm vào draft order với optimistic update
     handleAddNewOrderItem(orderItem)
-
-    // Reset states
-    showToast(tToast('toast.addSuccess'))
   }
 
   const getPriceRange = (variants: IProduct['variants']) => {

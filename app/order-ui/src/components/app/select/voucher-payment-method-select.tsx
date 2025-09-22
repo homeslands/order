@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
-import { Banknote, DollarSign, Star, AlertCircle } from "lucide-react"
+import { Banknote, DollarSign, Star, AlertCircle, CreditCard } from "lucide-react"
 
 import { Toggle } from "@/components/ui"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,7 @@ const PAYMENT_METHODS = [
   { key: VOUCHER_PAYMENT_METHOD.CASH, label: "voucher.paymentMethod.cash", icon: <DollarSign className="w-4 h-4" /> },
   { key: VOUCHER_PAYMENT_METHOD.BANK_TRANSFER, label: "voucher.paymentMethod.bankTransfer", icon: <Banknote className="w-4 h-4" /> },
   { key: VOUCHER_PAYMENT_METHOD.POINT, label: "voucher.paymentMethod.point", icon: <Star className="w-4 h-4" /> },
+  { key: VOUCHER_PAYMENT_METHOD.CREDIT_CARD, label: "voucher.paymentMethod.creditCard", icon: <CreditCard className="w-4 h-4" /> },
 ]
 
 interface VoucherPaymentMethodSelectProps {

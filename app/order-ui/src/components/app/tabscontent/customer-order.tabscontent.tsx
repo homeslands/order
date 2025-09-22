@@ -65,7 +65,7 @@ export default function CustomerOrderTabsContent() {
   return (
     <div>
       {/* Status Filter */}
-      <div className="mb-4 flex justify-end">
+      <div className="flex justify-end mb-4">
         <Select
           value={status}
           onValueChange={(value: OrderStatus) => setStatus(value)}
@@ -93,9 +93,7 @@ export default function CustomerOrderTabsContent() {
             const orderItems = orderItem.orderItems || []
             const voucher = orderItem.voucher || null
             const displayItems = calculateOrderItemDisplay(orderItems, voucher)
-            // console.log(displayItems)
             const cartTotals = calculatePlacedOrderTotals(displayItems, voucher)
-            // console.log(cartTotals)
             return (
               <div key={orderItem.slug} className="flex flex-col gap-4 p-0 mt-2 bg-white rounded-lg border dark:bg-transparent">
                 <div className="flex gap-4 items-center p-4 w-full border-b bg-primary/15 dark:bg-muted-foreground/10">
@@ -136,8 +134,6 @@ export default function CustomerOrderTabsContent() {
                                 voucher?.type === VOUCHER_TYPE.SAME_PRICE_PRODUCT &&
                                 voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
 
-                              // const hasPromotionDiscount = (displayItem?.promotionDiscount || 0) > 0
-
                               const isAtLeastOneVoucher =
                                 voucher?.applicabilityRule === APPLICABILITY_RULE.AT_LEAST_ONE_REQUIRED &&
                                 voucher?.voucherProducts?.some(vp => vp.product?.slug === product.variant.product.slug)
@@ -172,16 +168,15 @@ export default function CustomerOrderTabsContent() {
                             })()}
                           </div>
                         </div>
-
                       </div>
                     ))}
                   </div>
                   <div className='flex justify-end mt-4 w-full'>
-                    <div className="flex flex-col gap-2 justify-end w-[20rem]">
+                    <div className="flex flex-col gap-2 justify-end w-full sm:w-[28rem]">
                       <div className="flex justify-between pb-2 w-full border-b">
                         <h3 className="text-sm font-semibold">{t('order.total')}</h3>
                         <p className="text-sm font-semibold">
-                          {`${formatCurrency(cartTotals?.subTotalBeforeDiscount || 0)}`}
+                          {`${formatCurrency(orderItem?.originalSubtotal || 0)}`}
                         </p>
                       </div>
                       <div className="flex justify-between pb-2 w-full border-b">
@@ -200,15 +195,33 @@ export default function CustomerOrderTabsContent() {
                           - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                         </p>
                       </div>
+                      <div className="flex justify-between pb-4 w-full border-b">
+                        <h3 className="text-sm italic font-medium text-primary">
+                          {t('order.loyaltyPoint')}
+                        </h3>
+                        <p className="text-sm italic font-semibold text-primary">
+                          - {`${formatCurrency(orderItem?.accumulatedPointsToUse || 0)}`}
+                        </p>
+                      </div>
+                      {orderItem && orderItem?.loss > 0 &&
+                        <div className="flex justify-between pb-4 w-full">
+                          <h3 className="text-sm italic font-medium text-green-500">
+                            {t('order.invoiceAutoDiscountUnderThreshold')}
+                          </h3>
+                          <p className="text-sm italic font-semibold text-green-500">
+                            - {`${formatCurrency(orderItem?.loss)}`}
+                          </p>
+                        </div>}
                       <div className="flex flex-col">
                         <div className="flex justify-between w-full">
                           <h3 className="font-semibold text-md">
                             {t('order.totalPayment')}
                           </h3>
                           <p className="text-lg font-extrabold text-primary">
-                            {`${formatCurrency(cartTotals?.finalTotal || 0)}`}
+                            {`${formatCurrency(orderItem?.subtotal || 0)}`}
                           </p>
                         </div>
+
                         {/* <span className="text-xs text-muted-foreground">
                       ({t('order.vat')})
                     </span> */}
@@ -246,7 +259,7 @@ export default function CustomerOrderTabsContent() {
       )}
 
       {order && order?.totalPages > 0 && (
-        <div className="flex items-center justify-center py-4 space-x-2">
+        <div className="flex justify-center items-center py-4 space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

@@ -66,9 +66,12 @@ export class BranchRevenueProfile extends AutomapperProfile {
             (source) =>
               +source.totalOriginalAmountOrder -
               +source.totalAmount -
+              // promotion amount
               (+source.totalOriginalOrderItemAmount -
                 +source.totalFinalOrderItemAmount -
-                +source.totalVoucherValueOrderItemAmount),
+                +source.totalVoucherValueOrderItemAmount) -
+              // accumulated points to use
+              +source.totalAccumulatedPointsToUse,
           ),
         ),
         // loss amount value only
@@ -99,6 +102,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalAmountPoint,
           mapFrom((source) => +source.totalAmountPoint),
+        ),
+        forMember(
+          (destination) => destination.totalAccumulatedPointsToUse,
+          mapFrom((source) => +source.totalAccumulatedPointsToUse),
+        ),
+        forMember(
+          (destination) => destination.totalAmountCreditCard,
+          mapFrom((source) => +source.totalAmountCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalOrderCreditCard,
+          mapFrom((source) => +source.totalOrderCreditCard),
         ),
         forMember(
           (destination) => destination.date,
@@ -152,9 +167,12 @@ export class BranchRevenueProfile extends AutomapperProfile {
             (source) =>
               +source.totalOriginalAmountOrder -
               +source.totalAmount -
+              // promotion amount
               (+source.totalOriginalOrderItemAmount -
                 +source.totalFinalOrderItemAmount -
-                +source.totalVoucherValueOrderItemAmount),
+                +source.totalVoucherValueOrderItemAmount) -
+              // accumulated points to use
+              +source.totalAccumulatedPointsToUse,
           ),
         ),
         // loss amount value only
@@ -185,6 +203,18 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalAmountPoint,
           mapFrom((source) => +source.totalAmountPoint),
+        ),
+        forMember(
+          (destination) => destination.totalAccumulatedPointsToUse,
+          mapFrom((source) => +source.totalAccumulatedPointsToUse),
+        ),
+        forMember(
+          (destination) => destination.totalAmountCreditCard,
+          mapFrom((source) => +source.totalAmountCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalOrderCreditCard,
+          mapFrom((source) => +source.totalOrderCreditCard),
         ),
         forMember(
           (destination) => destination.date,

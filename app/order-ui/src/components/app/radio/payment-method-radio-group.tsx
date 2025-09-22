@@ -1,4 +1,4 @@
-import { Coins, CreditCard, CircleDollarSign, CoinsIcon } from 'lucide-react'
+import { Coins, CreditCard, CircleDollarSign, CoinsIcon, Smartphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 
@@ -27,7 +27,6 @@ export default function PaymentMethodRadioGroup({
   const { t: tProfile } = useTranslation('profile')
   const { userInfo } = useUserStore()
 
-
   const { data: balanceData } = useGetUserBalance(
     userInfo?.slug,
     !!userInfo?.slug,
@@ -50,6 +49,10 @@ export default function PaymentMethodRadioGroup({
 
     if (userInfo && userInfo.role.name === Role.CUSTOMER) {
       methods.push(PaymentMethod.POINT)
+    }
+
+    if (userInfo && userInfo.role.name !== Role.CUSTOMER) {
+      methods.push(PaymentMethod.CREDIT_CARD)
     }
 
     // Filter out disabled methods
@@ -75,6 +78,8 @@ export default function PaymentMethodRadioGroup({
           return PaymentMethod.BANK_TRANSFER
         case VOUCHER_PAYMENT_METHOD.POINT:
           return PaymentMethod.POINT
+        case VOUCHER_PAYMENT_METHOD.CREDIT_CARD:
+          return PaymentMethod.CREDIT_CARD
         default:
           return PaymentMethod.BANK_TRANSFER
       }
@@ -115,6 +120,8 @@ export default function PaymentMethodRadioGroup({
           return vpm.paymentMethod === 'bank-transfer'
         case PaymentMethod.POINT:
           return vpm.paymentMethod === 'point'
+        case PaymentMethod.CREDIT_CARD:
+          return vpm.paymentMethod === 'credit-card'
         default:
           return false
       }
@@ -171,6 +178,7 @@ export default function PaymentMethodRadioGroup({
                 case 'cash': return t('paymentMethod.cash')
                 case 'bank-transfer': return t('paymentMethod.bankTransfer')
                 case 'point': return t('paymentMethod.coin')
+                case 'credit-card': return t('paymentMethod.creditCard')
                 default: return vpm.paymentMethod
               }
             }).join(', ')}, {t('paymentMethod.butYouCanUse')} {getAvailablePaymentMethods().map(method => {
@@ -178,6 +186,7 @@ export default function PaymentMethodRadioGroup({
                 case PaymentMethod.CASH: return t('paymentMethod.cash')
                 case PaymentMethod.BANK_TRANSFER: return t('paymentMethod.bankTransfer')
                 case PaymentMethod.POINT: return t('paymentMethod.coin')
+                case PaymentMethod.CREDIT_CARD: return t('paymentMethod.creditCard')
                 default: return method
               }
             }).join(', ')}
@@ -196,7 +205,7 @@ export default function PaymentMethodRadioGroup({
               }`}>
               <Label htmlFor="r2" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER) ? 'opacity-50' : ''
                 }`}>
-                <CreditCard size={20} />
+                <Smartphone size={20} />
                 {t('paymentMethod.bankTransfer')}
                 {!isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER) && (
                   <span className="ml-1 text-xs text-orange-500">
@@ -208,12 +217,32 @@ export default function PaymentMethodRadioGroup({
           </div>
           {userInfo && userInfo.role.name !== Role.CUSTOMER && (
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={PaymentMethod.CASH} id="r3" />
+              <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
+              <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
+                ? 'text-muted-foreground'
+                : 'text-muted-foreground/50'
+                }`}>
+                <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
+                  }`}>
+                  <CreditCard size={20} />
+                  {t('paymentMethod.creditCard')}
+                  {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
+                    <span className="ml-1 text-xs text-orange-500">
+                      ({disabledReasons?.[PaymentMethod.CREDIT_CARD] || t('paymentMethod.voucherNotSupport')})
+                    </span>
+                  )}
+                </Label>
+              </div>
+            </div>
+          )}
+          {userInfo && userInfo.role.name !== Role.CUSTOMER && (
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value={PaymentMethod.CASH} id="r4" />
               <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CASH)
                 ? 'text-muted-foreground'
                 : 'text-muted-foreground/50'
                 }`}>
-                <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CASH) ? 'opacity-50' : ''
+                <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CASH) ? 'opacity-50' : ''
                   }`}>
                   <Coins size={20} />
                   {t('paymentMethod.cash')}
@@ -230,7 +259,7 @@ export default function PaymentMethodRadioGroup({
             <div className="flex space-x-2">
               <RadioGroupItem
                 value={PaymentMethod.POINT}
-                id="r4"
+                id="r5"
                 className="mt-[2px]"
               />
               <div className="flex flex-col space-x-2">
@@ -238,7 +267,7 @@ export default function PaymentMethodRadioGroup({
                   ? 'text-muted-foreground'
                   : 'text-muted-foreground/50'
                   }`}>
-                  <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
+                  <Label htmlFor="r5" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
                     }`}>
                     <CircleDollarSign size={20} />
                     <span className="flex flex-col">
@@ -272,15 +301,6 @@ export default function PaymentMethodRadioGroup({
       className="gap-6 min-w-full"
       onValueChange={handlePaymentMethodChange}
     >
-      {/* <div className="flex items-center space-x-2">
-        <RadioGroupItem value="internalWallet" id="r1" />
-        <div className="flex gap-1 items-center pl-2 text-muted-foreground">
-          <Label htmlFor="r1" className="flex gap-1 items-center">
-            <WalletMinimal size={20} />
-            {t('paymentMethod.internalWallet')} (coming soon)
-          </Label>
-        </div>
-      </div> */}
       <div className="flex items-center space-x-2">
         <RadioGroupItem value={PaymentMethod.BANK_TRANSFER} id="r2" />
         <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER)
@@ -289,7 +309,7 @@ export default function PaymentMethodRadioGroup({
           }`}>
           <Label htmlFor="r2" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER) ? 'opacity-50' : ''
             }`}>
-            <CreditCard size={20} />
+            <Smartphone size={20} />
             {t('paymentMethod.bankTransfer')}
             {!isPaymentMethodSupported(PaymentMethod.BANK_TRANSFER) && (
               <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
@@ -299,12 +319,30 @@ export default function PaymentMethodRadioGroup({
       </div>
       {userInfo && userInfo.role.name !== Role.CUSTOMER && (
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value={PaymentMethod.CASH} id="r3" />
+          <RadioGroupItem value={PaymentMethod.CREDIT_CARD} id="r3" />
+          <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CREDIT_CARD)
+            ? 'text-muted-foreground'
+            : 'text-muted-foreground/50'
+            }`}>
+            <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) ? 'opacity-50' : ''
+              }`}>
+              <CreditCard size={20} />
+              {t('paymentMethod.creditCard')}
+              {!isPaymentMethodSupported(PaymentMethod.CREDIT_CARD) && (
+                <span className="ml-1 text-xs text-orange-500">({t('paymentMethod.voucherNotSupport')})</span>
+              )}
+            </Label>
+          </div>
+        </div>
+      )}
+      {userInfo && userInfo.role.name !== Role.CUSTOMER && (
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value={PaymentMethod.CASH} id="r4" />
           <div className={`flex gap-1 items-center pl-2 ${isPaymentMethodSupported(PaymentMethod.CASH)
             ? 'text-muted-foreground'
             : 'text-muted-foreground/50'
             }`}>
-            <Label htmlFor="r3" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CASH) ? 'opacity-50' : ''
+            <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.CASH) ? 'opacity-50' : ''
               }`}>
               <Coins size={20} />
               {t('paymentMethod.cash')}
@@ -319,7 +357,7 @@ export default function PaymentMethodRadioGroup({
         <div className="flex space-x-2">
           <RadioGroupItem
             value={PaymentMethod.POINT}
-            id="r4"
+            id="r5"
             className="mt-[2px]"
           />
           <div className="flex flex-col space-x-2">
@@ -327,7 +365,7 @@ export default function PaymentMethodRadioGroup({
               ? 'text-muted-foreground'
               : 'text-muted-foreground/50'
               }`}>
-              <Label htmlFor="r4" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
+              <Label htmlFor="r5" className={`flex gap-1 items-center ${!isPaymentMethodSupported(PaymentMethod.POINT) ? 'opacity-50' : ''
                 }`}>
                 <CircleDollarSign size={20} />
                 <span className="flex flex-col">

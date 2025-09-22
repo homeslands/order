@@ -151,6 +151,9 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         if (order?.payment?.paymentMethod === PaymentMethod.POINT) {
           paymentMethodValue = t('order.point')
         }
+        if (order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD) {
+          paymentMethodValue = t('order.creditCard')
+        }
         return (
           <div className="flex flex-col">
             <span className="text-[0.8rem]">
@@ -182,6 +185,27 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
       cell: ({ row }) => {
         const location = row.original.type === OrderTypeEnum.AT_TABLE ? t('order.at-table') + " " + row.original.table?.name || "" : t('order.take-out')
         return <div className="text-sm">{location}</div>
+      },
+    },
+    {
+      accessorKey: 'pickupTime',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t('menu.pickupTime')} />
+      ),
+      cell: ({ row }) => {
+        const pickupTime = row.original.timeLeftTakeOut
+
+        return row.original.type === OrderTypeEnum.TAKE_OUT ? (
+          <div className={`text-sm ${pickupTime === 0 ? 'text-green-600' : 'text-destructive'}`}>
+            {pickupTime === 0
+              ? t('menu.immediately')
+              : pickupTime
+                ? `${t('menu.waiting')} ${pickupTime} ${t('menu.minutes')}`
+                : ""}
+          </div>
+        ) : (
+          <div className="text-sm">{t('menu.dineIn')}</div>
+        )
       },
     },
     {
