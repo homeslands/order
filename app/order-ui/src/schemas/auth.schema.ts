@@ -17,16 +17,16 @@ export function useRegisterSchema() {
   const { t } = useTranslation('auth')
   return z
     .object({
-      email: z.string().email(),
+      email: z.string().email(t('register.invalidEmail')),
       firstName: z
         .string()
         .min(1, t('register.firstNameRequired'))
-        .max(100, t('register.firstNameTooLong'))
+        .max(100, t('register.firstNameTooLong', { count: 100 }))
         .regex(NAME_REGEX, t('register.firstNameInvalid')),
       lastName: z
         .string()
         .min(1, t('register.lastNameRequired'))
-        .max(100, t('register.lastNameTooLong'))
+        .max(100, t('register.lastNameTooLong', { count: 100 }))
         .regex(NAME_REGEX, t('register.lastNameInvalid')),
       phonenumber: z
         .string()
@@ -51,8 +51,9 @@ export function useRegisterSchema() {
 }
 
 export function useForgotPasswordSchema() {
+  const { t } = useTranslation('auth')
   return z.object({
-    email: z.string().email(),
+    email: z.string().email(t('register.invalidEmail')),
   })
 }
 

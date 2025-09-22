@@ -1,7 +1,7 @@
 export const PHONE_NUMBER_REGEX = /^[0-9]{10}$/
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-export const NAME_REGEX =
-  /^(?!.* {2,})[A-Za-zÀ-ỹà-ỹ'’-]+(?: [A-Za-zÀ-ỹà-ỹ'’-]+)*$/ // Matches names with letters, apostrophes, hyphens, and spaces, but not consecutive spaces
+export const NAME_REGEX = /^(?!.* {2,})[A-Za-zÀ-ỹà-ỹ]+(?: [A-Za-zÀ-ỹà-ỹ]+)*$/ // Matches names with letters and spaces, but not consecutive spaces
+
 export const EMOJI_REGEX =
   /([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/u
 
