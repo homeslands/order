@@ -53,6 +53,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { Address } from 'src/google-map/entities/address.entity';
 
 describe('VoucherService', () => {
   let service: VoucherService;
@@ -534,7 +535,7 @@ describe('VoucherService', () => {
         accumulatedPointsToUse: 0,
         timeLeftTakeOut: 0,
         deliveryPhone: '',
-        deliveryTo: '',
+        deliveryTo: new Address(),
         deliveryFee: 0,
         deliveryDistance: 0,
       } as Order;

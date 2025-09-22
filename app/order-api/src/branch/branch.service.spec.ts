@@ -10,7 +10,7 @@ import {
   repositoryMockFactory,
 } from 'src/test-utils/repository-mock.factory';
 import { mapperMockFactory } from 'src/test-utils/mapper-mock.factory';
-import { CreateBranchDto, UpdateBranchDto } from './branch.dto';
+import { UpdateBranchDto } from './branch.dto';
 import { BranchException } from './branch.exception';
 import { BranchValidation } from './branch.validation';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
