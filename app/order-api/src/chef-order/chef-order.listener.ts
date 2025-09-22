@@ -49,6 +49,7 @@ export class ChefOrderListener {
         'order.table',
         'order.branch',
         'chefArea.printers',
+        'order.deliveryTo',
       ],
     });
 

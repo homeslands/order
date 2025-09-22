@@ -14,6 +14,8 @@ import { BranchValidation } from './branch.validation';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { BranchUtils } from './branch.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { Address } from 'src/google-map/entities/address.entity';
 
 @Injectable()
 export class BranchService {
@@ -23,6 +25,7 @@ export class BranchService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly branchUtil: BranchUtils,
     private readonly transactionManagerService: TransactionManagerService,
+    private readonly googleMapConnectorClient: GoogleMapConnectorClient,
   ) {}
 
   /**
@@ -41,8 +44,34 @@ export class BranchService {
       where: {
         slug,
       },
+      relations: {
+        addressDetail: true,
+      },
     });
     if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+    if (requestData.placeId) {
+      const addressDetail =
+        await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+          requestData.placeId,
+        );
+
+      if (branch.addressDetail) {
+        branch.addressDetail.formattedAddress = addressDetail.formatted_address;
+        branch.addressDetail.url = addressDetail.url;
+        branch.addressDetail.lat = addressDetail.geometry.location.lat;
+        branch.addressDetail.lng = addressDetail.geometry.location.lng;
+        branch.addressDetail.placeId = requestData.placeId;
+      } else {
+        const address = new Address();
+        address.formattedAddress = addressDetail.formatted_address;
+        address.url = addressDetail.url;
+        address.lat = addressDetail.geometry.location.lat;
+        address.lng = addressDetail.geometry.location.lng;
+        address.placeId = requestData.placeId;
+        branch.addressDetail = address;
+      }
+    }
 
     // Update branch
     Object.assign(branch, {
@@ -81,6 +110,19 @@ export class BranchService {
     const context = `${BranchService.name}.${this.createBranch.name}`;
     const branch = this.mapper.map(requestData, CreateBranchDto, Branch);
 
+    const addressDetail =
+      await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+        requestData.placeId,
+      );
+
+    const address = new Address();
+    address.formattedAddress = addressDetail.formatted_address;
+    address.url = addressDetail.url;
+    address.lat = addressDetail.geometry.location.lat;
+    address.lng = addressDetail.geometry.location.lng;
+    address.placeId = requestData.placeId;
+    branch.addressDetail = address;
+
     const createdBranch = await this.transactionManagerService.execute<Branch>(
       async (manager) => {
         return manager.save(branch);
@@ -112,6 +154,9 @@ export class BranchService {
     const branches = await this.branchRepository.find({
       order: {
         createdAt: 'DESC',
+      },
+      relations: {
+        addressDetail: true,
       },
     });
     return this.mapper.mapArray(branches, Branch, BranchResponseDto);

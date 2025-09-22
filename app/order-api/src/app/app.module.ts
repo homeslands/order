@@ -71,6 +71,7 @@ import { ZaloOaConnectorModule } from 'src/zalo-oa-connector/zalo-oa-connector.m
 import { SharedModule } from 'src/shared/shared.module';
 import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
+import { GoogleMapModule } from 'src/google-map/google-map.module';
 
 @Module({
   imports: [
@@ -164,6 +165,7 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
     SharedModule,
     InvoiceAreaModule,
     AccumulatedPointModule,
+    GoogleMapModule,
   ],
   controllers: [AppController],
   providers: [

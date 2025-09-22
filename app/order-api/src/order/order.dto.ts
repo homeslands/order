@@ -28,6 +28,7 @@ import { VoucherResponseDto } from 'src/voucher/voucher.dto';
 import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 import { RoleResponseDto } from 'src/role/role.dto';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
+import { AddressResponseDto } from 'src/google-map/dto/google-map.response.dto';
 
 export class CreateOrderRequestDto {
   @AutoMap()
@@ -52,6 +53,16 @@ export class CreateOrderRequestDto {
   @ApiProperty({ description: 'The slug of table' })
   @IsOptional()
   table: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The phone number of delivery' })
+  @IsOptional()
+  deliveryPhone: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The place id of delivery address' })
+  @IsOptional()
+  deliveryTo: string;
 
   @AutoMap()
   @ApiProperty({
@@ -124,6 +135,16 @@ export class UpdateOrderRequestDto {
   @ApiProperty({ description: 'The slug of table' })
   @IsOptional({ message: INVALID_TABLE_SLUG })
   table?: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The phone number of delivery' })
+  @IsOptional()
+  deliveryPhone: string;
+
+  @AutoMap()
+  @ApiProperty({ description: 'The place id of delivery address' })
+  @IsOptional()
+  deliveryTo: string;
 
   @AutoMap()
   @ApiProperty({ description: 'The description of order' })
@@ -254,6 +275,18 @@ export class OrderResponseDto extends BaseResponseDto {
 
   @AutoMap()
   accumulatedPointsToUse: number;
+
+  @AutoMap(() => AddressResponseDto)
+  deliveryTo: AddressResponseDto;
+
+  @AutoMap()
+  deliveryPhone: string;
+
+  @AutoMap()
+  deliveryDistance: number;
+
+  @AutoMap()
+  deliveryFee: number;
 }
 
 export class GetOrderRequestDto extends BaseQueryDto {

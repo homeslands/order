@@ -37,6 +37,7 @@ import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entiti
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from 'src/user/user.entity';
 import { Order } from './order.entity';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -119,6 +120,7 @@ describe('OrderController', () => {
           provide: getRepositoryToken(Order),
           useValue: repositoryMockFactory,
         },
+        GoogleMapConnectorClient,
       ],
     }).compile();
 

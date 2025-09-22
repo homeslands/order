@@ -11,6 +11,9 @@ import { repositoryMockFactory } from 'src/test-utils/repository-mock.factory';
 import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 import { DataSource } from 'typeorm';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 describe('BranchController', () => {
   let controller: BranchController;
@@ -37,6 +40,16 @@ describe('BranchController', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        GoogleMapConnectorClient,
+        HttpService,
+        ConfigService,
+        {
+          provide: 'AXIOS_INSTANCE_TOKEN',
+          useValue: {
+            get: jest.fn(),
+            post: jest.fn(),
+          },
         },
       ],
     }).compile();

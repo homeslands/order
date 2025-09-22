@@ -9,6 +9,7 @@ export enum OrderStatus {
 export enum OrderType {
   TAKE_OUT = 'take-out',
   AT_TABLE = 'at-table',
+  DELIVERY = 'delivery',
 }
 
 export const OrderAction = {

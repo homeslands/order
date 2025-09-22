@@ -31,6 +31,10 @@ export const VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER =
 export const ORDER_IS_NOT_PAID = 'ORDER_IS_NOT_PAID';
 export const ERROR_WHEN_UPDATE_ORDER = 'ERROR_WHEN_UPDATE_ORDER';
 export const GIFT_PRODUCT_NOT_ALLOWED = 'GIFT_PRODUCT_NOT_ALLOWED';
+export const DELIVERY_PHONE_NOT_FOUND = 'DELIVERY_PHONE_NOT_FOUND';
+export const DELIVERY_ADDRESS_NOT_FOUND = 'DELIVERY_ADDRESS_NOT_FOUND';
+export const DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY =
+  'DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -59,7 +63,10 @@ export type TOrderErrorCodeKey =
   | typeof VOUCHER_IS_THE_SAME_PREVIOUS_VOUCHER
   | typeof ORDER_IS_NOT_PAID
   | typeof ERROR_WHEN_UPDATE_ORDER
-  | typeof GIFT_PRODUCT_NOT_ALLOWED;
+  | typeof GIFT_PRODUCT_NOT_ALLOWED
+  | typeof DELIVERY_PHONE_NOT_FOUND
+  | typeof DELIVERY_ADDRESS_NOT_FOUND
+  | typeof DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -112,5 +119,17 @@ export const OrderValidation: TOrderErrorCode = {
   GIFT_PRODUCT_NOT_ALLOWED: createErrorCode(
     1010026,
     'Gift product not allowed',
+  ),
+  DELIVERY_PHONE_NOT_FOUND: createErrorCode(
+    1010027,
+    'Delivery phone not found',
+  ),
+  DELIVERY_ADDRESS_NOT_FOUND: createErrorCode(
+    1010028,
+    'Delivery address not found',
+  ),
+  DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY: createErrorCode(
+    1010029,
+    'Delivery distance is greater than max distance delivery',
   ),
 };
