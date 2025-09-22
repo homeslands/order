@@ -7,6 +7,9 @@ export const INVALID_BRANCH_ADDRESS = 'INVALID_BRANCH_ADDRESS';
 export const ERROR_WHEN_DELETE_BRANCH = 'ERROR_WHEN_DELETE_BRANCH';
 export const ERROR_WHEN_UPDATE_BRANCH = 'ERROR_WHEN_UPDATE_BRANCH';
 export const ERROR_WHEN_CREATE_BRANCH = 'ERROR_WHEN_CREATE_BRANCH';
+export const INVALID_BRANCH_PLACE_ID = 'INVALID_BRANCH_PLACE_ID';
+export const BRANCH_ADDRESS_DETAIL_NOT_FOUND =
+  'BRANCH_ADDRESS_DETAIL_NOT_FOUND';
 
 export type TBranchErrorCodeKey =
   | typeof INVALID_BRANCH_ADDRESS
@@ -15,7 +18,9 @@ export type TBranchErrorCodeKey =
   | typeof ERROR_WHEN_DELETE_BRANCH
   | typeof ERROR_WHEN_UPDATE_BRANCH
   | typeof ERROR_WHEN_CREATE_BRANCH
-  | typeof INVALID_BRANCH_NAME;
+  | typeof INVALID_BRANCH_NAME
+  | typeof INVALID_BRANCH_PLACE_ID
+  | typeof BRANCH_ADDRESS_DETAIL_NOT_FOUND;
 
 // 105000 - 106000
 export type TBranchErrorCode = Record<TBranchErrorCodeKey, TErrorCodeValue>;
@@ -28,4 +33,9 @@ export const BranchValidation: TBranchErrorCode = {
   ERROR_WHEN_DELETE_BRANCH: createErrorCode(105004, 'Error when delete branch'),
   ERROR_WHEN_UPDATE_BRANCH: createErrorCode(105005, 'Error when update branch'),
   ERROR_WHEN_CREATE_BRANCH: createErrorCode(105006, 'Error when create branch'),
+  INVALID_BRANCH_PLACE_ID: createErrorCode(105007, 'Invalid branch place id'),
+  BRANCH_ADDRESS_DETAIL_NOT_FOUND: createErrorCode(
+    105008,
+    'Branch address detail not found',
+  ),
 };

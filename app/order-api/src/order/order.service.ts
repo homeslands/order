@@ -64,6 +64,12 @@ import {
 } from 'src/printer/printer.constants';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { BranchException } from 'src/branch/branch.exception';
+import { BranchValidation } from 'src/branch/branch.validation';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfigKey } from 'src/system-config/system-config.constant';
+import { Address } from 'src/google-map/entities/address.entity';
 @Injectable()
 export class OrderService {
   constructor(
@@ -89,7 +95,23 @@ export class OrderService {
     private readonly promotionUtils: PromotionUtils,
     private readonly paymentUtils: PaymentUtils,
     private readonly accumulatedPointService: AccumulatedPointService,
+    private readonly googleMapConnectorClient: GoogleMapConnectorClient,
+    private readonly systemConfigService: SystemConfigService,
   ) {}
+
+  async getMaxDistanceDelivery(): Promise<number> {
+    const maxDistanceDelivery = await this.systemConfigService.get(
+      SystemConfigKey.MAX_DISTANCE_DELIVERY,
+    );
+    return Number(maxDistanceDelivery || 0);
+  }
+
+  async getDeliveryFeePerKm(): Promise<number> {
+    const deliveryFeePerKm = await this.systemConfigService.get(
+      SystemConfigKey.DELIVERY_FEE_PER_KM,
+    );
+    return Number(deliveryFeePerKm || 0);
+  }
 
   /**
    * Delete order
@@ -251,14 +273,93 @@ export class OrderService {
       });
       order.table = table;
       order.timeLeftTakeOut = 0;
-    } else {
+    } else if (requestData.type === OrderType.TAKE_OUT) {
       order.table = null;
       order.timeLeftTakeOut = requestData.timeLeftTakeOut;
+    } else if (requestData.type === OrderType.DELIVERY) {
+      if (!order?.branch?.addressDetail) {
+        this.logger.warn(
+          `Branch address detail not found when construct order`,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.BRANCH_ADDRESS_DETAIL_NOT_FOUND,
+        );
+      }
+      if (!requestData.deliveryPhone) {
+        this.logger.warn(
+          `Delivery phone not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_PHONE_NOT_FOUND);
+      }
+      if (!requestData.deliveryTo) {
+        this.logger.warn(
+          `Delivery address not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_ADDRESS_NOT_FOUND);
+      }
+      const deliveryTo =
+        await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+          requestData.deliveryTo,
+        );
+
+      const origin = `${order.branch.addressDetail.lat},${order.branch.addressDetail.lng}`;
+      const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
+      const direction = await this.googleMapConnectorClient.getDirection(
+        origin,
+        destination,
+      );
+
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery();
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm();
+
+      const deliveryDistance =
+        Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
+
+      if (deliveryDistance > maxDistanceDelivery) {
+        this.logger.warn(
+          `Delivery distance is greater than max distance delivery`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY,
+        );
+      }
+
+      if (order.deliveryTo) {
+        order.deliveryTo.formattedAddress =
+          deliveryTo?.formatted_address || 'N/A';
+        order.deliveryTo.lat = deliveryTo?.geometry?.location?.lat || 0;
+        order.deliveryTo.lng = deliveryTo?.geometry?.location?.lng || 0;
+        order.deliveryTo.placeId = requestData.deliveryTo;
+        order.deliveryTo.url = deliveryTo?.url || 'N/A';
+      } else {
+        order.deliveryTo = new Address();
+        order.deliveryTo.formattedAddress =
+          deliveryTo?.formatted_address || 'N/A';
+        order.deliveryTo.lat = deliveryTo?.geometry?.location?.lat || 0;
+        order.deliveryTo.lng = deliveryTo?.geometry?.location?.lng || 0;
+        order.deliveryTo.placeId = requestData.deliveryTo;
+        order.deliveryTo.url = deliveryTo?.url || 'N/A';
+      }
+
+      order.deliveryPhone = requestData.deliveryPhone;
+      order.deliveryFee = deliveryDistance * deliveryFeePerKm;
+      order.deliveryDistance = deliveryDistance;
     }
 
     if (requestData.description) {
       order.description = requestData.description;
     }
+
+    // update subtotal after update delivery fee
+    const { subtotal } = await this.orderUtils.getOrderSubtotal(
+      order,
+      order.voucher,
+    );
+    order.subtotal = subtotal;
 
     // Update order
     const updatedOrder = await this.transactionManagerService.execute<Order>(
@@ -786,13 +887,18 @@ export class OrderService {
    * @returns {Promise<Order>} The result of checking
    */
   async constructOrder(data: CreateOrderRequestDto): Promise<Order> {
+    const context = `${OrderService.name}.${this.constructOrder.name}`;
     // Get branch
     const branch = await this.branchUtils.getBranch({
       where: { slug: data.branch },
+      relations: ['addressDetail'],
     });
 
     // Get table if order type is at table
     let table: Table = null;
+    let address: Address = null;
+    let deliveryFee = 0;
+    let deliveryDistance = 0;
     if (data.type === OrderType.AT_TABLE) {
       table = await this.tableUtils.getTable({
         where: {
@@ -805,6 +911,68 @@ export class OrderService {
       data.timeLeftTakeOut = 0;
     } else if (data.type === OrderType.TAKE_OUT) {
       data.timeLeftTakeOut = data.timeLeftTakeOut || 0;
+    } else if (data.type === OrderType.DELIVERY) {
+      if (!branch.addressDetail) {
+        this.logger.warn(
+          `Branch address detail not found when construct order`,
+          context,
+        );
+        throw new BranchException(
+          BranchValidation.BRANCH_ADDRESS_DETAIL_NOT_FOUND,
+        );
+      }
+      if (!data.deliveryPhone) {
+        this.logger.warn(
+          `Delivery phone not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_PHONE_NOT_FOUND);
+      }
+      if (!data.deliveryTo) {
+        this.logger.warn(
+          `Delivery address not found when construct order`,
+          context,
+        );
+        throw new OrderException(OrderValidation.DELIVERY_ADDRESS_NOT_FOUND);
+      }
+      const deliveryTo =
+        await this.googleMapConnectorClient.getPlaceDetailsByPlaceId(
+          data.deliveryTo,
+        );
+
+      const origin = `${branch.addressDetail.lat},${branch.addressDetail.lng}`;
+      const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
+      const direction = await this.googleMapConnectorClient.getDirection(
+        origin,
+        destination,
+      );
+
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery();
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm();
+
+      deliveryDistance =
+        Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
+
+      if (deliveryDistance > maxDistanceDelivery) {
+        this.logger.warn(
+          `Delivery distance is greater than max distance delivery`,
+          context,
+        );
+        throw new OrderException(
+          OrderValidation.DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY,
+        );
+      }
+
+      // address
+      address = new Address();
+      address.formattedAddress = deliveryTo?.formatted_address || 'N/A';
+      address.lat = deliveryTo?.geometry?.location?.lat || 0;
+      address.lng = deliveryTo?.geometry?.location?.lng || 0;
+      address.placeId = data.deliveryTo;
+      address.url = deliveryTo?.url || 'N/A';
+
+      // order
+      deliveryFee = deliveryDistance * deliveryFeePerKm;
     }
 
     const defaultCustomer = await this.userUtils.getUser({
@@ -841,6 +1009,9 @@ export class OrderService {
       branch,
       table,
       approvalBy,
+      deliveryTo: address,
+      deliveryFee,
+      deliveryDistance,
     });
     return order;
   }
@@ -1051,6 +1222,7 @@ export class OrderService {
         'orderItems.promotion',
         'chefOrders',
         'voucher.voucherProducts.product',
+        'deliveryTo',
       ],
       order: { createdAt: 'DESC' },
     };
@@ -1166,6 +1338,7 @@ export class OrderService {
         'orderItems.promotion',
         'chefOrders',
         'voucher.voucherProducts.product',
+        'deliveryTo',
       ],
       order: { createdAt: 'DESC' },
     });
