@@ -52,17 +52,62 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   }
 
   const formFields = {
-
+    firstName: (
+      <FormField
+        control={form.control}
+        name="firstName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.firstName')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('register.enterFirstName')}
+                {...field}
+                onKeyDown={(e) => {
+                  if (/[0-9]/.test(e.key)) {
+                    e.preventDefault(); // chặn không cho nhập số
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    lastName: (
+      <FormField
+        control={form.control}
+        name="lastName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.lastName')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('register.enterLastName')}
+                {...field}
+                onKeyDown={(e) => {
+                  if (/[0-9]/.test(e.key)) {
+                    e.preventDefault(); // chặn không cho nhập số
+                  }
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     phonenumber: (
       <FormField
         control={form.control}
         name="phonenumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.phoneNumber')}</FormLabel>
+            <FormLabel>{t('register.phoneNumber')}</FormLabel>
             <FormControl>
               <Input
-                placeholder={t('login.enterPhoneNumber')}
+                placeholder={t('register.enterPhoneNumber')}
                 {...field}
                 onChange={(e) => {
                   // Chỉ giữ lại các ký tự là số
@@ -78,23 +123,37 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         )}
       />
     ),
-
+    email: (
+      <FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.email')}</FormLabel>
+            <FormControl>
+              <Input placeholder={t('register.enterEmail')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     password: (
       <FormField
         control={form.control}
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.password')}</FormLabel>
+            <FormLabel>{t('register.password')}</FormLabel>
             <FormControl>
               {/* <PasswordInput
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 {...field}
               /> */}
               <PasswordWithRulesInput
                 value={field.value}
                 onChange={field.onChange}
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 disabled={field.disabled}
               />
             </FormControl>
@@ -109,57 +168,12 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         name="confirmPassword"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('login.confirmPassword')}</FormLabel>
+            <FormLabel>{t('register.confirmPassword')}</FormLabel>
             <FormControl>
               <PasswordInput
-                placeholder={t('login.enterPassword')}
+                placeholder={t('register.enterPassword')}
                 {...field}
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    firstName: (
-      <FormField
-        control={form.control}
-        name="firstName"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('login.firstName')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('login.enterFirstName')} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    lastName: (
-      <FormField
-        control={form.control}
-        name="lastName"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('login.lastName')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('login.enterLastName')} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    email: (
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('login.email')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('login.enterEmail')} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
