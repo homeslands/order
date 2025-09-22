@@ -79,6 +79,7 @@ import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -254,6 +255,7 @@ describe('OrderService', () => {
             emit: jest.fn(), // Mock the emit method
           },
         },
+        GoogleMapConnectorClient,
       ],
     }).compile();
 
@@ -669,6 +671,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
 
       jest
@@ -701,6 +705,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
       const order = {
         subtotal: 100,
@@ -744,6 +750,8 @@ describe('OrderService', () => {
         owner: 'mock-owner-slug',
         orderItems: [createOrderItem],
         approvalBy: 'mock-approval-by-slug',
+        deliveryPhone: '',
+        deliveryTo: '',
       };
       const orderItem = {
         quantity: 1,

@@ -42,24 +42,6 @@
       <p class="text-xs"><span class="font-bold">Thời gian xuất:</span>
         <%= formatDate(exportAt, 'HH:mm:ss DD/MM/YYYY' ) %>
       </p>
-      <p class="text-xs"> 
-        <span class="font-bold">
-          Bàn:
-        </span>
-        <span class="capitalize">
-          <%= tableName %>
-        </span>
-      </p>
-      <% if (
-        tableName === 'take out'
-      ) { %>
-        <p class="text-xs">
-          <span class="font-bold">
-            Thời gian mang đi:
-          </span>
-          <%= timeLeftTakeOut %> (phút)
-        </p>
-      <% } %>
       <p class="text-xs"><span class="font-bold">
           Khách hàng:
         </span>
@@ -71,6 +53,70 @@
         </span>
         <%= cashier %>
       </p>
+      <% if (
+        type === 'at-table'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Tại bàn
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Bàn:
+          </span>
+          <span class="capitalize">
+            <%= tableName %>
+          </span>
+        </p>
+      <% } else if (
+        type === 'take-out'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Mang đi
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Thời gian mang đi:
+          </span>
+          <%= timeLeftTakeOut %> (phút)
+        </p>
+      <% } else if (
+        type === 'delivery'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Giao hàng
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Giao hàng tới:
+          </span>
+          <span class="capitalize">
+            <%= deliveryTo %>
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            SĐT:
+          </span>
+          <span class="capitalize">
+            <%= deliveryPhone %>
+          </span>
+        </p>
+      <% } %>
     </div>
 
     <!-- Invoice items -->
@@ -194,6 +240,17 @@
                 <%= formatCurrency(accumulatedPointsToUse) %>
               </td>
             </tr>
+
+            <% if ((type==='delivery' )) { %>
+              <tr class="border-t border-black">
+                <td class="py-2 text-left" colspan="4">
+                  Phí giao hàng (đ)
+                </td>
+                <td class="py-2 text-right">
+                  <%= formatCurrency(deliveryFee) %>
+                </td>
+              </tr>
+            <% } %>
 
             <tr class="border-t border-black">
               <td class="py-2 text-left">Thành tiền</td>

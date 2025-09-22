@@ -73,6 +73,7 @@ import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
 import { RoleBasedSerializationInterceptor } from 'src/role/role.interceptor';
 import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.guard';
+import { GoogleMapModule } from 'src/google-map/google-map.module';
 
 @Module({
   imports: [
@@ -166,6 +167,7 @@ import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.gu
     SharedModule,
     InvoiceAreaModule,
     AccumulatedPointModule,
+    GoogleMapModule,
   ],
   controllers: [AppController],
   providers: [

@@ -80,6 +80,10 @@ services:
       ZALO_OA_SECRET_KEY: ${ZALO_OA_SECRET_KEY}
       ZALO_OA_ID: ${ZALO_OA_ID}
 
+      # Google Maps
+      GOOGLE_MAP_API_URL: ${GOOGLE_MAP_API_URL}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      
       TZ: Asia/Ho_Chi_Minh
     ports:
       - 8080:8080
