@@ -20,6 +20,7 @@ import { ORDER_STATUS_INVALID } from './order.validation';
 import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { Address } from 'src/google-map/entities/address.entity';
 
 @Entity('order_tbl')
 export class Order extends Base {
@@ -124,4 +125,24 @@ export class Order extends Base {
   @AutoMap()
   @Column({ name: 'accumulated_points_to_use_column', default: 0 })
   accumulatedPointsToUse: number;
+
+  @OneToOne(() => Address, (address) => address.order, {
+    nullable: true,
+    cascade: ['insert', 'update', 'remove'],
+  })
+  @JoinColumn({ name: 'delivery_to_column' })
+  @AutoMap(() => Address)
+  deliveryTo: Address;
+
+  @AutoMap()
+  @Column({ name: 'delivery_phone_column', nullable: true })
+  deliveryPhone?: string;
+
+  @AutoMap()
+  @Column({ name: 'delivery_distance_column', default: 0 })
+  deliveryDistance: number;
+
+  @AutoMap()
+  @Column({ name: 'delivery_fee_column', default: 0 })
+  deliveryFee: number;
 }
