@@ -36,20 +36,131 @@
       <p class="text-xs"><span class="font-bold">Thời gian:</span>
         <%= formatDate(createdAt, 'HH:mm:ss DD/MM/YYYY' ) %>
       </p>
-      <p class="text-xs"> 
-        <span class="font-bold">
-          Bàn:
-        </span>
-        <span class="capitalize">
-          <%= tableName %>
-        </span>
-      </p>
-      <% if (tableName === 'take out') { %>
+      <% if (
+        type === 'at-table'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Tại bàn
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Bàn:
+          </span>
+          <span class="capitalize">
+            <%= tableName %>
+          </span>
+        </p>
+      <% } else if (
+        type === 'take-out'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Mang đi
+          </span>
+        </p>
         <p class="text-xs">
           <span class="font-bold">
             Thời gian mang đi:
           </span>
           <%= timeLeftTakeOut %> (phút)
+        </p>
+      <% } else if (
+        type === 'delivery'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Giao hàng
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Giao hàng tới:
+          </span>
+          <span class="capitalize">
+            <%= deliveryTo %>
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            SĐT:
+          </span>
+          <span class="capitalize">
+            <%= deliveryPhone %>
+          </span>
+        </p>
+      <% } %><% if (
+        type === 'at-table'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Tại bàn
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Bàn:
+          </span>
+          <span class="capitalize">
+            <%= tableName %>
+          </span>
+        </p>
+      <% } else if (
+        type === 'take-out'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Mang đi
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Thời gian mang đi:
+          </span>
+          <%= timeLeftTakeOut %> (phút)
+        </p>
+      <% } else if (
+        type === 'delivery'
+      ) { %>
+        <p class="text-xs">
+          <span class="font-bold">
+            Hình thức:
+          </span>
+          <span class="capitalize">
+            Giao hàng
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            Giao hàng tới:
+          </span>
+          <span class="capitalize">
+            <%= deliveryTo %>
+          </span>
+        </p>
+        <p class="text-xs">
+          <span class="font-bold">
+            SĐT:
+          </span>
+          <span class="capitalize">
+            <%= deliveryPhone %>
+          </span>
         </p>
       <% } %>
       <p class="text-xs"> 
