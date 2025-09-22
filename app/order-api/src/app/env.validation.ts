@@ -82,6 +82,12 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   ZALO_OA_ID: string;
+
+  @IsNotEmpty()
+  GOOGLE_MAP_API_URL: string;
+
+  @IsNotEmpty()
+  GOOGLE_MAPS_API_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {

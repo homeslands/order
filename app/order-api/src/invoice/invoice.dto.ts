@@ -99,4 +99,24 @@ export class InvoiceResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   accumulatedPointsToUse: number;
+
+  @AutoMap()
+  @ApiProperty()
+  deliveryTo?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  deliveryPhone?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  type?: string;
+
+  @AutoMap()
+  @ApiProperty()
+  deliveryDistance: number;
+
+  @AutoMap()
+  @ApiProperty()
+  deliveryFee: number;
 }

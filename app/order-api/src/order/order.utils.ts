@@ -57,8 +57,9 @@ export class OrderUtils {
         'table',
         'voucher.voucherProducts.product',
         'voucher.voucherPaymentMethods',
-        'branch',
+        'branch.addressDetail',
         'chefOrders.chefOrderItems',
+        'deliveryTo',
       ],
       order: {
         createdAt: 'ASC',
@@ -85,7 +86,8 @@ export class OrderUtils {
         'invoice.invoiceItems',
         'table',
         'voucher',
-        'branch',
+        'branch.addressDetail',
+        'deliveryTo',
         'chefOrders.chefOrderItems',
       ],
       order: {
@@ -100,7 +102,9 @@ export class OrderUtils {
   /**
    * Calculate the subtotal of an order.
    * @param {Order} order order.
-   * @returns {Promise<number>} The subtotal of order
+   * @returns {Promise<number>} The subtotal of order (include delivery fee)
+   * @returns {Promise<number>} The original subtotal of order (exclude delivery fee)
+   * @returns {Promise<number>} The voucher value items total of order
    */
   async getOrderSubtotal(
     order: Order,
@@ -143,8 +147,10 @@ export class OrderUtils {
     }
 
     return {
-      subtotal: subtotal - discount,
+      // include delivery fee
+      subtotal: subtotal - discount + order.deliveryFee,
       voucherValueItemsTotal,
+      // exclude delivery fee
       originalSubtotal,
     };
   }

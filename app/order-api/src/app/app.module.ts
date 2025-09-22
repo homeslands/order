@@ -74,6 +74,7 @@ import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.
 import { BranchConfigModule } from 'src/branch-config/branch-config.module';
 import { FeatureFlagSystemModule } from 'src/feature-flag-system/feature-flag-system.module';
 import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
+import { GoogleMapModule } from 'src/google-map/google-map.module';
 
 @Module({
   imports: [
@@ -169,6 +170,7 @@ import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
     AccumulatedPointModule,
     BranchConfigModule,
     FeatureFlagSystemModule,
+    GoogleMapModule,
   ],
   controllers: [AppController],
   providers: [

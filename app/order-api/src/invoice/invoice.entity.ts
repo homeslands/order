@@ -100,4 +100,24 @@ export class Invoice extends Base {
   @AutoMap()
   @Column({ name: 'accumulated_points_to_use_column', default: 0 })
   accumulatedPointsToUse: number;
+
+  @AutoMap()
+  @Column({ name: 'type_column', nullable: true })
+  type: string;
+
+  @AutoMap()
+  @Column({ name: 'delivery_to_column', nullable: true })
+  deliveryTo?: string;
+
+  @AutoMap()
+  @Column({ name: 'delivery_phone_column', nullable: true })
+  deliveryPhone?: string;
+
+  @AutoMap()
+  @Column({ name: 'delivery_distance_column', default: 0 })
+  deliveryDistance: number;
+
+  @AutoMap()
+  @Column({ name: 'delivery_fee_column', default: 0 })
+  deliveryFee: number;
 }

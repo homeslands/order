@@ -53,6 +53,8 @@ import { PrinterJob } from 'src/printer/entity/printer-job.entity';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -96,6 +98,7 @@ import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-poi
     NotificationModule,
     JobModule,
     ACBConnectorModule,
+    HttpModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -112,6 +115,7 @@ import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-poi
     PaymentUtils,
     BankTransferStrategy,
     AccumulatedPointService,
+    GoogleMapConnectorClient,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

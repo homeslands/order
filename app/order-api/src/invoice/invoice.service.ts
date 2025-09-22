@@ -107,6 +107,7 @@ export class InvoiceService {
         'approvalBy',
         'table',
         'voucher',
+        'deliveryTo',
       ],
     });
     if (!order) {
@@ -272,6 +273,11 @@ export class InvoiceService {
       date: order.createdAt,
       voucherCode: order.voucher?.code ?? null,
       accumulatedPointsToUse: order.accumulatedPointsToUse,
+      type: order.type,
+      deliveryTo: order.deliveryTo?.formattedAddress,
+      deliveryPhone: order.deliveryPhone,
+      deliveryDistance: order.deliveryDistance,
+      deliveryFee: order.deliveryFee,
     });
 
     await this.invoiceRepository.manager.transaction(async (manager) => {
@@ -357,6 +363,7 @@ export class InvoiceService {
         'approvalBy',
         'table',
         'voucher',
+        'deliveryTo',
       ],
     });
     if (!order) {
@@ -461,6 +468,11 @@ export class InvoiceService {
       valueEachVoucher: order.voucher?.value ?? null,
       voucherRule: order.voucher?.applicabilityRule ?? null,
       accumulatedPointsToUse: order.accumulatedPointsToUse,
+      type: order.type,
+      deliveryTo: order.deliveryTo?.formattedAddress,
+      deliveryPhone: order.deliveryPhone,
+      deliveryDistance: order.deliveryDistance,
+      deliveryFee: order.deliveryFee,
     });
 
     this.logger.log(`Temporary invoice created for order ${order.id}`, context);

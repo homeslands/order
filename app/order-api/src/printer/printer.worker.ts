@@ -187,6 +187,7 @@ export class PrinterWorker implements OnModuleInit {
           'order.table',
           'order.branch',
           'chefArea.printers',
+          'order.deliveryTo',
         ],
       });
       if (!chefOrderLabel) {
@@ -381,6 +382,7 @@ export class PrinterWorker implements OnModuleInit {
           'order.table',
           'order.branch',
           'chefArea.printers',
+          'order.deliveryTo',
         ],
       });
       if (!chefOrder) {

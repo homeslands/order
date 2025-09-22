@@ -110,11 +110,14 @@ export class PrinterUtils {
     const buffersToSend = await this.createChefOrderEscPosBufferByCanvas(
       chefOrder.order?.referenceNumber.toString() ?? 'N/A',
       chefOrder.order?.branch?.name ?? 'N/A',
-      chefOrder.order?.table?.name ?? 'Mang đi',
+      chefOrder.order?.table?.name ?? 'N/A',
       moment(chefOrder.order?.createdAt).format('DD/MM/YYYY HH:mm:ss'),
       chefOrder.order?.description ?? 'N/A',
       chefOrder.chefOrderItems,
       chefOrder.order?.timeLeftTakeOut ?? 0,
+      chefOrder.order?.deliveryPhone ?? 'N/A',
+      chefOrder.order?.deliveryTo?.formattedAddress ?? 'N/A',
+      chefOrder.order?.type ?? 'N/A',
     );
 
     try {
@@ -144,6 +147,9 @@ export class PrinterUtils {
     noteAll: string,
     chefOrderItems: ChefOrderItem[],
     timeLeftTakeOut: number,
+    deliveryPhone: string,
+    deliveryTo: string,
+    type: string,
   ): Promise<Buffer> {
     const canvasWidth = 576;
     const lineHeight = 36;
@@ -175,10 +181,22 @@ export class PrinterUtils {
     }, 0);
 
     // Estimate lines for header info (branchName, createdAt, table, noteAll)
-    const infoFields = [branchName, createdAt, table];
+    const infoFields = [branchName, createdAt];
 
-    if (table === 'Mang đi') {
+    if (type === 'take-out') {
+      infoFields.push(type.toString());
       infoFields.push(timeLeftTakeOut.toString());
+    }
+
+    if (type === 'delivery') {
+      infoFields.push(type.toString());
+      infoFields.push(deliveryTo);
+      infoFields.push(deliveryPhone);
+    }
+
+    if (type === 'at-table') {
+      infoFields.push(type.toString());
+      infoFields.push(table);
     }
 
     infoFields.push(noteAll || 'Không có ghi chú');
@@ -210,14 +228,22 @@ export class PrinterUtils {
     // Info section (Chi nhánh, Thời gian, Bàn, Thời gian mang đi, Ghi chú)
     ctx.textAlign = 'left';
     let currentY = 120;
-    const infoData = [
-      `Chi nhánh: ${branchName}`,
-      `Thời gian: ${createdAt}`,
-      `Bàn: ${table}`,
-    ];
+    const infoData = [`Chi nhánh: ${branchName}`, `Thời gian: ${createdAt}`];
 
-    if (table === 'Mang đi') {
+    if (type === 'take-out') {
+      infoData.push(`Hình thức: Mang đi`);
       infoData.push(`Thời gian mang đi: ${timeLeftTakeOut} (phút)`);
+    }
+
+    if (type === 'delivery') {
+      infoData.push(`Hình thức: Giao hàng`);
+      infoData.push(`Giao hàng tới: ${deliveryTo}`);
+      infoData.push(`SĐT: ${deliveryPhone}`);
+    }
+
+    if (type === 'at-table') {
+      infoData.push(`Hình thức: Tại bàn`);
+      infoData.push(`Bàn: ${table}`);
     }
 
     infoData.push(`Ghi chú: ${noteAll || 'Không có ghi chú'}`);
@@ -339,7 +365,7 @@ export class PrinterUtils {
     printerPort: string,
     orderSlug: string,
   ) {
-    const context = `${PrinterUtils.name}.${this.handlePrintChefOrder.name}`;
+    const context = `${PrinterUtils.name}.${this.handlePrintInvoice.name}`;
     const buffersToSend = await this.invoiceService.exportBufferPng({
       order: orderSlug,
     } as ExportInvoiceDto);

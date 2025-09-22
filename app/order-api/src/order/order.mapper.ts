@@ -27,6 +27,8 @@ import { ChefOrderResponseDto } from 'src/chef-order/chef-order.dto';
 import { ChefOrder } from 'src/chef-order/chef-order.entity';
 import { RoleResponseDto } from 'src/role/role.dto';
 import { Role } from 'src/role/role.entity';
+import { Address } from 'src/google-map/entities/address.entity';
+import { AddressResponseDto } from 'src/google-map/dto/google-map.response.dto';
 
 @Injectable()
 export class OrderProfile extends AutomapperProfile {
@@ -71,6 +73,10 @@ export class OrderProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.printerInvoices,
           mapFrom((source: any) => source.printerInvoices),
+        ),
+        forMember(
+          (destination) => destination.deliveryTo,
+          mapWith(AddressResponseDto, Address, (source) => source.deliveryTo),
         ),
         extend(baseMapper(mapper)),
       );
