@@ -8,10 +8,10 @@ import { ApiOperation } from '@nestjs/swagger';
 import { ApiResponseWithType } from 'src/app/app.decorator';
 import { AppResponseDto } from 'src/app/app.dto';
 import {
-  AutocompleteAddressResponseDto,
   DistanceAndDurationResponseDto,
   LocationResponseDto,
   RouteAndDirectionResponseDto,
+  SuggestionAddressResultResponseDto,
 } from './dto/google-map.response.dto';
 import { HttpStatus } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
@@ -25,24 +25,24 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 export class GoogleMapController {
   constructor(private readonly googleMapService: GoogleMapService) {}
 
-  @Get('/location/name/:name')
+  @Get('/address/suggestion/:name')
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve address' })
   @ApiResponseWithType({
     status: HttpStatus.OK,
-    description: 'Address has been retrieved successfully',
-    type: AutocompleteAddressResponseDto,
+    description: 'Address suggestion has been retrieved successfully',
+    type: SuggestionAddressResultResponseDto,
     isArray: true,
   })
   async findAddress(@Param('name') name: string) {
-    const result = await this.googleMapService.getAddressByName(name);
+    const result = await this.googleMapService.getAddressSuggestion(name);
     return {
-      message: 'Address has been retrieved successfully',
+      message: 'Address suggestion has been retrieved successfully',
       statusCode: HttpStatus.OK,
       timestamp: new Date().toISOString(),
       result,
-    } as AppResponseDto<AutocompleteAddressResponseDto[]>;
+    } as AppResponseDto<SuggestionAddressResultResponseDto[]>;
   }
 
   @Get('/location/place/:placeId')
