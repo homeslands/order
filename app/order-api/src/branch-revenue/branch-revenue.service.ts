@@ -996,12 +996,16 @@ export class BranchRevenueService {
 
       if (requestData.type === RevenueTypeExport.DAY) {
         isFormatDateHaveHour = false;
-        this.logger.log('startDateQuery', requestData.startDate);
-        this.logger.log('endDateQuery', requestData.endDate);
+        const startDateQuery = moment(requestData.startDate)
+          .startOf('days')
+          .toDate();
+        const endDateQuery = moment(requestData.endDate).endOf('days').toDate();
+        this.logger.log('startDateQuery', startDateQuery);
+        this.logger.log('endDateQuery', endDateQuery);
         branchRevenues = await this.branchRevenueRepository.find({
           where: {
             branchId: branch.id,
-            date: Between(requestData.startDate, requestData.endDate),
+            date: Between(startDateQuery, endDateQuery),
           },
           order: {
             date: 'ASC',
