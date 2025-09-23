@@ -23,7 +23,7 @@ import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
 
 interface IFormUpdateCustomerProps {
-  customer: IUserInfo
+  customer?: IUserInfo | undefined
   onSubmit: (isOpen: boolean) => void
 }
 
@@ -37,13 +37,13 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
   const form = useForm<TUpdateUserSchema>({
     resolver: zodResolver(useUpdateUserSchema()),
     defaultValues: {
-      slug: customer.slug,
+      slug: customer?.slug,
       // phonenumber: customer.phonenumber,
-      firstName: customer.firstName || '',
-      lastName: customer.lastName || '',
-      dob: customer.dob || undefined,
-      email: customer.email || '',
-      address: customer.address || '',
+      firstName: customer?.firstName || '',
+      lastName: customer?.lastName || '',
+      dob: customer?.dob || undefined,
+      email: customer?.email || '',
+      address: customer?.address || '',
       // branch: customer?.branch?.slug || '',
     },
   })
@@ -193,7 +193,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
           </ScrollArea>
           <div className="flex justify-end">
             <Button disabled={isPending} className="flex justify-end" type="submit">
-              {isPending ? <div className="flex items-center gap-2">
+              {isPending ? <div className="flex gap-2 items-center">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {t('customer.update')}
               </div> : t('customer.update')}
