@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
 import {
   createUser,
+  getUserBySlug,
   getUsers,
   resetPassword,
   updateUser,
@@ -15,6 +16,15 @@ export const useUsers = (q: IUserQuery | null) => {
     queryFn: () => (q ? getUsers(q) : Promise.resolve(null)),
     placeholderData: keepPreviousData,
     enabled: !!q,
+  })
+}
+
+export const useUserBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ['user', slug],
+    queryFn: () => getUserBySlug(slug),
+    placeholderData: keepPreviousData,
+    enabled: !!slug,
   })
 }
 
