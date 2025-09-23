@@ -45,6 +45,7 @@ const parseDateString = (dateString: string): Date | null => {
 const formatDateString = (date: Date): string => format(date, 'dd/MM/yyyy')
 
 interface DatePickerProps {
+  backgroundColor?: string
   date: string | null
   onSelect: (date: string | null) => void
   validateDate?: (date: Date) => boolean
@@ -55,6 +56,7 @@ interface DatePickerProps {
 }
 
 export default function DatePicker({
+  backgroundColor,
   date,
   onSelect,
   validateDate,
@@ -108,7 +110,7 @@ export default function DatePicker({
         <Button
           variant={'outline'}
           className={cn(
-            'w-full justify-start text-left font-normal',
+            `w-full justify-start text-left font-normal ${backgroundColor}`,
             !date && 'text-muted-foreground',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
