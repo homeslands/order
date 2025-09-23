@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
-  AutocompleteAddressResponseDto,
   DistanceAndDurationResponseDto,
   LocationResponseDto,
   RouteAndDirectionResponseDto,
+  SuggestionAddressResultResponseDto,
 } from './dto/google-map.response.dto';
 import { GoogleMapConnectorClient } from './google-map-connector.client';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,10 +25,10 @@ export class GoogleMapService {
     private readonly googleMapConnectorClient: GoogleMapConnectorClient,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
-  async getAddressByName(
+  async getAddressSuggestion(
     name: string,
-  ): Promise<AutocompleteAddressResponseDto[]> {
-    const data = await this.googleMapConnectorClient.getAddress(name);
+  ): Promise<SuggestionAddressResultResponseDto[]> {
+    const data = await this.googleMapConnectorClient.getSuggestionAddress(name);
     return data;
   }
 

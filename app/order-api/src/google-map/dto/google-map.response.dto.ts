@@ -1,5 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
+import { IsObject } from 'class-validator';
 
 export class AutocompleteAddressResponseDto {
   @AutoMap()
@@ -75,6 +79,11 @@ export class GeometryDto {
   @AutoMap(() => ViewportDto)
   @ApiProperty({ type: ViewportDto })
   viewport: ViewportDto;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  location_type: string;
 }
 
 export class PlaceDetailsResultResponseDto {
@@ -397,4 +406,169 @@ export class AddressResponseDto {
   @AutoMap()
   @ApiProperty()
   lng: number;
+}
+
+// Geocoding
+export class AddressComponentDto {
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  long_name: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  short_name: string;
+
+  @AutoMap()
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  types: string[];
+}
+
+export class NavigationPointDto {
+  @AutoMap()
+  @ApiProperty({ type: () => LocationDto })
+  location: LocationDto;
+}
+
+export class PlusCodeDto {
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  compound_code: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  global_code: string;
+}
+
+export class GeocodingAddressResultDto {
+  @AutoMap()
+  @ApiProperty({ type: () => [AddressComponentDto] })
+  @IsArray()
+  address_components: AddressComponentDto[];
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  formatted_address: string;
+
+  @AutoMap()
+  @ApiProperty({ type: () => GeometryDto })
+  @IsObject()
+  geometry: GeometryDto;
+
+  @AutoMap()
+  @ApiProperty({ type: () => [NavigationPointDto] })
+  @IsOptional()
+  navigation_points?: NavigationPointDto[];
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  place_id: string;
+
+  @AutoMap()
+  @ApiProperty({ type: () => PlusCodeDto })
+  @IsOptional()
+  plus_code?: PlusCodeDto;
+
+  @AutoMap()
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  types: string[];
+}
+
+export class GeocodingAddressResponseDto {
+  @AutoMap()
+  @ApiProperty({ type: () => [GeocodingAddressResultDto] })
+  @IsArray()
+  results: GeocodingAddressResultDto[];
+
+  @AutoMap()
+  @ApiProperty()
+  @IsString()
+  status: string;
+}
+
+// Suggestion address
+export class MatchDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  startOffset?: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  endOffset: number;
+}
+
+export class TextDto {
+  @ApiProperty()
+  @IsString()
+  text: string;
+
+  @ApiProperty({ type: [MatchDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MatchDto)
+  matches: MatchDto[];
+}
+
+export class SecondaryTextDto {
+  @ApiProperty()
+  @IsString()
+  text: string;
+}
+
+export class StructuredFormatDto {
+  @ApiProperty({ type: TextDto })
+  @ValidateNested()
+  @Type(() => TextDto)
+  mainText: TextDto;
+
+  @ApiProperty({ type: SecondaryTextDto })
+  @ValidateNested()
+  @Type(() => SecondaryTextDto)
+  secondaryText: SecondaryTextDto;
+}
+
+export class PlacePredictionDto {
+  @ApiProperty()
+  @IsString()
+  place: string;
+
+  @ApiProperty()
+  @IsString()
+  placeId: string;
+
+  @ApiProperty({ type: TextDto })
+  @ValidateNested()
+  @Type(() => TextDto)
+  text: TextDto;
+
+  @ApiProperty({ type: StructuredFormatDto })
+  @ValidateNested()
+  @Type(() => StructuredFormatDto)
+  structuredFormat: StructuredFormatDto;
+
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  types: string[];
+}
+
+export class SuggestionAddressResultResponseDto {
+  @ApiProperty({ type: PlacePredictionDto })
+  @ValidateNested()
+  @Type(() => PlacePredictionDto)
+  placePrediction: PlacePredictionDto;
+}
+
+export class SuggestionAddressResponseDto {
+  @ApiProperty({ type: [SuggestionAddressResultResponseDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SuggestionAddressResultResponseDto)
+  suggestions: SuggestionAddressResultResponseDto[];
 }
