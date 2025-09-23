@@ -114,7 +114,13 @@ export class Invoice extends Base {
   deliveryPhone?: string;
 
   @AutoMap()
-  @Column({ name: 'delivery_distance_column', default: 0 })
+  @Column({
+    name: 'delivery_distance_column',
+    type: 'decimal',
+    precision: 5,
+    scale: 1,
+    default: 0,
+  })
   deliveryDistance: number;
 
   @AutoMap()
