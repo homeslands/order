@@ -20,6 +20,13 @@ export async function getUsers(
   return response.data
 }
 
+export async function getUserBySlug(
+  slug: string,
+): Promise<IApiResponse<IUserInfo>> {
+  const response = await http.get<IApiResponse<IUserInfo>>(`/user/${slug}`)
+  return response.data
+}
+
 export async function resetPassword(user: string): Promise<IApiResponse<null>> {
   const response = await http.post<IApiResponse<null>>(
     `/user/${user}/reset-password`,

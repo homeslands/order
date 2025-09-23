@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Copy, ShieldCheck } from 'lucide-react'
 
@@ -10,30 +9,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui'
-import { useProfile } from '@/hooks'
+import { useUserBySlug } from '@/hooks'
 import { showToast } from '@/utils'
 import {
   ResetPasswordDialog,
   UpdateCustomerDialog,
 } from '../dialog'
-import { useUserStore } from '@/stores'
+import { useParams } from 'react-router-dom'
 
 export function SystemCustomerInfoTabsContent() {
   const { t } = useTranslation(['customer', 'toast'])
-  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
-  const [isVerifyingPhoneNumber, setIsVerifyingPhoneNumber] = useState(false)
-  const { data } = useProfile()
-  const { emailVerificationStatus, phoneNumberVerificationStatus } = useUserStore()
+  const { slug } = useParams()
+  const { data } = useUserBySlug(slug || '')
 
-  // check if emailVerificationStatus is not null, then set isVerifyingEmail to true
-  useEffect(() => {
-    if (emailVerificationStatus?.expiresAt) {
-      setIsVerifyingEmail(true)
-    }
-    if (phoneNumberVerificationStatus?.expiresAt) {
-      setIsVerifyingPhoneNumber(true)
-    }
-  }, [emailVerificationStatus?.expiresAt, phoneNumberVerificationStatus?.expiresAt])
+  const userProfile = data?.result
 
   const handleCopyEmail = () => {
     if (userProfile?.email) {
@@ -42,7 +31,6 @@ export function SystemCustomerInfoTabsContent() {
     }
   }
 
-  const userProfile = data?.result
   const formFields = {
     firstName: (
       <div className="flex flex-col gap-1">
@@ -77,7 +65,7 @@ export function SystemCustomerInfoTabsContent() {
             </div>
           ) : (
             <div className="flex items-center text-destructive">
-              <span className="text-xs">{isVerifyingEmail ? t('customer.verifyingEmail') : t('customer.notVerified')}</span>
+              <span className="text-xs">{t('customer.notVerified')}</span>
             </div>
           )}
         </div>
@@ -120,7 +108,7 @@ export function SystemCustomerInfoTabsContent() {
             </div>
           ) : (
             <div className="flex items-center text-destructive">
-              <span className="text-xs">{isVerifyingPhoneNumber ? t('customer.verifyingPhoneNumber') : t('customer.notVerified')}</span>
+              <span className="text-xs">{t('customer.notVerified')}</span>
             </div>
           )}
         </div>
