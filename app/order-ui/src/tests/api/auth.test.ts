@@ -99,6 +99,7 @@ describe('Auth API', () => {
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe',
+        dob: '1990-01-01',
       }
       const result = await register(registerParams)
 
@@ -120,6 +121,7 @@ describe('Auth API', () => {
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe',
+        dob: '1990-01-01',
       }
       await expect(register(registerParams)).rejects.toEqual(mockError)
     })
@@ -131,6 +133,7 @@ describe('Auth API', () => {
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe',
+        dob: '1990-01-01',
       }
       await expect(register(registerParams)).rejects.toEqual(serverError)
     })
