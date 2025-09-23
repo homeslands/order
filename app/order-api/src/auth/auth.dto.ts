@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNotEmpty, IsOptional, IsString, IsEmail, Matches } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsEmail,
+  Matches,
+} from 'class-validator';
 import {
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
@@ -47,9 +54,17 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
 
   @ApiProperty({ example: '08123456789' })
   @IsNotEmpty({ message: INVALID_PHONENUMBER })
-  @Matches(VIETNAMESE_PHONE_REGEX, { message: 'Phone number must be a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, or 09)' })
+  @Matches(VIETNAMESE_PHONE_REGEX, {
+    message:
+      'Phone number must be a valid Vietnamese phone number (10 digits starting with 03, 05, 07, 08, or 09)',
+  })
   @AutoMap()
   phonenumber: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @AutoMap()
+  dob?: string;
 }
 
 export class LoginAuthResponseDto {
