@@ -13,7 +13,7 @@ import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErro
 import { OrderTypeSelect, PickupTimeSelect } from '@/components/app/select'
 import { OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheet } from '@/components/app/sheet'
-import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
+import { APPLICABILITY_RULE, Role, VOUCHER_TYPE } from '@/constants'
 
 export function CartContent() {
   const { t } = useTranslation(['menu'])
@@ -107,9 +107,14 @@ export function CartContent() {
       {/* Header */}
       <div className="flex flex-col gap-2 p-2 backdrop-blur-sm shrink-0 bg-background/95">
         <div className='flex items-center'>
-          {cartItems?.orderItems && cartItems?.orderItems?.length > 0 && cartItems?.ownerFullName === '' && cartItems?.ownerPhoneNumber === '' && (
-            <CreateCustomerDialog />
-          )}
+          {(cartItems?.orderItems?.length ?? 0) > 0 &&
+            (
+              !cartItems?.ownerFullName ||
+              !cartItems?.ownerPhoneNumber ||
+              cartItems?.ownerRole !== Role.CUSTOMER
+            ) && (
+              <CreateCustomerDialog />
+            )}
         </div>
       </div>
 
