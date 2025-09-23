@@ -19,7 +19,7 @@ import { IUserInfo } from '@/types'
 import { useResetPassword } from '@/hooks'
 import { showToast } from '@/utils'
 
-export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
+export default function ResetPasswordDialog({ user }: { user?: IUserInfo | undefined }) {
   const queryClient = useQueryClient()
   const { t } = useTranslation(['user'])
   const { t: tCommon } = useTranslation('common')
@@ -41,29 +41,26 @@ export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="flex justify-start w-full" asChild>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            className="gap-1 px-2 text-sm"
-            onClick={() => setIsOpen(true)}
-          >
-            <KeyRound className="icon" />
-            {t('users.resetPassword')}
-          </Button>
-        </DialogTrigger>
+      <DialogTrigger className="flex justify-start" asChild>
+        <Button
+          className="gap-1 px-2 h-10 text-sm"
+          onClick={() => setIsOpen(true)}
+        >
+          <KeyRound className="icon" />
+          {t('users.resetPassword')}
+        </Button>
       </DialogTrigger>
 
-      {user.email && (
+      {user?.email && (
         <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
           <DialogHeader>
             <DialogTitle className="pb-4 border-b">
-              <div className="flex items-center gap-2 border-destructive text-destructive">
+              <div className="flex gap-2 items-center border-destructive text-destructive">
                 <TriangleAlert className="w-6 h-6" />
                 {t('users.resetPassword')}
               </div>
             </DialogTitle>
-            <DialogDescription className={`rounded-md bg-red-100 dark:bg-transparent p-2 text-destructive`}>
+            <DialogDescription className={`p-2 bg-red-100 rounded-md dark:bg-transparent text-destructive`}>
               {tCommon('common.deleteNote')}
             </DialogDescription>
 
@@ -75,7 +72,7 @@ export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
               {t('users.resetPasswordContent2')}
             </div>
           </DialogHeader>
-          <DialogFooter className="flex flex-row justify-center gap-2">
+          <DialogFooter className="flex flex-row gap-2 justify-center">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               {tCommon('common.cancel')}
             </Button>
@@ -88,11 +85,11 @@ export default function ResetPasswordDialog({ user }: { user: IUserInfo }) {
           </DialogFooter>
         </DialogContent>
       )}
-      {!user.email && (
+      {!user?.email && (
         <DialogContent className="max-w-[22rem] rounded-md sm:max-w-[32rem]">
           <DialogHeader>
             <DialogTitle className="pb-4 border-b">
-              <div className="flex items-center gap-2 border-destructive text-destructive">
+              <div className="flex gap-2 items-center border-destructive text-destructive">
                 <TriangleAlert className="w-6 h-6" />
                 {t('users.resetPassword')}
               </div>

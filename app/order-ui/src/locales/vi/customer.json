@@ -1,5 +1,7 @@
 {
   "customer": {
+    "verified": "Đã xác thực",
+    "notVerified": "Chưa xác thực",
     "address": "Địa chỉ",
     "branch": "Chi nhánh",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -33,6 +35,9 @@
     "searchByPhoneNumber": "Nhập số điện thoại",
     "points": "Số dư xu",
     "coinTransactionHistory": "Lịch sử giao dịch xu",
-    "viewOrders": "Xem đơn hàng"
+    "viewOrders": "Xem đơn hàng",
+    "info": "Hồ sơ",
+    "orderHistory": "Lịch sử đơn hàng",
+    "loyaltyPoint": "Điểm tích lũy"
   }
 }
