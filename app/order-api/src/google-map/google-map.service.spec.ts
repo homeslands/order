@@ -9,6 +9,8 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { GoogleMapConnectorClient } from './google-map-connector.client';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('AddressService', () => {
   let service: GoogleMapService;
@@ -38,6 +40,11 @@ describe('AddressService', () => {
         {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console,
+        },
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
