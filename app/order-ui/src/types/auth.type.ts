@@ -17,7 +17,7 @@ export interface ILoginResponse {
 }
 
 export interface IRegisterSchema {
-  email: string
+  dob: string
   firstName: string
   lastName: string
   phonenumber: string
@@ -28,8 +28,9 @@ export interface IRegisterSchema {
 export interface IRegisterRequest {
   phonenumber: string
   password: string
-  // firstName: string
-  // lastName: string
+  firstName: string
+  lastName: string
+  dob: string
 }
 
 export interface IForgotPasswordRequest {

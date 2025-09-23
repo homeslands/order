@@ -7,6 +7,7 @@ import {
   PASSWORD_REGEX,
   PHONE_NUMBER_REGEX,
 } from '@/constants'
+import moment from 'moment'
 
 export const loginSchema = z.object({
   phonenumber: z.string(),
@@ -17,7 +18,6 @@ export function useRegisterSchema() {
   const { t } = useTranslation('auth')
   return z
     .object({
-      email: z.string().email(t('register.invalidEmail')),
       firstName: z
         .string()
         .min(1, t('register.firstNameRequired'))
@@ -28,6 +28,15 @@ export function useRegisterSchema() {
         .min(1, t('register.lastNameRequired'))
         .max(100, t('register.lastNameTooLong', { count: 100 }))
         .regex(NAME_REGEX, t('register.lastNameInvalid')),
+      dob: z.preprocess(
+        (val) => (typeof val === 'string' ? val.trim() : ''),
+        z
+          .string()
+          .min(1, t('register.dobRequired'))
+          .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
+            message: t('register.dobInvalid'),
+          }),
+      ),
       phonenumber: z
         .string()
         .min(10, t('register.phoneNumberRequired'))

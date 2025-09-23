@@ -23,6 +23,7 @@ import { ButtonLoading } from '@/components/app/loading'
 import { ROUTE } from '@/constants'
 import { IRegisterSchema } from '@/types'
 import { PasswordWithRulesInput } from '../input'
+import { DatePicker } from '../picker'
 
 interface IFormRegisterProps {
   onSubmit: (data: IRegisterSchema) => void
@@ -38,7 +39,7 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
   const form = useForm<TRegisterSchema>({
     resolver: zodResolver(useRegisterSchema()),
     defaultValues: {
-      email: '',
+      dob: '',
       firstName: '',
       lastName: '',
       phonenumber: '',
@@ -98,6 +99,27 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
         )}
       />
     ),
+    dob: (
+      <FormField
+        control={form.control}
+        name="dob"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('register.dob')}</FormLabel>
+            <FormControl>
+              <DatePicker
+                backgroundColor="bg-transparent"
+                date={field.value}
+                onSelect={(selectedDate) => field.onChange(selectedDate)}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
     phonenumber: (
       <FormField
         control={form.control}
@@ -117,21 +139,6 @@ export const RegisterForm: React.FC<IFormRegisterProps> = ({
                 inputMode="numeric" // Gợi ý bàn phím số trên mobile
                 pattern="[0-9]*"     // Gợi ý trình duyệt chỉ cho nhập số
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ),
-    email: (
-      <FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t('register.email')}</FormLabel>
-            <FormControl>
-              <Input placeholder={t('register.enterEmail')} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

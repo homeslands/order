@@ -8,6 +8,7 @@ import {
   PASSWORD_REGEX,
   PHONE_NUMBER_REGEX,
 } from '@/constants'
+import moment from 'moment'
 
 export const userInfoSchema = z.object({
   slug: z.string(),
@@ -69,6 +70,15 @@ export function useCreateUserSchema() {
         .refine((val) => !EMOJI_REGEX.test(val), {
           message: tProfile('profile.lastNameEmojiInvalid'),
         }),
+      dob: z.preprocess(
+        (val) => (typeof val === 'string' ? val.trim() : ''),
+        z
+          .string()
+          .min(1, tProfile('profile.dobRequired'))
+          .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
+            message: tProfile('profile.dobInvalid'),
+          }),
+      ),
       role: z.string().min(1, t('register.roleRequired')),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -144,21 +154,16 @@ export function useUpdateUserSchema() {
       .refine((val) => !EMOJI_REGEX.test(val), {
         message: tProfile('profile.lastNameEmojiInvalid'),
       }),
-    dob: z
-      .string({
-        required_error: tProfile('profile.dobRequired'),
-        invalid_type_error: tProfile('profile.dobInvalid'),
-      })
-      .min(1, tProfile('profile.dobRequired'))
-      .refine(
-        (val) => {
-          const date = new Date(val)
-          return !isNaN(date.getTime())
-        },
-        {
+    dob: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : ''),
+      z
+        .string()
+        .min(1, tProfile('profile.dobRequired'))
+        .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
           message: tProfile('profile.dobInvalid'),
-        },
-      ),
+        }),
+    ),
+
     email: z
       .string()
       .min(1, {
@@ -198,21 +203,15 @@ export function useUpdateEmployeeSchema() {
         message: tProfile('profile.lastNameEmojiInvalid'),
       }),
 
-    dob: z
-      .string({
-        required_error: tProfile('profile.dobRequired'),
-        invalid_type_error: tProfile('profile.dobInvalid'),
-      })
-      .min(1, tProfile('profile.dobRequired'))
-      .refine(
-        (val) => {
-          const date = new Date(val)
-          return !isNaN(date.getTime())
-        },
-        {
+    dob: z.preprocess(
+      (val) => (typeof val === 'string' ? val.trim() : ''),
+      z
+        .string()
+        .min(1, tProfile('profile.dobRequired'))
+        .refine((val) => moment(val, 'DD/MM/YYYY', true).isValid(), {
           message: tProfile('profile.dobInvalid'),
-        },
-      ),
+        }),
+    ),
 
     email: z
       .string()
