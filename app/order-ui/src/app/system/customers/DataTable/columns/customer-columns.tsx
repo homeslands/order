@@ -3,12 +3,19 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 
 import {
+  Button,
   DataTableColumnHeader,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
+import { MoreHorizontal } from 'lucide-react'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
   const { t } = useTranslation(['customer'])
+  const { t: tCommon } = useTranslation('common')
   return [
     {
       accessorKey: 'createdAt',
@@ -66,6 +73,29 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
       cell: ({ row }) => {
         const user = row.original
         return <div className="text-sm">{user?.email}</div>
+      },
+    },
+    {
+      id: 'actions',
+      header: tCommon('common.action'),
+      cell: () => {
+        return (
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-0 w-8 h-8">
+                  <span className="sr-only">{tCommon('common.action')}</span>
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {tCommon('common.action')}
+                </DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
       },
     },
   ]
