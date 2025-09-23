@@ -1,5 +1,7 @@
 {
   "customer": {
+    "verified": "Verified",
+    "notVerified": "Not verified",
     "address": "Address",
     "branch": "Branch",
     "confirmPassword": "Confirm password",
@@ -33,6 +35,9 @@
     "searchByPhoneNumber": "Enter phone number",
     "points": "Coins",
     "coinTransactionHistory": "Coin transaction history",
-    "viewOrders": "View orders"
+    "viewOrders": "View orders",
+    "info": "Info",
+    "orderHistory": "Order history",
+    "loyaltyPoint": "Loyalty point"
   }
 }

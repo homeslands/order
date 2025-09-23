@@ -1,29 +1,22 @@
+import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import moment from 'moment'
-import { MoreHorizontal, ShoppingBag } from 'lucide-react'
 
 import {
-  Button,
   DataTableColumnHeader,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  Button,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
-import {
-  ResetPasswordDialog,
-  UpdateCustomerDialog,
-  UserInfoDialog,
-} from '@/components/app/dialog'
 import { formatCurrency } from '@/utils'
 import { GiftCardTransactionSheet } from '@/components/app/sheet'
-import { NavLink } from 'react-router-dom'
-import { ROUTE } from '@/constants'
+import { MoreHorizontal } from 'lucide-react'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
-  const { t } = useTranslation(['customer', 'common'])
+  const { t } = useTranslation(['customer'])
   const { t: tCommon } = useTranslation(['common'])
   return [
     {
@@ -116,16 +109,7 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <NavLink to={`${ROUTE.STAFF_CUSTOMER_MANAGEMENT}/${user.slug}/order-history`}>
-                  <Button variant="ghost" className="flex gap-1 justify-start px-2 w-full text-sm">
-                    <ShoppingBag className="icon" />
-                    {t('customer.viewOrders')}
-                  </Button>
-                </NavLink>
-                <UserInfoDialog user={user} />
                 <GiftCardTransactionSheet user={user} />
-                <ResetPasswordDialog user={user} />
-                <UpdateCustomerDialog customer={user} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
