@@ -181,10 +181,4 @@ export const sidebarRoutes: ISidebarRoute[] = [
     icon: Users,
     permission: Permission.CLIENT_VIEW,
   },
-  {
-    title: 'sidebar.loyaltyPoint',
-    path: ROUTE.STAFF_LOYALTY_POINT,
-    icon: Ticket,
-    permission: Permission.BANNER_MANAGEMENT,
-  },
 ]

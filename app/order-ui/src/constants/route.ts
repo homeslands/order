@@ -49,7 +49,6 @@ export const ROUTE = {
   STAFF_GIFT_CARD_FEATURE_FLAG: '/system/feature-lock-management',
   STAFF_GIFT_CARD_CHECKOUT: '/system/card/catalog/checkout',
   STAFF_GIFT_CARD_CHECKOUT_WITH_SLUG: '/system/card/catalog/checkout/:slug',
-  STAFF_LOYALTY_POINT: '/system/loyalty-point',
 
   //Client Routes
   CLIENT_HOME: '/',

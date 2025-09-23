@@ -16,7 +16,7 @@ import { UpdateCustomerForm } from '@/components/app/form'
 import { IUserInfo } from '@/types'
 
 interface IUpdateCustomerDialogProps {
-  customer: IUserInfo
+  customer?: IUserInfo | undefined
 }
 
 export default function UpdateCustomerDialog({
@@ -30,10 +30,9 @@ export default function UpdateCustomerDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild className="flex w-full items-center justify-start">
+      <DialogTrigger asChild className="flex justify-start items-center">
         <Button
-          variant="ghost"
-          className="h-10 gap-1 px-2 text-sm"
+          className="gap-1 px-2 h-10 text-sm"
           onClick={() => setIsOpen(true)}
         >
           <PenLineIcon className="icon" />

@@ -1,1 +1,1 @@
-export { default as CustomerOrderPage } from './customer-order-page'
+export { default as CustomerInfoPage } from './customer-info-page'
