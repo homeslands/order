@@ -14,6 +14,8 @@ import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { SystemConfigService } from 'src/system-config/system-config.service';
+import { SystemConfig } from 'src/system-config/system-config.entity';
 
 describe('BranchController', () => {
   let controller: BranchController;
@@ -50,6 +52,11 @@ describe('BranchController', () => {
             get: jest.fn(),
             post: jest.fn(),
           },
+        },
+        SystemConfigService,
+        {
+          provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
         },
       ],
     }).compile();
