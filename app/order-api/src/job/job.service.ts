@@ -156,7 +156,7 @@ export class JobService {
             userId: order.owner.id,
             orderId: order.id,
             points: order.payment?.amount,
-            orderTotal: order.subtotal,
+            orderTotal: order.subtotal - order.deliveryFee,
           });
           this.logger.log(
             `Added accumulated points for order ${order.slug}`,
