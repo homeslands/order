@@ -8,6 +8,9 @@ import {
   Matches,
 } from 'class-validator';
 import {
+  INVALID_DOB,
+  INVALID_FIRSTNAME,
+  INVALID_LASTNAME,
   // INVALID_EMAIL,
   // INVALID_FIRSTNAME,
   // INVALID_LASTNAME,
@@ -35,16 +38,16 @@ export class LoginAuthRequestDto {
 }
 export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   @ApiProperty({ example: 'John' })
-  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  // @IsOptional()
   @AutoMap()
-  firstName?: string;
+  firstName: string;
 
   @ApiProperty({ example: 'Doe' })
-  // @IsNotEmpty({ message: INVALID_LASTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_LASTNAME })
+  // @IsOptional()
   @AutoMap()
-  lastName?: string;
+  lastName: string;
 
   @ApiProperty({ example: 'johndoe@gmail.com' })
   @IsOptional()
@@ -62,9 +65,10 @@ export class RegisterAuthRequestDto extends LoginAuthRequestDto {
   phonenumber: string;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_DOB })
+  // @IsOptional()
   @AutoMap()
-  dob?: string;
+  dob: string;
 }
 
 export class LoginAuthResponseDto {
