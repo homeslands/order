@@ -55,6 +55,10 @@ describe('ProductAnalysisController', () => {
           provide: WINSTON_MODULE_NEST_PROVIDER,
           useValue: console, // Mock logger (or a custom mock)
         },
+        {
+          provide: 'BullQueue_distribute-lock-job',
+          useValue: {},
+        },
       ],
     }).compile();
 
