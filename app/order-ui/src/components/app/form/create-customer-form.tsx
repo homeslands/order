@@ -23,6 +23,7 @@ import { showToast } from '@/utils'
 import { PasswordWithRulesInput } from '../input'
 import { useOrderFlowStore } from '@/stores'
 import { Role } from '@/constants'
+import { DatePicker } from '../picker'
 
 interface IFormCreateCustomerProps {
   onSubmit: (isOpen: boolean) => void
@@ -49,6 +50,7 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
       confirmPassword: '',
       firstName: '',
       lastName: '',
+      dob: '',
       role: '',
     },
   })
@@ -176,6 +178,28 @@ export const CreateCustomerForm: React.FC<IFormCreateCustomerProps> = ({
             <FormLabel>{t('customer.lastName')}</FormLabel>
             <FormControl>
               <Input placeholder={t('customer.enterLastName')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    ),
+    dob: (
+      <FormField
+        control={form.control}
+        name="dob"
+        render={({ field }) => (
+          <FormItem>
+            <span className="pr-1 text-destructive">*</span>
+            <FormLabel>{t('customer.dob')}</FormLabel>
+            <FormControl>
+              <DatePicker
+                backgroundColor="bg-transparent"
+                date={field.value}
+                onSelect={(selectedDate) => field.onChange(selectedDate)}
+                validateDate={(date) => date <= new Date()}
+                disableFutureDate
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

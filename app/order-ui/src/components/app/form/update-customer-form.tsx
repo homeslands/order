@@ -38,13 +38,10 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
     resolver: zodResolver(useUpdateUserSchema()),
     defaultValues: {
       slug: customer?.slug,
-      // phonenumber: customer.phonenumber,
       firstName: customer?.firstName || '',
       lastName: customer?.lastName || '',
       dob: customer?.dob || undefined,
-      email: customer?.email || '',
       address: customer?.address || '',
-      // branch: customer?.branch?.slug || '',
     },
   })
 
@@ -64,21 +61,6 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
   }
 
   const formFields = {
-    // phonenumber: (
-    //   <FormField
-    //     control={form.control}
-    //     name="phonenumber"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('customer.phoneNumber')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
     firstName: (
       <FormField
         control={form.control}
@@ -139,7 +121,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
           <FormItem>
             <FormLabel>{t('customer.email')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('customer.enterEmail')} {...field} />
+              <Input readOnly disabled placeholder={t('customer.enterEmail')} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -161,21 +143,6 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
         )}
       />
     ),
-    // branch: (
-    //   <FormField
-    //     control={form.control}
-    //     name="branch"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('customer.branch')}</FormLabel>
-    //         <FormControl>
-    //           <BranchSelect defaultValue={customer?.branch?.slug} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
   }
 
   return (
