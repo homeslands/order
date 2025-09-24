@@ -324,6 +324,7 @@ export class BranchRevenueService {
           totalAccumulatedPointsToUse: '0',
           totalAmountCreditCard: '0',
           totalOrderCreditCard: '0',
+          totalDeliveryFee: '0',
         };
         const returnData = this.mapper.map(
           item,
@@ -392,6 +393,7 @@ export class BranchRevenueService {
             totalAccumulatedPointsToUse: 0,
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
+            totalDeliveryFee: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -412,6 +414,7 @@ export class BranchRevenueService {
           item.totalAccumulatedPointsToUse;
         acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
         acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
+        acc[index].totalDeliveryFee += item.totalDeliveryFee;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -452,6 +455,7 @@ export class BranchRevenueService {
             totalAccumulatedPointsToUse: 0,
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
+            totalDeliveryFee: 0,
           };
         }
         acc[index].totalAmount += item.totalAmount;
@@ -472,6 +476,7 @@ export class BranchRevenueService {
           item.totalAccumulatedPointsToUse;
         acc[index].totalAmountCreditCard += item.totalAmountCreditCard;
         acc[index].totalOrderCreditCard += item.totalOrderCreditCard;
+        acc[index].totalDeliveryFee += item.totalDeliveryFee;
         return acc;
       },
       {} as Record<string, AggregateBranchRevenueResponseDto>,
@@ -674,7 +679,9 @@ export class BranchRevenueService {
             existedInNewData.totalAmountCreditCard !==
               existedBranchRevenue.totalAmountCreditCard ||
             existedInNewData.totalOrderCreditCard !==
-              existedBranchRevenue.totalOrderCreditCard
+              existedBranchRevenue.totalOrderCreditCard ||
+            existedInNewData.totalDeliveryFee !==
+              existedBranchRevenue.totalDeliveryFee
           ) {
             Object.assign(existedBranchRevenue, existedInNewData);
             newBranchRevenues.push(existedBranchRevenue);
@@ -729,6 +736,7 @@ export class BranchRevenueService {
             totalAccumulatedPointsToUse: 0,
             totalAmountCreditCard: 0,
             totalOrderCreditCard: 0,
+            totalDeliveryFee: 0,
           });
           newBranchRevenues.push(newRevenue);
         }
@@ -977,6 +985,7 @@ export class BranchRevenueService {
           totalAccumulatedPointsToUse: 0,
           totalAmountCreditCard: 0,
           totalOrderCreditCard: 0,
+          totalDeliveryFee: 0,
         });
         results.push(revenue);
       }
@@ -1050,7 +1059,9 @@ export class BranchRevenueService {
           existedBranchRevenue.totalAmountCreditCard !==
             newBranchRevenue.totalAmountCreditCard ||
           existedBranchRevenue.totalOrderCreditCard !==
-            newBranchRevenue.totalOrderCreditCard
+            newBranchRevenue.totalOrderCreditCard ||
+          existedBranchRevenue.totalDeliveryFee !==
+            newBranchRevenue.totalDeliveryFee
         ) {
           Object.assign(existedBranchRevenue, newBranchRevenue);
           createAndUpdateBranchRevenues.push(existedBranchRevenue);
@@ -1180,6 +1191,7 @@ export class BranchRevenueService {
       let totalAmountPoint = 0;
       let totalAccumulatedPointsToUse = 0;
       let totalAmountCreditCard = 0;
+      let totalDeliveryFee = 0;
 
       // Start from row 9 (below header row)
       let currentRow = 9;
@@ -1280,6 +1292,12 @@ export class BranchRevenueService {
             type: 'data',
             style: cellStyle,
           },
+          {
+            cellPosition: `O${currentRow}`,
+            value: revenue.totalDeliveryFee,
+            type: 'data',
+            style: cellStyle,
+          },
         );
 
         totalOriginalAmount += revenue.originalAmount;
@@ -1294,6 +1312,7 @@ export class BranchRevenueService {
         totalAmountPoint += revenue.totalAmountPoint;
         totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
         totalAmountCreditCard += revenue.totalAmountCreditCard;
+        totalDeliveryFee += revenue.totalDeliveryFee;
         currentRow++;
       });
 
@@ -1391,6 +1410,12 @@ export class BranchRevenueService {
           type: 'data',
           style: totalRowStyle,
         },
+        {
+          cellPosition: `O${currentRow}`,
+          value: totalDeliveryFee,
+          type: 'data',
+          style: totalRowStyle,
+        },
       );
 
       return this.fileService.generateExcelFile({
@@ -1470,6 +1495,7 @@ export class BranchRevenueService {
     let totalAccumulatedPointsToUse = 0;
     let totalAmountCreditCard = 0;
     let totalOrderCreditCard = 0;
+    let totalDeliveryFee = 0;
 
     branchRevenues.forEach((revenue) => {
       totalOriginalAmount += revenue.originalAmount;
@@ -1489,6 +1515,7 @@ export class BranchRevenueService {
       totalAccumulatedPointsToUse += revenue.totalAccumulatedPointsToUse;
       totalAmountCreditCard += revenue.totalAmountCreditCard;
       totalOrderCreditCard += revenue.totalOrderCreditCard;
+      totalDeliveryFee += revenue.totalDeliveryFee;
     });
 
     if (
@@ -1549,6 +1576,7 @@ export class BranchRevenueService {
       totalAccumulatedPointsToUse,
       totalRevenueCreditCard: totalAmountCreditCard,
       totalOrderCreditCard: totalOrderCreditCard,
+      totalDeliveryFee,
     };
 
     const data = await this.pdfService.generatePdf(
