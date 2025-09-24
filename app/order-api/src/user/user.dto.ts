@@ -4,9 +4,7 @@ import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
-  INVALID_ADDRESS,
   INVALID_DOB,
-  INVALID_EMAIL,
   INVALID_FIRSTNAME,
   INVALID_LASTNAME,
   INVALID_PASSWORD,
@@ -28,16 +26,16 @@ export class CreateUserRequestDto {
   password: string;
 
   @ApiProperty()
-  // @IsNotEmpty({ message: INVALID_FIRSTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_FIRSTNAME })
+  // @IsOptional()
   @AutoMap()
-  firstName?: string;
+  firstName: string;
 
   @ApiProperty()
-  // @IsNotEmpty({ message: INVALID_LASTNAME })
-  @IsOptional()
+  @IsNotEmpty({ message: INVALID_LASTNAME })
+  // @IsOptional()
   @AutoMap()
-  lastName?: string;
+  lastName: string;
 
   @ApiProperty()
   @IsOptional()
@@ -46,6 +44,12 @@ export class CreateUserRequestDto {
   @ApiProperty()
   @IsNotEmpty({ message: 'Invalid role' })
   role: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: INVALID_DOB })
+  // @IsOptional()
+  @AutoMap()
+  dob: string;
 }
 
 export class UserScopeDto {
@@ -127,12 +131,12 @@ export class UpdateUserRequestDto {
   dob: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: INVALID_EMAIL })
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: INVALID_ADDRESS })
-  address: string;
+  @IsOptional()
+  address?: string;
 
   @ApiProperty()
   @IsOptional()
