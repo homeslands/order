@@ -48,6 +48,10 @@ import { Order } from 'src/order/order.entity';
 import { QrCodeService } from 'src/qr-code/qr-code.service';
 import { OrderUtils } from 'src/order/order.utils';
 import { Mutex } from 'async-mutex';
+import { Queue } from 'bullmq';
+import { DistributeLockJobKey, QueueRegisterKey } from 'src/app/app.constants';
+import { InjectQueue } from '@nestjs/bullmq';
+import Redlock from 'redlock';
 
 @Injectable()
 export class BranchRevenueService {
@@ -70,6 +74,8 @@ export class BranchRevenueService {
     private readonly qrCodeService: QrCodeService,
     private readonly orderUtils: OrderUtils,
     private readonly mutex: Mutex,
+    @InjectQueue(QueueRegisterKey.DISTRIBUTE_LOCK_JOB)
+    private readonly distributeLockJobQueue: Queue,
   ) {}
 
   async findAll(
@@ -480,10 +486,23 @@ export class BranchRevenueService {
   }
 
   async updateLatestBranchRevenueInCurrentDate() {
-    await this.mutex.runExclusive(async () => {
-      const context = `${BranchRevenue.name}.${this.updateLatestBranchRevenueInCurrentDate.name}`;
+    const context = `${BranchRevenue.name}.${this.updateLatestBranchRevenueInCurrentDate.name}`;
 
-      this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.REFRESH_BRANCH_REVENUE;
+    const ttl = 1000 * 30; // 30 seconds
+    const resource = [key];
+    let lock: any = null;
+
+    try {
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for branch revenue refresh in current date`,
+        context,
+      );
 
       const currentDate = new Date();
       currentDate.setHours(7, 0, 0, 0);
@@ -559,8 +578,28 @@ export class BranchRevenueService {
         );
       } finally {
         await queryRunner.release();
+        if (lock) {
+          await lock.release();
+          this.logger.log(
+            `Lock released for branch revenue refresh in current date`,
+            context,
+          );
+        }
       }
-    });
+    } catch (error) {
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for branch revenue refresh in current date`,
+          context,
+        );
+      }
+      this.logger.error(
+        `Error when acquire lock for branch revenue refresh in current date`,
+        error.stack,
+        context,
+      );
+    }
   }
 
   async getBranchRevenueDataToCreateAndUpdate(
@@ -720,21 +759,34 @@ export class BranchRevenueService {
   async refreshBranchRevenueForSpecificDay(
     query: RefreshSpecificRangeBranchRevenueQueryDto,
   ) {
-    await this.mutex.runExclusive(async () => {
-      const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
+    const context = `${BranchRevenueService.name}.${this.refreshBranchRevenueForSpecificDay.name}`;
 
-      this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
+    this.denyRefreshBranchRevenueManuallyInTimeAutoRefresh();
 
-      if (query.startDate.getTime() > query.endDate.getTime()) {
-        this.logger.warn(
-          BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
-            .message,
-          context,
-        );
-        throw new BranchRevenueException(
-          BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
-        );
-      }
+    if (query.startDate.getTime() > query.endDate.getTime()) {
+      this.logger.warn(
+        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE
+          .message,
+        context,
+      );
+      throw new BranchRevenueException(
+        BranchRevenueValidation.START_DATE_ONLY_SMALLER_OR_EQUAL_END_DATE,
+      );
+    }
+
+    const client = await this.distributeLockJobQueue.client;
+    const redlock = new Redlock([client]);
+    const key = DistributeLockJobKey.REFRESH_BRANCH_REVENUE;
+    const ttl = 1000 * 30; // 30 seconds
+    const resource = [key];
+    let lock: any = null;
+
+    try {
+      lock = await redlock.acquire(resource, ttl);
+      this.logger.log(
+        `Lock success for branch revenue refresh for specific day`,
+        context,
+      );
 
       const startQuery = moment(query.startDate).format('YYYY-MM-DD');
       const endQuery = moment(query.endDate)
@@ -818,22 +870,52 @@ export class BranchRevenueService {
         () =>
           this.logger.log(
             `${createAndUpdateBranchRevenues.length} branch revenues from ${moment(query.startDate).format('YYYY-MM-DD')} 
-            to ${moment(query.endDate).format('YYYY-MM-DD')} updated successfully`,
+              to ${moment(query.endDate).format('YYYY-MM-DD')} updated successfully`,
             context,
           ),
-        (error) => {
+        async (error) => {
           this.logger.error(
             `Error when update revenues: ${JSON.stringify(error)}`,
             error.stack,
             context,
           );
+
+          if (lock) {
+            await lock.release();
+            this.logger.log(
+              `Lock released for branch revenue refresh every day at 1am`,
+              context,
+            );
+          }
+
           throw new BranchRevenueException(
             BranchRevenueValidation.REFRESH_BRANCH_REVENUE_ERROR,
             error.message,
           );
         },
       );
-    });
+
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for branch revenue refresh for specific day`,
+          context,
+        );
+      }
+    } catch (error) {
+      if (lock) {
+        await lock.release();
+        this.logger.log(
+          `Lock released for branch revenue refresh for specific day`,
+          context,
+        );
+      }
+      this.logger.error(
+        `Error when acquire lock for branch revenue refresh for specific day`,
+        error.stack,
+        context,
+      );
+    }
   }
 
   async fillZeroForEmptyDate(
