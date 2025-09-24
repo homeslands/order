@@ -151,7 +151,7 @@ export class ProductAnalysisScheduler {
 
     const client = await this.distributeLockJobQueue.client;
     const redlock = new Redlock([client]);
-    const key = DistributeLockJobKey.PRODUCT_ANALYSIS_REFRESH_EVERY_DAY_AT_1AM;
+    const key = DistributeLockJobKey.REFRESH_PRODUCT_ANALYSIS;
     const ttl = 1000 * 60 * 2; // 2 minutes
     const resource = [key];
     let lock: any = null;

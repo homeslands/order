@@ -352,7 +352,7 @@ export class BranchRevenueScheduler {
 
     const client = await this.distributeLockJobQueue.client;
     const redlock = new Redlock([client]);
-    const key = DistributeLockJobKey.BRANCH_REVENUE_REFRESH_EVERY_DAY_AT_1AM;
+    const key = DistributeLockJobKey.REFRESH_BRANCH_REVENUE;
     const ttl = 1000 * 60 * 2; // 2 minutes
     const resource = [key];
     let lock: any = null;
