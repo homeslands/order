@@ -145,6 +145,10 @@ describe('BranchRevenueController', () => {
             emit: jest.fn(), // Mock the emit method
           },
         },
+        {
+          provide: 'BullQueue_distribute-lock-job',
+          useValue: {},
+        },
       ],
     }).compile();
 
