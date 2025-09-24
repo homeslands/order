@@ -240,8 +240,12 @@ export class UserService {
       };
 
     // Construct find many options
-    const findManyOptions: FindManyOptions = {
-      relations: ['branch', 'role'],
+    const findManyOptions: FindManyOptions<User> = {
+      relations: {
+        branch: true,
+        role: true,
+        accumulatedPoint: true,
+      },
       where: whereOptions,
       order: { createdAt: 'DESC' },
       skip: (query.page - 1) * query.size,
