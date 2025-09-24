@@ -86,4 +86,8 @@ export class BranchRevenue extends Base {
   @AutoMap()
   @Column({ name: 'total_order_credit_card_column', default: 0 })
   totalOrderCreditCard: number;
+
+  @AutoMap()
+  @Column({ name: 'total_delivery_fee_column', default: 0 })
+  totalDeliveryFee: number;
 }

@@ -60,12 +60,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
           ),
         ),
         // include amount value in order
+        // subtotal (totalAmount) include delivery fee
+        // original amount (totalOriginalAmountOrder) exclude delivery fee
         forMember(
           (destination) => destination.voucherAmount,
           mapFrom(
             (source) =>
               +source.totalOriginalAmountOrder -
-              +source.totalAmount -
+              (+source.totalAmount - +source.totalDeliveryFee) - // subtotal exclude delivery fee
               // promotion amount
               (+source.totalOriginalOrderItemAmount -
                 +source.totalFinalOrderItemAmount -
@@ -114,6 +116,10 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalOrderCreditCard,
           mapFrom((source) => +source.totalOrderCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalDeliveryFee,
+          mapFrom((source) => +source.totalDeliveryFee),
         ),
         forMember(
           (destination) => destination.date,
@@ -161,12 +167,14 @@ export class BranchRevenueProfile extends AutomapperProfile {
           ),
         ),
         // include loss value in order
+        // subtotal (totalAmount) include delivery fee
+        // original amount (totalOriginalAmountOrder) exclude delivery fee
         forMember(
           (destination) => destination.voucherAmount,
           mapFrom(
             (source) =>
               +source.totalOriginalAmountOrder -
-              +source.totalAmount -
+              (+source.totalAmount - +source.totalDeliveryFee) - // subtotal exclude delivery fee
               // promotion amount
               (+source.totalOriginalOrderItemAmount -
                 +source.totalFinalOrderItemAmount -
@@ -215,6 +223,10 @@ export class BranchRevenueProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.totalOrderCreditCard,
           mapFrom((source) => +source.totalOrderCreditCard),
+        ),
+        forMember(
+          (destination) => destination.totalDeliveryFee,
+          mapFrom((source) => +source.totalDeliveryFee),
         ),
         forMember(
           (destination) => destination.date,
