@@ -191,6 +191,7 @@ export class BranchRevenueScheduler {
           totalAccumulatedPointsToUse: 0,
           totalAmountCreditCard: 0,
           totalOrderCreditCard: 0,
+          totalDeliveryFee: 0,
         });
         results.push(revenue);
       }
