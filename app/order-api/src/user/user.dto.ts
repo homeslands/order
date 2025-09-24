@@ -2,6 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { AccumulatedPointResponseDto } from 'src/accumulated-point/accumulated-point.dto';
 import { BaseQueryDto, BaseResponseDto } from 'src/app/base.dto';
 import {
   INVALID_DOB,
@@ -109,6 +110,10 @@ export class UserResponseDto extends BaseResponseDto {
   @ApiProperty({ type: () => BalanceResponseDto })
   @AutoMap(() => BalanceResponseDto)
   balance: BalanceResponseDto;
+
+  @AutoMap(() => AccumulatedPointResponseDto)
+  @ApiProperty()
+  accumulatedPoint: AccumulatedPointResponseDto;
 }
 
 export class UpdateUserRoleRequestDto {

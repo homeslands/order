@@ -53,7 +53,7 @@ export class UserService {
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: Logger,
-    private readonly sharedBalanceService: SharedBalanceService
+    private readonly sharedBalanceService: SharedBalanceService,
   ) {
     this.saltOfRounds = this.configService.get<number>('SALT_ROUNDS');
   }
@@ -171,7 +171,8 @@ export class UserService {
       throw new UserException(UserValidation.ERROR_CREATE_USER);
     }
 
-    if (createdUser) await this.sharedBalanceService.create({ userSlug: createdUser.slug });
+    if (createdUser)
+      await this.sharedBalanceService.create({ userSlug: createdUser.slug });
 
     return this.mapper.map(user, User, UserResponseDto);
   }
@@ -246,7 +247,7 @@ export class UserService {
 
     // Construct find many options
     const findManyOptions: FindManyOptions = {
-      relations: ['branch', 'role', "balance"],
+      relations: ['branch', 'role', 'balance', 'accumulatedPoint'],
       where: whereOptions,
       order: { createdAt: 'DESC' },
       skip: (query.page - 1) * query.size,
