@@ -44,7 +44,7 @@
 //     <ReactSelect
 //       isSearchable={false}
 //       placeholder={t('menu.selectOrderType')}
-//       // className="w-full pr-4 text-sm border-muted-foreground text-muted-foreground"
+//       // className="pr-4 w-full text-sm border-muted-foreground text-muted-foreground"
 //       styles={{
 //         control: (baseStyles) => ({
 //           ...baseStyles,
@@ -85,7 +85,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { OrderTypeEnum } from '@/types'
-import { useOrderFlowStore, useThemeStore } from '@/stores'
+import { useOrderFlowStore, useThemeStore, useUserStore } from '@/stores'
 import {
   Select,
   SelectContent,
@@ -100,21 +100,32 @@ interface OrderTypeSelectProps {
 
 export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
   const { t } = useTranslation('menu')
+  const { userInfo } = useUserStore()
   const { getTheme } = useThemeStore()
   const { updatingData, setDraftType } = useOrderFlowStore()
 
   const orderTypes = useMemo(
-    () => [
-      {
-        value: OrderTypeEnum.AT_TABLE,
-        label: t('menu.dineIn'),
-      },
-      {
-        value: OrderTypeEnum.TAKE_OUT,
-        label: t('menu.takeAway'),
-      },
-    ],
-    [t]
+    () => {
+      const baseTypes = [
+        {
+          value: OrderTypeEnum.AT_TABLE,
+          label: t('menu.dineIn'),
+        },
+        {
+          value: OrderTypeEnum.TAKE_OUT,
+          label: t('menu.takeAway'),
+        },
+      ]
+      // Only add delivery option if user has a slug
+      if (userInfo?.slug) {
+        baseTypes.push({
+          value: OrderTypeEnum.DELIVERY,
+          label: t('menu.delivery'),
+        })
+      }
+      return baseTypes
+    },
+    [t, userInfo?.slug]
   )
 
   const selectedValue = updatingData?.updateDraft?.type || typeOrder || ''

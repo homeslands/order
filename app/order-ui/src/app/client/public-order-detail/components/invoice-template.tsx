@@ -73,6 +73,18 @@ export default function Invoice({
                     <p className="text-xs">
                         <span className="font-bold">{t('order.orderType')}:</span> {t('order.takeAway')} - {order?.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order?.timeLeftTakeOut} ${t('menu.minutes')}`}
                     </p>
+                ) : order?.type === OrderTypeEnum.DELIVERY ? (
+                    <>
+                        <p className="text-xs">
+                            <span className="font-bold">{t('order.orderType')}:</span> {t('menu.delivery')}
+                        </p>
+                        <p className="text-xs">
+                            <span className="font-bold">{t('order.deliveryAddress')}:</span> {order?.deliveryTo?.formattedAddress}
+                        </p>
+                        <p className="text-xs">
+                            <span className="font-bold">{t('order.deliveryPhone')}:</span> {order?.deliveryPhone}
+                        </p>
+                    </>
                 ) : (
                     <p className="text-xs">
                         <span className="font-bold">{t('order.orderType')}:</span> {t('order.dineIn')}
@@ -172,6 +184,16 @@ export default function Invoice({
                             </td>
                             <td colSpan={3} className="py-2 text-right">
                                 {formatPoints(order?.accumulatedPointsToUse || 0)}
+                            </td>
+                        </tr>
+                    )}
+                    {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryFee > 0 && (
+                        <tr>
+                            <td className="py-2" colSpan={3}>
+                                {t('order.deliveryFee')}
+                            </td>
+                            <td colSpan={3} className="py-2 text-right">
+                                {formatCurrency(order?.deliveryFee || 0)}
                             </td>
                         </tr>
                     )}

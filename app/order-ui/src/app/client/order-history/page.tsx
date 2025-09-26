@@ -99,6 +99,24 @@ export default function OrderHistoryPage() {
                       )}
                     </span>
                   </p>
+                  {
+                    orderInfo?.type === OrderTypeEnum.DELIVERY && (
+                      <>
+                        <p>
+                          {t('order.deliveryAddress')}:{' '}
+                          <span className="text-muted-foreground">
+                            {orderInfo?.deliveryTo?.formattedAddress}
+                          </span>
+                        </p>
+                        <p>
+                          {t('order.deliveryPhone')}:{' '}
+                          <span className="text-muted-foreground">
+                            {orderInfo?.deliveryPhone}
+                          </span>
+                        </p>
+                      </>
+                    )
+                  }
                   <p>
                     {t('order.note')}:{' '}
                     <span className="text-muted-foreground">
@@ -137,7 +155,9 @@ export default function OrderHistoryPage() {
                     <p>
                       {orderDetail?.result?.type === OrderTypeEnum.AT_TABLE
                         ? <span>{t('order.dineIn')} - {t('order.tableNumber')}{' '}{orderDetail?.result?.table?.name}</span>
-                        : t('order.takeAway')}
+                        : orderDetail?.result?.type === OrderTypeEnum.DELIVERY
+                          ? t('menu.delivery')
+                          : t('order.takeAway')}
                     </p>
                   </div>
                 )}
@@ -325,6 +345,7 @@ export default function OrderHistoryPage() {
                       - {`${formatCurrency(cartTotals?.voucherDiscount || 0)}`}
                     </p>
                   </div>}
+
                 {orderInfo && orderInfo?.accumulatedPointsToUse > 0 &&
                   <div className="flex justify-between pb-4 w-full">
                     <h3 className="text-sm italic font-medium text-primary">
@@ -332,6 +353,15 @@ export default function OrderHistoryPage() {
                     </h3>
                     <p className="text-sm italic font-semibold text-primary">
                       - {`${formatCurrency(orderInfo?.accumulatedPointsToUse)}`}
+                    </p>
+                  </div>}
+                {orderInfo?.type === OrderTypeEnum.DELIVERY && orderInfo?.deliveryFee > 0 &&
+                  <div className="flex justify-between pb-4 w-full">
+                    <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                      {t('order.deliveryFee')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-muted-foreground/60">
+                      {`${formatCurrency(orderInfo?.deliveryFee)}`}
                     </p>
                   </div>}
                 {orderInfo && orderInfo?.loss > 0 &&
