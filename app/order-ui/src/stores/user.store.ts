@@ -45,7 +45,7 @@ export const useUserStore = create<IUserStore>()(
           isVerifyingEmail: false,
           isVerifyingPhoneNumber: false,
         })
-      }
+      },
     }),
 
     {

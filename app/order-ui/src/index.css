@@ -381,6 +381,100 @@ input[type='number']::-webkit-outer-spin-button {
   font-weight: 800;
 }
 
+/* Google Places Autocomplete Custom Styling */
+.pac-container {
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  box-shadow: 0 6px 12px -2px rgb(0 0 0 / 0.08),
+  0 4px 8px -4px rgb(0 0 0 / 0.08);
+  font-family: inherit;
+  margin-top: 10px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.pac-item {
+  background-color: hsl(var(--popover));
+  border-bottom: 1px solid hsl(var(--border));
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  transition: background-color 0.15s ease;
+}
+
+.pac-item:last-child {
+  border-bottom: none;
+}
+
+.pac-item:hover,
+.pac-item:focus {
+  background-color: hsl(var(--accent));
+}
+
+.pac-item-selected {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.pac-item-query {
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.pac-matched {
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+
+.pac-icon {
+  background-image: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: hsl(var(--muted-foreground));
+  margin-right: 8px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.pac-icon::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Dark mode */
+.dark .pac-container {
+  background-color: hsl(var(--popover));
+  border-color: hsl(var(--border));
+}
+
+.dark .pac-item {
+  background-color: hsl(var(--popover));
+  border-bottom-color: hsl(var(--border));
+  color: hsl(var(--popover-foreground));
+}
+
+.dark .pac-item:hover,
+.dark .pac-item:focus {
+  background-color: hsl(var(--accent));
+}
+
+.dark .pac-item-selected {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.dark .pac-item-query {
+  color: hsl(var(--popover-foreground));
+}
+
+.dark .pac-matched {
+  color: hsl(var(--primary));
+}
+
+
 @media print {
   body {
     margin: 0 !important;
