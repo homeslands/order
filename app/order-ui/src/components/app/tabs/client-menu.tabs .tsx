@@ -2,6 +2,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { ClientMenuTabscontent } from '../tabscontent/client-menu.tabscontent'
+import MapAddressSelectorInUpdateOrder from '@/app/client/update-order/components/map-address-selector-in-update-order'
+import { useOrderFlowStore } from '@/stores'
+import { OrderTypeEnum } from '@/types'
 
 interface ClientMenuTabsProps {
   onSuccess?: () => void
@@ -9,13 +12,20 @@ interface ClientMenuTabsProps {
 
 export function ClientMenuTabs({ onSuccess }: ClientMenuTabsProps) {
   const { t } = useTranslation(['menu'])
+  const { updatingData } = useOrderFlowStore()
+  const isDelivery = updatingData?.updateDraft?.type === OrderTypeEnum.DELIVERY
+
   return (
     <Tabs defaultValue="menu">
-      <TabsList className="grid grid-cols-2 gap-3 mb-10 sm:grid-cols-4 lg:mb-2">
+      <TabsList className={`grid gap-3 mb-10 lg:mb-2 ${isDelivery ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'}`}>
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
         </TabsTrigger>
-        {/* Mở cmt này để hiển thị tab chọn bàn hình ảnh */}
+        {isDelivery && (
+          <TabsTrigger value="address" className="flex justify-center">
+            {t('order.address')}
+          </TabsTrigger>
+        )}
         {/* <TabsTrigger value="table" className="flex justify-center">
           {t('menu.table')}
         </TabsTrigger> */}
@@ -23,6 +33,13 @@ export function ClientMenuTabs({ onSuccess }: ClientMenuTabsProps) {
       <TabsContent value="menu" className="p-0">
         <ClientMenuTabscontent onSuccess={onSuccess} />
       </TabsContent>
+      {isDelivery && (
+        <TabsContent value="address" className="p-0 h-full">
+          <div className="flex flex-col gap-3">
+            <MapAddressSelectorInUpdateOrder onSubmit={onSuccess} />
+          </div>
+        </TabsContent>
+      )}
       {/* <TabsContent value="table" className="p-0">
         <ClientUpdateOrderTableSelect onSuccess={onSuccess} order={order} defaultValue={defaultValue} />
       </TabsContent> */}

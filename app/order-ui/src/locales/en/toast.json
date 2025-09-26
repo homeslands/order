@@ -350,6 +350,7 @@
     "voucherPaymentMethodAlreadyExists": "Payment method already exists",
     "voucherPaymentMethodValidationError": "Payment method is not valid",
     "loyaltyPointAlreadyReserved": "Loyalty point already reserved in another order",
-    "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers"
+    "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers",
+    "confirmAddressSuccess": "Address updated successfully"
   }
 }
