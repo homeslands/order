@@ -1168,7 +1168,10 @@ export class AuthService {
   }): Promise<AuthProfileResponseDto> {
     const user = await this.userUtils.getUser({
       where: { id: userId },
-      relations: ['branch', 'role.permissions.authority.authorityGroup'],
+      relations: [
+        'branch.addressDetail',
+        'role.permissions.authority.authorityGroup',
+      ],
     });
     return this.mapper.map(user, User, AuthProfileResponseDto);
   }
