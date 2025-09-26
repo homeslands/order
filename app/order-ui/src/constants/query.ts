@@ -26,4 +26,9 @@ export const QUERYKEY = {
   loyaltyPoints: ['loyaltyPoints'],
   systemFeatureFlagsByGroup: ['systemFeatureFlagsByGroup'],
   systemFeatureFlagGroups: ['systemFeatureFlagGroups'],
+  address: ['address'],
+  addressSuggestions: ['addressSuggestions'],
+  addressByPlaceId: ['addressByPlaceId'],
+  addressDirection: ['addressDirection'],
+  distanceAndDuration: ['distanceAndDuration'],
 }

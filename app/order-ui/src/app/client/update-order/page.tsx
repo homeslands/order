@@ -36,7 +36,8 @@ export default function ClientUpdateOrderPage() {
     } = useOrderFlowStore()
 
     useEffect(() => {
-        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
+        const hasLocalChanges: boolean = Boolean(updatingData && 'hasChanges' in updatingData && (updatingData as { hasChanges?: boolean }).hasChanges)
+        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize) && !hasLocalChanges) {
             // Đảm bảo order data đầy đủ trước khi initialize
             const orderData = order.result
 
@@ -55,7 +56,7 @@ export default function ClientUpdateOrderPage() {
                 console.error('❌ Update Order: Failed to initialize updating data:', error)
             }
         }
-    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
+    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating, updatingData])
 
     // Separate useEffect for polling control
     useEffect(() => {
@@ -91,7 +92,8 @@ export default function ClientUpdateOrderPage() {
 
     // Fallback initialization nếu data không được load vào store sau 2 giây
     useEffect(() => {
-        if (order?.result && isDataLoaded && !updatingData && slug) {
+        const hasLocalChanges: boolean = Boolean(updatingData && 'hasChanges' in updatingData && (updatingData as { hasChanges?: boolean }).hasChanges)
+        if (order?.result && isDataLoaded && !updatingData && slug && !hasLocalChanges) {
             const timeoutId = setTimeout(() => {
                 try {
                     initializeUpdating(order.result)

@@ -532,7 +532,9 @@ export default function PaymentPage() {
                   <p className="col-span-1 text-sm">
                     {order.result.type === OrderTypeEnum.AT_TABLE
                       ? t('order.dineIn')
-                      : t('order.takeAway')}
+                      : order.result.type === OrderTypeEnum.DELIVERY
+                        ? t('order.delivery')
+                        : t('order.takeAway')}
                     {order.result.type === OrderTypeEnum.TAKE_OUT && (
                       <>
                         {" - "}
@@ -543,14 +545,36 @@ export default function PaymentPage() {
                     )}
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <h3 className="col-span-1 text-sm font-bold">
-                    {t('order.location')}
-                  </h3>
-                  <p className="col-span-1 text-sm">
-                    {order.result.table ? order.result.table.name : ''}
-                  </p>
-                </div>
+                {order?.result?.type === OrderTypeEnum.AT_TABLE && order?.result?.table && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.location')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order.result.table ? order.result.table.name : ''}
+                    </p>
+                  </div>
+                )}
+                {order?.result?.type === OrderTypeEnum.DELIVERY && order?.result?.deliveryTo && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.deliveryAddress')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order?.result?.deliveryTo?.formattedAddress}
+                    </p>
+                  </div>
+                )}
+                {order?.result?.type === OrderTypeEnum.DELIVERY && order?.result?.deliveryPhone && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <h3 className="col-span-1 text-sm font-bold">
+                      {t('order.deliveryPhone')}
+                    </h3>
+                    <p className="col-span-1 text-sm">
+                      {order.result.deliveryPhone}
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <h3 className="col-span-1 text-sm font-bold">
                     {t('order.note')}
@@ -673,6 +697,15 @@ export default function PaymentPage() {
                       - {`${formatCurrency(order.result.accumulatedPointsToUse || 0)}`}
                     </p>
                   </div>
+                  <div className="flex justify-between py-4 w-full border-b">
+                    <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                      {t('order.deliveryFee')}
+                    </h3>
+                    <p className="text-sm italic font-semibold text-muted-foreground/60">
+                      {`${formatCurrency(order.result.deliveryFee || 0)}`}
+                    </p>
+                  </div>
+
                   <div className="flex flex-col py-4">
                     <div className="flex justify-between w-full">
                       <h3 className="font-semibold text-md">

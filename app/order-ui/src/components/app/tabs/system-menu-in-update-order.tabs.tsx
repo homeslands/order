@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
+import moment from 'moment'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
+
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { SystemHorizontalCatalogSelect, SystemTableSelectInUpdateOrder } from '../select'
 import { SystemMenuInUpdateOrderTabscontent } from '../tabscontent'
 import { FilterState, IOrder, OrderTypeEnum } from '@/types'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
-import moment from 'moment'
 import { usePublicSpecificMenu, useSpecificMenu } from '@/hooks'
+import { SystemMapAddressSelectorInUpdateOrder } from '@/app/system/update-order/components'
 
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
-  onSuccess?: () => void
+  onSubmit: () => void
 }
 
-export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
+export function SystemMenuInUpdateOrderTabs({ type, order, onSubmit }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
@@ -24,7 +26,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
   const updatingOrder = orderItems?.updateDraft
   const { catalog } = useCatalogStore()
 
-  const activeTab = searchParams.get('tab') || 'table'
+  const activeTab = searchParams.get('tab') || 'menu'
 
   const [filters, setFilters] = useState<FilterState>({
     date: moment().format('YYYY-MM-DD'),
@@ -76,6 +78,11 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
               {t('menu.table')}
             </TabsTrigger>
           )}
+          {type === OrderTypeEnum.DELIVERY && (
+            <TabsTrigger value="delivery" className="flex justify-center">
+              {t('order.deliveryAddress')}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="menu" className="flex justify-center">
             {t('menu.menu')}
           </TabsTrigger>
@@ -88,6 +95,14 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
         </TabsContent>
       )}
 
+      {type === OrderTypeEnum.DELIVERY && (
+        <TabsContent value="delivery" className="p-0 h-full">
+          <div className="flex flex-col gap-3">
+            <SystemMapAddressSelectorInUpdateOrder onSubmit={onSubmit} />
+          </div>
+        </TabsContent>
+      )}
+
       <TabsContent value="menu" className="p-0 pb-4 mt-0 w-full">
         <div className="sticky top-14 z-20 py-2 bg-white shadow-sm dark:bg-background">
           <SystemHorizontalCatalogSelect onChange={handleSelectCatalog} />
@@ -95,7 +110,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
         {/* Scrollable nội dung menu */}
         <ScrollArea className="w-full h-full">
-          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} onSuccess={onSuccess} />
+          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} />
         </ScrollArea>
       </TabsContent>
     </Tabs>
