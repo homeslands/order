@@ -59,6 +59,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     ownerRole: orderDraft.ownerRole,
     type: orderDraft.type as string,
     timeLeftTakeOut: orderDraft.timeLeftTakeOut,
+    deliveryTo: orderDraft.deliveryTo,
+    deliveryPhone: orderDraft.deliveryPhone,
     orderItems: orderDraft.orderItems.map(item => ({
       ...item,
       slug: item.slug || item.id,
@@ -82,6 +84,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     ownerRole: originalOrder.owner?.role?.name || '',
     type: originalOrder.type,
     timeLeftTakeOut: originalOrder.timeLeftTakeOut,
+    deliveryTo: originalOrder.deliveryTo,
+    deliveryPhone: originalOrder.deliveryPhone,
     orderItems: originalOrder.orderItems.map(detail => ({
       id: detail.id || detail.slug,
       slug: detail.slug,
@@ -131,7 +135,9 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
               type: orderDraft.type,
               table: orderDraft.table || null,
               description: orderDraft.description || '',
-              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0
+              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0,
+              deliveryTo: orderDraft.deliveryTo?.formattedAddress || '',
+              deliveryPhone: orderDraft.deliveryPhone || '',
             }
           }, {
             onSuccess: () => resolve(true),
@@ -230,10 +236,20 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
           onClick={() => setIsOpen(true)}
         >
           {isAnyPending && <Loader2 className="w-4 h-4 animate-spin" />}
-          {(order?.type === OrderTypeEnum.TAKE_OUT ||
-            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
-            ? t('order.updateOrder')
-            : t('menu.noSelectedTable')}
+          {(() => {
+            if (order?.type === OrderTypeEnum.TAKE_OUT) {
+              return t('order.updateOrder');
+            }
+            if (order?.type === OrderTypeEnum.AT_TABLE) {
+              return order?.table ? t('order.updateOrder') : t('menu.noSelectedTable');
+            }
+            if (order?.type === OrderTypeEnum.DELIVERY) {
+              return order?.deliveryTo?.formattedAddress
+                ? t('order.updateOrder')
+                : t('order.noSelectedAddress');
+            }
+            return t('order.noSelectedAddress');
+          })()}
         </Button>
       </DialogTrigger>
 

@@ -203,6 +203,14 @@ export default function CustomerOrderTabsContent() {
                           - {`${formatCurrency(orderItem?.accumulatedPointsToUse || 0)}`}
                         </p>
                       </div>
+                      <div className="flex justify-between pb-4 w-full border-b">
+                        <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                          {t('order.deliveryFee')}
+                        </h3>
+                        <p className="text-sm italic font-semibold text-muted-foreground/60">
+                          {`${formatCurrency(orderItem?.deliveryFee || 0)}`}
+                        </p>
+                      </div>
                       {orderItem && orderItem?.loss > 0 &&
                         <div className="flex justify-between pb-4 w-full">
                           <h3 className="text-sm italic font-medium text-green-500">

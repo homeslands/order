@@ -11,6 +11,10 @@ export interface IUserInfo {
   email: string
   address: string
   branch: {
+    addressDetail: {
+      lat: number
+      lng: number
+    }
     slug: string
     name: string
     address: string

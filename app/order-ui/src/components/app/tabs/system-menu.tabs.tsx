@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 
 import { ScrollArea, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
-import { SystemHorizontalCatalogSelect, SystemTableSelect } from '../select'
+import { SystemHorizontalCatalogSelect, SystemMapAddressSelect, SystemTableSelect } from '../select'
 import { SystemMenuTabscontent } from '../tabscontent'
 import { useCatalogStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { FilterState, OrderTypeEnum } from '@/types'
@@ -67,6 +67,8 @@ export function SystemMenuTabs() {
       handleTabChange('menu')
     } else if (cartItems?.type === OrderTypeEnum.AT_TABLE && !isFirstLoad && preCartItems.current) {
       handleTabChange('table')
+    } else if (cartItems?.type === OrderTypeEnum.DELIVERY && !isFirstLoad && preCartItems.current) {
+      handleTabChange('delivery')
     }
     preCartItems.current = cartItems?.type
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,6 +84,11 @@ export function SystemMenuTabs() {
               {t('menu.table')}
             </TabsTrigger>
           )}
+          {cartItems?.type === OrderTypeEnum.DELIVERY && (
+            <TabsTrigger value="delivery" className="flex justify-center">
+              {t('menu.delivery')}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="menu" className="flex justify-center">
             {t('menu.menu')}
           </TabsTrigger>
@@ -92,6 +99,13 @@ export function SystemMenuTabs() {
       {cartItems?.type === OrderTypeEnum.AT_TABLE && (
         <TabsContent value="table" className="p-0 w-full sm:w-[90%] xl:w-full">
           <SystemTableSelect />
+        </TabsContent>
+      )}
+
+      {/* Tab Content: Delivery */}
+      {cartItems?.type === OrderTypeEnum.DELIVERY && (
+        <TabsContent value="delivery" className="p-0 w-full sm:w-[90%] xl:w-full">
+          <SystemMapAddressSelect />
         </TabsContent>
       )}
 

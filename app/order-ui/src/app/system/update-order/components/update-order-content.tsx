@@ -280,7 +280,10 @@ export default function UpdateOrderContent({
                             {updatingData?.originalOrder?.status === OrderStatus.PENDING && (
                                 <div className='flex justify-end items-center'>
                                     <StaffConfirmUpdateOrderDialog
-                                        disabled={orderType === OrderTypeEnum.AT_TABLE && !table}
+                                        disabled={
+                                            (orderType === OrderTypeEnum.AT_TABLE && !table) ||
+                                            (orderType === OrderTypeEnum.DELIVERY && !updatingData?.updateDraft?.deliveryAddress)
+                                        }
                                     />
                                 </div>
                             )}

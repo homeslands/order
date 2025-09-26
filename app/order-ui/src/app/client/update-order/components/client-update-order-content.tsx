@@ -59,6 +59,18 @@ export default function ClientUpdateOrderContent({
                             <PickupTimeSelectInUpdateOrder orderType={orderType} pickupTime={updatingData?.originalOrder?.timeLeftTakeOut} />
                         </div>
                     )}
+                    {orderType === OrderTypeEnum.DELIVERY && updatingData?.updateDraft?.deliveryTo && (
+                        <div className='flex flex-col gap-1 w-full text-sm'>
+                            <p>
+                                <p className='font-bold'>{t('order.deliveryAddress')}:</p>
+                                {updatingData?.updateDraft?.deliveryTo?.formattedAddress}
+                            </p>
+                            <p>
+                                <p className='font-bold'>{t('order.deliveryPhone')}:</p>
+                                {updatingData?.updateDraft?.deliveryPhone}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -266,7 +278,10 @@ export default function ClientUpdateOrderContent({
                             {updatingData?.originalOrder?.status === OrderStatus.PENDING && (
                                 <div className='flex justify-end items-center'>
                                     <ClientConfirmUpdateOrderDialog
-                                        disabled={orderType === OrderTypeEnum.AT_TABLE && !table}
+                                        disabled={
+                                            (orderType === OrderTypeEnum.AT_TABLE && !table) ||
+                                            (orderType === OrderTypeEnum.DELIVERY && !updatingData?.updateDraft?.deliveryAddress)
+                                        }
                                     />
                                 </div>
                             )}

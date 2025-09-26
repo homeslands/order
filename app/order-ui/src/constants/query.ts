@@ -24,4 +24,9 @@ export const QUERYKEY = {
   userGiftCards: ['userGiftCards'],
   giftCardDetail: ['giftCardDetail'],
   loyaltyPoints: ['loyaltyPoints'],
+  address: ['address'],
+  addressSuggestions: ['addressSuggestions'],
+  addressByPlaceId: ['addressByPlaceId'],
+  addressDirection: ['addressDirection'],
+  distanceAndDuration: ['distanceAndDuration'],
 }

@@ -72,6 +72,8 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
     description: orderDraft.description,
     approvalBy: orderDraft.approvalBy,
     paymentMethod: orderDraft.paymentMethod,
+    deliveryTo: orderDraft.deliveryTo,
+    deliveryPhone: orderDraft.deliveryPhone,
   } : null
 
   // Convert originalOrder to ICartItem format for comparison
@@ -133,7 +135,9 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
               type: orderDraft.type,
               table: orderDraft.table || null,
               description: orderDraft.description || '',
-              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0
+              timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0,
+              deliveryTo: orderDraft.deliveryTo?.formattedAddress || '',
+              deliveryPhone: orderDraft.deliveryPhone || '',
             }
           }, {
             onSuccess: () => resolve(true),
@@ -231,10 +235,21 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
           onClick={() => setIsOpen(true)}
         >
           {isAnyPending && <Loader2 className="w-4 h-4 animate-spin" />}
-          {(order?.type === OrderTypeEnum.TAKE_OUT ||
-            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
-            ? t('order.updateOrder')
-            : t('menu.noSelectedTable')}
+          {(() => {
+            // console.log('order', order)
+            if (order?.type === OrderTypeEnum.TAKE_OUT) {
+              return t('order.updateOrder');
+            }
+            if (order?.type === OrderTypeEnum.AT_TABLE) {
+              return order?.table ? t('order.updateOrder') : t('menu.noSelectedTable');
+            }
+            if (order?.type === OrderTypeEnum.DELIVERY) {
+              return order?.deliveryTo?.formattedAddress
+                ? t('order.updateOrder')
+                : t('order.noSelectedAddress');
+            }
+            return t('order.noSelectedAddress');
+          })()}
         </Button>
       </DialogTrigger>
 
@@ -266,7 +281,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
                 {t('order.orderType')}
               </span>
               <Badge className={`shadow-none ${order?.type === OrderTypeEnum.AT_TABLE ? '' : 'bg-blue-500/20 text-blue-500'}`}>
-                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
+                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : order?.type === OrderTypeEnum.TAKE_OUT ? t('menu.takeAway') : t('menu.delivery')}
               </Badge>
             </div>
             {order?.tableName && (
@@ -278,13 +293,31 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
                 <span className="font-medium">{order.tableName}</span>
               </div>
             )}
-            {order?.timeLeftTakeOut !== undefined && (
+            {order?.timeLeftTakeOut !== undefined && order?.type === OrderTypeEnum.TAKE_OUT && (
               <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
                 <span className="flex gap-2 items-center text-gray-600">
                   <Clock className="w-4 h-4" />
                   {t('menu.pickupTime')}
                 </span>
                 <Badge className="font-medium">{order.timeLeftTakeOut === 0 ? t('menu.immediately') : `${order.timeLeftTakeOut} ${t('menu.minutes')}`}</Badge>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryTo?.formattedAddress && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {t('menu.deliveryAddress')}
+                </span>
+                <span className="font-medium">{order.deliveryTo.formattedAddress}</span>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryPhone && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  {t('menu.deliveryPhone')}
+                </span>
+                <span className="font-medium">{order.deliveryPhone}</span>
               </div>
             )}
             {order?.ownerFullName && (

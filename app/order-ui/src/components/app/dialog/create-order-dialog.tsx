@@ -20,7 +20,7 @@ import {
 import { ICreateOrderRequest, OrderTypeEnum } from '@/types'
 import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
-import { Role, ROUTE } from '@/constants'
+import { Role, ROUTE, PHONE_NUMBER_REGEX } from '@/constants'
 import { useUserStore, useBranchStore, useUpdateOrderStore, useOrderFlowStore, IOrderingData } from '@/stores'
 
 interface IPlaceOrderDialogProps {
@@ -68,9 +68,20 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       return
     }
 
+    // Validate delivery case
+    if (order.type === OrderTypeEnum.DELIVERY) {
+      const phoneOk = !!order.deliveryPhone && PHONE_NUMBER_REGEX.test(order.deliveryPhone)
+      if (!order.deliveryAddress || !phoneOk) {
+        showErrorToast(119000)
+        return
+      }
+    }
+
     const createOrderRequest: ICreateOrderRequest = {
       type: order.type,
       timeLeftTakeOut: order.timeLeftTakeOut || 0,
+      deliveryTo: order.deliveryPlaceId || '',
+      deliveryPhone: order.deliveryPhone || '',
       table: order.table || '',
       branch: selectedBranch,
       owner: order.owner || getUserInfo()?.slug || '',
@@ -135,10 +146,16 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
           onClick={() => setIsOpen(true)}
         >
           {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
-          {(order?.type === OrderTypeEnum.TAKE_OUT ||
-            (order?.type === OrderTypeEnum.AT_TABLE && order.table))
-            ? t('order.create')
-            : t('menu.noSelectedTable')}
+          {(() => {
+            if (order?.type === OrderTypeEnum.AT_TABLE) {
+              return order?.table ? t('order.create') : t('menu.noSelectedTable')
+            }
+            if (order?.type === OrderTypeEnum.DELIVERY) {
+              const phoneOk = !!order.deliveryPhone && PHONE_NUMBER_REGEX.test(order.deliveryPhone)
+              return order?.deliveryAddress && phoneOk ? t('order.create') : t('menu.deliveryInfoMissing')
+            }
+            return t('order.create')
+          })()}
         </Button>
       </DialogTrigger>
 
@@ -167,7 +184,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 {t('order.orderType')}
               </span>
               <Badge className={`shadow-none ${order?.type === OrderTypeEnum.AT_TABLE ? '' : 'bg-blue-500/20 text-blue-500'}`}>
-                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
+                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : order?.type === OrderTypeEnum.DELIVERY ? t('menu.delivery') : t('menu.takeAway')}
               </Badge>
             </div>
             {order?.timeLeftTakeOut !== undefined && (
@@ -190,6 +207,24 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   {t('menu.tableName')}
                 </span>
                 <span className="font-medium">{order.tableName}</span>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryAddress && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  {t('menu.deliveryAddress')}
+                </span>
+                <span className="font-medium text-right max-w-[60%] truncate">{order.deliveryAddress}</span>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryPhone && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-muted-foreground">
+                  <Phone className="w-4 h-4" />
+                  {t('menu.deliveryPhone')}
+                </span>
+                <span className="font-medium">{order.deliveryPhone}</span>
               </div>
             )}
             {order?.ownerFullName && (
@@ -301,14 +336,21 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
               >
                 {tCommon('common.cancel')}
               </Button>
-              <Button onClick={() => {
-                if (order) {
-                  handleSubmit(order)
-                }
-              }} disabled={isPending || isPendingWithoutLogin}>
-                {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t('order.create')}
-              </Button>
+              {(() => {
+                const isDelivery = order?.type === OrderTypeEnum.DELIVERY
+                const phoneOk = !!order?.deliveryPhone && PHONE_NUMBER_REGEX.test(order.deliveryPhone || '')
+                const createDisabled = (isPending || isPendingWithoutLogin) || (isDelivery && (!order?.deliveryAddress || !phoneOk))
+                return (
+                  <Button onClick={() => {
+                    if (order) {
+                      handleSubmit(order)
+                    }
+                  }} disabled={createDisabled}>
+                    {isPending || isPendingWithoutLogin && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {t('order.create')}
+                  </Button>
+                )
+              })()}
             </div>
           </div>
         </DialogFooter>

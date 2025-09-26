@@ -210,15 +210,6 @@ export default function UpdateOrderPage() {
         }
     }, [isExpired])
 
-    const handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch {
-            // Ignore refetch errors
-        }
-    }, [refetchOrder])
-
     const handleExpire = useCallback((value: boolean) => {
         setIsExpired(value)
         if (value) {
@@ -280,7 +271,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => refetchOrder()} />
                                 </div>
                             </div>
                         </>
@@ -289,7 +280,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={handleRefetchAndReinitialize} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => refetchOrder()} />
                             </div>
 
                             {/* Desktop layout - Content right */}

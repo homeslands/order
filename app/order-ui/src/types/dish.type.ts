@@ -39,6 +39,14 @@ export interface ICartItem {
   ownerRole?: string
   type: string
   timeLeftTakeOut?: number
+  deliveryTo?: {
+    formattedAddress: string
+    url: string
+    lat: number
+    lng: number
+    slug: string
+  }
+  deliveryPhone?: string
   // branch?: string
   orderItems: IOrderItem[]
   table?: string
@@ -118,6 +126,19 @@ export interface IOrderToUpdate {
   approvalBy?: string
   paymentMethod?: string
   payment?: IOrderPayment
+  deliveryAddress?: string
+  deliveryDistance?: string
+  deliveryDuration?: string
+  deliveryPhone?: string
+  deliveryPlaceId?: string
+  deliveryTo?: {
+    formattedAddress: string
+    url: string
+    lat: number
+    lng: number
+    slug: string
+    placeId: string
+  }
 }
 
 export interface IOrderItem {
@@ -176,6 +197,20 @@ export interface IOrder extends IBase {
     firstName: string
     lastName: string
     phonenumber: string
+  }
+  deliveryAddress: string
+  deliveryDistance: string
+  deliveryDuration: string
+  deliveryPhone: string
+  deliveryPlaceId: string
+  deliveryFee: number
+  deliveryTo?: {
+    formattedAddress: string
+    url: string
+    lat: number
+    lng: number
+    placeId: string
+    slug: string
   }
   referenceNumber: number
   chefOrders: IChefOrders[]
@@ -283,6 +318,7 @@ export enum OrderItemStatus {
 export enum OrderTypeEnum {
   AT_TABLE = 'at-table',
   TAKE_OUT = 'take-out',
+  DELIVERY = 'delivery',
 }
 
 export interface ICreateOrderResponse extends IBase {
@@ -314,6 +350,8 @@ export interface ICreateOrderResponse extends IBase {
 export interface ICreateOrderRequest {
   type: string
   timeLeftTakeOut?: number
+  deliveryTo?: string
+  deliveryPhone?: string
   table: string
   branch: string
   owner: string
@@ -340,6 +378,8 @@ export interface IUpdateOrderTypeRequest {
   table: string | null
   description?: string
   timeLeftTakeOut?: number
+  deliveryTo?: string
+  deliveryPhone?: string
 }
 
 export interface IUpdateOrderItemRequest {
