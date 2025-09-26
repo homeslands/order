@@ -38,3 +38,4 @@ export { default as ClientLoyaltyPointSelector } from './client-loyalty-point-se
 export { default as LoyaltyPointTypeSelect } from './loyalty-point-type-select'
 export { default as PickupTimeSelect } from './pickup-time-select'
 export { default as PickupTimeSelectInUpdateOrder } from './pickup-time-in-update-order-select'
+export { default as SystemMapAddressSelect } from './system-map-address-select'

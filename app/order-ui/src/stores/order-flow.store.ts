@@ -42,6 +42,15 @@ export interface IOrderingData {
   approvalBy: string
   paymentMethod?: string
   payment?: IOrderPayment
+  // Delivery info
+  deliveryAddress?: string
+  deliveryDistance?: string
+  deliveryDuration?: string
+  deliveryPhone?: string
+  // New: Persisted delivery coordinates & placeId for map address selection
+  deliveryLat?: number
+  deliveryLng?: number
+  deliveryPlaceId?: string
 }
 
 // Payment Phase Data (tương tự payment store)
@@ -97,6 +106,13 @@ export interface IOrderFlowStore {
   setOrderingDescription: (description: string) => void
   setOrderingApprovalBy: (approvalBy: string) => void
   clearOrderingData: () => void
+  // Delivery info actions
+  setDeliveryAddress: (address: string) => void
+  setDeliveryDistanceDuration: (distance: string, duration: string) => void
+  setDeliveryCoords: (lat: number, lng: number, placeId?: string) => void
+  setDeliveryPlaceId: (placeId: string) => void
+  setDeliveryPhone: (phone: string) => void
+  clearDeliveryInfo: () => void
 
   // Payment phase actions (tương tự payment store)
   initializePayment: (orderSlug: string, paymentMethod: PaymentMethod) => void
@@ -128,6 +144,13 @@ export interface IOrderFlowStore {
   setDraftApprovalBy: (approvalBy: string) => void
   setDraftPaymentMethod: (method: string) => void
   resetDraftToOriginal: () => void
+  // Delivery info actions
+  setDraftDeliveryAddress: (address: string) => void
+  setDraftDeliveryDistanceDuration: (distance: string, duration: string) => void
+  setDraftDeliveryCoords: (lat: number, lng: number, placeId?: string) => void
+  setDraftDeliveryPlaceId: (placeId: string) => void
+  setDraftDeliveryPhone: (phone: string) => void
+  clearDraftDeliveryInfo: () => void
   clearUpdatingData: () => void
 
   // Flow transition actions
@@ -243,6 +266,14 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           voucher: null,
           description: '',
           approvalBy: '',
+          deliveryAddress: '',
+          deliveryDistance: '',
+          deliveryDuration: '',
+          deliveryPhone:
+            useUserStore.getState().getUserInfo()?.phonenumber || '',
+          deliveryLat: undefined,
+          deliveryLng: undefined,
+          deliveryPlaceId: '',
         }
         set({
           currentStep: OrderFlowStep.ORDERING,
@@ -444,6 +475,11 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ownerRole: '',
             // Remove voucher if it requires verification
             voucher: requiresVerification ? null : orderingData.voucher,
+            // Clear delivery info when removing customer
+            deliveryAddress: '',
+            deliveryDistance: '',
+            deliveryDuration: '',
+            deliveryPhone: '',
           },
           lastModified: moment().valueOf(),
         })
@@ -473,6 +509,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ...orderingData,
             table: '',
             tableName: '',
+            // Clear delivery info when removing table
+            deliveryAddress: '',
+            deliveryDistance: '',
+            deliveryDuration: '',
           },
           lastModified: moment().valueOf(),
         })
@@ -577,6 +617,95 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
       clearOrderingData: () => {
         set({
           orderingData: null,
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      // ===================
+      // DELIVERY INFO
+      // ===================
+      setDeliveryAddress: (address: string) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryAddress: address,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      setDeliveryDistanceDuration: (distance: string, duration: string) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryDistance: distance,
+            deliveryDuration: duration,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      setDeliveryPhone: (phone: string) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryPhone: phone,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      setDeliveryCoords: (lat: number, lng: number, placeId?: string) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryLat: lat,
+            deliveryLng: lng,
+            deliveryPlaceId: placeId || orderingData.deliveryPlaceId || '',
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      setDeliveryPlaceId: (placeId: string) => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryPlaceId: placeId,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      clearDeliveryInfo: () => {
+        const { orderingData } = get()
+        if (!orderingData) return
+
+        set({
+          orderingData: {
+            ...orderingData,
+            deliveryAddress: '',
+            deliveryDistance: '',
+            deliveryDuration: '',
+            deliveryLat: undefined,
+            deliveryLng: undefined,
+            deliveryPlaceId: '',
+          },
           lastModified: moment().valueOf(),
         })
       },
@@ -701,6 +830,11 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         const updatedOriginalOrder: IOrder = {
           ...originalOrder,
           orderItems: orderItemsWithIds,
+          deliveryAddress: originalOrder.deliveryTo?.formattedAddress || '',
+          deliveryDistance: originalOrder.deliveryDistance,
+          deliveryDuration: originalOrder.deliveryDuration,
+          deliveryPhone: originalOrder.deliveryPhone,
+          deliveryTo: originalOrder.deliveryTo,
         }
 
         // Create initial draft from original order với cùng IDs
@@ -726,21 +860,23 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             ...convertOrderDetailToOrderItem(item),
             id: item.id, // Sử dụng cùng ID
           })),
+          deliveryAddress:
+            updatedOriginalOrder.deliveryTo?.formattedAddress || '',
+          deliveryDistance: updatedOriginalOrder.deliveryDistance,
+          deliveryDuration: updatedOriginalOrder.deliveryDuration,
+          deliveryPhone: updatedOriginalOrder.deliveryPhone,
+          deliveryPlaceId: updatedOriginalOrder.deliveryPlaceId,
           voucher: updatedOriginalOrder.voucher,
           description: updatedOriginalOrder.description || '',
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
+          deliveryTo: updatedOriginalOrder.deliveryTo,
         }
-
-        // console.log('updateDraft in initializeUpdating', updateDraft)
 
         const newUpdatingData: IUpdatingData = {
           originalOrder: updatedOriginalOrder,
           updateDraft,
           hasChanges: false,
         }
-
-        // console.log('🔍 Created updateDraft with timeLeftTakeOut:', updateDraft.timeLeftTakeOut)
-        // console.log('🔍 Created updateDraft with type:', updateDraft.type)
 
         set({
           currentStep: OrderFlowStep.UPDATING,
@@ -1070,6 +1206,114 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           }),
         }
 
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+
+      setDraftDeliveryAddress: (address: string) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryAddress: address,
+        }
+
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+      setDraftDeliveryDistanceDuration: (
+        distance: string,
+        duration: string,
+      ) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryDistance: distance,
+          deliveryDuration: duration,
+        }
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+      setDraftDeliveryCoords: (lat: number, lng: number, placeId?: string) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryLat: lat,
+          deliveryLng: lng,
+          deliveryPlaceId: placeId,
+        }
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+      setDraftDeliveryPlaceId: (placeId: string) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryPlaceId: placeId,
+        }
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+      setDraftDeliveryPhone: (phone: string) => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryPhone: phone,
+        }
+        set({
+          updatingData: {
+            ...updatingData,
+            updateDraft: updatedDraft,
+            hasChanges: true,
+          },
+          lastModified: moment().valueOf(),
+        })
+      },
+      clearDraftDeliveryInfo: () => {
+        const { updatingData } = get()
+        if (!updatingData) return
+        const updatedDraft = {
+          ...updatingData.updateDraft,
+          deliveryAddress: '',
+          deliveryDistance: '',
+          deliveryDuration: '',
+          deliveryPhone: '',
+        }
         set({
           updatingData: {
             ...updatingData,

@@ -281,7 +281,7 @@ export function CartContent() {
               </div>
               <div className='flex justify-end items-center'>
                 <CreateOrderDialog
-                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table)}
+                  disabled={!cartItems || (cartItems.type === OrderTypeEnum.AT_TABLE && !cartItems.table) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryAddress) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryPhone) || (cartItems.type === OrderTypeEnum.DELIVERY && !cartItems.deliveryPlaceId)}
                 />
               </div>
             </div>
