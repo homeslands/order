@@ -406,6 +406,10 @@ export class AddressResponseDto {
   @AutoMap()
   @ApiProperty()
   lng: number;
+
+  @AutoMap()
+  @ApiProperty()
+  placeId: string;
 }
 
 // Geocoding
