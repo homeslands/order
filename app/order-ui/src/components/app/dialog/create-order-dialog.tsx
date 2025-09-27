@@ -19,7 +19,7 @@ import {
 
 import { ICreateOrderRequest, OrderTypeEnum } from '@/types'
 import { useCreateOrder, useCreateOrderWithoutLogin } from '@/hooks'
-import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, showErrorToast, showToast } from '@/utils'
+import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, parseKm, showErrorToast, showToast, useCalculateDeliveryFee } from '@/utils'
 import { Role, ROUTE, PHONE_NUMBER_REGEX } from '@/constants'
 import { useUserStore, useBranchStore, useUpdateOrderStore, useOrderFlowStore, IOrderingData } from '@/stores'
 
@@ -50,6 +50,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
   )
 
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
+  const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0)
 
   // console.log('cartTotals', cartTotals)
 
@@ -321,10 +322,20 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                 -{`${formatCurrency(cartTotals.voucherDiscount)}`}
               </span>
             </div>
+            {order?.type === OrderTypeEnum.DELIVERY && (
+              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+                <span className="italic text-muted-foreground">
+                  {t('order.deliveryFee')}:&nbsp;
+                </span>
+                <span className="italic text-muted-foreground">
+                  {`${formatCurrency(deliveryFee)}`}
+                </span>
+              </div>
+            )}
             <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
-                {`${formatCurrency(cartTotals.finalTotal)}`}
+                {`${formatCurrency(cartTotals.finalTotal + deliveryFee)}`}
               </span>
             </div>
             <div className='flex flex-row gap-2 justify-end mt-4 w-full'>
