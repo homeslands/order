@@ -11,6 +11,7 @@ import { Promotion } from 'src/promotion/promotion.entity';
 import { ChefArea } from 'src/chef-area/chef-area.entity';
 import { InvoiceArea } from 'src/invoice-area/invoice-area.entity';
 import { Address } from 'src/google-map/entities/address.entity';
+import { BranchConfig } from 'src/branch-config/branch-config.entity';
 
 @Entity('branch_tbl')
 export class Branch extends Base {
@@ -61,4 +62,7 @@ export class Branch extends Base {
 
   @OneToMany(() => InvoiceArea, (invoiceArea) => invoiceArea.branch)
   invoiceAreas: InvoiceArea[];
+
+  @OneToMany(() => BranchConfig, (branchConfig) => branchConfig.branch)
+  branchConfigs: BranchConfig[];
 }
