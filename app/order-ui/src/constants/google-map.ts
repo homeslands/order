@@ -1,0 +1,2 @@
+export const GOOGLE_MAP_DISTANCE_LIMIT = 3
+export const DELIVERY_FEE = 10000
