@@ -76,6 +76,7 @@ import { JwtOptionalAuthGuard } from 'src/auth/passport/jwt/jwt-optional-auth.gu
 import { GoogleMapModule } from 'src/google-map/google-map.module';
 import { FeatureFlagSystemModule } from 'src/feature-flag-system/feature-flag-system.module';
 import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
+import { BranchConfigModule } from 'src/branch-config/branch-config.module';
 
 @Module({
   imports: [
@@ -171,6 +172,7 @@ import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
     AccumulatedPointModule,
     GoogleMapModule,
     FeatureFlagSystemModule,
+    BranchConfigModule,
   ],
   controllers: [AppController],
   providers: [

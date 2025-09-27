@@ -3,6 +3,7 @@ import { ApplicablePromotionValidation } from 'src/applicable-promotion/applicab
 import { AuthValidation } from 'src/auth/auth.validation';
 import { AuthorityValidation } from 'src/authority/authority.validation';
 import BannerValidation from 'src/banner/banner.validation';
+import { BranchConfigValidation } from 'src/branch-config/branch-config.validation';
 import { BranchRevenueValidation } from 'src/branch-revenue/branch-revenue.validation';
 import { BranchValidation } from 'src/branch/branch.validation';
 import { CatalogValidation } from 'src/catalog/catalog.validation';
@@ -100,6 +101,7 @@ export const AppValidation: TErrorCode = {
   ...BalanceValidation,
   ...PointTransactionValidation,
   ...ZaloOaConnectorValidation,
+  ...BranchConfigValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

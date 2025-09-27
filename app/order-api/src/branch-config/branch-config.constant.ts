@@ -1,0 +1,4 @@
+export enum BranchConfigKey {
+  MAX_DELIVERY_DISTANCE = 'MAX_DELIVERY_DISTANCE',
+  DELIVERY_FEE = 'DELIVERY_FEE', // PER KM
+}
