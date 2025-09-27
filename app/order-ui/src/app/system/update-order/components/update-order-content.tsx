@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { OrderTypeInUpdateOrderSelect, PickupTimeSelectInUpdateOrder } from '@/components/app/select'
-import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, showToast, transformOrderItemToOrderDetail } from '@/utils'
+import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, parseKm, showToast, transformOrderItemToOrderDetail, useCalculateDeliveryFee } from '@/utils'
 import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types'
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
@@ -51,6 +51,7 @@ export default function UpdateOrderContent({
             cartTotals: totals
         }
     }, [orderItems, voucher])
+    const deliveryFee = useCalculateDeliveryFee(parseKm(updatingData?.updateDraft?.deliveryDistance) || 0)
 
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
@@ -271,9 +272,17 @@ export default function UpdateOrderContent({
                                     </div>
                                 )}
 
+                                {/* Delivery fee */}
+                                {orderType === OrderTypeEnum.DELIVERY && (
+                                    <div className="flex justify-between text-xs italic text-muted-foreground/60">
+                                        <span>{t('order.deliveryFee')}</span>
+                                        <span>{formatCurrency(deliveryFee)}</span>
+                                    </div>
+                                )}
+
                                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                                     <span>{t('order.totalPayment')}</span>
-                                    <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals?.finalTotal || 0)}</span>
+                                    <span className="text-2xl font-bold text-primary">{formatCurrency((cartTotals?.finalTotal || 0) + deliveryFee)}</span>
                                 </div>
                             </div>
 

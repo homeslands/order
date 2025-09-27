@@ -104,7 +104,7 @@
     "updateMenuItemDescription": "Thay đổi thông tin để cập nhật món",
     "viewDetails": "Xem chi tiết",
     "voucher": "Mã giảm giá",
-    "deliveryInfoMissing": "Thông tin giao hàng không đầy đủ",
+    "deliveryInfoMissing": "Thiếu thông tin giao hàng",
     "duration": "Thời gian",
     "deliveryAddress": "Địa chỉ giao hàng",
     "distance": "Khoảng cách",
@@ -138,7 +138,8 @@
     "loading": "Đang lấy",
     "invalidPhoneNumber": "Số điện thoại không hợp lệ (phải 10 chữ số)",
     "update": "Cập nhật",
-    "noAddressSelected": "Chưa chọn địa chỉ"
+    "noAddressSelected": "Chưa chọn địa chỉ",
+    "deliveryAddressNote": "Lưu ý: Hệ thống không hỗ trợ giao hàng với khoảng cách lớn hơn 3km."
   },
   "order": {
     "added": "Thêm",

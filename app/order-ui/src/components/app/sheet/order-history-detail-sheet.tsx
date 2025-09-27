@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import moment from 'moment'
 import { useTranslation } from 'react-i18next'
+import { DownloadIcon, Loader2 } from 'lucide-react'
 
 import { useExportOrderInvoice, useOrderBySlug } from '@/hooks'
 import { IOrder, OrderStatus, OrderTypeEnum } from '@/types'
@@ -22,7 +23,6 @@ import {
 import { calculateOrderItemDisplay, calculatePlacedOrderTotals, capitalizeFirstLetter, formatCurrency, loadDataToPrinter, showToast } from '@/utils'
 import { OrderStatusBadge, PaymentStatusBadge } from '../badge'
 import { PaymentMethod, VOUCHER_TYPE } from '@/constants'
-import { DownloadIcon, Loader2 } from 'lucide-react'
 
 interface IOrderHistoryDetailSheetProps {
   order: IOrder | null
@@ -401,6 +401,16 @@ export default function OrderHistoryDetailSheet({
                         - {`${formatCurrency(orderDetail?.accumulatedPointsToUse || 0)}`}
                       </p>
                     </div>}
+                  {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                    <div className="flex justify-between pb-4 w-full">
+                      <h3 className="text-sm italic font-medium text-muted-foreground/60">
+                        {t('order.deliveryFee')}
+                      </h3>
+                      <p className="text-sm italic font-semibold text-muted-foreground/60">
+                        {`${formatCurrency(orderDetail?.deliveryFee || 0)}`}
+                      </p>
+                    </div>
+                  )}
                   {orderDetail?.loss > 0 &&
                     <div className="flex justify-between pb-4 w-full">
                       <h3 className="text-sm italic font-medium text-green-500">

@@ -18,7 +18,7 @@ import { APPLICABILITY_RULE, ROUTE, VOUCHER_TYPE, publicFileURL, PHONE_NUMBER_RE
 import { Badge, Button } from '@/components/ui'
 import { OrderTypeSelect, PickupTimeSelect, ProductVariantSelect, TableInCartSelect } from '@/components/app/select'
 import { VoucherListSheet } from '@/components/app/sheet'
-import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay } from '@/utils'
+import { formatCurrency, calculateCartTotals, showErrorToast, calculateCartItemDisplay, useCalculateDeliveryFee, parseKm } from '@/utils'
 import { OrderNoteInput } from '@/components/app/input'
 import ProductImage from '@/assets/images/ProductImage.png'
 import { OrderTypeEnum } from '@/types'
@@ -41,6 +41,8 @@ export default function ClientCartPage() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
+
+  const deliveryFee = useCalculateDeliveryFee(parseKm(currentCartItems?.deliveryDistance) || 0)
 
   const handleChangeVariant = (id: string) => {
     addOrderingProductVariant(id)
@@ -412,10 +414,16 @@ export default function ClientCartPage() {
                         </div>
                       </div>
                     )}
+                    {currentCartItems?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex justify-between">
+                        <span>{t('order.deliveryFee')}</span>
+                        <span>{formatCurrency(deliveryFee)}</span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -631,7 +639,7 @@ export default function ClientCartPage() {
 
                     <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -664,7 +672,7 @@ export default function ClientCartPage() {
               <div className='grid grid-cols-2 justify-between items-center px-2 py-4'>
                 <div className="flex col-span-1 gap-1 justify-center items-center font-semibold">
                   {/* <span>{t('order.totalPayment')}</span> */}
-                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
                 </div>
                 <div className="flex col-span-1 justify-end p-0 w-full">
                   <CreateOrderDialog

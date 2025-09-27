@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import _ from 'lodash'
 import { useTranslation } from 'react-i18next'
 
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui'
+import { Role } from '@/constants'
 
 export default function OrderTypeSelect() {
   const { t } = useTranslation('menu')
@@ -35,7 +36,7 @@ export default function OrderTypeSelect() {
       ]
 
       // Only add delivery option if user has a slug
-      if (userInfo?.slug) {
+      if ((userInfo?.slug && userInfo?.role.name === Role.CUSTOMER) || (cartItems?.ownerRole === Role.CUSTOMER && cartItems?.ownerFullName !== 'default-customer')) {
         baseTypes.push({
           value: OrderTypeEnum.DELIVERY,
           label: t('menu.delivery'),
@@ -44,12 +45,20 @@ export default function OrderTypeSelect() {
 
       return baseTypes
     },
-    [t, userInfo?.slug]
+    [t, userInfo?.slug, userInfo?.role.name, cartItems?.ownerRole, cartItems?.ownerFullName]
   )
 
   const selectedType = useMemo(() => {
     return cartItems?.type ? orderTypes.find((type) => type.value === cartItems.type) : orderTypes[0]
   }, [cartItems, orderTypes])
+
+  // If delivery is not available and currently selected, reset to first available
+  useEffect(() => {
+    const hasDelivery = orderTypes.some((ot) => ot.value === OrderTypeEnum.DELIVERY)
+    if (!hasDelivery && cartItems?.type === OrderTypeEnum.DELIVERY) {
+      setOrderingType(orderTypes[0].value as OrderTypeEnum)
+    }
+  }, [orderTypes, cartItems?.type, setOrderingType])
 
   const handleChange = (value: OrderTypeEnum) => {
     setOrderingType(value as OrderTypeEnum)
