@@ -26,6 +26,7 @@ export default function UpdateOrderPage() {
     const [isExpired, setIsExpired] = useState<boolean>(false)
     const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false) // Track if data is loaded to store
     const [shouldReinitialize, setShouldReinitialize] = useState<boolean>(false)
+    const [isRefetching] = useState<boolean>(false)
     const {
         updatingData,
         initializeUpdating,
@@ -40,7 +41,7 @@ export default function UpdateOrderPage() {
 
     // Initialize updating data
     useEffect(() => {
-        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize)) {
+        if (order?.result && order.result.orderItems && (!isDataLoaded || shouldReinitialize) && !isRefetching) {
             // Đảm bảo order data đầy đủ trước khi initialize
             const orderData = order.result
 
@@ -128,7 +129,7 @@ export default function UpdateOrderPage() {
 
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [order, isDataLoaded, shouldReinitialize, initializeUpdating])
+    }, [order, isDataLoaded, shouldReinitialize, isRefetching, initializeUpdating])
 
     // Separate useEffect for polling control (currently disabled)
     useEffect(() => {
@@ -219,6 +220,16 @@ export default function UpdateOrderPage() {
         }
     }, [clearUpdatingData])
 
+    const _handleRefetchAndReinitialize = useCallback(async () => {
+        try {
+            await refetchOrder()
+            setShouldReinitialize(true)
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
+        }
+    }, [refetchOrder])
+
     if (isExpired) {
         return (
             <div className="container py-20 lg:h-[60vh]">
@@ -271,7 +282,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => refetchOrder()} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => _handleRefetchAndReinitialize()} />
                                 </div>
                             </div>
                         </>
@@ -280,7 +291,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => refetchOrder()} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={() => _handleRefetchAndReinitialize()} />
                             </div>
 
                             {/* Desktop layout - Content right */}
