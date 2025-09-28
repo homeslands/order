@@ -1,7 +1,6 @@
+import moment from 'moment'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
-import moment from 'moment'
-import { MoreHorizontal } from 'lucide-react'
 
 import {
   Button,
@@ -12,11 +11,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui'
 import { IUserInfo } from '@/types'
-import { ResetPasswordDialog, UpdateCustomerDialog, UserInfoDialog } from '@/components/app/dialog'
+import { MoreHorizontal } from 'lucide-react'
 
 export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
-  const { t } = useTranslation(['customer', 'common'])
-  const { t: tCommon } = useTranslation(['common'])
+  const { t } = useTranslation(['customer'])
+  const { t: tCommon } = useTranslation('common')
   return [
     {
       accessorKey: 'createdAt',
@@ -79,13 +78,12 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
     {
       id: 'actions',
       header: tCommon('common.action'),
-      cell: ({ row }) => {
-        const user = row.original
+      cell: () => {
         return (
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-8 h-8 p-0">
+                <Button variant="ghost" className="p-0 w-8 h-8">
                   <span className="sr-only">{tCommon('common.action')}</span>
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -94,9 +92,6 @@ export const useUserListColumns = (): ColumnDef<IUserInfo>[] => {
                 <DropdownMenuLabel>
                   {tCommon('common.action')}
                 </DropdownMenuLabel>
-                <UserInfoDialog user={user} />
-                <ResetPasswordDialog user={user} />
-                <UpdateCustomerDialog customer={user} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

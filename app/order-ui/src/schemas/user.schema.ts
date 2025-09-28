@@ -169,7 +169,8 @@ export function useUpdateUserSchema() {
       .min(1, {
         message: tProfile('profile.emailRequired'),
       })
-      .email({ message: tProfile('profile.emailInvalid') }),
+      .email({ message: tProfile('profile.emailInvalid') })
+      .optional(),
     address: z
       .string()
       .min(1, tProfile('profile.addressRequired'))
@@ -177,6 +178,7 @@ export function useUpdateUserSchema() {
       .refine((val) => !EMOJI_REGEX.test(val), {
         message: tProfile('profile.addressEmojiInvalid'),
       }),
+
     branch: z.string().optional(),
   })
 }
@@ -218,7 +220,8 @@ export function useUpdateEmployeeSchema() {
       .min(1, {
         message: tProfile('profile.emailRequired'),
       })
-      .email({ message: tProfile('profile.emailInvalid') }),
+      .email({ message: tProfile('profile.emailInvalid') })
+      .optional(),
     address: z
       .string()
       .min(1, tProfile('profile.addressRequired'))

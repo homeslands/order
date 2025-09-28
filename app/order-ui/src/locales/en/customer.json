@@ -1,5 +1,7 @@
 {
   "customer": {
+    "verified": "Verified",
+    "notVerified": "Not verified",
     "address": "Address",
     "branch": "Branch",
     "confirmPassword": "Confirm password",
@@ -30,6 +32,10 @@
     "updateRole": "Update role",
     "updateRoleDescription": "Update employee role",
     "viewDetail": "View details",
-    "searchByPhoneNumber": "Enter phone number"
+    "searchByPhoneNumber": "Enter phone number",
+    "viewOrders": "View orders",
+    "info": "Info",
+    "orderHistory": "Order history",
+    "loyaltyPoint": "Loyalty point"
   }
 }

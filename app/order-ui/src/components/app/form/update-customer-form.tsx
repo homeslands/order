@@ -23,7 +23,7 @@ import { showToast } from '@/utils'
 import { DatePicker } from '../picker'
 
 interface IFormUpdateCustomerProps {
-  customer: IUserInfo
+  customer?: IUserInfo | undefined
   onSubmit: (isOpen: boolean) => void
 }
 
@@ -37,14 +37,11 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
   const form = useForm<TUpdateUserSchema>({
     resolver: zodResolver(useUpdateUserSchema()),
     defaultValues: {
-      slug: customer.slug,
-      // phonenumber: customer.phonenumber,
-      firstName: customer.firstName || '',
-      lastName: customer.lastName || '',
-      dob: customer.dob || undefined,
-      email: customer.email || '',
-      address: customer.address || '',
-      // branch: customer?.branch?.slug || '',
+      slug: customer?.slug,
+      firstName: customer?.firstName || '',
+      lastName: customer?.lastName || '',
+      dob: customer?.dob || undefined,
+      address: customer?.address || '',
     },
   })
 
@@ -64,21 +61,6 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
   }
 
   const formFields = {
-    // phonenumber: (
-    //   <FormField
-    //     control={form.control}
-    //     name="phonenumber"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('customer.phoneNumber')}</FormLabel>
-    //         <FormControl>
-    //           <Input placeholder={t('customer.enterPhoneNumber')} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
     firstName: (
       <FormField
         control={form.control}
@@ -139,7 +121,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
           <FormItem>
             <FormLabel>{t('customer.email')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('customer.enterEmail')} {...field} />
+              <Input readOnly disabled placeholder={t('customer.enterEmail')} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -161,21 +143,6 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
         )}
       />
     ),
-    // branch: (
-    //   <FormField
-    //     control={form.control}
-    //     name="branch"
-    //     render={({ field }) => (
-    //       <FormItem>
-    //         <FormLabel>{t('customer.branch')}</FormLabel>
-    //         <FormControl>
-    //           <BranchSelect defaultValue={customer?.branch?.slug} {...field} />
-    //         </FormControl>
-    //         <FormMessage />
-    //       </FormItem>
-    //     )}
-    //   />
-    // ),
   }
 
   return (
@@ -193,7 +160,7 @@ export const UpdateCustomerForm: React.FC<IFormUpdateCustomerProps> = ({
           </ScrollArea>
           <div className="flex justify-end">
             <Button disabled={isPending} className="flex justify-end" type="submit">
-              {isPending ? <div className="flex items-center gap-2">
+              {isPending ? <div className="flex gap-2 items-center">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {t('customer.update')}
               </div> : t('customer.update')}

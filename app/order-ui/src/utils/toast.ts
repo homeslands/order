@@ -290,6 +290,7 @@ const errorCodes: { [key: number]: string } = {
   158406: 'toast.errorWhenUseGiftCard',
   158408: 'toast.giftCardExpired',
   158409: 'toast.giftCardAlreadyUsed',
+  159008: 'toast.featureOnlyForRegisteredCustomer',
   159016: 'toast.loyaltyPointAlreadyReserved',
   // User error code
   119006: 'toast.userNotFound',

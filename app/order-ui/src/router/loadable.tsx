@@ -178,6 +178,13 @@ export const CustomerPage = React.lazy(() =>
   })),
 )
 
+// Customer info page
+export const CustomerInfoPage = React.lazy(() =>
+  import('@/app/system/customers/components').then((module) => ({
+    default: module.CustomerInfoPage,
+  })),
+)
+
 // Role page
 export const RolePage = React.lazy(() =>
   import('@/app/system/role').then((module) => ({
@@ -462,12 +469,5 @@ export const FeatureLockManagementPage = React.lazy(() =>
 export const CardOrderHistoryPage = React.lazy(() =>
   import('@/app/system/card-order-history').then((module) => ({
     default: module.CardOrderHistoryPage,
-  })),
-)
-
-// System loyalty point page
-export const SystemLoyaltyPointPage = React.lazy(() =>
-  import('@/app/system/loyalty-point').then((module) => ({
-    default: module.LoyaltyPointPage,
   })),
 )

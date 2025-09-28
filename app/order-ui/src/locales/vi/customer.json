@@ -1,5 +1,7 @@
 {
   "customer": {
+    "verified": "Đã xác thực",
+    "notVerified": "Chưa xác thực",
     "address": "Địa chỉ",
     "branch": "Chi nhánh",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -30,6 +32,10 @@
     "updateRole": "Cập nhật chức danh",
     "updateRoleDescription": "Cập nhật chức danh cho khách hàng",
     "viewDetail": "Xem chi tiết",
-    "searchByPhoneNumber": "Nhập số điện thoại"
+    "searchByPhoneNumber": "Nhập số điện thoại",
+    "viewOrders": "Xem đơn hàng",
+    "info": "Hồ sơ",
+    "orderHistory": "Lịch sử đơn hàng",
+    "loyaltyPoint": "Điểm tích lũy"
   }
 }

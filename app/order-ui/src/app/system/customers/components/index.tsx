@@ -1,0 +1,1 @@
+export { default as CustomerInfoPage } from './customer-info-page'
