@@ -33,6 +33,7 @@ export default function MapAddressSelectNew({
     onChange,
 }: MapAddressSelectNewProps) {
     const { t } = useTranslation('menu')
+    const { t: tToast } = useTranslation('toast')
     const { branch } = useBranchStore()
     const { userInfo } = useUserStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -157,7 +158,7 @@ export default function MapAddressSelectNew({
         })()
         if (!within) {
             if (lastRejectedKeyRef.current === key) return
-            showErrorToastMessage('toast.distanceTooFar')
+            showErrorToastMessage(tToast('toast.distanceTooFar'))
             // reset map/UI and staged data
             setMarker(null)
             setSelectedPlaceId(null)
@@ -182,7 +183,7 @@ export default function MapAddressSelectNew({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChangeRef.current?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo])
+    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, tToast])
 
     const reverseGeocode = useCallback((coords: { lat: number; lng: number }): Promise<{ address?: string; placeId?: string | null }> => {
         return new Promise((resolve) => {
@@ -203,7 +204,7 @@ export default function MapAddressSelectNew({
 
     const handleUseCurrentLocation = useCallback(() => {
         if (!navigator.geolocation) {
-            showErrorToastMessage('toast.geolocationNotSupported')
+            showErrorToastMessage(tToast('toast.geolocationNotSupported'))
             return
         }
         setIsLocating(true)
@@ -227,18 +228,18 @@ export default function MapAddressSelectNew({
             (err) => {
                 setIsLocating(false)
                 if (err.code === 1) {
-                    showErrorToastMessage('toast.locationPermissionDenied')
+                    showErrorToastMessage(tToast('toast.locationPermissionDenied'))
                 } else if (err.code === 2) {
-                    showErrorToastMessage('toast.locationUnavailable')
+                    showErrorToastMessage(tToast('toast.locationUnavailable'))
                 } else if (err.code === 3) {
-                    showErrorToastMessage('toast.locationTimeout')
+                    showErrorToastMessage(tToast('toast.locationTimeout'))
                 } else {
-                    showErrorToastMessage('toast.requestFailed')
+                    showErrorToastMessage(tToast('toast.requestFailed'))
                 }
             },
             { enableHighAccuracy: true, timeout: 10000 },
         )
-    }, [reverseGeocode, t])
+    }, [reverseGeocode, tToast, t])
 
     const onMapClick = useCallback((event: MapMouseEvent) => {
         const { latLng } = event.detail

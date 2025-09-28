@@ -183,7 +183,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
         <DataTableColumnHeader column={column} title={t('order.table')} />
       ),
       cell: ({ row }) => {
-        const location = row.original.type === OrderTypeEnum.AT_TABLE ? t('order.at-table') + " " + row.original.table?.name || "" : t('order.take-out')
+        const location = row.original.type === OrderTypeEnum.AT_TABLE ? t('order.at-table') + " " + row.original.table?.name || "" : row.original.type === OrderTypeEnum.TAKE_OUT ? t('order.take-out') : t('order.delivery')
         return <div className="text-sm">{location}</div>
       },
     },
@@ -204,7 +204,7 @@ export const useOrderHistoryColumns = (): ColumnDef<IOrder>[] => {
                 : ""}
           </div>
         ) : (
-          <div className="text-sm">{t('menu.dineIn')}</div>
+          <div className="text-sm">{row.original.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : row.original.type === OrderTypeEnum.TAKE_OUT ? t('order.take-out') : ''}</div>
         )
       },
     },

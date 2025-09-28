@@ -36,7 +36,7 @@ export default function OrderTypeSelect() {
       ]
 
       // Only add delivery option if user has a slug
-      if ((userInfo?.slug && userInfo?.role.name === Role.CUSTOMER) || (cartItems?.ownerRole === Role.CUSTOMER && cartItems?.ownerFullName !== 'default-customer')) {
+      if ((userInfo?.slug && userInfo?.role.name === Role.CUSTOMER) || (cartItems?.ownerRole === Role.CUSTOMER && cartItems?.ownerPhoneNumber !== 'default-customer')) {
         baseTypes.push({
           value: OrderTypeEnum.DELIVERY,
           label: t('menu.delivery'),
@@ -45,7 +45,7 @@ export default function OrderTypeSelect() {
 
       return baseTypes
     },
-    [t, userInfo?.slug, userInfo?.role.name, cartItems?.ownerRole, cartItems?.ownerFullName]
+    [t, userInfo?.slug, userInfo?.role.name, cartItems?.ownerRole, cartItems?.ownerPhoneNumber]
   )
 
   const selectedType = useMemo(() => {

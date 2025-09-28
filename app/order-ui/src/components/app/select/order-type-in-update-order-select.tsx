@@ -93,6 +93,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Role } from '@/constants'
 
 interface OrderTypeSelectProps {
   typeOrder?: string
@@ -117,7 +118,7 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
         },
       ]
       // Only add delivery option if user has a slug
-      if (userInfo?.slug) {
+      if ((userInfo?.slug && userInfo?.role.name === Role.CUSTOMER) || (updatingData?.updateDraft?.ownerRole === Role.CUSTOMER && updatingData?.updateDraft?.ownerPhoneNumber !== 'default-customer')) {
         baseTypes.push({
           value: OrderTypeEnum.DELIVERY,
           label: t('menu.delivery'),
@@ -125,7 +126,7 @@ export default function OrderTypeSelect({ typeOrder }: OrderTypeSelectProps) {
       }
       return baseTypes
     },
-    [t, userInfo?.slug]
+    [t, userInfo?.slug, updatingData?.updateDraft?.ownerRole, userInfo?.role.name, updatingData?.updateDraft?.ownerPhoneNumber]
   )
 
   const selectedValue = updatingData?.updateDraft?.type || typeOrder || ''
