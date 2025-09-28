@@ -465,15 +465,15 @@ export default function MapAddressSelectorInUpdateOrder({
                                 placeholder={t('cart.enterPhoneNumber')}
                                 className={`w-full text-sm h-10 sm:h-9 ${phoneInput && !PHONE_NUMBER_REGEX.test(phoneInput) ? 'border-destructive' : ''}`}
                                 ref={phoneInputRef}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const canConfirm = hasAddress && hasValidPhone && !isPending && !shouldDisableButton
-                                        if (canConfirm) {
-                                            e.preventDefault()
-                                            handleConfirmAddress()
-                                        }
-                                    }
-                                }}
+                            // onKeyDown={(e) => {
+                            //     if (e.key === 'Enter') {
+                            //         const canConfirm = hasAddress && hasValidPhone && !isPending && !shouldDisableButton
+                            //         if (canConfirm) {
+                            //             e.preventDefault()
+                            //             handleConfirmAddress()
+                            //         }
+                            //     }
+                            // }}
                             />
                         </div>
                         {phoneInput && !PHONE_NUMBER_REGEX.test(phoneInput) && (
@@ -524,6 +524,7 @@ export default function MapAddressSelectorInUpdateOrder({
                             )}
                         </div>
                     </div>
+                    <Button onClick={handleConfirmAddress} disabled={!hasAddress || !hasValidPhone || isPending || !shouldDisableButton} className="w-full min-w-32">{t('order.confirmAddress')}</Button>
                 </div>
 
                 <div className="col-span-1 w-full h-64 sm:col-span-3 sm:h-80 lg:h-auto">
