@@ -80,6 +80,8 @@ import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-poi
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { BranchConfig } from 'src/branch-config/branch-config.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -256,6 +258,11 @@ describe('OrderService', () => {
           },
         },
         GoogleMapConnectorClient,
+        BranchConfigService,
+        {
+          provide: getRepositoryToken(BranchConfig),
+          useValue: repositoryMockFactory,
+        },
       ],
     }).compile();
 

@@ -67,9 +67,9 @@ import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { BranchException } from 'src/branch/branch.exception';
 import { BranchValidation } from 'src/branch/branch.validation';
-import { SystemConfigService } from 'src/system-config/system-config.service';
-import { SystemConfigKey } from 'src/system-config/system-config.constant';
 import { Address } from 'src/google-map/entities/address.entity';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { BranchConfigKey } from 'src/branch-config/branch-config.constant';
 @Injectable()
 export class OrderService {
   constructor(
@@ -96,19 +96,21 @@ export class OrderService {
     private readonly paymentUtils: PaymentUtils,
     private readonly accumulatedPointService: AccumulatedPointService,
     private readonly googleMapConnectorClient: GoogleMapConnectorClient,
-    private readonly systemConfigService: SystemConfigService,
+    private readonly branchConfigService: BranchConfigService,
   ) {}
 
-  async getMaxDistanceDelivery(): Promise<number> {
-    const maxDistanceDelivery = await this.systemConfigService.get(
-      SystemConfigKey.MAX_DISTANCE_DELIVERY,
+  async getMaxDistanceDelivery(branchSlug: string): Promise<number> {
+    const maxDistanceDelivery = await this.branchConfigService.get(
+      BranchConfigKey.MAX_DISTANCE_DELIVERY,
+      branchSlug,
     );
     return Number(maxDistanceDelivery || 0);
   }
 
-  async getDeliveryFeePerKm(): Promise<number> {
-    const deliveryFeePerKm = await this.systemConfigService.get(
-      SystemConfigKey.DELIVERY_FEE_PER_KM,
+  async getDeliveryFeePerKm(branchSlug: string): Promise<number> {
+    const deliveryFeePerKm = await this.branchConfigService.get(
+      BranchConfigKey.DELIVERY_FEE_PER_KM,
+      branchSlug,
     );
     return Number(deliveryFeePerKm || 0);
   }
@@ -273,9 +275,17 @@ export class OrderService {
       });
       order.table = table;
       order.timeLeftTakeOut = 0;
+      order.deliveryTo = null;
+      order.deliveryPhone = null;
+      order.deliveryFee = 0;
+      order.deliveryDistance = 0;
     } else if (requestData.type === OrderType.TAKE_OUT) {
       order.table = null;
       order.timeLeftTakeOut = requestData.timeLeftTakeOut;
+      order.deliveryTo = null;
+      order.deliveryPhone = null;
+      order.deliveryFee = 0;
+      order.deliveryDistance = 0;
     } else if (requestData.type === OrderType.DELIVERY) {
       if (!order?.branch?.addressDetail) {
         this.logger.warn(
@@ -312,8 +322,12 @@ export class OrderService {
         destination,
       );
 
-      const maxDistanceDelivery = await this.getMaxDistanceDelivery();
-      const deliveryFeePerKm = await this.getDeliveryFeePerKm();
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery(
+        order.branch.slug,
+      );
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm(
+        order.branch.slug,
+      );
 
       const deliveryDistance =
         Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
@@ -947,8 +961,10 @@ export class OrderService {
         destination,
       );
 
-      const maxDistanceDelivery = await this.getMaxDistanceDelivery();
-      const deliveryFeePerKm = await this.getDeliveryFeePerKm();
+      const maxDistanceDelivery = await this.getMaxDistanceDelivery(
+        branch.slug,
+      );
+      const deliveryFeePerKm = await this.getDeliveryFeePerKm(branch.slug);
 
       deliveryDistance =
         Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
