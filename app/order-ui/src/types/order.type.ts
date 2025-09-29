@@ -39,7 +39,7 @@ export interface IOrderTrackingStore {
 }
 
 export interface IOrdersQuery {
-  owner?: string
+  owner?: string | null
   branch?: string
   startDate?: string
   endDate?: string
