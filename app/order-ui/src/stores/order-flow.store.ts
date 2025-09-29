@@ -865,7 +865,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           deliveryDistance: updatedOriginalOrder.deliveryDistance,
           deliveryDuration: updatedOriginalOrder.deliveryDuration,
           deliveryPhone: updatedOriginalOrder.deliveryPhone,
-          deliveryPlaceId: updatedOriginalOrder.deliveryPlaceId,
+          // deliveryPlaceId: updatedOriginalOrder.deliveryPlaceId,
           voucher: updatedOriginalOrder.voucher,
           description: updatedOriginalOrder.description || '',
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
@@ -1282,7 +1282,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         set({
           updatingData: {
             ...updatingData,
-            updateDraft: updatedDraft,
+            updateDraft: {
+              ...updatedDraft,
+              deliveryPlaceId: placeId,
+            },
             hasChanges: true,
           },
           lastModified: moment().valueOf(),

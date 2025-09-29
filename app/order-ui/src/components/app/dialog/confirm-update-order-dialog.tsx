@@ -48,7 +48,6 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
   // Get data from Order Flow Store
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
-  // console.log('orderDraft in confirm update order dialog', originalOrder?.orderItems, orderDraft?.orderItems)
 
   // Convert orderDraft to ICartItem format for comparison
   const order: ICartItem | null = orderDraft ? {
@@ -109,13 +108,10 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
     paymentMethod: originalOrder.payment?.paymentMethod || '',
   } : null
 
-  // console.log('order in confirm update order dialog', originalOrderForComparison?.orderItems, order?.orderItems)
 
   // So sánh orders để tìm thay đổi
   const orderComparison = compareOrders(originalOrderForComparison, order)
-  // console.log('orderComparison', orderComparison)
   const changesSummary = getChangesSummary(orderComparison)
-  // console.log('changesSummary', changesSummary)
 
   // Calculate display items and totals
   const transformedOrderItems = orderDraft ? transformOrderItemToOrderDetail(orderDraft.orderItems) : []
@@ -244,7 +240,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
   const renderOrderChanges = () => {
     if (!orderComparison.hasChanges) {
       return (
-        <div className="flex items-center gap-2 p-3 mb-4 border border-gray-200 rounded-md bg-gray-50">
+        <div className="flex gap-2 items-center p-3 mb-4 bg-gray-50 rounded-md border border-gray-200">
           <AlertTriangle className="w-4 h-4 text-gray-500" />
           <span className="text-sm text-gray-600">
             {t('order.noChanges')}
@@ -255,7 +251,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
 
     return (
       <div className="mb-4 space-y-2">
-        <div className="flex items-center gap-2 p-3 border border-blue-200 rounded-md bg-blue-50">
+        <div className="flex gap-2 items-center p-3 bg-blue-50 rounded-md border border-blue-200">
           <Edit3 className="w-4 h-4 text-blue-600" />
           <span className="text-sm text-blue-700">
             <strong>{t('order.orderChanges')}:</strong> {changesSummary}
@@ -319,8 +315,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
       <DialogContent className="max-w-[22rem] rounded-md p-0 gap-0 sm:max-w-[48rem] h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
         <DialogHeader className="p-4 h-fit">
           <DialogTitle className="pb-2 border-b">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 p-1 rounded-lg bg-primary/20 text-primary">
+            <div className="flex gap-2 items-center">
+              <div className="flex justify-center items-center p-1 w-8 h-8 rounded-lg bg-primary/20 text-primary">
                 <ShoppingCart className="w-4 h-4 text-primary" />
               </div>
               {t('order.updateOrder')}
@@ -338,8 +334,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
 
           {/* Order Info */}
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
-              <span className="flex items-center gap-2 text-gray-600">
+            <div className="flex justify-between items-center px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+              <span className="flex gap-2 items-center text-gray-600">
                 <Receipt className="w-4 h-4" />
                 {t('order.orderType')}
               </span>
@@ -348,8 +344,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
               </Badge>
             </div>
             {order?.tableName && (
-              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
-                <span className="flex items-center gap-2 text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
                   <MapPin className="w-4 h-4" />
                   {t('menu.tableName')}
                 </span>
@@ -357,8 +353,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
               </div>
             )}
             {order?.ownerFullName && (
-              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
-                <span className="flex items-center gap-2 text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
                   <User className="w-4 h-4" />
                   {t('order.customer')}
                 </span>
@@ -366,8 +362,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
               </div>
             )}
             {order?.ownerPhoneNumber && (
-              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
-                <span className="flex items-center gap-2 text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
                   <Phone className="w-4 h-4" />
                   {t('order.phoneNumber')}
                 </span>
@@ -375,8 +371,8 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
               </div>
             )}
             {order?.description && (
-              <div className="flex justify-between px-2 py-3 text-sm border rounded-md bg-muted-foreground/5">
-                <span className="flex items-center gap-2 text-gray-600">
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
                   <Notebook className="w-4 h-4" />
                   {t('order.note')}
                 </span>
@@ -386,7 +382,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
           </div>
           <div className="flex flex-col gap-4 px-2 py-4 mt-6 border-t border-dashed border-muted-foreground/60">
             {order?.orderItems.map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
+              <div key={index} className="flex justify-between items-center">
                 <div className="flex flex-col flex-1 gap-2">
                   <p className="font-bold">{item.name}</p>
                   <div className="flex gap-2">
@@ -403,7 +399,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
                   const hasDiscount = original > finalPrice
 
                   return (
-                    <div className="relative flex items-center gap-1">
+                    <div className="flex relative gap-1 items-center">
                       {hasDiscount ? (
                         <>
                           <span className="mr-1 line-through text-muted-foreground/70">
@@ -427,13 +423,13 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
         </ScrollArea>
         <DialogFooter className="p-4 h-fit">
           {/* Total Amount */}
-          <div className="flex flex-col items-start justify-start w-full gap-1">
-            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-col gap-1 justify-start items-start w-full">
+            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
               {t('order.subtotal')}:&nbsp;
               <span>{`${formatCurrency(orderTotals?.subTotalBeforeDiscount || 0)}`}</span>
             </div>
             {(orderTotals?.promotionDiscount || 0) > 0 && (
-              <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
+              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
                 <span className="italic text-yellow-600">
                   {t('order.promotionDiscount')}:&nbsp;
                 </span>
@@ -442,7 +438,7 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
                 </span>
               </div>
             )}
-            <div className="flex items-center justify-between w-full gap-2 text-sm text-muted-foreground">
+            <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
               <span className="italic text-green-500">
                 {t('order.voucher')}:&nbsp;
               </span>
@@ -450,13 +446,13 @@ export default function ConfirmUpdateOrderDialog({ disabled, onSuccessfulOrder, 
                 -{`${formatCurrency(orderTotals?.voucherDiscount || 0)}`}
               </span>
             </div>
-            <div className="flex items-center justify-between w-full gap-2 pt-2 mt-4 font-semibold border-t text-md">
+            <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
                 {`${formatCurrency(orderTotals?.finalTotal || 0)}`}
               </span>
             </div>
-            <div className='flex flex-row justify-end w-full gap-2 mt-4'>
+            <div className='flex flex-row gap-2 justify-end mt-4 w-full'>
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}
