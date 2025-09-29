@@ -362,6 +362,8 @@ export class OrderService {
       order.deliveryPhone = requestData.deliveryPhone;
       order.deliveryFee = deliveryDistance * deliveryFeePerKm;
       order.deliveryDistance = deliveryDistance;
+      order.timeLeftTakeOut = 0;
+      order.table = null;
     }
 
     if (requestData.description) {
