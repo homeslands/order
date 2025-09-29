@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   BranchResponseDto,
   CreateBranchDto,
+  DeliveryInfoResponseDto,
   UpdateBranchDto,
 } from './branch.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +17,8 @@ import { BranchUtils } from './branch.utils';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { Address } from 'src/google-map/entities/address.entity';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { BranchConfigKey } from 'src/branch-config/branch-config.constant';
 
 @Injectable()
 export class BranchService {
@@ -26,6 +29,7 @@ export class BranchService {
     private readonly branchUtil: BranchUtils,
     private readonly transactionManagerService: TransactionManagerService,
     private readonly googleMapConnectorClient: GoogleMapConnectorClient,
+    private readonly branchConfigService: BranchConfigService,
   ) {}
 
   /**
@@ -198,5 +202,25 @@ export class BranchService {
     );
 
     return this.mapper.map(deletedBranch, Branch, BranchResponseDto);
+  }
+
+  async getDeliveryInfo(slug: string): Promise<DeliveryInfoResponseDto> {
+    const branch = await this.branchRepository.findOne({
+      where: { slug },
+    });
+    if (!branch) throw new BranchException(BranchValidation.BRANCH_NOT_FOUND);
+
+    const maxDistanceDelivery = await this.branchConfigService.get(
+      BranchConfigKey.MAX_DISTANCE_DELIVERY,
+      branch.slug,
+    );
+    const deliveryFeePerKm = await this.branchConfigService.get(
+      BranchConfigKey.DELIVERY_FEE_PER_KM,
+      branch.slug,
+    );
+    return {
+      maxDistanceDelivery: Number(maxDistanceDelivery),
+      deliveryFeePerKm: Number(deliveryFeePerKm),
+    } as DeliveryInfoResponseDto;
   }
 }

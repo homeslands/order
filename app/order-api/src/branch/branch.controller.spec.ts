@@ -16,6 +16,8 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { SystemConfigService } from 'src/system-config/system-config.service';
 import { SystemConfig } from 'src/system-config/system-config.entity';
+import { BranchConfig } from 'src/branch-config/branch-config.entity';
+import { BranchConfigService } from 'src/branch-config/branch-config.service';
 
 describe('BranchController', () => {
   let controller: BranchController;
@@ -56,6 +58,11 @@ describe('BranchController', () => {
         SystemConfigService,
         {
           provide: getRepositoryToken(SystemConfig),
+          useFactory: repositoryMockFactory,
+        },
+        BranchConfigService,
+        {
+          provide: getRepositoryToken(BranchConfig),
           useFactory: repositoryMockFactory,
         },
       ],

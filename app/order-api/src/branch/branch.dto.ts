@@ -59,3 +59,13 @@ export class BranchResponseDto extends BaseResponseDto {
   @AutoMap(() => AddressResponseDto)
   addressDetail: AddressResponseDto;
 }
+
+export class DeliveryInfoResponseDto {
+  @AutoMap()
+  @ApiProperty()
+  maxDistanceDelivery: number;
+
+  @AutoMap()
+  @ApiProperty()
+  deliveryFeePerKm: number;
+}
