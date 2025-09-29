@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
 
-import { googleMapAPIKey, PHONE_NUMBER_REGEX, GOOGLE_MAP_DISTANCE_LIMIT } from '@/constants'
+import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
-import { showErrorToastMessage, showToast, parseKm } from '@/utils'
+import { showErrorToastMessage, showToast, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
 import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
@@ -41,6 +41,7 @@ export default function MapAddressSelectorInUpdateOrder({
     const { userInfo } = useUserStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { mutate: updateOrderType, isPending } = useUpdateOrderType()
+    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const [center, setCenter] = useState<LatLng>(defaultCenter)
     const [marker, setMarker] = useState<LatLng | null>(null)
@@ -226,7 +227,7 @@ export default function MapAddressSelectorInUpdateOrder({
         const km = parseKm(distText)
         if (km == null) return
 
-        const within = km <= GOOGLE_MAP_DISTANCE_LIMIT
+        const within = km <= maxDistance
         const key = (() => {
             const c = pendingSelection.coords ?? effectiveMarker
             const p = pendingSelection.placeId ?? _selectedPlaceId ?? ''
@@ -266,7 +267,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         handleAddressChange({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration, defaultCenter, clearUpdatingData, handleAddressChange])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration, defaultCenter, clearUpdatingData, handleAddressChange, maxDistance])
 
     const handleUseCurrentLocation = useCallback(() => {
         if (!navigator.geolocation) {

@@ -4,12 +4,12 @@ import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
 import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
 
-import { googleMapAPIKey, PHONE_NUMBER_REGEX, GOOGLE_MAP_DISTANCE_LIMIT } from '@/constants'
+import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
-import { showToast, showErrorToastMessage, parseKm } from '@/utils'
+import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
-import { useOrderFlowStore, useUserStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { useUpdateOrderType } from '@/hooks'
 
@@ -38,6 +38,7 @@ export default function MapAddressSelectorInUpdateOrder({
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
     const { userInfo } = useUserStore()
+    const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { mutate: updateOrderType, isPending } = useUpdateOrderType()
 
@@ -54,6 +55,8 @@ export default function MapAddressSelectorInUpdateOrder({
     const lastProcessedKeyRef = useRef<string | null>(null)
     const lastRejectedKeyRef = useRef<string | null>(null)
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const debouncedSetAddress = useDebouncedCallback((val: string) => {
         setQueryAddress(val)
@@ -189,7 +192,7 @@ export default function MapAddressSelectorInUpdateOrder({
         const km = parseKm(distText)
         if (km == null) return
 
-        const within = km <= GOOGLE_MAP_DISTANCE_LIMIT
+        const within = km <= maxDistance
         const key = (() => {
             const c = pendingSelection.coords ?? effectiveMarker
             const p = pendingSelection.placeId ?? _selectedPlaceId ?? ''
@@ -247,7 +250,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
