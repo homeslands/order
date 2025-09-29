@@ -2,7 +2,9 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseResponseDto } from 'src/app/base.dto';
 import { PaymentMethod } from './payment.constants';
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsNotEmpty, ValidateIf } from 'class-validator';
+import { CREDIT_CARD_TRANSACTION_ID_REQUIRED } from './payment.validation';
+import { INVALID_ORDER_SLUG } from 'src/order/order.validation';
 
 export class CreatePaymentDto {
   @AutoMap()
@@ -17,7 +19,18 @@ export class CreatePaymentDto {
 
   @AutoMap()
   @ApiProperty()
+  @IsNotEmpty({
+    message: INVALID_ORDER_SLUG,
+  })
   orderSlug: string;
+
+  @AutoMap()
+  @ApiProperty()
+  @ValidateIf((o) => o.paymentMethod === PaymentMethod.CREDIT_CARD)
+  @IsNotEmpty({
+    message: CREDIT_CARD_TRANSACTION_ID_REQUIRED,
+  })
+  transactionId?: string;
 }
 
 export class GetSpecificPaymentRequestDto {

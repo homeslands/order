@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PaymentMethod, PaymentStatus } from '../payment.constants';
 import { Order } from 'src/order/order.entity';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CreditCardStrategy implements IPaymentStrategy {
@@ -16,7 +15,7 @@ export class CreditCardStrategy implements IPaymentStrategy {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async process(order: Order): Promise<Payment> {
+  async process(order: Order, transactionId?: string): Promise<Payment> {
     const context = `${CreditCardStrategy.name}.${this.process.name}`;
     const payment = {
       paymentMethod: PaymentMethod.CREDIT_CARD,
@@ -24,7 +23,7 @@ export class CreditCardStrategy implements IPaymentStrategy {
       loss: order.loss,
       message: 'hoa don thanh toan',
       userId: order.owner.id,
-      transactionId: uuidv4(),
+      transactionId: transactionId,
       statusCode: PaymentStatus.COMPLETED,
       statusMessage: PaymentStatus.COMPLETED,
     } as Payment;

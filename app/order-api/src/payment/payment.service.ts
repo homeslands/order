@@ -350,7 +350,10 @@ export class PaymentService {
             payment = await this.cashStrategy.process(order);
             break;
           }
-          payment = await this.creditCardStrategy.process(order);
+          payment = await this.creditCardStrategy.process(
+            order,
+            createPaymentDto.transactionId,
+          );
           break;
         case PaymentMethod.CASH:
           if (order.subtotal < 2000) {

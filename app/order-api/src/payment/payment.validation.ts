@@ -12,6 +12,8 @@ export const CUSTOMER_ONLY_USE_BANK_TRANSFER =
   'CUSTOMER_ONLY_USE_BANK_TRANSFER';
 export const ORDER_ALREADY_HAS_PAYMENT = 'ORDER_ALREADY_HAS_PAYMENT';
 export const ERROR_WHEN_UPDATE_PAYEMNT = 'ERROR_WHEN_UPDATE_PAYEMNT';
+export const CREDIT_CARD_TRANSACTION_ID_REQUIRED =
+  'CREDIT_CARD_TRANSACTION_ID_REQUIRED';
 
 export type TPaymentErrorCodeKey =
   | typeof PAYMENT_QUERY_INVALID
@@ -23,6 +25,7 @@ export type TPaymentErrorCodeKey =
   | typeof ROLE_NOT_ALLOWED_TO_INITIATE_PAYMENT
   | typeof CUSTOMER_ONLY_USE_BANK_TRANSFER
   | typeof ORDER_ALREADY_HAS_PAYMENT
+  | typeof CREDIT_CARD_TRANSACTION_ID_REQUIRED
   | typeof ERROR_WHEN_UPDATE_PAYEMNT;
 
 export type TPaymentErrorCode = Record<TPaymentErrorCodeKey, TErrorCodeValue>;
@@ -56,5 +59,9 @@ export const PaymentValidation: TPaymentErrorCode = {
   ERROR_WHEN_UPDATE_PAYEMNT: createErrorCode(
     123009,
     'Error when updating the payment',
+  ),
+  CREDIT_CARD_TRANSACTION_ID_REQUIRED: createErrorCode(
+    123010,
+    'Credit card transaction id is required',
   ),
 };
