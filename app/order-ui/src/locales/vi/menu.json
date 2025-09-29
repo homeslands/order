@@ -327,6 +327,7 @@
     "voucherNotApplicableDescription": "Voucher hiện không áp dụng được cho phương thức thanh toán đã chọn. Bạn có thể hủy voucher hoặc chọn phương thức thanh toán khác.",
     "cashContactSupport": "Với phương thức thanh toán bằng tiền mặt, vui lòng liên hệ quầy thanh toán để được hỗ trợ.",
     "removeVoucher": "Hủy voucher",
+    "searchByPhoneNumber": "Nhập số điện thoại",
     "deliveryAddress": "Địa chỉ giao hàng",
     "deliveryPhone": "Số điện thoại giao hàng",
     "deliveryFee": "Phí giao hàng"
