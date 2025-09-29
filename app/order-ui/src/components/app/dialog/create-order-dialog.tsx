@@ -50,7 +50,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
   )
 
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
-  const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0)
+  const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0, branch?.slug || '')
 
   // console.log('cartTotals', cartTotals)
 
@@ -328,14 +328,14 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   {t('order.deliveryFee')}:&nbsp;
                 </span>
                 <span className="italic text-muted-foreground">
-                  {`${formatCurrency(deliveryFee)}`}
+                  {`${formatCurrency(deliveryFee?.deliveryFee)}`}
                 </span>
               </div>
             )}
             <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">
-                {`${formatCurrency(cartTotals.finalTotal + deliveryFee)}`}
+                {`${formatCurrency(cartTotals.finalTotal + deliveryFee?.deliveryFee)}`}
               </span>
             </div>
             <div className='flex flex-row gap-2 justify-end mt-4 w-full'>

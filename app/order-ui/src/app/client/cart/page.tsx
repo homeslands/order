@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
 import { QuantitySelector } from '@/components/app/button'
-import { useOrderFlowStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { CartNoteInput } from '@/components/app/input'
 import {
   CreateOrderDialog,
@@ -29,6 +29,7 @@ export default function ClientCartPage() {
   const { t } = useTranslation('menu')
   const { t: tVoucher } = useTranslation('voucher')
   const { t: tHelmet } = useTranslation('helmet')
+  const { branch } = useBranchStore()
   // const [runJoyride, setRunJoyride] = useState(false)
   const isMobile = useIsMobile()
   const { removeVoucher, getCartItems, addOrderingProductVariant } = useOrderFlowStore()
@@ -42,7 +43,7 @@ export default function ClientCartPage() {
 
   const cartTotals = calculateCartTotals(displayItems, currentCartItems?.voucher || null)
 
-  const deliveryFee = useCalculateDeliveryFee(parseKm(currentCartItems?.deliveryDistance) || 0)
+  const deliveryFee = useCalculateDeliveryFee(parseKm(currentCartItems?.deliveryDistance) || 0, branch?.slug || '')
 
   const handleChangeVariant = (id: string) => {
     addOrderingProductVariant(id)
@@ -417,13 +418,13 @@ export default function ClientCartPage() {
                     {currentCartItems?.type === OrderTypeEnum.DELIVERY && (
                       <div className="flex justify-between">
                         <span>{t('order.deliveryFee')}</span>
-                        <span>{formatCurrency(deliveryFee)}</span>
+                        <span>{formatCurrency(deliveryFee.deliveryFee)}</span>
                       </div>
                     )}
 
                     <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -639,7 +640,7 @@ export default function ClientCartPage() {
 
                     <div className="flex items-center justify-between pt-2 mt-2 font-semibold border-t text-md">
                       <span>{t('order.totalPayment')}</span>
-                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
+                      <span className="text-2xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                     </div>
                   </div>
                 </div>
@@ -672,7 +673,7 @@ export default function ClientCartPage() {
               <div className='grid items-center justify-between grid-cols-2 px-2 py-4'>
                 <div className="flex items-center justify-center col-span-1 gap-1 font-semibold">
                   {/* <span>{t('order.totalPayment')}</span> */}
-                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                 </div>
                 <div className="flex justify-end w-full col-span-1 p-0">
                   <CreateOrderDialog
