@@ -54,6 +54,7 @@ export default function MapAddressSelectorInUpdateOrder({
     const phoneInputRef = useRef<HTMLInputElement | null>(null)
     const lastProcessedKeyRef = useRef<string | null>(null)
     const lastRejectedKeyRef = useRef<string | null>(null)
+    const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
@@ -204,17 +205,35 @@ export default function MapAddressSelectorInUpdateOrder({
         if (!within) {
             // Only show toast if this is a new rejection (different key)
             if (lastRejectedKeyRef.current !== key) {
+
+                // Clear any existing timeout
+                if (toastTimeoutRef.current) {
+                    clearTimeout(toastTimeoutRef.current)
+                }
+
+                // Show toast immediately for new rejection
                 showErrorToastMessage('toast.distanceTooFar')
                 lastRejectedKeyRef.current = key
+
+                // Set timeout to allow new rejections after 2 seconds
+                toastTimeoutRef.current = setTimeout(() => {
+                    lastRejectedKeyRef.current = null
+                }, 2000)
             }
-            // Reset UI but keep map visible
-            setMarker(effectiveMarker)
+            // Reset UI and map to original position
+            const originalCoords = updatingData?.originalOrder?.deliveryTo ? {
+                lat: updatingData.originalOrder.deliveryTo.lat,
+                lng: updatingData.originalOrder.deliveryTo.lng
+            } : null
+            const originalPlaceId = updatingData?.originalOrder?.deliveryTo?.placeId || ''
+            const originalAddress = updatingData?.originalOrder?.deliveryAddress || ''
+
+            setMarker(originalCoords)
+            setCenter(originalCoords || defaultCenter)
             setSelectedPlaceId(originalPlaceId)
             setAddressInput(originalAddress)
             setPendingSelection({ coords: null, placeId: null, address: undefined })
-            // Don't reset center to keep map visible
-            // setCenter(defaultCenter)
-            onChange?.({ coords: null, addressText: undefined, placeId: null })
+            onChange?.({ coords: originalCoords, addressText: originalAddress, placeId: originalPlaceId })
             // Don't clear all updating data, just clear specific delivery data
             // clearUpdatingData()
             return
@@ -231,7 +250,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, originalPlaceId, originalAddress, defaultCenter, clearUpdatingData, onChange, maxDistance])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
@@ -316,6 +335,15 @@ export default function MapAddressSelectorInUpdateOrder({
         }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
+    }, [])
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (toastTimeoutRef.current) {
+                clearTimeout(toastTimeoutRef.current)
+            }
+        }
     }, [])
 
     const handleConfirmAddress = () => {
