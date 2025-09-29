@@ -217,7 +217,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 }
 
                 // Show toast immediately for new rejection
-                showErrorToastMessage('toast.distanceTooFar')
+                showErrorToastMessage(tToast('toast.distanceTooFar'))
                 lastRejectedKeyRef.current = key
 
                 // Set timeout to allow new rejections after 2 seconds
@@ -267,7 +267,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration, tToast])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
@@ -336,7 +336,7 @@ export default function MapAddressSelectorInUpdateOrder({
 
     const handleUseCurrentLocation = () => {
         if (!navigator.geolocation) {
-            showErrorToastMessage('toast.geolocationNotSupported')
+            showErrorToastMessage(tToast('toast.geolocationNotSupported'))
             return
         }
         setIsLocating(true)
@@ -381,13 +381,13 @@ export default function MapAddressSelectorInUpdateOrder({
             (err) => {
                 setIsLocating(false)
                 if (err.code === 1) {
-                    showErrorToastMessage('toast.locationPermissionDenied')
+                    showErrorToastMessage(tToast('toast.locationPermissionDenied'))
                 } else if (err.code === 2) {
-                    showErrorToastMessage('toast.locationUnavailable')
+                    showErrorToastMessage(tToast('toast.locationUnavailable'))
                 } else if (err.code === 3) {
-                    showErrorToastMessage('toast.locationTimeout')
+                    showErrorToastMessage(tToast('toast.locationTimeout'))
                 } else {
-                    showErrorToastMessage('toast.requestFailed')
+                    showErrorToastMessage(tToast('toast.requestFailed'))
                 }
             },
             { enableHighAccuracy: true, timeout: 10000 },
