@@ -34,17 +34,33 @@ export default function OrderHistoryPage() {
   const order = searchParams.get('order')
   const [shouldFetchOrderBySlug, setShouldFetchOrderBySlug] = useState(false)
   const {
+    inputValue: phoneInput,
     setInputValue: setPhoneInput,
     debouncedInputValue: debouncedPhoneInput,
   } = useDebouncedInput({ defaultValue: '' })
 
-  const { data: userInfoData } = useUsers({
-    phonenumber: debouncedPhoneInput,
-    page: 1,
-    size: 1,
-    order: 'DESC',
-    hasPaging: true,
-  })
+  const immediateTrimmedPhone = (phoneInput ?? '').trim()
+  const debouncedTrimmedPhone = (debouncedPhoneInput ?? '').trim()
+  const hasPhone = immediateTrimmedPhone.length > 0
+
+  const { data: userInfoData } = useUsers(
+    hasPhone
+      ? {
+        phonenumber: debouncedTrimmedPhone,
+        page: 1,
+        size: 1,
+        order: 'DESC',
+        hasPaging: true,
+      }
+      : null
+  )
+
+  const ownerSlug = (() => {
+    if (!hasPhone) return null
+    const items = userInfoData?.result?.items
+    if (!items || items.length !== 1) return null
+    return items[0]?.slug || null
+  })()
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -54,7 +70,7 @@ export default function OrderHistoryPage() {
     hasPaging: true,
     startDate: startDate,
     endDate: endDate,
-    owner: userInfoData?.result?.items?.[0]?.slug || '',
+    owner: ownerSlug,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
 
@@ -119,7 +135,7 @@ export default function OrderHistoryPage() {
       ...prev,
       pageIndex: 1
     }))
-  }, [startDate, endDate, status, debouncedPhoneInput, setPagination])
+  }, [startDate, endDate, status, immediateTrimmedPhone, hasPhone, setPagination])
 
   // handle refresh and show toast when success
   const handleRefresh = () => {
