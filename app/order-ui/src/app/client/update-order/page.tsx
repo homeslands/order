@@ -115,13 +115,8 @@ export default function ClientUpdateOrderPage() {
     }, [clearUpdatingData])
 
     const _handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
-        }
+        await refetchOrder()
+        setShouldReinitialize(true)
     }, [refetchOrder])
 
     if (isPending) { return <UpdateOrderSkeleton /> }

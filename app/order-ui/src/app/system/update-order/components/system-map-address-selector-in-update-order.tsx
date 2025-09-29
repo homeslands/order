@@ -9,7 +9,7 @@ import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestion
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
 import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
-import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
+import { useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { useUpdateOrderType } from '@/hooks'
 
@@ -38,7 +38,6 @@ export default function MapAddressSelectorInUpdateOrder({
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
     const { userInfo } = useUserStore()
-    const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { mutate: updateOrderType, isPending } = useUpdateOrderType()
 
@@ -56,7 +55,7 @@ export default function MapAddressSelectorInUpdateOrder({
     const lastRejectedKeyRef = useRef<string | null>(null)
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
+    const { maxDistance } = useGetBranchDeliveryConfig(userInfo?.branch?.slug ?? '')
 
     const debouncedSetAddress = useDebouncedCallback((val: string) => {
         setQueryAddress(val)

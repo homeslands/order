@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
+import { useTranslation } from 'react-i18next'
+import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
-import { showErrorToastMessage, showToast, parseKm, useGetBranchDeliveryConfig } from '@/utils'
+import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
-import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
-import { useTranslation } from 'react-i18next'
-import { Clock, Home, Info, MapPin, Ruler, Truck } from 'lucide-react'
 import { useUpdateOrderType } from '@/hooks'
 
 type LatLng = { lat: number; lng: number }
@@ -37,11 +37,10 @@ export default function MapAddressSelectorInUpdateOrder({
 }: MapAddressSelectorInUpdateOrderProps) {
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
+    // const { userInfo } = useUserStore()
     const { branch } = useBranchStore()
-    const { userInfo } = useUserStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { mutate: updateOrderType, isPending } = useUpdateOrderType()
-    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const [center, setCenter] = useState<LatLng>(defaultCenter)
     const [marker, setMarker] = useState<LatLng | null>(null)
@@ -49,13 +48,16 @@ export default function MapAddressSelectorInUpdateOrder({
     const [queryAddress, setQueryAddress] = useState('')
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [_selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
+    const [activeSuggestIndex, setActiveSuggestIndex] = useState<number>(-1)
     const [isLocating, setIsLocating] = useState(false)
     const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
-    const [activeSuggestIndex, setActiveSuggestIndex] = useState<number>(-1)
     const [pendingSelection, setPendingSelection] = useState<{ coords: LatLng | null; placeId: string | null; address?: string }>({ coords: null, placeId: null, address: undefined })
     const phoneInputRef = useRef<HTMLInputElement | null>(null)
     const lastProcessedKeyRef = useRef<string | null>(null)
     const lastRejectedKeyRef = useRef<string | null>(null)
+    const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const debouncedSetAddress = useDebouncedCallback((val: string) => {
         setQueryAddress(val)
@@ -67,123 +69,91 @@ export default function MapAddressSelectorInUpdateOrder({
 
     const { data: placeResp } = useGetAddressByPlaceId(_selectedPlaceId ?? '')
 
-    // Order flow store actions to persist delivery info
+    // Order flow store actions
     const {
         setDraftDeliveryAddress: persistDraftDeliveryAddress,
         setDraftDeliveryCoords: persistDraftDeliveryCoords,
         setDraftDeliveryPlaceId: persistDraftDeliveryPlaceId,
         setDraftDeliveryDistanceDuration: persistDraftDeliveryDistanceDuration,
-        setDraftDeliveryPhone: persistDraftDeliveryPhone,
         updatingData,
         isHydrated,
         clearUpdatingData,
     } = useOrderFlowStore()
 
+    const originalPhone = updatingData?.originalOrder?.deliveryPhone || ''
+    const originalPlaceId = updatingData?.originalOrder?.deliveryTo?.placeId || ''
+    const originalAddress = updatingData?.originalOrder?.deliveryAddress || ''
     const slug = updatingData?.originalOrder?.slug || ''
-    const phoneFromDraft = updatingData?.updateDraft?.deliveryPhone || ''
-    const addrFromDraft = (updatingData?.updateDraft?.deliveryPlaceId || updatingData?.updateDraft?.deliveryAddress)
-    const hasValidPhone = !!phoneFromDraft && PHONE_NUMBER_REGEX.test(phoneFromDraft)
-    const hasAddress = Boolean(addrFromDraft)
 
     const [phoneInput, setPhoneInput] = useState<string>('')
-    const [initialPhoneNumber, setInitialPhoneNumber] = useState<string>('')
-    const [initialAddress, setInitialAddress] = useState<string>('')
-    const [initialPlaceId, setInitialPlaceId] = useState<string>('')
 
-    // Check if there are changes from initial values
-    const hasAddressChanged = addressInput !== initialAddress || _selectedPlaceId !== initialPlaceId
-    const hasPhoneChanged = phoneInput !== initialPhoneNumber
+    // Check if there are changes from original values
+    const hasAddressChanged = addressInput !== originalAddress || _selectedPlaceId !== originalPlaceId
+    const hasPhoneChanged = phoneInput !== originalPhone
     const hasAnyChanges = hasAddressChanged || hasPhoneChanged
 
-    // Only disable if we have initial address/phone and no changes
-    const shouldDisableButton = Boolean(initialAddress || initialPlaceId) && !hasAnyChanges
+    // Validation for button enable/disable
+    const hasValidPhone = !!phoneInput && PHONE_NUMBER_REGEX.test(phoneInput)
+    const hasAddress = Boolean(addressInput || _selectedPlaceId)
 
-    // Memoize callbacks to prevent re-renders
-    const handleLocationChange = useCallback((coords: LatLng) => {
-        onLocationChange?.(coords)
-    }, [onLocationChange])
-
-    const handleAddressChange = useCallback((payload: AddressChange) => {
-        onChange?.(payload)
-    }, [onChange])
-
-    // Initialize from persisted store on mount/hydration - only run once when hydrated
+    // Initialize from original order data on mount
     useEffect(() => {
-        if (!isHydrated) return
+        if (!isHydrated || !updatingData?.originalOrder) return
 
+        // Set initial values from original order
+        setPhoneInput(originalPhone)
+        setAddressInput(originalAddress)
+        setSelectedPlaceId(originalPlaceId)
+
+        // Set map position from original order
+        const originalCoords = updatingData.originalOrder.deliveryTo ? {
+            lat: updatingData.originalOrder.deliveryTo.lat,
+            lng: updatingData.originalOrder.deliveryTo.lng
+        } : null
+
+        if (originalCoords) {
+            setMarker(originalCoords)
+            setCenter(originalCoords)
+            onLocationChange?.(originalCoords)
+        }
+    }, [isHydrated, updatingData?.originalOrder, originalPhone, originalAddress, originalPlaceId, onLocationChange])
+
+    useEffect(() => {
+        const coords = placeResp?.result
+        if (!coords) return
+
+        // Validate coordinates before using them
+        if (typeof coords.lat !== 'number' || typeof coords.lng !== 'number' ||
+            isNaN(coords.lat) || isNaN(coords.lng) ||
+            !isFinite(coords.lat) || !isFinite(coords.lng)) {
+            return
+        }
+
+        setCenter(coords)
+        setMarker(coords)
+        onLocationChange?.(coords)
+        // Stage pending; actual persist after distance hook confirms within 3km
+        setPendingSelection({ coords, placeId: _selectedPlaceId ?? null, address: addressInput || undefined })
+    }, [placeResp, onLocationChange, _selectedPlaceId, addressInput])
+
+    // Get the effective marker position (prioritize local marker over store data)
+    const effectiveMarker = useMemo(() => {
+        // If we have a local marker (from user interaction), use it
+        if (marker) {
+            return marker
+        }
+
+        // Otherwise, fall back to store data
         const storeLat = updatingData?.updateDraft?.deliveryTo?.lat
         const storeLng = updatingData?.updateDraft?.deliveryTo?.lng
-        const address = updatingData?.updateDraft?.deliveryAddress || ''
-        const phoneNumber = updatingData?.updateDraft?.deliveryPhone || userInfo?.phonenumber || ''
-        const placeId = updatingData?.updateDraft?.deliveryPlaceId || ''
 
         // Convert string to number if needed
         const lat = typeof storeLat === 'string' ? parseFloat(storeLat) : storeLat
         const lng = typeof storeLng === 'string' ? parseFloat(storeLng) : storeLng
 
-        // Set initial values
-        setPhoneInput(phoneNumber)
-        setInitialPhoneNumber(phoneNumber)
-        setInitialAddress(address)
-        setInitialPlaceId(placeId)
-
-        // Persist default delivery phone if not set yet
-        if (!updatingData?.updateDraft?.deliveryPhone && userInfo?.phonenumber) {
-            persistDraftDeliveryPhone(userInfo.phonenumber)
-        }
-
-        if (address) setAddressInput(address)
-
         if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
-            const coords = { lat, lng }
-            setMarker(coords)
-            setCenter(coords)
-            handleLocationChange(coords)
-            handleAddressChange({ coords, addressText: address || undefined, placeId: updatingData?.updateDraft?.deliveryPlaceId || undefined })
-            persistDraftDeliveryCoords(coords.lat, coords.lng, updatingData?.updateDraft?.deliveryPlaceId || undefined)
-            if (address) persistDraftDeliveryAddress(address)
+            return { lat, lng }
         }
-    }, [
-        isHydrated,
-        updatingData?.updateDraft?.deliveryTo?.lat,
-        updatingData?.updateDraft?.deliveryTo?.lng,
-        updatingData?.updateDraft?.deliveryAddress,
-        updatingData?.updateDraft?.deliveryPlaceId,
-        updatingData?.updateDraft?.deliveryPhone,
-        userInfo?.phonenumber,
-        handleLocationChange,
-        handleAddressChange,
-        persistDraftDeliveryPhone,
-        persistDraftDeliveryCoords,
-        persistDraftDeliveryAddress
-    ])
-
-    // Handle place response - stage pending selection
-    useEffect(() => {
-        const coords = placeResp?.result
-        if (!coords) return
-
-        setCenter(coords)
-        setMarker(coords)
-        handleLocationChange(coords)
-        // Stage pending; actual persist after distance hook confirms within 3km
-        setPendingSelection({ coords, placeId: _selectedPlaceId ?? null, address: addressInput || undefined })
-    }, [placeResp?.result, _selectedPlaceId, addressInput, handleLocationChange])
-
-    // Get the effective marker position (prioritize local marker over store data)
-    const effectiveMarker = useMemo(() => {
-        // Prefer local selection
-        if (marker) return marker
-
-        // Fallback 1: deliveryTo from draft (if exists)
-        const storeToLat = updatingData?.updateDraft?.deliveryTo?.lat
-        const storeToLng = updatingData?.updateDraft?.deliveryTo?.lng
-        const toLat = typeof storeToLat === 'string' ? parseFloat(storeToLat) : storeToLat
-        const toLng = typeof storeToLng === 'string' ? parseFloat(storeToLng) : storeToLng
-        if (typeof toLat === 'number' && typeof toLng === 'number' && !isNaN(toLat) && !isNaN(toLng)) {
-            return { lat: toLat, lng: toLng }
-        }
-
         return null
     }, [marker, updatingData?.updateDraft?.deliveryTo?.lat, updatingData?.updateDraft?.deliveryTo?.lng])
 
@@ -231,23 +201,46 @@ export default function MapAddressSelectorInUpdateOrder({
         const key = (() => {
             const c = pendingSelection.coords ?? effectiveMarker
             const p = pendingSelection.placeId ?? _selectedPlaceId ?? ''
-            return c ? `${c.lat.toFixed(6)},${c.lng.toFixed(6)}|${p}` : `null|${p}`
+            if (c && typeof c.lat === 'number' && typeof c.lng === 'number') {
+                return `${c.lat.toFixed(6)},${c.lng.toFixed(6)}|${p}`
+            }
+            return `null|${p}`
         })()
 
         if (!within) {
-            if (lastRejectedKeyRef.current === key) return
-            showErrorToastMessage('toast.distanceTooFar')
-            // Reset UI but keep map visible
-            setMarker(null)
-            setSelectedPlaceId(null)
-            setAddressInput('')
+            // Only show toast if this is a new rejection (different key)
+            if (lastRejectedKeyRef.current !== key) {
+
+                // Clear any existing timeout
+                if (toastTimeoutRef.current) {
+                    clearTimeout(toastTimeoutRef.current)
+                }
+
+                // Show toast immediately for new rejection
+                showErrorToastMessage('toast.distanceTooFar')
+                lastRejectedKeyRef.current = key
+
+                // Set timeout to allow new rejections after 2 seconds
+                toastTimeoutRef.current = setTimeout(() => {
+                    lastRejectedKeyRef.current = null
+                }, 2000)
+            }
+            // Reset UI and map to original position
+            const originalCoords = updatingData?.originalOrder?.deliveryTo ? {
+                lat: updatingData.originalOrder.deliveryTo.lat,
+                lng: updatingData.originalOrder.deliveryTo.lng
+            } : null
+            const originalPlaceId = updatingData?.originalOrder?.deliveryTo?.placeId || ''
+            const originalAddress = updatingData?.originalOrder?.deliveryAddress || ''
+
+            setMarker(originalCoords)
+            setCenter(originalCoords || defaultCenter)
+            setSelectedPlaceId(originalPlaceId)
+            setAddressInput(originalAddress)
             setPendingSelection({ coords: null, placeId: null, address: undefined })
-            // Don't reset center to keep map visible
-            // setCenter(defaultCenter)
-            handleAddressChange({ coords: null, addressText: undefined, placeId: null })
+            onChange?.({ coords: originalCoords, addressText: originalAddress, placeId: originalPlaceId })
             // Don't clear all updating data, just clear specific delivery data
             // clearUpdatingData()
-            lastRejectedKeyRef.current = key
             return
         }
 
@@ -257,83 +250,32 @@ export default function MapAddressSelectorInUpdateOrder({
         const placeIdToPersist = pendingSelection.placeId ?? _selectedPlaceId ?? undefined
         const addressToPersist = pendingSelection.address ?? addressInput
 
+        // Persist to store update draft
         if (coordsToPersist) {
             persistDraftDeliveryCoords(coordsToPersist.lat, coordsToPersist.lng, placeIdToPersist)
         }
-        if (addressToPersist) persistDraftDeliveryAddress(addressToPersist)
-        if (placeIdToPersist) persistDraftDeliveryPlaceId(placeIdToPersist)
-        persistDraftDeliveryDistanceDuration(distanceResp.result.distance, distanceResp.result.duration)
+        if (addressToPersist) {
+            persistDraftDeliveryAddress(addressToPersist)
+        }
+        if (placeIdToPersist) {
+            persistDraftDeliveryPlaceId(placeIdToPersist)
+        }
+        if (distanceResp?.result?.distance && distanceResp?.result?.duration) {
+            persistDraftDeliveryDistanceDuration(distanceResp.result.distance, distanceResp.result.duration)
+        }
 
         setPendingSelection({ coords: null, placeId: null, address: undefined })
-        handleAddressChange({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
+        onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration, defaultCenter, clearUpdatingData, handleAddressChange, maxDistance])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, persistDraftDeliveryCoords, persistDraftDeliveryAddress, persistDraftDeliveryPlaceId, persistDraftDeliveryDistanceDuration])
 
-    const handleUseCurrentLocation = useCallback(() => {
-        if (!navigator.geolocation) {
-            showErrorToastMessage('toast.geolocationNotSupported')
-            return
-        }
-        setIsLocating(true)
-        setShowSuggestions(false)
-
-        const reverseGeocode = (coords: { lat: number; lng: number }): Promise<{ address?: string; placeId?: string | null }> => {
-            return new Promise((resolve) => {
-                if (!window.google?.maps?.Geocoder) {
-                    resolve({})
-                    return
-                }
-                const geocoder = new window.google.maps.Geocoder()
-                geocoder.geocode({ location: coords }, (results, status) => {
-                    if (status === 'OK' && results && results.length > 0) {
-                        resolve({ address: results[0].formatted_address, placeId: results[0].place_id })
-                    } else {
-                        resolve({})
-                    }
-                })
-            })
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-                setCenter(coords)
-                setMarker(coords)
-                handleLocationChange(coords)
-                // Reverse geocode to get human-readable address & placeId
-                reverseGeocode(coords).then(({ address, placeId }) => {
-                    const addressText = address || t('cart.useCurrentLocation')
-                    if (addressText) setAddressInput(addressText)
-                    handleAddressChange({ coords, addressText, placeId: placeId ?? null })
-                    // persist to store
-                    persistDraftDeliveryCoords(coords.lat, coords.lng, placeId ?? undefined)
-                    if (addressText) persistDraftDeliveryAddress(addressText)
-                }).finally(() => {
-                    setIsLocating(false)
-                })
-            },
-            (err) => {
-                setIsLocating(false)
-                if (err.code === 1) {
-                    showErrorToastMessage('toast.locationPermissionDenied')
-                } else if (err.code === 2) {
-                    showErrorToastMessage('toast.locationUnavailable')
-                } else if (err.code === 3) {
-                    showErrorToastMessage('toast.locationTimeout')
-                } else {
-                    showErrorToastMessage('toast.requestFailed')
-                }
-            },
-            { enableHighAccuracy: true, timeout: 10000 },
-        )
-    }, [handleLocationChange, handleAddressChange, persistDraftDeliveryCoords, persistDraftDeliveryAddress, t])
-
-    const onMapClick = useCallback((event: MapMouseEvent) => {
+    const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
         if (latLng) {
             const coords = { lat: latLng.lat, lng: latLng.lng }
 
             // Clear selected place ID when clicking on map
-            setSelectedPlaceId(null)
+            setSelectedPlaceId(originalPlaceId)
 
             // Reverse geocode to get human-readable address first
             const reverseGeocode = (coords: { lat: number; lng: number }): Promise<{ address?: string; placeId?: string | null }> => {
@@ -369,7 +311,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 // Set marker and center after getting address to prevent flicker
                 setMarker(coords)
                 setCenter(coords)
-                handleLocationChange(coords)
+                onLocationChange?.(coords)
 
                 if (addressText) {
                     // Set place ID to trigger hooks (same as suggestion selection)
@@ -390,14 +332,74 @@ export default function MapAddressSelectorInUpdateOrder({
                 setIsReverseGeocoding(false)
             })
         }
-    }, [handleLocationChange, addressInput, t])
+    }
+
+    const handleUseCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            showErrorToastMessage('toast.geolocationNotSupported')
+            return
+        }
+        setIsLocating(true)
+        setShowSuggestions(false)
+
+        const reverseGeocode = (coords: { lat: number; lng: number }): Promise<{ address?: string; placeId?: string | null }> => {
+            return new Promise((resolve) => {
+                if (!window.google?.maps?.Geocoder) {
+                    resolve({})
+                    return
+                }
+                const geocoder = new window.google.maps.Geocoder()
+                geocoder.geocode({ location: coords }, (results, status) => {
+                    if (status === 'OK' && results && results.length > 0) {
+                        resolve({ address: results[0].formatted_address, placeId: results[0].place_id })
+                    } else {
+                        resolve({})
+                    }
+                })
+            })
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+                setCenter(coords)
+                setMarker(coords)
+                onLocationChange?.(coords)
+                // Reverse geocode to get human-readable address & placeId
+                reverseGeocode(coords).then(({ address, placeId }) => {
+                    const addressText = address || t('cart.useCurrentLocation')
+                    if (addressText) setAddressInput(addressText)
+                    if (placeId) {
+                        setSelectedPlaceId(placeId)
+                    }
+                    // Stage pending; persistence gated by distance hook like suggestion selection
+                    setPendingSelection({ coords, placeId: placeId ?? null, address: addressText })
+                }).finally(() => {
+                    setIsLocating(false)
+                })
+            },
+            (err) => {
+                setIsLocating(false)
+                if (err.code === 1) {
+                    showErrorToastMessage('toast.locationPermissionDenied')
+                } else if (err.code === 2) {
+                    showErrorToastMessage('toast.locationUnavailable')
+                } else if (err.code === 3) {
+                    showErrorToastMessage('toast.locationTimeout')
+                } else {
+                    showErrorToastMessage('toast.requestFailed')
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 },
+        )
+    }
 
     const branchPosition = useMemo<LatLng | null>(() => {
         const lat = branch?.addressDetail?.lat
         const lng = branch?.addressDetail?.lng
         if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
         return null
-    }, [branch])
+    }, [branch?.addressDetail?.lat, branch?.addressDetail?.lng])
 
     // Close suggestions on outside click
     useEffect(() => {
@@ -412,12 +414,21 @@ export default function MapAddressSelectorInUpdateOrder({
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
-    const handleConfirmAddress = useCallback(() => {
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (toastTimeoutRef.current) {
+                clearTimeout(toastTimeoutRef.current)
+            }
+        }
+    }, [])
+
+    const handleConfirmAddress = () => {
         if (!slug) return
 
-        // Use current input values instead of draft values
-        const currentPhone = phoneInput || updatingData?.updateDraft?.deliveryPhone || ''
-        const currentPlaceId = _selectedPlaceId || updatingData?.updateDraft?.deliveryTo?.placeId || ''
+        // Use current local state values only
+        const currentPhone = phoneInput
+        const currentPlaceId = _selectedPlaceId || ''
 
         updateOrderType({
             slug,
@@ -432,40 +443,38 @@ export default function MapAddressSelectorInUpdateOrder({
             onSuccess: () => {
                 showToast(tToast('toast.confirmAddressSuccess'))
                 // Update initial values to current values after successful confirmation
-                setInitialPlaceId(currentPlaceId)
-                setInitialPhoneNumber(currentPhone)
+                // setInitialAddress(currentAddress)
+                // setInitialPlaceId(currentPlaceId)
+                // setInitialPhoneNumber(currentPhone)
                 // Clear updating draft to allow page to re-initialize from refetched order
                 clearUpdatingData()
                 onSubmit?.()
             },
         })
-    }, [slug, phoneInput, _selectedPlaceId, updatingData?.updateDraft?.deliveryPhone, updatingData?.updateDraft?.deliveryTo?.placeId, updateOrderType, tToast, clearUpdatingData, onSubmit])
+    }
 
     return (
         <div className="flex flex-col gap-3 p-2 bg-white rounded-md border dark:bg-transparent" ref={wrapperRef}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
                 <div className="flex flex-col col-span-1 gap-3 sm:col-span-2">
-                    <span className="flex gap-1 items-center text-xs text-destructive">
-                        <Info className="w-3 h-3" />
-                        {t('cart.deliveryAddressNote')}
-                    </span>
                     <div className="flex relative flex-col gap-2">
                         <Input
+                            defaultValue={originalAddress}
                             value={addressInput}
-                            onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+                            onChange={(e) => {
                                 const val = e.target.value
                                 setAddressInput(val)
                                 debouncedSetAddress(val)
                                 setSelectedPlaceId(null)
                                 setActiveSuggestIndex(-1)
-                            }, [debouncedSetAddress])}
+                            }}
                             placeholder={t('cart.enterAddress')}
                             className="h-10 text-sm sm:h-9"
                             aria-autocomplete="list"
-                            aria-controls="client-address-suggestions"
+                            aria-controls="address-suggestions"
                             aria-expanded={showSuggestions}
-                            onFocus={useCallback(() => setShowSuggestions(!!addressInput), [addressInput])}
-                            onKeyDown={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+                            onFocus={() => setShowSuggestions(!!addressInput)}
+                            onKeyDown={(e) => {
                                 if (!showSuggestions) return
                                 if (e.key === 'ArrowDown') {
                                     e.preventDefault()
@@ -486,18 +495,16 @@ export default function MapAddressSelectorInUpdateOrder({
                                         setSelectedPlaceId(pid)
                                         setShowSuggestions(false)
                                         setActiveSuggestIndex(-1)
-                                        // Stage pending; persistence gated by distance hook
-                                        setPendingSelection({ coords: null, placeId: pid, address: text })
-                                        setTimeout(() => phoneInputRef.current?.focus(), 0)
+                                        setTimeout(() => phoneInputRef.current?.focus(), 0) // focus on phone input
                                     }
                                 } else if (e.key === 'Escape') {
                                     setShowSuggestions(false)
                                     setActiveSuggestIndex(-1)
                                 }
-                            }, [showSuggestions, suggestions, activeSuggestIndex])}
+                            }}
                         />
                         {showSuggestions && (
-                            <div id="client-address-suggestions" role="listbox" className="overflow-auto absolute right-0 left-0 top-full z-10 mt-2 max-h-72 bg-white rounded-md border shadow">
+                            <div id="address-suggestions" role="listbox" className="overflow-auto absolute right-0 left-0 top-full z-10 mt-2 max-h-72 bg-white rounded-md border shadow">
                                 <div className="sticky top-0 z-10 px-3 py-2 text-xs bg-white border-b text-muted-foreground">{t('cart.suggestions')}</div>
                                 {isLoadingSuggest && (
                                     <div className="px-3 py-2 text-sm text-muted-foreground">{t('cart.loading')}</div>
@@ -510,24 +517,19 @@ export default function MapAddressSelectorInUpdateOrder({
                                     const secondary = s.placePrediction.structuredFormat.secondaryText?.text
                                     const pid = s.placePrediction.placeId
                                     const idx = suggestions.findIndex((x) => x.placePrediction.placeId === pid)
-
-                                    const handleSuggestionClick = () => {
-                                        const text = `${main}${secondary ? `, ${secondary}` : ''}`
-                                        setAddressInput(text)
-                                        setSelectedPlaceId(pid)
-                                        setShowSuggestions(false)
-                                        setActiveSuggestIndex(-1)
-                                        // Stage pending; persistence gated by distance hook
-                                        setPendingSelection({ coords: null, placeId: pid, address: text })
-                                        setTimeout(() => phoneInputRef.current?.focus(), 0)
-                                    }
-
                                     return (
                                         <Button
                                             variant="ghost"
                                             key={pid}
                                             role="option"
-                                            onClick={handleSuggestionClick}
+                                            onClick={() => {
+                                                const text = `${main}${secondary ? `, ${secondary}` : ''}`
+                                                setAddressInput(text)
+                                                setSelectedPlaceId(pid)
+                                                setShowSuggestions(false)
+                                                setActiveSuggestIndex(-1)
+                                                setTimeout(() => phoneInputRef.current?.focus(), 0)
+                                            }}
                                             onMouseEnter={() => setActiveSuggestIndex(idx)}
                                             onMouseDown={(e) => e.preventDefault()}
                                         >
@@ -553,22 +555,22 @@ export default function MapAddressSelectorInUpdateOrder({
                         <div className="flex flex-row gap-2 items-center w-full">
                             <Input
                                 inputMode="tel"
+                                defaultValue={originalPhone}
                                 value={phoneInput}
-                                onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10)), [])}
+                                onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
                                 placeholder={t('cart.enterPhoneNumber')}
                                 className={`w-full text-sm h-10 sm:h-9 ${phoneInput && !PHONE_NUMBER_REGEX.test(phoneInput) ? 'border-destructive' : ''}`}
                                 ref={phoneInputRef}
-                                onKeyDown={useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-                                    if (e.key === 'Enter') {
-                                        const canConfirm = hasAddress && hasValidPhone && !isPending && shouldDisableButton
-                                        if (canConfirm) {
-                                            e.preventDefault()
-                                            handleConfirmAddress()
-                                        }
-                                    }
-                                }, [hasAddress, hasValidPhone, isPending, shouldDisableButton, handleConfirmAddress])}
+                            // onKeyDown={(e) => {
+                            //     if (e.key === 'Enter') {
+                            //         const canConfirm = hasAddress && hasValidPhone && !isPending && !shouldDisableButton
+                            //         if (canConfirm) {
+                            //             e.preventDefault()
+                            //             handleConfirmAddress()
+                            //         }
+                            //     }
+                            // }}
                             />
-                            {/* Removed separate Update button for simpler flow; phone is confirmed via main confirm */}
                         </div>
                         {phoneInput && !PHONE_NUMBER_REGEX.test(phoneInput) && (
                             <div className="mt-1 text-xs text-destructive">{t('cart.invalidPhoneNumber')}</div>
@@ -583,7 +585,7 @@ export default function MapAddressSelectorInUpdateOrder({
 
                         <div className="space-y-3 text-sm text-muted-foreground">
                             <div className="flex gap-2 items-start">
-                                <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground" />
+                                <MapPin className="w-6 h-6 mt-0.5 text-muted-foreground" />
                                 <div>
                                     <span className="font-medium">{t('cart.restaurantAddress')}: </span>
                                     <span>{branch?.address || t('cart.noAddressSelected')}</span>
@@ -591,26 +593,16 @@ export default function MapAddressSelectorInUpdateOrder({
                             </div>
 
                             <div className="flex gap-2 items-start">
-                                <Home className="w-6 h-6 mt-0.5 text-muted-foreground" />
+                                <Home className="w-4 h-4 mt-0.5 text-muted-foreground" />
                                 <div className="flex-1">
                                     <div className="flex gap-2 items-center mb-1">
                                         <span className="font-medium">{t('cart.deliveryAddress')}: </span>
                                     </div>
                                     <div>
                                         <span className="text-foreground">
-                                            {updatingData?.updateDraft?.deliveryAddress || addressInput || t('cart.noAddressSelected')}
+                                            {addressInput || t('cart.noAddressSelected')}
                                         </span>
                                     </div>
-                                    {updatingData?.updateDraft?.deliveryAddress && addressInput !== updatingData?.updateDraft?.deliveryAddress && (
-                                        <div className="p-2 mt-2 bg-blue-50 rounded-md border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
-                                            <div className="mb-1 text-xs text-blue-600 dark:text-blue-400">
-                                                Địa chỉ mới:
-                                            </div>
-                                            <div className="text-sm text-blue-800 dark:text-blue-200">
-                                                {addressInput || 'Chưa nhập địa chỉ mới'}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
@@ -628,18 +620,7 @@ export default function MapAddressSelectorInUpdateOrder({
                             )}
                         </div>
                     </div>
-
-                    {/* Confirm Address Button */}
-                    <div className="flex justify-end w-full">
-                        <Button
-                            onClick={handleConfirmAddress}
-                            disabled={!hasAddress || !hasValidPhone || isPending || !shouldDisableButton}
-                            className="w-full min-w-32"
-                        >
-                            {isPending ? t('cart.loading') : t('order.confirmAddress')}
-                        </Button>
-                    </div>
-
+                    <Button onClick={handleConfirmAddress} disabled={isPending || !hasAnyChanges || !hasValidPhone || !hasAddress} className="w-full min-w-32">{t('order.confirmAddress')}</Button>
                 </div>
 
                 <div className="col-span-1 w-full h-64 sm:col-span-3 sm:h-80 lg:h-auto">
@@ -688,6 +669,15 @@ function MapPanner({ panToCoords }: { panToCoords: { lat: number; lng: number } 
     const map = useMap()
     useEffect(() => {
         if (!map || !panToCoords) return
+
+        // Validate coordinates before panning
+        const { lat, lng } = panToCoords
+        if (typeof lat !== 'number' || typeof lng !== 'number' ||
+            isNaN(lat) || isNaN(lng) ||
+            !isFinite(lat) || !isFinite(lng)) {
+            return
+        }
+
         map.panTo(panToCoords)
     }, [map, panToCoords])
     return null

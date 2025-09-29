@@ -260,7 +260,12 @@ export default function PaymentPage() {
 
   // Start polling when QR code exists and payment is valid, or when payment method is selected
   useEffect(() => {
-    if (!isExpired && paymentMethod === PaymentMethod.BANK_TRANSFER) {
+    if (
+      !isExpired &&
+      (paymentMethod === PaymentMethod.BANK_TRANSFER ||
+        paymentMethod === PaymentMethod.CASH ||
+        paymentMethod === PaymentMethod.CREDIT_CARD)
+    ) {
       if (hasValidPaymentAndQr) {
         // Case 1: Valid QR code - check if payment is completed
         if (orderData.payment.statusMessage === paymentStatus.COMPLETED) {
@@ -401,6 +406,7 @@ export default function PaymentPage() {
               updateQrCode(data.result.qrCode)
               qrCodeSetRef.current = true
             }
+            navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
 
             // Refetch order to get latest payment data and sync with customer display
             refetchOrder()
@@ -421,9 +427,9 @@ export default function PaymentPage() {
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: () => {
-            clearCartItemStore()
-            clearPaymentData()
-            navigate(`${ROUTE.ORDER_SUCCESS}/${slug}`)
+            // Bắt đầu polling để điều hướng khi trạng thái chuyển sang PAID (giống BANK_TRANSFER)
+            setIsPolling(true)
+            refetchOrder()
           },
           onError: () => {
             setIsLoading(false)

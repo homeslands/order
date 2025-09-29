@@ -216,7 +216,12 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
                   <MapPin className="w-4 h-4" />
                   {t('menu.deliveryAddress')}
                 </span>
-                <span className="font-medium text-right max-w-[60%] truncate">{order.deliveryAddress}</span>
+                <span
+                  className="font-medium text-right max-w-[70%] whitespace-normal break-words"
+                  title={order.deliveryAddress}
+                >
+                  {order.deliveryAddress}
+                </span>
               </div>
             )}
             {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryPhone && (
