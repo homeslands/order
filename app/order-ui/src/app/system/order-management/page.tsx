@@ -5,7 +5,7 @@ import { SquareMenu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { DataTable } from '@/components/ui'
-import { useOrders, usePagination, useOrderBySlug } from '@/hooks'
+import { useOrders, usePagination, useOrderBySlug, useUsers } from '@/hooks'
 import { useUserStore } from '@/stores'
 import { useOrderHistoryColumns } from './DataTable/columns'
 import { IOrder, OrderStatus } from '@/types'
@@ -14,6 +14,7 @@ import { OrderHistoryDetailSheet } from '@/components/app/sheet'
 import { showToast } from '@/utils'
 import { notificationSound } from '@/assets/sound'
 import { useSearchParams } from 'react-router-dom'
+import { useDebouncedInput } from '@/hooks/use-debounced-input'
 
 export default function OrderHistoryPage() {
   const { t } = useTranslation(['menu'])
@@ -32,6 +33,34 @@ export default function OrderHistoryPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const order = searchParams.get('order')
   const [shouldFetchOrderBySlug, setShouldFetchOrderBySlug] = useState(false)
+  const {
+    inputValue: phoneInput,
+    setInputValue: setPhoneInput,
+    debouncedInputValue: debouncedPhoneInput,
+  } = useDebouncedInput({ defaultValue: '' })
+
+  const immediateTrimmedPhone = (phoneInput ?? '').trim()
+  const debouncedTrimmedPhone = (debouncedPhoneInput ?? '').trim()
+  const hasPhone = immediateTrimmedPhone.length > 0
+
+  const { data: userInfoData } = useUsers(
+    hasPhone
+      ? {
+        phonenumber: debouncedTrimmedPhone,
+        page: 1,
+        size: 1,
+        order: 'DESC',
+        hasPaging: true,
+      }
+      : null
+  )
+
+  const ownerSlug = (() => {
+    if (!hasPhone) return null
+    const items = userInfoData?.result?.items
+    if (!items || items.length !== 1) return null
+    return items[0]?.slug || null
+  })()
 
   const { data, isLoading, refetch } = useOrders({
     page: pagination.pageIndex,
@@ -41,6 +70,7 @@ export default function OrderHistoryPage() {
     hasPaging: true,
     startDate: startDate,
     endDate: endDate,
+    owner: ownerSlug,
     status: status !== 'all' ? status : [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.PAID, OrderStatus.FAILED, OrderStatus.COMPLETED].join(','),
   })
 
@@ -105,7 +135,7 @@ export default function OrderHistoryPage() {
       ...prev,
       pageIndex: 1
     }))
-  }, [startDate, endDate, status, setPagination])
+  }, [startDate, endDate, status, immediateTrimmedPhone, hasPhone, setPagination])
 
   // handle refresh and show toast when success
   const handleRefresh = () => {
@@ -136,19 +166,13 @@ export default function OrderHistoryPage() {
         { label: t('order.completed'), value: OrderStatus.COMPLETED },
       ],
     },
-    // {
-    //   id: 'paymentStatus',
-    //   label: t('order.paymentStatus'),
-    //   options: [
-    //     { label: t('order.paid'), value: true },
-    //     { label: t('order.unpaid'), value: false },
-    //   ],
-    // },
   ]
 
   const handleFilterChange = (filterId: string, value: string) => {
     if (filterId === 'status') {
       setStatus(value as OrderStatus | 'all')
+    } else if (filterId === 'owner') {
+      setPhoneInput(value)
     }
   }
 
@@ -182,6 +206,9 @@ export default function OrderHistoryPage() {
           data={data?.items || []}
           isLoading={isLoading}
           pages={data?.totalPages || 0}
+          hiddenInput={false}
+          searchPlaceholder={t('order.searchByPhoneNumber')}
+          onInputChange={setPhoneInput}
           hiddenDatePicker={false}
           onRowClick={handleOrderClick}
           filterOptions={OrderFilter}

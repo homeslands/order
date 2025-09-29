@@ -325,6 +325,7 @@
     "voucherNotApplicableDescription": "Voucher is not applicable to the selected payment method. You can cancel the voucher or select a different payment method.",
     "cashContactSupport": "For cash payments, please contact the cashier to get support.",
     "removeVoucher": "Remove voucher",
+    "searchByPhoneNumber": "Enter phone number",
     "deliveryAddress": "Delivery address",
     "deliveryPhone": "Delivery phone",
     "deliveryFee": "Delivery fee"
