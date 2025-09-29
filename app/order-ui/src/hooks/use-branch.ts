@@ -1,4 +1,10 @@
-import { createBranch, deleteBranch, getAllBranches, updateBranch } from '@/api'
+import {
+  createBranch,
+  deleteBranch,
+  getAllBranches,
+  getBranchInfoForDelivery,
+  updateBranch,
+} from '@/api'
 import { ICreateBranchRequest, IUpdateBranchRequest } from '@/types'
 import { useQuery, useMutation } from '@tanstack/react-query'
 
@@ -29,6 +35,15 @@ export const useDeleteBranch = () => {
   return useMutation({
     mutationFn: async (slug: string) => {
       return deleteBranch(slug)
+    },
+  })
+}
+
+export const useGetBranchInfoForDelivery = (slug: string) => {
+  return useQuery({
+    queryKey: ['branchInfoForDelivery', slug],
+    queryFn: async () => {
+      return getBranchInfoForDelivery(slug)
     },
   })
 }

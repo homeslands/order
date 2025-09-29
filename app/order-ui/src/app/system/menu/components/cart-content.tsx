@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { useOrderFlowStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, parseKm, showErrorToast, showToast, useCalculateDeliveryFee } from '@/utils'
 import { OrderTypeSelect, PickupTimeSelect } from '@/components/app/select'
@@ -20,6 +20,7 @@ export function CartContent() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
   const { t: tVoucher } = useTranslation(['voucher'])
+  const { branch } = useBranchStore()
   const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
 
   const cartItems = getCartItems()
@@ -30,7 +31,7 @@ export function CartContent() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
-  const deliveryFee = useCalculateDeliveryFee(parseKm(cartItems?.deliveryDistance) || 0)
+  const deliveryFee = useCalculateDeliveryFee(parseKm(cartItems?.deliveryDistance) || 0, branch?.slug || '')
 
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
@@ -278,13 +279,13 @@ export function CartContent() {
                 {cartItems?.type === OrderTypeEnum.DELIVERY && (
                   <div className="flex justify-between text-xs italic text-muted-foreground/80">
                     <span>{t('order.deliveryFee')}</span>
-                    <span>{formatCurrency(deliveryFee)}</span>
+                    <span>{formatCurrency(deliveryFee.deliveryFee)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                   <span>{t('order.totalPayment')}</span>
-                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee)}</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(cartTotals.finalTotal + deliveryFee.deliveryFee)}</span>
                 </div>
               </div>
               <div className='flex justify-end items-center'>

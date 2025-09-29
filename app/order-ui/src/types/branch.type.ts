@@ -22,3 +22,8 @@ export interface IUpdateBranchRequest {
   name: string
   address: string
 }
+
+export interface IBranchInfoForDelivery {
+  maxDistanceDelivery: number
+  deliveryFeePerKm: number
+}

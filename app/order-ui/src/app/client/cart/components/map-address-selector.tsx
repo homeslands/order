@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
 
-import { GOOGLE_MAP_DISTANCE_LIMIT, googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
+import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import type { IAddressSuggestion } from '@/types'
-import { parseKm, showErrorToastMessage } from '@/utils'
+import { parseKm, showErrorToastMessage, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
 import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
@@ -37,6 +37,8 @@ export default function MapAddressSelectNew({
     const { branch } = useBranchStore()
     const { userInfo } = useUserStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
+
+    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const [center, setCenter] = useState<LatLng>(defaultCenter)
     const [marker, setMarker] = useState<LatLng | null>(null)
@@ -150,7 +152,7 @@ export default function MapAddressSelectNew({
         if (!marker || !distText) return
         const km = parseKm(distText)
         if (km == null) return
-        const within = km <= GOOGLE_MAP_DISTANCE_LIMIT
+        const within = km <= maxDistance
         const key = (() => {
             const c = pendingSelection.coords ?? marker
             const p = pendingSelection.placeId ?? _selectedPlaceId ?? ''
@@ -183,7 +185,7 @@ export default function MapAddressSelectNew({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChangeRef.current?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, tToast])
+    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, tToast, maxDistance])
 
     const reverseGeocode = useCallback((coords: { lat: number; lng: number }): Promise<{ address?: string; placeId?: string | null }> => {
         return new Promise((resolve) => {

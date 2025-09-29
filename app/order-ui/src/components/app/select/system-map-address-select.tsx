@@ -4,11 +4,11 @@ import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
 import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
 
-import { GOOGLE_MAP_DISTANCE_LIMIT, googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
+import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import type { IAddressSuggestion } from '@/types'
-import { createLucideMarkerIcon, MAP_ICONS, parseKm } from '@/utils'
-import { useOrderFlowStore, useUserStore } from '@/stores'
+import { createLucideMarkerIcon, MAP_ICONS, parseKm, useGetBranchDeliveryConfig } from '@/utils'
+import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { showErrorToastMessage } from '@/utils'
 
@@ -34,6 +34,7 @@ export default function SystemMapAddressSelect({
 }: SystemMapAddressSelectProps) {
     const { t } = useTranslation('menu')
     const { userInfo } = useUserStore()
+    const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
 
     const [center, setCenter] = useState<LatLng>(defaultCenter)
@@ -43,6 +44,8 @@ export default function SystemMapAddressSelect({
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [_selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
     const [activeSuggestIndex, setActiveSuggestIndex] = useState<number>(-1)
+
+    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
 
     const debouncedSetAddress = useDebouncedCallback((val: string) => {
         setQueryAddress(val)
@@ -190,7 +193,7 @@ export default function SystemMapAddressSelect({
         if (!marker || !distText) return
         const km = parseKm(distText)
         if (km == null) return
-        const within = km <= GOOGLE_MAP_DISTANCE_LIMIT
+        const within = km <= maxDistance
         const key = (() => {
             const c = pendingSelection.coords ?? marker
             const p = pendingSelection.placeId ?? _selectedPlaceId ?? ''
@@ -223,7 +226,7 @@ export default function SystemMapAddressSelect({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChangeRef.current?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo])
+    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, maxDistance])
 
     const onMapClick = useCallback((event: MapMouseEvent) => {
         const { latLng } = event.detail

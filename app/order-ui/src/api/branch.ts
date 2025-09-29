@@ -4,6 +4,7 @@ import {
   ICreateBranchRequest,
   IBranch,
   IUpdateBranchRequest,
+  IBranchInfoForDelivery,
 } from '@/types'
 
 export async function getAllBranches(): Promise<IApiResponse<IBranch[]>> {
@@ -39,5 +40,15 @@ export async function deleteBranch(slug: string): Promise<IApiResponse<null>> {
     throw new Error('No data found')
   }
 
+  return response.data
+}
+
+export async function getBranchInfoForDelivery(
+  slug: string,
+): Promise<IApiResponse<IBranchInfoForDelivery>> {
+  const response = await http.get<IApiResponse<IBranchInfoForDelivery>>(
+    `/branch/${slug}/delivery-info`,
+  )
+  if (!response || !response.data) throw new Error('No data found')
   return response.data
 }
