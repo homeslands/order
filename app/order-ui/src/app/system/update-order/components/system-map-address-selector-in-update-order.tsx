@@ -211,7 +211,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 }
 
                 // Show toast immediately for new rejection
-                showErrorToastMessage('toast.distanceTooFar')
+                showErrorToastMessage(tToast('toast.distanceTooFar'))
                 lastRejectedKeyRef.current = key
 
                 // Set timeout to allow new rejections after 2 seconds
@@ -249,7 +249,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, tToast])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
