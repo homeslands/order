@@ -40,6 +40,7 @@ import { RoleEnum } from 'src/role/role.enum';
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { BranchConfig } from 'src/branch-config/branch-config.entity';
 import { BranchConfigService } from 'src/branch-config/branch-config.service';
+import { Branch } from 'src/branch/branch.entity';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -126,6 +127,10 @@ describe('OrderController', () => {
         BranchConfigService,
         {
           provide: getRepositoryToken(BranchConfig),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(Branch),
           useValue: repositoryMockFactory,
         },
       ],
