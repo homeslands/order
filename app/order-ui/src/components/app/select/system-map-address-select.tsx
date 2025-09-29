@@ -33,6 +33,7 @@ export default function SystemMapAddressSelect({
     onChange,
 }: SystemMapAddressSelectProps) {
     const { t } = useTranslation('menu')
+    const { t: tToast } = useTranslation('toast')
     const { userInfo } = useUserStore()
     const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -201,7 +202,7 @@ export default function SystemMapAddressSelect({
         })()
         if (!within) {
             if (lastRejectedKeyRef.current === key) return
-            showErrorToastMessage('toast.distanceTooFar')
+            showErrorToastMessage(tToast('toast.distanceTooFar'))
             // reset map/UI and staged data
             setMarker(null)
             setSelectedPlaceId(null)
@@ -226,7 +227,7 @@ export default function SystemMapAddressSelect({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChangeRef.current?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, maxDistance])
+    }, [distanceResp, marker, pendingSelection, _selectedPlaceId, addressInput, persistDeliveryCoords, persistDeliveryAddress, persistDeliveryPlaceId, persistDeliveryDistanceDuration, defaultCenter, clearDeliveryInfo, maxDistance, tToast])
 
     const onMapClick = useCallback((event: MapMouseEvent) => {
         const { latLng } = event.detail
