@@ -44,6 +44,7 @@ export interface ICartItem {
     url: string
     lat: number
     lng: number
+    placeId: string
     slug: string
   }
   deliveryPhone?: string

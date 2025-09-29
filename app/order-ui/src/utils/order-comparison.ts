@@ -19,9 +19,12 @@ export interface IOrderComparison {
   itemChanges: IOrderItemChange[]
   voucherChanged: boolean
   tableChanged: boolean
+  typeChanged: boolean
   ownerChanged: boolean
   noteChanged: boolean
   pickupTimeChanged: boolean
+  deliveryAddressChanged: boolean // placeId
+  deliveryPhoneChanged: boolean
   hasChanges: boolean
 }
 
@@ -34,9 +37,12 @@ export function compareOrdersForStaff(
       itemChanges: [],
       voucherChanged: false,
       tableChanged: false,
+      typeChanged: false,
       ownerChanged: false,
       noteChanged: false,
       pickupTimeChanged: false,
+      deliveryAddressChanged: false,
+      deliveryPhoneChanged: false,
       // orderItemNoteChanged: false,
       hasChanges: false,
     }
@@ -268,7 +274,11 @@ export function compareOrdersForStaff(
   const voucherChanged = originalOrder.voucher?.slug !== newOrder.voucher?.slug
   const tableChanged = originalOrder.table !== newOrder.table
   const ownerChanged = originalOrder.owner !== newOrder.owner
-
+  const typeChanged = originalOrder.type !== newOrder.type
+  const deliveryAddressChanged =
+    originalOrder.deliveryTo?.placeId !== newOrder.deliveryTo?.placeId
+  const deliveryPhoneChanged =
+    originalOrder.deliveryPhone !== newOrder.deliveryPhone
   // CHỈ kiểm tra thay đổi ghi chú tổng thể của đơn hàng (order.description)
   const noteChanged =
     (originalOrder.description || '') !== (newOrder.description || '')
@@ -286,19 +296,24 @@ export function compareOrdersForStaff(
     itemChanges.some((change) => change.type !== 'unchanged') ||
     voucherChanged ||
     tableChanged ||
+    typeChanged ||
     ownerChanged ||
     noteChanged ||
     orderItemNoteChanged ||
-    pickupTimeChanged
+    pickupTimeChanged ||
+    deliveryAddressChanged ||
+    deliveryPhoneChanged
 
   return {
     itemChanges,
     voucherChanged,
     tableChanged,
+    typeChanged,
     ownerChanged,
     noteChanged,
     pickupTimeChanged,
-    // orderItemNoteChanged,
+    deliveryAddressChanged,
+    deliveryPhoneChanged,
     hasChanges,
   }
 }
@@ -310,11 +325,14 @@ export function compareOrders(
   if (!originalOrder || !newOrder) {
     return {
       itemChanges: [],
+      typeChanged: false,
       voucherChanged: false,
       tableChanged: false,
       ownerChanged: false,
       noteChanged: false,
       pickupTimeChanged: false,
+      deliveryAddressChanged: false,
+      deliveryPhoneChanged: false,
       // orderItemNoteChanged: false,
       hasChanges: false,
     }
@@ -545,7 +563,12 @@ export function compareOrders(
   // So sánh các thông tin khác
   const voucherChanged = originalOrder.voucher?.slug !== newOrder.voucher?.slug
   const tableChanged = originalOrder.table !== newOrder.table
+  const typeChanged = originalOrder.type !== newOrder.type
   const ownerChanged = originalOrder.owner !== newOrder.owner
+  const deliveryAddressChanged =
+    originalOrder.deliveryTo?.placeId !== newOrder.deliveryTo?.placeId
+  const deliveryPhoneChanged =
+    originalOrder.deliveryPhone !== newOrder.deliveryPhone
 
   // CHỈ kiểm tra thay đổi ghi chú tổng thể của đơn hàng (order.description)
   const noteChanged =
@@ -564,19 +587,24 @@ export function compareOrders(
     itemChanges.some((change) => change.type !== 'unchanged') ||
     voucherChanged ||
     tableChanged ||
+    typeChanged ||
     ownerChanged ||
     noteChanged ||
     orderItemNoteChanged ||
-    pickupTimeChanged
+    pickupTimeChanged ||
+    deliveryAddressChanged ||
+    deliveryPhoneChanged
 
   return {
     itemChanges,
     voucherChanged,
     tableChanged,
+    typeChanged,
     ownerChanged,
     noteChanged,
     pickupTimeChanged,
-    // orderItemNoteChanged,
+    deliveryAddressChanged,
+    deliveryPhoneChanged,
     hasChanges,
   }
 }

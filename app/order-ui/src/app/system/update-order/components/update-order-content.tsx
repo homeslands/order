@@ -92,7 +92,6 @@ export default function UpdateOrderContent({
                                 // Tạo key thống nhất - dựa trên product + variant để tránh key conflict
                                 const stableKey = `${item.productSlug}-${item.variant?.slug || 'default'}-${index}`
 
-                                // console.log(`Item ${item.name}: stableKey=${stableKey}`)
                                 const displayItem = displayItems.find(di => di.productSlug === item.productSlug)
 
                                 const original = item.variant.price || 0

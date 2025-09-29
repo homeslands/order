@@ -48,7 +48,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
   const voucher = updatingData?.updateDraft?.voucher || null
-  // console.log('orderDraft in confirm update order dialog', originalOrder?.orderItems, orderDraft?.orderItems)
 
   // Convert orderDraft to ICartItem format for comparison
   const order: ICartItem | null = orderDraft ? {
@@ -236,7 +235,6 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
         >
           {isAnyPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {(() => {
-            // console.log('order', order)
             if (order?.type === OrderTypeEnum.TAKE_OUT) {
               return t('order.updateOrder');
             }

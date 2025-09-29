@@ -86,7 +86,6 @@ export default function UpdateOrderPage() {
 
                 // ✅ Reinitialize với data mới từ server (bao gồm món vừa add)
                 initializeUpdating(orderData)
-                // console.log('✅ Initialized with', orderData.orderItems.length, 'items from server')
 
                 // ✅ Restore preserved values after initialization
                 if (preservedType && preservedType !== orderData.type) {
@@ -221,13 +220,8 @@ export default function UpdateOrderPage() {
     }, [clearUpdatingData])
 
     const _handleRefetchAndReinitialize = useCallback(async () => {
-        try {
-            await refetchOrder()
-            setShouldReinitialize(true)
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('❌ Update Order: Failed to refetch and reinitialize:', error)
-        }
+        await refetchOrder()
+        setShouldReinitialize(true)
     }, [refetchOrder])
 
     if (isExpired) {
