@@ -126,8 +126,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
     if (!orderDraft || !originalOrder) return
 
     try {
-      // 1. Update order type/table/description/pickup time if changed
-      if (orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged) {
+      // 1. Update order type/table/description/pickup time/deliveryAddress/deliveryPhone if changed
+      if (orderComparison.typeChanged || orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged || orderComparison.deliveryAddressChanged || orderComparison.deliveryPhoneChanged) {
         await new Promise((resolve, reject) => {
           updateOrderType({
             slug: originalOrder.slug,
@@ -136,8 +136,8 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
               table: orderDraft.table || null,
               description: orderDraft.description || '',
               timeLeftTakeOut: orderDraft.timeLeftTakeOut || 0,
-              deliveryTo: orderDraft.deliveryTo?.formattedAddress || '',
-              deliveryPhone: orderDraft.deliveryPhone || '',
+              deliveryTo: orderDraft.type === OrderTypeEnum.DELIVERY ? orderDraft.deliveryTo?.placeId || '' : '',
+              deliveryPhone: orderDraft.type === OrderTypeEnum.DELIVERY ? orderDraft.deliveryPhone || '' : '',
             }
           }, {
             onSuccess: () => resolve(true),
