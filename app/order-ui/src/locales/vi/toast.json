@@ -350,6 +350,8 @@
                 "voucherPaymentMethodAlreadyExists": "Phương thức thanh toán đã tồn tại",
                 "voucherPaymentMethodValidationError": "Phương thức thanh toán không hợp lệ",
                 "loyaltyPointAlreadyReserved": "Điểm tích lũy đã được sử dụng ở đơn hàng khác",
-                "confirmAddressSuccess": "Địa chỉ đã được cập nhật thành công"
+                "featureOnlyForRegisteredCustomer": "Tính năng này chỉ dành cho khách hàng đã đăng ký tài khoản",
+                "confirmAddressSuccess": "Địa chỉ đã được cập nhật thành công",
+                "distanceTooFar": "Khoảng cách vượt quá 3km, không hỗ trợ giao hàng đến địa chỉ này"
         }
 }
