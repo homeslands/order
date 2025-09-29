@@ -284,7 +284,8 @@
     "voucherNotApplicable": "Voucher không thể áp dụng",
     "voucherNotApplicableDescription": "Voucher hiện không áp dụng được cho phương thức thanh toán đã chọn. Bạn có thể hủy voucher hoặc chọn phương thức thanh toán khác.",
     "cashContactSupport": "Với phương thức thanh toán bằng tiền mặt, vui lòng liên hệ quầy thanh toán để được hỗ trợ.",
-    "removeVoucher": "Hủy voucher"
+    "removeVoucher": "Hủy voucher",
+    "searchByPhoneNumber": "Nhập số điện thoại"
   },
   "paymentMethod": {
     "bankTransfer": "Chuyển khoản ngân hàng",
