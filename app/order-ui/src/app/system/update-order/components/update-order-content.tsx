@@ -11,7 +11,7 @@ import { IOrderItem, IVoucherProduct, OrderStatus, OrderTypeEnum } from '@/types
 import { StaffVoucherListSheetInUpdateOrderWithLocalStorage } from '@/components/app/sheet'
 import { APPLICABILITY_RULE, VOUCHER_TYPE } from '@/constants'
 import UpdateOrderQuantity from './update-quantity'
-import { useOrderFlowStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { OrderItemNoteInUpdateOrderInput, OrderNoteInUpdateOrderInput } from '@/components/app/input'
 import { StaffConfirmUpdateOrderDialog, DeleteLastOrderItemDialog } from '@/components/app/dialog'
 import { useDeleteOrderItem, useIsMobile } from '@/hooks'
@@ -29,6 +29,7 @@ export default function UpdateOrderContent({
     const { t: tCommon } = useTranslation(['common'])
     const { t: tVoucher } = useTranslation(['voucher'])
     const { t: tToast } = useTranslation(['toast'])
+    const { branch } = useBranchStore()
     const { updatingData, removeDraftItem } = useOrderFlowStore()
     const { mutate: deleteOrderItem, isPending: isPendingDeleteOrderItem } = useDeleteOrderItem()
     const isMobile = useIsMobile()
@@ -51,7 +52,7 @@ export default function UpdateOrderContent({
             cartTotals: totals
         }
     }, [orderItems, voucher])
-    const deliveryFee = useCalculateDeliveryFee(parseKm(updatingData?.updateDraft?.deliveryDistance) || 0)
+    const deliveryFee = useCalculateDeliveryFee(parseKm(updatingData?.updateDraft?.deliveryDistance) || 0, branch?.slug || '')
 
     const handleRemoveOrderItem = (item: IOrderItem) => {
         deleteOrderItem(item.slug, {
@@ -275,13 +276,13 @@ export default function UpdateOrderContent({
                                 {orderType === OrderTypeEnum.DELIVERY && (
                                     <div className="flex justify-between text-xs italic text-muted-foreground/60">
                                         <span>{t('order.deliveryFee')}</span>
-                                        <span>{formatCurrency(deliveryFee)}</span>
+                                        <span>{formatCurrency(deliveryFee?.deliveryFee)}</span>
                                     </div>
                                 )}
 
                                 <div className="flex justify-between items-center pt-2 mt-2 font-semibold border-t text-md">
                                     <span>{t('order.totalPayment')}</span>
-                                    <span className="text-2xl font-bold text-primary">{formatCurrency((cartTotals?.finalTotal || 0) + deliveryFee)}</span>
+                                    <span className="text-2xl font-bold text-primary">{formatCurrency((cartTotals?.finalTotal || 0) + deliveryFee?.deliveryFee)}</span>
                                 </div>
                             </div>
 
