@@ -120,6 +120,18 @@ export default function OrderHistoryDetailSheet({
                         </span>
                       </p>
                     </div>
+                    {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex gap-1 items-center">
+                        <span className='text-sm font-bold'>{t('order.deliveryAddress')}: </span>
+                        <span className="text-sm text-muted-foreground">{orderDetail?.deliveryTo?.formattedAddress}</span>
+                      </div>
+                    )}
+                    {orderDetail?.type === OrderTypeEnum.DELIVERY && (
+                      <div className="flex gap-1 items-center">
+                        <span className='text-sm font-bold'>{t('order.deliveryPhone')}: </span>
+                        <span className="text-sm text-muted-foreground">{orderDetail?.deliveryPhone}</span>
+                      </div>
+                    )}
                     {orderDetail?.description ? (
                       <div className="flex items-center w-full text-sm">
                         <h3 className="w-20 text-sm font-semibold">
@@ -161,10 +173,14 @@ export default function OrderHistoryDetailSheet({
                         <p className="col-span-1 text-sm">
                           {orderDetail?.type === OrderTypeEnum.AT_TABLE
                             ? t('order.dineIn')
-                            : `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
-                              ? t('menu.immediately')
-                              : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
-                            }`}
+                            : orderDetail?.type === OrderTypeEnum.TAKE_OUT
+                              ? `${t('order.takeAway')} - ${orderDetail?.timeLeftTakeOut === 0
+                                ? t('menu.immediately')
+                                : `${orderDetail?.timeLeftTakeOut} ${t('menu.minutes')}`
+                              }`
+                              : orderDetail?.type === OrderTypeEnum.DELIVERY
+                                ? `${t('order.delivery')}`
+                                : t('order.takeAway')}
                         </p>
                       </p>
                       {orderDetail?.type === OrderTypeEnum.AT_TABLE && (
