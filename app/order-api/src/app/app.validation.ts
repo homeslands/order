@@ -36,6 +36,8 @@ import { StaticPageValidation } from 'src/static-page/static-page.validation';
 import { SystemConfigValidation } from 'src/system-config/system-config.validation';
 import { TableValidation } from 'src/table/table.validation';
 import { TrackingValidation } from 'src/tracking/tracking.validation';
+import { UserGroupMemberValidation } from 'src/user-group-member/user-group-member.validation';
+import { UserGroupValidation } from 'src/user-group/user-group.validation';
 import { UserValidation } from 'src/user/user.validation';
 import { VariantValidation } from 'src/variant/variant.validation';
 import { VoucherProductValidation } from 'src/voucher-product/voucher-product.validation';
@@ -102,6 +104,8 @@ export const AppValidation: TErrorCode = {
   ...ZaloOaConnectorValidation,
   ...PointTransactionValidation,
   ...BranchConfigValidation,
+  ...UserGroupMemberValidation,
+  ...UserGroupValidation,
 };
 
 const errorCodeKeys = Object.keys(AppValidation);

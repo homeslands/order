@@ -19,6 +19,7 @@ import { VerifyPhoneNumberToken } from 'src/auth/entity/verify-phone-number-toke
 import { PointTransaction } from 'src/gift-card-modules/point-transaction/entities/point-transaction.entity';
 import { GiftCard } from 'src/gift-card-modules/gift-card/entities/gift-card.entity';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
+import { UserGroupMember } from 'src/user-group-member/user-group-member.entity';
 
 @Entity('user_tbl')
 export class User extends Base {
@@ -127,4 +128,8 @@ export class User extends Base {
   @JoinColumn({ name: 'accumulated_point_column' })
   @AutoMap(() => AccumulatedPoint)
   accumulatedPoint: AccumulatedPoint;
+
+  // One to many with user group members
+  @OneToMany(() => UserGroupMember, (userGroupMember) => userGroupMember.user)
+  userGroupMembers: UserGroupMember[];
 }
