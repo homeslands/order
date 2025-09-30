@@ -29,6 +29,8 @@ import { TrackingModule } from 'src/tracking/tracking.module';
 import { TrackingOrderItemModule } from 'src/tracking-order-item/tracking-order-item.module';
 import { RobotConnectorModule } from 'src/robot-connector/robot-connector.module';
 import { UserModule } from 'src/user/user.module';
+import { UserGroupModule } from 'src/user-group/user-group.module';
+import { UserGroupMemberModule } from 'src/user-group-member/user-group-member.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'src/logger/logger.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -139,6 +141,8 @@ import { BranchConfigModule } from 'src/branch-config/branch-config.module';
     TrackingOrderItemModule,
     RobotConnectorModule,
     UserModule,
+    UserGroupModule,
+    UserGroupMemberModule,
     InvoiceModule,
     InvoiceItemModule,
     WorkflowModule,
