@@ -8,7 +8,7 @@ import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import type { IAddressSuggestion } from '@/types'
 import { createLucideMarkerIcon, MAP_ICONS, parseKm, useGetBranchDeliveryConfig } from '@/utils'
-import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
+import { useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { showErrorToastMessage } from '@/utils'
 
@@ -35,7 +35,6 @@ export default function SystemMapAddressSelect({
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
     const { userInfo } = useUserStore()
-    const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
 
     const [center, setCenter] = useState<LatLng>(defaultCenter)
@@ -46,7 +45,7 @@ export default function SystemMapAddressSelect({
     const [_selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
     const [activeSuggestIndex, setActiveSuggestIndex] = useState<number>(-1)
 
-    const { maxDistance } = useGetBranchDeliveryConfig(branch?.slug ?? '')
+    const { maxDistance } = useGetBranchDeliveryConfig(userInfo?.branch?.slug ?? '')
 
     const debouncedSetAddress = useDebouncedCallback((val: string) => {
         setQueryAddress(val)

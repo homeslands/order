@@ -15,7 +15,7 @@ interface PaymentMethodSelectProps {
   disabledReasons?: Record<PaymentMethod, string>
   qrCode?: string
   total?: number
-  onSubmit?: (paymentMethod: PaymentMethod) => void
+  onSubmit?: (paymentMethod: PaymentMethod, transactionId?: string) => void
 }
 
 export default function StaffPaymentMethodSelect({
@@ -29,9 +29,9 @@ export default function StaffPaymentMethodSelect({
   onSubmit,
 }: PaymentMethodSelectProps) {
   const { t } = useTranslation('menu')
-  const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod) => {
+  const handlePaymentMethodSubmit = (paymentMethodSubmit: PaymentMethod, transactionId?: string) => {
     if (onSubmit) {
-      onSubmit(paymentMethodSubmit)
+      onSubmit(paymentMethodSubmit, transactionId)
     }
   }
 

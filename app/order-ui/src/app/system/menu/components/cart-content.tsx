@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Badge, Button, ScrollArea } from '@/components/ui'
 import { QuantitySelector } from '@/components/app/button'
 import { CartNoteInput, CustomerSearchInput, OrderNoteInput } from '@/components/app/input'
-import { useBranchStore, useOrderFlowStore } from '@/stores'
+import { useOrderFlowStore, useUserStore } from '@/stores'
 import { CreateCustomerDialog, CreateOrderDialog } from '@/components/app/dialog'
 import { calculateCartItemDisplay, calculateCartTotals, formatCurrency, parseKm, showErrorToast, showToast, useCalculateDeliveryFee } from '@/utils'
 import { OrderTypeSelect, PickupTimeSelect } from '@/components/app/select'
@@ -20,7 +20,7 @@ export function CartContent() {
   const { t: tCommon } = useTranslation(['common'])
   const { t: tToast } = useTranslation(['toast'])
   const { t: tVoucher } = useTranslation(['voucher'])
-  const { branch } = useBranchStore()
+  const { userInfo } = useUserStore()
   const { removeVoucher, getCartItems, removeOrderingItem, removeOrderingCustomer } = useOrderFlowStore()
 
   const cartItems = getCartItems()
@@ -31,7 +31,7 @@ export function CartContent() {
   )
 
   const cartTotals = calculateCartTotals(displayItems, cartItems?.voucher || null)
-  const deliveryFee = useCalculateDeliveryFee(parseKm(cartItems?.deliveryDistance) || 0, branch?.slug || '')
+  const deliveryFee = useCalculateDeliveryFee(parseKm(cartItems?.deliveryDistance) || 0, userInfo?.branch?.slug || '')
 
   // Kiểm tra voucher validity cho SAME_PRICE_PRODUCT
   useEffect(() => {
