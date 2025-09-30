@@ -132,6 +132,7 @@ export interface IOrderToUpdate {
   deliveryDuration?: string
   deliveryPhone?: string
   deliveryPlaceId?: string
+  deliveryFee?: number
   deliveryTo?: {
     formattedAddress: string
     url: string
@@ -401,6 +402,7 @@ export interface IUpdateOrderNoteRequest {
 export interface IInitiatePaymentRequest {
   paymentMethod: string
   orderSlug: string
+  transactionId?: string
 }
 
 export interface IInitiatePaymentResponse {

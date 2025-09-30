@@ -352,6 +352,7 @@
                 "loyaltyPointAlreadyReserved": "Điểm tích lũy đã được sử dụng ở đơn hàng khác",
                 "featureOnlyForRegisteredCustomer": "Tính năng này chỉ dành cho khách hàng đã đăng ký tài khoản",
                 "confirmAddressSuccess": "Địa chỉ đã được cập nhật thành công",
-                "distanceTooFar": "Khoảng cách vượt quá 3km, không hỗ trợ giao hàng đến địa chỉ này"
+                "distanceTooFar": "Khoảng cách vượt quá 3km, không hỗ trợ giao hàng đến địa chỉ này",
+                "creditCardTransactionIdRequired": "ID giao dịch thẻ tín dụng là bắt buộc"
         }
 }

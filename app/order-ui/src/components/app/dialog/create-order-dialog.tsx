@@ -49,22 +49,18 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
     order?.voucher || null
   )
 
+  // check if userInfo.role.name === Role.CUSTOMER, then use branch?.slug, otherwise use userInfo?.branch?.slug
+  const branchSlug = userInfo?.role.name === Role.CUSTOMER ? branch?.slug : userInfo?.branch?.slug
+
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
-  const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0, branch?.slug || '')
+  const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0, branchSlug || '')
 
   // console.log('cartTotals', cartTotals)
 
   const handleSubmit = (order: IOrderingData) => {
     if (!order) return
 
-    const selectedBranch =
-      userInfo
-        ? (userInfo?.role.name === Role.CUSTOMER
-          ? branch?.slug
-          : userInfo?.branch?.slug)
-        : branch?.slug
-
-    if (!selectedBranch) {
+    if (!branchSlug) {
       showErrorToast(11000)
       return
     }
@@ -84,7 +80,7 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
       deliveryTo: order.deliveryPlaceId || '',
       deliveryPhone: order.deliveryPhone || '',
       table: order.table || '',
-      branch: selectedBranch,
+      branch: branchSlug,
       owner: order.owner || getUserInfo()?.slug || '',
       approvalBy: getUserInfo()?.slug || '',
       orderItems: order.orderItems.map((orderItem) => {

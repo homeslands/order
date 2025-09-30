@@ -57,6 +57,7 @@ export interface IOrderingData {
 export interface IPaymentData {
   orderSlug: string
   paymentMethod: PaymentMethod
+  transactionId?: string
   qrCode: string
   paymentSlug: string
   orderData?: IOrder
@@ -117,7 +118,7 @@ export interface IOrderFlowStore {
   // Payment phase actions (tương tự payment store)
   initializePayment: (orderSlug: string, paymentMethod: PaymentMethod) => void
   setPaymentData: (data: Partial<IPaymentData>) => void
-  updatePaymentMethod: (method: PaymentMethod) => void
+  updatePaymentMethod: (method: PaymentMethod, transactionId?: string) => void
   updateQrCode: (qrCode: string) => void
   setOrderFromAPI: (order: IOrder) => void
   setPaymentSlug: (slug: string) => void
@@ -743,7 +744,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         })
       },
 
-      updatePaymentMethod: (method: PaymentMethod) => {
+      updatePaymentMethod: (method: PaymentMethod, transactionId?: string) => {
         const { paymentData } = get()
         if (!paymentData) return
 
@@ -751,6 +752,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           paymentData: {
             ...paymentData,
             paymentMethod: method,
+            transactionId,
           },
           lastModified: moment().valueOf(),
         })
@@ -835,6 +837,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           deliveryDuration: originalOrder.deliveryDuration,
           deliveryPhone: originalOrder.deliveryPhone,
           deliveryTo: originalOrder.deliveryTo,
+          deliveryFee: originalOrder.deliveryFee,
         }
 
         // Create initial draft from original order với cùng IDs
@@ -870,6 +873,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
           description: updatedOriginalOrder.description || '',
           approvalBy: updatedOriginalOrder.approvalBy?.slug || '',
           deliveryTo: updatedOriginalOrder.deliveryTo,
+          deliveryFee: updatedOriginalOrder.deliveryFee,
         }
 
         const newUpdatingData: IUpdatingData = {
@@ -1577,7 +1581,10 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         get().setOrderingDescription(note)
       },
 
-      setPaymentMethod: (method: PaymentMethod | string) => {
+      setPaymentMethod: (
+        method: PaymentMethod | string,
+        transactionId?: string,
+      ) => {
         const { currentStep, orderingData, paymentData } = get()
 
         if (currentStep === OrderFlowStep.ORDERING && orderingData) {
@@ -1589,7 +1596,7 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
             lastModified: moment().valueOf(),
           })
         } else if (currentStep === OrderFlowStep.PAYMENT && paymentData) {
-          get().updatePaymentMethod(method as PaymentMethod)
+          get().updatePaymentMethod(method as PaymentMethod, transactionId)
         }
       },
 

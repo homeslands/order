@@ -4,12 +4,12 @@ import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
 import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
 
-import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
+import { googleMapAPIKey, PHONE_NUMBER_REGEX, Role } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
 import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
-import { useOrderFlowStore, useUserStore } from '@/stores'
+import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { useUpdateOrderType } from '@/hooks'
 
@@ -21,7 +21,7 @@ type AddressChange = {
 }
 
 interface MapAddressSelectorInUpdateOrderProps {
-    onSubmit?: () => void
+    onSuccess?: () => void
     defaultCenter?: LatLng
     defaultZoom?: number
     onLocationChange?: (coords: LatLng | null) => void
@@ -33,11 +33,12 @@ export default function MapAddressSelectorInUpdateOrder({
     defaultZoom = 14,
     onLocationChange,
     onChange,
-    onSubmit,
+    onSuccess,
 }: MapAddressSelectorInUpdateOrderProps) {
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
     const { userInfo } = useUserStore()
+    const { branch } = useBranchStore()
     const wrapperRef = useRef<HTMLDivElement | null>(null)
     const { mutate: updateOrderType, isPending } = useUpdateOrderType()
 
@@ -74,7 +75,7 @@ export default function MapAddressSelectorInUpdateOrder({
         clearUpdatingData,
     } = useOrderFlowStore()
 
-    const originalPhone = updatingData?.originalOrder?.deliveryPhone || ''
+    const originalPhone = updatingData?.originalOrder?.deliveryPhone || updatingData?.originalOrder?.owner?.phonenumber || ''
     const originalPlaceId = updatingData?.originalOrder?.deliveryTo?.placeId || ''
     const originalAddress = updatingData?.originalOrder?.deliveryAddress || ''
     const slug = updatingData?.originalOrder?.slug || ''
@@ -95,7 +96,7 @@ export default function MapAddressSelectorInUpdateOrder({
         if (!isHydrated || !updatingData?.originalOrder) return
 
         // Set initial values from original order
-        setPhoneInput(originalPhone)
+        setPhoneInput(originalPhone || '')
         setAddressInput(originalAddress)
         setSelectedPlaceId(originalPlaceId)
 
@@ -233,6 +234,7 @@ export default function MapAddressSelectorInUpdateOrder({
             setAddressInput(originalAddress)
             setPendingSelection({ coords: null, placeId: null, address: undefined })
             onChange?.({ coords: originalCoords, addressText: originalAddress, placeId: originalPlaceId })
+            onSuccess?.()
             // Don't clear all updating data, just clear specific delivery data
             // clearUpdatingData()
             return
@@ -249,7 +251,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, tToast])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, tToast, onSuccess])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
@@ -310,6 +312,7 @@ export default function MapAddressSelectorInUpdateOrder({
                     // Fallback if geocoding fails
                     setPendingSelection({ coords, placeId: null, address: addressInput })
                 }
+                onSuccess?.()
             }).finally(() => {
                 setIsReverseGeocoding(false)
             })
@@ -317,11 +320,11 @@ export default function MapAddressSelectorInUpdateOrder({
     }
 
     const branchPosition = useMemo<LatLng | null>(() => {
-        const lat = userInfo?.branch?.addressDetail?.lat
-        const lng = userInfo?.branch?.addressDetail?.lng
+        const lat = userInfo?.role?.name !== Role.CUSTOMER ? userInfo?.branch?.addressDetail?.lat : branch?.slug
+        const lng = userInfo?.role?.name !== Role.CUSTOMER ? userInfo?.branch?.addressDetail?.lng : branch?.slug
         if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
         return null
-    }, [userInfo?.branch?.addressDetail?.lat, userInfo?.branch?.addressDetail?.lng])
+    }, [userInfo?.branch?.addressDetail?.lat, userInfo?.branch?.addressDetail?.lng, branch?.slug, userInfo?.role?.name])
 
     // Close suggestions on outside click
     useEffect(() => {
@@ -370,7 +373,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 // setInitialPhoneNumber(currentPhone)
                 // Clear updating draft to allow page to re-initialize from refetched order
                 clearUpdatingData()
-                onSubmit?.()
+                onSuccess?.()
             },
         })
     }

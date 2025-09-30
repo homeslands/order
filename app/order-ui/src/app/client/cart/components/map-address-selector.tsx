@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
+import { useTranslation } from 'react-i18next'
 import { useDebouncedCallback } from 'use-debounce'
+import { Clock, Home, Info, MapPin, Ruler, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
@@ -9,8 +11,6 @@ import { parseKm, showErrorToastMessage, useGetBranchDeliveryConfig } from '@/ut
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
 import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
-import { useTranslation } from 'react-i18next'
-import { Clock, Home, Info, MapPin, Ruler, Truck } from 'lucide-react'
 
 type LatLng = { lat: number; lng: number }
 type AddressChange = {
@@ -115,8 +115,8 @@ export default function MapAddressSelectNew({
     }, [placeResp, onLocationChange, _selectedPlaceId, addressInput])
 
     // Directions: fetch and build path when we have branch and a destination marker
-    const latForDirection = marker?.lat ?? 0
-    const lngForDirection = marker?.lng ?? 0
+    const latForDirection = marker?.lat ?? Number.NaN
+    const lngForDirection = marker?.lng ?? Number.NaN
     const { data: directionResp, isFetching: isFetchingDirection } = useGetAddressDirection(
         branch?.slug ?? '',
         latForDirection,
@@ -146,12 +146,15 @@ export default function MapAddressSelectNew({
         lngForDirection,
     )
 
+
     // Gate persistence by actual distance from hook
     useEffect(() => {
         const distText = distanceResp?.result?.distance
         if (!marker || !distText) return
         const km = parseKm(distText)
         if (km == null) return
+        // Ensure maxDistance is ready before gating; avoid false-negative on first click
+        if (typeof maxDistance !== 'number') return
         const within = km <= maxDistance
         const key = (() => {
             const c = pendingSelection.coords ?? marker
