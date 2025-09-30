@@ -72,6 +72,8 @@ import { SharedModule } from 'src/shared/shared.module';
 import { InvoiceAreaModule } from 'src/invoice-area/invoice-area.module';
 import { AccumulatedPointModule } from 'src/accumulated-point/accumulated-point.module';
 import { BranchConfigModule } from 'src/branch-config/branch-config.module';
+import { FeatureFlagSystemModule } from 'src/feature-flag-system/feature-flag-system.module';
+import { FeatureGuard } from 'src/feature-flag-system/guard/fureture.guard';
 
 @Module({
   imports: [
@@ -166,6 +168,7 @@ import { BranchConfigModule } from 'src/branch-config/branch-config.module';
     InvoiceAreaModule,
     AccumulatedPointModule,
     BranchConfigModule,
+    FeatureFlagSystemModule,
   ],
   controllers: [AppController],
   providers: [
@@ -186,6 +189,10 @@ import { BranchConfigModule } from 'src/branch-config/branch-config.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: FeatureGuard,
     },
   ],
 })
