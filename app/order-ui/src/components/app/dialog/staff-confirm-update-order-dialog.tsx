@@ -48,6 +48,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
   const orderDraft = updatingData?.updateDraft
   const originalOrder = updatingData?.originalOrder
   const voucher = updatingData?.updateDraft?.voucher || null
+  const deliveryFee = updatingData?.updateDraft?.deliveryFee || 0
 
   // Convert orderDraft to ICartItem format for comparison
   const order: ICartItem | null = orderDraft ? {
@@ -281,7 +282,7 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 {t('order.orderType')}
               </span>
               <Badge className={`shadow-none ${order?.type === OrderTypeEnum.AT_TABLE ? '' : 'bg-blue-500/20 text-blue-500'}`}>
-                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : t('menu.takeAway')}
+                {order?.type === OrderTypeEnum.AT_TABLE ? t('menu.dineIn') : order?.type === OrderTypeEnum.DELIVERY ? t('menu.delivery') : t('menu.takeAway')}
               </Badge>
             </div>
             {order?.type === OrderTypeEnum.TAKE_OUT && order?.timeLeftTakeOut !== undefined && (
@@ -295,6 +296,24 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                     ? t('menu.immediately')
                     : `${order.timeLeftTakeOut} ${t('menu.minutes')}`}
                 </Badge>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryTo?.formattedAddress && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {t('menu.deliveryAddress')}
+                </span>
+                <span className="font-medium">{order.deliveryTo.formattedAddress}</span>
+              </div>
+            )}
+            {order?.type === OrderTypeEnum.DELIVERY && order?.deliveryPhone && (
+              <div className="flex justify-between px-2 py-3 text-sm rounded-md border bg-muted-foreground/5">
+                <span className="flex gap-2 items-center text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  {t('menu.deliveryPhone')}
+                </span>
+                <span className="font-medium">{order.deliveryPhone}</span>
               </div>
             )}
             {order?.tableName && (
@@ -425,6 +444,16 @@ export default function StaffConfirmUpdateOrderDialog({ disabled, onSuccessfulOr
                 -{`${formatCurrency(orderTotals?.voucherDiscount || 0)}`}
               </span>
             </div>
+            {deliveryFee && (
+              <div className="flex gap-2 justify-between items-center w-full text-sm text-muted-foreground">
+                <span className="italic text-muted-foreground">
+                  {t('order.deliveryFee')}:&nbsp;
+                </span>
+                <span className="italic text-muted-foreground">
+                  {`${formatCurrency(deliveryFee || 0)}`}
+                </span>
+              </div>
+            )}
             <div className="flex gap-2 justify-between items-center pt-2 mt-4 w-full font-semibold border-t text-md">
               <span>{t('order.totalPayment')}:&nbsp;</span>
               <span className="text-2xl font-extrabold text-primary">

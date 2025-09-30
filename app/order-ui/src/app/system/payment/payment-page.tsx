@@ -344,7 +344,7 @@ export default function PaymentPage() {
     }
   }, [isPolling, handlePolling])
 
-  const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod) => {
+  const handleSelectPaymentMethod = (selectedPaymentMethod: PaymentMethod, transactionId?: string) => {
     // Lưu method hiện tại để có thể restore nếu validate fail
     setPreviousPaymentMethod(paymentMethod as PaymentMethod)
 
@@ -370,7 +370,7 @@ export default function PaymentPage() {
         { slug: voucher.slug, paymentMethod: selectedPaymentMethod },
         {
           onSuccess: () => {
-            updatePaymentMethod(selectedPaymentMethod)
+            updatePaymentMethod(selectedPaymentMethod, transactionId)
             setPendingPaymentMethod(undefined)
             setPreviousPaymentMethod(undefined) // Clear previous method when successful
             setIsLoading(false)
@@ -385,7 +385,7 @@ export default function PaymentPage() {
       )
     } else {
       // No voucher, just update payment method
-      updatePaymentMethod(selectedPaymentMethod)
+      updatePaymentMethod(selectedPaymentMethod, transactionId)
       setPendingPaymentMethod(undefined)
       setPreviousPaymentMethod(undefined)
       setIsLoading(false)
@@ -422,12 +422,25 @@ export default function PaymentPage() {
           }
         },
       )
-    } else if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.CREDIT_CARD) {
+    } else if (paymentMethod === PaymentMethod.CASH) {
       initiatePayment(
         { orderSlug: slug, paymentMethod },
         {
           onSuccess: () => {
             // Bắt đầu polling để điều hướng khi trạng thái chuyển sang PAID (giống BANK_TRANSFER)
+            setIsPolling(true)
+            refetchOrder()
+          },
+          onError: () => {
+            setIsLoading(false)
+          }
+        },
+      )
+    } else if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+      initiatePayment(
+        { orderSlug: slug, paymentMethod, transactionId: paymentData?.transactionId },
+        {
+          onSuccess: () => {
             setIsPolling(true)
             refetchOrder()
           },
