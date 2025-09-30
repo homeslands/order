@@ -353,6 +353,7 @@
     "featureOnlyForRegisteredCustomer": "This feature is only available for registered customers",
     "changeFeatureLockStatusSuccess": "Update feature lock status successfully",
     "distanceTooFar": "Distance is greater than 3km, not supported.",
-    "confirmAddressSuccess": "Address updated successfully"
+    "confirmAddressSuccess": "Address updated successfully",
+    "creditCardTransactionIdRequired": "Credit card transaction ID is required"
   }
 }

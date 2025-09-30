@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { SkeletonMenuList } from '@/components/app/skeleton'
@@ -6,12 +7,10 @@ import { IAddNewOrderItemRequest, IMenuItem, IOrderItem, IProduct, IProductVaria
 import { publicFileURL } from '@/constants'
 import { Button, useSidebar } from '@/components/ui'
 import { formatCurrency, showToast } from '@/utils'
-import { useAddNewOrderItem, useCatalogs, useIsMobile } from '@/hooks'
+import { useAddNewOrderItem, useCatalogs } from '@/hooks'
 import { StaffPromotionTag } from '@/components/app/badge'
 import ProductImage from '@/assets/images/ProductImage.png'
-import SystemAddToCurrentOrderDrawer from '@/components/app/drawer/system-add-to-current-order-drawer'
 import { useOrderFlowStore } from '@/stores'
-import { useParams } from 'react-router-dom'
 
 interface IMenuProps {
   menu?: ISpecificMenu
@@ -22,7 +21,6 @@ interface IMenuProps {
 export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }: IMenuProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
-  const isMobile = useIsMobile()
   const { state } = useSidebar()
   const { slug } = useParams()
   const { data: catalogs, isLoading: isLoadingCatalog } = useCatalogs()
@@ -230,17 +228,13 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
                 <div className="flex flex-1 flex-col justify-end space-y-1.5 p-2">
                   {!item.isLocked && (item.currentStock > 0 || !item?.product?.isLimit) ? (
                     <div>
-                      {isMobile ? (
-                        <SystemAddToCurrentOrderDrawer product={item} />
-                      ) : (
-                        <Button
-                          className="flex gap-1 justify-center items-center w-full text-xs text-white rounded-full shadow-none xl:text-sm"
-                          onClick={() => handleAddToCurrentOrder(item)}
-                          disabled={!updatingData || isPendingAddNewOrderItem}
-                        >
-                          {t('menu.addToCart')}
-                        </Button>
-                      )}
+                      <Button
+                        className="flex gap-1 justify-center items-center w-full text-xs text-white rounded-full shadow-none xl:text-sm"
+                        onClick={() => handleAddToCurrentOrder(item)}
+                        disabled={!updatingData || isPendingAddNewOrderItem}
+                      >
+                        {t('menu.addToCart')}
+                      </Button>
                     </div>
                   ) : (
                     <Button

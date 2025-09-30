@@ -73,6 +73,7 @@ const errorCodes: { [key: number]: string } = {
   123002: 'toast.paymentNotFound',
   123003: 'toast.transactionNotFound',
   123008: 'toast.orderAlreadyHasPayment',
+  123010: 'toast.creditCardTransactionIdRequired',
   125000: 'toast.tableNameExist',
   125001: 'toast.tableNotFound',
   125002: 'toast.tableDoNotHaveLocation',

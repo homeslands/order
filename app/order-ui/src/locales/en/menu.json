@@ -370,6 +370,7 @@
     "voucherNotCompatible": "This voucher only supports",
     "butYouCanUse": "but you can only use",
     "voucherNotSupport": "Voucher not supported",
+    "creditCardTransactionIdPlaceholder": "Credit card transaction ID",
     "loyaltyPointEarningNote": "After payment is successful, loyalty points will be added to the account."
   },
   "table": {
