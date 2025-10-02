@@ -21,7 +21,7 @@ type AddressChange = {
 }
 
 interface MapAddressSelectorInUpdateOrderProps {
-    onSuccess?: () => void
+    onSubmit?: () => void
     defaultCenter?: LatLng
     defaultZoom?: number
     onLocationChange?: (coords: LatLng | null) => void
@@ -33,7 +33,7 @@ export default function MapAddressSelectorInUpdateOrder({
     defaultZoom = 14,
     onLocationChange,
     onChange,
-    onSuccess,
+    onSubmit,
 }: MapAddressSelectorInUpdateOrderProps) {
     const { t } = useTranslation('menu')
     const { t: tToast } = useTranslation('toast')
@@ -234,7 +234,7 @@ export default function MapAddressSelectorInUpdateOrder({
             setAddressInput(originalAddress)
             setPendingSelection({ coords: null, placeId: null, address: undefined })
             onChange?.({ coords: originalCoords, addressText: originalAddress, placeId: originalPlaceId })
-            onSuccess?.()
+            onSubmit?.()
             // Don't clear all updating data, just clear specific delivery data
             // clearUpdatingData()
             return
@@ -251,7 +251,7 @@ export default function MapAddressSelectorInUpdateOrder({
         setPendingSelection({ coords: null, placeId: null, address: undefined })
         onChange?.({ coords: coordsToPersist, addressText: addressToPersist, placeId: placeIdToPersist ?? null })
         lastProcessedKeyRef.current = key
-    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, tToast, onSuccess])
+    }, [distanceResp, effectiveMarker, pendingSelection, _selectedPlaceId, addressInput, updatingData?.originalOrder, defaultCenter, clearUpdatingData, onChange, maxDistance, tToast, onSubmit])
 
     const onMapClick = (event: MapMouseEvent) => {
         const { latLng } = event.detail
@@ -312,7 +312,7 @@ export default function MapAddressSelectorInUpdateOrder({
                     // Fallback if geocoding fails
                     setPendingSelection({ coords, placeId: null, address: addressInput })
                 }
-                onSuccess?.()
+                onSubmit?.()
             }).finally(() => {
                 setIsReverseGeocoding(false)
             })
@@ -373,7 +373,7 @@ export default function MapAddressSelectorInUpdateOrder({
                 // setInitialPhoneNumber(currentPhone)
                 // Clear updating draft to allow page to re-initialize from refetched order
                 clearUpdatingData()
-                onSuccess?.()
+                onSubmit?.()
             },
         })
     }
