@@ -244,20 +244,37 @@ export class FeatureFlagSystemService {
       where: {
         slug: In(slugs),
       },
+      relations: {
+        featureFlagSystem: true,
+      },
     });
 
-    const updates = [];
+    const childFlagUpdates = [];
+    const flagUpdatesMap = new Map<string, FeatureFlagSystem>();
     for (const update of body.updates) {
       const childFlag = childFlags.find((item) => item.slug === update.slug);
       if (childFlag) {
         childFlag.isLocked = update.isLocked;
-        updates.push(childFlag);
+        childFlagUpdates.push(childFlag);
+        if (!update.isLocked) {
+          // if child feature is enabled, and parent feature is locked,
+          // => enable parent feature and this child feature
+          if (childFlag.featureFlagSystem.isLocked) {
+            childFlag.featureFlagSystem.isLocked = false;
+            const parentId = childFlag.featureFlagSystem.id;
+            flagUpdatesMap.set(parentId, childFlag.featureFlagSystem);
+          }
+        }
       }
     }
+    const flagUpdates = Array.from(flagUpdatesMap.values());
 
     await this.transactionService.execute<ChildFeatureFlagSystem[]>(
       async (manager) => {
-        return await manager.save(updates);
+        if (flagUpdates.length > 0) {
+          await manager.save(flagUpdates);
+        }
+        return await manager.save(childFlagUpdates);
       },
       (results) => {
         this.logger.log(
