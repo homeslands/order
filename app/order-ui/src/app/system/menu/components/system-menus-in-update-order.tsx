@@ -15,10 +15,10 @@ import { useOrderFlowStore } from '@/stores'
 interface IMenuProps {
   menu?: ISpecificMenu
   isLoading?: boolean
-  onSuccess?: () => void
+  onSubmit?: () => void
 }
 
-export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }: IMenuProps) {
+export default function SystemMenusInUpdateOrder({ menu, isLoading, onSubmit }: IMenuProps) {
   const { t } = useTranslation('menu')
   const { t: tToast } = useTranslation('toast')
   const { state } = useSidebar()
@@ -58,7 +58,7 @@ export default function SystemMenusInUpdateOrder({ menu, isLoading, onSuccess }:
     addNewOrderItem(request, {
       onSuccess: () => {
         // ✅ API call thành công, refetch ngay để sync với server data
-        onSuccess?.()
+        onSubmit?.()
         showToast(tToast('toast.addSuccess'))
       },
     })
