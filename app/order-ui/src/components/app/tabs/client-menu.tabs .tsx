@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from 'react'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { ClientMenuTabscontent } from '../tabscontent/client-menu.tabscontent'
@@ -13,10 +14,22 @@ interface ClientMenuTabsProps {
 export function ClientMenuTabs({ onSuccess }: ClientMenuTabsProps) {
   const { t } = useTranslation(['menu'])
   const { updatingData } = useOrderFlowStore()
+  const [activeTab, setActiveTab] = useState('menu')
+
+  // Check if order type is DELIVERY to show address tab
   const isDelivery = updatingData?.updateDraft?.type === OrderTypeEnum.DELIVERY
 
+  // Auto switch to address tab when order type changes to DELIVERY
+  useEffect(() => {
+    if (isDelivery) {
+      setActiveTab('address')
+    } else {
+      setActiveTab('menu')
+    }
+  }, [isDelivery])
+
   return (
-    <Tabs defaultValue="menu">
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className={`grid gap-3 mb-10 lg:mb-2 ${isDelivery ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'}`}>
         <TabsTrigger value="menu" className="flex justify-center">
           {t('menu.menu')}
