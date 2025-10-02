@@ -49,13 +49,14 @@ export default function PlaceOrderDialog({ disabled, onSuccessfulOrder, onSucces
     order?.voucher || null
   )
 
-  // check if userInfo.role.name === Role.CUSTOMER, then use branch?.slug, otherwise use userInfo?.branch?.slug
-  const branchSlug = userInfo?.role.name === Role.CUSTOMER ? branch?.slug : userInfo?.branch?.slug
+  // check if userInfo is not exist or userInfo.role.name === Role.CUSTOMER, then use branch?.slug, otherwise use userInfo?.branch?.slug
+  const branchSlug =
+    !userInfo || userInfo.role.name === Role.CUSTOMER
+      ? branch?.slug
+      : userInfo.branch?.slug;
 
   const cartTotals = calculateCartTotals(displayItems, order?.voucher || null)
   const deliveryFee = useCalculateDeliveryFee(parseKm(order?.deliveryDistance) || 0, branchSlug || '')
-
-  // console.log('cartTotals', cartTotals)
 
   const handleSubmit = (order: IOrderingData) => {
     if (!order) return
