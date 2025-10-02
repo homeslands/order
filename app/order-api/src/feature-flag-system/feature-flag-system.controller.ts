@@ -11,6 +11,7 @@ import {
 import { FeatureFlagSystemService } from './feature-flag-system.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
+  BulkUpdateChildFeatureFlagSystemRequestDto,
   BulkUpdateFeatureFlagSystemRequestDto,
   FeatureFlagSystemResponseDto,
   FeatureSystemGroupResponseDto,
@@ -42,12 +43,34 @@ export class FeatureFlagSystemController {
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     body: BulkUpdateFeatureFlagSystemRequestDto,
   ) {
-    await this.featureFlagSystemService.bulkToggle(body);
+    await this.featureFlagSystemService.bulkToggleFlag(body);
     return {
-      message: 'The new branch was created successfully',
+      message: 'Feature flag system have been updated successfully',
       statusCode: HttpStatus.NO_CONTENT,
       timestamp: new Date().toISOString(),
       result: 'Feature flag system have been updated successfully',
+    } as AppResponseDto<string>;
+  }
+
+  @Patch('child/bulk-toggle')
+  @HasRoles(RoleEnum.Admin, RoleEnum.SuperAdmin)
+  @ApiResponseWithType({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Create a new order successfully',
+    type: BulkUpdateChildFeatureFlagSystemRequestDto,
+  })
+  @ApiOperation({ summary: 'Update multiple feature flag system' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async bulkToggleChild(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    body: BulkUpdateChildFeatureFlagSystemRequestDto,
+  ) {
+    await this.featureFlagSystemService.bulkToggleChildFlag(body);
+    return {
+      message: 'Update child feature flag system successfully',
+      statusCode: HttpStatus.NO_CONTENT,
+      timestamp: new Date().toISOString(),
+      result: 'Child feature flag system have been updated successfully',
     } as AppResponseDto<string>;
   }
 

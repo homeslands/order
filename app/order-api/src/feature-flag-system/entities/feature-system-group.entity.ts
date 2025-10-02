@@ -10,10 +10,6 @@ export class FeatureSystemGroup extends Base {
   name: string;
 
   @AutoMap()
-  @Column({ name: 'order_column' })
-  order: number;
-
-  @AutoMap()
   @OneToMany(() => FeatureFlagSystem, (f) => f.group)
   features: FeatureFlagSystem[];
 }

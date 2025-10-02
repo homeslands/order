@@ -1,12 +1,9 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { FEATURE_KEY } from '../decorator/feature.decorator';
 import { Reflector } from '@nestjs/core';
 import { FeatureFlagSystemService } from '../feature-flag-system.service';
+import { FeatureFlagSystemException } from '../feature-flag-system.exception';
+import { FeatureFlagSystemValidation } from '../feature-flag-system.validation';
 
 @Injectable()
 export class FeatureGuard implements CanActivate {
@@ -25,16 +22,22 @@ export class FeatureGuard implements CanActivate {
       return true;
     }
 
-    const [group, feature] = flagKey.split(':');
+    const [group, feature, childFeature = null] = flagKey.split(':');
 
     if (!group || !feature) {
       return true;
     }
 
-    const enabled = await this.featureFlagService.isEnabled(group, feature);
+    const enabled = await this.featureFlagService.isEnabled(
+      group,
+      feature,
+      childFeature,
+    );
 
     if (!enabled) {
-      throw new ForbiddenException(`Feature "${flagKey}" is disabled`);
+      throw new FeatureFlagSystemException(
+        FeatureFlagSystemValidation.FEATURE_IS_LOCKED,
+      );
     }
 
     return true;
