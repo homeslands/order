@@ -54,7 +54,7 @@ export default function UpdateOrderPage() {
                 // ✅ Preserve current draft values before reinitializing
                 const currentDraft = updatingData?.updateDraft
                 const preservedTimeLeftTakeOut = currentDraft?.timeLeftTakeOut
-                const preservedType = currentDraft?.type || orderData.type
+                const preservedType = orderData?.type
                 const preservedDescription = currentDraft?.description || orderData.description
                 const preservedVoucher = currentDraft?.voucher || orderData.voucher
 
@@ -276,7 +276,7 @@ export default function UpdateOrderPage() {
                             <div className="flex flex-col gap-2 py-3 w-full">
                                 {/* Menu & Table select */}
                                 <div className="min-h-[50vh]">
-                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={() => _handleRefetchAndReinitialize()} />
+                                    <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={_handleRefetchAndReinitialize} />
                                 </div>
                             </div>
                         </>
@@ -285,7 +285,7 @@ export default function UpdateOrderPage() {
                             {/* Desktop layout - Menu left */}
                             <div className={`flex ${isMobile ? 'w-full' : 'w-[75%] xl:w-[70%] pr-6 xl:pr-0'} flex-col gap-2`}>
                                 {/* Menu & Table select */}
-                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSuccess={() => _handleRefetchAndReinitialize()} />
+                                <SystemMenuInUpdateOrderTabs type={orderType} order={order.result} onSubmit={_handleRefetchAndReinitialize} />
                             </div>
 
                             {/* Desktop layout - Content right */}
