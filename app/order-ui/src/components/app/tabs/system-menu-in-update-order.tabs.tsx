@@ -14,10 +14,10 @@ import { SystemMapAddressSelectorInUpdateOrder } from '@/app/system/update-order
 interface SystemMenuInUpdateOrderTabsProps {
   type: string
   order: IOrder
-  onSuccess: () => void
+  onSubmit: () => void
 }
 
-export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMenuInUpdateOrderTabsProps) {
+export function SystemMenuInUpdateOrderTabs({ type, order, onSubmit }: SystemMenuInUpdateOrderTabsProps) {
   const { t } = useTranslation(['menu'])
   const [searchParams, setSearchParams] = useSearchParams()
   const { userInfo } = useUserStore()
@@ -98,7 +98,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
       {type === OrderTypeEnum.DELIVERY && (
         <TabsContent value="delivery" className="p-0 h-full">
           <div className="flex flex-col gap-3">
-            <SystemMapAddressSelectorInUpdateOrder onSuccess={onSuccess} />
+            <SystemMapAddressSelectorInUpdateOrder onSubmit={onSubmit} />
           </div>
         </TabsContent>
       )}
@@ -110,7 +110,7 @@ export function SystemMenuInUpdateOrderTabs({ type, order, onSuccess }: SystemMe
 
         {/* Scrollable nội dung menu */}
         <ScrollArea className="w-full h-full">
-          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} onSuccess={onSuccess} />
+          <SystemMenuInUpdateOrderTabscontent menu={specificMenuResult} isLoading={isLoading} onSubmit={onSubmit} />
         </ScrollArea>
       </TabsContent>
     </Tabs>

@@ -126,7 +126,7 @@ export default function ClientConfirmUpdateOrderDialog({ disabled, onSuccessfulO
 
     try {
       // 1. Update order type/table/description/pickup time if changed
-      if (orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged) {
+      if (orderComparison.typeChanged || orderComparison.tableChanged || orderComparison.noteChanged || orderComparison.pickupTimeChanged) {
         await new Promise((resolve, reject) => {
           updateOrderType({
             slug: originalOrder.slug,

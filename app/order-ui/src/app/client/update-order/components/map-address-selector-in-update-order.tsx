@@ -80,7 +80,7 @@ export default function MapAddressSelectorInUpdateOrder({
         clearUpdatingData,
     } = useOrderFlowStore()
 
-    const originalPhone = updatingData?.originalOrder?.deliveryPhone || ''
+    const originalPhone = updatingData?.originalOrder?.deliveryPhone || updatingData?.originalOrder?.owner?.phonenumber || ''
     const originalPlaceId = updatingData?.originalOrder?.deliveryTo?.placeId || ''
     const originalAddress = updatingData?.originalOrder?.deliveryAddress || ''
     const slug = updatingData?.originalOrder?.slug || ''
