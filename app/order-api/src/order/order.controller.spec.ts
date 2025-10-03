@@ -42,6 +42,13 @@ import { BranchConfig } from 'src/branch-config/branch-config.entity';
 import { BranchConfigService } from 'src/branch-config/branch-config.service';
 import { Branch } from 'src/branch/branch.entity';
 import { GoogleMapService } from 'src/google-map/google-map.service';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
+import { FeatureFlagSystem } from 'src/feature-flag-system/entities/feature-flag-system.entity';
+import { ChildFeatureFlagSystem } from 'src/feature-flag-system/entities/child-feature-flag-system.entity';
+import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-system-group.entity';
+import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { DataSource } from 'typeorm';
+import { dataSourceMockFactory } from 'src/test-utils/datasource-mock.factory';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -135,6 +142,24 @@ describe('OrderController', () => {
           useValue: repositoryMockFactory,
         },
         GoogleMapService,
+        FeatureFlagSystemService,
+        {
+          provide: getRepositoryToken(FeatureFlagSystem),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(FeatureSystemGroup),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChildFeatureFlagSystem),
+          useValue: repositoryMockFactory,
+        },
+        TransactionManagerService,
+        {
+          provide: DataSource,
+          useFactory: dataSourceMockFactory,
+        },
       ],
     }).compile();
 

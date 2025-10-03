@@ -46,6 +46,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entities/accumulated-point-transaction-history.entity';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
+import { FeatureFlagSystem } from 'src/feature-flag-system/entities/feature-flag-system.entity';
+import { ChildFeatureFlagSystem } from 'src/feature-flag-system/entities/child-feature-flag-system.entity';
+import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-system-group.entity';
 
 describe('OrderItemController', () => {
   let controller: OrderItemController;
@@ -170,6 +174,19 @@ describe('OrderItemController', () => {
           useValue: {
             emit: jest.fn(), // Mock the emit method
           },
+        },
+        FeatureFlagSystemService,
+        {
+          provide: getRepositoryToken(FeatureFlagSystem),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(FeatureSystemGroup),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChildFeatureFlagSystem),
+          useValue: repositoryMockFactory,
         },
       ],
     }).compile();
