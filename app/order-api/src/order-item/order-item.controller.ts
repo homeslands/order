@@ -21,6 +21,11 @@ import {
 import { AppResponseDto } from 'src/app/app.dto';
 import { CurrentUserDto } from 'src/user/user.dto';
 import { CurrentUser } from 'src/user/user.decorator';
+import {
+  FeatureFlagSystems,
+  FeatureSystemGroups,
+} from 'src/feature-flag-system/feature-flag-system.constant';
+import { Feature } from 'src/feature-flag-system/decorator/feature.decorator';
 
 @ApiTags('Order Item')
 @Controller('order-items')
@@ -28,6 +33,9 @@ import { CurrentUser } from 'src/user/user.decorator';
 export class OrderItemController {
   constructor(private orderItemService: OrderItemService) {}
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}`,
+  )
   @Post()
   @ApiOperation({ summary: 'Create new order item' })
   @HttpCode(HttpStatus.CREATED)
@@ -78,6 +86,9 @@ export class OrderItemController {
     } as AppResponseDto<OrderItemResponseDto>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}`,
+  )
   @Patch(':slug')
   @ApiOperation({ summary: 'Update order item' })
   @HttpCode(HttpStatus.OK)
@@ -106,6 +117,9 @@ export class OrderItemController {
     } as AppResponseDto<OrderItemResponseDto>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}`,
+  )
   @Delete(':slug')
   @ApiOperation({ summary: 'Delete order item' })
   @HttpCode(HttpStatus.OK)

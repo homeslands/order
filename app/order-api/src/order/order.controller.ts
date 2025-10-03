@@ -48,6 +48,11 @@ import {
   GetAddressDirectionDto,
   GetAddressDistanceAndDurationDto,
 } from 'src/google-map/dto/google-map.request.dto';
+import { Feature } from 'src/feature-flag-system/decorator/feature.decorator';
+import {
+  FeatureFlagSystems,
+  FeatureSystemGroups,
+} from 'src/feature-flag-system/feature-flag-system.constant';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -59,6 +64,9 @@ export class OrderController {
     private readonly googleMapService: GoogleMapService,
   ) {}
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}`,
+  )
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiResponseWithType({
@@ -92,6 +100,9 @@ export class OrderController {
   }
 
   @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PUBLIC.key}`,
+  )
   @Post('public')
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -115,7 +126,7 @@ export class OrderController {
     if (!session.orders) {
       session.orders = [] as string[];
     }
-    const result = await this.orderService.createOrder(requestData, null);
+    const result = await this.orderService.createOrderPublic(requestData, null);
     session.orders.push(result.slug);
     this.logger.log(
       'Session orders from createOrderPublic:',
@@ -220,8 +231,14 @@ export class OrderController {
     @Param('slug') slug: string,
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     requestData: UpdateOrderRequestDto,
+    @CurrentUser(new ValidationPipe({ validateCustomDecorators: true }))
+    currentUserDto: CurrentUserDto,
   ) {
-    const result = await this.orderService.updateOrder(slug, requestData);
+    const result = await this.orderService.updateOrder(
+      slug,
+      requestData,
+      currentUserDto.scope?.role,
+    );
     return {
       message: 'Update order status successfully',
       statusCode: HttpStatus.OK,
@@ -341,6 +358,9 @@ export class OrderController {
     } as AppResponseDto<PrinterJobResponseDto[]>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
   @Get('delivery/address/suggestion/:name')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve address' })
@@ -360,6 +380,9 @@ export class OrderController {
     } as AppResponseDto<SuggestionAddressResultResponseDto[]>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
   @Get('delivery/location/:placeId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve address by place id' })
@@ -378,6 +401,9 @@ export class OrderController {
     } as AppResponseDto<LocationResponseDto>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
   @Get('delivery/direction')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get address direction' })
@@ -399,6 +425,9 @@ export class OrderController {
     } as AppResponseDto<RouteAndDirectionResponseDto>;
   }
 
+  @Feature(
+    `${FeatureSystemGroups.ORDER}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.key}:${FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key}`,
+  )
   @Get('delivery/distance-and-duration')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get address distance and duration' })
