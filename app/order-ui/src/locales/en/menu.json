@@ -136,6 +136,7 @@
     "drawingRoute": "Drawing route",
     "deliveryAddress": "Delivery address",
     "distance": "Distance",
+    "km": "km",
     "time": "Time",
     "noAddressSelected": "No address selected"
   },
