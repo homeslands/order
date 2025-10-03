@@ -112,4 +112,8 @@ export class ChildFeatureFlagSystemResponseDto extends BaseResponseDto {
   @AutoMap()
   @ApiProperty()
   parentName: string;
+
+  @AutoMap()
+  @ApiProperty()
+  description: string;
 }

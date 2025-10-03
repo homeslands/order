@@ -82,6 +82,10 @@ import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entiti
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { BranchConfigService } from 'src/branch-config/branch-config.service';
 import { BranchConfig } from 'src/branch-config/branch-config.entity';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
+import { FeatureFlagSystem } from 'src/feature-flag-system/entities/feature-flag-system.entity';
+import { ChildFeatureFlagSystem } from 'src/feature-flag-system/entities/child-feature-flag-system.entity';
+import { FeatureSystemGroup } from 'src/feature-flag-system/entities/feature-system-group.entity';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -261,6 +265,19 @@ describe('OrderService', () => {
         BranchConfigService,
         {
           provide: getRepositoryToken(BranchConfig),
+          useValue: repositoryMockFactory,
+        },
+        FeatureFlagSystemService,
+        {
+          provide: getRepositoryToken(FeatureFlagSystem),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(FeatureSystemGroup),
+          useValue: repositoryMockFactory,
+        },
+        {
+          provide: getRepositoryToken(ChildFeatureFlagSystem),
           useValue: repositoryMockFactory,
         },
       ],
