@@ -35,6 +35,8 @@ export const DELIVERY_PHONE_NOT_FOUND = 'DELIVERY_PHONE_NOT_FOUND';
 export const DELIVERY_ADDRESS_NOT_FOUND = 'DELIVERY_ADDRESS_NOT_FOUND';
 export const DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY =
   'DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY';
+export const DELIVERY_TYPE_NOT_ALLOWED = 'DELIVERY_TYPE_NOT_ALLOWED';
+export const NOT_PERMISSION_TO_UPDATE_ORDER = 'NOT_PERMISSION_TO_UPDATE_ORDER';
 
 export type TOrderErrorCodeKey =
   | typeof OWNER_NOT_FOUND
@@ -66,7 +68,9 @@ export type TOrderErrorCodeKey =
   | typeof GIFT_PRODUCT_NOT_ALLOWED
   | typeof DELIVERY_PHONE_NOT_FOUND
   | typeof DELIVERY_ADDRESS_NOT_FOUND
-  | typeof DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY;
+  | typeof DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY
+  | typeof DELIVERY_TYPE_NOT_ALLOWED
+  | typeof NOT_PERMISSION_TO_UPDATE_ORDER;
 
 export type TOrderErrorCode = Record<TOrderErrorCodeKey, TErrorCodeValue>;
 
@@ -131,5 +135,13 @@ export const OrderValidation: TOrderErrorCode = {
   DELIVERY_DISTANCE_GREATER_THAN_MAX_DISTANCE_DELIVERY: createErrorCode(
     1010029,
     'Delivery distance is greater than max distance delivery',
+  ),
+  DELIVERY_TYPE_NOT_ALLOWED: createErrorCode(
+    1010030,
+    'Delivery type not allowed',
+  ),
+  NOT_PERMISSION_TO_UPDATE_ORDER: createErrorCode(
+    1010031,
+    'Not permission to update order',
   ),
 };
