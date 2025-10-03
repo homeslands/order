@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useTranslation } from 'react-i18next'
 import { useDebouncedCallback } from 'use-debounce'
-import { Home, Info, MapPin, Ruler, Truck } from 'lucide-react'
+import { Home, Info, MapPin, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
-import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
+import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks'
 import type { IAddressSuggestion } from '@/types'
 import { parseKm, showErrorToastMessage, useGetBranchDeliveryConfig } from '@/utils'
 import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
@@ -425,11 +425,10 @@ export default function MapAddressSelectNew({
                                 </div>
                             </div>
 
-                            {marker && (
+                            {marker && distanceResp?.result?.distance && distanceResp?.result?.distance > 0 && (
                                 <div className="flex flex-wrap gap-6 pl-6">
                                     <div className="flex gap-1 items-center">
-                                        <Ruler className="w-4 h-4 text-muted-foreground" />
-                                        <span>{distanceResp?.result?.distance || '-'}</span>
+                                        <span className='italic'>{t('cart.distance')}: {distanceResp?.result?.distance || '-'} {t('cart.km')}</span>
                                     </div>
                                 </div>
                             )}
