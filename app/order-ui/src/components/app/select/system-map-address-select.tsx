@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
-import { Home, MapPin, Ruler, Truck } from 'lucide-react'
+import { Home, MapPin, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
-import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
+import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks'
 import type { IAddressSuggestion } from '@/types'
 import { createLucideMarkerIcon, MAP_ICONS, parseKm, useGetBranchDeliveryConfig } from '@/utils'
 import { useOrderFlowStore, useUserStore } from '@/stores'
@@ -151,7 +151,7 @@ export default function SystemMapAddressSelect({
 
     useEffect(() => {
         if (orderingData?.deliveryDistance) {
-            persistDeliveryDistanceDuration(orderingData?.deliveryDistance, orderingData?.deliveryDuration || '')
+            persistDeliveryDistanceDuration(orderingData?.deliveryDistance, orderingData?.deliveryDuration || 0)
         }
     }, [orderingData?.deliveryDistance, persistDeliveryDistanceDuration, orderingData?.deliveryDuration])
 
@@ -427,11 +427,10 @@ export default function SystemMapAddressSelect({
                                 </div>
                             </div>
 
-                            {marker && (
+                            {marker && distanceResp?.result?.distance && distanceResp?.result?.distance > 0 && (
                                 <div className="flex flex-wrap gap-6 pl-6">
                                     <div className="flex gap-1 items-center">
-                                        <Ruler className="w-4 h-4 text-muted-foreground" />
-                                        <span>{distanceResp?.result?.distance || '-'}</span>
+                                        <span className='italic'>{t('cart.distance')}: {distanceResp?.result?.distance || '-'}{t('cart.distance')}:</span>
                                     </div>
                                 </div>
                             )}

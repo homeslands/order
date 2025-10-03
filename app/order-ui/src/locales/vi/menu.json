@@ -116,6 +116,7 @@
     "restaurantAddressNotAvailable": "Địa chỉ chi nhánh không khả dụng",
     "calculatingDeliveryRoute": "Đang tính toán đường đi",
     "distance": "Khoảng cách",
+    "km": "km",
     "time": "Thời gian",
     "estimatedDeliveryTimeMayVaryBasedOnTrafficAndPreparationTime": "Thời gian giao hàng có thể thay đổi tùy thuộc vào điều kiện giao thông và thời gian chuẩn bị",
     "deliveryInformation": "Thông tin giao hàng",

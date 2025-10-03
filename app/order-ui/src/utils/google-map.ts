@@ -1,13 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { useGetBranchInfoForDelivery } from '@/hooks'
 
-export const parseKm = (distanceText?: string): number | null => {
-  if (!distanceText) return null
-  const num = parseFloat(distanceText.replace(/,/g, '').replace(/[^0-9.]/g, ''))
-  if (Number.isNaN(num)) return null
-  if (/km/i.test(distanceText)) return num
-  if (/m/i.test(distanceText)) return num / 1000
-  return num
+export const parseKm = (distance?: number): number | null => {
+  if (distance == null || Number.isNaN(distance)) return null
+  return distance / 1000
 }
 
 // calculate delivery fee based on distance using branch delivery info
