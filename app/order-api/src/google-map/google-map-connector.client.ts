@@ -366,8 +366,9 @@ export class GoogleMapConnectorClient {
 
     this.logger.log(`Get address direction success`, context);
     return {
-      distance: data.rows[0].elements[0].distance.text,
-      duration: data.rows[0].elements[0].duration.text,
+      distance:
+        Math.round((data.rows[0].elements[0].distance.value / 1000) * 10) / 10,
+      duration: Math.round(data.rows[0].elements[0].duration.value / 60),
     };
   }
 }

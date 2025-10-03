@@ -16,8 +16,9 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
 import { Query } from '@nestjs/common';
-import { Public } from 'src/auth/decorator/public.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { HasRoles } from 'src/role/roles.decorator';
+import { RoleEnum } from 'src/role/role.enum';
 
 @Controller('google-map')
 @ApiBearerAuth()
@@ -26,7 +27,7 @@ export class GoogleMapController {
   constructor(private readonly googleMapService: GoogleMapService) {}
 
   @Get('/address/suggestion/:name')
-  @Public()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve address' })
   @ApiResponseWithType({
@@ -46,7 +47,7 @@ export class GoogleMapController {
   }
 
   @Get('/location/place/:placeId')
-  @Public()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Retrieve address by place id' })
   @ApiResponseWithType({
@@ -65,7 +66,7 @@ export class GoogleMapController {
   }
 
   @Get('/direction')
-  @Public()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get address direction' })
   @ApiResponseWithType({
@@ -87,7 +88,7 @@ export class GoogleMapController {
   }
 
   @Get('/distance-and-duration')
-  @Public()
+  @HasRoles(RoleEnum.Manager, RoleEnum.Admin, RoleEnum.SuperAdmin)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get address distance and duration' })
   @ApiResponseWithType({

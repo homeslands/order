@@ -37,6 +37,17 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { PrinterJobResponseDto } from 'src/printer/printer.dto';
 import { CurrentUser } from 'src/user/user.decorator';
 import { CurrentUserDto } from 'src/user/user.dto';
+import {
+  DistanceAndDurationResponseDto,
+  LocationResponseDto,
+  RouteAndDirectionResponseDto,
+  SuggestionAddressResultResponseDto,
+} from 'src/google-map/dto/google-map.response.dto';
+import { GoogleMapService } from 'src/google-map/google-map.service';
+import {
+  GetAddressDirectionDto,
+  GetAddressDistanceAndDurationDto,
+} from 'src/google-map/dto/google-map.request.dto';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -45,6 +56,7 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
+    private readonly googleMapService: GoogleMapService,
   ) {}
 
   @Post()
@@ -327,5 +339,85 @@ export class OrderController {
       timestamp: new Date().toISOString(),
       result,
     } as AppResponseDto<PrinterJobResponseDto[]>;
+  }
+
+  @Get('delivery/address/suggestion/:name')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve address' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address suggestion has been retrieved successfully',
+    type: SuggestionAddressResultResponseDto,
+    isArray: true,
+  })
+  async findAddressForOrder(@Param('name') name: string) {
+    const result = await this.googleMapService.getAddressSuggestion(name);
+    return {
+      message: 'Address suggestion has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<SuggestionAddressResultResponseDto[]>;
+  }
+
+  @Get('delivery/location/:placeId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Retrieve address by place id' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address has been retrieved successfully',
+    type: LocationResponseDto,
+  })
+  async findAddressByPlaceIdForOrder(@Param('placeId') placeId: string) {
+    const result = await this.googleMapService.getLocationByPlaceId(placeId);
+    return {
+      message: 'Address has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<LocationResponseDto>;
+  }
+
+  @Get('delivery/direction')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get address direction' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Address direction has been retrieved successfully',
+    type: RouteAndDirectionResponseDto,
+  })
+  async getAddressDirectionForOrder(
+    @Query(new ValidationPipe({ transform: true }))
+    option: GetAddressDirectionDto,
+  ) {
+    const result = await this.googleMapService.getAddressDirection(option);
+    return {
+      message: 'Address direction has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<RouteAndDirectionResponseDto>;
+  }
+
+  @Get('delivery/distance-and-duration')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get address distance and duration' })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description:
+      'Address distance and duration has been retrieved successfully',
+    type: DistanceAndDurationResponseDto,
+  })
+  async getAddressDistanceAndDurationForOrder(
+    @Query(new ValidationPipe({ transform: true }))
+    option: GetAddressDistanceAndDurationDto,
+  ) {
+    const result = await this.googleMapService.getDistanceAndDuration(option);
+    return {
+      message: 'Address distance and duration has been retrieved successfully',
+      statusCode: HttpStatus.OK,
+      timestamp: new Date().toISOString(),
+      result,
+    } as AppResponseDto<DistanceAndDurationResponseDto>;
   }
 }
