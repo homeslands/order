@@ -41,6 +41,7 @@ import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.cl
 import { BranchConfig } from 'src/branch-config/branch-config.entity';
 import { BranchConfigService } from 'src/branch-config/branch-config.service';
 import { Branch } from 'src/branch/branch.entity';
+import { GoogleMapService } from 'src/google-map/google-map.service';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -133,6 +134,7 @@ describe('OrderController', () => {
           provide: getRepositoryToken(Branch),
           useValue: repositoryMockFactory,
         },
+        GoogleMapService,
       ],
     }).compile();
 

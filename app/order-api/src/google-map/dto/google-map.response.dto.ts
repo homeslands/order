@@ -184,12 +184,12 @@ export class DistanceAndDurationResponseDto {
   // unit: km
   @AutoMap()
   @ApiProperty()
-  distance: string;
+  distance: number;
 
   // unit: minutes
   @AutoMap()
   @ApiProperty()
-  duration: string;
+  duration: number;
 }
 
 // Get address direction from gg api
