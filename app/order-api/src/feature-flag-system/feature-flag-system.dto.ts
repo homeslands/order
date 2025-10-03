@@ -15,11 +15,15 @@ export class FeatureFlagSystemResponseDto extends BaseResponseDto {
 
   @AutoMap()
   @ApiProperty()
-  order: number;
+  groupName: string;
 
   @AutoMap()
   @ApiProperty()
-  groupName: string;
+  description: string;
+
+  @AutoMap(() => [ChildFeatureFlagSystemResponseDto])
+  @ApiProperty()
+  children: ChildFeatureFlagSystemResponseDto[];
 }
 
 export class FeatureSystemGroupResponseDto extends BaseResponseDto {
@@ -27,9 +31,9 @@ export class FeatureSystemGroupResponseDto extends BaseResponseDto {
   @ApiProperty()
   name: string;
 
-  @AutoMap()
+  @AutoMap(() => [FeatureFlagSystemResponseDto])
   @ApiProperty()
-  order: number;
+  features: FeatureFlagSystemResponseDto[];
 }
 
 export class BulkUpdateFeatureFlagSystemRequestDto {
@@ -62,4 +66,50 @@ export class UpdateFeatureFlagSystemRequestDto {
   })
   @IsNotEmpty()
   isLocked: boolean;
+}
+
+export class BulkUpdateChildFeatureFlagSystemRequestDto {
+  @ApiProperty({
+    description: 'The array of child feature flag system',
+    example: [
+      {
+        slug: 'child-feature-flag-system-slug-123',
+        isLocked: true,
+      },
+    ],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateChildFeatureFlagSystemRequestDto)
+  updates: UpdateChildFeatureFlagSystemRequestDto[];
+}
+
+export class UpdateChildFeatureFlagSystemRequestDto {
+  @ApiProperty({
+    description: 'The slug of child feature flag system',
+    example: 'child-feature-flag-system-slug-123',
+  })
+  @IsNotEmpty()
+  slug: string;
+
+  @ApiProperty({
+    description: 'The is locked of child feature flag system',
+    example: true,
+  })
+  @IsNotEmpty()
+  isLocked: boolean;
+}
+
+export class ChildFeatureFlagSystemResponseDto extends BaseResponseDto {
+  @AutoMap()
+  @ApiProperty()
+  name: string;
+
+  @AutoMap()
+  @ApiProperty()
+  isLocked: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  parentName: string;
 }

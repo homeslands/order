@@ -5,6 +5,7 @@ import { FeatureFlagSystem } from './entities/feature-flag-system.entity';
 import { FeatureSystemGroup } from './entities/feature-system-group.entity';
 import { Mapper } from '@automapper/core';
 import {
+  BulkUpdateChildFeatureFlagSystemRequestDto,
   BulkUpdateFeatureFlagSystemRequestDto,
   FeatureFlagSystemResponseDto,
   FeatureSystemGroupResponseDto,
@@ -14,6 +15,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { FeatureFlagSystemException } from './feature-flag-system.exception';
 import { FeatureFlagSystemValidation } from './feature-flag-system.validation';
 import { TransactionManagerService } from 'src/db/transaction-manager.service';
+import { ChildFeatureFlagSystem } from './entities/child-feature-flag-system.entity';
 // import * as Redis from 'ioredis';
 
 @Injectable()
@@ -25,6 +27,8 @@ export class FeatureFlagSystemService {
     private readonly featureFlagSystemRepository: Repository<FeatureFlagSystem>,
     @InjectRepository(FeatureSystemGroup)
     private readonly featureSystemGroupRepository: Repository<FeatureSystemGroup>,
+    @InjectRepository(ChildFeatureFlagSystem)
+    private readonly childFeatureFlagSystemRepository: Repository<ChildFeatureFlagSystem>,
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -38,7 +42,11 @@ export class FeatureFlagSystemService {
   //   return `feature_flag:${flagKey}`;
   // }
 
-  async isEnabled(group: string, feature: string): Promise<boolean> {
+  async isEnabled(
+    group: string,
+    feature: string,
+    childFeature: string = null,
+  ): Promise<boolean> {
     // const cached = await this.redis.get(this.cacheKey(flagKey));
     // if (cached !== null) {
     //   return cached === 'true';
@@ -47,10 +55,83 @@ export class FeatureFlagSystemService {
     const flag = await this.featureFlagSystemRepository.findOne({
       where: { name: feature, groupName: group },
     });
-    const enabled = flag?.isLocked ?? false;
+    const isLockedFlag = flag?.isLocked ?? false;
+
+    if (childFeature) {
+      const childFlag = await this.childFeatureFlagSystemRepository.findOne({
+        where: {
+          name: childFeature,
+          featureFlagSystem: { name: feature, groupName: group },
+        },
+      });
+      const isLockedChildFlag = childFlag?.isLocked ?? false;
+
+      if (isLockedFlag) {
+        // feature is disabled
+        return false;
+      }
+      if (!isLockedFlag) {
+        // feature is enabled => child feature
+        return !isLockedChildFlag;
+      }
+    }
 
     // await this.redis.set(this.cacheKey(flagKey), enabled.toString(), 'EX', 60); // cache 60s
-    return enabled;
+    return !isLockedFlag;
+  }
+
+  async validateFeatureFlag(
+    group: string,
+    feature: string,
+    childFeature: string = null,
+  ): Promise<void> {
+    const context = `${FeatureFlagSystemService.name}.${this.validateFeatureFlag.name}`;
+
+    const flag = await this.featureFlagSystemRepository.findOne({
+      where: { name: feature, groupName: group },
+    });
+    const isLockedFlag = flag?.isLocked ?? false;
+
+    if (isLockedFlag) {
+      this.logger.warn(`Feature "${group}:${feature}" is disabled`, context);
+      throw new FeatureFlagSystemException(
+        FeatureFlagSystemValidation.FEATURE_IS_LOCKED,
+      );
+    }
+
+    if (childFeature) {
+      const childFlag = await this.childFeatureFlagSystemRepository.findOne({
+        where: {
+          name: childFeature,
+          featureFlagSystem: { name: feature, groupName: group },
+        },
+      });
+      const isLockedChildFlag = childFlag?.isLocked ?? false;
+
+      if (isLockedFlag) {
+        // feature is disabled
+        this.logger.warn(
+          `Feature "${group}:${feature}:${childFeature}" is disabled`,
+          context,
+        );
+        throw new FeatureFlagSystemException(
+          FeatureFlagSystemValidation.FEATURE_IS_LOCKED,
+        );
+      }
+      if (!isLockedFlag) {
+        // feature is enabled => child feature
+        if (isLockedChildFlag) {
+          // child feature is disabled
+          this.logger.warn(
+            `Feature "${group}:${feature}:${childFeature}" is disabled`,
+            context,
+          );
+          throw new FeatureFlagSystemException(
+            FeatureFlagSystemValidation.FEATURE_IS_LOCKED,
+          );
+        }
+      }
+    }
   }
 
   async setFlag(flagKey: string, enabled: boolean): Promise<void> {
@@ -64,7 +145,12 @@ export class FeatureFlagSystemService {
   async getAllFeaturesGroupSystem(): Promise<FeatureSystemGroupResponseDto[]> {
     const groups = await this.featureSystemGroupRepository.find({
       order: {
-        order: 'ASC',
+        createdAt: 'ASC',
+      },
+      relations: {
+        features: {
+          children: true,
+        },
       },
     });
 
@@ -80,8 +166,11 @@ export class FeatureFlagSystemService {
   ): Promise<FeatureFlagSystemResponseDto[]> {
     const features = await this.featureFlagSystemRepository.find({
       where: { groupName },
+      relations: {
+        children: true,
+      },
       order: {
-        order: 'ASC',
+        createdAt: 'ASC',
       },
     });
     return this.mapper.mapArray(
@@ -91,8 +180,8 @@ export class FeatureFlagSystemService {
     );
   }
 
-  async bulkToggle(body: BulkUpdateFeatureFlagSystemRequestDto) {
-    const context = `${FeatureFlagSystemService.name}.${this.bulkToggle.name}`;
+  async bulkToggleFlag(body: BulkUpdateFeatureFlagSystemRequestDto) {
+    const context = `${FeatureFlagSystemService.name}.${this.bulkToggleFlag.name}`;
     this.logger.log(
       `Bulk toggle feature flag system req: ${JSON.stringify(body)}`,
       context,
@@ -103,6 +192,9 @@ export class FeatureFlagSystemService {
       where: {
         slug: In(slugs),
       },
+      relations: {
+        children: true,
+      },
     });
 
     const updates = [];
@@ -110,6 +202,9 @@ export class FeatureFlagSystemService {
       const flag = flags.find((item) => item.slug === update.slug);
       if (flag) {
         flag.isLocked = update.isLocked;
+        flag.children.forEach((child) => {
+          child.isLocked = update.isLocked;
+        });
         updates.push(flag);
       }
     }
@@ -121,6 +216,69 @@ export class FeatureFlagSystemService {
       (results) => {
         this.logger.log(
           `feature flag system ${results.map((item) => item.slug).join(', ')} updated successfully`,
+          context,
+        );
+      },
+      (err) => {
+        this.logger.error(
+          `Error when bulk toggle feature flag system: ${err.message}`,
+          err.stack,
+          context,
+        );
+        throw new FeatureFlagSystemException(
+          FeatureFlagSystemValidation.ERROR_WHEN_UPDATE_FEATURE_FLAG_SYSTEM,
+        );
+      },
+    );
+  }
+
+  async bulkToggleChildFlag(body: BulkUpdateChildFeatureFlagSystemRequestDto) {
+    const context = `${FeatureFlagSystemService.name}.${this.bulkToggleChildFlag.name}`;
+    this.logger.log(
+      `Bulk toggle child feature flag system req: ${JSON.stringify(body)}`,
+      context,
+    );
+
+    const slugs = body.updates.map((item) => item.slug);
+    const childFlags = await this.childFeatureFlagSystemRepository.find({
+      where: {
+        slug: In(slugs),
+      },
+      relations: {
+        featureFlagSystem: true,
+      },
+    });
+
+    const childFlagUpdates = [];
+    const flagUpdatesMap = new Map<string, FeatureFlagSystem>();
+    for (const update of body.updates) {
+      const childFlag = childFlags.find((item) => item.slug === update.slug);
+      if (childFlag) {
+        childFlag.isLocked = update.isLocked;
+        childFlagUpdates.push(childFlag);
+        if (!update.isLocked) {
+          // if child feature is enabled, and parent feature is locked,
+          // => enable parent feature and this child feature
+          if (childFlag.featureFlagSystem.isLocked) {
+            childFlag.featureFlagSystem.isLocked = false;
+            const parentId = childFlag.featureFlagSystem.id;
+            flagUpdatesMap.set(parentId, childFlag.featureFlagSystem);
+          }
+        }
+      }
+    }
+    const flagUpdates = Array.from(flagUpdatesMap.values());
+
+    await this.transactionService.execute<ChildFeatureFlagSystem[]>(
+      async (manager) => {
+        if (flagUpdates.length > 0) {
+          await manager.save(flagUpdates);
+        }
+        return await manager.save(childFlagUpdates);
+      },
+      (results) => {
+        this.logger.log(
+          `child feature flag system ${results.map((item) => item.slug).join(', ')} updated successfully`,
           context,
         );
       },
