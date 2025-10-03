@@ -88,7 +88,7 @@ export default function PaymentPage() {
       return pendingPaymentMethod
     }
 
-    // Nếu có payment data từ store và method đó có trong effective methods, dùng nó
+    // Nếu có payment data từ store và method đó có trong effective methods, ưu tiên dùng nó
     if (paymentData?.paymentMethod && effectiveMethods.includes(paymentData.paymentMethod)) {
       return paymentData.paymentMethod
     }
@@ -298,7 +298,7 @@ export default function PaymentPage() {
 
     // Sync order data with Order Flow Store
     if (updatedOrderData) {
-      setOrderFromAPI(updatedOrderData)
+      // setOrderFromAPI(updatedOrderData)
     }
 
     // Only update QR code if it's not already set and becomes available during polling
@@ -324,7 +324,7 @@ export default function PaymentPage() {
       }
       return false // Continue polling
     }
-  }, [refetchOrder, setOrderFromAPI, updateQrCode, clearCartItemStore, clearUpdateOrderStore, clearPaymentData, navigate, slug])
+  }, [refetchOrder, updateQrCode, clearCartItemStore, clearUpdateOrderStore, clearPaymentData, navigate, slug])
 
   //polling order status every 3 seconds
   useEffect(() => {
@@ -363,33 +363,32 @@ export default function PaymentPage() {
       return
     }
 
-    // Check if voucher exists and needs validation
-    if (voucher) {
-      // Normal validation flow for compatible payment methods
-      validateVoucherPaymentMethod(
-        { slug: voucher.slug, paymentMethod: selectedPaymentMethod },
-        {
-          onSuccess: () => {
-            updatePaymentMethod(selectedPaymentMethod, transactionId)
-            setPendingPaymentMethod(undefined)
-            setPreviousPaymentMethod(undefined) // Clear previous method when successful
-            setIsLoading(false)
-          },
-          onError: () => {
-            // Restore previous method on validation failure
-            setPendingPaymentMethod(undefined)
-            setIsRemoveVoucherOption(true)
-            setIsLoading(false)
-          },
-        }
-      )
-    } else {
-      // No voucher, just update payment method
-      updatePaymentMethod(selectedPaymentMethod, transactionId)
-      setPendingPaymentMethod(undefined)
-      setPreviousPaymentMethod(undefined)
-      setIsLoading(false)
-    }
+    // Normal validation flow for compatible payment methods
+    // if (voucher) {
+    validateVoucherPaymentMethod(
+      { slug: voucher?.slug || '', paymentMethod: selectedPaymentMethod },
+      {
+        onSuccess: () => {
+          updatePaymentMethod(selectedPaymentMethod, transactionId)
+          setPendingPaymentMethod(undefined)
+          setPreviousPaymentMethod(undefined) // Clear previous method when successful
+          setIsLoading(false)
+        },
+        onError: () => {
+          // Restore previous method on validation failure
+          setPendingPaymentMethod(undefined)
+          setIsRemoveVoucherOption(true)
+          setIsLoading(false)
+        },
+      }
+    )
+    // } else {
+    // No voucher, just update payment method immediately
+    updatePaymentMethod(selectedPaymentMethod, transactionId)
+    setPendingPaymentMethod(undefined)
+    setPreviousPaymentMethod(undefined)
+    setIsLoading(false)
+    // }
   }
 
   const handleConfirmPayment = () => {
@@ -743,7 +742,7 @@ export default function PaymentPage() {
               refetchOrder().then(() => {
                 // Re-initialize payment with updated order data after voucher update
                 if (slug) {
-                  initializePayment(slug, paymentMethod as PaymentMethod)
+                  initializePayment(slug, (paymentData?.paymentMethod || paymentMethod) as PaymentMethod)
                 }
               })
             }} />
@@ -793,7 +792,7 @@ export default function PaymentPage() {
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data (no voucher)
                     if (slug) {
-                      initializePayment(slug, selectedMethod as PaymentMethod)
+                      initializePayment(slug, (paymentData?.paymentMethod || selectedMethod) as PaymentMethod)
                     }
 
                     // Reset flag after everything is complete - allow new voucher dialogs
@@ -833,7 +832,7 @@ export default function PaymentPage() {
                   refetchOrder().then(() => {
                     // Re-initialize payment with updated order data after voucher update
                     if (slug) {
-                      initializePayment(slug, paymentMethod as PaymentMethod)
+                      initializePayment(slug, (paymentData?.paymentMethod || paymentMethod) as PaymentMethod)
                     }
                   })
                 }}

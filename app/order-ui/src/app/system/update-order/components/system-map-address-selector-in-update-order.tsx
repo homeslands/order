@@ -2,13 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
-import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
+import { Home, MapPin, Ruler, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX, Role } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
-import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
-import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
+import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig, createLucideMarkerIcon, MAP_ICONS } from '@/utils'
 import { useBranchStore, useOrderFlowStore, useUserStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { useUpdateOrderType } from '@/hooks'
@@ -234,7 +233,6 @@ export default function MapAddressSelectorInUpdateOrder({
             setAddressInput(originalAddress)
             setPendingSelection({ coords: null, placeId: null, address: undefined })
             onChange?.({ coords: originalCoords, addressText: originalAddress, placeId: originalPlaceId })
-            onSubmit?.()
             // Don't clear all updating data, just clear specific delivery data
             // clearUpdatingData()
             return
@@ -312,7 +310,6 @@ export default function MapAddressSelectorInUpdateOrder({
                     // Fallback if geocoding fails
                     setPendingSelection({ coords, placeId: null, address: addressInput })
                 }
-                onSubmit?.()
             }).finally(() => {
                 setIsReverseGeocoding(false)
             })
@@ -320,11 +317,12 @@ export default function MapAddressSelectorInUpdateOrder({
     }
 
     const branchPosition = useMemo<LatLng | null>(() => {
-        const lat = userInfo?.role?.name !== Role.CUSTOMER ? userInfo?.branch?.addressDetail?.lat : branch?.slug
-        const lng = userInfo?.role?.name !== Role.CUSTOMER ? userInfo?.branch?.addressDetail?.lng : branch?.slug
+        const isCustomer = userInfo?.role?.name === Role.CUSTOMER
+        const lat = isCustomer ? branch?.addressDetail?.lat : userInfo?.branch?.addressDetail?.lat
+        const lng = isCustomer ? branch?.addressDetail?.lng : userInfo?.branch?.addressDetail?.lng
         if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
         return null
-    }, [userInfo?.branch?.addressDetail?.lat, userInfo?.branch?.addressDetail?.lng, branch?.slug, userInfo?.role?.name])
+    }, [userInfo?.role?.name, userInfo?.branch?.addressDetail?.lat, userInfo?.branch?.addressDetail?.lng, branch?.addressDetail?.lat, branch?.addressDetail?.lng])
 
     // Close suggestions on outside click
     useEffect(() => {
@@ -529,10 +527,6 @@ export default function MapAddressSelectorInUpdateOrder({
                                     <div className="flex gap-1 items-center">
                                         <Ruler className="w-4 h-4 text-muted-foreground" />
                                         <span>{distanceResp?.result?.distance || '-'}</span>
-                                    </div>
-                                    <div className="flex gap-1 items-center">
-                                        <Clock className="w-4 h-4 text-muted-foreground" />
-                                        <span>{distanceResp?.result?.duration || '-'}</span>
                                     </div>
                                 </div>
                             )}
