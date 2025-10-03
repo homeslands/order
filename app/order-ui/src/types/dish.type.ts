@@ -128,8 +128,8 @@ export interface IOrderToUpdate {
   paymentMethod?: string
   payment?: IOrderPayment
   deliveryAddress?: string
-  deliveryDistance?: string
-  deliveryDuration?: string
+  deliveryDistance?: number
+  deliveryDuration?: number
   deliveryPhone?: string
   deliveryPlaceId?: string
   deliveryFee?: number
@@ -201,8 +201,8 @@ export interface IOrder extends IBase {
     phonenumber: string
   }
   deliveryAddress: string
-  deliveryDistance: string
-  deliveryDuration: string
+  deliveryDistance: number
+  deliveryDuration: number
   deliveryPhone: string
   deliveryPlaceId: string
   deliveryFee: number
