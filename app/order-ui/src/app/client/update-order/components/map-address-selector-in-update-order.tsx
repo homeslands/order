@@ -2,13 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { APIProvider, Map, Marker, type MapMouseEvent, useMap } from '@vis.gl/react-google-maps'
 import { useDebouncedCallback } from 'use-debounce'
 import { useTranslation } from 'react-i18next'
-import { Clock, Home, MapPin, Ruler, Truck } from 'lucide-react'
+import { Home, MapPin, Ruler, Truck } from 'lucide-react'
 
 import { googleMapAPIKey, PHONE_NUMBER_REGEX } from '@/constants'
 import { useGetAddressByPlaceId, useGetAddressDirection, useGetAddressSuggestions, useGetDistanceAndDuration } from '@/hooks/use-google-map'
 import { OrderTypeEnum, type IAddressSuggestion } from '@/types'
-import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig } from '@/utils'
-import { createLucideMarkerIcon, MAP_ICONS } from '@/utils'
+import { showToast, showErrorToastMessage, parseKm, useGetBranchDeliveryConfig, createLucideMarkerIcon, MAP_ICONS } from '@/utils'
 import { useBranchStore, useOrderFlowStore } from '@/stores'
 import { Button, Input } from '@/components/ui'
 import { useUpdateOrderType } from '@/hooks'
@@ -611,10 +610,6 @@ export default function MapAddressSelectorInUpdateOrder({
                                     <div className="flex gap-1 items-center">
                                         <Ruler className="w-4 h-4 text-muted-foreground" />
                                         <span>{distanceResp?.result?.distance || '-'}</span>
-                                    </div>
-                                    <div className="flex gap-1 items-center">
-                                        <Clock className="w-4 h-4 text-muted-foreground" />
-                                        <span>{distanceResp?.result?.duration || '-'}</span>
                                     </div>
                                 </div>
                             )}
