@@ -787,10 +787,9 @@ export const useOrderFlowStore = create<IOrderFlowStore>()(
         set({
           paymentData: {
             ...paymentData,
-            // Only update paymentMethod if API provides one, otherwise keep existing
-            paymentMethod:
-              (order.payment?.paymentMethod as PaymentMethod) ||
-              paymentData.paymentMethod,
+            // Preserve the user's selected payment method; do not overwrite from API
+            // The API method can lag behind the latest UI selection and cause visual reverts
+            paymentMethod: paymentData.paymentMethod,
             orderData: order,
             paymentAmount: order.payment?.amount || 0,
             paymentSlug: order.payment?.slug || '',
