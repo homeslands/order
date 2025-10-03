@@ -31,9 +31,12 @@ import { Voucher } from 'src/voucher/entity/voucher.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaymentUtils } from 'src/payment/payment.utils';
-import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
-import { OrderStatus } from 'src/order/order.constants';
+import { OrderStatus, OrderType } from 'src/order/order.constants';
 import { RoleEnum } from 'src/role/role.enum';
+import { AccumulatedPointService } from 'src/accumulated-point/accumulated-point.service';
+import { FeatureFlagSystems } from 'src/feature-flag-system/feature-flag-system.constant';
+import { FeatureSystemGroups } from 'src/feature-flag-system/feature-flag-system.constant';
+import { FeatureFlagSystemService } from 'src/feature-flag-system/feature-flag-system.service';
 
 @Injectable()
 export class OrderItemService {
@@ -53,6 +56,7 @@ export class OrderItemService {
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
     private readonly accumulatedPointService: AccumulatedPointService,
+    private readonly featureFlagSystemService: FeatureFlagSystemService,
   ) {}
 
   /**
@@ -115,6 +119,39 @@ export class OrderItemService {
   ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.updateOrderItem.name}`;
 
+    let orderItem = await this.orderItemUtils.getOrderItem({
+      where: { slug },
+      relations: ['order.payment', 'order.voucher.voucherProducts.product'],
+    });
+
+    if (!orderItem.order) {
+      this.logger.warn('Order not found', context);
+      throw new OrderException(OrderValidation.ORDER_NOT_FOUND);
+    }
+
+    // check feature flag
+    if (orderItem.order.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.AT_TABLE.key,
+      );
+    }
+    if (orderItem.order.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.TAKE_OUT.key,
+      );
+    }
+    if (orderItem.order.type === OrderType.DELIVERY) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key,
+      );
+    }
+
     if (requestData.quantity === Infinity) {
       this.logger.warn(
         OrderValidation.REQUEST_QUANTITY_MUST_OTHER_INFINITY.message,
@@ -128,16 +165,6 @@ export class OrderItemService {
     if (!requestData.action) {
       this.logger.warn('Action is required', context);
       throw new OrderItemException(OrderItemValidation.INVALID_ACTION);
-    }
-
-    let orderItem = await this.orderItemUtils.getOrderItem({
-      where: { slug },
-      relations: ['order.payment', 'order.voucher.voucherProducts.product'],
-    });
-
-    if (!orderItem.order) {
-      this.logger.warn('Order item not found', context);
-      throw new OrderItemException(OrderItemValidation.ORDER_ITEM_NOT_FOUND);
     }
 
     if (orderItem.order.status !== OrderStatus.PENDING) {
@@ -328,6 +355,30 @@ export class OrderItemService {
     const orderItem = await this.orderItemUtils.getOrderItem({
       where: { slug },
     });
+
+    // check feature flag
+    if (orderItem.order?.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.AT_TABLE.key,
+      );
+    }
+    if (orderItem.order?.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.TAKE_OUT.key,
+      );
+    }
+    if (orderItem.order?.type === OrderType.DELIVERY) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key,
+      );
+    }
+
     const { slug: orderSlug } = orderItem.order;
     const order = await this.orderUtils.getOrder({
       where: { slug: orderSlug },
@@ -476,11 +527,35 @@ export class OrderItemService {
     requestUserRole?: string | null,
   ): Promise<OrderItemResponseDto> {
     const context = `${OrderItemService.name}.${this.createOrderItem.name}`;
+
     const order = await this.orderUtils.getOrder({
       where: {
         slug: requestData.order,
       },
     });
+
+    // check feature flag
+    if (order.type === OrderType.AT_TABLE) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.AT_TABLE.key,
+      );
+    }
+    if (order.type === OrderType.TAKE_OUT) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.TAKE_OUT.key,
+      );
+    }
+    if (order.type === OrderType.DELIVERY) {
+      await this.featureFlagSystemService.validateFeatureFlag(
+        FeatureSystemGroups.ORDER,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.key,
+        FeatureFlagSystems.ORDER.CREATE_PRIVATE.children.DELIVERY.key,
+      );
+    }
 
     if (order.status !== OrderStatus.PENDING) {
       this.logger.warn(

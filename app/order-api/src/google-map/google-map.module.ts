@@ -12,5 +12,6 @@ import { Branch } from 'src/branch/branch.entity';
   imports: [TypeOrmModule.forFeature([Address, Branch]), HttpModule],
   controllers: [GoogleMapController],
   providers: [GoogleMapService, GoogleMapConnectorClient, GoogleMapProfile],
+  exports: [GoogleMapService],
 })
 export class GoogleMapModule {}
