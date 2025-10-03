@@ -55,6 +55,7 @@ import { AccumulatedPointTransactionHistory } from 'src/accumulated-point/entiti
 import { AccumulatedPoint } from 'src/accumulated-point/entities/accumulated-point.entity';
 import { GoogleMapConnectorClient } from 'src/google-map/google-map-connector.client';
 import { HttpModule } from '@nestjs/axios';
+import { GoogleMapService } from 'src/google-map/google-map.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -116,6 +117,7 @@ import { HttpModule } from '@nestjs/axios';
     BankTransferStrategy,
     AccumulatedPointService,
     GoogleMapConnectorClient,
+    GoogleMapService,
   ],
   exports: [OrderService, OrderUtils, OrderScheduler],
 })

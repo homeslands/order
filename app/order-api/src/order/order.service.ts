@@ -317,10 +317,11 @@ export class OrderService {
 
       const origin = `${order.branch.addressDetail.lat},${order.branch.addressDetail.lng}`;
       const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
-      const direction = await this.googleMapConnectorClient.getDirection(
-        origin,
-        destination,
-      );
+      const { distance: deliveryDistance } =
+        await this.googleMapConnectorClient.getDistanceAndDuration(
+          origin,
+          destination,
+        );
 
       const maxDistanceDelivery = await this.getMaxDistanceDelivery(
         order.branch.slug,
@@ -328,9 +329,6 @@ export class OrderService {
       const deliveryFeePerKm = await this.getDeliveryFeePerKm(
         order.branch.slug,
       );
-
-      const deliveryDistance =
-        Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
 
       if (deliveryDistance > maxDistanceDelivery) {
         this.logger.warn(
@@ -914,7 +912,7 @@ export class OrderService {
     let table: Table = null;
     let address: Address = null;
     let deliveryFee = 0;
-    let deliveryDistance = 0;
+    const deliveryDistance = 0;
     if (data.type === OrderType.AT_TABLE) {
       table = await this.tableUtils.getTable({
         where: {
@@ -958,18 +956,16 @@ export class OrderService {
 
       const origin = `${branch.addressDetail.lat},${branch.addressDetail.lng}`;
       const destination = `${deliveryTo?.geometry?.location?.lat},${deliveryTo?.geometry?.location?.lng}`;
-      const direction = await this.googleMapConnectorClient.getDirection(
-        origin,
-        destination,
-      );
+      const { distance: deliveryDistance } =
+        await this.googleMapConnectorClient.getDistanceAndDuration(
+          origin,
+          destination,
+        );
 
       const maxDistanceDelivery = await this.getMaxDistanceDelivery(
         branch.slug,
       );
       const deliveryFeePerKm = await this.getDeliveryFeePerKm(branch.slug);
-
-      deliveryDistance =
-        Math.ceil((direction.legs[0].distance.value / 1000) * 10) / 10;
 
       if (deliveryDistance > maxDistanceDelivery) {
         this.logger.warn(
