@@ -250,7 +250,8 @@ export class FeatureFlagSystemService {
     });
 
     const childFlagUpdates = [];
-    const flagUpdatesMap = new Map<string, FeatureFlagSystem>();
+    const enableFlagUpdatesMap = new Map<string, FeatureFlagSystem>();
+
     for (const update of body.updates) {
       const childFlag = childFlags.find((item) => item.slug === update.slug);
       if (childFlag) {
@@ -260,19 +261,22 @@ export class FeatureFlagSystemService {
           // if child feature is enabled, and parent feature is locked,
           // => enable parent feature and this child feature
           if (childFlag.featureFlagSystem.isLocked) {
+            // check enable flag
             childFlag.featureFlagSystem.isLocked = false;
             const parentId = childFlag.featureFlagSystem.id;
-            flagUpdatesMap.set(parentId, childFlag.featureFlagSystem);
+            enableFlagUpdatesMap.set(parentId, childFlag.featureFlagSystem);
           }
         }
       }
     }
-    const flagUpdates = Array.from(flagUpdatesMap.values());
+    const enableFlagUpdates = Array.from(enableFlagUpdatesMap.values());
 
-    await this.transactionService.execute<ChildFeatureFlagSystem[]>(
+    const childFeatureFlagSystems = await this.transactionService.execute<
+      ChildFeatureFlagSystem[]
+    >(
       async (manager) => {
-        if (flagUpdates.length > 0) {
-          await manager.save(flagUpdates);
+        if (enableFlagUpdates.length > 0) {
+          await manager.save(enableFlagUpdates);
         }
         return await manager.save(childFlagUpdates);
       },
@@ -290,6 +294,38 @@ export class FeatureFlagSystemService {
         );
         throw new FeatureFlagSystemException(
           FeatureFlagSystemValidation.ERROR_WHEN_UPDATE_FEATURE_FLAG_SYSTEM,
+        );
+      },
+    );
+
+    const disableFlagSlugs = childFeatureFlagSystems.map(
+      (item) => item.featureFlagSystem.slug,
+    );
+
+    const flags = await this.featureFlagSystemRepository.find({
+      where: { slug: In(disableFlagSlugs) },
+      relations: {
+        children: true,
+      },
+    });
+
+    const disableFlagUpdates = flags.filter((item) => {
+      if (item.children.every((child) => child.isLocked)) {
+        item.isLocked = true;
+        return item;
+      }
+    });
+
+    await this.transactionService.execute<void>(
+      async (manager) => {
+        if (disableFlagUpdates.length > 0) {
+          await manager.save(disableFlagUpdates);
+        }
+      },
+      () => {
+        this.logger.log(
+          `Feature flag system disabled when all children disabled updated successfully`,
+          context,
         );
       },
     );
