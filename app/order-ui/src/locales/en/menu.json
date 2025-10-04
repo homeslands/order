@@ -372,7 +372,8 @@
     "butYouCanUse": "but you can only use",
     "voucherNotSupport": "Voucher not supported",
     "creditCardTransactionIdPlaceholder": "Credit card transaction ID",
-    "loyaltyPointEarningNote": "After payment is successful, loyalty points will be added to the account."
+    "loyaltyPointEarningNote": "After payment is successful, loyalty points will be added to the account.",
+    "transactionId": "Transaction ID"
   },
   "table": {
     "title": "Table list"
