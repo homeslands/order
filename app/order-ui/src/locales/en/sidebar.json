@@ -68,7 +68,7 @@
     "deliveryManagement": "Delivery Management",
     "dishManagement": "Dish Management",
     "docs": "Documents",
-    "giftCardFeatureFlag": "Feature Flag Management",
+    "giftCardFeatureFlag": "Gift Card Feature Flag Management",
     "giftCardManagement": "Gift Card Management",
     "giftCardMenu": "Purchase Gift Card",
     "home": "Home",
@@ -89,6 +89,7 @@
     "voucher": "Voucher",
     "voucherGroup": "Voucher Group",
     "cardOrderManagement": "Card Order Management",
-    "loyaltyPoint": "Accumulated Point"
+    "loyaltyPoint": "Accumulated Point",
+    "systemLockManagement": "System Lock Management"
   }
 }

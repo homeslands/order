@@ -35,6 +35,7 @@ import enChefArea from '@/locales/en/chef-area.json'
 import enNotification from '@/locales/en/notification.json'
 import enGiftCard from '@/locales/en/gift-card.json'
 import enLoyaltyPoint from '@/locales/en/loyalty-point.json'
+import enSystem from '@/locales/en/system.json'
 
 import viToast from '@/locales/vi/toast.json'
 import viAuth from '@/locales/vi/auth.json'
@@ -69,6 +70,7 @@ import viChefArea from '@/locales/vi/chef-area.json'
 import viNotification from '@/locales/vi/notification.json'
 import viGiftCard from '@/locales/vi/gift-card.json'
 import viLoyaltyPoint from '@/locales/vi/loyalty-point.json'
+import viSystem from '@/locales/vi/system.json'
 
 i18n
   .use(LanguageDetector) // Tự động phát hiện ngôn ngữ
@@ -109,6 +111,7 @@ i18n
         notification: enNotification,
         giftCard: enGiftCard,
         loyaltyPoint: enLoyaltyPoint,
+        system: enSystem,
       },
       vi: {
         toast: viToast,
@@ -144,6 +147,7 @@ i18n
         notification: viNotification,
         giftCard: viGiftCard,
         loyaltyPoint: viLoyaltyPoint,
+        system: viSystem,
       },
     },
     lng: window.localStorage.getItem('i18nextLng') || 'vi',
@@ -185,6 +189,7 @@ i18n
       'notification',
       'giftCard',
       'loyaltyPoint',
+      'system',
     ], //Dùng để phân biệt các phần khác nhau của app
     defaultNS: 'auth', //Ngôn ngữ mặc định
   })
